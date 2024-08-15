@@ -16,3 +16,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+# Ignore specific files
+package-lock.json
+package.json
+tailwind.config.js
