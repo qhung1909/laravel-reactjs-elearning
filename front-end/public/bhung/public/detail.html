@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+    <link rel="stylesheet" href="./detail.css">
+    <script src="./detail.js"></script>
+</head>
+
+<body>
+    <div class="bg-gray-900 p-6 text-white" style="background-color: #2d2f31;">
+        <div class="container mx-auto px-44">
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Cột bên trái (Text) -->
+                <div class="col-span-12 lg:col-span-8">
+                    <!-- Điều hướng -->
+                    <div class="text-2sm text-gray-400 mb-4" style="color: #c0c4fc;">
+                        <a href="#" class="hover:underline">Phát triển</a> >
+                        <a href="#" class="hover:underline">Ngôn ngữ lập trình</a> >
+                        <a href="#" class="hover:underline">Python</a>
+                    </div>
+                    <!-- Tên khóa học -->
+                    <h1 class="text-4xl font-bold mb-2">Lập trình Python từ cơ bản đến nâng cao thông qua các dự án</h1>
+                    <!-- Mô tả -->
+                    <p class="text-xl text-white-400 mb-4">
+                        Lập trình Python từ cơ bản đến nâng cao thông qua các dự án với sự hỗ trợ của trí tuệ nhân tạo
+                        AI
+                    </p>
+                    <!-- Đánh giá -->
+                    <div class="flex items-center mb-2">
+                        <span class="text-yellow-500 text-sm font-semibold">4,6</span>
+                        <span class="ml-2 text-sm text-white-400">(43 xếp hạng)</span>
+                        <span class="ml-4 text-sm text-white-400">382 học viên</span>
+                    </div>
+                    <p class="text-sm text-white-400 flex items-center">
+                        <box-icon name="calendar" color="#9CA3AF" class="mr-2" size="sm"></box-icon>
+                        Lần cập nhật gần đây nhất 8/2024
+                    </p>
+                    <p class="text-sm text-white-400 flex items-center mt-1">
+                        <box-icon name="globe" color="#9CA3AF" class="mr-2" size="sm"></box-icon>
+                        Vietnamese
+                    </p>
+                </div>
+                <!-- Cột bên phải (Hình ảnh) -->
+                <div class="col-span-12 lg:col-span-4 flex justify-center items-center">
+                    <img src="../img/inclusion2.jpg" alt="Inclusion Image" class="max-w-full"
+                        style="max-height: 200px;">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End banner -->
+    <div class="container mx-auto px-44 mt-8">
+        <div class="flex flex-wrap -mx-4">
+            <!-- Cột bên trái (Nội dung bài học) -->
+            <div class="w-full lg:w-2/3 px-4">
+                <h2 class="text-2xl font-bold mb-4">Khám phá các chủ đề liên quan</h2>
+                <div class="flex space-x-2 mb-6">
+                    <span class="custom-tag"><a href="">Python</a></span>
+                    <span class="custom-tag"><a href="">Ngôn ngữ lập trình</a></span>
+                    <span class="custom-tag"><a href="">Phát triển</a></span>
+                </div>
+                <!-- Nội dung bài học -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4">Nội dung bài học</h3>
+                    <div id="lesson-content" class="grid grid-cols-2 gap-4">
+                        <!-- Cột trái -->
+                        <ul class="space-y-2">
+                            <li class="flex items-start">Hiểu rõ đặc điểm của ngôn ngữ lập trình Python và các ứng dụng
+                                có thể phát triển bằng ngôn ngữ này</li>
+                            <li class="flex items-start">Nắm rõ cú pháp cơ bản của Python, cách khai báo biến</li>
+                            <li class="flex items-start">Nắm được các phép toán số học và phép toán logic trong Python
+                            </li>
+                            <li class="flex items-start">Nắm được kiểu dữ liệu List, Tuple và Dictionary trong Python và
+                                ứng dụng</li>
+                            <li class="flex items-start">Biết cách lập trình hướng đối tượng với lớp (class), kế thừa,
+                                đa hình</li>
+                            <li class="flex items-start">Hiểu và ứng dụng các thư viện Python (web, khoa học dữ liệu,
+                                trí tuệ nhân tạo, v.v.)</li>
+                        </ul>
+                        <!-- Cột phải -->
+                        <ul class="space-y-2">
+                            <li class="flex items-start">Biết cách cài đặt môi trường phát triển PyCharm để lập trình
+                                bằng Python</li>
+                            <li class="flex items-start">Biết cách xử lý chuỗi (string), phương thức về chuỗi</li>
+                            <li class="flex items-start">Nắm được cấu trúc điều khiển và vòng lặp</li>
+                            <li class="flex items-start">Biết cách sử dụng hàm (Function) và Module trong Python</li>
+                            <li class="flex items-start">Cách xử lý lỗi và làm việc với File</li>
+                            <li class="flex items-start">Sử dụng ChatGPT hỗ trợ lập trình</li>
+                        </ul>
+                    </div>
+                    <button id="toggle-btn" class="mt-4 text-blue-600 hover:underline focus:outline-none">Ẩn bớt
+                        ^</button>
+                </div>
+            </div>
+
+            <!-- Cột bên phải (Thông tin mua hàng) -->
+            <div class="w-full lg:w-1/3 px-4 mt-8 lg:mt-0">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="mb-4">
+                        <img src="../img/inclusion.jpg" alt="Preview khóa học" class="w-full rounded-lg">
+                    </div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-3xl font-bold">đ 229.000</span>
+                        <span class="text-lg text-gray-500 line-through">đ 1.499.000</span>
+                    </div>
+                    <p class="text-red-500 mb-4">Giảm 85%</p>
+                    <p class="text-sm text-gray-600 mb-4">6 ngày còn lại với mức giá này!</p>
+                    <button
+                        class="w-full bg-purple-600 text-white py-2 rounded-lg mb-4 hover:bg-purple-700 transition duration-300">Thêm
+                        vào giỏ hàng</button>
+                    <button
+                        class="w-full bg-white text-black border border-black py-2 rounded-lg mb-4 hover:bg-gray-100 transition duration-300">Mua
+                        ngay</button>
+                    <p class="text-sm text-center text-gray-600">Đảm bảo hoàn tiền trong 30 ngày</p>
+
+                    <div class="mt-6">
+                        <h4 class="font-semibold mb-2">Khóa học này bao gồm:</h4>
+                        <ul class="text-sm space-y-2">
+                            <li class="flex items-center">
+                                <box-icon name="video" color="#10B981" class="w-4 h-4 mr-2" size="sm"></box-icon>
+                                8,5 giờ video theo yêu cầu
+                            </li>
+                            <li class="flex items-center">
+                                <box-icon name="code" color="#10B981" class="w-4 h-4 mr-2" size="sm"></box-icon>
+                                1 bài tập coding
+                            </li>
+                            <li class="flex items-center">
+                                <box-icon name="file" color="#10B981" class="w-4 h-4 mr-2" size="sm"></box-icon>
+                                35 bài viết
+                            </li>
+                            <li class="flex items-center">
+                                <box-icon name="download" color="#10B981" class="w-4 h-4 mr-2" size="sm"></box-icon>
+                                7 tài nguyên có thể tải xuống
+                            </li>
+                            <li class="flex items-center">
+                                <box-icon name="mobile" color="#10B981" class="w-4 h-4 mr-2" size="sm"></box-icon>
+                                Truy cập trên thiết bị di động và TV
+                            </li>
+                            <li class="flex items-center">
+                                <box-icon name="accessibility" color="#10B981" class="w-4 h-4 mr-2"
+                                    size="sm"></box-icon>
+                                Quyền truy cập đầy đủ suốt đời
+                            </li>
+                            <li class="flex items-center">
+                                <box-icon name="trophy" color="#10B981" class="w-4 h-4 mr-2" size="sm"></box-icon>
+                                Giấy chứng nhận hoàn thành
+                            </li>
+                            <div class="mt-6">
+                                <h4 class="font-semibold mb-2">Áp dụng coupon:</h4>
+                                <div class="flex items-center space-x-2">
+                                    <input type="text" placeholder="Nhập mã coupon"
+                                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500" />
+                                    <button
+                                        class="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition duration-300">
+                                        Áp dụng
+                                    </button>
+                                </div>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
