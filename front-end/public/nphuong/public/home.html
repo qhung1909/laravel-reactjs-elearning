@@ -6,17 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course Section</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- <link rel="stylesheet" href="./styles.css"> -->
+    <link rel="stylesheet" href="./home.css">
+    <link rel="stylesheet" href="./home.js">
 </head>
 
 <body class="bg-gray-100 p-6">
     <!-- Featured Course Section -->
+    <div class="text-2sm text-gray-400 mb-4 ">
+        <a href="#" class="hover:underline">Phát triển</a> >
+        <a href="#" class="hover:underline">Phát triển web</a> >
+        <a href="#" class="hover:underline">Khoa học dữ liệu</a>
+    </div>
     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
         <h2 class="text-xl font-semibold mb-2">Khóa học nổi bật</h2>
         <p class="text-gray-600 mb-4">Nhiều học viên thích khóa học được đánh giá cao này vì nội dung hấp dẫn của nó.
         </p>
         <div class="flex items-start">
-            <img src="./images/5712300_b951_5.jpg" alt="Khóa học NextJS 14" class="w-50 h-auto rounded-lg mr-6">
+            <img src="../images/5712300_b951_5.jpg" alt="Khóa học NextJS 14" class="w-50 h-auto rounded-lg mr-6">
             <div>
                 <h3 class="text-2xl font-bold text-gray-800 mb-2">Khóa học NextJS 14-ReactJS-Typescript thực chiến 2024
                     PRO</h3>
@@ -26,7 +32,8 @@
                 <p class="text-sm text-gray-500 mb-4">Đã cập nhật tháng 8 năm 2024 | Tổng số 126 giờ | 342 bài giảng |
                     Tất cả trình độ</p>
                 <p class="text-lg text-gray-800 font-semibold mb-2">4,8 <span class="text-yellow-500">★★★★☆</span> (43)
-                    <span class="bg-yellow-400 text-white text-sm px-2 py-1 rounded">Bán chạy nhất</span></p>
+                    <span class="bg-yellow-400 text-white text-sm px-2 py-1 rounded">Bán chạy nhất</span>
+                </p>
                 <p class="text-2xl font-bold text-red-600">₫ 2.199.000</p>
             </div>
         </div>
@@ -145,7 +152,8 @@
             <div class="col-span-9 grid grid-cols-1 gap-4">
                 <!-- Khóa học 1 -->
                 <div class="bg-white p-4 rounded-lg shadow flex">
-                    <img src="./images/5712300_b951_5.jpg" alt="React Ultimate" class="w-32 h-32 object-cover rounded-lg mr-4">
+                    <img src="../images/5712300_b951_5.jpg" alt="React Ultimate"
+                        class="w-32 h-32 object-cover rounded-lg mr-4">
                     <div>
                         <h3 class="text-xl font-semibold text-gray-800">React Ultimate - ReactJS Cơ Bản Từ Z Đến A Cho
                             Beginners</h3>
@@ -156,7 +164,8 @@
                 </div>
                 <!-- Khóa học 1 -->
                 <div class="bg-white p-4 rounded-lg shadow flex">
-                    <img src="./images/5712300_b951_5.jpg" alt="React Ultimate" class="w-32 h-32 object-cover rounded-lg mr-4">
+                    <img src="../images/5712300_b951_5.jpg" alt="React Ultimate"
+                        class="w-32 h-32 object-cover rounded-lg mr-4">
                     <div>
                         <h3 class="text-xl font-semibold text-gray-800">React Ultimate - ReactJS Cơ Bản Từ Z Đến A Cho
                             Beginners</h3>
@@ -167,7 +176,8 @@
                 </div>
                 <!-- Khóa học 1 -->
                 <div class="bg-white p-4 rounded-lg shadow flex">
-                    <img src="./images/5712300_b951_5.jpg" alt="React Ultimate" class="w-32 h-32 object-cover rounded-lg mr-4">
+                    <img src="../images/5712300_b951_5.jpg" alt="React Ultimate"
+                        class="w-32 h-32 object-cover rounded-lg mr-4">
                     <div>
                         <h3 class="text-xl font-semibold text-gray-800">React Ultimate - ReactJS Cơ Bản Từ Z Đến A Cho
                             Beginners</h3>
@@ -181,12 +191,5 @@
     </div>
 
 </body>
-<script>
-    document.getElementById('sortButton').addEventListener('click', function () {
-        var sortMenu = document.getElementById('sortMenu');
-        sortMenu.classList.toggle('hidden');
-    });
-
-</script>
 
 </html>
