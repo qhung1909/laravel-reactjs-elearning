@@ -1,0 +1,49 @@
+
+
+/* Phần container-wrap */
+.max-w-custom {
+    max-width: 1330px;
+}
+
+/*  */
+.dropdown-menu {
+    display: none; /* Ẩn menu mặc định */
+}
+
+.dropdown-menu.hidden {
+    display: none;
+}
+
+.dropdown-menu.block {
+    display: block;
+}
+
+.overlay {
+    display: none; /* Ẩn lớp phủ nền */
+}
+
+/*  */
+.overlay.block {
+    display: block; /* Hiển thị lớp phủ nền */
+}
+.slide-show {
+    width: 100%;
+    max-width: 1280px; /* Giới hạn kích thước chiều rộng của slide */
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden; /* Ẩn các phần tử ngoài vùng nhìn thấy */
+}
+
+.slide-wrapper {
+    display: flex;
+    transition: transform 0.5s ease; /* Hiệu ứng chuyển động mượt mà */
+    width: 100%;
+}
+
+.slide {
+    flex: 0 0 100%; /* Mỗi slide chiếm toàn bộ chiều rộng của slide-wrapper */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px; /* Khoảng cách giữa các mục */
+}
+
