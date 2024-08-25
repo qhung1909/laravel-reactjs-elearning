@@ -7,6 +7,7 @@
     <title>Course Section</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../css/home.css">
+    <link rel="stylesheet" href="../javascript/home.js">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
 </head>
@@ -207,7 +208,7 @@
             </div>
 
             <div class="relative mb-6 flex items-start">
-                <div class="flex flex-1">
+                <div class="flex space-x-4">
                     <!-- Nút bộ lọc -->
                     <button id="filterButton"
                         class="flex items-center bg-gray-100 text-gray-700 border-2 px-4 py-2 rounded">
@@ -215,29 +216,34 @@
                     </button>
 
                     <!-- Nút sắp xếp -->
-                    <div class="relative inline-block ml-4">
-                        <button id="sortButton"
-                            class="flex items-center bg-gray-100 text-gray-700 border-2 px-4 py-2 rounded">
+                    <div class="relative inline-block text-left">
+                        <button id="dropdownButton"
+                            class="bg-gray-800 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 px-4 py-2 rounded-md">
                             Sắp xếp theo
-                            <i class='bx bx-chevron-down'></i>
+                            <svg class="w-4 h-4 ml-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
                         </button>
-
-                        <!-- Menu thả xuống -->
-                        <div id="sortMenu"
-                            class="dropdown-menu absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg py-2 z-10 hidden">
-                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Phổ biến nhất</a>
-                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Mới nhất</a>
-                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Giá: Thấp đến Cao</a>
-                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Giá: Cao đến Thấp</a>
-                        </div>
-
-                        <!-- Lớp phủ nền để nhận diện bấm ra ngoài -->
-                        <div id="overlay" class="overlay fixed inset-0 bg-black opacity-50 z-9 hidden"></div>
+                        <ul id="dropdownMenu"
+                            class="dropdown-menu absolute right-0 mt-1 w-45 bg-white border border-gray-300 rounded-md shadow-lg z-50">
+                            <li><button
+                                    class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-200 rounded-md">Phổ
+                                    biến nhất</button></li>
+                            <li><button
+                                    class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-200 rounded-md">Xếp
+                                    hạn cao nhất</button></li>
+                            <li><button
+                                    class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-200 rounded-md">Mới
+                                    nhất</button></li>
+                        </ul>
                     </div>
+
                 </div>
 
                 <!-- Bộ lọc -->
-                <div id="filterPanel" class="absolute left-0 mt-12 w-64 bg-white p-4 rounded-lg shadow z-20 hidden">
+                <div id="filterPanel" class="absolute left-0 mt-12 w-64 bg-white p-4 rounded-lg shadow z-20">
                     <h2 class="font-semibold mb-2">Xếp hạng</h2>
                     <div class="flex items-center mb-2">
                         <input type="radio" name="rating" class="mr-2">
@@ -287,7 +293,7 @@
             <div id="content" class="grid grid-cols-12 gap-4">
                 <!-- Bộ lọc ở cột 3 -->
                 <div id="filterCol" class="col-span-3">
-                    <!-- Chèn bộ lọc vào đây nếu cần -->
+                    <!-- Bộ lọc sẽ được chèn vào đây khi hiển thị -->
                 </div>
 
                 <!-- Danh sách khóa học ở cột 9 -->
@@ -333,32 +339,19 @@
         </div>
 
 </body>
-
 <script>
-    document.getElementById('filterButton').addEventListener('click', function () {
-        const filterPanel = document.getElementById('filterPanel');
-        const filterCol = document.getElementById('filterCol');
-        const courseCol = document.getElementById('courseCol');
-
-        filterPanel.classList.toggle('hidden');
-        document.getElementById('overlay').classList.toggle('hidden');
-
-        // Dồn nội dung khóa học sang phải khi bộ lọc hiển thị
-        if (!filterPanel.classList.contains('hidden')) {
-            filterCol.classList.add('col-span-5');
-            courseCol.classList.add('ml-64'); // Điều chỉnh giá trị margin-left để phù hợp với chiều rộng của bộ lọc
-        } else {
-            filterCol.classList.remove('col-span-3');
-            courseCol.classList.remove('ml-64');
-        }
+    /* Nút sắp xếp */
+    document.getElementById('dropdownButton').addEventListener('click', function () {
+        var menu = document.getElementById('dropdownMenu');
+        menu.classList.toggle('show');
     });
 
-    document.getElementById('overlay').addEventListener('click', function () {
-        const filterPanel = document.getElementById('filterPanel');
-        filterPanel.classList.add('hidden');
-        document.getElementById('overlay').classList.add('hidden');
-        document.getElementById('filterCol').classList.remove('col-span-3');
-        document.getElementById('courseCol').classList.remove('ml-64');
+    document.addEventListener('click', function (event) {
+        var button = document.getElementById('dropdownButton');
+        var menu = document.getElementById('dropdownMenu');
+        if (!button.contains(event.target) && !menu.contains(event.target)) {
+            menu.classList.remove('show');
+        }
     });
 
 </script>
