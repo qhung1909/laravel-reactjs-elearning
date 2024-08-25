@@ -613,6 +613,14 @@ video {
   margin-top: 5rem;
 }
 
+.mb-0 {
+  margin-bottom: 0px;
+}
+
+.mb-32 {
+  margin-bottom: 8rem;
+}
+
 .flex {
   display: flex;
 }
@@ -683,6 +691,10 @@ video {
 
 .items-center {
   align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
 }
 
 .gap-2 {
@@ -784,6 +796,11 @@ video {
   padding-bottom: 6rem;
 }
 
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
 .ps-36 {
   padding-inline-start: 9rem;
 }
@@ -811,6 +828,19 @@ video {
   line-height: 1.75rem;
 }
 
+.text-\[30px\] {
+  font-size: 30px;
+}
+
+.text-\[20px\] {
+  font-size: 20px;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
 .font-bold {
   font-weight: 700;
 }
@@ -828,6 +858,10 @@ video {
   color: rgb(250 204 21 / var(--tw-text-opacity));
 }
 
+.text-\[\] {
+  color: ;
+}
+
 .hover\:text-gray-500:hover {
   --tw-text-opacity: 1;
   color: rgb(107 114 128 / var(--tw-text-opacity));
@@ -840,6 +874,26 @@ video {
 }
 
 @media (min-width: 768px) {
+  .md\:mb-32 {
+    margin-bottom: 8rem;
+  }
+
+  .md\:mb-0 {
+    margin-bottom: 0px;
+  }
+
+  .md\:mb-96 {
+    margin-bottom: 24rem;
+  }
+
+  .md\:mb-1 {
+    margin-bottom: 0.25rem;
+  }
+
+  .md\:mb-10 {
+    margin-bottom: 2.5rem;
+  }
+
   .md\:max-w-screen-xl {
     max-width: 1280px;
   }
@@ -871,9 +925,17 @@ video {
   .md\:text-left {
     text-align: left;
   }
+
+  .md\:text-\[30px\] {
+    font-size: 30px;
+  }
 }
 
 @media (min-width: 1024px) {
+  .lg\:mb-0 {
+    margin-bottom: 0px;
+  }
+
   .lg\:max-w-screen-xl {
     max-width: 1280px;
   }
@@ -893,14 +955,54 @@ video {
   .lg\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+
+  .lg\:text-left {
+    text-align: left;
+  }
+
+  .lg\:text-\[46px\] {
+    font-size: 46px;
+  }
+
+  .lg\:text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
 }
 
 @media (min-width: 1280px) {
+  .xl\:mb-0 {
+    margin-bottom: 0px;
+  }
+
   .xl\:max-w-screen-xl {
     max-width: 1280px;
   }
 
   .xl\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .xl\:justify-start {
+    justify-content: flex-start;
+  }
+
+  .xl\:text-left {
+    text-align: left;
+  }
+
+  .xl\:text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  .xl\:text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .xl\:text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
   }
 }
