@@ -1,15 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Course Section</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./home.css">
+    <link rel="stylesheet" href="./home.js">
 </head>
-<body>
-    <h1 class="bg-inherit">
-        <p class="bg-slate-600">Testing Document</p>
-        <p class="bg-slate-400">hello</p>
-    </h1>
+
+<body class="bg-gray-100 p-6">
+    <div class="text-2sm text-gray-400 mb-4 ">
+        <a href="#" class="hover:underline">Phát triển</a> >
+        <a href="#" class="hover:underline">Phát triển web</a> >
+        <a href="#" class="hover:underline">Khoa học dữ liệu</a>
+    </div>
+    <!-- Phần khóa học nổi bật -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 class="text-xl font-semibold mb-2">Khóa học nổi bật</h2>
+        <p class="text-gray-600 mb-4">Nhiều học viên thích khóa học được đánh giá cao này vì nội dung hấp dẫn của nó.
+        </p>
+        <div class="flex items-start">
+            <img src="../images/5712300_b951_5.jpg" alt="Khóa học NextJS 14" class="w-50 h-auto rounded-lg mr-6">
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Khóa học NextJS 14-ReactJS-Typescript thực chiến 2024
+                    PRO</h3>
+                <p class="text-gray-700 mb-2">Khóa học Nextjs 14, ReactJS, Typescript từ cơ bản đến thực chiến cho người
+                    mới bắt đầu 2024 PRO - Lập trình thật dễ</p>
+                <p class="italic text-gray-500 mb-1">Bởi Shin Nguyen</p>
+                <p class="text-sm text-gray-500 mb-4">Đã cập nhật tháng 8 năm 2024 | Tổng số 126 giờ | 342 bài giảng |
+                    Tất cả trình độ</p>
+                <p class="text-lg text-gray-800 font-semibold mb-2">4,8 <span class="text-yellow-500">★★★★☆</span> (43)
+                    <span class="bg-yellow-400 text-white text-sm px-2 py-1 rounded">Bán chạy nhất</span>
+                </p>
+                <p class="text-2xl font-bold text-red-600">₫ 2.199.000</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phần chủ đề phổ biến -->
+    <div>
+        <h3 class="text-lg font-semibold mb-4">Chủ đề phổ biến</h3>
+        <div class="flex flex-wrap gap-4">
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">Phát triển web</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">React JS</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">CSS</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">HTML</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">JavaScript</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">Angular</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">Next.js</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">Node.Js</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">ASP.NET Core</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">WordPress</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">Redux Famework</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">Typescript</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">Django</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">Spring Boot</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">Dịch vụ vi mô</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">PHP ( ngô ngữ lập
+                trình )</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">Laravel</a>
+            <a href="#" class="bg-gray-200 text-gray-700 px-20 py-4 rounded-md hover:bg-gray-300">Vue JS</a>
+        </div>
+    </div>
+    <div class="container mx-auto p-4">
+        <div class="mb-4">
+            <h1 class="text-2xl font-bold">Tất cả các khóa học Phát triển web</h1>
+            <p class="text-gray-500 mt-2">Bạn không biết chắc? Tất cả các khóa học đều được đảm bảo hoàn tiền trong 30
+                ngày</p>
+        </div>
+
+        <div class="flex justify-between items-center mb-6">
+            <button class="flex items-center bg-gray-100 text-gray-700 border-2 px-5 py-4 rounded">
+                <svg class="w-4 h-4 mr-2 " fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 5h18M9 3v2m0 4h6m-6 8h6m-6 4v2M3 19h18M3 15h18"></path>
+                </svg>
+                Bộ lọc
+            </button>
+            <div class="relative inline-block">
+                <button id="sortButton" class="flex items-center bg-gray-100 text-gray-700 border-2 px-4 py-2 rounded">
+                    Sắp xếp theo
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <!-- Menu thả xuống -->
+                <div id="sortMenu" class="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg py-2 z-10 hidden">
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Phổ biến nhất</a>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Mới nhất</a>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Giá: Thấp đến Cao</a>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Giá: Cao đến Thấp</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-4">
+            <!-- Bộ lọc -->
+            <div class="col-span-3">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="font-semibold mb-2">Xếp hạng</h2>
+                    <div class="flex items-center mb-2">
+                        <input type="radio" name="rating" class="mr-2">
+                        <span class="text-sm text-gray-700">Từ 4.5 trở lên (4.489)</span>
+                    </div>
+                    <div class="flex items-center mb-2">
+                        <input type="radio" name="rating" class="mr-2">
+                        <span class="text-sm text-gray-700">Từ 4.0 trở lên (8.597)</span>
+                    </div>
+                    <div class="flex items-center mb-2">
+                        <input type="radio" name="rating" class="mr-2">
+                        <span class="text-sm text-gray-700">Từ 3.5 trở lên (10.000)</span>
+                    </div>
+                    <div class="flex items-center mb-2">
+                        <input type="radio" name="rating" class="mr-2">
+                        <span class="text-sm text-gray-700">Từ 3.0 trở lên (10.000)</span>
+                    </div>
+
+                    <h2 class="font-semibold mt-4 mb-2">Thời lượng video</h2>
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" name="duration" class="mr-2">
+                        <span class="text-sm text-gray-700">0-1 giờ (921)</span>
+                    </div>
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" name="duration" class="mr-2">
+                        <span class="text-sm text-gray-700">1-3 giờ (3.140)</span>
+                    </div>
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" name="duration" class="mr-2">
+                        <span class="text-sm text-gray-700">3-6 giờ (2.620)</span>
+                    </div>
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" name="duration" class="mr-2">
+                        <span class="text-sm text-gray-700">6-17 giờ (3.417)</span>
+                    </div>
+                    <h2 class="font-semibold mb-2">Chủ đề</h2>
+                    <h2 class="font-semibold mb-2">Thể loại con</h2>
+                    <h2 class="font-semibold mb-2">Cấp độ</h2>
+                    <h2 class="font-semibold mb-2">Ngôn ngữ</h2>
+                    <h2 class="font-semibold mb-2">Giá</h2>
+                    <h2 class="font-semibold mb-2">Đặc điểm</h2>
+                    <h2 class="font-semibold mb-2">Phụ đề</h2>
+
+                </div>
+            </div>
+
+            <!-- Danh sách khóa học -->
+            <div class="col-span-9 grid grid-cols-1 gap-4">
+                <!-- Khóa học 1 -->
+                <div class="bg-white p-4 rounded-lg shadow flex">
+                    <img src="../images/5712300_b951_5.jpg" alt="React Ultimate"
+                        class="w-32 h-32 object-cover rounded-lg mr-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800">React Ultimate - ReactJS Cơ Bản Từ Z Đến A Cho
+                            Beginners</h3>
+                        <p class="text-sm text-gray-500">Hỏi Dân IT với Eric .</p>
+                        <p class="text-yellow-500 text-sm">4,7 ★★★★☆ (297)</p>
+                        <p class="text-lg font-bold text-red-600">₫ 1.099.000</p>
+                    </div>
+                </div>
+                <!-- Khóa học 1 -->
+                <div class="bg-white p-4 rounded-lg shadow flex">
+                    <img src="../images/5712300_b951_5.jpg" alt="React Ultimate"
+                        class="w-32 h-32 object-cover rounded-lg mr-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800">React Ultimate - ReactJS Cơ Bản Từ Z Đến A Cho
+                            Beginners</h3>
+                        <p class="text-sm text-gray-500">Hỏi Dân IT với Eric .</p>
+                        <p class="text-yellow-500 text-sm">4,7 ★★★★☆ (297)</p>
+                        <p class="text-lg font-bold text-red-600">₫ 1.099.000</p>
+                    </div>
+                </div>
+                <!-- Khóa học 1 -->
+                <div class="bg-white p-4 rounded-lg shadow flex">
+                    <img src="../images/5712300_b951_5.jpg" alt="React Ultimate"
+                        class="w-32 h-32 object-cover rounded-lg mr-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800">React Ultimate - ReactJS Cơ Bản Từ Z Đến A Cho
+                            Beginners</h3>
+                        <p class="text-sm text-gray-500">Hỏi Dân IT với Eric .</p>
+                        <p class="text-yellow-500 text-sm">4,7 ★★★★☆ (297)</p>
+                        <p class="text-lg font-bold text-red-600">₫ 1.099.000</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
+
 </html>

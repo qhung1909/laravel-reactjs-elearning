@@ -1,0 +1,14 @@
+.custom-tag {
+    background-color: white;
+    border: 1px solid black;
+    padding: 0.25rem 0.75rem; /* Tương đương với px-3 py-1 */
+    border-radius: 20px; /* Sử dụng giá trị px theo ý muốn */
+    color: black; /* Thay màu sắc cho text nếu cần */
+    transition: background-color 0.3s ease;
+}
+
+.custom-tag:hover {
+    background-color: #e5e7eb;
+}
+
+
