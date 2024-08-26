@@ -2,17 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-.demo{
-    @apply text-red-500;
-}
-
 
 .label-form {
     @apply absolute left-0 top-2 px-4 text-gray-500 text-sm transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-black peer-focus:top-2 peer-focus:text-sm peer-focus:text-black ;
 }
 
 .input-form{
-    @apply  w-96 h-16 px-4 pt-5 border border-black;
+    @apply w-full h-16 px-4 pt-5 border border-black;
 }
 
 
