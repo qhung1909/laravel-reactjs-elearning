@@ -217,29 +217,14 @@
 
                     <!-- Nút sắp xếp -->
                     <div class="relative inline-block text-left">
-                        <button id="dropdownButton"
-                            class="bg-white text-gray-800 border-2 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 px-4 py-2 rounded-md">
-                            Sắp xếp theo
-                            <svg class="w-4 h-4 ml-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                        <ul id="dropdownMenu"
-                            class="dropdown-menu absolute right-0 mt-1 w-45 bg-white border border-gray-300 rounded-md shadow-lg z-50">
-                            <li><button
-                                    class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-200 rounded-md">Phổ
-                                    biến nhất</button></li>
-                            <li><button
-                                    class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-200 rounded-md">Xếp
-                                    hạn cao nhất</button></li>
-                            <li><button
-                                    class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-200 rounded-md">Mới
-                                    nhất</button></li>
-                        </ul>
+                        <select id="dropdownSelect"
+                            class="bg-white text-gray-800 border-2 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 px-2 py-2 rounded-md">
+                            <option>Sắp xếp theo</option>
+                            <option value="popular">Phổ biến nhất</option>
+                            <option value="highestRated">Xếp hạng cao nhất</option>
+                            <option value="newest">Mới nhất</option>
+                        </select>
                     </div>
-
                 </div>
 
                 <!-- Bộ lọc -->
