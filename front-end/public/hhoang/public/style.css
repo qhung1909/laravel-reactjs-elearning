@@ -810,6 +810,10 @@ video {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .md\:p-0 {
+    padding: 0px;
+  }
+
   .md\:py-12 {
     padding-top: 3rem;
     padding-bottom: 3rem;
@@ -843,6 +847,16 @@ video {
   .md\:px-28 {
     padding-left: 7rem;
     padding-right: 7rem;
+  }
+
+  .md\:py-6 {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .md\:py-0 {
+    padding-top: 0px;
+    padding-bottom: 0px;
   }
 
   .md\:pb-10 {
