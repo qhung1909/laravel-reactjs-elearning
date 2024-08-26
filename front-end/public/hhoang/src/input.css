@@ -11,5 +11,9 @@
     @apply w-full h-16 px-4 pt-5 border border-black;
 }
 
+.text-color-footer{
+    @apply text-white;
+}
+
 
 
