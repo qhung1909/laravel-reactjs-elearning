@@ -10,5 +10,21 @@
 .custom-tag:hover {
     background-color: #e5e7eb;
 }
+/* css thông tin mua hàng */
+
+.sticky-container {
+    position: relative; /* Đảm bảo rằng phần tử chứa có position relative */
+}
+
+/* Đảm bảo phần tử sticky không bị che khuất */
+.sticky-element {
+    position: sticky;
+    top: 0; /* Đặt phần tử cố định ở đỉnh viewport */
+    z-index: 10; /* Đảm bảo phần tử không bị chồng lên bởi các phần tử khác */
+    margin-bottom: 1rem; /* Thêm khoảng cách dưới để không bị cắt bớt */
+}
+
+
+
 
 
