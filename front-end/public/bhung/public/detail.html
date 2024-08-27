@@ -14,20 +14,21 @@
 <body>
     <!-- Banner -->
     <div class="bg-gray-900 p-6 text-white" style="background-color: #2d2f31;">
-        <div class="container mx-auto px-44">
-            <div class="grid grid-cols-12 gap-6">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-44">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
                 <!-- Cột trái (Văn bản) -->
-                <div class="col-span-12 lg:col-span-8">
+                <div class="col-span-1 lg:col-span-8">
                     <!-- Điều hướng Breadcrumb -->
-                    <div class="text-2sm text-gray-400 mb-4" style="color: #c0c4fc;">
+                    <div class="text-xs sm:text-sm text-gray-400 mb-4" style="color: #c0c4fc;">
                         <a href="#" class="hover:underline">Phát triển</a> >
                         <a href="#" class="hover:underline">Ngôn ngữ lập trình</a> >
                         <a href="#" class="hover:underline">Python</a>
                     </div>
                     <!-- Tiêu đề -->
-                    <h1 class="text-4xl font-bold mb-2">Lập trình Python từ cơ bản đến nâng cao thông qua các dự án</h1>
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Lập trình Python từ cơ bản đến nâng cao
+                        thông qua các dự án</h1>
                     <!-- Mô tả -->
-                    <p class="text-xl text-white-400 mb-4">
+                    <p class="text-base sm:text-lg md:text-xl text-white-400 mb-4">
                         Lập trình Python từ cơ bản đến nâng cao thông qua các dự án với sự hỗ trợ của trí tuệ nhân tạo
                         AI
                     </p>
@@ -37,17 +38,17 @@
                         <span class="ml-2 text-sm text-white-400">(43 xếp hạng)</span>
                         <span class="ml-4 text-sm text-white-400">382 học viên</span>
                     </div>
-                    <p class="text-sm text-white-400 flex items-center">
+                    <p class="text-xs sm:text-sm text-white-400 flex items-center">
                         <box-icon name="calendar" color="#9CA3AF" class="mr-2" size="sm"></box-icon>
                         Lần cập nhật gần đây nhất 8/2024
                     </p>
-                    <p class="text-sm text-white-400 flex items-center mt-1">
+                    <p class="text-xs sm:text-sm text-white-400 flex items-center mt-1">
                         <box-icon name="globe" color="#9CA3AF" class="mr-2" size="sm"></box-icon>
                         Vietnamese
                     </p>
                 </div>
                 <!-- Cột phải (Hình ảnh) -->
-                <div class="col-span-12 lg:col-span-4 flex justify-center items-center">
+                <div class="col-span-1 lg:col-span-4 flex justify-center items-center">
                     <img src="../img/inclusion2.jpg" alt="Inclusion Image" class="max-w-full"
                         style="max-height: 200px;">
                 </div>
@@ -55,6 +56,7 @@
         </div>
     </div>
     <!-- Kết thúc Banner -->
+
 
     <!-- Phần Nội dung chính -->
     <div class="container mx-auto px-44 mt-8">
@@ -67,10 +69,10 @@
                     <span class="custom-tag"><a href="">Ngôn ngữ lập trình</a></span>
                     <span class="custom-tag"><a href="">Phát triển</a></span>
                 </div>
-                <!-- Nội dung bài học -->
+                <!-- Section 1 -->
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <h3 class="text-xl font-semibold mb-4">Nội dung bài học</h3>
-                    <div id="lesson-content" class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-hidden">
                         <!-- Danh sách trái -->
                         <ul class="space-y-2">
                             <li class="flex items-start">Hiểu rõ đặc điểm của ngôn ngữ lập trình Python và các ứng dụng
@@ -78,11 +80,14 @@
                             <li class="flex items-start">Nắm rõ cú pháp cơ bản của Python, cách khai báo biến</li>
                             <li class="flex items-start">Nắm được các phép toán số học và phép toán logic trong Python
                             </li>
-                            <li class="flex items-start">Nắm được kiểu dữ liệu List, Tuple và Dictionary trong Python và
+                            <li class="flex items-start lesson-content">Nắm được kiểu dữ liệu List, Tuple và Dictionary
+                                trong Python và
                                 ứng dụng</li>
-                            <li class="flex items-start">Biết cách lập trình hướng đối tượng với lớp (class), kế thừa,
+                            <li class="flex items-start lesson-content">Biết cách lập trình hướng đối tượng với lớp
+                                (class), kế thừa,
                                 đa hình</li>
-                            <li class="flex items-start">Hiểu và ứng dụng các thư viện Python (web, khoa học dữ liệu,
+                            <li class="flex items-start lesson-content">Hiểu và ứng dụng các thư viện Python (web,
+                                khoa học dữ liệu,
                                 trí tuệ nhân tạo, v.v.)</li>
                         </ul>
                         <!-- Danh sách phải -->
@@ -91,16 +96,18 @@
                                 bằng Python</li>
                             <li class="flex items-start">Biết cách xử lý chuỗi (string), phương thức về chuỗi</li>
                             <li class="flex items-start">Nắm được cấu trúc điều khiển và vòng lặp</li>
-                            <li class="flex items-start">Biết cách sử dụng hàm (Function) và Module trong Python</li>
-                            <li class="flex items-start">Cách xử lý lỗi và làm việc với File</li>
-                            <li class="flex items-start">Sử dụng ChatGPT hỗ trợ lập trình</li>
+                            <li class="flex items-start lesson-content">Biết cách sử dụng hàm (Function) và Module trong
+                                Python</li>
+                            <li class="flex items-start lesson-content">Cách xử lý lỗi và làm việc với File</li>
+                            <li class="flex items-start lesson-content">Sử dụng ChatGPT hỗ trợ lập trình</li>
                         </ul>
                     </div>
                     <button id="toggle-btn" class="mt-4 text-blue-600 hover:underline focus:outline-none">Ẩn bớt
                         ^</button>
                 </div>
-                <!-- Kết thúc nd bài học -->
-                <!-- Section 1 -->
+                <!-- Kết thúc Section 1 -->
+
+                <!-- Section 2 -->
                 <div class="bg-white p-6 rounded-lg shadow-md mt-8">
                     <!-- Phần công ty cung cấp khóa học -->
                     <div class="text-gray-700 text-lg font-bold mb-4">
@@ -134,14 +141,15 @@
                         </div>
                     </div>
                 </div>
-                <!-- Kết thúc Section 1 -->
+                <!-- Kết thúc Section 2 -->
 
-                <!-- Section 2 -->
+                <!-- Section 3 -->
                 <div class="container mx-auto px-4 py-8">
                     <h2 class="text-2xl font-bold mb-4">Nội dung khóa học</h2>
-                    <p class="text-gray-600 mb-6">19 phần - 121 bài giảng - 8 giờ 42 phút tổng thời lượng <button
-                            class="text-blue-500 font-bold mb-4" style="padding-left: 150px;">Mở rộng tất cả các
-                            phần</button></p>
+                    <p class="text-gray-600 mb-6">19 phần - 121 bài giảng - 8 giờ 42 phút tổng thời lượng
+                        <button class="text-blue-500 font-bold mb-4" style="padding-left: 150px;">Mở rộng tất cả các
+                            phần</button>
+                    </p>
                     <div class="bg-white shadow-md rounded-lg overflow-hidden">
                         <div class="border-b">
                             <button class="w-full px-6 py-4 flex justify-between items-center toggle-button"
@@ -151,7 +159,7 @@
                                 <span class="text-gray-600">5 bài giảng - 10 phút</span>
                                 <box-icon name='chevron-down' class="toggle-icon"></box-icon>
                             </button>
-                            <div class="hidden content" id="content-1">
+                            <div class="hidden content section-3-content" id="content-1">
                                 <!-- Nội dung của phần này -->
                             </div>
                         </div>
@@ -162,7 +170,7 @@
                                 <span class="text-gray-600">6 bài giảng - 25 phút</span>
                                 <box-icon name='chevron-down' class="toggle-icon"></box-icon>
                             </button>
-                            <div class="hidden content" id="content-2">
+                            <div class="hidden content section-3-content" id="content-2">
                                 <!-- Nội dung của phần này -->
                             </div>
                         </div>
@@ -173,7 +181,7 @@
                                 <span class="text-gray-600">5 bài giảng - 20 phút</span>
                                 <box-icon name='chevron-down' class="toggle-icon"></box-icon>
                             </button>
-                            <div class="hidden content" id="content-3">
+                            <div class="hidden content section-3-content" id="content-3">
                                 <!-- Nội dung của phần này -->
                             </div>
                         </div>
@@ -184,7 +192,7 @@
                                 <span class="text-gray-600">8 bài giảng - 28 phút</span>
                                 <box-icon name='chevron-down' class="toggle-icon"></box-icon>
                             </button>
-                            <div class="hidden content" id="content-4">
+                            <div class="hidden content section-3-content" id="content-4">
                                 <!-- Nội dung của phần này -->
                             </div>
                         </div>
@@ -196,61 +204,381 @@
                         <li>Có máy tính nối mạng Internet để thực hành các bài tập</li>
                     </ul>
                     <!-- Mô tả -->
-                    <h2 class="text-2xl font-bold mb-4">Mô tả</h2>
-                    <p class="text-black-600 mb-6" style="margin-bottom: 10px;">
-                        Hello bạn,
-                    </p>
-                    <p class="text-black-600 mb-6">
-                        Khóa học <strong>"Lập trình Python từ cơ bản đến nâng cao thông qua các dự án"</strong> được
-                        thiết kế để giúp bạn
-                        từ bước đầu làm quen đến thành thạo trong việc sử dụng Python - một trong những ngôn ngữ lập
-                        trình phổ biến và mạnh mẽ nhất hiện nay. Khóa học này cung cấp một lộ trình học tập rõ ràng và
-                        thực tế, hướng dẫn bạn qua từng bước cụ thể từ việc cài đặt môi trường phát triển, khai báo
-                        biến, làm việc với chuỗi ký tự, đến việc xây dựng các dự án phức tạp hơn.
-                    </p>
-                    <p class="text-b;acl-600 mb-6">
-                        <strong>Mục tiêu của khóa học:</strong>
-                    </p>
-                    <ul class="list-disc pl-8 mb-6">
-                        <li><strong>Hiểu biết căn bản về Python:</strong> Bạn sẽ bắt đầu bằng việc tìm hiểu về ngôn ngữ
-                            lập trình Python,
-                            cách cài đặt và tùy chỉnh môi trường phát triển PyCharm, và viết các chương trình Python đầu
-                            tiên của mình.</li>
-                        <li><strong>Thành thạo các khái niệm lập trình cơ bản:</strong> Khóa học sẽ hướng dẫn bạn về
-                            khai báo biến, các
-                            kiểu dữ liệu, và cách chuyển đổi chúng, cũng như cách sử dụng các phép toán và cấu trúc điều
-                            khiển trong Python.</li>
-                        <li><strong>Làm việc với các cấu trúc dữ liệu:</strong> Bạn sẽ học cách làm việc với các cấu
-                            trúc dữ liệu quan
-                            trọng như chuỗi ký tự, danh sách (List), bộ (Tuple), từ điển (Dictionary), và tập hợp (Set).
-                        </li>
-
-                    </ul>
-                    <p class="text-black-600 mb-6">
-                        <strong>Lợi ích của khóa học:</strong>
-                    </p>
-                    <ul class="list-disc pl-8 mb-6">
-                        <li>Kiến thức toàn diện: Từ những khái niệm cơ bản đến các ứng dụng nâng cao, khóa học bao quát
-                            mọi khía cạnh cần thiết để bạn trở thành một lập trình viên Python tự tin.</li>
-                        <li>Thực hành liên tục: Các bài tập thực hành và dự án cụ thể sẽ giúp bạn áp dụng ngay những gì
-                            đã học vào thực tế.</li>
-
-                    </ul>
-                    <p class="text-gray-600 mb-6">
-                        Dù bạn là người mới bắt đầu hay đã có kinh nghiệm lập trình và muốn mở rộng kiến thức, khóa học
-                        này sẽ trang bị cho bạn những kỹ năng và hiểu biết cần thiết để tiến xa hơn trong sự nghiệp lập
-                        trình Python. Hãy tham gia cùng chúng tôi và khám phá tiềm năng của Python ngay hôm nay!
-                    </p>
-                    <!-- Đối tượng khóa học -->
-                    <h2 class="text-2xl font-bold mb-4">Đối tượng khóa học</h2>
-                    <ul class="list-disc pl-8">
-                        <li>Các bạn sinh viên muốn học lập trình Python để phát triển các dự án về Web, IoT, phân tích
-                            dữ liệu, AI</li>
-                    </ul>
-                    <button id="toggle-btn" class="mt-4 text-blue-600 hover:underline focus:outline-none">Ẩn bớt
-                        ^</button>
+                    <div class="section-3-content mt-4">
+                        <h2 class="text-2xl font-bold mb-4 ">Mô tả</h2>
+                        <p class="text-black-600 mb-6" style="margin-bottom: 10px;">
+                            Hello bạn,
+                        </p>
+                        <p class="text-black-600 mb-6">
+                            Khóa học <strong>"Lập trình Python từ cơ bản đến nâng cao thông qua các dự án"</strong> được
+                            thiết kế để giúp bạn
+                            từ bước đầu làm quen đến thành thạo trong việc sử dụng Python - một trong những ngôn ngữ lập
+                            trình phổ biến và mạnh mẽ nhất hiện nay. Khóa học này cung cấp một lộ trình học tập rõ ràng
+                            và
+                            thực tế, hướng dẫn bạn qua từng bước cụ thể từ việc cài đặt môi trường phát triển, khai báo
+                            biến, làm việc với chuỗi ký tự, đến việc xây dựng các dự án phức tạp hơn.
+                        </p>
+                        <p class="text-black-600 mb-6">
+                            <strong>Mục tiêu của khóa học:</strong>
+                        </p>
+                        <ul class="list-disc pl-8 mb-6">
+                            <li><strong>Hiểu biết căn bản về Python:</strong> Bạn sẽ bắt đầu bằng việc tìm hiểu về ngôn
+                                ngữ
+                                lập trình Python,
+                                cách cài đặt và tùy chỉnh môi trường phát triển PyCharm, và viết các chương trình Python
+                                đầu
+                                tiên của mình.</li>
+                            <li><strong>Thành thạo các khái niệm lập trình cơ bản:</strong> Khóa học sẽ hướng dẫn bạn về
+                                khai báo biến, các
+                                kiểu dữ liệu, và cách chuyển đổi chúng, cũng như cách sử dụng các phép toán và cấu trúc
+                                điều
+                                khiển trong Python.</li>
+                            <li><strong>Làm việc với các cấu trúc dữ liệu:</strong> Bạn sẽ học cách làm việc với các cấu
+                                trúc dữ liệu quan
+                                trọng như chuỗi ký tự, danh sách (List), bộ (Tuple), từ điển (Dictionary), và tập hợp
+                                (Set).
+                            </li>
+                        </ul>
+                        <p class="text-black-600 mb-6">
+                            <strong>Lợi ích của khóa học:</strong>
+                        </p>
+                        <ul class="list-disc pl-8 mb-6">
+                            <li>Kiến thức toàn diện: Từ những khái niệm cơ bản đến các ứng dụng nâng cao, khóa học bao
+                                quát
+                                mọi khía cạnh cần thiết để bạn trở thành một lập trình viên Python tự tin.</li>
+                            <li>Thực hành liên tục: Các bài tập thực hành và dự án cụ thể sẽ giúp bạn áp dụng ngay những
+                                gì
+                                đã học vào thực tế.</li>
+                        </ul>
+                        <p class="text-gray-600 mb-6">
+                            Dù bạn là người mới bắt đầu hay đã có kinh nghiệm lập trình và muốn mở rộng kiến thức, khóa
+                            học
+                            này sẽ trang bị cho bạn những kỹ năng và hiểu biết cần thiết để tiến xa hơn trong sự nghiệp
+                            lập
+                            trình Python. Hãy tham gia cùng chúng tôi và khám phá tiềm năng của Python ngay hôm nay!
+                        </p>
+                        <!-- Đối tượng khóa học -->
+                        <h2 class="text-2xl font-bold mb-4">Đối tượng khóa học</h2>
+                        <ul class="list-disc pl-8">
+                            <li>Các bạn sinh viên muốn học lập trình Python để phát triển các dự án về Web, IoT, phân
+                                tích
+                                dữ liệu, AI</li>
+                        </ul>
+                    </div>
+                    <button id="toggle-btn-section-3" class="mt-4 text-blue-600 hover:underline focus:outline-none">Ẩn
+                        bớt ^</button>
                 </div>
-                <!-- Kết thúc Section 2 -->
+                <!-- Kết thúc Section 3 -->
+
+                <!-- Section 4 -->
+                <div class="container mx-auto px-4 py-8">
+                    <h2 class="text-2xl font-bold mb-4">Học viên cũng mua</h2>
+                    <div class="space-y-4">
+                        <!-- Khóa học 1 -->
+                        <div class="flex items-center bg-white p-4 rounded-lg shadow-md">
+                            <img src="https://via.placeholder.com/80" alt="Khóa học 1"
+                                class="w-20 h-20 object-cover rounded-lg mr-4">
+                            <div class="w-64">
+                                <h3 class="text-md font-semibold">Machine Learning: Build neural networks in 77 lines of
+                                    code</h3>
+                                <p class="text-gray-600 text-sm">Tổng số 1 giờ • Đã cập nhật 1/2019</p>
+                            </div>
+                            <div class="flex-grow flex justify-between items-center mb-4">
+                                <div class="flex items-center mb-4 ">
+                                    <span class="text-yellow-500">4,7</span>
+                                    <box-icon name='star' type='solid' color='#ECC94B' class="ml-1"></box-icon>
+                                    <span class="text-gray-600 ml-2 flex items-center">
+                                        <box-icon name='user' color='#718096'></box-icon> 1.865
+                                    </span>
+                                </div>
+                                <div class="flex flex-col items-start ">
+                                    <p class="text-black font-bold text-ml-2 mt-1 ">₫ 229.000</p>
+                                    <span class="line-through text-gray-400 text-sm">₫ 399.000</span>
+                                </div>
+
+                                <box-icon name='heart' color='#000000' size='md' class="ml-4 mb-4"></box-icon>
+                            </div>
+                        </div>
+                        <!-- Khóa học 2 -->
+                        <div class="flex items-center bg-white p-4 rounded-lg shadow-md">
+                            <img src="https://via.placeholder.com/80" alt="Khóa học 1"
+                                class="w-20 h-20 object-cover rounded-lg mr-4">
+                            <div class="w-64">
+                                <h3 class="text-md font-semibold">Machine Learning: Build neural networks in 77 lines of
+                                    code</h3>
+                                <p class="text-gray-600 text-sm">Tổng số 1 giờ • Đã cập nhật 1/2019</p>
+                            </div>
+                            <div class="flex-grow flex justify-between items-center mb-4">
+                                <div class="flex items-center mb-4 ">
+                                    <span class="text-yellow-500">4,7</span>
+                                    <box-icon name='star' type='solid' color='#ECC94B' class="ml-1"></box-icon>
+                                    <span class="text-gray-600 ml-2 flex items-center">
+                                        <box-icon name='user' color='#718096'></box-icon> 1.865
+                                    </span>
+                                </div>
+                                <div class="flex flex-col items-start ">
+                                    <p class="text-black font-bold text-ml-2 mt-1 ">₫ 229.000</p>
+                                    <span class="line-through text-gray-400 text-sm">₫ 399.000</span>
+                                </div>
+
+                                <box-icon name='heart' color='#000000' size='md' class="ml-4 mb-4"></box-icon>
+                            </div>
+                        </div>
+
+                        <!-- Các khóa học khác... -->
+                    </div>
+                    <!-- Nút Hiện thêm -->
+                    <div class="text-center mt-4">
+                        <button class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Hiện thêm</button>
+                    </div>
+                </div>
+                <!-- Kết thúc Section 4 -->
+
+                <!-- Section 5 -->
+                <div class="container mx-auto px-4 py-8">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-800">Giảng viên</h2>
+                    <div
+                        class="flex items-start bg-white p-6 rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+                        <!-- Hình ảnh giảng viên -->
+                        <img src="../img/inclusion.jpg" alt="Giảng viên"
+                            class="w-24 h-24 object-cover rounded-full border-4 border-blue-500 mr-6">
+                        <div>
+                            <!-- Thông tin giảng viên -->
+                            <h3 class="text-2xl font-semibold mb-2" style="color: #5022c3;">Toan Bill</h3>
+
+                            <p class="text-gray-600 mb-4 text-lg">Cisco Instructor</p>
+                            <div class="flex items-center mb-4">
+                                <span class="text-yellow-500 text-2xl font-bold">4.5</span>
+                                <box-icon name='star' type='solid' color='#ECC94B' class="ml-1 text-2xl"></box-icon>
+                                <span class="text-gray-600 ml-2 text-lg font-medium">Xếp hạng giảng viên</span>
+                            </div>
+                            <ul class="text-gray-600 mb-6 space-y-2">
+                                <li class="flex items-center">
+                                    <box-icon name='star' type='solid' color='#718096' class="w-5 h-5 mr-2"></box-icon>
+                                    345 đánh giá
+                                </li>
+                                <li class="flex items-center">
+                                    <box-icon name='user' color='#718096' class="w-5 h-5 mr-2"></box-icon>
+                                    1,895 học viên
+                                </li>
+                                <li class="flex items-center">
+                                    <box-icon name='book' color='#718096' class="w-5 h-5 mr-2"></box-icon>
+                                    26 khóa học
+                                </li>
+                            </ul>
+                            <p class="text-gray-700 leading-relaxed">Hello there! I am Bill Toan. I have a master's
+                                degree in computer system information. I've been a Cisco instructor since 2010. I hold
+                                CCNA, CCNP Security, and Security+ certification. My favorite teaching courses are CCNA
+                                and CCNP Security. I come from a background of network security engineer, and now I am
+                                focusing on IoT and OT security and applied machine learning techniques on network
+                                security. I have worked for over 14+ years on building enterprise security solutions
+                                using Cisco products. I have been a super-moderator of a network security forum named
+                                Whitehat for more than 10 years. I love sharing my experience with students and
+                                inspiring them to the cyber security world. <Strong>Happy Learning!</Strong> </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Kết thúc Section 5 -->
+
+                <!-- Section 6 -->
+                <div class="container mx-auto px-4 py-8">
+                    <h2 class="text-xl font-bold mb-4">4.6 xếp hạng khóa học • 44 xếp hạng</h2>
+                    <div class="bg-white p-6 rounded-lg ">
+                        <!-- Đánh giá từng người dùng -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Comment 1 -->
+                            <div class="flex flex-col bg-gray-100 p-4 rounded-lg shadow-sm border-t border-gray-800">
+                                <div class="flex items-center mb-2">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center mr-3">
+                                        NV</div>
+                                    <div>
+                                        <div class="font-semibold">Nguyen Huu V.</div>
+                                        <div class="flex items-center">
+                                            <span class="text-yellow-500">★★★★★</span>
+                                            <span class="text-gray-500 ml-2">1 tháng trước</span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-auto">⋮</div>
+                                </div>
+                                <p class="mb-2">so good and easy to understand</p>
+                                <div class="flex items-center text-gray-500">
+                                    <span>Bạn thấy hữu ích?</span>
+                                    <box-icon name='like' type='solid' color='#718096' class="ml-2 w-5 h-5"></box-icon>
+                                    <box-icon name='dislike' type='solid' color='#718096'
+                                        class="ml-2 w-5 h-5"></box-icon>
+                                </div>
+                            </div>
+
+                            <!-- Comment 2 -->
+                            <div class="flex flex-col bg-gray-100 p-4 rounded-lg shadow-sm border-t border-gray-800">
+                                <div class="flex items-center mb-2">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center mr-3">
+                                        GN</div>
+                                    <div>
+                                        <div class="font-semibold">Giang N.</div>
+                                        <div class="flex items-center">
+                                            <span class="text-yellow-500">★★★★☆</span>
+                                            <span class="text-gray-500 ml-2">1 tháng trước</span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-auto">⋮</div>
+                                </div>
+                                <p class="mb-2">Cách giảng dạy đơn giản và dễ hiểu</p>
+                                <div class="flex items-center text-gray-500">
+                                    <span>Bạn thấy hữu ích?</span>
+                                    <box-icon name='like' type='solid' color='#718096' class="ml-2 w-5 h-5"></box-icon>
+                                    <box-icon name='dislike' type='solid' color='#718096'
+                                        class="ml-2 w-5 h-5"></box-icon>
+                                </div>
+                            </div>
+
+                            <!-- Comment 3 -->
+                            <div class="flex flex-col bg-gray-100 p-4 rounded-lg shadow-sm border-t border-gray-800">
+                                <div class="flex items-center mb-2">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center mr-3">
+                                        L</div>
+                                    <div>
+                                        <div class="font-semibold">Linh Nguyen Manh</div>
+                                        <div class="flex items-center">
+                                            <span class="text-yellow-500">★★★★★</span>
+                                            <span class="text-gray-500 ml-2">1 tháng trước</span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-auto">⋮</div>
+                                </div>
+                                <p class="mb-2">good</p>
+                                <div class="flex items-center text-gray-500">
+                                    <span>Bạn thấy hữu ích?</span>
+                                    <box-icon name='like' type='solid' color='#718096' class="ml-2 w-5 h-5"></box-icon>
+                                    <box-icon name='dislike' type='solid' color='#718096'
+                                        class="ml-2 w-5 h-5"></box-icon>
+                                </div>
+                            </div>
+
+                            <!-- Comment 4 -->
+                            <div class="flex flex-col bg-gray-100 p-4 rounded-lg shadow-sm border-t border-gray-800">
+                                <div class="flex items-center mb-2">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center mr-3">
+                                        DD</div>
+                                    <div>
+                                        <div class="font-semibold">Dien D.</div>
+                                        <div class="flex items-center">
+                                            <span class="text-yellow-500">★★★★★</span>
+                                            <span class="text-gray-500 ml-2">2 tháng trước</span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-auto">⋮</div>
+                                </div>
+                                <p class="mb-2">Tốt, hay, dễ hiểu, tuyệt vời</p>
+                                <div class="flex items-center text-gray-500">
+                                    <span>Bạn thấy hữu ích?</span>
+                                    <box-icon name='like' type='solid' color='#718096' class="ml-2 w-5 h-5"></box-icon>
+                                    <box-icon name='dislike' type='solid' color='#718096'
+                                        class="ml-2 w-5 h-5"></box-icon>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nút Hiện tất cả đánh giá -->
+                        <div class="text-center mt-6">
+                            <button
+                                class="border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-100">Hiện
+                                tất cả đánh giá</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Kết thúc Section 6 -->
+
+                <!-- Section 7 -->
+                <div class="container mx-auto px-4 py-8">
+                    <h2 class="text-2xl font-bold mb-6">Các khóa học khác của <span style="color: #5022c3;">Toan
+                            Bill</span></h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Course 1 -->
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <img src="../img/inclusion.jpg" alt="Cisco Network Security"
+                                class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <!-- Tên khóa học -->
+                                <h3 class="font-bold text-md mb-2">Cisco Network Security Packet Tracer Activities...
+                                </h3>
+                                <!-- Tên giảng viên -->
+                                <p class="text-xs text-gray-600">Toan Bill</p>
+                                <!-- Đánh giá -->
+                                <div class="flex items-center mb-2">
+                                    <span class="text-yellow-500 font-bold mr-1 text-sm">4,7</span>
+                                    <span class="text-yellow-500 text-sm">★★★★☆</span>
+                                    <span class="text-gray-600 text-xs ml-1">(31)</span>
+                                </div>
+                                <!-- Thông tin khóa học -->
+                                <p class="text-xs text-gray-600 mb-2">Tổng số 7 giờ • 69 bài giảng • Trung cấp</p>
+                                <!-- Giá -->
+                                <p class="font-bold text-lg">229.000 ₫</p>
+                                <p class="text-sm line-through text-gray-500">399.000 ₫</p>
+                            </div>
+                        </div>
+
+                        <!-- Course 2 -->
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <img src="../img/inclusion.jpg" alt="Cisco Network Security"
+                                class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <!-- Tên khóa học -->
+                                <h3 class="font-bold text-md mb-2">Cisco Network Security Packet Tracer Activities...
+                                </h3>
+                                <!-- Tên giảng viên -->
+                                <p class="text-xs text-gray-600">Toan Bill</p>
+                                <!-- Đánh giá -->
+                                <div class="flex items-center mb-2">
+                                    <span class="text-yellow-500 font-bold mr-1 text-sm">4,7</span>
+                                    <span class="text-yellow-500 text-sm">★★★★☆</span>
+                                    <span class="text-gray-600 text-xs ml-1">(31)</span>
+                                </div>
+                                <!-- Thông tin khóa học -->
+                                <p class="text-xs text-gray-600 mb-2">Tổng số 7 giờ • 69 bài giảng • Trung cấp</p>
+                                <!-- Giá -->
+                                <p class="font-bold text-lg">229.000 ₫</p>
+                                <p class="text-sm line-through text-gray-500">399.000 ₫</p>
+                            </div>
+                        </div>
+
+                        <!-- Course 3 -->
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <img src="../img/inclusion.jpg" alt="Cisco Network Security"
+                                class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <!-- Tên khóa học -->
+                                <h3 class="font-bold text-md mb-2">Cisco Network Security Packet Tracer Activities...
+                                </h3>
+                                <!-- Tên giảng viên -->
+                                <p class="text-xs text-gray-600">Toan Bill</p>
+                                <!-- Đánh giá -->
+                                <div class="flex items-center mb-2">
+                                    <span class="text-yellow-500 font-bold mr-1 text-sm">4,7</span>
+                                    <span class="text-yellow-500 text-sm">★★★★☆</span>
+                                    <span class="text-gray-600 text-xs ml-1">(31)</span>
+                                </div>
+                                <!-- Thông tin khóa học -->
+                                <p class="text-xs text-gray-600 mb-2">Tổng số 7 giờ • 69 bài giảng • Trung cấp</p>
+                                <!-- Giá -->
+                                <p class="font-bold text-lg">229.000 ₫</p>
+                                <p class="text-sm line-through text-gray-500">399.000 ₫</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8">
+                        <button
+                            class="w-full py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            Báo cáo lạm dụng
+                        </button>
+                    </div>
+                </div>
+                <!-- Kết thúc Section 7 -->
 
             </div>
 
@@ -325,7 +653,6 @@
 
 
         </div>
-
     </div>
     <!-- Kết thúc nội dung chính -->
 </body>
