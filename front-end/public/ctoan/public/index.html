@@ -11,7 +11,7 @@
 <header>
 
     <!-- Menu -->
-    <nav class="navbar relative flex items-center w-[98%] mx-auto py-2 z-10">
+    <nav class="navbar  flex items-center w-[98%] mx-auto py-2 z-10">
         <!-- header - logo -->
         <div class="navbar-logo mx-2 w-24">
             <a href="">
@@ -24,13 +24,13 @@
         </div>
 
         <!-- header - content -->
-        <div id="navbar-content" class="navbar-content items-center flex px-5 max-xl:hidden ">
+        <div id="navbar-content" class=" navbar-content xl:static xl:min-h-fit absolute bg-white min-h-[40vh] left-0 top-[-100%] flex xl:items-center xl:flex-row flex-col px-10 max-xl:w-full gap-2 max-xl:py-5 max-xl:gap-6">
             <!-- header - ul -->
-            <ul class="flex md:items-center md:gap-3 gap-8 md:flex-row flex-col text-sm w-52 xl:text-base">
-                <li>
+            <ul class="items-center max-xl:pt-3 gap-3 xl:flex max-xl:flex-col text-base xl:text-base w-52">
+                <li class="max-xl:mb-4">
                     <a href="" class="hover:text-gray-500"> Khóa học </a>
                 </li>
-                <li>
+                <li class="max-xl:mb-4">
                     <a href="" class="hover:text-gray-500"> Liên hệ </a>
                 </li>
                 <li>
@@ -38,7 +38,7 @@
                 </li>
             </ul>
             <!-- header - icons -->
-            <div class="navbar-icons flex items-center gap-2 mx-3">
+            <div class="navbar-icons flex items-center gap-2 xl:mx-3">
                 <div class="navbar-noti">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         style="fill: rgba(0, 0, 0, 1)">
@@ -57,8 +57,8 @@
             </div>
 
             <!-- header - login  -->
-            <div class="flex items-center">
-                <div class="navbar-register">
+            <div class="xl:flex max-xl:flex-col gap-2 items-center">
+                <div class="navbar-register  max-xl:mb-2">
                     <button class="w-32 me-3 border rounded-lg font-semibold border-black p-1">
                         Đăng ký
                     </button>
@@ -71,7 +71,7 @@
             </div>
         </div>
 
-        <div class="button-toggle w-[92px] xl:w-auto flex justify-center xl:hidden">
+        <div id="toggle-btn" class="button-toggle w-[92px] xl:w-auto hidden max-xl:block">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1)"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"></path></svg>
         </div>
     </nav>
@@ -579,6 +579,14 @@
             </div>
         </div>
       </div>
+      <script>
+        const navbarContent = document.getElementById('navbar-content')
+        const toggleBtn = document.getElementById('toggle-btn')
+
+        toggleBtn.addEventListener('click', () =>{
+            navbarContent.classList.toggle('top-[70px]');
+        })
+    </script>
 </body>
 <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
 
