@@ -5,18 +5,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     toggleBtnSection1.addEventListener("click", function () {
         lessonContents.forEach((content) => {
-            if (content.classList.contains("collapsed")) {
-                content.classList.remove("collapsed");
-            } else {
-                content.classList.add("collapsed");
-            }
+            content.classList.toggle("collapsed");
         });
 
-        if (lessonContents[0].classList.contains("collapsed")) {
-            toggleBtnSection1.textContent = "Hiện thêm ^";
-        } else {
-            toggleBtnSection1.textContent = "Ẩn bớt v";
-        }
+        toggleBtnSection1.textContent = lessonContents[0].classList.contains(
+            "collapsed"
+        )
+            ? "Hiện thêm ^"
+            : "Ẩn bớt v";
     });
 
     // Section 3 Toggle Button
@@ -25,17 +21,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
     toggleBtnSection3.addEventListener("click", function () {
         section3Contents.forEach((content) => {
-            if (content.classList.contains("collapsed")) {
-                content.classList.remove("collapsed");
-            } else {
-                content.classList.add("collapsed");
-            }
+            content.classList.toggle("collapsed");
         });
 
-        if (section3Contents[0].classList.contains("collapsed")) {
-            toggleBtnSection3.textContent = "Hiện thêm ^";
-        } else {
-            toggleBtnSection3.textContent = "Ẩn bớt v";
-        }
+        toggleBtnSection3.textContent = section3Contents[0].classList.contains(
+            "collapsed"
+        )
+            ? "Hiện thêm ^"
+            : "Ẩn bớt v";
+    });
+
+    // Section 5 Toggle Button
+    const toggleBtnSection5 = document.getElementById("toggle-btn-section-5");
+    const instructorContent = document.querySelector(".instructor-content");
+
+    toggleBtnSection5.addEventListener("click", function () {
+        instructorContent.classList.toggle("collapsed");
+
+        toggleBtnSection5.textContent = instructorContent.classList.contains(
+            "collapsed"
+        )
+            ? "Hiện thêm ^"
+            : "Ẩn bớt v";
     });
 });

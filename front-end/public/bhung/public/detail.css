@@ -47,8 +47,25 @@
 .lesson-content, .section-3-content {
     will-change: max-height, opacity, transform;
 }
+/* Section 5 */
+.instructor-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    transform: scaleY(0.8);
+    pointer-events: none;
+    overflow: hidden;
+}
 
-/* Section 2 */
+.instructor-content {
+    transition: max-height 0.5s ease, opacity 0.5s ease, transform 0.5s ease;
+    max-height: 1000px;
+    opacity: 1;
+    transform: scaleY(1);
+}
+
+
+
+
 
 
 
