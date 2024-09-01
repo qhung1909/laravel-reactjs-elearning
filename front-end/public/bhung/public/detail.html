@@ -59,15 +59,15 @@
 
 
     <!-- Phần Nội dung chính -->
-    <div class="container mx-auto px-44 mt-8">
+    <div class="container mx-auto px-4 md:px-8 lg:px-16 xl:px-44 mt-8">
         <div class="flex flex-wrap -mx-4">
             <!-- Cột trái (Nội dung bài học) -->
             <div class="w-full lg:w-2/3 px-4">
                 <h2 class="text-2xl font-bold mb-4">Khám phá các chủ đề liên quan</h2>
-                <div class="flex space-x-2 mb-6">
-                    <span class="custom-tag"><a href="">Python</a></span>
-                    <span class="custom-tag"><a href="">Ngôn ngữ lập trình</a></span>
-                    <span class="custom-tag"><a href="">Phát triển</a></span>
+                <div class="flex flex-wrap space-x-2 mb-6">
+                    <span class="custom-tag"><a href="#">Python</a></span>
+                    <span class="custom-tag"><a href="#">Ngôn ngữ lập trình</a></span>
+                    <span class="custom-tag"><a href="#">Phát triển</a></span>
                 </div>
                 <!-- Section 1 -->
                 <div class="bg-white p-6 rounded-lg shadow-md">
@@ -80,15 +80,12 @@
                             <li class="flex items-start">Nắm rõ cú pháp cơ bản của Python, cách khai báo biến</li>
                             <li class="flex items-start">Nắm được các phép toán số học và phép toán logic trong Python
                             </li>
-                            <li class="flex items-start lesson-content">Nắm được kiểu dữ liệu List, Tuple và Dictionary
-                                trong Python và
-                                ứng dụng</li>
-                            <li class="flex items-start lesson-content">Biết cách lập trình hướng đối tượng với lớp
-                                (class), kế thừa,
-                                đa hình</li>
-                            <li class="flex items-start lesson-content">Hiểu và ứng dụng các thư viện Python (web,
-                                khoa học dữ liệu,
-                                trí tuệ nhân tạo, v.v.)</li>
+                            <li class="flex items-start lesson-content collapsed">Nắm được kiểu dữ liệu List, Tuple và
+                                Dictionary trong Python và ứng dụng</li>
+                            <li class="flex items-start lesson-content collapsed">Biết cách lập trình hướng đối tượng
+                                với lớp (class), kế thừa, đa hình</li>
+                            <li class="flex items-start lesson-content collapsed">Hiểu và ứng dụng các thư viện Python
+                                (web, khoa học dữ liệu, trí tuệ nhân tạo, v.v.)</li>
                         </ul>
                         <!-- Danh sách phải -->
                         <ul class="space-y-2">
@@ -96,13 +93,14 @@
                                 bằng Python</li>
                             <li class="flex items-start">Biết cách xử lý chuỗi (string), phương thức về chuỗi</li>
                             <li class="flex items-start">Nắm được cấu trúc điều khiển và vòng lặp</li>
-                            <li class="flex items-start lesson-content">Biết cách sử dụng hàm (Function) và Module trong
-                                Python</li>
-                            <li class="flex items-start lesson-content">Cách xử lý lỗi và làm việc với File</li>
-                            <li class="flex items-start lesson-content">Sử dụng ChatGPT hỗ trợ lập trình</li>
+                            <li class="flex items-start lesson-content collapsed">Biết cách sử dụng hàm (Function) và
+                                Module trong Python</li>
+                            <li class="flex items-start lesson-content collapsed">Cách xử lý lỗi và làm việc với File
+                            </li>
+                            <li class="flex items-start lesson-content collapsed">Sử dụng ChatGPT hỗ trợ lập trình</li>
                         </ul>
                     </div>
-                    <button id="toggle-btn" class="mt-4 text-blue-600 hover:underline focus:outline-none">Ẩn bớt
+                    <button id="toggle-btn" class="mt-4 text-blue-600 hover:underline focus:outline-none">Hiện thêm
                         ^</button>
                 </div>
                 <!-- Kết thúc Section 1 -->
@@ -118,7 +116,7 @@
                         tin dùng.
                         <a href="#" class="text-blue-600 hover:underline">Tìm hiểu thêm</a>
                     </p>
-                    <div class="flex items-center justify-around mb-6">
+                    <div class="flex flex-wrap justify-center gap-4 mb-6">
                         <img src="https://dummyimage.com/100x40/000/fff&text=Nasdaq" alt="Nasdaq" class="h-10">
                         <img src="https://dummyimage.com/100x40/000/fff&text=Volkswagen" alt="Volkswagen" class="h-10">
                         <img src="https://dummyimage.com/100x40/000/fff&text=Box" alt="Box" class="h-10">
@@ -126,7 +124,7 @@
                         <img src="https://dummyimage.com/100x40/000/fff&text=Eventbrite" alt="Eventbrite" class="h-10">
                     </div>
                     <!-- Phần bài tập coding -->
-                    <div class="flex items-center">
+                    <div class="flex flex-col lg:flex-row gap-4 lg:gap-8 items-center">
                         <div class="w-full lg:w-1/2">
                             <h3 class="text-2xl font-bold mb-2">Bài tập coding</h3>
                             <p class="text-gray-600 mb-4">
@@ -136,7 +134,7 @@
                             <a href="#" class="text-blue-600 hover:underline">Xem bản demo</a>
                         </div>
                         <div class="w-full lg:w-1/2">
-                            <img src="../img/doremon.jpg" alt="Coding Exercise" class="rounded-lg shadow-md"
+                            <img src="../img/inclusion.jpg" alt="Coding Exercise" class="rounded-lg shadow-md"
                                 style="height: 200px;width:350px;">
                         </div>
                     </div>
@@ -147,8 +145,9 @@
                 <div class="container mx-auto px-4 py-8">
                     <h2 class="text-2xl font-bold mb-4">Nội dung khóa học</h2>
                     <p class="text-gray-600 mb-6">19 phần - 121 bài giảng - 8 giờ 42 phút tổng thời lượng
-                        <button class="text-blue-500 font-bold mb-4" style="padding-left: 150px;">Mở rộng tất cả các
-                            phần</button>
+                        <button class="text-blue-500 font-bold mb-4 ml-28 mt-4" style="padding-left: 0;">
+                            Mở rộng tất cả các phần
+                        </button>
                     </p>
                     <div class="bg-white shadow-md rounded-lg overflow-hidden">
                         <div class="border-b">
@@ -159,7 +158,7 @@
                                 <span class="text-gray-600">5 bài giảng - 10 phút</span>
                                 <box-icon name='chevron-down' class="toggle-icon"></box-icon>
                             </button>
-                            <div class="hidden content section-3-content" id="content-1">
+                            <div class="hidden content section-3-content collapsed" id="content-1">
                                 <!-- Nội dung của phần này -->
                             </div>
                         </div>
@@ -170,7 +169,7 @@
                                 <span class="text-gray-600">6 bài giảng - 25 phút</span>
                                 <box-icon name='chevron-down' class="toggle-icon"></box-icon>
                             </button>
-                            <div class="hidden content section-3-content" id="content-2">
+                            <div class="hidden content section-3-content collapsed" id="content-2">
                                 <!-- Nội dung của phần này -->
                             </div>
                         </div>
@@ -181,18 +180,18 @@
                                 <span class="text-gray-600">5 bài giảng - 20 phút</span>
                                 <box-icon name='chevron-down' class="toggle-icon"></box-icon>
                             </button>
-                            <div class="hidden content section-3-content" id="content-3">
+                            <div class="hidden content section-3-content collapsed" id="content-3">
                                 <!-- Nội dung của phần này -->
                             </div>
                         </div>
                         <div class="border-b">
                             <button class="w-full px-6 py-4 flex justify-between items-center toggle-button"
                                 data-content="content-4">
-                                <span class="font-medium">Thực hiện các phép toán dụng trong Python</span>
+                                <span class="font-medium">Thực hiện các phép toán trong Python</span>
                                 <span class="text-gray-600">8 bài giảng - 28 phút</span>
                                 <box-icon name='chevron-down' class="toggle-icon"></box-icon>
                             </button>
-                            <div class="hidden content section-3-content" id="content-4">
+                            <div class="hidden content section-3-content collapsed" id="content-4">
                                 <!-- Nội dung của phần này -->
                             </div>
                         </div>
@@ -204,19 +203,18 @@
                         <li>Có máy tính nối mạng Internet để thực hành các bài tập</li>
                     </ul>
                     <!-- Mô tả -->
-                    <div class="section-3-content mt-4">
-                        <h2 class="text-2xl font-bold mb-4 ">Mô tả</h2>
+                    <div class="section-3-content collapsed mt-4">
+                        <h2 class="text-2xl font-bold mb-4">Mô tả</h2>
                         <p class="text-black-600 mb-6" style="margin-bottom: 10px;">
                             Hello bạn,
                         </p>
                         <p class="text-black-600 mb-6">
                             Khóa học <strong>"Lập trình Python từ cơ bản đến nâng cao thông qua các dự án"</strong> được
-                            thiết kế để giúp bạn
-                            từ bước đầu làm quen đến thành thạo trong việc sử dụng Python - một trong những ngôn ngữ lập
+                            thiết kế để giúp bạn từ bước đầu làm quen đến thành thạo trong việc sử dụng Python - một
+                            trong những ngôn ngữ lập
                             trình phổ biến và mạnh mẽ nhất hiện nay. Khóa học này cung cấp một lộ trình học tập rõ ràng
-                            và
-                            thực tế, hướng dẫn bạn qua từng bước cụ thể từ việc cài đặt môi trường phát triển, khai báo
-                            biến, làm việc với chuỗi ký tự, đến việc xây dựng các dự án phức tạp hơn.
+                            và thực tế, hướng dẫn bạn qua từng bước cụ thể từ việc cài đặt môi trường phát triển, khai
+                            báo biến, làm việc với chuỗi ký tự, đến việc xây dựng các dự án phức tạp hơn.
                         </p>
                         <p class="text-black-600 mb-6">
                             <strong>Mục tiêu của khóa học:</strong>
@@ -224,18 +222,15 @@
                         <ul class="list-disc pl-8 mb-6">
                             <li><strong>Hiểu biết căn bản về Python:</strong> Bạn sẽ bắt đầu bằng việc tìm hiểu về ngôn
                                 ngữ
-                                lập trình Python,
-                                cách cài đặt và tùy chỉnh môi trường phát triển PyCharm, và viết các chương trình Python
-                                đầu
-                                tiên của mình.</li>
+                                lập trình Python, cách cài đặt và tùy chỉnh môi trường phát triển PyCharm, và viết các
+                                chương trình Python đầu tiên của mình.</li>
                             <li><strong>Thành thạo các khái niệm lập trình cơ bản:</strong> Khóa học sẽ hướng dẫn bạn về
-                                khai báo biến, các
-                                kiểu dữ liệu, và cách chuyển đổi chúng, cũng như cách sử dụng các phép toán và cấu trúc
-                                điều
+                                khai báo biến, các kiểu dữ liệu, và cách chuyển đổi chúng, cũng như cách sử dụng các
+                                phép toán và cấu trúc điều
                                 khiển trong Python.</li>
                             <li><strong>Làm việc với các cấu trúc dữ liệu:</strong> Bạn sẽ học cách làm việc với các cấu
-                                trúc dữ liệu quan
-                                trọng như chuỗi ký tự, danh sách (List), bộ (Tuple), từ điển (Dictionary), và tập hợp
+                                trúc dữ liệu quan trọng như chuỗi ký tự, danh sách (List), bộ (Tuple), từ điển
+                                (Dictionary), và tập hợp
                                 (Set).
                             </li>
                         </ul>
@@ -244,8 +239,7 @@
                         </p>
                         <ul class="list-disc pl-8 mb-6">
                             <li>Kiến thức toàn diện: Từ những khái niệm cơ bản đến các ứng dụng nâng cao, khóa học bao
-                                quát
-                                mọi khía cạnh cần thiết để bạn trở thành một lập trình viên Python tự tin.</li>
+                                quát mọi khía cạnh cần thiết để bạn trở thành một lập trình viên Python tự tin.</li>
                             <li>Thực hành liên tục: Các bài tập thực hành và dự án cụ thể sẽ giúp bạn áp dụng ngay những
                                 gì
                                 đã học vào thực tế.</li>
@@ -254,19 +248,17 @@
                             Dù bạn là người mới bắt đầu hay đã có kinh nghiệm lập trình và muốn mở rộng kiến thức, khóa
                             học
                             này sẽ trang bị cho bạn những kỹ năng và hiểu biết cần thiết để tiến xa hơn trong sự nghiệp
-                            lập
-                            trình Python. Hãy tham gia cùng chúng tôi và khám phá tiềm năng của Python ngay hôm nay!
+                            lập trình Python. Hãy tham gia cùng chúng tôi và khám phá tiềm năng của Python ngay hôm nay!
                         </p>
                         <!-- Đối tượng khóa học -->
                         <h2 class="text-2xl font-bold mb-4">Đối tượng khóa học</h2>
                         <ul class="list-disc pl-8">
                             <li>Các bạn sinh viên muốn học lập trình Python để phát triển các dự án về Web, IoT, phân
-                                tích
-                                dữ liệu, AI</li>
+                                tích dữ liệu, AI</li>
                         </ul>
                     </div>
-                    <button id="toggle-btn-section-3" class="mt-4 text-blue-600 hover:underline focus:outline-none">Ẩn
-                        bớt ^</button>
+                    <button id="toggle-btn-section-3" class="mt-4 text-blue-600 hover:underline focus:outline-none">Hiện
+                        thêm ^</button>
                 </div>
                 <!-- Kết thúc Section 3 -->
 
@@ -345,7 +337,6 @@
                         <div>
                             <!-- Thông tin giảng viên -->
                             <h3 class="text-2xl font-semibold mb-2" style="color: #5022c3;">Toan Bill</h3>
-
                             <p class="text-gray-600 mb-4 text-lg">Cisco Instructor</p>
                             <div class="flex items-center mb-4">
                                 <span class="text-yellow-500 text-2xl font-bold">4.5</span>
@@ -366,19 +357,25 @@
                                     26 khóa học
                                 </li>
                             </ul>
-                            <p class="text-gray-700 leading-relaxed">Hello there! I am Bill Toan. I have a master's
-                                degree in computer system information. I've been a Cisco instructor since 2010. I hold
-                                CCNA, CCNP Security, and Security+ certification. My favorite teaching courses are CCNA
-                                and CCNP Security. I come from a background of network security engineer, and now I am
-                                focusing on IoT and OT security and applied machine learning techniques on network
-                                security. I have worked for over 14+ years on building enterprise security solutions
-                                using Cisco products. I have been a super-moderator of a network security forum named
-                                Whitehat for more than 10 years. I love sharing my experience with students and
-                                inspiring them to the cyber security world. <Strong>Happy Learning!</Strong> </p>
+                            <!-- Mô tả giảng viên -->
+                            <p class="text-gray-700 leading-relaxed instructor-content collapsed">
+                                Hello there! I am Bill Toan. I have a master's degree in computer system information.
+                                I've been a Cisco instructor since 2010. I hold CCNA, CCNP Security, and Security+
+                                certification. My favorite teaching courses are CCNA and CCNP Security. I come from a
+                                background of network security engineer, and now I am focusing on IoT and OT security
+                                and applied machine learning techniques on network security. I have worked for over 14+
+                                years on building enterprise security solutions using Cisco products. I have been a
+                                super-moderator of a network security forum named Whitehat for more than 10 years. I
+                                love sharing my experience with students and inspiring them to the cyber security world.
+                                <strong>Happy Learning!</strong>
+                            </p>
+                            <button id="toggle-btn-section-5"
+                                class="mt-4 text-blue-600 hover:underline focus:outline-none">Hiện thêm ^</button>
                         </div>
                     </div>
                 </div>
                 <!-- Kết thúc Section 5 -->
+
 
                 <!-- Section 6 -->
                 <div class="container mx-auto px-4 py-8">
@@ -581,6 +578,7 @@
                 <!-- Kết thúc Section 7 -->
 
             </div>
+
 
             <!-- Cột phải (thông tin mua hàng) -->
             <div class="w-full lg:w-1/3 px-4 mt-8 lg:mt-0 sticky-container">
