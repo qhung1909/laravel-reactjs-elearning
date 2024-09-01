@@ -3,8 +3,8 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -20,11 +20,11 @@
         </div>
         <!-- header - search -->
         <div class="navbar-search xl:w-[50%] lg:px-20 md:px-12 xl:px-0 w-[100%] px-10">
-            <input type="text" placeholder="Tìm kiếm..." class="border rounded-full p-2 w-full focus:duration-300" />
+            <input type="text" placeholder="Tìm kiếm..." class="border rounded-full p-2 w-full hover:duration-300" />
         </div>
 
         <!-- header - content -->
-        <div id="navbar-content" class=" navbar-content xl:static xl:min-h-fit absolute bg-white min-h-[40vh] left-0 top-[-100%] flex xl:items-center xl:flex-row flex-col px-10 max-xl:w-full gap-2 max-xl:py-5 max-xl:gap-6">
+        <div id="navbar-content" class=" navbar-content xl:static xl:min-h-fit absolute bg-white min-h-[40vh] left-0 top-[-200%] flex xl:items-center xl:flex-row flex-col px-10 max-xl:w-full gap-2 max-xl:py-5 max-xl:gap-6">
             <!-- header - ul -->
             <ul class="items-center max-xl:pt-3 gap-3 xl:flex max-xl:flex-col text-base xl:text-base w-52">
                 <li class="max-xl:mb-4">
@@ -38,8 +38,8 @@
                 </li>
             </ul>
             <!-- header - icons -->
-            <div class="navbar-icons flex items-center gap-2 xl:mx-3">
-                <div class="navbar-noti">
+            <div class="navbar-icons flex items-center gap-2 xl:mx-3  ">
+                <div class="navbar-noti cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                         style="fill: rgba(0, 0, 0, 1)">
                         <path
@@ -47,7 +47,7 @@
                         </path>
                     </svg>
                 </div>
-                <div class="navbar-language">
+                <div class="navbar-language cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
                         fill="#000000">
                         <path
@@ -59,12 +59,12 @@
             <!-- header - login  -->
             <div class="xl:flex max-xl:flex-col gap-2 items-center">
                 <div class="navbar-register  max-xl:mb-2">
-                    <button class="w-32 me-3 border rounded-lg font-semibold border-black p-1">
+                    <button class="w-32 me-3 border rounded-lg font-semibold border-black p-1 hover:border-1 hover:border-white hover:bg-yellow-300 hover:text-white duration-300">
                         Đăng ký
                     </button>
                 </div>
                 <div class="navbar-login">
-                    <button class="w-32 border rounded-lg font-semibold p-1 bg-yellow-300">
+                    <button class="w-32 border rounded-lg font-semibold p-1 bg-yellow-300 hover:border-1 hover:border-black hover:bg-black hover:text-white duration-300">
                         Đăng nhập
                     </button>
                 </div>
@@ -131,7 +131,7 @@
             </div>
 
             <div class="best-seller-box-content">
-                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
 
                     <!-- box sản phẩm -->
                     <div class="product md:mb-10 xl:mb-0">
@@ -245,10 +245,8 @@
                 <h4>Các khóa học <span class="italic font-semibold text-yellow-400">chất lượng cao</span></h4>
             </div>
 
-
-
             <div class="best-seller-box-content">
-                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
 
                     <!-- box sản phẩm -->
                     <div class="product md:mb-10 xl:mb-0">
@@ -353,7 +351,7 @@
     </div>
 
     <!-- Thân trang - một liều cảm hứng catelog -->
-     <div class="home-page homecatelog max-w-screen-xl mx-auto text-center">
+     <div class="home-page homecatelog max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl mx-auto text-center">
         <div class="homecatelog-box mt-20">
             <div class="homecatelog-box-title text-[46px]">
                 <h2>Một liều <span class="text-yellow-400 italic font-semibold">cảm hứng</span>,</h2>
@@ -423,7 +421,7 @@
                 </div>
             </div>
             <div class="homecatelog homecatelog-products mt-10 ">
-                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-3 text-center xl:text-left">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 text-center xl:text-left">
 
                     <!-- box sản phẩm -->
                     <div class="product md:mb-10 xl:mb-0">
@@ -503,7 +501,7 @@
                             <div class="product-box-img ">
                                 <img src="images/productimgtest.png" alt="" class="object-cover w-[100%] rounded-xl">
                             </div>
-                            <div class="product-box-title text-lg xl:text-xl font-semibold my-2">
+                            <div class="product-box-title text-xl lg:text-lg xl:text-xl font-semibold my-2">
                                 <span>React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners</span>
                             </div>
                             <div class="product-box-author text-lg font-semibold my-1 xl:text-base">
@@ -531,30 +529,30 @@
      </div>
 
      <!-- Thân trang - blog -->
-      <div class="home-page homeblog max-w-screen-xl mx-auto">
+      <div class="home-page homeblog xl:max-w-screen-xl lg:max-w-screen-lg mx-auto py-5">
         <div class="homeblog-box grid grid-cols-1 lg:grid-cols-2 gap-3">
             <div class="homeblog-box-img">
-                <div class="homeblog-box-img-main relative">
+                <div class="homeblog-box-img-main relative md:flex md:justify-center lg:just">
                     <img src="images/homepage-blog.png" alt="">
                 </div>
-                <div class="homeblog-box-img-content relative bg-white w-[240px] top-[-30%] left-[15%] pb-3">
-                    <div class="homeblog-box-img-content-header font-medium p-3">
+                <div class="homeblog-box-img-content relative bg-white pb-3 xl:w-[240px] lg:w-[210px] md:w-[190px] w-[160px] xl:top-[-30%] xl:left-[15%] lg:top-[-32%] lg:left-[15%] md:left-[20%] md:top-[-35%] sm:top[-10%] top-[-35%] left-[20%]">
+                    <div class="homeblog-box-img-content-header font-medium p-3 xl:text-[16px] lg:text-[14px] md:text-[12px] text-[10px]">
                         <span>Khóa học đã hoàn thành  🎉</span>
                     </div>
-                    <div class="homeblog-box-img-content-bottom lg:text-[12px] md:text-[10px] text-[8px] px-3">
-                        <div class="homeblog-box-img-content-bottom-flex flex items-center gap-3 mb-2">
-                            <box-icon name='check-circle' type='solid' color='#facc15' ></box-icon>
+                    <div class="homeblog-box-img-content-bottom xl:text-[12px] lg:text-[10px] md:text-[8px] text-[6px] px-3">
+                        <div class="homeblog-box-img-content-bottom-flex flex items-center gap-3 xl:mb-2 mb-0">
+                            <box-icon name='check-circle'  type='solid' color='#facc15' ></box-icon>
                             <p>Chào mừng bạn học</p>
                         </div>
-                        <div class="homeblog-box-img-content-bottom-flex flex items-center gap-3 mb-2">
+                        <div class="homeblog-box-img-content-bottom-flex flex items-center gap-3 xl:mb-2 mb-0">
                             <box-icon name='check-circle' type='solid' color='#facc15' ></box-icon>
                             <p>Bài học 1: Học những điều cơ bản</p>
                         </div>
-                        <div class="homeblog-box-img-content-bottom-flex flex items-center gap-3 mb-2">
+                        <div class="homeblog-box-img-content-bottom-flex flex items-center gap-3 xl:mb-2 mb-0">
                             <box-icon name='check-circle' type='solid' color='#facc15' ></box-icon>
                             <p>Bài học 2: Tự tin hơn</p>
                         </div>
-                        <div class="homeblog-box-img-content-bottom-flex flex items-center gap-3 mb-2">
+                        <div class="homeblog-box-img-content-bottom-flex flex items-center gap-3 xl:mb-2 mb-0">
                             <box-icon name='check-circle' type='solid' color='#facc15' ></box-icon>
                             <p>Bài học 3: Bắt đầu lần đầu tiên</p>
                         </div>
@@ -566,15 +564,15 @@
                 </div>
             </div>
             <div class="homeblog-box-content">
-                <div class="homeblog-box-content-title py-10 px-20 text-[46px]">
+                <div class="homeblog-box-content-title xl:px-20 lg:px-10 md:mt-[-150px] md:px-20 lg:mt-0 xl:text-[46px] lg:text-[36px] md:text-[26px] sm:text-center lg:text-start">
                     <h2>Thúc đẩy <span class="font-semibold text-yellow-400 italic">sự nghiệp của bạn & mở rộng kiến thức</span> ở bất kỳ cấp độ nào.</h2>
                 </div>
-                <div class="homeblog-box-content-blogs ps-40">
+                <div class="homeblog-box-content-blogs xl:ps-40 lg:px-12 lg:ps-32 md:px-40 md:py-5 sm:text-center lg:text-start xl:text-[16px] lg:text-[12px] md:text-[10px]">
                     <p class="mb-5">Mở khóa tiềm năng của bạn với nền tảng e-learning tiên tiến của chúng tôi, được thiết kế để thúc đẩy sự nghiệp của bạn và mở rộng kiến thức ở bất kỳ cấp độ nào. Sản phẩm của chúng tôi cung cấp thư viện khóa học phong phú trên nhiều lĩnh vực, cho phép bạn học theo tốc độ và sự tiện lợi của riêng mình. Hưởng lợi từ các hội thảo tương tác, hội thảo do chuyên gia dẫn dắt và các chứng chỉ được công nhận trong ngành.</p>
                     <p>Kết nối với các cố vấn và đồng nghiệp thông qua các tính năng kết nối mạng của chúng tôi, và đặt ra các mục tiêu nghề nghiệp rõ ràng với các lộ trình học tập cá nhân hóa. Luôn đi đầu bằng cách nắm bắt công nghệ mới và trau dồi các kỹ năng thiết yếu như giao tiếp và giải quyết vấn đề. Với sản phẩm e-learning của chúng tôi, bạn có thể đảm bảo sự phát triển và thành công liên tục trong một thị trường việc làm luôn thay đổi.</p>
                 </div>
-                <div class="homeblog-box-content-button ps-40   py-5">
-                    <button class="bg-yellow-400 font-semibold py-3 px-5 rounded-full hover:bg-yellow-300 duration-300">Khám phá thêm</button>
+                <div class="homeblog-box-content-button xl:ps-40 lg:ps-32  md:flex md:justify-center lg:justify-start  py-5 md:text-[10px] lg:text-[12px] xl:text-[16px]">
+                    <button class="bg-yellow-400 font-semibold lg:py-3 lg:px-5 md:py-2 md:px-4 rounded-full hover:bg-yellow-300 duration-300">Khám phá thêm</button>
                 </div>
             </div>
         </div>
