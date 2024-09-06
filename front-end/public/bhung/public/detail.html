@@ -263,69 +263,123 @@
                 <!-- Kết thúc Section 3 -->
 
                 <!-- Section 4 -->
-                <div class="container mx-auto px-4 py-8">
-                    <h2 class="text-2xl font-bold mb-4">Học viên cũng mua</h2>
-                    <div class="space-y-4">
-                        <!-- Khóa học 1 -->
-                        <div class="flex items-center bg-white p-4 rounded-lg shadow-md">
-                            <img src="../img/inclusion.jpg" alt="Khóa học 1"
-                                class="w-20 h-20 object-cover rounded-lg mr-4">
-                            <div class="w-64">
-                                <h3 class="text-md font-semibold">Machine Learning: Build neural networks in 77 lines of
-                                    code</h3>
-                                <p class="text-gray-600 text-sm">Tổng số 1 giờ • Đã cập nhật 1/2019</p>
+                <div class="bg-gray-50 py-8 sm:py-12">
+                    <div class="container mx-auto px-4">
+                        <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Học viên cũng mua</h2>
+                        <div class="space-y-6">
+                            <!-- Khóa học 1 -->
+                            <div
+                                class="flex flex-col sm:flex-row items-start sm:items-center bg-white p-4 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg">
+                                <img src="../img/inclusion.jpg" alt="Khóa học 1"
+                                    class="w-full sm:w-32 h-48 sm:h-32 object-cover rounded-lg mb-4 sm:mb-0 sm:mr-6">
+                                <div class="flex-grow">
+                                    <div class="sm:flex sm:justify-between">
+                                        <div class="mb-4 sm:mb-0 sm:mr-6">
+                                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Machine Learning: Build
+                                                neural networks in 77 lines of code</h3>
+                                            <p class="text-gray-600 text-sm">Tổng số 1 giờ • Đã cập nhật 1/2019</p>
+                                        </div>
+                                        <div class="flex flex-col sm:items-end">
+                                            <div class="flex items-center mb-2">
+                                                <span class="text-yellow-500 font-bold">4,7</span>
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                    class="h-5 w-5 text-yellow-500 ml-1" viewBox="0 0 20 20"
+                                                    fill="currentColor">
+                                                    <path
+                                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                                <span class="text-gray-600 ml-2 flex items-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1"
+                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                        <path
+                                                            d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                                    </svg>
+                                                    1.865
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center justify-between sm:flex-col sm:items-end">
+                                                <div class="flex flex-col sm:items-end">
+                                                    <p class="text-lg sm:text-xl font-bold text-black-600">₫ 229.000</p>
+                                                    <span class="line-through text-gray-400 text-sm">₫ 399.000</span>
+                                                </div>
+                                                <button
+                                                    class="ml-4 sm:ml-0 sm:mt-2 p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-300">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                        class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24"
+                                                        stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex-grow flex justify-between items-center mb-4">
-                                <div class="flex items-center mb-4 ">
-                                    <span class="text-yellow-500">4,7</span>
-                                    <box-icon name='star' type='solid' color='#ECC94B' class="ml-1"></box-icon>
-                                    <span class="text-gray-600 ml-2 flex items-center">
-                                        <box-icon name='user' color='#718096'></box-icon> 1.865
-                                    </span>
-                                </div>
-                                <div class="flex flex-col items-start ">
-                                    <p class="text-black font-bold text-ml-2 mt-1 ">₫ 229.000</p>
-                                    <span class="line-through text-gray-400 text-sm">₫ 399.000</span>
-                                </div>
 
-                                <box-icon name='heart' color='#000000' size='md' class="ml-4 mb-4"></box-icon>
+                            <!-- Khóa học 2 (tương tự như Khóa học 1) -->
+                            <div
+                                class="flex flex-col sm:flex-row items-start sm:items-center bg-white p-4 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg">
+                                <img src="../img/inclusion.jpg" alt="Khóa học 2"
+                                    class="w-full sm:w-32 h-48 sm:h-32 object-cover rounded-lg mb-4 sm:mb-0 sm:mr-6">
+                                <div class="flex-grow">
+                                    <div class="sm:flex sm:justify-between">
+                                        <div class="mb-4 sm:mb-0 sm:mr-6">
+                                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Advanced Machine
+                                                Learning: Deep Learning Techniques</h3>
+                                            <p class="text-gray-600 text-sm">Tổng số 2 giờ • Đã cập nhật 3/2024</p>
+                                        </div>
+                                        <div class="flex flex-col sm:items-end">
+                                            <div class="flex items-center mb-2">
+                                                <span class="text-yellow-500 font-bold">4,9</span>
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                    class="h-5 w-5 text-yellow-500 ml-1" viewBox="0 0 20 20"
+                                                    fill="currentColor">
+                                                    <path
+                                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                                <span class="text-gray-600 ml-2 flex items-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1"
+                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                        <path
+                                                            d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                                    </svg>
+                                                    2.103
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center justify-between sm:flex-col sm:items-end">
+                                                <div class="flex flex-col sm:items-end">
+                                                    <p class="text-lg sm:text-xl font-bold text-black-600">₫ 279.000</p>
+                                                    <span class="line-through text-gray-400 text-sm">₫ 459.000</span>
+                                                </div>
+                                                <button
+                                                    class="ml-4 sm:ml-0 sm:mt-2 p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-300">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                        class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24"
+                                                        stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
+                            <!-- Thêm các khóa học khác tương tự nếu cần -->
+
                         </div>
-                        <!-- Khóa học 2 -->
-                        <div class="flex items-center bg-white p-4 rounded-lg shadow-md">
-                            <img src="../img/inclusion.jpg" alt="Khóa học 1"
-                                class="w-20 h-20 object-cover rounded-lg mr-4">
-                            <div class="w-64">
-                                <h3 class="text-md font-semibold">Machine Learning: Build neural networks in 77 lines of
-                                    code</h3>
-                                <p class="text-gray-600 text-sm">Tổng số 1 giờ • Đã cập nhật 1/2019</p>
-                            </div>
-                            <div class="flex-grow flex justify-between items-center mb-4">
-                                <div class="flex items-center mb-4 ">
-                                    <span class="text-yellow-500">4,7</span>
-                                    <box-icon name='star' type='solid' color='#ECC94B' class="ml-1"></box-icon>
-                                    <span class="text-gray-600 ml-2 flex items-center">
-                                        <box-icon name='user' color='#718096'></box-icon> 1.865
-                                    </span>
-                                </div>
-                                <div class="flex flex-col items-start ">
-                                    <p class="text-black font-bold text-ml-2 mt-1 ">₫ 229.000</p>
-                                    <span class="line-through text-gray-400 text-sm">₫ 399.000</span>
-                                </div>
-
-                                <box-icon name='heart' color='#000000' size='md' class="ml-4 mb-4"></box-icon>
-                            </div>
+                        <!-- Nút Hiện thêm -->
+                        <div class="text-center mt-6">
+                            <button
+                                class="border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-100">Hiện thêm</button>
                         </div>
-
-                        <!-- Các khóa học khác... -->
-                    </div>
-                    <!-- Nút Hiện thêm -->
-                    <div class="text-center mt-4">
-                        <button class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Hiện thêm</button>
                     </div>
                 </div>
                 <!-- Kết thúc Section 4 -->
-
                 <!-- Section 5 -->
                 <div class="container mx-auto px-4 py-8">
                     <h2 class="text-2xl font-bold mb-6 text-gray-800">Giảng viên</h2>
