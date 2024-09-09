@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./styles.css">
+    
+</head>
+
+<body>
+    <div class="flex flex-col md:flex-row w-full h-screen bg-gray-100">
+        <!-- Video Section -->
+        <div class="flex-1 flex items-center justify-center bg-black">
+            <div class="relative w-full md:w-2/3 lg:w-1/2">
+                <h1>Watch This Video</h1>
+
+                <div class="video-container">
+                    <!-- Replace the src URL with the URL from the YouTube Embed code -->
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/db3IA7Dq8vY?si=LuMXo8BHQbdbpL8v"
+                        title="YouTube video player" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+                <button
+                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-orange-500 p-3 rounded-full">
+                    <!-- Play Icon (Replace with your box icon) -->
+                    <i class="bx bx-play text-white text-3xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Course Outline Section -->
+        <div class="flex-none w-full md:w-1/3 bg-white p-4 overflow-y-auto">
+            <h3 class="text-xl font-bold mb-4">Nội dung khóa học</h3>
+            <ul class="space-y-4">
+                <!-- Section 1 -->
+                <li>
+                    <button class="flex justify-between items-center w-full bg-gray-200 p-2 rounded-md"
+                        onclick="toggleSection('section1')">
+                        <span>1. Khái niệm kỹ thuật cần biết</span>
+                        <i class="bx bx-chevron-down"></i>
+                    </button>
+                    <ul id="section1" class="pl-4 hidden">
+                        <li class="text-sm text-red-500 p-1">1. Mô hình Client - Server là gì?</li>
+                        <li class="text-sm text-gray-400 p-1">2. Domain là gì? Tên miền là gì?</li>
+                        <li class="text-sm text-gray-400 p-1">3. Mua áo F8 | Đăng ký học Offline</li>
+                    </ul>
+                </li>
+
+                <!-- Section 2 -->
+                <li>
+                    <button class="flex justify-between items-center w-full bg-gray-200 p-2 rounded-md"
+                        onclick="toggleSection('section2')">
+                        <span>2. Môi trường, con người IT</span>
+                        <i class="bx bx-chevron-down"></i>
+                    </button>
+                    <ul id="section2" class="pl-4 hidden">
+                        <!-- Content for section 2 -->
+                    </ul>
+                </li>
+
+                <!-- Section 3 -->
+                <li>
+                    <button class="flex justify-between items-center w-full bg-gray-200 p-2 rounded-md"
+                        onclick="toggleSection('section3')">
+                        <span>3. Phương pháp, định hướng</span>
+                        <i class="bx bx-chevron-down"></i>
+                    </button>
+                    <ul id="section3" class="pl-4 hidden">
+                        <!-- Content for section 3 -->
+                    </ul>
+                </li>
+
+                <!-- Add more sections as needed -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="flex justify-between items-center bg-white p-4 border-t fixed bottom-0 w-full">
+        <button class="bg-gray-200 py-2 px-4 rounded">Bài trước</button>
+        <button class="bg-blue-500 text-white py-2 px-4 rounded">Bài tiếp theo</button>
+    </div>
+
+
+
+
+</body>
+<!-- Script for toggling sections -->
+<script>
+    function toggleSection(sectionId) {
+        var section = document.getElementById(sectionId);
+        section.classList.toggle('hidden');
+    }
+</script>
+
+</html>
