@@ -7,7 +7,7 @@
     <title>Course Section</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../css/home.css">
-    <link rel="stylesheet" href="../javascript/home.js">
+    <script src="./home.js"></script>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
 </head>
@@ -170,7 +170,7 @@
             </button>
         </section>
 
-        <!-- Giảng viên nổi tiếng --> <!-- ĐANG SỬA -->
+        <!-- Giảng viên nổi tiếng -->
         <h1 class="text-2xl font-semibold ">Giảng viên nổi tiếng</h1>
         <p class="text-gray-500">Các chuyên gia trong ngành này được đánh giá cao bởi những học viên như bạn.</p>
 
@@ -291,7 +291,7 @@
         </section>
 
         <!-- Tất cả các khóa học Phát triển web -->
-        <div class="container mx-auto p-4">
+        <div class="container">
             <div class="mb-4">
                 <h1 class="text-2xl font-bold">Tất cả các khóa học Phát triển web</h1>
                 <p class="text-gray-500 mt-2">Bạn không biết chắc? Tất cả các khóa học đều được đảm bảo hoàn tiền trong
@@ -322,10 +322,16 @@
                 </div>
 
                 <!-- Bộ lọc -->
-                <div id="filterPanel" class="absolute left-0 mt-12 w-70 bg-white p-4 rounded-lg shadow z-20">
-                    <h2 class="font-bold mb-2">Xếp hạng</h2>
-                    <div>
-                        <div class="flex items-center mb-2">
+                <div id="filterPanel" class="absolute left-0 mt-12 w-70 bg-white p-4 rounded-sm shadow z-20">
+                    <!-- Xếp hạng  -->
+                    <div class="flex items-center mb-2">
+                        <h2 class="font-bold flex-1">Xếp hạng</h2>
+                        <span id="toggle-btn" class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
+                            <i class='bx bx-chevron-up'></i>
+                        </span>
+                    </div>
+                    <div class="lesson-content collapsed">
+                        <div class="flex items-center mb-2 ">
                             <input type="radio" name="rating" class="mr-2">
                             <span class="text-yellow-500 ">
                                 <i class='bx bxs-star '></i>
@@ -378,8 +384,15 @@
                             </span>
                         </div>
                     </div>
-                    <h2 class="font-bold mt-4 mb-2">Thời lượng video</h2>
-                    <div>
+                    <!-- Thời lượng video -->
+                    <div class="flex items-center mb-2">
+                        <h2 class="font-bold flex-1">Thời lượng video</h2>
+                        <span id="toggle-btn-tlv"
+                            class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
+                            <i class='bx bx-chevron-up'></i>
+                        </span>
+                    </div>
+                    <div class="lesson-content-tlv collapsed">
                         <div class="flex items-center mb-2">
                             <input type="checkbox" name="duration" class="mr-2 text-black">
                             <span class="text-sm text-black">0-1 giờ <span class="text-gray-600">(3.217)</span></span>
@@ -402,8 +415,15 @@
                                     class="text-gray-600">(4.518)</span></span>
                         </div>
                     </div>
-                    <h2 class="font-semibold mb-2">Chủ đề</h2>
-                    <div>
+                    <!-- Chủ đề -->
+                    <div class="flex items-center mb-2">
+                        <h2 class="font-bold flex-1">Chủ đề</h2>
+                        <span id="toggle-btn-cd"
+                            class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
+                            <i class='bx bx-chevron-up'></i>
+                        </span>
+                    </div>
+                    <div class="lesson-content-cd collapsed">
                         <div class="flex items-center mb-2">
                             <input type="checkbox" name="duration" class="mr-2">
                             <span class="text-sm text-black">Python <span class="text-gray-600">(2.433)</span></span>
@@ -427,174 +447,349 @@
                                     class="text-gray-600">(933)</span></span>
                         </div>
                     </div>
-                    <h2 class="font-bold mb-2">Thể loại con</h2>
-                    <h2 class="font-bold mb-2">Cấp độ</h2>
-                    <h2 class="font-bold mb-2">Ngôn ngữ</h2>
-                    <h2 class="font-bold mb-2">Giá</h2>
-                    <h2 class="font-bold mb-2">Đặc điểm</h2>
-                    <h2 class="font-bold mb-2">Phụ đề</h2>
-                </div>
-
-            </div>
-
-
-
-            <!-- Danh sách khóa học -->
-            <div id="content" class="grid grid-cols-12 gap-4">
-                <!-- Bộ lọc ở cột 3 -->
-                <div id="filterCol" class="col-span-3">
-                    <!-- Bộ lọc sẽ được chèn vào đây khi hiển thị -->
-                </div>
-
-                <!-- Danh sách khóa học ở cột 9 -->
-                <div id="courseCol" class="col-span-9 grid grid-cols-1 gap-4">
-                    <!-- Khóa học 1 -->
-                    <div class="relative bg-white p-4 rounded-lg shadow flex group">
-                        <img src="../images/5712300_b951_5.jpg" alt="React Ultimate"
-                            class="w-50 h-40 object-cover mr-4">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-semibold text-gray-800">
-                                <a href="#" class="hover:underline">C++ Cơ bản dành cho người mới học lập trình</a>
-                            </h3>
-                            <p class="text-sm text-black">Bắt đầu học lập trình bằng ngôn ngữ C++</p>
-                            <p class="text-xs text-gray-500">Le Dan Dat</p>
-                            <p class="text-yellow-500 text-sm"><strong class="text-black">4,7</strong> ★★★★☆ (297)</p>
-                            <p class="text-xs text-gray-500">Tổng số giờ 10,5 giờ 92 bài giảng Sơ cấp</p>
+                    <!-- Thể loại con -->
+                    <div class="flex items-center mb-2">
+                        <h2 class="font-bold flex-1">Thể loại con</h2>
+                        <span id="toggle-btn-tlc"
+                            class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
+                            <i class='bx bx-chevron-up'></i>
+                        </span>
+                    </div>
+                    <div class="lesson-content-tlc collapsed">
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Phát triển web <span
+                                    class="text-gray-600">(2.433)</span></span>
                         </div>
-                        <div class="ml-auto">
-                            <p class="text-sm font-bold text-black">₫ 199.000</p>
-                            <p class="text-sm text-gray-500 line-through">₫ 1.099.000</p>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Ngôn ngữ lập trình <span
+                                    class="text-gray-600">(1.105)</span></span>
                         </div>
-
-                        <!-- Popover -->
-                        <div
-                            class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
-                            <div class="space-y-2">
-                                <h3 class="font-semibold text-gray-900">Những kiến thức bạn sẽ học</h3>
-                                <p><i class='bx bx-check'></i> Biết cách lập trình cơ bản</p>
-                                <p><i class='bx bx-check'></i> Có khái niệm về lập trình C++</p>
-                                <p><i class='bx bx-check'></i> Biết cách sử dụng thư viện C++ để chuẩn bị cho khoá học
-                                    hướng đối tượng</p>
-                                <button class="bg-purple-600 text-white text-center font-bold px-20 py-3 rounded">Thêm
-                                    vào giỏ hàng</button>
-                            </div>
-                            <!-- Mũi tên bên trong popover -->
-                            <div
-                                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white">
-                            </div>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Khoa học dữ liệu <span
+                                    class="text-gray-600">(1.088)</span></span>
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Phát triển ứng dụng di động <span
+                                    class="text-gray-600">(960)</span></span>
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Thiết kế cơ sở dữ liệu <span
+                                    class="text-gray-600">(960)</span></span>
                         </div>
                     </div>
-                    <!-- Khóa học 2 -->
-                    <div class="relative bg-white p-4 rounded-lg shadow flex group">
-                        <img src="../images/5712300_b951_5.jpg" alt="React Ultimate"
-                            class="w-50 h-40 object-cover mr-4">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-semibold text-gray-800">
-                                <a href="#" class="hover:underline">C++ Cơ bản dành cho người mới học lập trình</a>
-                            </h3>
-                            <p class="text-sm text-black">Bắt đầu học lập trình bằng ngôn ngữ C++</p>
-                            <p class="text-xs text-gray-500">Le Dan Dat</p>
-                            <p class="text-yellow-500 text-sm"><strong class="text-black">4,7</strong> ★★★★☆ (297)</p>
-                            <p class="text-xs text-gray-500">Tổng số giờ 10,5 giờ 92 bài giảng Sơ cấp</p>
+                    <!-- Cấp độ -->
+                    <div class="flex items-center mb-2">
+                        <h2 class="font-bold flex-1">Cấp độ</h2>
+                        <span id="toggle-btn-capdo"
+                            class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
+                            <i class='bx bx-chevron-up'></i>
+                        </span>
+                    </div>
+                    <div class="lesson-content-capdo collapsed">
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">tất cả trình độ <span
+                                    class="text-gray-600">(10.000)</span></span>
                         </div>
-                        <div class="ml-auto">
-                            <p class="text-sm font-bold text-black">₫ 199.000</p>
-                            <p class="text-sm text-gray-500 line-through">₫ 1.099.000</p>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Sơ cấp <span class="text-gray-600">(10.000)</span></span>
                         </div>
-
-                        <!-- Popover -->
-                        <div
-                            class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
-                            <div class="space-y-2">
-                                <h3 class="font-semibold text-gray-900">Những kiến thức bạn sẽ học</h3>
-                                <p><i class='bx bx-check'></i> Biết cách lập trình cơ bản</p>
-                                <p><i class='bx bx-check'></i> Có khái niệm về lập trình C++</p>
-                                <p><i class='bx bx-check'></i> Biết cách sử dụng thư viện C++ để chuẩn bị cho khoá học
-                                    hướng đối tượng</p>
-                                <button class="bg-purple-600 text-white text-center font-bold px-20 py-3 rounded">Thêm
-                                    vào giỏ hàng</button>
-                            </div>
-                            <!-- Mũi tên bên trong popover -->
-                            <div
-                                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white">
-                            </div>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Trung cấp <span class="text-gray-600">(5.665)</span></span>
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Chuyên gia <span class="text-gray-600">(621)</span></span>
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Phát triển web <span
+                                    class="text-gray-600">(933)</span></span>
                         </div>
                     </div>
-                    <!-- Khóa học 3 -->
-                    <div class="relative bg-white p-4 rounded-lg shadow flex group">
-                        <img src="../images/5712300_b951_5.jpg" alt="React Ultimate"
-                            class="w-50 h-40 object-cover mr-4">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-semibold text-gray-800">
-                                <a href="#" class="hover:underline">C++ Cơ bản dành cho người mới học lập trình</a>
-                            </h3>
-                            <p class="text-sm text-black">Bắt đầu học lập trình bằng ngôn ngữ C++</p>
-                            <p class="text-xs text-gray-500">Le Dan Dat</p>
-                            <p class="text-yellow-500 text-sm"><strong class="text-black">4,7</strong> ★★★★☆ (297)</p>
-                            <p class="text-xs text-gray-500">Tổng số giờ 10,5 giờ 92 bài giảng Sơ cấp</p>
+                    <!-- Ngôn ngữ -->
+                    <div class="flex items-center mb-2">
+                        <h2 class="font-bold flex-1">Ngôn ngữ</h2>
+                        <span id="toggle-btn-nn"
+                            class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
+                            <i class='bx bx-chevron-up'></i>
+                        </span>
+                    </div>
+                    <div class="lesson-content-nn collapsed">
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">English <span class="text-gray-600">(1)</span></span>
                         </div>
-                        <div class="ml-auto">
-                            <p class="text-sm font-bold text-black">₫ 199.000</p>
-                            <p class="text-sm text-gray-500 line-through">₫ 1.099.000</p>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">中国人 <span class="text-gray-600">(1)</span></span>
                         </div>
-
-                        <!-- Popover -->
-                        <div
-                            class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
-                            <div class="space-y-2">
-                                <h3 class="font-semibold text-gray-900">Những kiến thức bạn sẽ học</h3>
-                                <p><i class='bx bx-check'></i> Biết cách lập trình cơ bản</p>
-                                <p><i class='bx bx-check'></i> Có khái niệm về lập trình C++</p>
-                                <p><i class='bx bx-check'></i> Biết cách sử dụng thư viện C++ để chuẩn bị cho khoá học
-                                    hướng đối tượng</p>
-                                <button class="bg-purple-600 text-white text-center font-bold px-20 py-3 rounded">Thêm
-                                    vào giỏ hàng</button>
-                            </div>
-                            <!-- Mũi tên bên trong popover -->
-                            <div
-                                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white">
-                            </div>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">日本語<span class="text-gray-600">(1)</span></span>
                         </div>
                     </div>
-                    <!-- Khóa học 4 -->
-                    <div class="relative bg-white p-4 rounded-lg shadow flex group">
-                        <img src="../images/5712300_b951_5.jpg" alt="React Ultimate"
-                            class="w-50 h-40 object-cover mr-4">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-semibold text-gray-800">
-                                <a href="#" class="hover:underline">C++ Cơ bản dành cho người mới học lập trình</a>
-                            </h3>
-                            <p class="text-sm text-black">Bắt đầu học lập trình bằng ngôn ngữ C++</p>
-                            <p class="text-xs text-gray-500">Le Dan Dat</p>
-                            <p class="text-yellow-500 text-sm"><strong class="text-black">4,7</strong> ★★★★☆ (297)</p>
-                            <p class="text-xs text-gray-500">Tổng số giờ 10,5 giờ 92 bài giảng Sơ cấp</p>
+                    <!-- Giá -->
+                    <div class="flex items-center mb-2">
+                        <h2 class="font-bold flex-1">Giá</h2>
+                        <span id="toggle-btn-gia"
+                            class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
+                            <i class='bx bx-chevron-up'></i>
+                        </span>
+                    </div>
+                    <div class="lesson-content-gia collapsed">
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Có trả phí <span class="text-gray-600">(68)</span></span>
                         </div>
-                        <div class="ml-auto">
-                            <p class="text-sm font-bold text-black">₫ 199.000</p>
-                            <p class="text-sm text-gray-500 line-through">₫ 1.099.000</p>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Miễn phí <span class="text-gray-600">(23)</span></span>
                         </div>
-
-                        <!-- Popover -->
-                        <div
-                            class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
-                            <div class="space-y-2">
-                                <h3 class="font-semibold text-gray-900">Những kiến thức bạn sẽ học</h3>
-                                <p><i class='bx bx-check'></i> Biết cách lập trình cơ bản</p>
-                                <p><i class='bx bx-check'></i> Có khái niệm về lập trình C++</p>
-                                <p><i class='bx bx-check'></i> Biết cách sử dụng thư viện C++ để chuẩn bị cho khoá học
-                                    hướng đối tượng</p>
-                                <button class="bg-purple-600 text-white text-center font-bold px-20 py-3 rounded">Thêm
-                                    vào giỏ hàng</button>
-                            </div>
-                            <!-- Mũi tên bên trong popover -->
-                            <div
-                                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white">
-                            </div>
+                    </div>
+                    <!-- Đặc điểm -->
+                    <div class="flex items-center mb-2">
+                        <h2 class="font-bold flex-1">Đặc điểm</h2>
+                        <span id="toggle-btn-dacdiem"
+                            class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
+                            <i class='bx bx-chevron-up'></i>
+                        </span>
+                    </div>
+                    <div class="lesson-content-dacdiem collapsed">
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Phụ đề <span class="text-gray-600">(1)</span></span>
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Trắc nghiệm <span class="text-gray-600">(16)</span></span>
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Bài tập Coding <span
+                                    class="text-gray-600">(8)</span></span>
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Bài kiểm tra thực hành <span
+                                    class="text-gray-600">(4)</span></span>
+                        </div>
+                    </div>
+                    <!-- Phụ đề -->
+                    <div class="flex items-center mb-2">
+                        <h2 class="font-bold flex-1">Phụ đề</h2>
+                        <span id="toggle-btn-phude"
+                            class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
+                            <i class='bx bx-chevron-up'></i>
+                        </span>
+                    </div>
+                    <div class="lesson-content-phude collapsed">
+                        <div class="flex items-center mb-2">
+                            <input type="checkbox" name="duration" class="mr-2">
+                            <span class="text-sm text-black">Tiếng Việt <span class="text-gray-600">(1)</span></span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+
+
+    <!-- Danh sách khóa học -->
+    <div id="content" class="grid grid-cols-12 gap-4 mx-20">
+        <!-- Bộ lọc ở cột 3 -->
+        <div id="filterCol" class="col-span-3">
+            <!-- Bộ lọc sẽ được chèn vào đây khi hiển thị -->
+        </div>
+
+        <!-- Danh sách khóa học ở cột 9 -->
+        <div id="courseCol" class="col-span-9 grid grid-cols-1 gap-4">
+            <!-- Khóa học 1 -->
+            <div class="relative bg-white p-4 rounded-lg shadow flex group">
+                <img src="../images/5712300_b951_5.jpg" alt="React Ultimate" class="w-50 h-40 object-cover mr-4">
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <a href="#" class="hover:underline">C++ Cơ bản dành cho người mới học lập trình</a>
+                    </h3>
+                    <p class="text-sm text-black">Bắt đầu học lập trình bằng ngôn ngữ C++</p>
+                    <p class="text-xs text-gray-500">Le Dan Dat</p>
+                    <p class="text-yellow-500 text-sm"><strong class="text-black">4,7</strong> ★★★★☆ (297)</p>
+                    <p class="text-xs text-gray-500">Tổng số giờ 10,5 giờ 92 bài giảng Sơ cấp</p>
+                </div>
+                <div class="ml-auto">
+                    <p class="text-sm font-bold text-black">₫ 199.000</p>
+                    <p class="text-sm text-gray-500 line-through">₫ 1.099.000</p>
+                </div>
+
+                <!-- Popover -->
+                <div
+                    class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
+                    <div class="space-y-2">
+                        <h3 class="font-semibold text-gray-900">Những kiến thức bạn sẽ học</h3>
+                        <p><i class='bx bx-check'></i> Biết cách lập trình cơ bản</p>
+                        <p><i class='bx bx-check'></i> Có khái niệm về lập trình C++</p>
+                        <p><i class='bx bx-check'></i> Biết cách sử dụng thư viện C++ để chuẩn bị cho khoá học
+                            hướng đối tượng</p>
+                        <button class="bg-purple-600 text-white text-center font-bold px-20 py-3 rounded">Thêm
+                            vào giỏ hàng</button>
+                    </div>
+                    <!-- Mũi tên bên trong popover -->
+                    <div
+                        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white">
+                    </div>
+                </div>
+            </div>
+            <!-- Khóa học 2 -->
+            <div class="relative bg-white p-4 rounded-lg shadow flex group">
+                <img src="../images/5712300_b951_5.jpg" alt="React Ultimate" class="w-50 h-40 object-cover mr-4">
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <a href="#" class="hover:underline">C++ Cơ bản dành cho người mới học lập trình</a>
+                    </h3>
+                    <p class="text-sm text-black">Bắt đầu học lập trình bằng ngôn ngữ C++</p>
+                    <p class="text-xs text-gray-500">Le Dan Dat</p>
+                    <p class="text-yellow-500 text-sm"><strong class="text-black">4,7</strong> ★★★★☆ (297)</p>
+                    <p class="text-xs text-gray-500">Tổng số giờ 10,5 giờ 92 bài giảng Sơ cấp</p>
+                </div>
+                <div class="ml-auto">
+                    <p class="text-sm font-bold text-black">₫ 199.000</p>
+                    <p class="text-sm text-gray-500 line-through">₫ 1.099.000</p>
+                </div>
+
+                <!-- Popover -->
+                <div
+                    class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
+                    <div class="space-y-2">
+                        <h3 class="font-semibold text-gray-900">Những kiến thức bạn sẽ học</h3>
+                        <p><i class='bx bx-check'></i> Biết cách lập trình cơ bản</p>
+                        <p><i class='bx bx-check'></i> Có khái niệm về lập trình C++</p>
+                        <p><i class='bx bx-check'></i> Biết cách sử dụng thư viện C++ để chuẩn bị cho khoá học
+                            hướng đối tượng</p>
+                        <button class="bg-purple-600 text-white text-center font-bold px-20 py-3 rounded">Thêm
+                            vào giỏ hàng</button>
+                    </div>
+                    <!-- Mũi tên bên trong popover -->
+                    <div
+                        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white">
+                    </div>
+                </div>
+            </div>
+            <!-- Khóa học 3 -->
+            <div class="relative bg-white p-4 rounded-lg shadow flex group">
+                <img src="../images/5712300_b951_5.jpg" alt="React Ultimate" class="w-50 h-40 object-cover mr-4">
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <a href="#" class="hover:underline">C++ Cơ bản dành cho người mới học lập trình</a>
+                    </h3>
+                    <p class="text-sm text-black">Bắt đầu học lập trình bằng ngôn ngữ C++</p>
+                    <p class="text-xs text-gray-500">Le Dan Dat</p>
+                    <p class="text-yellow-500 text-sm"><strong class="text-black">4,7</strong> ★★★★☆ (297)</p>
+                    <p class="text-xs text-gray-500">Tổng số giờ 10,5 giờ 92 bài giảng Sơ cấp</p>
+                </div>
+                <div class="ml-auto">
+                    <p class="text-sm font-bold text-black">₫ 199.000</p>
+                    <p class="text-sm text-gray-500 line-through">₫ 1.099.000</p>
+                </div>
+
+                <!-- Popover -->
+                <div
+                    class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
+                    <div class="space-y-2">
+                        <h3 class="font-semibold text-gray-900">Những kiến thức bạn sẽ học</h3>
+                        <p><i class='bx bx-check'></i> Biết cách lập trình cơ bản</p>
+                        <p><i class='bx bx-check'></i> Có khái niệm về lập trình C++</p>
+                        <p><i class='bx bx-check'></i> Biết cách sử dụng thư viện C++ để chuẩn bị cho khoá học
+                            hướng đối tượng</p>
+                        <button class="bg-purple-600 text-white text-center font-bold px-20 py-3 rounded">Thêm
+                            vào giỏ hàng</button>
+                    </div>
+                    <!-- Mũi tên bên trong popover -->
+                    <div
+                        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white">
+                    </div>
+                </div>
+            </div>
+            <!-- Khóa học 4 -->
+            <div class="relative bg-white p-4 rounded-lg shadow flex group">
+                <img src="../images/5712300_b951_5.jpg" alt="React Ultimate" class="w-50 h-40 object-cover mr-4">
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <a href="#" class="hover:underline">C++ Cơ bản dành cho người mới học lập trình</a>
+                    </h3>
+                    <p class="text-sm text-black">Bắt đầu học lập trình bằng ngôn ngữ C++</p>
+                    <p class="text-xs text-gray-500">Le Dan Dat</p>
+                    <p class="text-yellow-500 text-sm"><strong class="text-black">4,7</strong> ★★★★☆ (297)</p>
+                    <p class="text-xs text-gray-500">Tổng số giờ 10,5 giờ 92 bài giảng Sơ cấp</p>
+                </div>
+                <div class="ml-auto">
+                    <p class="text-sm font-bold text-black">₫ 199.000</p>
+                    <p class="text-sm text-gray-500 line-through">₫ 1.099.000</p>
+                </div>
+
+                <!-- Popover -->
+                <div
+                    class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
+                    <div class="space-y-2">
+                        <h3 class="font-semibold text-gray-900">Những kiến thức bạn sẽ học</h3>
+                        <p><i class='bx bx-check'></i> Biết cách lập trình cơ bản</p>
+                        <p><i class='bx bx-check'></i> Có khái niệm về lập trình C++</p>
+                        <p><i class='bx bx-check'></i> Biết cách sử dụng thư viện C++ để chuẩn bị cho khoá học
+                            hướng đối tượng</p>
+                        <button class="bg-purple-600 text-white text-center font-bold px-20 py-3 rounded">Thêm
+                            vào giỏ hàng</button>
+                    </div>
+                    <!-- Mũi tên bên trong popover -->
+                    <div
+                        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white">
+                    </div>
+                </div>
+            </div>
+            <!-- Khóa học 5 -->
+            <div class="relative bg-white p-4 rounded-lg shadow flex group">
+                <img src="../images/5712300_b951_5.jpg" alt="React Ultimate" class="w-50 h-40 object-cover mr-4">
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <a href="#" class="hover:underline">C++ Cơ bản dành cho người mới học lập trình</a>
+                    </h3>
+                    <p class="text-sm text-black">Bắt đầu học lập trình bằng ngôn ngữ C++</p>
+                    <p class="text-xs text-gray-500">Le Dan Dat</p>
+                    <p class="text-yellow-500 text-sm"><strong class="text-black">4,7</strong> ★★★★☆ (297)</p>
+                    <p class="text-xs text-gray-500">Tổng số giờ 10,5 giờ 92 bài giảng Sơ cấp</p>
+                </div>
+                <div class="ml-auto">
+                    <p class="text-sm font-bold text-black">₫ 199.000</p>
+                    <p class="text-sm text-gray-500 line-through">₫ 1.099.000</p>
+                </div>
+
+                <!-- Popover -->
+                <div
+                    class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
+                    <div class="space-y-2">
+                        <h3 class="font-semibold text-gray-900">Những kiến thức bạn sẽ học</h3>
+                        <p><i class='bx bx-check'></i> Biết cách lập trình cơ bản</p>
+                        <p><i class='bx bx-check'></i> Có khái niệm về lập trình C++</p>
+                        <p><i class='bx bx-check'></i> Biết cách sử dụng thư viện C++ để chuẩn bị cho khoá học
+                            hướng đối tượng</p>
+                        <button class="bg-purple-600 text-white text-center font-bold px-20 py-3 rounded">Thêm
+                            vào giỏ hàng</button>
+                    </div>
+                    <!-- Mũi tên bên trong popover -->
+                    <div
+                        class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
 </body>
 <script>
     /* Chủ đề phổ biến */
@@ -659,9 +854,38 @@
     showSlide(currentIndex);
 
 
+    /*  */
+    document.addEventListener("DOMContentLoaded", function () {
+    // Hàm để xử lý toggle
+    function setupToggle(btnId, contentSelector) {
+        const toggleBtn = document.getElementById(btnId);
+        const contents = document.querySelectorAll(contentSelector);
 
+        if (toggleBtn) {
+            toggleBtn.addEventListener("click", function () {
+                contents.forEach(content => {
+                    content.classList.toggle("collapsed");
+                });
 
+                // Thay đổi biểu tượng dựa trên trạng thái của nội dung
+                toggleBtn.innerHTML = contents[0].classList.contains("collapsed")
+                    ? "<i class='bx bx-chevron-down'></i>"
+                    : "<i class='bx bx-chevron-up'></i>";
+            });
+        }
+    }
 
+    // Gọi hàm setupToggle cho từng phần tử
+    setupToggle("toggle-btn", ".lesson-content");
+    setupToggle("toggle-btn-tlv", ".lesson-content-tlv");
+    setupToggle("toggle-btn-cd", ".lesson-content-cd");
+    setupToggle("toggle-btn-tlc", ".lesson-content-tlc");
+    setupToggle("toggle-btn-capdo", ".lesson-content-capdo");
+    setupToggle("toggle-btn-nn", ".lesson-content-nn");
+    setupToggle("toggle-btn-gia", ".lesson-content-gia");
+    setupToggle("toggle-btn-dacdiem", ".lesson-content-dacdiem");
+    setupToggle("toggle-btn-phude", ".lesson-content-phude");
+});
 
 
 
