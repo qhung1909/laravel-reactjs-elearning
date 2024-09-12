@@ -1,3 +1,17 @@
+/* menu */
+.topmenu-expanded {
+    position: absolute;
+    top: 2.5rem;
+    z-index: 50;
+    width: 100%;
+    background-color: rgb(228, 228, 228);
+    text-align: center;
+    cursor: pointer;
+    padding: 10px;
+}
+
+
+
 /* Phần container-wrap */
 .max-w-custom {
     max-width: 1330px;
@@ -15,7 +29,6 @@
 .carousel-slide {
     min-width: 100%;
 }
-
 
 
 /* Responsive adjustments */
@@ -60,7 +73,7 @@
     display: block;
 }
 
-/*  */
+/* Bộ lọc */
 /* Trạng thái ban đầu hiển thị nội dung */
 .lesson-content, .lesson-content-tlv, .lesson-content-tlc, .lesson-content-cd,
 .lesson-content-capdo, .lesson-content-nn, .lesson-content-gia, .lesson-content-dacdiem, .lesson-content-phude {

@@ -14,41 +14,47 @@
 
 <body>
     <!-- Điều hướng -->
-    <div class="bg-gray-100 mx-50 pl-8 ">
-        <ul class="breadcrumb max-w-1200  p-2 flex items-center flex-wrap text-sm">
-            <li class="mx-2 sm:mx-4">
-                <a href="#" class="no-underline hover:text-purple-500">Phát triển</a>
-            </li>
-            <span>&gt;</span>
-            <li class="mx-2 sm:mx-4">
-                <a href="#" class="no-underline hover:text-purple-500">Phát triển web</a>
-            </li>
-            <li class="mx-2 sm:mx-4">
-                <a href="#" class="no-underline hover:text-purple-500">Khoa học dữ liệu</a>
-            </li>
-            <li class="mx-2 sm:mx-4">
-                <a href="#" class="no-underline hover:text-purple-500">Phát triển ứng dụng di động</a>
-            </li>
-            <li class="mx-2 sm:mx-4">
-                <a href="#" class="no-underline hover:text-purple-500">Ngô ngữ lập trình</a>
-            </li>
-            <li class="mx-2 sm:mx-4">
-                <a href="#" class="no-underline hover:text-purple-500">Phát triển trò chơi</a>
-            </li>
-            <li class="mx-2 sm:mx-4">
-                <a href="#" class="no-underline hover:text-purple-500">Thiết kế & Phát triển cơ sở dữ liệu</a>
-            </li>
-            <li class="mx-2 sm:mx-4">
-                <a href="#" class="no-underline hover:text-purple-500">Kiểm tra phần mềm</a>
-            </li>
-            <li class="mx-2 sm:mx-4">
-                <a href="#" class="no-underline hover:text-purple-500">Kỹ thuật phần mềm</a>
-            </li>
-            <li class="mx-2 sm:mx-4">
-                <i class='bx bx-dots-vertical-rounded'></i>
-            </li>
-        </ul>
+    <div class="bg-gray-100 lg:mx-50 pl-8">
+        <div class="flex items-center justify-between max-w-1200 p-2 relative">
+            <!-- Breadcrumb -->
+            <ul id="top-menu" class="basic-5/6 breadcrumb hidden lg:flex lg:items-center lg:space-x-4 text-sm">
+                <li>
+                    <a href="#" class="no-underline hover:text-purple-500">Phát triển</a>
+                </li>
+                <!-- <span>&gt;</span> -->
+                <li>
+                    <a href="#" class="no-underline hover:text-purple-500">Phát triển web</a>
+                </li>
+                <li>
+                    <a href="#" class="no-underline hover:text-purple-500 mx-2">Khoa học dữ liệu</a>
+                </li>
+                <li>
+                    <a href="#" class="no-underline hover:text-purple-500 mx-2">Phát triển ứng dụng di động</a>
+                </li>
+                <li>
+                    <a href="#" class="no-underline hover:text-purple-500 mx-2">Ngôn ngữ lập trình</a>
+                </li>
+                <li>
+                    <a href="#" class="no-underline hover:text-purple-500 mx-2">Phát triển trò chơi</a>
+                </li>
+                <li>
+                    <a href="#" class="no-underline hover:text-purple-500 mx-2">Thiết kế & Phát triển cơ sở dữ liệu</a>
+                </li>
+                <li>
+                    <a href="#" class="no-underline hover:text-purple-500 mx-2">Kiểm tra phần mềm</a>
+                </li>
+                <li>
+                    <a href="#" class="no-underline hover:text-purple-500 mx-2">Kỹ thuật phần mềm</a>
+                </li>
+            </ul>
+            <!-- Icon -->
+            <div class="basic-1/6 lg:hidden flex-none ml-auto cursor-pointer">
+                <i id="toggle-top-menu-icon" class='bx bx-menu text-3xl'></i>
+            </div>
+        </div>
     </div>
+
+
 
     <div class="max-w-custom mx-auto px-4 pt-5">
         <!-- Khóa học nổi bật -->
@@ -176,9 +182,8 @@
 
         <section aria-label="Carousel" class="relative overflow-hidden max-w-full mx-auto py-8">
             <div id="carouselWrapper" class="flex transition-transform duration-300 ease-in-out">
-                <div id="carouselSlide1" class="carousel-slide flex flex-wrap gap-4 flex-none w-full ">
-                    <div
-                        class="bg-white border border-gray-400 p-5 px-8 flex items-start w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5">
+                <div id="carouselSlide1" class="carousel-slide flex gap-4 overflow-x-auto">
+                    <div class="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-1/4">
                         <img src="../images/5712300_b951_5.jpg" alt="Example"
                             class="w-16 h-16 object-cover rounded-full mr-4">
                         <div>
@@ -189,8 +194,7 @@
                             <p class="text-gray-700 text-sm"><strong>6</strong> khóa học</p>
                         </div>
                     </div>
-                    <div
-                        class="bg-white border border-gray-400 p-5 px-8 flex items-start w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5">
+                    <div class="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-1/4 ">
                         <img src="../images/5712300_b951_5.jpg" alt="Example"
                             class="w-16 h-16 object-cover rounded-full mr-4">
                         <div>
@@ -201,8 +205,7 @@
                             <p class="text-gray-700 text-sm"><strong>6</strong> khóa học</p>
                         </div>
                     </div>
-                    <div
-                        class="bg-white border border-gray-400 p-5 px-8 flex items-start w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5">
+                    <div class="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-1/4">
                         <img src="../images/5712300_b951_5.jpg" alt="Example"
                             class="w-16 h-16 object-cover rounded-full mr-4">
                         <div>
@@ -213,8 +216,7 @@
                             <p class="text-gray-700 text-sm"><strong>6</strong> khóa học</p>
                         </div>
                     </div>
-                    <div
-                        class="bg-white border border-gray-400 p-5 px-8 flex items-start w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5">
+                    <div class="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-1/4">
                         <img src="../images/5712300_b951_5.jpg" alt="Example"
                             class="w-16 h-16 object-cover rounded-full mr-4">
                         <div>
@@ -226,9 +228,8 @@
                         </div>
                     </div>
                 </div>
-                <div id="carouselSlide2" class="carousel-slide flex flex-wrap gap-4 flex-none w-full hidden">
-                    <div
-                        class="bg-white border border-gray-400 p-5 px-8 flex items-start w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5">
+                <div id="carouselSlide2" class="carousel-slide flex gap-4 overflow-x-auto hidden">
+                    <div class="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-1/4">
                         <img src="../images/5712300_b951_5.jpg" alt="Example"
                             class="w-16 h-16 object-cover rounded-full mr-4">
                         <div>
@@ -239,8 +240,7 @@
                             <p class="text-gray-700 text-sm"><strong>6</strong> khóa học</p>
                         </div>
                     </div>
-                    <div
-                        class="bg-white border border-gray-400 p-5 px-8 flex items-start w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5">
+                    <div class="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-1/4">
                         <img src="../images/5712300_b951_5.jpg" alt="Example"
                             class="w-16 h-16 object-cover rounded-full mr-4">
                         <div>
@@ -251,8 +251,7 @@
                             <p class="text-gray-700 text-sm"><strong>6</strong> khóa học</p>
                         </div>
                     </div>
-                    <div
-                        class="bg-white border border-gray-400 p-5 px-8 flex items-start w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5">
+                    <div class="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-1/4">
                         <img src="../images/5712300_b951_5.jpg" alt="Example"
                             class="w-16 h-16 object-cover rounded-full mr-4">
                         <div>
@@ -263,8 +262,7 @@
                             <p class="text-gray-700 text-sm"><strong>6</strong> khóa học</p>
                         </div>
                     </div>
-                    <div
-                        class="bg-white border border-gray-400 p-5 px-8 flex items-start w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5">
+                    <div class="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-1/4">
                         <img src="../images/5712300_b951_5.jpg" alt="Example"
                             class="w-16 h-16 object-cover rounded-full mr-4">
                         <div>
@@ -322,10 +320,11 @@
                 </div>
 
                 <!-- Bộ lọc -->
-                <div id="filterPanel" class="absolute left-0 mt-12 w-70 bg-white p-4 rounded-sm shadow z-20">
+                <div id="filterPanel" class="absolute left-0 mt-12 w-70 bg-white p-4 rounded-sm z-20">
+                    <hr>
                     <!-- Xếp hạng  -->
-                    <div class="flex items-center mb-2">
-                        <h2 class="font-bold flex-1">Xếp hạng</h2>
+                    <div class="flex items-center my-3">
+                        <h2 class="font-bold text-xl flex-1">Xếp hạng</h2>
                         <span id="toggle-btn" class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
                             <i class='bx bx-chevron-up'></i>
                         </span>
@@ -384,9 +383,10 @@
                             </span>
                         </div>
                     </div>
+                    <hr>
                     <!-- Thời lượng video -->
-                    <div class="flex items-center mb-2">
-                        <h2 class="font-bold flex-1">Thời lượng video</h2>
+                    <div class="flex items-center my-3">
+                        <h2 class="font-bold text-xl flex-1">Thời lượng video</h2>
                         <span id="toggle-btn-tlv"
                             class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
                             <i class='bx bx-chevron-up'></i>
@@ -415,9 +415,10 @@
                                     class="text-gray-600">(4.518)</span></span>
                         </div>
                     </div>
+                    <hr>
                     <!-- Chủ đề -->
-                    <div class="flex items-center mb-2">
-                        <h2 class="font-bold flex-1">Chủ đề</h2>
+                    <div class="flex items-center my-3">
+                        <h2 class="font-bold text-xl flex-1">Chủ đề</h2>
                         <span id="toggle-btn-cd"
                             class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
                             <i class='bx bx-chevron-up'></i>
@@ -447,9 +448,10 @@
                                     class="text-gray-600">(933)</span></span>
                         </div>
                     </div>
+                    <hr>
                     <!-- Thể loại con -->
-                    <div class="flex items-center mb-2">
-                        <h2 class="font-bold flex-1">Thể loại con</h2>
+                    <div class="flex items-center my-3">
+                        <h2 class="font-bold text-xl flex-1">Thể loại con</h2>
                         <span id="toggle-btn-tlc"
                             class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
                             <i class='bx bx-chevron-up'></i>
@@ -482,9 +484,10 @@
                                     class="text-gray-600">(960)</span></span>
                         </div>
                     </div>
+                    <hr>
                     <!-- Cấp độ -->
-                    <div class="flex items-center mb-2">
-                        <h2 class="font-bold flex-1">Cấp độ</h2>
+                    <div class="flex items-center my-3">
+                        <h2 class="font-bold text-xl flex-1">Cấp độ</h2>
                         <span id="toggle-btn-capdo"
                             class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
                             <i class='bx bx-chevron-up'></i>
@@ -493,7 +496,7 @@
                     <div class="lesson-content-capdo collapsed">
                         <div class="flex items-center mb-2">
                             <input type="checkbox" name="duration" class="mr-2">
-                            <span class="text-sm text-black">tất cả trình độ <span
+                            <span class="text-sm text-black">Tất cả trình độ <span
                                     class="text-gray-600">(10.000)</span></span>
                         </div>
                         <div class="flex items-center mb-2">
@@ -514,9 +517,10 @@
                                     class="text-gray-600">(933)</span></span>
                         </div>
                     </div>
+                    <hr>
                     <!-- Ngôn ngữ -->
-                    <div class="flex items-center mb-2">
-                        <h2 class="font-bold flex-1">Ngôn ngữ</h2>
+                    <div class="flex items-center my-3">
+                        <h2 class="font-bold text-xl flex-1">Ngôn ngữ</h2>
                         <span id="toggle-btn-nn"
                             class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
                             <i class='bx bx-chevron-up'></i>
@@ -536,9 +540,10 @@
                             <span class="text-sm text-black">日本語<span class="text-gray-600">(1)</span></span>
                         </div>
                     </div>
+                    <hr>
                     <!-- Giá -->
-                    <div class="flex items-center mb-2">
-                        <h2 class="font-bold flex-1">Giá</h2>
+                    <div class="flex items-center my-3">
+                        <h2 class="font-bold text-xl flex-1">Giá</h2>
                         <span id="toggle-btn-gia"
                             class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
                             <i class='bx bx-chevron-up'></i>
@@ -554,9 +559,10 @@
                             <span class="text-sm text-black">Miễn phí <span class="text-gray-600">(23)</span></span>
                         </div>
                     </div>
+                    <hr>
                     <!-- Đặc điểm -->
-                    <div class="flex items-center mb-2">
-                        <h2 class="font-bold flex-1">Đặc điểm</h2>
+                    <div class="flex items-center my-3">
+                        <h2 class="font-bold text-xl flex-1">Đặc điểm</h2>
                         <span id="toggle-btn-dacdiem"
                             class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
                             <i class='bx bx-chevron-up'></i>
@@ -582,9 +588,10 @@
                                     class="text-gray-600">(4)</span></span>
                         </div>
                     </div>
+                    <hr>
                     <!-- Phụ đề -->
-                    <div class="flex items-center mb-2">
-                        <h2 class="font-bold flex-1">Phụ đề</h2>
+                    <div class="flex items-center my-3">
+                        <h2 class="font-bold text-xl flex-1">Phụ đề</h2>
                         <span id="toggle-btn-phude"
                             class="text-gray-500 hover:underline focus:outline-none cursor-pointer">
                             <i class='bx bx-chevron-up'></i>
@@ -596,6 +603,7 @@
                             <span class="text-sm text-black">Tiếng Việt <span class="text-gray-600">(1)</span></span>
                         </div>
                     </div>
+                    <hr>
                 </div>
             </div>
         </div>
@@ -791,6 +799,7 @@
     </div>
     </div>
 </body>
+
 <script>
     /* Chủ đề phổ biến */
     const carousel1 = document.getElementById('carousel1');
@@ -854,38 +863,38 @@
     showSlide(currentIndex);
 
 
-    /*  */
+    /* Bộ lọc  */
     document.addEventListener("DOMContentLoaded", function () {
-    // Hàm để xử lý toggle
-    function setupToggle(btnId, contentSelector) {
-        const toggleBtn = document.getElementById(btnId);
-        const contents = document.querySelectorAll(contentSelector);
+        // Hàm để xử lý toggle
+        function setupToggle(btnId, contentSelector) {
+            const toggleBtn = document.getElementById(btnId);
+            const contents = document.querySelectorAll(contentSelector);
 
-        if (toggleBtn) {
-            toggleBtn.addEventListener("click", function () {
-                contents.forEach(content => {
-                    content.classList.toggle("collapsed");
+            if (toggleBtn) {
+                toggleBtn.addEventListener("click", function () {
+                    contents.forEach(content => {
+                        content.classList.toggle("collapsed");
+                    });
+
+                    // Thay đổi biểu tượng dựa trên trạng thái của nội dung
+                    toggleBtn.innerHTML = contents[0].classList.contains("collapsed")
+                        ? "<i class='bx bx-chevron-down'></i>"
+                        : "<i class='bx bx-chevron-up'></i>";
                 });
-
-                // Thay đổi biểu tượng dựa trên trạng thái của nội dung
-                toggleBtn.innerHTML = contents[0].classList.contains("collapsed")
-                    ? "<i class='bx bx-chevron-down'></i>"
-                    : "<i class='bx bx-chevron-up'></i>";
-            });
+            }
         }
-    }
 
-    // Gọi hàm setupToggle cho từng phần tử
-    setupToggle("toggle-btn", ".lesson-content");
-    setupToggle("toggle-btn-tlv", ".lesson-content-tlv");
-    setupToggle("toggle-btn-cd", ".lesson-content-cd");
-    setupToggle("toggle-btn-tlc", ".lesson-content-tlc");
-    setupToggle("toggle-btn-capdo", ".lesson-content-capdo");
-    setupToggle("toggle-btn-nn", ".lesson-content-nn");
-    setupToggle("toggle-btn-gia", ".lesson-content-gia");
-    setupToggle("toggle-btn-dacdiem", ".lesson-content-dacdiem");
-    setupToggle("toggle-btn-phude", ".lesson-content-phude");
-});
+        // Gọi hàm setupToggle cho từng phần tử
+        setupToggle("toggle-btn", ".lesson-content");
+        setupToggle("toggle-btn-tlv", ".lesson-content-tlv");
+        setupToggle("toggle-btn-cd", ".lesson-content-cd");
+        setupToggle("toggle-btn-tlc", ".lesson-content-tlc");
+        setupToggle("toggle-btn-capdo", ".lesson-content-capdo");
+        setupToggle("toggle-btn-nn", ".lesson-content-nn");
+        setupToggle("toggle-btn-gia", ".lesson-content-gia");
+        setupToggle("toggle-btn-dacdiem", ".lesson-content-dacdiem");
+        setupToggle("toggle-btn-phude", ".lesson-content-phude");
+    });
 
 
 
