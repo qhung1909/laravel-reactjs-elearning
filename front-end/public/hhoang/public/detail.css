@@ -1,3 +1,10 @@
+.menu-content ul{
+    padding: 0 !important;
+}
+
+
+
+
 .submenuItems {
     transition: max-height 0.3s ease-out;
 }
