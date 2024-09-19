@@ -1,0 +1,26 @@
+.menu-content ul{
+    padding: 0 !important;
+}
+
+
+
+
+.submenuItems {
+    transition: max-height 0.3s ease-out;
+}
+
+/* Default hidden */
+.sidebar {
+    display: none;
+}
+
+/* Show sidebar on small screens when toggled */
+.sidebar.open {
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .sidebar {
+        display: block;
+    }
+}
