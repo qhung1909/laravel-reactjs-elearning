@@ -1,13 +1,33 @@
 import './detail.css'
 import './style.css'
 export const Lession = () => {
+    function toggleDropdown(event) {
+        const element = event.currentTarget;
+        const submenu = element.nextElementSibling;
+        const icon = element.querySelector('box-icon');
+
+        if (submenu.style.maxHeight) {
+            submenu.style.maxHeight = null;
+            icon.setAttribute('name', 'chevron-down');
+        } else {
+            submenu.style.maxHeight = submenu.scrollHeight + 'px';
+            icon.setAttribute('name', 'chevron-up');
+        }
+    }
+
+    function toggleMenu() {
+        const menu = document.getElementById('menuContent');
+        menu.classList.toggle('show');
+    }
+
+
     return (
         <>
             <body className="bg-gray-100">
                 <div className="bg-gray-800 flex items-center justify-between py-1 px-6 fixed z-20 right-0 left-0">
                     <button
                         className="text-white lg:hidden"
-                        onclick="toggleMenu()"
+                        onClick={toggleMenu}
                     >
                         <box-icon
                             color="white"
@@ -125,7 +145,7 @@ export const Lession = () => {
                                     <li className="border-b">
                                         <div
                                             className="cursor-pointer block px-4 py-3 text-lg relative transition-all duration-400 ease-out hover:bg-gradient-to-b bg-gray-200 to-[#273a47]"
-                                            onclick="toggleDropdown(this)"
+                                            onClick={toggleDropdown}
                                         >
                                             <i className="fa-brands fa-python absolute left-4 top-4" />
                                             <h4 className="font-medium">
@@ -166,7 +186,7 @@ export const Lession = () => {
                                     <li className="border-b">
                                         <div
                                             className="cursor-pointer block px-4 py-3 text-lg relative transition-all duration-400 ease-out hover:bg-gradient-to-b bg-gray-200 to-[#273a47]"
-                                            onclick="toggleDropdown(this)"
+                                            onClick={toggleDropdown}
                                         >
                                             <i className="fa-brands fa-python absolute left-4 top-4" />
                                             <h4 className="font-medium">
@@ -202,7 +222,7 @@ export const Lession = () => {
                                     <li className="border-b">
                                         <div
                                             className="cursor-pointer block px-4 py-3 text-lg relative transition-all duration-400 ease-out hover:bg-gradient-to-b bg-gray-200 to-[#273a47]"
-                                            onclick="toggleDropdown(this)"
+                                            onClick={toggleDropdown}
                                         >
                                             <i className="fa-brands fa-python absolute left-4 top-4" />
                                             <h4 className="font-medium">
@@ -246,7 +266,7 @@ export const Lession = () => {
                 >
                     <button
                         className="p-4 "
-                        onclick="toggleMenu()"
+                        onClick={toggleMenu}
                     >
                         Close Menu
                     </button>
@@ -254,7 +274,7 @@ export const Lession = () => {
                         <li className="link border-b bg-gray-100">
                             <div
                                 className="dropdown cursor-pointer block px-4 py-3 text-lg relative transition-all duration-400 ease-out hover:bg-gradient-to-b bg-gray-200 to-[#273a47]"
-                                onclick="toggleDropdown(this)"
+                                onClick={toggleDropdown}
                             >
                                 <i className="fa-brands fa-python absolute left-4 top-4" />
                                 <h4 className="font-medium">
@@ -295,7 +315,7 @@ export const Lession = () => {
                         <li className="link border-b bg-gray-100">
                             <div
                                 className="dropdown cursor-pointer block px-4 py-3 text-lg relative transition-all duration-400 ease-out hover:bg-gradient-to-b bg-gray-200 to-[#273a47]"
-                                onclick="toggleDropdown(this)"
+                                onClick={toggleDropdown}
                             >
                                 <i className="fa-brands fa-python absolute left-4 top-4" />
                                 <h4 className="font-medium">
@@ -331,7 +351,7 @@ export const Lession = () => {
                         <li className="border-b bg-gray-100">
                             <div
                                 className="cursor-pointer block px-4 py-3 text-lg relative transition-all duration-400 ease-out hover:bg-gradient-to-b bg-gray-200 to-[#273a47]"
-                                onclick="toggleDropdown(this)"
+                                onClick={toggleDropdown}
                             >
                                 <i className="fa-brands fa-python absolute left-4 top-4" />
                                 <h4 className="font-medium">
@@ -383,11 +403,6 @@ export const Lession = () => {
                         <box-icon name="chevron-right" />
                     </button>
                 </footer>
-                <script
-                    dangerouslySetInnerHTML={{
-                        __html: '        function toggleDropdown(element) {            const submenu = element.nextElementSibling;            const icon = element.querySelector(\'box-icon\');            if (submenu.style.maxHeight) {                submenu.style.maxHeight = null;                icon.setAttribute(\'name\', \'chevron-down\');            } else {                submenu.style.maxHeight = submenu.scrollHeight + \'px\';                icon.setAttribute(\'name\', \'chevron-up\');            }        }        function toggleMenu() {            const menu = document.getElementById(\'menuContent\');            menu.classList.toggle(\'show\');        }    '
-                    }}
-                />
             </body>
         </>
     )
