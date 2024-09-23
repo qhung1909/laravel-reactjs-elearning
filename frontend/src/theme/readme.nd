@@ -1,0 +1,17 @@
+// File src/theme chứa các file quản lí giao diện người dùng
+// Ví dụ định dạng theme như sau
+
+//
+const theme = {
+  colors: {
+    primary: '#3498db',
+    secondary: '#2ecc71',
+    danger: '#e74c3c',
+  },
+  fonts: {
+    main: 'Arial, sans-serif',
+    code: 'Courier, monospace',
+  },
+};
+//
+Làm như thế này khi muốn đổi màu components hay page nào đó, tiện lợi hơn, không cần sửa từng dòng code
