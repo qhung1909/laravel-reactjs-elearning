@@ -12,6 +12,8 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+components.json
+jsconfig.json
 *.local
 
 # Editor directories and files
