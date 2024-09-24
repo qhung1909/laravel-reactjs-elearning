@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 4060c3bbce0dbbf6563f3103b5f48a28fb6e897e
 
 @layer base {
     :root {
@@ -74,9 +70,4 @@
   body {
     @apply bg-background text-foreground;
   }
-<<<<<<< HEAD
 }
-=======
-  }
-
->>>>>>> 4060c3bbce0dbbf6563f3103b5f48a28fb6e897e
