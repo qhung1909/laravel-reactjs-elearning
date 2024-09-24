@@ -1,7 +1,13 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 function App() {
     return (
         <>
-            <div>Hoang ngu</div>
+            <Router>
+                <Routes>
+                    {/* <Route path="/Pizza" element={<Home />}></Route> */}
+                </Routes>
+            </Router>
         </>
     );
 }
