@@ -1,7 +1,5 @@
 
 function App() {
-
-
   return (
     <>
         <div className="bg-slate-200">abc</div>
@@ -9,4 +7,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
