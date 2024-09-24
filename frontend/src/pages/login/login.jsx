@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-
+import './login.css'
 export const Login = () => {
     return (
         <div className="max-w-7xl mx-auto py-0 md:py-2 xl:py-12">

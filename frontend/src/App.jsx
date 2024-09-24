@@ -1,12 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Login } from "./pages/login/login";
-
+import { Login } from "./pages/login/login.jsx";
 function App() {
     return (
         <>
             <Router>
                 <Routes>
-                    {/* <Route path="/Home" element={<Home />}></Route> */}
+                    <Route path="/login" element={<Login />}></Route>
                 </Routes>
             </Router>
         </>
