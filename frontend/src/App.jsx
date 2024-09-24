@@ -1,11 +1,11 @@
-
-
-function App() {
-  return (
+function App(){
+  return(
     <>
-        <div className="bg-slate-200"></div>
-    </>
+     <div>ABC</div>
+   </>
   )
+
+
 }
 
-export default App
+export default App;
