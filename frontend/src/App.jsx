@@ -8,6 +8,8 @@ function App() {
         <div className="bg-slate-200">Xin cas</div>
     </>
   )
+
+
 }
 
-export default App
+export default App;
