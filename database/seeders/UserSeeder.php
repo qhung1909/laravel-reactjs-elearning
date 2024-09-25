@@ -18,7 +18,6 @@ class UserSeeder extends Seeder
         $user->email = 'user2@gmail.com'; 
         $user->password = Hash::make('123456'); 
         $user->google_id = null; 
-        $user->role = 'user'; 
         $user->avatar = null; 
         $user->status = 1; 
         $user->save();
