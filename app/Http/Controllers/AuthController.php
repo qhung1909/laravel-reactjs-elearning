@@ -21,21 +21,28 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login()
-    {
-        $credentials = request(['email', 'password']);
+public function login()
+{
+    $credentials = request(['email', 'password']);
+    
+    if (!$token = auth('api')->attempt($credentials)) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
 
-        if (! $token = auth('api')->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
+    $user = auth('api')->user();
+    
+    if ($user && $user->getJWTIdentifier()) {
         $refreshToken = $this->createRefreshToken();
 
         return $this->respondWithToken($token, $refreshToken);
+    } else {
+        return response()->json(['error' => 'User ID is null or invalid'], 401);
     }
+}
+
     private function createRefreshToken(){
         $data = [
-            'sub' => auth('api')->user()->id,
+            'sub' => auth('api')->user()->user_id,
             'random' => rand().time(),
             'exp' =>time() + config('jwt.refresh_ttl')
         ];

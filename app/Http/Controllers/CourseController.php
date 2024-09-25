@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\Course;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Cache;
+
 class CourseController extends Controller
 {
     protected $course;
@@ -20,32 +22,35 @@ class CourseController extends Controller
         $courses = Cache::remember('courses', 120, function () {
             return $this->course::all();
         });
-    
+
         return response()->json($courses);
     }
 
 
-    public function show($id)
+    public function show($course_id)
     {
-        $course = Cache::remember("course_{$id}", 90 , function () use ($id) {
-            return $this->course->find($id);
+        $course = Cache::remember("course_{$course_id}", 90, function () use ($course_id) {
+            return $this->course->where('course_id', $course_id)->first();
         });
     
+
         if (!$course) {
             return response()->json(['error' => 'Khóa học không tìm thấy'], 404);
         }
-        
+
         return response()->json($course);
     }
 
     public function store(Request $request)
     {
         $rules = [
-            'courses_categories_id' => 'required|numeric',
+            'course_category_id' => 'required|numeric',
             'price' => 'required|numeric',
             'price_discount' => 'required|numeric',
             'description' => 'required|string',
-            'img' => 'nullable|image|max:2048', 
+            'img' => 'nullable|max:2048',
+            'title' => 'required|string',
+            'slug' => 'required|string'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -54,11 +59,17 @@ class CourseController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        if ($request->price < $request->price_discount) {
+            return response()->json(['error' => 'Giá không được nhỏ hơn giá giảm giá.'], 422);
+        }
+
         $course = Course::create([
-            'courses_categories_id' => $request->courses_categories_id,
+            'course_category_id' => $request->course_category_id,
             'price' => $request->price,
             'price_discount' => $request->price_discount,
             'description' => $request->description,
+            'title' => $request->title,
+            'slug' => $request->slug,
             'img' => $this->handleImageUpload($request)
         ]);
 
@@ -69,33 +80,42 @@ class CourseController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $course_id)
     {
         $rules = [
-            'courses_categories_id' => 'sometimes|numeric',
+            'course_category_id' => 'sometimes|numeric',
             'price' => 'sometimes|numeric',
             'price_discount' => 'sometimes|numeric',
             'description' => 'sometimes|string',
-            'img' => 'nullable|image|max:2048',
+            'img' => 'nullable|max:2048',
+            'title' => 'required|string',
+            'slug' => 'required|string'
         ];
 
         $validator = Validator::make($request->all(), $rules);
+
+        if ($request->price < $request->price_discount) {
+            return response()->json(['error' => 'Giá không được nhỏ hơn giá giảm giá.'], 422);
+        }
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $course = $this->course->find($id);
+        $course = $this->course->where('course_id', $course_id)->first();;
         if (!$course) {
             return response()->json(['error' => 'Khóa học không tìm thấy'], 404);
         }
 
+
         $course->update([
-            'courses_categories_id' => $request->input('courses_categories_id', $course->courses_categories_id),
+            'course_category_id' => $request->input('course_category_id', $course->course_category_id),
             'price' => $request->input('price', $course->price),
             'price_discount' => $request->input('price_discount', $course->price_discount),
             'description' => $request->input('description', $course->description),
-            'img' => $this->handleImageUpload($request, $course->img)
+            'title' => $request->input('title', $course->title),
+            'img' => $this->handleImageUpload($request, $course->img),
+            'slug' => $request->input('slug', $course->slug),
         ]);
 
         return response()->json([
@@ -111,7 +131,7 @@ class CourseController extends Controller
             if ($currentImage) {
                 $oldImagePath = public_path('upload/products/' . $currentImage);
                 if (file_exists($oldImagePath)) {
-                    unlink($oldImagePath); 
+                    unlink($oldImagePath);
                 }
             }
             $img = $request->file('img');
@@ -120,6 +140,22 @@ class CourseController extends Controller
             $img->move(public_path('upload/products'), $imagename);
             return $imagename;
         }
-        return $currentImage; 
+        return $currentImage;
+    }
+
+    public function delete($course_id)
+    {
+        $course = $this->course->where('course_id', $course_id)->first();
+
+        if (!$course) {
+            return response()->json(['error' => 'Khóa học không tìm thấy'], 404);
+        }
+
+        $course->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Khóa học đã được xóa thành công.'
+        ], 200);
     }
 }

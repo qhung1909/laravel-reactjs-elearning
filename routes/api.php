@@ -19,5 +19,8 @@ Route::group([
 Route::post('register', [UserController::class, 'register']);
 
 // Courses
-Route::get('/courses', [CourseController::class, 'index']);
-Route::get('/courses/{id}', [CourseController::class, 'show']);
+Route::get('courses', [CourseController::class, 'index']);
+Route::get('course/{course_id}', [CourseController::class, 'show']);
+Route::post('course', [CourseController::class, 'store']);
+Route::put('course/{course_id}', [CourseController::class, 'update']);
+Route::delete('course/{course_id}', [CourseController::class, 'delete']);

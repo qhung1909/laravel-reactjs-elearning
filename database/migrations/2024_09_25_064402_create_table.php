@@ -24,7 +24,9 @@ return new class extends Migration
         });
 
         Schema::create('categories', function (Blueprint $table) {
-            $table->id('course_categories_id');
+            $table->id('course_category_id');
+            $table->string('slug');
+
             $table->string('name');
             $table->text('description')->nullable();
             $table->timestamps(0); 
@@ -42,8 +44,10 @@ return new class extends Migration
 
         Schema::create('courses', function (Blueprint $table) {
             $table->id('course_id');
-            $table->foreignId('course_category_id')->constrained('categories', 'course_categories_id')->onDelete('cascade');
+            $table->foreignId('course_category_id')->constrained('categories', 'course_category_id')->onDelete('cascade');
             $table->string('title');
+            $table->decimal('price_discount', 10, 2);
+            $table->string('slug');
             $table->decimal('price', 10, 2);
             $table->text('description')->nullable();
             $table->timestamps(0); 
@@ -62,6 +66,7 @@ return new class extends Migration
             $table->id('lesson_id');
             $table->foreignId('course_id')->constrained('courses', 'course_id')->onDelete('cascade');
             $table->string('name');
+            $table->string('slug');
             $table->text('content')->nullable();
             $table->text('description')->nullable();
             $table->timestamps(0); 
