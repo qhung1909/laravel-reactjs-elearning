@@ -28,10 +28,10 @@ Route::middleware(['admin'])->group(function () {
     Route::put('course/{slug}', [CourseController::class, 'update']);
     Route::delete('course/{slug}', [CourseController::class, 'delete']);    
     // Categories
-    Route::get('/category', [CategoryController::class, 'index']);
-    Route::get('/category/{slug}', [CategoryController::class, 'show']);
-    Route::post('/category', [CategoryController::class, 'store']);
-    Route::put('/category/{slug}', [CategoryController::class, 'update']);
-    Route::delete('/category/{slug}', [CategoryController::class, 'delete']);
+    Route::get('course/category', [CategoryController::class, 'index']);
+    Route::get('course/category/{slug}', [CategoryController::class, 'show']);
+    Route::post('course/category', [CategoryController::class, 'store']);
+    Route::put('course/category/{slug}', [CategoryController::class, 'update']);
+    Route::delete('course/category/{slug}', [CategoryController::class, 'delete']);
 });
 Route::post('/send-message', [MessageController::class, 'sendMessage']);
