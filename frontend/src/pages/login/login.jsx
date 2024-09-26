@@ -53,7 +53,7 @@ export const Login = () => {
                     <img
                         alt=""
                         className="w-full hidden md:pl-64 lg:pl-12 lg:block"
-                        src="./signup.jpg"
+                        src="/src/assets/images/signup.jpg"
                     />
                     <img
                         alt=""
