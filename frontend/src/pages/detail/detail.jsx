@@ -1,4 +1,5 @@
 import './detail.css'
+
 export const Detail = () => {
     return (
         <>
