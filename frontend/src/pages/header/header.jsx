@@ -7,7 +7,7 @@ function Header() {
                     {/* header - logo */}
                     <div className="navbar-logo mx-2 w-24">
                         <a href="">
-                            <img src="images/Antlearn-logo.png" alt="" className="w-40" />
+                            <img src="./src/assets/images/antlearn.png" alt="" className="w-40" />
                         </a>
                     </div>
                     {/* header - search */}

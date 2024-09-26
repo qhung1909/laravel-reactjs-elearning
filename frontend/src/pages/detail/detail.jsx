@@ -74,7 +74,7 @@ export const Detail = () => {
                             {/* Cột phải (Hình ảnh) */}
                             <div className="col-span-1 lg:col-span-4 flex justify-center items-center">
                                 <img
-                                    src="../img/inclusion2.jpg"
+                                    src="./src/assets/images/inclusion2.jpg"
                                     alt="Inclusion Image"
                                     className="max-w-full"
                                     style={{ maxHeight: 200 }}
@@ -239,7 +239,7 @@ export const Detail = () => {
                                     </div>
                                     <div className="w-full lg:w-1/2">
                                         <img
-                                            src="../img/inclusion.jpg"
+                                            src="./src/assets/images/inclusion.jpg"
                                             alt="Coding Exercise"
                                             className="rounded-lg shadow-md"
                                             style={{
@@ -501,7 +501,7 @@ export const Detail = () => {
                                         {/* Khóa học 1 */}
                                         <div className="flex flex-col sm:flex-row items-start sm:items-center bg-white p-4 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg">
                                             <img
-                                                src="../img/inclusion.jpg"
+                                                src="./src/assets/images/inclusion.jpg"
                                                 alt="Khóa học 1"
                                                 className="w-full sm:w-32 h-48 sm:h-32 object-cover rounded-lg mb-4 sm:mb-0 sm:mr-6"
                                             />
@@ -579,7 +579,7 @@ export const Detail = () => {
                                         {/* Khóa học 2 (tương tự như Khóa học 1) */}
                                         <div className="flex flex-col sm:flex-row items-start sm:items-center bg-white p-4 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg">
                                             <img
-                                                src="../img/inclusion.jpg"
+                                                src="./src/assets/images/inclusion.jpg"
                                                 alt="Khóa học 2"
                                                 className="w-full sm:w-32 h-48 sm:h-32 object-cover rounded-lg mb-4 sm:mb-0 sm:mr-6"
                                             />
@@ -672,7 +672,7 @@ export const Detail = () => {
                                 <div className="flex items-start bg-white p-6 rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300">
                                     {/* Hình ảnh giảng viên */}
                                     <img
-                                        src="../img/inclusion.jpg"
+                                        src="./src/assets/images/inclusion.jpg"
                                         alt="Giảng viên"
                                         className="w-24 h-24 object-cover rounded-full border-4 border-blue-500 mr-6"
                                     />
@@ -1092,9 +1092,10 @@ export const Detail = () => {
                             <div className="bg-white p-6 rounded-lg shadow-md sticky-element">
                                 <div className="mb-4">
                                     <img
-                                        src="../img/inclusion.jpg"
+                                        src="./src/assets/images/inclusion.jpg"
                                         alt="Preview khóa học"
                                         className="w-full rounded-lg"
+                                        style={{ maxHeight: 150 }}
                                     />
                                 </div>
                                 <div className="flex items-center justify-between mb-4">
@@ -1105,20 +1106,20 @@ export const Detail = () => {
                                         đ 1.499.000
                                     </span>
                                 </div>
-                                <p className="text-red-500 mb-4">Giảm 85%</p>
-                                <p className="text-sm text-gray-600 mb-4">
+                                <p className="text-red-500 mb-1">Giảm 85%</p>
+                                <p className="text-sm text-gray-600 mb-2">
                                     6 ngày còn lại với mức giá này!
                                 </p>
-                                <button className="w-full bg-purple-600 text-white py-2 rounded-lg mb-4 hover:bg-purple-700 transition duration-300">
+                                <button className="w-full bg-purple-600 text-white py-2 rounded-lg mb-2 hover:bg-purple-700 transition duration-300">
                                     Thêm vào giỏ hàng
                                 </button>
-                                <button className="w-full bg-white text-black border border-black py-2 rounded-lg mb-4 hover:bg-gray-100 transition duration-300">
+                                <button className="w-full bg-white text-black border border-black py-2 rounded-lg mb-2 hover:bg-gray-100 transition duration-300">
                                     Mua ngay
                                 </button>
                                 <p className="text-sm text-center text-gray-600">
                                     Đảm bảo hoàn tiền trong 30 ngày
                                 </p>
-                                <div className="mt-6">
+                                <div className="mt-2">
                                     <h4 className="font-semibold mb-2">
                                         Khóa học này bao gồm:
                                     </h4>
@@ -1187,7 +1188,7 @@ export const Detail = () => {
                                             Chứng chỉ hoàn thành
                                         </li>
                                     </ul>
-                                    <div className="mt-6">
+                                    <div className="mt-2">
                                         <h4 className="font-semibold mb-2">
                                             Áp dụng coupon:
                                         </h4>
