@@ -1,10 +1,11 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\CategoryController;
 // Authentication
 Route::group([
@@ -18,10 +19,6 @@ Route::group([
 });
 
 Route::post('register', [UserController::class, 'register']);
-
-
-
-
 
 Route::middleware(['admin'])->group(function () {
 // Courses
@@ -37,3 +34,4 @@ Route::middleware(['admin'])->group(function () {
     Route::put('/category/{slug}', [CategoryController::class, 'update']);
     Route::delete('/category/{slug}', [CategoryController::class, 'delete']);
 });
+Route::post('/send-message', [MessageController::class, 'sendMessage']);

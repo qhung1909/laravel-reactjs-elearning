@@ -15,7 +15,13 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->role === 'admin') {
+        $apiSecret = $request->header('x-api-secret') ?? $request->query('api_secret');
+
+        $isApiSecretValid = $apiSecret === env('API_SECRET');
+
+        $isUserAdmin = Auth::check() && Auth::user()->role === 'admin';
+
+        if ($isUserAdmin || $isApiSecretValid) {
             return $next($request);
         }
 
