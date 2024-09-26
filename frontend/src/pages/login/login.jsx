@@ -53,12 +53,12 @@ export const Login = () => {
                     <img
                         alt=""
                         className="w-full hidden md:pl-64 lg:pl-12 lg:block"
-                        src="./signup.jpg"
+                        src="/src/assets/images/signup.jpg"
                     />
                     <img
                         alt=""
                         className="w-full px-6 sm:px-24 md:px-48 block lg:hidden"
-                        src="../images/signup-mb.png"
+                        src="/src/assets/images/signup-mb.png"
                     />
                 </div>
                 <form onSubmit={submit} className="w-full px-6 sm:px-24 md:px-48 lg:px-16 xl:px-24 mx-auto">
