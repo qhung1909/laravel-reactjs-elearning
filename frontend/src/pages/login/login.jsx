@@ -10,9 +10,7 @@ export const Login = () => {
 
     const API_URL = import.meta.env.VITE_API_URL;
     console.log(API_URL);
-
-    if()
-
+    
     const submit = async (e) => {
         e.preventDefault();
         try {
@@ -29,7 +27,6 @@ export const Login = () => {
             console.log(error);
         }
     }
-
 
 
 
