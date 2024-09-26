@@ -1,6 +1,40 @@
 import { Link } from 'react-router-dom';
 import './login.css'
+import { useEffect, useState } from 'react';
 export const Login = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [access_token, setAccessToken] = useState("");
+    const [refreshToken, setRefreshToken] = useState("");
+    const [error, setError] = useState("");
+
+    const API_URL = import.meta.env.VITE_API_URL;
+    console.log(API_URL);
+
+    if()
+
+    const submit = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch(`${API_URL}/auth/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email, password })
+            })
+            const data = await res.json();
+            localStorage.setItem('access_token', data.access_token);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+
+
+
+
+
     return (
         <div className="max-w-7xl mx-auto py-0 md:py-2 xl:py-12">
             <div className="grid grid-cols-1 py-6 md:py-6 lg:py-12 lg:grid-cols-2">
@@ -16,7 +50,7 @@ export const Login = () => {
                         src="/images/signup-mb.png"
                     />
                 </div>
-                <form className="w-full px-6 sm:px-24 md:px-48 lg:px-16 xl:px-24 mx-auto">
+                <form onSubmit={submit} className="w-full px-6 sm:px-24 md:px-48 lg:px-16 xl:px-24 mx-auto">
                     <h1 className="text-center text-2xl lg:text-3xl font-semibold pb-3 md:pb-10 pt-3 lg:pt-0">
                         Đăng nhập để tiếp tục cuộc hành trình của bạn
                     </h1>
@@ -24,7 +58,9 @@ export const Login = () => {
                         <input
                             className="input-form peer"
                             placeholder=""
-                            type="email "
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                         <label className="label-form">
                             Email
@@ -35,13 +71,15 @@ export const Login = () => {
                             className="input-form peer"
                             placeholder=""
                             type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                         />
                         <label className="label-form">
                             Mật khẩu
                         </label>
                     </div>
                     <div className="py-2">
-                        <button className="h-16 w-full bg-yellow-500 font-bold">
+                        <button type='submit' className="h-16 w-full bg-yellow-500 font-bold">
                             Đăng nhập
                         </button>
                     </div>
