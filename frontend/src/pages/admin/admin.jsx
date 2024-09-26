@@ -236,10 +236,7 @@ export function Dashboard() {
                   <a href="#">Orders</a>
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Recent Orders</BreadcrumbPage>
-              </BreadcrumbItem>
+              
             </BreadcrumbList>
           </Breadcrumb>
           <div className="relative ml-auto flex-1 md:grow-0">

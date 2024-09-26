@@ -15,21 +15,21 @@ Route::group([
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
-    Route::get('me', [AuthController::class,'me']);
+    Route::get('me', [AuthController::class, 'me']);
 });
 
 Route::post('register', [UserController::class, 'register']);
 
 Route::middleware(['admin'])->group(function () {
-// Courses
+    // Courses
     Route::get('courses', [CourseController::class, 'index']);
-    Route::get('course/{course_id}', [CourseController::class, 'show']);
+    Route::get('course/{slug}', [CourseController::class, 'show']);
     Route::post('course', [CourseController::class, 'store']);
-    Route::put('course/{course_id}', [CourseController::class, 'update']);
-    Route::delete('course/{course_id}', [CourseController::class, 'delete']);
-// Categories
-    Route::get('/category', [CategoryController::class, 'index']); 
-    Route::get('/category/{slug}', [CategoryController::class, 'show']); 
+    Route::put('course/{slug}', [CourseController::class, 'update']);
+    Route::delete('course/{slug}', [CourseController::class, 'delete']);    
+    // Categories
+    Route::get('/category', [CategoryController::class, 'index']);
+    Route::get('/category/{slug}', [CategoryController::class, 'show']);
     Route::post('/category', [CategoryController::class, 'store']);
     Route::put('/category/{slug}', [CategoryController::class, 'update']);
     Route::delete('/category/{slug}', [CategoryController::class, 'delete']);

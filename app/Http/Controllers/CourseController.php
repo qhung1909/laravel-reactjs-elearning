@@ -27,17 +27,16 @@ class CourseController extends Controller
     }
 
 
-    public function show($course_id)
+    public function show($slug)
     {
-        $course = Cache::remember("course_{$course_id}", 90, function () use ($course_id) {
-            return $this->course->where('course_id', $course_id)->first();
+        $course = Cache::remember("course_{$slug}", 90, function () use ($slug) {
+            return $this->course->where('slug', $slug)->first();
         });
     
-
         if (!$course) {
             return response()->json(['error' => 'Khóa học không tìm thấy'], 404);
         }
-
+    
         return response()->json($course);
     }
 
@@ -50,7 +49,7 @@ class CourseController extends Controller
             'description' => 'required|string',
             'img' => 'nullable|max:2048',
             'title' => 'required|string',
-            'slug' => 'required|string'
+            'slug' => 'required|string|unique:courses,slug'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -80,7 +79,7 @@ class CourseController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, $course_id)
+    public function update(Request $request, $slug)
     {
         $rules = [
             'course_category_id' => 'sometimes|numeric',
@@ -91,23 +90,27 @@ class CourseController extends Controller
             'title' => 'required|string',
             'slug' => 'required|string'
         ];
-
+    
         $validator = Validator::make($request->all(), $rules);
-
+    
         if ($request->price < $request->price_discount) {
             return response()->json(['error' => 'Giá không được nhỏ hơn giá giảm giá.'], 422);
         }
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
-        $course = $this->course->where('course_id', $course_id)->first();;
+    
+        $course = $this->course->where('slug', $slug)->first();
         if (!$course) {
             return response()->json(['error' => 'Khóa học không tìm thấy'], 404);
         }
-
-
+    
+        $newSlug = $request->input('slug', $course->slug);
+        if ($newSlug !== $course->slug && $this->course->where('slug', $newSlug)->exists()) {
+            return response()->json(['error' => 'Slug đã tồn tại'], 422);
+        }
+    
         $course->update([
             'course_category_id' => $request->input('course_category_id', $course->course_category_id),
             'price' => $request->input('price', $course->price),
@@ -115,9 +118,9 @@ class CourseController extends Controller
             'description' => $request->input('description', $course->description),
             'title' => $request->input('title', $course->title),
             'img' => $this->handleImageUpload($request, $course->img),
-            'slug' => $request->input('slug', $course->slug),
+            'slug' => $newSlug,
         ]);
-
+    
         return response()->json([
             'success' => true,
             'message' => 'Khóa học được cập nhật thành công.',
@@ -143,19 +146,19 @@ class CourseController extends Controller
         return $currentImage;
     }
 
-    public function delete($course_id)
-    {
-        $course = $this->course->where('course_id', $course_id)->first();
+    public function delete($slug)
+{
+    $course = $this->course->where('slug', $slug)->first();
 
-        if (!$course) {
-            return response()->json(['error' => 'Khóa học không tìm thấy'], 404);
-        }
-
-        $course->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Khóa học đã được xóa thành công.'
-        ], 200);
+    if (!$course) {
+        return response()->json(['error' => 'Khóa học không tìm thấy'], 404);
     }
+
+    $course->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Khóa học đã được xóa thành công.'
+    ], 200);
+}
 }
