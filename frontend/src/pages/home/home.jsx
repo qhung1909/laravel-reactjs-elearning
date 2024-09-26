@@ -7,8 +7,7 @@ function Home() {
                     <div className="banner-box">
                         <div
                             className="grid grid-cols-1 lg:grid-cols-2"
-                            style={{ backgroundImage: "url(./src/assets/images/background-banner.jpg)" }}
-                        >
+                            style={{ backgroundImage: "url(./src/assets/images/background-banner.jpg)" }}>
                             <div className="">
                                 <div className="banner-left text-center py-24 max-lg:px-20 lg:py-20 lg:ps-10 lg:text-left xl:ps-32">
                                     <div className="banner-left-heading  max-lg:flex items-center justify-center">
@@ -48,6 +47,9 @@ function Home() {
                                             </button>
                                         </a>
                                     </div>
+                                </div>
+                                <div className="banner-right">
+                                    <img src="" alt="" />
                                 </div>
                             </div>
                             <div className=" flex items-center justify-center">
