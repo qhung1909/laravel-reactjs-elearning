@@ -23,6 +23,12 @@ Route::group([
 
 });
 
+
+// Route::middleware('web')->group(function () {
+//     Route::get('auth/login/google', [AuthController::class, 'redirectToGoogle']);
+//     Route::get('auth/login/google/callback', [AuthController::class, 'handleGoogleCallback']);
+// });
+
 Route::post('register', [UserController::class, 'register']);
 
 Route::middleware(['admin'])->group(function () {
