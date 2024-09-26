@@ -23,7 +23,7 @@ function App() {
                     <Route path="/detail" element={<Detail />}></Route>
 
                 </Routes>
-                <Footer />z
+                <Footer />
             </Router>
         </>
     );
