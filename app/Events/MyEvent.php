@@ -12,11 +12,15 @@ class MyEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
+    public $userId;
 
-    public function __construct($message)
+
+    public function __construct($message, $userId)
     {
         $this->message = $message;
+        $this->userId = $userId; 
     }
+
 
     public function broadcastOn()
     {
