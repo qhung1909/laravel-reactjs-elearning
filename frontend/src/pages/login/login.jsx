@@ -5,14 +5,20 @@ export const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [access_token, setAccessToken] = useState("");
-    const [refreshToken, setRefreshToken] = useState("");
+    const [refresh_token, setRefresh_token] = useState("");
     const [error, setError] = useState("");
 
     const API_URL = import.meta.env.VITE_API_URL;
     console.log(API_URL);
-    
+
+
+
     const submit = async (e) => {
         e.preventDefault();
+        if(!email || !password){
+            alert('Vui lòng nhập đầy đủ thông tin');
+            return;
+        }
         try {
             const res = await fetch(`${API_URL}/auth/login`, {
                 method: "POST",
@@ -21,12 +27,20 @@ export const Login = () => {
                 },
                 body: JSON.stringify({ email, password })
             })
+             if(!res.ok){
+                alert('Đăng nhập thất bại');
+            } else {
+                alert('Đăng nhập thành công');
+            }
+
             const data = await res.json();
             localStorage.setItem('access_token', data.access_token);
         } catch (error) {
             console.log(error);
         }
     }
+
+
 
 
 
@@ -39,12 +53,12 @@ export const Login = () => {
                     <img
                         alt=""
                         className="w-full hidden md:pl-64 lg:pl-12 lg:block"
-                        src="/images/signup.jpg"
+                        src="./signup.jpg"
                     />
                     <img
                         alt=""
                         className="w-full px-6 sm:px-24 md:px-48 block lg:hidden"
-                        src="/images/signup-mb.png"
+                        src="../images/signup-mb.png"
                     />
                 </div>
                 <form onSubmit={submit} className="w-full px-6 sm:px-24 md:px-48 lg:px-16 xl:px-24 mx-auto">
@@ -115,7 +129,7 @@ export const Login = () => {
                                 />
                             </svg>
                             <p className="flex-none">
-                                Đăng nhập bằng google
+                                Đăng nhập bằng Google
                             </p>
                         </button>
                     </div>
