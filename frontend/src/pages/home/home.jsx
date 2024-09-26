@@ -7,7 +7,7 @@ function Home() {
                     <div className="banner-box">
                         <div
                             className="grid grid-cols-1 lg:grid-cols-2"
-                            style={{ backgroundImage: "url(images/background-banner.jpg)" }}
+                            style={{ backgroundImage: "url(./src/assets/images/background-banner.jpg)" }}
                         >
                             <div className="">
                                 <div className="banner-left text-center py-24 max-lg:px-20 lg:py-20 lg:ps-10 lg:text-left xl:ps-32">
@@ -51,7 +51,7 @@ function Home() {
                                 </div>
                             </div>
                             <div className=" flex items-center justify-center">
-                                <img src="images/banner-right.png" alt="" />
+                                <img src="./src/assets/images/banner-right.png" alt="" />
                             </div>
                         </div>
                     </div>
@@ -75,7 +75,7 @@ function Home() {
                                     <div className="product-box">
                                         <div className="product-box-img ">
                                             <img
-                                                src="images/productimgtest.png"
+                                                src="./src/assets/images/productimgtest.png"
                                                 alt=""
                                                 className="object-cover w-[100%] rounded-xl"
                                             />
@@ -105,7 +105,7 @@ function Home() {
                                     <div className="product-box">
                                         <div className="product-box-img ">
                                             <img
-                                                src="images/productimgtest.png"
+                                                src="./src/assets/images/productimgtest.png"
                                                 alt=""
                                                 className="object-cover w-[100%] rounded-xl"
                                             />
@@ -135,7 +135,7 @@ function Home() {
                                     <div className="product-box">
                                         <div className="product-box-img ">
                                             <img
-                                                src="images/productimgtest.png"
+                                                src="./src/assets/images/productimgtest.png"
                                                 alt=""
                                                 className="object-cover w-[100%] rounded-xl"
                                             />
@@ -165,7 +165,7 @@ function Home() {
                                     <div className="product-box">
                                         <div className="product-box-img ">
                                             <img
-                                                src="images/productimgtest.png"
+                                                src="./src/assets/images/productimgtest.png"
                                                 alt=""
                                                 className="object-cover w-[100%] rounded-xl"
                                             />
@@ -214,7 +214,7 @@ function Home() {
                                     <div className="product-box">
                                         <div className="product-box-img ">
                                             <img
-                                                src="images/productimgtest.png"
+                                                src="./src/assets/images/productimgtest.png"
                                                 alt=""
                                                 className="object-cover w-[100%] rounded-xl"
                                             />
@@ -244,7 +244,7 @@ function Home() {
                                     <div className="product-box">
                                         <div className="product-box-img ">
                                             <img
-                                                src="images/productimgtest.png"
+                                                src="./src/assets/images/productimgtest.png"
                                                 alt=""
                                                 className="object-cover w-[100%] rounded-xl"
                                             />
@@ -274,7 +274,7 @@ function Home() {
                                     <div className="product-box">
                                         <div className="product-box-img ">
                                             <img
-                                                src="images/productimgtest.png"
+                                                src="./src/assets/images/productimgtest.png"
                                                 alt=""
                                                 className="object-cover w-[100%] rounded-xl"
                                             />
@@ -304,7 +304,7 @@ function Home() {
                                     <div className="product-box">
                                         <div className="product-box-img ">
                                             <img
-                                                src="images/productimgtest.png"
+                                                src="./src/assets/images/productimgtest.png"
                                                 alt=""
                                                 className="object-cover w-[100%] rounded-xl"
                                             />
@@ -415,7 +415,7 @@ function Home() {
                                     <div className="product-box">
                                         <div className="product-box-img ">
                                             <img
-                                                src="images/productimgtest.png"
+                                                src="./src/assets/images/productimgtest.png"
                                                 alt=""
                                                 className="object-cover w-[100%] rounded-xl"
                                             />
@@ -445,7 +445,7 @@ function Home() {
                                     <div className="product-box">
                                         <div className="product-box-img ">
                                             <img
-                                                src="images/productimgtest.png"
+                                                src="./src/assets/images/productimgtest.png"
                                                 alt=""
                                                 className="object-cover w-[100%] rounded-xl"
                                             />
@@ -475,7 +475,7 @@ function Home() {
                                     <div className="product-box">
                                         <div className="product-box-img ">
                                             <img
-                                                src="images/productimgtest.png"
+                                                src="./src/assets/images/productimgtest.png"
                                                 alt=""
                                                 className="object-cover w-[100%] rounded-xl"
                                             />
@@ -505,7 +505,7 @@ function Home() {
                                     <div className="product-box">
                                         <div className="product-box-img ">
                                             <img
-                                                src="images/productimgtest.png"
+                                                src="./src/assets/images/productimgtest.png"
                                                 alt=""
                                                 className="object-cover w-[100%] rounded-xl"
                                             />
@@ -545,7 +545,7 @@ function Home() {
                     <div className="homeblog-box grid grid-cols-1 lg:grid-cols-2 gap-3">
                         <div className="homeblog-box-img">
                             <div className="homeblog-box-img-main relative md:flex md:justify-center lg:just">
-                                <img src="images/homepage-blog.png" alt="" />
+                                <img src="./src/assets/images/homepage-blog.png" alt="" />
                             </div>
                             <div className="homeblog-box-img-content relative bg-white pb-3 xl:w-[240px] lg:w-[210px] md:w-[190px] w-[160px] xl:top-[-30%] xl:left-[15%] lg:top-[-32%] lg:left-[15%] md:left-[20%] md:top-[-35%] sm:top[-10%] top-[-35%] left-[20%]">
                                 <div className="homeblog-box-img-content-header font-medium p-3 xl:text-[16px] lg:text-[14px] md:text-[12px] text-[10px]">
