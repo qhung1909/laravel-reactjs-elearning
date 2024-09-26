@@ -11,7 +11,6 @@ export const Login = () => {
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
 
-    // Hàm debounce
     const debounce = (func, delay) => {
         let timer;
         return (...args) => {
@@ -22,13 +21,11 @@ export const Login = () => {
         };
     };
 
-    // Hàm xử lý đăng nhập
     const handleLogin = async () => {
         setLoading(true);
         setError("");
         setSuccess("");
 
-        // Kiểm tra thông tin nhập vào
         if (!email || !password) {
             setError('Vui lòng nhập đầy đủ thông tin');
             setLoading(false);
