@@ -1,24 +1,37 @@
 import { Link } from 'react-router-dom';
 import './login.css'
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+const API_URL = import.meta.env.VITE_API_URL;
+console.log(API_URL);
+
 export const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [access_token, setAccessToken] = useState("");
-    const [refresh_token, setRefresh_token] = useState("");
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const API_URL = import.meta.env.VITE_API_URL;
-    console.log(API_URL);
+    const debounce = (func, delay) => {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                func(...args);
+            }, delay);
+        };
+    };
 
+    const handleLogin = async () => {
+        setLoading(true);
+        setError("");
+        setSuccess("");
 
-
-    const submit = async (e) => {
-        e.preventDefault();
-        if(!email || !password){
-            alert('Vui lòng nhập đầy đủ thông tin');
+        if (!email || !password) {
+            setError('Vui lòng nhập đầy đủ thông tin');
+            setLoading(false);
             return;
         }
+
         try {
             const res = await fetch(`${API_URL}/auth/login`, {
                 method: "POST",
@@ -26,25 +39,33 @@ export const Login = () => {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ email, password })
-            })
-             if(!res.ok){
-                alert('Đăng nhập thất bại');
-            } else {
-                alert('Đăng nhập thành công');
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                setError(errorData.message || 'Đăng nhập thất bại');
+                setLoading(false);
+                return;
             }
 
             const data = await res.json();
             localStorage.setItem('access_token', data.access_token);
+            setSuccess('Đăng nhập thành công');
+
+
         } catch (error) {
-            console.log(error);
+            setError('Đã xảy ra lỗi: ' + error.message);
+        } finally {
+            setLoading(false);
         }
-    }
+    };
 
+    const debouncedLogin = useCallback(debounce(handleLogin, 500), [email, password]);
 
-
-
-
-
+    const submit = (e) => {
+        e.preventDefault();
+        debouncedLogin(); 
+    };
 
     return (
         <div className="max-w-7xl mx-auto py-0 md:py-2 xl:py-12">

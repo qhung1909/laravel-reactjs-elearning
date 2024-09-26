@@ -6,7 +6,7 @@ function Footer() {
                     <div className="grid xl:grid-cols-4">
                         <div className="footer-start">
                             <img
-                                src="images/Antlearn-logo.png"
+                                src="./src/assets/images/antlearn.png"
                                 alt=""
                                 className="w-52 ml-[-50px] mt-[-30px]"
                             />
