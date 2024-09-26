@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function Header() {
     return (
         <>
@@ -6,9 +8,13 @@ function Header() {
                 <nav className="navbar  flex items-center w-[98%] mx-auto py-2 z-10">
                     {/* header - logo */}
                     <div className="navbar-logo mx-2 w-24">
-                        <a href="">
-                            <img src="./src/assets/images/antlearn.png" alt="" className="w-40" />
-                        </a>
+                        <Link to="/">
+                            <img
+                                src="./src/assets/images/antlearn.png"
+                                alt=""
+                                className="w-40"
+                            />
+                        </Link>
                     </div>
                     {/* header - search */}
                     <div className="navbar-search xl:w-[50%] lg:px-20 md:px-12 xl:px-0 w-[100%] px-10">
@@ -21,31 +27,37 @@ function Header() {
                     {/* header - content */}
                     <div
                         id="navbar-content"
-                        className=" navbar-content xl:static xl:min-h-fit absolute bg-white min-h-[40vh] left-0 top-[-200%] flex xl:items-center xl:flex-row flex-col px-10 max-xl:w-full gap-2 max-xl:py-5 max-xl:gap-6"
+                        className="navbar-content xl:static xl:min-h-fit absolute bg-white min-h-[40vh] left-0 top-[-200%] flex xl:items-center xl:flex-row flex-col px-10 max-xl:w-full gap-2 max-xl:py-5 max-xl:gap-6"
                     >
                         {/* header - ul */}
                         <ul className="items-center max-xl:pt-3 gap-3 xl:flex max-xl:flex-col text-base xl:text-base w-52">
                             <li className="max-xl:mb-4">
-                                <a href="" className="hover:text-gray-500">
-                                    {" "}
-                                    Khóa học{" "}
-                                </a>
+                                <Link
+                                    to="/courses"
+                                    className="hover:text-gray-500"
+                                >
+                                    Khóa học
+                                </Link>
                             </li>
                             <li className="max-xl:mb-4">
-                                <a href="" className="hover:text-gray-500">
-                                    {" "}
-                                    Liên hệ{" "}
-                                </a>
+                                <Link
+                                    to="/contact"
+                                    className="hover:text-gray-500"
+                                >
+                                    Liên hệ
+                                </Link>
                             </li>
                             <li>
-                                <a href="" className="hover:text-gray-500">
-                                    {" "}
-                                    Bài viết{" "}
-                                </a>
+                                <Link
+                                    to="/posts"
+                                    className="hover:text-gray-500"
+                                >
+                                    Bài viết
+                                </Link>
                             </li>
                         </ul>
                         {/* header - icons */}
-                        <div className="navbar-icons flex items-center gap-2 xl:mx-3  ">
+                        <div className="navbar-icons flex items-center gap-2 xl:mx-3">
                             <div className="navbar-noti cursor-pointer">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -72,14 +84,18 @@ function Header() {
                         {/* header - login  */}
                         <div className="xl:flex max-xl:flex-col gap-2 items-center">
                             <div className="navbar-register  max-xl:mb-2">
-                                <button className="w-32 me-3 border rounded-lg font-semibold border-black p-1 hover:border-1 hover:border-white hover:bg-yellow-300 hover:text-white duration-300">
-                                    Đăng ký
-                                </button>
+                                <Link to="/register">
+                                    <button className="w-32 me-3 border rounded-lg font-semibold border-black p-1 hover:border-1 hover:border-white hover:bg-yellow-300 hover:text-white duration-300">
+                                        Đăng ký
+                                    </button>
+                                </Link>
                             </div>
                             <div className="navbar-login">
-                                <button className="w-32 border rounded-lg font-semibold p-1 bg-yellow-300 hover:border-1 hover:border-black hover:bg-black hover:text-white duration-300">
-                                    Đăng nhập
-                                </button>
+                                <Link to="/login">
+                                    <button className="w-32 border rounded-lg font-semibold p-1 bg-yellow-300 hover:border-1 hover:border-black hover:bg-black hover:text-white duration-300">
+                                        Đăng nhập
+                                    </button>
+                                </Link>
                             </div>
                         </div>
                     </div>
@@ -99,9 +115,8 @@ function Header() {
                     </div>
                 </nav>
             </header>
-
         </>
-    )
+    );
 }
 
-export default Header
+export default Header;
