@@ -1,9 +1,36 @@
 // import { Link } from 'react-router-dom';
 // import './src/assets/js/courses.js'
 import './courses.css'
+import { useState, useEffect } from 'react';
+import React from 'react';
+import axios from 'axios';
+const API_KEY = import.meta.env.VITE_API_KEY;
+const API_URL = import.meta.env.VITE_API_URL;
+console.log(API_KEY);
 
 export const Courses = () => {
+    const [courses, setCourses] = useState([]);
+
+    const fetchCourses = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/courses`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`
+                }
+            });
+            setCourses(response.data); 
+        } catch (error) {
+            console.error("Error fetching API:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCourses();
+    }, []);
+    
+    
     return (
+        
         <div>
             <div
                 className="fixed z-0 left-0 top-0 w-70 h-full bg-gray-800 text-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden"
@@ -766,7 +793,7 @@ export const Courses = () => {
                         </button>
                         <div className="relative inline-block text-left mr-3">
                             <select className="block w-full bg-white border border-gray-300 rounded-lg py-2 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option selected>Sắp xếp theo</option>
+                                <option defaultValue={0}>Sắp xếp theo</option>
                                 <option value="1">Phổ biến nhất</option>
                                 <option value="2">Thứ hạn cao nhất</option>
                                 <option value="3">Mới nhất</option>
@@ -1591,3 +1618,4 @@ export const Courses = () => {
         </div>
     );
 };
+
