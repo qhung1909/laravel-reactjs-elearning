@@ -11,26 +11,24 @@ console.log(API_KEY);
 export const Courses = () => {
     const [courses, setCourses] = useState([]);
 
+    const fetchCourses = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/courses`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`
+                }
+            });
+            setCourses(response.data); 
+        } catch (error) {
+            console.error("Error fetching API:", error);
+        }
+    };
+
     useEffect(() => {
-        const fetchCourses = async () => {
-            try {
-                const response = await axios.get(`${API_URL}/courses`, {
-                    headers: {
-                        'x-api-secret': `${API_KEY}`
-                    }
-                });
-                console.log(response.data); 
-                setCourses(response.data.courses); 
-            } catch (error) {
-                console.error("Error fetching API:", error);
-            }
-        };
-
         fetchCourses();
-        
     }, []);
-
-     
+    
+    
     return (
         
         <div>
@@ -44,23 +42,6 @@ export const Courses = () => {
                 >
                     <i className="bx bx-x" />
                 </button>
-
-                <div className="bg-slate-700">
-                <ul>
-                {Array.isArray(courses) && courses.length > 0 ? (
-                        courses.map(course => (
-                            <li key={course.course_id}>
-                                <h3>{course.title}</h3>
-                                <p>Price: {course.price} (Discount: {course.price_discount})</p>
-                                <p>{course.description}</p>
-                            </li>
-                        ))
-                    ) : (
-                        <li>No courses available2</li>
-                    )}
-                </ul>
-                </div>
-
                 <ul className="p-4 space-y-2">
                     <li>
                         <a
