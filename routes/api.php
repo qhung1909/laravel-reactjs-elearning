@@ -8,6 +8,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Middleware\CheckAuthMessage;
+use App\Http\Middleware\AdminMiddleware;
 use Symfony\Component\Mime\MessageConverter;
 
 // Authentication
@@ -20,14 +21,7 @@ Route::group([
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('me', [AuthController::class, 'me']);
     Route::post('send-message', [MessageController::class, 'sendMessage'])->middleware(CheckAuthMessage::class);
-
 });
-
-
-// Route::middleware('web')->group(function () {
-//     Route::get('auth/login/google', [AuthController::class, 'redirectToGoogle']);
-//     Route::get('auth/login/google/callback', [AuthController::class, 'handleGoogleCallback']);
-// });
 
 Route::post('register', [UserController::class, 'register']);
 

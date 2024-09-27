@@ -1,20 +1,20 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Google_Client;
 use Exception;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
-use Laravel\Socialite\Facades\Socialite;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'refresh', 'redirectToGoogle', 'handleGoogleCallback']]);
+        $this->middleware('auth:api', ['except' => ['login', 'refresh', 'googleLogin']]);
     }
 
     /**
@@ -23,8 +23,9 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function login()
-    {
-        $credentials = request(['email', 'password']);
+    {   
+    
+        $credentials = request()->only('email', 'password');
 
         if (!$token = auth('api')->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
@@ -32,14 +33,15 @@ class AuthController extends Controller
 
         $user = auth('api')->user();
 
-        if ($user && $user->getJWTIdentifier()) {
-            $refreshToken = $this->createRefreshToken();
-
-            return $this->respondWithToken($token, $refreshToken);
-        } else {
+        if (!$user || !$user->getJWTIdentifier()) {
             return response()->json(['error' => 'User ID is null or invalid'], 401);
         }
+
+        $refreshToken = $this->createRefreshToken();
+
+        return $this->respondWithToken($token, $refreshToken);
     }
+
 
     private function createRefreshToken()
     {
@@ -104,40 +106,55 @@ class AuthController extends Controller
         ]);
     }
 
-    public function redirectToGoogle()
-    {
-        return Socialite::driver('google')->redirect();
-    }
 
-    public function handleGoogleCallback()
-    {   
-        $googleUser = Socialite::driver('google')->user();
-        dd($googleUser);
-        
-        $user = User::where('google_id', $googleUser->id)->first();
+    // public function redirectToAuth()
+    // {
+    //     return response()->json([
+    //         'url' => Socialite::driver('google')->stateless()->redirect()->getTargetUrl(),
+    //     ]);
+    // }
 
-        if (!$user) {
-            $user = User::create([
-                'name' => $googleUser->name,
-                'email' => $googleUser->email,
-                'google_id' => $googleUser->id,
-                'avatar' => $googleUser->avatar,
-                'role' => 'user',
-                'status' => 1,
-            ]);
-        } else {
-            $user->avatar = $googleUser->avatar;
-            $user->save();
-        }
+    // public function handleGoogleCallback()
+    // {
+    //     try {
+    //         $client = new Client([
+    //             'verify' => 'C:\laragon\etc\ssl\cacert.pem', 
+    //         ]);
 
-        auth()->login($user);
+    //         Socialite::driver('google')->setHttpClient($client);
 
-        $token = auth('api')->login($user);
-        $refreshToken = $this->createRefreshToken();
+    //         $googleUser = Socialite::driver('google')->stateless()->user();
 
-        return response()->json([
-            'access_token' => $token,
-            'refresh_token' => $refreshToken,
-        ]);
-    }
+    //         $user = User::where('google_id', $googleUser->id)->first();
+
+    //         if (!$user) {
+    //             $user = User::create([
+    //                 'name' => $googleUser->name,
+    //                 'email' => $googleUser->email,
+    //                 'google_id' => $googleUser->id,
+    //                 'avatar' => $googleUser->avatar,
+    //                 'role' => 'user',
+    //                 'status' => 1,
+    //             ]);
+    //         } else {
+    //             $user->avatar = $googleUser->avatar;
+    //             $user->save();
+    //         }
+
+    //         auth()->login($user);
+
+    //         $accessToken = auth('api')->login($user);
+    //         $refreshToken = $this->createRefreshToken($user);
+
+    //         $frontendUrl = 'http://localhost:5173';
+    //         return response()->json([
+    //             'access_token' => $accessToken,
+    //             'refresh_token' => $refreshToken,
+    //             'redirect_url' => $frontendUrl,
+    //         ]);
+            
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => 'Đăng nhập Google thất bại 22'], 500);
+    //     }
+    // }
 }

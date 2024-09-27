@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import './login.css'
 import { useCallback, useState } from 'react';
+
 const API_URL = import.meta.env.VITE_API_URL;
-console.log(API_URL);
 
 export const Login = () => {
     const [email, setEmail] = useState("");
@@ -21,11 +21,7 @@ export const Login = () => {
         };
     };
 
-    const handleLogin = async () => {
-        setLoading(true);
-        setError("");
-        setSuccess("");
-
+    const debouncedLogin = useCallback(debounce(async () => {
         if (!email || !password) {
             setError('Vui lòng nhập đầy đủ thông tin');
             setLoading(false);
@@ -33,6 +29,10 @@ export const Login = () => {
         }
 
         try {
+            setLoading(true);
+            setError("");
+            setSuccess("");
+
             const res = await fetch(`${API_URL}/auth/login`, {
                 method: "POST",
                 headers: {
@@ -44,28 +44,26 @@ export const Login = () => {
             if (!res.ok) {
                 const errorData = await res.json();
                 setError(errorData.message || 'Đăng nhập thất bại');
-                setLoading(false);
                 return;
             }
 
             const data = await res.json();
             localStorage.setItem('access_token', data.access_token);
             setSuccess('Đăng nhập thành công');
-
-
         } catch (error) {
             setError('Đã xảy ra lỗi: ' + error.message);
         } finally {
             setLoading(false);
         }
-    };
-
-    const debouncedLogin = useCallback(debounce(handleLogin, 500), [email, password]);
+    }, 300), [email, password]);
 
     const submit = (e) => {
         e.preventDefault();
-        debouncedLogin(); 
+        setLoading(true);
+        debouncedLogin();
     };
+
+
 
     return (
         <div className="max-w-7xl mx-auto py-0 md:py-2 xl:py-12">
@@ -123,7 +121,7 @@ export const Login = () => {
                         <div className="flex-grow border-t border-gray-400" />
                     </div>
                     <div className="py-2">
-                        <button className="h-16 w-full border border-black flex gap-3 m-auto justify-center place-items-center">
+                        <button  className="h-16 w-full border border-black flex gap-3 m-auto justify-center place-items-center">
                             <svg
                                 className="flex-none"
                                 id="google"
@@ -153,6 +151,7 @@ export const Login = () => {
                                 Đăng nhập bằng Google
                             </p>
                         </button>
+
                     </div>
                     <div className="pt-2">
                         <h3 className="text-lg lg:text-xl">
