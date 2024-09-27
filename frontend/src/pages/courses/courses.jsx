@@ -1,5 +1,5 @@
 // import { Link } from 'react-router-dom';
-import './courses.js'
+// import './src/assets/js/courses.js'
 import './courses.css'
 
 export const Courses = () => {
