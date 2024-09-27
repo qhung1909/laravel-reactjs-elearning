@@ -5,10 +5,9 @@ function Home() {
                 {/* banner */}
                 <div className="banner">
                     <div className="banner-box">
-                        <div
-                            className="grid grid-cols-1 lg:grid-cols-2"
-                            style={{ backgroundImage: "url(./src/assets/images/background-banner.jpg)" }}>
-                            <div className="">
+                        <div className=""  style={{ backgroundImage: "url(./src/assets/images/background-banner.jpg)" }}>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-2xl mx-auto">
+                            <div className="grid-left">
                                 <div className="banner-left text-center py-24 max-lg:px-20 lg:py-20 lg:ps-10 lg:text-left xl:ps-32">
                                     <div className="banner-left-heading  max-lg:flex items-center justify-center">
                                         <p className="flex font-semibold items-center border rounded-full border-yellow-400 w-44 px-2 py-1">
@@ -25,7 +24,7 @@ function Home() {
                                             Làm chủ kỹ năng
                                         </p>
                                     </div>
-                                    <div className="banner-left-title text-4xl lg:text-[45px] xl:text-[55px] md:text-[60px] text-[45px] md:mb-10 xl:my-10 my-6">
+                                    <div className="banner-left-title text-4xl lg:text-[45px] xl:text-[55px] md:text-[60px] sm:text-[50px] text-[40px] md:mb-10 xl:my-10 my-6">
                                         <p className="leading-tight">
                                             Cách nhanh hơn để <br />
                                             <span className="text-yellow-400">phát triển</span> và{" "}
@@ -33,7 +32,7 @@ function Home() {
                                             <br /> kỹ năng của bạn
                                         </p>
                                     </div>
-                                    <div className="banner-left-content lg:-w[69%] md:px-32 lg:px-0 text-[10px] md:text-base">
+                                    <div className="banner-left-content lg:-w[69%] md:px-32 lg:px-0 md:text-base sm:text-base text-[14px]">
                                         <p>
                                             Cùng tìm hiểu các chiến lược tiên tiến để tối ưu quá trình học,
                                             nâng cao kỹ năng, đạt được thành công nhanh chóng trong sự
@@ -56,6 +55,8 @@ function Home() {
                                 <img src="./src/assets/images/banner-right.png" alt="" />
                             </div>
                         </div>
+                        </div>
+
                     </div>
                 </div>
                 {/* Thân trang - sản phẩm được mua nhiều */}
@@ -578,7 +579,7 @@ function Home() {
                             </div>
                         </div>
                         <div className="homeblog-box-content">
-                            <div className="homeblog-box-content-title xl:px-20 lg:px-10 md:mt-[-150px] md:px-14 px-4 mb-5 md:mb-0 lg:mt-0 xl:text-[46px] lg:text-[36px] md:text-[34px] sm:text-[100px] text-[24px] mt-[-150px] sm:text-center lg:text-start">
+                            <div className="homeblog-box-content-title xl:px-20 lg:px-10 md:mt-[-150px] md:px-14 px-4 mb-5 md:mb-0 lg:mt-0 xl:text-[46px] lg:text-[36px] md:text-[34px] sm:text-[32px] text-[24px] mt-[-150px] sm:text-center lg:text-start">
                                 <h2>
                                     Thúc đẩy{" "}
                                     <span className="font-semibold text-yellow-400 italic">
@@ -587,7 +588,7 @@ function Home() {
                                     ở bất kỳ cấp độ nào.
                                 </h2>
                             </div>
-                            <div className="homeblog-box-content-blogs xl:ps-40 lg:px-12 lg:ps-32 md:px-20 md:py-5 px-4 mb-5 md:mb-0 lg:mt-10 sm:text-center lg:text-start xl:text-[16px] lg:text-[12px] md:text-[10px] text-[12px]">
+                            <div className="homeblog-box-content-blogs xl:ps-40 lg:px-12 lg:ps-32 md:px-20 md:py-5 px-4 mb-5 md:mb-0 lg:mt-10 sm:text-center lg:text-start xl:text-[16px] lg:text-[12px] md:text-[14px] text-[12px]">
                                 <p className="mb-5">
                                     Mở khóa tiềm năng của bạn với nền tảng e-learning tiên tiến của
                                     chúng tôi, được thiết kế để thúc đẩy sự nghiệp của bạn và mở rộng
@@ -607,7 +608,7 @@ function Home() {
                                     việc làm luôn thay đổi.
                                 </p>
                             </div>
-                            <div className="homeblog-box-content-button xl:ps-40 lg:ps-32 md:flex md:justify-center lg:justify-start lg:py-5 px-4 md:text-[10px] lg:text-[12px] xl:text-[16px] text-[12px]">
+                            <div className="homeblog-box-content-button xl:ps-40 lg:ps-32 sm:flex sm:justify-center lg:justify-start lg:py-5 px-4 md:text-[10px] lg:text-[12px] xl:text-[16px] text-[12px]">
                                 <button className="bg-yellow-400 font-semibold lg:py-3 lg:px-5 md:py-2 md:px-4 px-5 py-2 rounded-full hover:bg-yellow-300 duration-300 ">
                                     Khám phá thêm
                                 </button>
