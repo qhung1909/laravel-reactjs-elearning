@@ -1,4 +1,4 @@
-import './detail.css'
+import "./detail.css";
 
 export const Detail = () => {
     return (
@@ -1099,7 +1099,7 @@ export const Detail = () => {
                                         style={{ maxHeight: 150 }}
                                     />
                                 </div>
-                                <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center justify-between mb-1">
                                     <span className="text-3xl font-bold">
                                         đ 229.000
                                     </span>
@@ -1111,9 +1111,10 @@ export const Detail = () => {
                                 <p className="text-sm text-gray-600 mb-2">
                                     6 ngày còn lại với mức giá này!
                                 </p>
-                                <button className="w-full bg-purple-600 text-white py-2 rounded-lg mb-2 hover:bg-purple-700 transition duration-300">
+                                <button className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300">
                                     Thêm vào giỏ hàng
                                 </button>
+
                                 <button className="w-full bg-white text-black border border-black py-2 rounded-lg mb-2 hover:bg-gray-100 transition duration-300">
                                     Mua ngay
                                 </button>
@@ -1129,63 +1130,63 @@ export const Detail = () => {
                                             <box-icon
                                                 name="video"
                                                 color="#10B981"
-                                                className="w-4 h-4 mr-2"
+                                                class="w-4 h-4 mr-2"
                                                 size="sm"
-                                            />
+                                            ></box-icon>
                                             8,5 giờ video theo yêu cầu
                                         </li>
                                         <li className="flex items-center">
                                             <box-icon
                                                 name="code"
                                                 color="#10B981"
-                                                className="w-4 h-4 mr-2"
+                                                class="w-4 h-4 mr-2"
                                                 size="sm"
-                                            />
+                                            ></box-icon>
                                             1 bài tập coding
                                         </li>
                                         <li className="flex items-center">
                                             <box-icon
                                                 name="file"
                                                 color="#10B981"
-                                                className="w-4 h-4 mr-2"
+                                                class="w-4 h-4 mr-2"
                                                 size="sm"
-                                            />
+                                            ></box-icon>
                                             35 bài viết
                                         </li>
                                         <li className="flex items-center">
                                             <box-icon
                                                 name="download"
                                                 color="#10B981"
-                                                className="w-4 h-4 mr-2"
+                                                class="w-4 h-4 mr-2"
                                                 size="sm"
-                                            />
+                                            ></box-icon>
                                             7 tài nguyên có thể tải xuống
                                         </li>
                                         <li className="flex items-center">
                                             <box-icon
                                                 name="mobile"
                                                 color="#10B981"
-                                                className="w-4 h-4 mr-2"
+                                                class="w-4 h-4 mr-2"
                                                 size="sm"
-                                            />
+                                            ></box-icon>
                                             Truy cập trên thiết bị di động và TV
                                         </li>
                                         <li className="flex items-center">
                                             <box-icon
                                                 name="accessibility"
                                                 color="#10B981"
-                                                className="w-4 h-4 mr-2"
+                                                class="w-4 h-4 mr-2"
                                                 size="sm"
-                                            />
+                                            ></box-icon>
                                             Quyền truy cập trọn đời
                                         </li>
                                         <li className="flex items-center">
                                             <box-icon
                                                 name="medal"
                                                 color="#10B981"
-                                                className="w-4 h-4 mr-2"
+                                                class="w-4 h-4 mr-2"
                                                 size="sm"
-                                            />
+                                            ></box-icon>
                                             Chứng chỉ hoàn thành
                                         </li>
                                     </ul>

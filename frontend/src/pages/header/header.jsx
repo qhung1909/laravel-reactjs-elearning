@@ -5,7 +5,7 @@ function Header() {
         <>
             <header>
                 {/* Menu */}
-                <nav className="navbar  flex items-center w-[98%] mx-auto py-2 z-10">
+                <nav className="navbar  flex items-center w-[100%] mx-auto py-2 z-10 ps-3 xl:max-w-screen-2xl ms-auto">
                     {/* header - logo */}
                     <div className="navbar-logo mx-2 w-24">
                         <Link to="/">
