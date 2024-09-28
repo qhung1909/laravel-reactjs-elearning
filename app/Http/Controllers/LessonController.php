@@ -33,7 +33,7 @@ class LessonController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'course_id' => 'required|integer|exists:courses,id',
+            'course_id' => 'required|integer|exists:courses,course_id',
             'name' => 'required|string',
             'slug' => 'required|string|unique:lessons,slug',
             'content' => 'required|string',
@@ -64,7 +64,7 @@ class LessonController extends Controller
     public function update(Request $request, $slug) 
     {
         $rules = [
-            'course_id' => 'sometimes|required|integer|exists:courses,id',
+            'course_id' => 'sometimes|required|integer|exists:courses,course_id',
             'name' => 'sometimes|required|string',
             'slug' => 'sometimes|required|string|unique:lessons,slug,' . $slug . ',slug',
             'content' => 'sometimes|required|string',
