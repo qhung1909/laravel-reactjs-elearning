@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, redirect, useNavigate } from 'react-router-dom';
 import './login.css'
 import { useCallback, useState } from 'react';
 
@@ -10,6 +10,7 @@ export const Login = () => {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const debounce = (func, delay) => {
         let timer;
@@ -50,6 +51,8 @@ export const Login = () => {
             const data = await res.json();
             localStorage.setItem('access_token', data.access_token);
             setSuccess('Đăng nhập thành công');
+            alert('Đăng nhập thành công');
+            navigate('/');
         } catch (error) {
             setError('Đã xảy ra lỗi: ' + error.message);
         } finally {
@@ -107,11 +110,13 @@ export const Login = () => {
                         <label className="label-form">
                             Mật khẩu
                         </label>
+
                     </div>
                     <div className="py-2">
                         <button type='submit' className="h-16 w-full bg-yellow-500 font-bold">
                             Đăng nhập
                         </button>
+                        {error && <p className="text-red-500 text-sm">{error}</p>}
                     </div>
                     <div className="flex items-center justify-center my-4">
                         <div className="flex-grow border-t border-gray-400" />
