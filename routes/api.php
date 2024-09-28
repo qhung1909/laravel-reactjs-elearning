@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CheckAuthMessage;
@@ -25,6 +26,7 @@ Route::group([
 });
 
 Route::post('register', [UserController::class, 'register']);
+Route::post('/vnpay-payment', [CartController::class, 'vnpay_payment']);
 
 Route::middleware(['admin'])->group(function () {
     // Courses

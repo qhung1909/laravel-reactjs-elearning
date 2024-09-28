@@ -4,6 +4,7 @@ import { Lession } from "./pages/lession/lession.jsx";
 import { Detail } from "./pages/detail/detail.jsx";
 import { Dashboard } from "./pages/admin/admin.jsx";
 import { Courses } from "./pages/courses/course.jsx";
+import { PaymentComponent } from "./pages/testing/payment-vnpay.jsx";
 import Home from "./pages/home/home.jsx";
 import Header from "./pages/header/header.jsx";
 import Footer from "./pages/footer/footer.jsx";
@@ -23,7 +24,7 @@ function App() {
                     <Route path="/courses" element={<Courses/>}></Route>
                     <Route path="/lession" element={<Lession />}></Route>
                     <Route path="/detail" element={<Detail />}></Route>
-
+                    <Route path="/tests" element={<PaymentComponent />}></Route>
                 </Routes>
                 <Footer />
             </Router>
