@@ -38,4 +38,7 @@ Route::middleware(['admin'])->group(function () {
     Route::post('course/category', [CategoryController::class, 'store']);
     Route::put('course/category/{slug}', [CategoryController::class, 'update']);
     Route::delete('course/category/{slug}', [CategoryController::class, 'delete']);
+
+    //Lessions
+    
 });
