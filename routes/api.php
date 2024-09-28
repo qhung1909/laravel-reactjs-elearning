@@ -27,6 +27,7 @@ Route::group([
 
 Route::post('register', [UserController::class, 'register']);
 Route::post('/vnpay-payment', [CartController::class, 'vnpay_payment']);
+Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
 
 Route::middleware(['admin'])->group(function () {
     // Courses
