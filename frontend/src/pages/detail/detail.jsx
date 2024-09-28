@@ -1,4 +1,5 @@
 import "./detail.css";
+import "../../components/js/detail.js";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
