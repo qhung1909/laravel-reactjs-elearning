@@ -114,7 +114,7 @@ export const Login = () => {
                     </div>
                     <div className="py-2">
                         <button type='submit' className="h-16 w-full bg-yellow-500 font-bold">
-                            Đăng nhập
+                            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                         </button>
                         {error && <p className="text-red-500 text-sm">{error}</p>}
                     </div>
