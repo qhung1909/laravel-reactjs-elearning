@@ -116,7 +116,7 @@ export const Login = () => {
                         <button type='submit' className="h-16 w-full bg-yellow-500 font-bold">
                             {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                         </button>
-                        {error && <p className="text-red-500 text-sm">{error}</p>}
+                        {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
                     </div>
                     <div className="flex items-center justify-center my-4">
                         <div className="flex-grow border-t border-gray-400" />
