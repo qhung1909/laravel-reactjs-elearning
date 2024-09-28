@@ -4,11 +4,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\CheckAuthMessage;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\LessonController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Middleware\CheckAuthMessage;
-use App\Http\Middleware\AdminMiddleware;
 use Symfony\Component\Mime\MessageConverter;
 
 // Authentication
@@ -27,18 +28,23 @@ Route::post('register', [UserController::class, 'register']);
 
 Route::middleware(['admin'])->group(function () {
     // Courses
-    Route::get('courses', [CourseController::class, 'index']);
-    Route::get('course/{slug}', [CourseController::class, 'show']);
-    Route::post('course', [CourseController::class, 'store']);
-    Route::put('course/{slug}', [CourseController::class, 'update']);
-    Route::delete('course/{slug}', [CourseController::class, 'delete']);    
-    // Categories
-    Route::get('course/category', [CategoryController::class, 'index']);
-    Route::get('course/category/{slug}', [CategoryController::class, 'show']);
-    Route::post('course/category', [CategoryController::class, 'store']);
-    Route::put('course/category/{slug}', [CategoryController::class, 'update']);
-    Route::delete('course/category/{slug}', [CategoryController::class, 'delete']);
+    Route::get('courses', [CourseController::class, 'index'])->name('courses.index');
+    Route::get('course/{slug}', [CourseController::class, 'show'])->name('courses.show');
+    Route::post('course', [CourseController::class, 'store'])->name('courses.store');
+    Route::put('course/{slug}', [CourseController::class, 'update'])->name('courses.update');
+    Route::delete('course/{slug}', [CourseController::class, 'delete'])->name('courses.delete');
+ 
+    Route::prefix('categories')->group(function () {
+        Route::get('/', [CategoryController::class, 'index']);
+        Route::get('{slug}', [CategoryController::class, 'show']);
+        Route::post('/', [CategoryController::class, 'store']);
+        Route::put('{slug}', [CategoryController::class, 'update']);
+        Route::delete('{slug}', [CategoryController::class, 'delete']);
+    });
 
-    //Lessions
-    
+    Route::get('/lessons', [LessonController::class, 'index']);
+    Route::get('/lessons/{slug}', [LessonController::class, 'show']);
+    Route::post('/lessons', [LessonController::class, 'store']);
+    Route::put('/lessons/{slug}', [LessonController::class, 'update']);
+    Route::delete('/lessons/{slug}', [LessonController::class, 'delete']);
 });
