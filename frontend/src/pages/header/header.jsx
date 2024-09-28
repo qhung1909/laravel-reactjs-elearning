@@ -1,11 +1,16 @@
 import { Link } from "react-router-dom";
-
+import { useState } from "react";
 function Header() {
+    const [openMenu, setOpenMenu] = useState(false);
+
+    const toggleMenu = () =>{
+        setOpenMenu(!openMenu);
+    }
+
     return (
         <>
-            <header>
-                {/* Menu */}
-                <nav className="navbar  flex items-center w-[100%] mx-auto py-2 z-10 ps-3 xl:max-w-screen-2xl ms-auto">
+          <header>
+                <nav className="navbar flex items-center w-[100%] mx-auto py-2 z-10 ps-3 xl:max-w-screen-2xl ms-auto">
                     {/* header - logo */}
                     <div className="navbar-logo mx-2 w-24">
                         <Link to="/">
@@ -27,36 +32,27 @@ function Header() {
                     {/* header - content */}
                     <div
                         id="navbar-content"
-                        className="navbar-content xl:static xl:min-h-fit absolute bg-white min-h-[40vh] left-0 top-[-200%] flex xl:items-center xl:flex-row flex-col px-10 max-xl:w-full gap-2 max-xl:py-5 max-xl:gap-6"
+                        className={`navbar-content xl:static xl:min-h-fit absolute bg-white min-h-[40vh] left-0 ${
+                            openMenu ? "top-[70px]" : "top-[-200%]"
+                        } flex xl:items-center xl:flex-row flex-col px-10 max-xl:w-full gap-2 max-xl:py-5 max-xl:gap-6`}
                     >
-                        {/* header - ul */}
                         <ul className="items-center max-xl:pt-3 gap-3 xl:flex max-xl:flex-col text-base xl:text-base w-52">
                             <li className="max-xl:mb-4">
-                                <Link
-                                    to="/courses"
-                                    className="hover:text-gray-500"
-                                >
+                                <Link to="/courses" className="hover:text-gray-500">
                                     Khóa học
                                 </Link>
                             </li>
                             <li className="max-xl:mb-4">
-                                <Link
-                                    to="/contact"
-                                    className="hover:text-gray-500"
-                                >
+                                <Link to="/contact" className="hover:text-gray-500">
                                     Liên hệ
                                 </Link>
                             </li>
                             <li>
-                                <Link
-                                    to="/posts"
-                                    className="hover:text-gray-500"
-                                >
+                                <Link to="/posts" className="hover:text-gray-500">
                                     Bài viết
                                 </Link>
                             </li>
                         </ul>
-                        {/* header - icons */}
                         <div className="navbar-icons flex items-center gap-2 xl:mx-3">
                             <div className="navbar-noti cursor-pointer">
                                 <svg
@@ -81,7 +77,6 @@ function Header() {
                                 </svg>
                             </div>
                         </div>
-                        {/* header - login  */}
                         <div className="xl:flex max-xl:flex-col gap-2 items-center">
                             <div className="navbar-register  max-xl:mb-2">
                                 <Link to="/register">
@@ -102,6 +97,7 @@ function Header() {
                     <div
                         id="toggle-btn"
                         className="button-toggle w-[92px] xl:w-auto hidden max-xl:block"
+                        onClick={toggleMenu}
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

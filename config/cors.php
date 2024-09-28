@@ -10,6 +10,7 @@ return [
         'http://127.0.0.1:8000',
         'http://192.168.1.53:5173',
         'http://192.168.1.53:5174',
+        'http://192.168.1.7:5173',
     ],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],

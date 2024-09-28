@@ -1,16 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Http\Request;
 use App\Models\Category;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
     protected $category;
 
-    
     public function __construct(Category $category)
     {
         $this->category = $category;
@@ -20,7 +20,11 @@ class CategoryController extends Controller
     {
         $categories = Cache::remember('categories', 120, function () {
             return $this->category::all();
-        });
+        }); 
+
+        if ($categories->isEmpty()) {
+            Log::info('No categories found in the database.');
+        }
 
         return response()->json($categories);
     }

@@ -4,8 +4,10 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
+
 class AdminMiddleware
 {
     /**
@@ -16,8 +18,14 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next)
     {
         $apiSecret = $request->header('x-api-secret') ?? $request->query('api_secret');
-
+        Log::info('API Secret from header/query: ' . $apiSecret);
+        Log::info('API Secret from env: ' . env('API_SECRET'));
+        
         $isApiSecretValid = $apiSecret === env('API_SECRET');
+
+        if(!$isApiSecretValid){
+            return response()->json(['error' => 'Not correct API Sec'], 403);
+        }
 
         $isUserAdmin = Auth::check() && Auth::user()->role === 'admin';
 
