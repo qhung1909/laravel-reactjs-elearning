@@ -1,13 +1,28 @@
-import React, { useState } from 'react';
 import axios from 'axios';
+import { useState } from 'react';
+
+const fakeCart = [
+    { id: 1, name: 'Sản phẩm A', price: 20000, quantity: 1 },
+    { id: 2, name: 'Sản phẩm B', price: 30000, quantity: 2 },
+];
 
 export const PaymentComponent = () => {
-    const [redirect, setRedirect] = useState(false);
+    const [cart, setCart] = useState(fakeCart);
+
+    const getTotalAmount = () => {
+        return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    };
 
     const handlePayment = async () => {
+        const orderInfo = cart.map(item => `${item.name} x ${item.quantity}`).join(', ');
+        const orderType = 'purchase';
+        const orderAmount = getTotalAmount();
+
         try {
             const response = await axios.post('http://localhost:8000/api/vnpay-payment', {
-                redirect: true, 
+                vnp_OrderInfo: orderInfo,
+                vnp_OrderType: orderType,
+                vnp_Amount: orderAmount, 
             });
 
             if (response.data.code === '00') {
@@ -22,10 +37,16 @@ export const PaymentComponent = () => {
 
     return (
         <div>
-            <h1>Thanh Toán</h1>
+            <h1>Giỏ Hàng</h1>
+            <ul>
+                {cart.map(item => (
+                    <li key={item.id}>
+                        {item.name} - {item.price}đ x {item.quantity}
+                    </li>
+                ))}
+            </ul>
+            <h2>Tổng Tiền: {getTotalAmount()}đ</h2>
             <button onClick={handlePayment}>Thanh Toán</button>
         </div>
     );
 };
-
-

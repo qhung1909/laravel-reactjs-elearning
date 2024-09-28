@@ -3,19 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
-    public function vnpay_payment()
+    public function vnpay_payment(Request $request)
     {
         $vnp_Url = config('vnpay.vnp_Url');
         $vnp_Returnurl = config('vnpay.vnp_ReturnUrl');
-        $vnp_TmnCode = "DHE8WTFW";
-        $vnp_HashSecret = "AQVJ45D8V30GNR35XBQOKRVELNITBD4W";
-        $vnp_TxnRef = '123456';
-        $vnp_OrderInfo = 'Thanh toán đơn hàng test';
-        $vnp_OrderType = 'billpayment';
-        $vnp_Amount = 20000 * 100;
+        $vnp_TmnCode = config('vnpay.vnp_TmnCode');
+        $vnp_HashSecret = config('vnpay.vnp_HashSecret');
+        $vnp_TxnRef = '1234567';
+        $vnp_OrderInfo = $request->input('vnp_OrderInfo');;
+        $vnp_OrderType = $request->input('vnp_OrderType');;
+        $vnp_Amount = $request->input('vnp_Amount') * 100;
         $vnp_Locale = 'vn';
         $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
         $inputData = array(
@@ -73,9 +74,5 @@ class CartController extends Controller
         }
     }
 
-
-
-    public function vnPayReturn(Request $request){
-        
-    }
+    
 }
