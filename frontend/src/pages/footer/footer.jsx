@@ -16,26 +16,26 @@ function Footer() {
 
                         {/* mid-left */}
                         <div className="footer-mid-left">
-                            <span className="font-semibold  text-[#344054] xl:text-[18px] lg:text-[12px] md:text-[12px] sm:text-[10px] text-[6px]">
+                            <span className="font-semibold  text-[#344054] xl:text-[18px] lg:text-[12px] md:text-[12px] sm:text-[8px] text-[6px]">
                                 Sản phẩm
                             </span>
                             <ul className="">
 
-                                <li className="font-medium text-base xl:leading-10 lg:leading-8 xl:text-[18px] lg:text-[13px] md:text-[11px] sm:text-[7px] text-[5px] md:leading-7 sm:leading-3 leading-loose ">Khóa học</li>
-                                <li className="font-medium text-base xl:leading-10 lg:leading-8 xl:text-[18px] lg:text-[13px] md:text-[11px] sm:text-[7px] text-[5px] md:leading-7 sm:leading-3 leading-loose">Bài viết</li>
-                                <li className="font-medium text-base xl:leading-10 lg:leading-8 xl:text-[18px] lg:text-[13px] md:text-[11px] sm:text-[7px] text-[5px] md:leading-7 sm:leading-3 leading-loose">Liên hệ</li>
+                                <li className="font-medium text-base xl:leading-10 lg:leading-8 xl:text-[18px] lg:text-[13px] md:text-[11px] sm:text-[10px] text-[9px] md:leading-7 sm:leading-5 leading-loose ">Khóa học</li>
+                                <li className="font-medium text-base xl:leading-10 lg:leading-8 xl:text-[18px] lg:text-[13px] md:text-[11px] sm:text-[10px] text-[9px] md:leading-7 sm:leading-5 leading-loose">Bài viết</li>
+                                <li className="font-medium text-base xl:leading-10 lg:leading-8 xl:text-[18px] lg:text-[13px] md:text-[11px] sm:text-[10px] text-[9px] md:leading-7 sm:leading-5 leading-loose">Liên hệ</li>
                             </ul>
                         </div>
 
                         {/* mid-right */}
                         <div className="footer-mid-right ">
-                            <span className="font-semibold text-[#344054] lg:text-[12px] xl:text-[18px] md:text-[11px] sm:text-[10px] text-[6px] ">
+                            <span className="font-semibold text-[#344054] lg:text-[12px] xl:text-[18px] md:text-[11px] sm:text-[8px] text-[6px] ">
                                 Chính sách chung & Hỗ trợ
                             </span>
                             <ul className="">
-                                <li className="font-medium text-base xl:leading-10 lg:leading-8 xl:text-[18px] lg:text-[12px] md:text-[10px] sm:text-[10px] text-[5px] md:leading-7 sm:leading-3 leading-loose">Điều khoản dịch vụ</li>
-                                <li className="font-medium text-base xl:leading-10 lg:leading-8 xl:text-[18px] lg:text-[12px] md:text-[10px] sm:text-[] text-[5px] md:leading-7 sm:leading-3 leading-loose">Bài viết</li>
-                                <li className="font-medium text-base xl:leading-10 lg:leading-8 xl:text-[18px] lg:text-[12px] md:text-[10px] sm:text-[] text-[5px] md:leading-7 sm:leading-3 leading-loose">Chính sách bảo mật thông tin</li>
+                                <li className="font-medium text-base xl:leading-10 lg:leading-8 xl:text-[18px] lg:text-[12px] md:text-[10px] sm:text-[10px] text-[9px] md:leading-7 sm:leading-5 leading-loose">Điều khoản dịch vụ</li>
+                                <li className="font-medium text-base xl:leading-10 lg:leading-8 xl:text-[18px] lg:text-[12px] md:text-[10px] sm:text-[10px] text-[9px] md:leading-7 sm:leading-5 leading-loose">Bài viết</li>
+                                <li className="font-medium text-base xl:leading-10 lg:leading-8 xl:text-[18px] lg:text-[12px] md:text-[10px] sm:text-[10px] text-[9px] md:leading-7 sm:leading-5 leading-loose">Chính sách bảo mật thông tin</li>
                             </ul>
                         </div>
 
@@ -46,13 +46,13 @@ function Footer() {
                                     Nhận cập nhật mới nhất
                                 </p>
                             </div>
-                            <div className="footer-end-mid flex gap-2 mb-2 md:mb-0">
+                            <div className="footer-end-mid flex gap-2 md:gap-0 mb-2 md:mb-0">
                                 <input
                                     type="text"
                                     placeholder="Email"
-                                    className="px-2 xl:py-4 lg:py-3 sm:py-2 py-1 xl:w-[250px] lg:w-[230px] md:w-[150px] sm:w-[100px] w-[80px] rounded-xl lg:text-[14px] md:text-[8px] text-[7px]"
+                                    className="px-2 xl:py-4 lg:py-3 sm:py-2 py-1 xl:w-[350px] lg:w-[230px] md:w-[180px] sm:w-[150px] w-[150px] rounded-xl lg:text-[14px] md:text-[8px] text-[7px]"
                                 />
-                                <button className="bg-yellow-400  lg:px-3 rounded-xl py-1 md:py-2 px-2 md:ms-3 font-semibold lg:text-[14px] xl:text-[12px] md:text-[8px] md:px-[8px] text-[7px] ">
+                                <button className="bg-yellow-400  lg:px-3 rounded-xl py-1 md:py-2 px-2 md:ms-3 font-semibold lg:text-[14px] xl:text-[20px] md:text-[8px] md:px-[8px] text-[7px] ">
                                     Đăng ký
                                 </button>
                             </div>
