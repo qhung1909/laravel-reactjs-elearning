@@ -48,7 +48,7 @@ function Header() {
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/posts" className="hover:text-gray-500">
+                                <Link to="/blog" className="hover:text-gray-500">
                                     Bài viết
                                 </Link>
                             </li>
