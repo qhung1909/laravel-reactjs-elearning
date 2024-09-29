@@ -3,7 +3,7 @@ import "../../components/js/detail.js";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { format } from 'date-fns';
+// import { format } from 'date-fns';
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
