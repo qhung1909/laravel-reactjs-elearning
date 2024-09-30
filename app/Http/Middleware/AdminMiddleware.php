@@ -23,10 +23,6 @@ class AdminMiddleware
         
         $isApiSecretValid = $apiSecret === env('API_SECRET');
 
-        if(!$isApiSecretValid){
-            return response()->json(['error' => 'Not correct API Sec'], 403);
-        }
-
         $isUserAdmin = Auth::check() && Auth::user()->role === 'admin';
 
         if ($isUserAdmin || $isApiSecretValid) {
