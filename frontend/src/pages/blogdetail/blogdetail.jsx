@@ -7,17 +7,17 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 function Blogdetail() {
     return (
         <>
-            <section className="blogdetail xl:max-w-screen-xl lg:max-w-screen-lg md:max-w-screen-md max-w-screen-sm mx-auto">
+            <section className="blogdetail xl:max-w-screen-xl lg:max-w-screen-lg md:max-w-screen-md max-w-screen-sm mx-auto sm:px-10 px-4">
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
-                        <Link to="/blog">
-                            <BreadcrumbLink>Bài viết</BreadcrumbLink>
-                        </Link>
+                            <Link to="/blog">
+                                <BreadcrumbLink>Bài viết</BreadcrumbLink>
+                            </Link>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
@@ -26,31 +26,34 @@ function Blogdetail() {
                     </BreadcrumbList>
                 </Breadcrumb>
 
-                <div className="grid grid-cols-3 gap-10">
-                    <div className="blog-left col-span-2">
+                <div className="grid sm:grid-cols-3 grid-cols-1 gap-10">
+                    <div className="blog-left col-span-2 border-b-2 sm:border-b-0">
                         <div className="blogdetail-heading my-5">
+                            {/* title */}
                             <div className="blogdetail-title ">
-                                <span className="text-5xl font-bold">
+                                <span className="xl:text-5xl lg:text-4xl md:text-3xl sm:text-2xl text-xl font-bold">
                                     Hướng dẫn cài lại mật khẩu trên Edumall
                                 </span>
                             </div>
-                            <div className="blogdetail-date flex items-center gap-2">
+                            {/* date - author - mini img */}
+                            <div className="blogdetail-date flex items-center gap-2 md:my-5 my-3">
                                 <div className="rounded-full">
                                     <img
                                         src="./src/assets/images/blog-miniimg.webp"
-                                        className="rounded-full w-12 h-11 object-cover"
+                                        className="rounded-full xl:w-12 xl:h-11 lg:w-11 lg:h-10 md:w-10 md:h-9 sm:w-9 sm:h-8 w-30 h-7 object-cover"
                                         alt=""
                                     />
                                 </div>
-                                <div className="my-5">
-                                    <strong>Antlearn</strong>
-                                    <p>28 tháng 9 2024</p>
+                                <div className="">
+                                    <strong className='xl:text-base lg:text-sm md:text-xs sm:text-[14px] text-[12px]'>Antlearn</strong>
+                                    <p className='xl:text-base lg:text-sm md:text-xs sm:text-[10px] text-[8px]'>28 tháng 9 2024</p>
                                 </div>
                             </div>
+                            {/* main img */}
                             <div className="blogdetail-img">
                                 <img
                                     src="./src/assets/images/blog-1.png"
-                                    className="rounded-3xl"
+                                    className="rounded-3xl xl:h-[480px] lg:h-[430px] md:h-[380px] sm:h-[330px] h-[280px] w-full object-cover"
                                     alt=""
                                 />
                             </div>
@@ -58,74 +61,50 @@ function Blogdetail() {
                     </div>
                     <div className="blog-right my-5">
                         <div className="blog-right-title">
-                            <span className="text-2xl font-semibold">Bài viết liên quan</span>
+                            <span className="xl:text-2xl lg:text-xl md:text-base sm:text-sm text-xl font-semibold">Bài viết khác</span>
                         </div>
                         <div className="border-right-list">
                             <div className="border-b-2 py-5">
-                                <div className="flex gap-3">
+                                <div className="md:flex gap-3 items-start">
                                     <div className="blog-img">
                                         <img
                                             src="./src/assets/images/blog-2.png"
-                                            className="rounded-xl object-cover"
-                                            width={105}
-                                            height={65}
+                                            className="rounded-xl xl:w-[350px] lg:w-[400px] md:w-[450px] w-full xl:h-20 lg:h-20 md:h-16 object-cover "
                                             alt=""
                                         />
                                     </div>
-                                    <div className="blog-content">
+                                    <div className="blog-content md:mt-0 mt-3">
                                         <div className="blog-title">
-                                            <p className="text-lg font-semibold">Tựa đề</p>
+                                            <p className="xl:text-xl lg:text-lg md:text-base sm:text-xs text-[16px] font-bold line-clamp-2">Hướng dẫn tách ngày tháng năm trong Excel nhanh chóng</p>
                                         </div>
-                                        <div className="blog-date">
+                                        <div className="xl:text-base lg:text-sm md:text-xs sm:text-[12px] text-[15px] blog-date mt-1">
                                             <p>28 tháng 9 2024</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div className="border-b-2 py-5">
-                                <div className="flex gap-3">
+                                <div className="md:flex gap-3 items-start">
                                     <div className="blog-img">
                                         <img
                                             src="./src/assets/images/blog-3.jpg"
-                                            className="rounded-xl object-cover"
-                                            width={105}
-                                            height={65}
+                                            className="rounded-xl xl:w-[350px] lg:w-[400px] md:w-[450px] w-full xl:h-20 lg:h-20 md:h-16 object-cover "
                                             alt=""
                                         />
                                     </div>
-                                    <div className="blog-content">
+                                    <div className="blog-content md:mt-0 mt-3">
                                         <div className="blog-title">
-                                            <p className="text-lg font-semibold">Tựa đề</p>
+                                            <p className="xl:text-xl lg:text-lg md:text-base sm:text-xs text-[16px] font-bold line-clamp-2">Các ký hiệu điện trong bản vẽ autocad bạn cần biết</p>
                                         </div>
-                                        <div className="blog-date">
-                                            <p>28 tháng 9 2024</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border-b-2 py-5">
-                                <div className="flex gap-3">
-                                    <div className="blog-img">
-                                        <img
-                                            src="./src/assets/images/blog-4.png"
-                                            className="rounded-xl object-cover"
-                                            width={105}
-                                            height={65}
-                                            alt=""
-                                        />
-                                    </div>
-                                    <div className="blog-content">
-                                        <div className="blog-title">
-                                            <p className="text-lg font-semibold">Tựa đề</p>
-                                        </div>
-                                        <div className="blog-date">
-                                            <p>28 tháng 9 2024</p>
+                                        <div className="xl:text-base lg:text-sm md:text-xs sm:text-[12px] text-[15px] blog-date mt-1">
+                                            <p>20 tháng 8 2024</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </section>
 
