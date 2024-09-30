@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 
 export const Signup = () => {
     const [formData, setFormData] = useState({
-        username: '',
+        name: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        password_confirmation: ''
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -23,24 +23,24 @@ export const Signup = () => {
         setError('');
         setSuccess('');
 
-        if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+        if (!formData.name || !formData.email || !formData.password || !formData.password_confirmation) {
             setError('Vui lòng nhập đầy đủ thông tin');
             return;
         }
 
-        if (formData.password !== formData.confirmPassword) {
+        if (formData.password !== formData.password_confirmation) {
             setError('Mật khẩu không khớp');
             return;
         }
 
         try {
-            const res = await fetch(`${API_URL}/auth/signup`, {
+            const res = await fetch(`${API_URL}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    username: formData.username,
+                    name: formData.name,
                     email: formData.email,
                     password: formData.password,
                 }),
@@ -57,10 +57,10 @@ export const Signup = () => {
             setSuccess('Đăng ký thành công!');
 
             setFormData({
-                username: '',
+                name: '',
                 email: '',
                 password: '',
-                confirmPassword: '',
+                password_confirmation: '',
             });
 
         } catch (error) {
@@ -84,10 +84,10 @@ export const Signup = () => {
                     <div className="relative py-1">
                         <input
                             type="text"
-                            name="username"
+                            name="name"
                             placeholder=""
                             className="input-form peer"
-                            value={formData.username}
+                            value={formData.name}
                             onChange={handleChange}
                             required
                         />
@@ -120,10 +120,10 @@ export const Signup = () => {
                     <div className="relative py-1">
                         <input
                             type="password"
-                            name="confirmPassword"
+                            name="password_confirmation"
                             placeholder=""
                             className="input-form peer"
-                            value={formData.confirmPassword}
+                            value={formData.password_confirmation}
                             onChange={handleChange}
                             required
                         />
