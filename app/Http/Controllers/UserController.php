@@ -22,7 +22,7 @@ class UserController extends Controller
             'email' =>  'required|max:255|email|string|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
         ]);
-
+        
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Thông tin đã tồn tại.',
