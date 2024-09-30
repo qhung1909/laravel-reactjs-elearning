@@ -9,6 +9,12 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -45,9 +51,11 @@ export const Detail = () => {
             });
             setDetail(res.data);
         } catch (error) {
-            console.error(error);
+            console.error("Chi tiết lỗi:", error.response.data);
+            console.error("Trạng thái lỗi:", error.response.status);
         }
     };
+
     useEffect(() => {
         if (slug) {
             fetchDetail();
@@ -337,101 +345,46 @@ export const Detail = () => {
                                     Mở rộng tất cả các phần
                                 </button>
                             </p>
-                            <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                            <div className="bg-white rounded-lg overflow-hidden">
                                 <div className="border-b">
-                                    <button
-                                        className="w-full px-6 py-4 flex justify-between items-center toggle-button"
-                                        data-content="content-1"
+                                    <Accordion
+                                        type="single"
+                                        collapsible
+                                        className="w-full"
                                     >
-                                        <span className="font-medium">
-                                            Tìm hiểu về Python và cài đặt môi
-                                            trường phát triển PyCharm
-                                        </span>
-                                        <span className="text-gray-600">
-                                            5 bài giảng - 10 phút
-                                        </span>
-                                        <box-icon
-                                            name="chevron-down"
-                                            className="toggle-icon"
-                                        />
-                                    </button>
-                                    <div
-                                        className="hidden content section-3-content collapsed"
-                                        id="content-1"
-                                    >
-                                        {/* Nội dung của phần này */}
-                                    </div>
-                                </div>
-                                <div className="border-b">
-                                    <button
-                                        className="w-full px-6 py-4 flex justify-between items-center toggle-button"
-                                        data-content="content-2"
-                                    >
-                                        <span className="font-medium">
-                                            Khai báo biến và chuyển đổi kiểu dữ
-                                            liệu trong Python
-                                        </span>
-                                        <span className="text-gray-600">
-                                            6 bài giảng - 25 phút
-                                        </span>
-                                        <box-icon
-                                            name="chevron-down"
-                                            className="toggle-icon"
-                                        />
-                                    </button>
-                                    <div
-                                        className="hidden content section-3-content collapsed"
-                                        id="content-2"
-                                    >
-                                        {/* Nội dung của phần này */}
-                                    </div>
-                                </div>
-                                <div className="border-b">
-                                    <button
-                                        className="w-full px-6 py-4 flex justify-between items-center toggle-button"
-                                        data-content="content-3"
-                                    >
-                                        <span className="font-medium">
-                                            Làm việc với chuỗi ký tự (string)
-                                            trong Python
-                                        </span>
-                                        <span className="text-gray-600">
-                                            5 bài giảng - 20 phút
-                                        </span>
-                                        <box-icon
-                                            name="chevron-down"
-                                            className="toggle-icon"
-                                        />
-                                    </button>
-                                    <div
-                                        className="hidden content section-3-content collapsed"
-                                        id="content-3"
-                                    >
-                                        {/* Nội dung của phần này */}
-                                    </div>
-                                </div>
-                                <div className="border-b">
-                                    <button
-                                        className="w-full px-6 py-4 flex justify-between items-center toggle-button"
-                                        data-content="content-4"
-                                    >
-                                        <span className="font-medium">
-                                            Thực hiện các phép toán trong Python
-                                        </span>
-                                        <span className="text-gray-600">
-                                            8 bài giảng - 28 phút
-                                        </span>
-                                        <box-icon
-                                            name="chevron-down"
-                                            className="toggle-icon"
-                                        />
-                                    </button>
-                                    <div
-                                        className="hidden content section-3-content collapsed"
-                                        id="content-4"
-                                    >
-                                        {/* Nội dung của phần này */}
-                                    </div>
+                                        <AccordionItem value="item-1">
+                                            <AccordionTrigger>
+                                                Tìm hiểu về python
+                                            </AccordionTrigger>
+                                            <AccordionContent>
+                                                Yes. It adheres to the WAI-ARIA
+                                                design pattern.
+                                            </AccordionContent>
+                                            <AccordionContent>
+                                                <Link to="/"> Hoàng bede</Link>
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                        <AccordionItem value="item-2">
+                                            <AccordionTrigger>
+                                                Is it styled?
+                                            </AccordionTrigger>
+                                            <AccordionContent>
+                                                Yes. It comes with default
+                                                styles that matches the other
+                                                components&apos; aesthetic.
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                        <AccordionItem value="item-3">
+                                            <AccordionTrigger>
+                                                Is it animated?
+                                            </AccordionTrigger>
+                                            <AccordionContent>
+                                                Yes. Its animated by default,
+                                                but you can disable it if you
+                                                prefer.
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    </Accordion>
                                 </div>
                             </div>
                             {/* Yêu cầu */}
