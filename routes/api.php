@@ -9,6 +9,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CheckAuthMessage;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\CategoryController;
 use Symfony\Component\Mime\MessageConverter;
@@ -27,6 +28,7 @@ Route::group([
 
 Route::post('register', [UserController::class, 'register']);
 Route::post('/vnpay-payment', [CartController::class, 'vnpay_payment']);
+Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
 
 Route::middleware(['admin'])->group(function () {
     // Courses
@@ -35,7 +37,13 @@ Route::middleware(['admin'])->group(function () {
     Route::post('course', [CourseController::class, 'store'])->name('courses.store');
     Route::put('course/{slug}', [CourseController::class, 'update'])->name('courses.update');
     Route::delete('course/{slug}', [CourseController::class, 'delete'])->name('courses.delete');
- 
+    Route::get('courses/featured', [CourseController::class, 'featureCouse']);
+
+    Route::post('/courses/{slug}/comments', [CommentController::class, 'store'])->middleware(CheckAuthMessage::class);
+    Route::put('/comments/{commentId}', [CommentController::class, 'update'])->middleware(CheckAuthMessage::class);
+    Route::delete('/comments/{commentId}', [CommentController::class, 'destroy'])->middleware(CheckAuthMessage::class);
+
+
     Route::prefix('categories')->group(function () {
         Route::get('/', [CategoryController::class, 'index']);
         Route::get('{slug}', [CategoryController::class, 'show']);
@@ -50,3 +58,5 @@ Route::middleware(['admin'])->group(function () {
     Route::put('/lessons/{slug}', [LessonController::class, 'update']);
     Route::delete('/lessons/{slug}', [LessonController::class, 'delete']);
 });
+
+
