@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Login } from "./pages/login/login.jsx";
+import { Signup } from "./pages/signup/signup.jsx";
 import { Lession } from "./pages/lession/lession.jsx";
 import { Detail } from "./pages/detail/detail.jsx";
 import { Dashboard } from "./pages/admin/admin.jsx";
@@ -21,10 +22,11 @@ function App() {
                     <Route path="/admin" element={<Dashboard />}></Route>
                     <Route path="/" element={<Home />}></Route>
                     <Route path="/login" element={<Login />}></Route>
+                    <Route path="/register" element={<Signup />}></Route>
                     <Route path="/courses" element={<Courses/>}></Route>
                     <Route path="/lession" element={<Lession />}></Route>
                     <Route path="/detail" element={<Detail />}></Route>
-                    
+
                     <Route path="/detail/:slug" element={<Detail />}></Route>
                     <Route path="/tests" element={<PaymentComponent />}></Route>
                     <Route path="/tests-payment" element={<PaymentResult />}></Route>

@@ -1,4 +1,4 @@
-import { Link, redirect, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './login.css'
 import { useCallback, useState } from 'react';
 
@@ -22,6 +22,8 @@ export const Login = () => {
         };
     };
 
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedLogin = useCallback(debounce(async () => {
         if (!email || !password) {
             setError('Vui lòng nhập đầy đủ thông tin');
@@ -51,7 +53,6 @@ export const Login = () => {
             const data = await res.json();
             localStorage.setItem('access_token', data.access_token);
             setSuccess('Đăng nhập thành công');
-            alert('Đăng nhập thành công');
             navigate('/');
         } catch (error) {
             setError('Đã xảy ra lỗi: ' + error.message);
@@ -108,6 +109,7 @@ export const Login = () => {
                             {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                         </button>
                         {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
+                        {success && <p className="text-green-500 text-center pt-2">{success}</p>}
                     </div>
                     <div className="flex items-center justify-center my-4">
                         <div className="flex-grow border-t border-gray-400" />
@@ -147,7 +149,7 @@ export const Login = () => {
                     <div className="pt-2">
                         <h3 className="text-lg lg:text-xl">
                             Chưa có tài khoản?{' '}
-                            <Link className='text-black font-medium underline' to='/signup'>Đăng ký</Link>
+                            <Link className='text-black font-medium underline' to='/register'>Đăng ký</Link>
                         </h3>
                     </div>
                 </form>
