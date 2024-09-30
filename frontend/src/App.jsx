@@ -6,6 +6,7 @@ import { Dashboard } from "./pages/admin/admin.jsx";
 import { Courses } from "./pages/courses/course.jsx";
 import { PaymentComponent } from "./pages/testing/payment-vnpay.jsx";
 import { PaymentResult } from "./pages/testing/redicted-vnpay.jsx";
+import Blog from './pages/blog/blog.jsx';
 import Home from "./pages/home/home.jsx";
 import Header from "./pages/header/header.jsx";
 import Footer from "./pages/footer/footer.jsx";
@@ -16,11 +17,9 @@ function App() {
             <Router>
                 <Header />
                 <Routes>
-
+                    <Route path="/blog" element={<Blog/>}></Route>
                     <Route path="/admin" element={<Dashboard />}></Route>
-
                     <Route path="/" element={<Home />}></Route>
-
                     <Route path="/login" element={<Login />}></Route>
                     <Route path="/courses" element={<Courses/>}></Route>
                     <Route path="/lession" element={<Lession />}></Route>

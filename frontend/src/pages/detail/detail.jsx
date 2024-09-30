@@ -1,9 +1,18 @@
 import "./detail.css";
 import "../../components/js/detail.js";
+import { Link } from "react-router-dom";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { format } from 'date-fns';
+import { format } from "date-fns";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -24,9 +33,8 @@ export const Detail = () => {
         const date = new Date(dateString);
         // Kiểm tra nếu date không hợp lệ
         if (isNaN(date)) return "Ngày không hợp lệ";
-        return format(date, 'dd/MM/yyyy'); // Thay đổi định dạng theo ý muốn
+        return format(date, "dd/MM/yyyy"); // Thay đổi định dạng theo ý muốn
     };
-
 
     const fetchDetail = async () => {
         try {
@@ -56,22 +64,37 @@ export const Detail = () => {
                     {/* Cột trái (Văn bản) */}
                     <div className="col-span-1 lg:col-span-8">
                         {/* Điều hướng Breadcrumb */}
-                        <div
-                            className="text-xs sm:text-sm text-gray-400 mb-4"
-                            style={{ color: "#c0c4fc" }}
-                        >
-                            <a href="#" className="hover:underline">
-                                Phát triển
-                            </a>{" "}
-                            &gt;
-                            <a href="#" className="hover:underline">
-                                Ngôn ngữ lập trình
-                            </a>{" "}
-                            &gt;
-                            <a href="#" className="hover:underline">
-                                Python
-                            </a>
-                        </div>
+                        <Breadcrumb>
+                            <BreadcrumbList>
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink>
+                                        <Link
+                                            href="/"
+                                            className="text-[#C0C4FC]"
+                                        >
+                                            Trang chủ
+                                        </Link>
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator />
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink>
+                                        <Link
+                                            href="/courses"
+                                            className="text-[#C0C4FC]"
+                                        >
+                                            Khóa học
+                                        </Link>
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator />
+                                <BreadcrumbItem>
+                                    <BreadcrumbPage className="text-[#C0C4FC]">
+                                        Chi tiết
+                                    </BreadcrumbPage>
+                                </BreadcrumbItem>
+                            </BreadcrumbList>
+                        </Breadcrumb>
 
                         {/* Tiêu đề */}
                         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
@@ -81,7 +104,6 @@ export const Detail = () => {
                         <p className="text-base sm:text-lg md:text-xl text-white-400 mb-4">
                             {detail.description}
                         </p>
-
                         {/* Đánh giá */}
                         <div className="flex items-center mb-2">
                             <span className="text-yellow-500 text-sm font-semibold">
@@ -101,7 +123,8 @@ export const Detail = () => {
                                 className="mr-2"
                                 size="sm"
                             />
-                            Ngày cập nhật gần nhất {formatDate(detail.updated_at)}
+                            Ngày cập nhật gần nhất{" "}
+                            {formatDate(detail.updated_at)}
                         </p>
                         <p className="text-xs sm:text-sm text-white-400 flex items-center mt-1">
                             <box-icon

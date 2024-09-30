@@ -3,19 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
     <title>Document</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .font-title {
-            font-family: "IBM Plex Serif", serif;
-            font-weight: 400;
-            font-style: normal;
-        }
 
-    </style>
 </head>
 <header>
 
@@ -87,104 +77,85 @@
 </header>
 
 <body>
-    <!-- banner -->
-    <section class="blog-banner  flex items-center justify-center" style="background-image: url(../public/images/bannerblog.png); width: 100%;
-    height: 340px;
-    object-fit: cover;">
-        <div class="blog-banner-title">
-            <h1 class="text-5xl font-title"><span class="italic font-title text-yellow-500">Bài viết </span>của chúng tôi</h1>
-        </div>
-    </section>
-
-    <!-- blog content -->
-    <section class="blog-content">
-
-        <!-- blog - main -->
-        <div class="blog-main xl:max-w-screen-xl mx-auto my-20">
-            <div class="grid grid-cols-2 gap-20">
-                <!-- blog - main -left -->
-                <div class="blog-main-left">
-                    <span class="xl:text-3xl font-bold">Hướng dẫn cách lấy nhạc tiktok làm nhạc chuông trong 3 giây</span>
-                    <p class="xl:my-5">Nếu bạn chưa biết cách sử dụng nhạc tiktok làm nhạc chuông, đọc ngay bài viết này của Edumall để thực hiện nhé!</p>
-                    <div class="flex items-center gap-2">
+    <section class="blogdetail">
+        <div class="grid grid-cols-3 xl:max-w-screen-xl mx-auto  gap-10">
+            <div class="blog-left col-span-2">
+                <div class="blogdetail-heading my-10">
+                    <div class="blogdetail-title ">
+                        <span class="text-5xl font-bold">Hướng dẫn cài lại mật khẩu trên Edumall</span>
+                    </div>
+                    <div class="blogdetail-date flex items-center gap-2">
                         <div class="rounded-full">
                             <img src="../public/images/blog-miniimg.webp" class="rounded-full w-12 h-11 object-cover" alt="">
                         </div>
-                        <div class="">
+                        <div class="my-5">
                             <strong>Antlearn</strong>
                             <p>28 tháng 9 2024</p>
                         </div>
                     </div>
-                </div>
-
-                <!-- blog - main - right -->
-                <div class="blog-main-right">
-                    <img src="../public/images/blog-imgmain.png" class="rounded-tl-2xl rounded-tr-2xl" alt="">
-                </div>
-
-            </div>
-        </div>
-
-        <!-- blog - list -->
-        <div class="blog-list xl:max-w-screen-xl mx-auto mb-32">
-            <div class="grid grid-cols-3 gap-5">
-
-                <!-- blog - list - content -->
-                <div class="blog-list-content mb-5">
-                    <div class="blog-img">
-                        <a href="">
-                            <img src="../public/images/blog-1.png" class="rounded-xl h-[240px] object-cover w-full" alt="">
-                        </a>
-                    </div>
-                    <div class="blog-title">
-                        <p class="text-xl font-semibold pt-2">Hướng dẫn cài đặt lại mật khẩu trên Antlearn</p>
-                    </div>
-                </div>
-
-                <div class="blog-list-content mb-5">
-                    <div class="blog-img">
-                        <img src="../public/images/blog-2.png" class="rounded-xl h-[240px] object-cover w-full" alt="">
-                    </div>
-                    <div class="blog-title">
-                        <p class="text-xl font-semibold pt-2">Hướng dẫn tách ngày tháng năm trong Excel nhanh chóng</p>
-                    </div>
-                </div>
-                <div class="blog-list-content mb-5">
-                    <div class="blog-img">
-                        <img src="../public/images/blog-3.jpg" class="rounded-xl h-[240px] object-cover w-full" alt="">
-                    </div>
-                    <div class="blog-title">
-                        <p class="text-xl font-semibold pt-2">Các ký hiệu điện trong bản vẽ autocad bạn cần biết </p>
-                    </div>
-                </div>
-                <div class="blog-list-content mb-5">
-                    <div class="blog-img">
-                        <img src="../public/images/blog-4.png" class="rounded-xl h-[240px] object-cover w-full" alt="">
-                    </div>
-                    <div class="blog-title">
-                        <p class="text-xl font-semibold pt-2">Target là gì trong chứng khoán? Sự tác động của Target đến cổ phiếu</p>
-                    </div>
-                </div>
-                <div class="blog-list-content mb-5">
-                    <div class="blog-img">
-                        <img src="../public/images/blog-5.png" class="rounded-xl h-[240px] object-cover w-full" alt="">
-                    </div>
-                    <div class="blog-title">
-                        <p class="text-xl font-semibold pt-2">Thiết kế nội thất là gì? Học thiết kế nội thất ở đâu uy tín và chất lượng?</p>
-                    </div>
-                </div>
-                <div class="blog-list-content mb-5">
-                    <div class="blog-img">
-                        <img src="../public/images/blog-6.jpg" class="rounded-xl h-[240px] object-cover w-full" alt="">
-                    </div>
-                    <div class="blog-title">
-                        <p class="text-xl font-semibold pt-2">Hướng dẫn cách tính chỉ số NPV nhanh nhất trong 3 giây</p>
+                    <div class="blogdetail-img">
+                        <img src="../public/images/blog-1.png" class="rounded-3xl" alt="">
                     </div>
                 </div>
             </div>
+           <div class="blog-right my-10">
+                <div class="blog-right-title">
+                    <span class="text-2xl font-semibold">Bài viết liên quan</span>
+                </div>
+                <div class="border-right-list">
+                    <div class="border-b-2 py-5">
+                        <div class="flex gap-3">
+                            <div class="blog-img">
+                                <img src="../public/images/blog-2.png" class="rounded-2xl object-cover" width="105" height="65" alt="">
+                            </div>
+                            <div class="blog-content">
+                                <div class="blog-title">
+                                    <p class="text-lg font-semibold">Tựa đề</p>
+                                </div>
+                                <div class="blog-date">
+                                    <p>28 tháng 9 2024</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-b-2 py-5">
+                        <div class="flex gap-3">
+                            <div class="blog-img">
+                                <img src="../public/images/blog-3.jpg" class="rounded-2xl object-cover" width="105" height="65" alt="">
+                            </div>
+                            <div class="blog-content">
+                                <div class="blog-title">
+                                    <p class="text-lg font-semibold">Tựa đề</p>
+                                </div>
+                                <div class="blog-date">
+                                    <p>28 tháng 9 2024</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-b-2 py-5">
+                        <div class="flex gap-3">
+                            <div class="blog-img">
+                                <img src="../public/images/blog-3.jpg" class="rounded-2xl object-cover" width="105" height="65" alt="">
+                            </div>
+                            <div class="blog-content">
+                                <div class="blog-title">
+                                    <p class="text-lg font-semibold">Tựa đề</p>
+                                </div>
+                                <div class="blog-date">
+                                    <p>28 tháng 9 2024</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+           </div>
         </div>
 
     </section>
+
 </body>
 <footer class="bg-gray-200 h-auto rounded-tl-[100px] rounded-tr-[100px] py-5">
     <section class="max-w-screen-xl mx-auto pt-[50px]">
