@@ -4,17 +4,22 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class CartController extends Controller
 {
     public function vnpay_payment(Request $request)
-    {
+    {   
+        $user = auth()->user();
+        
+        if (!$user) {
+            return response()->json(['code' => '99', 'message' => 'Bạn cần đăng nhập để thực hiện thanh toán.'], 401);
+        }
+
         $vnp_Url = config('vnpay.vnp_Url');
         $vnp_Returnurl = config('vnpay.vnp_ReturnUrl');
         $vnp_TmnCode = config('vnpay.vnp_TmnCode');
         $vnp_HashSecret = config('vnpay.vnp_HashSecret');
-        $vnp_TxnRef = '12346';
+        $vnp_TxnRef = '1';
         $vnp_OrderInfo = $request->input('vnp_OrderInfo');;
         $vnp_OrderType = $request->input('vnp_OrderType');;
         $vnp_Amount = $request->input('vnp_Amount') * 100;
@@ -83,9 +88,9 @@ class CartController extends Controller
 
     public function vnpay_callback(Request $request)
     {
-        $vnp_TmnCode = 'DHE8WTFW';
-        $vnp_HashSecret = 'AQVJ45D8V30GNR35XBQOKRVELNITBD4W';
-    
+        $vnp_TmnCode = config('vnpay.vnp_TmnCode');
+        $vnp_HashSecret = config('vnpay.vnp_HashSecret');
+
         $inputData = array();
         $returnData = array();
         foreach ($request->query() as $key => $value) {
@@ -93,7 +98,7 @@ class CartController extends Controller
                 $inputData[$key] = $value;
             }
         }
-        
+
         $vnp_SecureHash = $inputData['vnp_SecureHash'];
         unset($inputData['vnp_SecureHash']);
         Log::info('Input Data: ' . json_encode($inputData));
@@ -109,26 +114,29 @@ class CartController extends Controller
                 $i = 1;
             }
         }
-        
+
         $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
 
         Log::info('Secure Hash: ' . $secureHash);
         Log::info('VNP Secure Hash: ' . $vnp_SecureHash);
 
-        $vnpTranId = $inputData['vnp_TransactionNo']; 
-        $vnp_BankCode = $inputData['vnp_BankCode']; 
-        $vnp_Amount = $inputData['vnp_Amount']/100; 
-        
-        $Status = 0; 
+        $vnpTranId = $inputData['vnp_TransactionNo'];
+        $vnp_BankCode = $inputData['vnp_BankCode'];
+        $vnp_Amount = $inputData['vnp_Amount'] / 100;
+
+        $Status = 0;
         $orderId = $inputData['vnp_TxnRef'];
-        
+
         $returnData = ['RspCode' => '97', 'Message' => 'Invalid signature'];
 
         if ($secureHash === $vnp_SecureHash) {
             $returnData = ['RspCode' => '00', 'Message' => 'Confirm Success'];
         }
-    
-        return response()->json($returnData);
 
+        return response()->json($returnData);
     }
+
+
+   
+
 }
