@@ -8,22 +8,21 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
+import {Link} from 'react-router-dom'
 function Blog() {
     return (
         <>
             <>
                 {/* banner */}
                 <section
-                    className="blog-banner  flex items-center justify-center"
+                    className="blog-banner flex items-center justify-center lg:h-[340px] md:h-[240px] sm:h-[200px] h-[200px]"
                     style={{
                         backgroundImage: "url(./src/assets/images/bannerblog.png)",
-                        width: "100%",
-                        height: 340,
                         objectFit: "cover"
                     }}
                 >
                     <div className="blog-banner-title">
-                        <h1 className="text-5xl font-title">
+                        <h1 className="lg:text-5xl md:text-4xl text-3xl font-title">
                             <span className="italic font-title text-yellow-500">Bài viết </span>của
                             chúng tôi
                         </h1>
@@ -31,18 +30,18 @@ function Blog() {
                 </section>
                 {/* blog content */}
 
-                <section className="blog-content">
+                <section className="blog-content xl:max-w-screen-xl lg:max-w-screen-lg lg:px-5 md:px-5 sm:px-3 px-3 md:max-w-screen-md max-w-screen-sm  mx-auto">
                     {/* blog - main */}
 
-                    <div className="blog-main xl:max-w-screen-xl mx-auto my-20">
-                        <div className="grid grid-cols-2 gap-20">
+                    <div className="blog-main  md:my-10 my-10">
+                        <div className="grid grid-cols-2 xl:gap-20 lg:gap-10 md:gap-8 sm:gap-7 gap-6">
                             {/* blog - main -left */}
 
                             <div className="blog-main-left">
-                                <span className="xl:text-3xl font-bold">
+                                <span className="xl:text-3xl lg:text-2xl md:text-xl sm:text-base text-[14px] leading-none font-bold">
                                     Hướng dẫn cách lấy nhạc tiktok làm nhạc chuông trong 3 giây
                                 </span>
-                                <p className="xl:my-5">
+                                <p className="xl:my-5 md:my-3 sm:my-2 my-1 xl:text-base lg:text-sm md:text-xs sm:text-[7px] text-[8px]">
                                     Nếu bạn chưa biết cách sử dụng nhạc tiktok làm nhạc chuông, đọc ngay
                                     bài viết này của Edumall để thực hiện nhé!
                                 </p>
@@ -50,13 +49,13 @@ function Blog() {
                                     <div className="rounded-full">
                                         <img
                                             src="./src/assets/images/blog-miniimg.webp"
-                                            className="rounded-full w-12 h-11 object-cover"
+                                            className="rounded-full xl:w-12 xl:h-11 lg:w-10 lg:h-11 md:w-7 md:h-7 sm:w-6 sm:h8 w-4 h-5 object-cover"
                                             alt=""
                                         />
                                     </div>
-                                    <div className="">
-                                        <strong>Antlearn</strong>
-                                        <p>28 tháng 9 2024</p>
+                                    <div className="mb-2 md:mb-2 lg:mb-0">
+                                        <strong className='xl:text-xl lg:text-sm md:text-[12px] sm:text-[9px] text-[7px]'>Antlearn</strong>
+                                        <p className='xl:test-base lg:text-sm md:text-[8px] sm:text-[6px] text-[5px]'>28 tháng 9 2024</p>
                                     </div>
                                 </div>
                             </div>
@@ -65,7 +64,7 @@ function Blog() {
                             <div className="blog-main-right">
                                 <img
                                     src="./src/assets/images/blog-imgmain.png"
-                                    className="rounded-tl-2xl rounded-tr-2xl"
+                                    className="rounded-tl-2xl rounded-tr-2xl  object-cover "
                                     alt=""
                                 />
                             </div>
@@ -73,34 +72,40 @@ function Blog() {
                     </div>
 
                     {/* blog - list */}
-                    <div className="blog-list xl:max-w-screen-xl mx-auto my-20">
+                    <div className="blog-list xl:max-w-screen-xl mx-auto xl:my-20 md:my-5 my-5">
                         <div className="grid grid-cols-3 gap-5">
 
                             {/* blog - list - content */}
                             <div className="blog-list-content mb-5">
                                 <div className="blog-img">
+                                    <Link to="/blogdetail">
                                     <img
                                         src="./src/assets/images/blog-1.png"
-                                        className="rounded-xl h-[240px] object-cover w-full"
+                                        className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px] object-cover w-full"
                                         alt=""
                                     />
+                                    </Link>
+
                                 </div>
                                 <div className="blog-title">
-                                    <p className="text-xl font-semibold pt-2">
+                                    <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
                                         Hướng dẫn cài đặt lại mật khẩu trên Antlearn
                                     </p>
                                 </div>
                             </div>
                             <div className="blog-list-content mb-5">
                                 <div className="blog-img">
-                                    <img
-                                        src="./src/assets/images/blog-2.png"
-                                        className="rounded-xl h-[240px] object-cover w-full"
-                                        alt=""
-                                    />
+                                    <Link to="/blogdetail">
+                                        <img
+                                            src="./src/assets/images/blog-2.png"
+                                            className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px] object-cover w-full"
+                                            alt=""
+                                        />
+                                    </Link>
+
                                 </div>
                                 <div className="blog-title">
-                                    <p className="text-xl font-semibold pt-2">
+                                    <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
                                         Hướng dẫn tách ngày tháng năm trong Excel nhanh chóng
                                     </p>
                                 </div>
@@ -109,57 +114,61 @@ function Blog() {
                                 <div className="blog-img">
                                     <img
                                         src="./src/assets/images/blog-3.jpg"
-                                        className="rounded-xl h-[240px] object-cover w-full"
+                                        className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px]  object-cover w-full"
                                         alt=""
                                     />
                                 </div>
                                 <div className="blog-title">
-                                    <p className="text-xl font-semibold pt-2">
+                                    <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
                                         Các ký hiệu điện trong bản vẽ autocad bạn cần biết{" "}
                                     </p>
                                 </div>
                             </div>
                             <div className="blog-list-content mb-5">
                                 <div className="blog-img">
+                                    <Link to="/blogdetail">
                                     <img
-                                        src="./src/assets/images/blog-4.png"
-                                        className="rounded-xl h-[240px] object-cover w-full"
+                                        src="./src/assets/images/blog-1.png"
+                                        className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px] object-cover w-full"
                                         alt=""
                                     />
+                                    </Link>
+
                                 </div>
                                 <div className="blog-title">
-                                    <p className="text-xl font-semibold pt-2">
-                                        Target là gì trong chứng khoán? Sự tác động của Target đến cổ
-                                        phiếu
+                                    <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
+                                        Hướng dẫn cài đặt lại mật khẩu trên Antlearn
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="blog-list-content mb-5">
+                                <div className="blog-img">
+                                    <Link to="/blogdetail">
+                                        <img
+                                            src="./src/assets/images/blog-2.png"
+                                            className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px] object-cover w-full"
+                                            alt=""
+                                        />
+                                    </Link>
+
+                                </div>
+                                <div className="blog-title">
+                                    <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
+                                        Hướng dẫn tách ngày tháng năm trong Excel nhanh chóng
                                     </p>
                                 </div>
                             </div>
                             <div className="blog-list-content mb-5">
                                 <div className="blog-img">
                                     <img
-                                        src="./src/assets/images/blog-5.png"
-                                        className="rounded-xl h-[240px] object-cover w-full"
+                                        src="./src/assets/images/blog-3.jpg"
+                                        className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px]  object-cover w-full"
                                         alt=""
                                     />
                                 </div>
                                 <div className="blog-title">
-                                    <p className="text-xl font-semibold pt-2">
-                                        Thiết kế nội thất là gì? Học thiết kế nội thất ở đâu uy tín và
-                                        chất lượng?
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="blog-list-content mb-5">
-                                <div className="blog-img">
-                                    <img
-                                        src="./src/assets/images/blog-6.jpg"
-                                        className="rounded-xl h-[240px] object-cover w-full"
-                                        alt=""
-                                    />
-                                </div>
-                                <div className="blog-title">
-                                    <p className="text-xl font-semibold pt-2">
-                                        Hướng dẫn cách tính chỉ số NPV nhanh nhất trong 3 giây
+                                    <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
+                                        Các ký hiệu điện trong bản vẽ autocad bạn cần biết{" "}
                                     </p>
                                 </div>
                             </div>
