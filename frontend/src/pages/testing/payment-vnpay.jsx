@@ -14,6 +14,13 @@ export const PaymentComponent = () => {
     };
 
     const handlePayment = async () => {
+        const token = localStorage.getItem('access_token');
+        
+        if (!token) {
+            alert('Bạn cần đăng nhập để thực hiện thanh toán.'); 
+            return;
+        }
+
         const orderInfo = cart.map(item => `${item.name} x ${item.quantity}`).join(', ');
         const orderType = 'purchase';
         const orderAmount = getTotalAmount();
@@ -23,6 +30,11 @@ export const PaymentComponent = () => {
                 vnp_OrderInfo: orderInfo,
                 vnp_OrderType: orderType,
                 vnp_Amount: orderAmount, 
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`, 
+                    'Content-Type': 'application/json', 
+                }
             });
 
             if (response.data.code === '00') {

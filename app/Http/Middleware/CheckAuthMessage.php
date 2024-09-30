@@ -17,7 +17,7 @@ class CheckAuthMessage
     {
         // Kiểm tra xem người dùng đã đăng nhập chưa
         if (!Auth::check()) {
-            return response()->json(['status' => 'Đăng nhập để gửi tin nhắn.'], 401);
+            return response()->json(['status' => 'Bạn cần đăng nhập để thực hiện hành động này.'], 401);
         }
 
         return $next($request);

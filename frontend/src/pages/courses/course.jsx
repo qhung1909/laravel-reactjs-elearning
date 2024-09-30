@@ -50,6 +50,9 @@ export const Courses = () => {
                     <p className="text-xs text-gray-500">
                         Tổng số giờ 10,5 giờ 92 bài giảng Sơ cấp
                     </p>
+                    <p className="text-xs text-gray-500">
+                        Lượt xem: {item.views}
+                    </p>
                 </div>
                 <div className="ml-auto">
                     <p className="text-md md:text-lg font-bold text-black">

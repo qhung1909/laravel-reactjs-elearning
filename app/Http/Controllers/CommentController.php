@@ -3,8 +3,121 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Comment;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Course;
 
 class CommentController extends Controller
 {
-    //
+    public function store(Request $request, $slug)
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Bạn cần đăng nhập để đánh giá.'], 401);
+        }
+
+        $rules = [
+            'content' => 'required|string|max:500',
+            'rating' => 'required|integer|min:1|max:5',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $course = Course::where('slug', $slug)->first();
+
+        if (!$course) {
+            return response()->json(['error' => 'Khóa học không tìm thấy.'], 404);
+        }
+
+        $existingComment = Comment::where('user_id', Auth::id())->where('course_id', $course->id)->first();
+        if ($existingComment) {
+            return response()->json(['error' => 'Bạn chỉ được đánh giá một lần.'], 403);
+        }
+
+        $comment = Comment::create([
+            'user_id' => Auth::id(),
+            'course_id' => $course->course_id,
+            'content' => $request->content,
+            'rating' => $request->rating,
+            'has_updated' => false,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bình luận đã được thêm thành công.',
+            'comment' => $comment
+        ], 201);
+    }
+
+    public function update(Request $request, $commentId)
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Bạn cần đăng nhập để sửa bình luận.'], 401);
+        }
+
+        $rules = [
+            'content' => 'required|string|max:500',
+            'rating' => 'required|integer|min:1|max:5',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $comment = Comment::find($commentId);
+
+        if (!$comment) {
+            return response()->json(['error' => 'Bình luận không tìm thấy.'], 404);
+        }
+
+        if ($comment->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Bạn không có quyền sửa bình luận này.'], 403);
+        }
+
+        if ($comment->is_update) {
+            return response()->json(['error' => 'Bạn chỉ có thể sửa bình luận này một lần.'], 403);
+        }
+
+        $comment->update([
+            'content' => $request->content,
+            'rating' => $request->rating,
+            'is_update' => true,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bình luận đã được cập nhật.',
+            'comment' => $comment
+        ], 200);
+    }
+
+    public function destroy($commentId)
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Bạn cần đăng nhập để xóa bình luận.'], 401);
+        }
+
+        $comment = Comment::find($commentId);
+
+        if (!$comment) {
+            return response()->json(['error' => 'Bình luận không tìm thấy.'], 404);
+        }
+
+        if ($comment->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Bạn không có quyền xóa bình luận này.'], 403);
+        }
+
+        $comment->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bình luận đã được xóa thành công.'
+        ], 200);
+    }
 }
