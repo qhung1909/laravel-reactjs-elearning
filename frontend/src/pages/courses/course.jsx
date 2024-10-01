@@ -15,15 +15,7 @@ import {
     PaginationPrevious,
   } from "@/components/ui/pagination"
 
-//   import {
-//     Accordion,
-//     AccordionContent,
-//     AccordionItem,
-//     AccordionTrigger,
-//   } from "@/components/ui/accordion"
-
 import { Link } from 'react-router-dom';
-// import './src/assets/js/courses.js'
 import './courses.css'
 import { useState, useEffect } from 'react';
 // import React from 'react';
@@ -42,7 +34,7 @@ export const Courses = () => {
                 headers: {
                     'x-api-secret': `${API_KEY}`
                 }
-                
+
             });
             console.log("Response data:", response.data);  // Thêm console.log để kiểm tra dữ liệu
 
@@ -118,74 +110,53 @@ export const Courses = () => {
 
         <div>
             {/* Điều hướng */}
-            <div className="fixed z-0 left-0 top-0 w-70 h-full bg-gray-800 text-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden"
-                id="mySidebar">
-                <button
-                    className="w-full text-right p-4 text-2xl"
-                    /* onclick="w3_close()" */>
+            <div className="fixed z-0 left-0 top-0 w-70 h-full bg-gray-800 text-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden" id="mySidebar">
+                <button className="w-full text-right p-4 text-2xl">
                     <i className="bx bx-x" />
                 </button>
                 <ul className="p-4 space-y-2">
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Phát triển
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Phát triển web
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Khoa học dữ liệu
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Phát triển ứng dụng di động
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Ngôn ngữ lập trình
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Phát triển trò chơi
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Thiết kế & Phát triển cơ sở dữ liệu
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Kiểm tra phần mềm
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Kỹ thuật phần mềm
                         </a>
                     </li>
@@ -193,25 +164,14 @@ export const Courses = () => {
             </div>
             <div className="transition-margin duration-300" id="main">
                 <div className="lg:hidden p-4 cursor-pointer" id="icon-sidebar">
-                    <i
-                        className="bx bx-menu text-3xl"
-                        id="toggle-top-menu-icon"
-                        // onclick="w3_open()"
-                    />
+                    <i className="bx bx-menu text-3xl" id="toggle-top-menu-icon" />
                 </div>
                 {/* Breadcrumb */}
                 <nav aria-label="Breadcrumb" className="hidden lg:flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
                     <ol className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
                         <li className="inline-flex items-center">
-                            <a
-                                className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
-                                href="#">
-                                <svg
-                                    aria-hidden="true"
-                                    className="w-3 h-3 me-2.5"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg">
+                            <a className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white" href="#">
+                                <svg aria-hidden="true" className="w-3 h-3 me-2.5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                     <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
                                 </svg>
                                 Phát triển
@@ -220,115 +180,55 @@ export const Courses = () => {
                         <li>
                             <div className="flex items-center">
                                 <i className="bx bx-chevron-right" />
-                                <a
-                                    className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
-                                    href="#">
+                                <a className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white" href="#">
                                     Phát triển ứng dụng di động
                                 </a>
                             </div>
                         </li>
                         <li>
                             <div className="flex items-center">
-                                <svg
-                                    aria-hidden="true"
-                                    className="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400"
-                                    fill="none"
-                                    viewBox="0 0 6 10"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="m1 9 4-4-4-4"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"/>
+                                <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
                                 </svg>
-                                <a
-                                    className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
-                                    href="#">
+                                <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
                                     Khoa học dữ liệu
-                                </a>
+                                </span>
                             </div>
                         </li>
                         <li>
                             <div className="flex items-center">
-                                <svg
-                                    aria-hidden="true"
-                                    className="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400"
-                                    fill="none"
-                                    viewBox="0 0 6 10"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="m1 9 4-4-4-4"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"/>
+                                <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
                                 </svg>
-                                <a
-                                    className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
-                                    href="#">
+                                <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
                                     Ngôn ngữ lập trình
-                                </a>
+                                </span>
                             </div>
                         </li>
                         <li>
                             <div className="flex items-center">
-                                <svg
-                                    aria-hidden="true"
-                                    className="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400"
-                                    fill="none"
-                                    viewBox="0 0 6 10"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="m1 9 4-4-4-4"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"/>
+                                <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
                                 </svg>
-                                <a
-                                    className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
-                                    href="#">
+                                <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
                                     Phát triển trò chơi
-                                </a>
+                                </span>
                             </div>
                         </li>
                         <li>
                             <div className="flex items-center">
-                                <svg
-                                    aria-hidden="true"
-                                    className="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400"
-                                    fill="none"
-                                    viewBox="0 0 6 10"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="m1 9 4-4-4-4"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"/>
+                                <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
                                 </svg>
-                                <a
-                                    className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
-                                    href="#">
+                                <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
                                     Thiết kế & Phát triển cơ sở dữ liệu
-                                </a>
+                                </span>
                             </div>
                         </li>
                         <li aria-current="page">
                             <div className="flex items-center">
-                                <svg
-                                    aria-hidden="true"
-                                    className="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400"
-                                    fill="none"
-                                    viewBox="0 0 6 10"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="m1 9 4-4-4-4"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"/>
+                                <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
                                 </svg>
                                 <span className="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">
                                     Kiểm tra phần mềm
@@ -338,6 +238,7 @@ export const Courses = () => {
                     </ol>
                 </nav>
             </div>
+
 
 
 
