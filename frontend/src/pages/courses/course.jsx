@@ -33,13 +33,6 @@ const API_URL = import.meta.env.VITE_API_URL;
 console.log(API_KEY);
 
 export const Courses = () => {
-     // Tạo state để theo dõi trạng thái mở/đóng của Collapsible
-     const [isOpen, setIsOpen] = useState(false);
-
-     // Hàm để toggle trạng thái mở/đóng
-     const toggleCollapsible = () => {
-         setIsOpen(!isOpen);
-     };
 
     const [courses, setCourses] = useState([]);
 
@@ -1678,34 +1671,6 @@ export const Courses = () => {
                                 </div>
                             </div>
                             <hr />
-                            <div className="flex items-center my-3">
-                            {/* Collapsible Trigger */}
-                            <div className="flex-1" onClick={toggleCollapsible}>
-                                <h2 className="font-bold text-xl">
-                                    Phụ đề
-                                </h2>
-                                <span
-                                    className="text-gray-500 hover:underline focus:outline-none cursor-pointer"
-                                    id="toggle-btn-phude">
-                                    <i className={`bx ${isOpen ? 'bx-chevron-up' : 'bx-chevron-down'}`} />
-                                </span>
-                            </div>
-
-                            {/* Collapsible Content */}
-                            <div className={`lesson-content-phude ${isOpen ? '' : 'hidden'}`}>
-                                <div className="flex items-center mb-2">
-                                    <input className="mr-2" name="duration" type="checkbox" />
-                                    <span className="text-sm text-black">
-                                        Tiếng Việt{" "}
-                                        <span className="text-gray-600">
-                                            (1)
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                            <hr />
-                            
-                        </div>
                         </div>
 
                         {/*Danh sách khóa học */}
