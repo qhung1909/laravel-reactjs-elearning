@@ -13,6 +13,8 @@ import Contact from './pages/contact/contact.jsx'
 import Home from "./pages/home/home.jsx";
 import Header from "./pages/header/header.jsx";
 import Footer from "./pages/footer/footer.jsx";
+import AdminRole from "./pages/role/adminRole.jsx";
+import { PageNotFound } from "./pages/pageNotFound/pageNotFound.jsx";
 
 function App() {
     return (
@@ -23,13 +25,14 @@ function App() {
                     <Route path="/blogdetail" element={<Blogdetail/>}></Route>
                     <Route path="/blog" element={<Blog/>}></Route>
                     <Route path="/contact" element={<Contact/>}></Route>
-                    <Route path="/admin" element={<Dashboard />}></Route>
+                    <Route path="/admin" element={<AdminRole element={<Dashboard />} />}></Route>
                     <Route path="/" element={<Home />}></Route>
                     <Route path="/login" element={<Login />}></Route>
                     <Route path="/register" element={<Signup />}></Route>
                     <Route path="/courses" element={<Courses/>}></Route>
                     <Route path="/lession" element={<Lession />}></Route>
                     <Route path="/detail" element={<Detail />}></Route>
+                    <Route path="*" element={<PageNotFound />}></Route>
 
                     <Route path="/detail/:slug" element={<Detail />}></Route>
                     <Route path="/tests" element={<PaymentComponent />}></Route>

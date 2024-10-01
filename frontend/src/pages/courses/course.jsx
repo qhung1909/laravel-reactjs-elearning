@@ -15,15 +15,7 @@ import {
     PaginationPrevious,
   } from "@/components/ui/pagination"
 
-//   import {
-//     Accordion,
-//     AccordionContent,
-//     AccordionItem,
-//     AccordionTrigger,
-//   } from "@/components/ui/accordion"
-
 import { Link } from 'react-router-dom';
-// import './src/assets/js/courses.js'
 import './courses.css'
 import { useState, useEffect } from 'react';
 // import React from 'react';
@@ -33,13 +25,6 @@ const API_URL = import.meta.env.VITE_API_URL;
 console.log(API_KEY);
 
 export const Courses = () => {
-     // Tạo state để theo dõi trạng thái mở/đóng của Collapsible
-     const [isOpen, setIsOpen] = useState(false);
-
-     // Hàm để toggle trạng thái mở/đóng
-     const toggleCollapsible = () => {
-         setIsOpen(!isOpen);
-     };
 
     const [courses, setCourses] = useState([]);
 
@@ -49,7 +34,10 @@ export const Courses = () => {
                 headers: {
                     'x-api-secret': `${API_KEY}`
                 }
+
             });
+            console.log("Response data:", response.data);  // Thêm console.log để kiểm tra dữ liệu
+
             setCourses(response.data);
         } catch (error) {
             console.error("Error fetching API:", error);
@@ -122,74 +110,53 @@ export const Courses = () => {
 
         <div>
             {/* Điều hướng */}
-            <div className="fixed z-0 left-0 top-0 w-70 h-full bg-gray-800 text-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden"
-                id="mySidebar">
-                <button
-                    className="w-full text-right p-4 text-2xl"
-                    /* onclick="w3_close()" */>
+            <div className="fixed z-0 left-0 top-0 w-70 h-full bg-gray-800 text-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden" id="mySidebar">
+                <button className="w-full text-right p-4 text-2xl">
                     <i className="bx bx-x" />
                 </button>
                 <ul className="p-4 space-y-2">
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Phát triển
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Phát triển web
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Khoa học dữ liệu
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Phát triển ứng dụng di động
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Ngôn ngữ lập trình
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Phát triển trò chơi
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Thiết kế & Phát triển cơ sở dữ liệu
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Kiểm tra phần mềm
                         </a>
                     </li>
                     <li>
-                        <a
-                            className="block no-underline hover:text-yellow-400"
-                            href="#">
+                        <a className="block no-underline hover:text-yellow-400" href="#">
                             Kỹ thuật phần mềm
                         </a>
                     </li>
@@ -197,25 +164,14 @@ export const Courses = () => {
             </div>
             <div className="transition-margin duration-300" id="main">
                 <div className="lg:hidden p-4 cursor-pointer" id="icon-sidebar">
-                    <i
-                        className="bx bx-menu text-3xl"
-                        id="toggle-top-menu-icon"
-                        // onclick="w3_open()"
-                    />
+                    <i className="bx bx-menu text-3xl" id="toggle-top-menu-icon" />
                 </div>
                 {/* Breadcrumb */}
                 <nav aria-label="Breadcrumb" className="hidden lg:flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
                     <ol className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
                         <li className="inline-flex items-center">
-                            <a
-                                className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
-                                href="#">
-                                <svg
-                                    aria-hidden="true"
-                                    className="w-3 h-3 me-2.5"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg">
+                            <a className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white" href="#">
+                                <svg aria-hidden="true" className="w-3 h-3 me-2.5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                     <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
                                 </svg>
                                 Phát triển
@@ -224,115 +180,55 @@ export const Courses = () => {
                         <li>
                             <div className="flex items-center">
                                 <i className="bx bx-chevron-right" />
-                                <a
-                                    className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
-                                    href="#">
+                                <a className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white" href="#">
                                     Phát triển ứng dụng di động
                                 </a>
                             </div>
                         </li>
                         <li>
                             <div className="flex items-center">
-                                <svg
-                                    aria-hidden="true"
-                                    className="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400"
-                                    fill="none"
-                                    viewBox="0 0 6 10"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="m1 9 4-4-4-4"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"/>
+                                <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
                                 </svg>
-                                <a
-                                    className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
-                                    href="#">
+                                <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
                                     Khoa học dữ liệu
-                                </a>
+                                </span>
                             </div>
                         </li>
                         <li>
                             <div className="flex items-center">
-                                <svg
-                                    aria-hidden="true"
-                                    className="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400"
-                                    fill="none"
-                                    viewBox="0 0 6 10"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="m1 9 4-4-4-4"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"/>
+                                <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
                                 </svg>
-                                <a
-                                    className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
-                                    href="#">
+                                <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
                                     Ngôn ngữ lập trình
-                                </a>
+                                </span>
                             </div>
                         </li>
                         <li>
                             <div className="flex items-center">
-                                <svg
-                                    aria-hidden="true"
-                                    className="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400"
-                                    fill="none"
-                                    viewBox="0 0 6 10"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="m1 9 4-4-4-4"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"/>
+                                <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
                                 </svg>
-                                <a
-                                    className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
-                                    href="#">
+                                <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
                                     Phát triển trò chơi
-                                </a>
+                                </span>
                             </div>
                         </li>
                         <li>
                             <div className="flex items-center">
-                                <svg
-                                    aria-hidden="true"
-                                    className="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400"
-                                    fill="none"
-                                    viewBox="0 0 6 10"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="m1 9 4-4-4-4"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"/>
+                                <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
                                 </svg>
-                                <a
-                                    className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
-                                    href="#">
+                                <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
                                     Thiết kế & Phát triển cơ sở dữ liệu
-                                </a>
+                                </span>
                             </div>
                         </li>
                         <li aria-current="page">
                             <div className="flex items-center">
-                                <svg
-                                    aria-hidden="true"
-                                    className="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400"
-                                    fill="none"
-                                    viewBox="0 0 6 10"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="m1 9 4-4-4-4"
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"/>
+                                <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
                                 </svg>
                                 <span className="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">
                                     Kiểm tra phần mềm
@@ -342,9 +238,6 @@ export const Courses = () => {
                     </ol>
                 </nav>
             </div>
-
-
-
 
             <div className="max-w-custom mx-auto px-4 pt-5">
                 {/* Khóa học nổi bật */}
@@ -406,180 +299,6 @@ export const Courses = () => {
                         </div>
                     </div>
                 </div>
-
-                {/* Chủ đề phổ biến */}
-                {/* <h1 className="text-2xl font-semibold">Chủ đề phổ biến</h1> */}
-                {/* <section
-                    aria-label="Carousel"
-                    className="relative overflow-hidden max-w-full mx-auto py-8">
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5  gap-2 transition-transform duration-300 ease-in-out"
-                        id="carousel">
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Python
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Khoa học dữ liệu
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                React JS
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Java
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                C# (ngôn ngữ lập trình)
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Phát triển web
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                JavaScript
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Unreal Engine
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Học máy
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Unity
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                C# (ngôn ngữ lập trình)
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center px-5 py-3 "
-                                href="">
-                                C++ (programming language)
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Google Flutter
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Trí tuệ nhân tạo (AI)
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Học sâu
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Unity
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                SQL
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Angular
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Docker
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                CSS
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                Docker
-                            </a>
-                        </div>
-                        <div className="font-bold p-auto border">
-                            <a
-                                className="text-gray-800 block text-center flex-wrap p-6"
-                                href="">
-                                CSS
-                            </a>
-                        </div>
-                    </div>
-                    <button
-                        className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full hover:bg-gray-600"
-                        id="prevButton">
-                        <i className="bx bx-chevron-left" />
-                    </button>
-                    <button
-                        className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full hover:bg-gray-600"
-                        id="nextButton">
-                        <i className="bx bx-chevron-right" />
-                    </button>
-                </section> */}
 
                 {/* Chủ đề phổ biến */}
                 <h1 className="text-2xl font-semibold py-5">Chủ đề phổ biến</h1>
@@ -666,8 +385,6 @@ export const Courses = () => {
                     <CarouselNext />
                 </Carousel>
 
-
-
                 {/* Giảng viên */}
                 <h1 className="text-2xl font-semibold pt-10 ">
                     Giảng viên nổi tiếng
@@ -676,216 +393,6 @@ export const Courses = () => {
                     Các chuyên gia trong ngành này được đánh giá cao bởi những
                     học viên như bạn.
                 </p>
-                {/* <section
-                    aria-label="Carousel"
-                    className="relative overflow-hidden max-w-full mx-auto py-8">
-                    <div
-                        className="flex transition-transform duration-300 ease-in-out"
-                        id="carouselWrapper">
-                        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 carousel-slide flex gap-4 overflow-x-auto"
-                            id="carouselSlide1">
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon ACBD
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon ACBD
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon ACBD
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon ACBD
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div
-                            className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 carousel-slide flex gap-4 overflow-x-auto hidden"
-                            id="carouselSlide2">
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon BJSS
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon BJSS
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon BJSS
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon BJSS
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <button
-                        className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full hover:bg-gray-600"
-                        id="prevSlideButton">
-                        <i className="bx bx-chevron-left" />
-                    </button>
-                    <button
-                        className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full hover:bg-gray-600"
-                        id="nextSlideButton">
-                        <i className="bx bx-chevron-right" />
-                    </button>
-                </section> */}
-
                 <Carousel>
                     <CarouselContent>
                         <CarouselItem className="pl-4">
@@ -1086,9 +593,6 @@ export const Courses = () => {
                     <CarouselPrevious />
                     <CarouselNext />
                 </Carousel>
-
-
-
 
                 {/* Tất cả các khóa học Phát triển web */}
                 <div className="">
@@ -1678,34 +1182,6 @@ export const Courses = () => {
                                 </div>
                             </div>
                             <hr />
-                            <div className="flex items-center my-3">
-                            {/* Collapsible Trigger */}
-                            <div className="flex-1" onClick={toggleCollapsible}>
-                                <h2 className="font-bold text-xl">
-                                    Phụ đề
-                                </h2>
-                                <span
-                                    className="text-gray-500 hover:underline focus:outline-none cursor-pointer"
-                                    id="toggle-btn-phude">
-                                    <i className={`bx ${isOpen ? 'bx-chevron-up' : 'bx-chevron-down'}`} />
-                                </span>
-                            </div>
-
-                            {/* Collapsible Content */}
-                            <div className={`lesson-content-phude ${isOpen ? '' : 'hidden'}`}>
-                                <div className="flex items-center mb-2">
-                                    <input className="mr-2" name="duration" type="checkbox" />
-                                    <span className="text-sm text-black">
-                                        Tiếng Việt{" "}
-                                        <span className="text-gray-600">
-                                            (1)
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                            <hr />
-                            
-                        </div>
                         </div>
 
                         {/*Danh sách khóa học */}
