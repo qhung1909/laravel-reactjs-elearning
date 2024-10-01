@@ -12,17 +12,16 @@ class CourseController extends Controller
 {
     protected $course;
 
+
     public function __construct(Course $course)
     {
         $this->course = $course;
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $perPage = $request->input('per_page', 6);
-
-        $courses = Cache::remember('courses_page_' . $request->page, 120, function () use ($perPage) {
-            return $this->course->paginate($perPage);
+        $courses = Cache::remember('courses', 120, function () {
+            return $this->course::all();
         });
 
         return response()->json($courses);
