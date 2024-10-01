@@ -1,6 +1,7 @@
 import "./detail.css";
 import "../../components/js/detail.js";
 import { Link } from "react-router-dom";
+import { Star } from "lucide-react";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -61,7 +62,6 @@ export const Detail = () => {
             fetchDetail();
         }
     }, [slug]);
-
     const renderBannerDetail = (
         <div
             className="bg-gray-900 p-6 text-white"
@@ -150,6 +150,55 @@ export const Detail = () => {
             </div>
         </div>
     );
+    // Rating & comment
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const addComment = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            setErrorMessage(
+                "Để gửi bình luận, bạn vui lòng đăng nhập trước nhé!"
+            );
+            return;
+        }
+        if (rating === 0) {
+            setErrorMessage("Hãy chọn số sao để đánh giá khóa học này.");
+            return;
+        }
+        if (!comment.trim()) {
+            setErrorMessage(
+                "Bạn chưa nhập ý kiến của mình về khóa học. Hãy cho chúng tôi biết nhé!"
+            );
+            return;
+        }
+        try {
+            const commentData = {
+                rating,
+                content: comment,
+            };
+
+            const res = await axios.post(
+                `${API_URL}/courses/${slug}/comments`,
+                commentData,
+                {
+                    headers: {
+                        "x-api-secret": `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            // Reset comment và rating sau khi thêm thành công
+            setComment("");
+            setRating(0);
+            setErrorMessage("");
+            fetchDetail(); // Fetch lại chi tiết sau khi thêm comment
+            console.log("Comment response:", res.data);
+        } catch (error) {
+            console.error("Error response data:", error.response.data);
+            console.error("Error status:", error.response.status);
+        }
+    };
 
     return (
         <>
@@ -772,182 +821,117 @@ export const Detail = () => {
                             </div>
                         </div>
                         {/* Kết thúc Section 5 */}
+
                         {/* Section 6 */}
-                        <div className="container mx-auto px-4 py-8">
-                            <h2 className="text-xl font-bold mb-4">
-                                4.6 xếp hạng khóa học • 44 xếp hạng
+                        <div className="bg-white p-4 rounded-lg shadow-md">
+                            <h2 className="text-2xl font-bold mb-4">
+                                Khách hàng nói về khóa học
                             </h2>
-                            <div className="bg-white p-6 rounded-lg ">
-                                {/* Đánh giá từng người dùng */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {/* Comment 1 */}
-                                    <div className="flex flex-col bg-gray-100 p-4 rounded-lg shadow-sm border-t border-gray-800">
-                                        <div className="flex items-center mb-2">
-                                            <div className="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center mr-3">
-                                                NV
-                                            </div>
-                                            <div>
-                                                <div className="font-semibold">
-                                                    Nguyen Huu V.
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <span className="text-yellow-500">
-                                                        ★★★★★
-                                                    </span>
-                                                    <span className="text-gray-500 ml-2">
-                                                        1 tháng trước
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="ml-auto">⋮</div>
-                                        </div>
-                                        <p className="mb-2">
-                                            so good and easy to understand
+                            {/* Phần bình luận */}
+                            <div>
+                                <h3 className="text-base font-semibold mb-2">
+                                    {detail.length || 0} Bình luận
+                                </h3>
+                                <div className="space-y-3 mb-3">
+                                    {/*phần chọn sao */}
+                                    <div className="flex items-center space-x-1">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star
+                                                key={i}
+                                                className={`w-6 h-6 cursor-pointer ${
+                                                    i < rating
+                                                        ? "text-yellow-500"
+                                                        : "text-gray-300"
+                                                }`}
+                                                fill="currentColor"
+                                                onClick={() => setRating(i + 1)} // Cập nhật số sao khi click
+                                            />
+                                        ))}
+                                    </div>
+
+                                    {/* Nhập nội dung bình luận */}
+                                    <textarea
+                                        placeholder="Nhập nội dung bình luận"
+                                        className="w-full border rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        rows="3"
+                                        value={comment}
+                                        onChange={(e) =>
+                                            setComment(e.target.value)
+                                        }
+                                    />
+                                    {/* Thông báo lỗi */}
+                                    {errorMessage && (
+                                        <p className="text-red-500 mt-2">
+                                            {errorMessage}
                                         </p>
-                                        <div className="flex items-center text-gray-500">
-                                            <span>Bạn thấy hữu ích?</span>
-                                            <box-icon
-                                                name="like"
-                                                type="solid"
-                                                color="#718096"
-                                                className="ml-2 w-5 h-5"
-                                            />
-                                            <box-icon
-                                                name="dislike"
-                                                type="solid"
-                                                color="#718096"
-                                                className="ml-2 w-5 h-5"
-                                            />
-                                        </div>
-                                    </div>
-                                    {/* Comment 2 */}
-                                    <div className="flex flex-col bg-gray-100 p-4 rounded-lg shadow-sm border-t border-gray-800">
-                                        <div className="flex items-center mb-2">
-                                            <div className="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center mr-3">
-                                                GN
-                                            </div>
-                                            <div>
-                                                <div className="font-semibold">
-                                                    Giang N.
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <span className="text-yellow-500">
-                                                        ★★★★☆
-                                                    </span>
-                                                    <span className="text-gray-500 ml-2">
-                                                        1 tháng trước
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="ml-auto">⋮</div>
-                                        </div>
-                                        <p className="mb-2">
-                                            Cách giảng dạy đơn giản và dễ hiểu
-                                        </p>
-                                        <div className="flex items-center text-gray-500">
-                                            <span>Bạn thấy hữu ích?</span>
-                                            <box-icon
-                                                name="like"
-                                                type="solid"
-                                                color="#718096"
-                                                className="ml-2 w-5 h-5"
-                                            />
-                                            <box-icon
-                                                name="dislike"
-                                                type="solid"
-                                                color="#718096"
-                                                className="ml-2 w-5 h-5"
-                                            />
-                                        </div>
-                                    </div>
-                                    {/* Comment 3 */}
-                                    <div className="flex flex-col bg-gray-100 p-4 rounded-lg shadow-sm border-t border-gray-800">
-                                        <div className="flex items-center mb-2">
-                                            <div className="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center mr-3">
-                                                L
-                                            </div>
-                                            <div>
-                                                <div className="font-semibold">
-                                                    Linh Nguyen Manh
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <span className="text-yellow-500">
-                                                        ★★★★★
-                                                    </span>
-                                                    <span className="text-gray-500 ml-2">
-                                                        1 tháng trước
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="ml-auto">⋮</div>
-                                        </div>
-                                        <p className="mb-2">good</p>
-                                        <div className="flex items-center text-gray-500">
-                                            <span>Bạn thấy hữu ích?</span>
-                                            <box-icon
-                                                name="like"
-                                                type="solid"
-                                                color="#718096"
-                                                className="ml-2 w-5 h-5"
-                                            />
-                                            <box-icon
-                                                name="dislike"
-                                                type="solid"
-                                                color="#718096"
-                                                className="ml-2 w-5 h-5"
-                                            />
-                                        </div>
-                                    </div>
-                                    {/* Comment 4 */}
-                                    <div className="flex flex-col bg-gray-100 p-4 rounded-lg shadow-sm border-t border-gray-800">
-                                        <div className="flex items-center mb-2">
-                                            <div className="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center mr-3">
-                                                DD
-                                            </div>
-                                            <div>
-                                                <div className="font-semibold">
-                                                    Dien D.
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <span className="text-yellow-500">
-                                                        ★★★★★
-                                                    </span>
-                                                    <span className="text-gray-500 ml-2">
-                                                        2 tháng trước
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="ml-auto">⋮</div>
-                                        </div>
-                                        <p className="mb-2">
-                                            Tốt, hay, dễ hiểu, tuyệt vời
-                                        </p>
-                                        <div className="flex items-center text-gray-500">
-                                            <span>Bạn thấy hữu ích?</span>
-                                            <box-icon
-                                                name="like"
-                                                type="solid"
-                                                color="#718096"
-                                                className="ml-2 w-5 h-5"
-                                            />
-                                            <box-icon
-                                                name="dislike"
-                                                type="solid"
-                                                color="#718096"
-                                                className="ml-2 w-5 h-5"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                {/* Nút Hiện tất cả đánh giá */}
-                                <div className="text-center mt-6">
-                                    <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-100">
-                                        Hiện tất cả đánh giá
+                                    )}
+                                    <button
+                                        className="bg-black text-white px-3 py-1 rounded-md hover:bg-gray-800"
+                                        onClick={addComment} // Gọi hàm addComment khi nhấn nút
+                                    >
+                                        Gửi bình luận
                                     </button>
+                                </div>
+
+                                {/* Hiển thị bình luận */}
+                                <div className="space-y-3">
+                                    {detail.comments?.map((comment, index) => (
+                                        <div
+                                            className="flex items-start"
+                                            key={index}
+                                        >
+                                            <Avatar>
+                                                <AvatarFallback>
+                                                    {comment.user.name[0]}
+                                                </AvatarFallback>
+                                                <AvatarImage
+                                                    src={
+                                                        comment.user.avatar_url
+                                                    }
+                                                />
+                                            </Avatar>
+                                            <div className="ml-3">
+                                                <div className="flex items-center">
+                                                    <span className="font-semibold">
+                                                        {comment.user.name}
+                                                    </span>
+                                                    <span className="text-gray-500 text-sm ml-2">
+                                                        {formatDate(
+                                                            comment.created_at
+                                                        )}
+                                                    </span>
+                                                </div>
+                                                <div className="text-yellow-500 flex">
+                                                    {[...Array(5)].map(
+                                                        (_, i) => (
+                                                            <Star
+                                                                key={i}
+                                                                fill="currentColor"
+                                                                className={`w-3 h-3 ${
+                                                                    i <
+                                                                    comment.rating
+                                                                        ? "text-yellow-500"
+                                                                        : "text-gray-300"
+                                                                }`}
+                                                            />
+                                                        )
+                                                    )}
+                                                </div>
+                                                <p className="mt-1 text-sm">
+                                                    {comment.content}
+                                                </p>
+                                                <button className="text-blue-500 mt-1 text-sm">
+                                                    Trả lời
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
+
                         {/* Kết thúc Section 6 */}
+
                         {/* Section 7 */}
                         <div className="container mx-auto px-4 py-8">
                             <h2 className="text-2xl font-bold mb-6">
