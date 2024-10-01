@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .font-title {
+            font-family: "IBM Plex Serif", serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+    </style>
+</head>
+<header>
+
+    <!-- Menu -->
+    <nav class="navbar  flex items-center w-[100%] mx-auto py-2 z-10">
+        <!-- header - logo -->
+        <div class="navbar-logo mx-2 w-24">
+            <a href="">
+                <img src="images/Antlearn-logo.png" alt="" class="w-40" />
+            </a>
+        </div>
+        <!-- header - search -->
+        <div class="navbar-search xl:w-[50%] lg:px-20 md:px-12 xl:px-0 w-[100%] px-10">
+            <input type="text" placeholder="Tìm kiếm..." class="border rounded-full p-2 w-full hover:duration-300" />
+        </div>
+
+        <!-- header - content -->
+        <div id="navbar-content"
+            class=" navbar-content xl:static xl:min-h-fit absolute bg-white min-h-[40vh] left-0 top-[-200%] flex xl:items-center xl:flex-row flex-col px-10 max-xl:w-full gap-2 max-xl:py-5 max-xl:gap-6">
+            <!-- header - ul -->
+            <ul class="items-center max-xl:pt-3 gap-3 xl:flex max-xl:flex-col text-base xl:text-base w-52">
+                <li class="max-xl:mb-4">
+                    <a href="" class="hover:text-gray-500"> Khóa học </a>
+                </li>
+                <li class="max-xl:mb-4">
+                    <a href="" class="hover:text-gray-500"> Liên hệ </a>
+                </li>
+                <li>
+                    <a href="" class="hover:text-gray-500"> Bài viết </a>
+                </li>
+            </ul>
+            <!-- header - icons -->
+            <div class="navbar-icons flex items-center gap-2 xl:mx-3  ">
+                <div class="navbar-noti cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        style="fill: rgba(0, 0, 0, 1)">
+                        <path
+                            d="M12 22a2.98 2.98 0 0 0 2.818-2H9.182A2.98 2.98 0 0 0 12 22zm7-7.414V10c0-3.217-2.185-5.927-5.145-6.742C13.562 2.52 12.846 2 12 2s-1.562.52-1.855 1.258C7.185 4.074 5 6.783 5 10v4.586l-1.707 1.707A.996.996 0 0 0 3 17v1a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-1a.996.996 0 0 0-.293-.707L19 14.586z">
+                        </path>
+                    </svg>
+                </div>
+                <div class="navbar-language cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                        fill="#000000">
+                        <path
+                            d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-40-82v-78q-33 0-56.5-23.5T360-320v-40L168-552q-3 18-5.5 36t-2.5 36q0 121 79.5 212T440-162Zm276-102q20-22 36-47.5t26.5-53q10.5-27.5 16-56.5t5.5-59q0-98-54.5-179T600-776v16q0 33-23.5 56.5T520-680h-80v80q0 17-11.5 28.5T400-560h-80v80h240q17 0 28.5 11.5T600-440v120h40q26 0 47 15.5t29 40.5Z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- header - login  -->
+            <div class="xl:flex max-xl:flex-col gap-2 items-center">
+                <div class="navbar-register  max-xl:mb-2">
+                    <button
+                        class="w-32 me-3 border rounded-lg font-semibold border-black p-1 hover:border-1 hover:border-white hover:bg-yellow-300 hover:text-white duration-300">
+                        Đăng ký
+                    </button>
+                </div>
+                <div class="navbar-login">
+                    <button
+                        class="w-32 border rounded-lg font-semibold p-1 bg-yellow-300 hover:border-1 hover:border-black hover:bg-black hover:text-white duration-300">
+                        Đăng nhập
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="toggle-btn" class="button-toggle w-[92px] xl:w-auto hidden max-xl:block">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
+                style="fill: rgba(0, 0, 0, 1)">
+                <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"></path>
+            </svg>
+        </div>
+    </nav>
+</header>
+
+<body>
+    <!-- banner -->
+    <section class="blog-banner  flex items-center justify-center xl:h-[340px] lg:h-[295px] md:h-[250px] sm:h-[170px] h-[150px] w-full" style="background-image: url(../public/images/bannerblog.png);
+    object-fit: cover;">
+        <div class="blog-banner-title">
+            <h1 class=" lg:text-5xl  sm:text-4xl text-2xl font-title text-center">Liên hệ với<span class="italic font-title text-yellow-500">
+                    chúng tôi</span></h1>
+            <p class="lg:w-[500px] md:w-[400px] sm:w-[350px] w-[350px] text-center xl:text-lg lg:text-base md:text-sm text-xs font-medium lg:mt-3 md:mt-4 sm:mt-3 mt-2 leading-5">Bạn có thắc mắc, gợi ý, hoặc tìm hiểu giải
+                pháp thông minh? Liên hệ với chúng tôi!</p>
+        </div>
+    </section>
+
+    <!-- contact content -->
+    <section class="contact xl:max-w-screen-xl lg:max-w-screen-lg md:max-w-screen-lg max-w-screen-md mx-auto my-7 px-5">
+        <div class="contact-content">
+            <div class="grid md:grid-cols-3 grid-cols-1 gap-5">
+                <div class="contact-box bg-slate-50 p-5 rounded-2xl h-auto ">
+                    <div class=" bg-yellow-400 w-12 flex items-center justify-center px-3 py-2 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none"
+                            style="color: rgb(0, 0, 0);">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M3.17157 5.17157C2 6.34315 2 8.22876 2 12C2 15.7712 2 17.6569 3.17157 18.8284C4.34315 20 6.22876 20 10 20H14C17.7712 20 19.6569 20 20.8284 18.8284C22 17.6569 22 15.7712 22 12C22 8.22876 22 6.34315 20.8284 5.17157C19.6569 4 17.7712 4 14 4H10C6.22876 4 4.34315 4 3.17157 5.17157ZM18.5762 7.51986C18.8413 7.83807 18.7983 8.31099 18.4801 8.57617L16.2837 10.4066C15.3973 11.1452 14.6789 11.7439 14.0448 12.1517C13.3843 12.5765 12.7411 12.8449 12 12.8449C11.2589 12.8449 10.6157 12.5765 9.95518 12.1517C9.32112 11.7439 8.60271 11.1452 7.71636 10.4066L5.51986 8.57617C5.20165 8.31099 5.15866 7.83807 5.42383 7.51986C5.68901 7.20165 6.16193 7.15866 6.48014 7.42383L8.63903 9.22291C9.57199 10.0004 10.2197 10.5384 10.7666 10.8901C11.2959 11.2306 11.6549 11.3449 12 11.3449C12.3451 11.3449 12.7041 11.2306 13.2334 10.8901C13.7803 10.5384 14.428 10.0004 15.361 9.22291L17.5199 7.42383C17.8381 7.15866 18.311 7.20165 18.5762 7.51986Z"
+                                fill="currentColor"></path>
+                        </svg>
+                    </div>
+                    <div class="my-3 font-light">
+                        <strong class="sm:text-xl">Email</strong>
+                    </div>
+                    <div class="font-semibold text-yellow-500">
+                        <p>trogiup@antlearn.vn</p>
+                    </div>
+                </div>
+                <div class="contact-box bg-slate-50 p-5 rounded-2xl h-auto">
+                    <div class=" bg-yellow-400 w-12 flex items-center justify-center px-3 py-2 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none"
+                            style="color: rgb(0, 0, 0);">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M12 2C7.58172 2 4 6.00258 4 10.5C4 14.9622 6.55332 19.8124 10.5371 21.6744C11.4657 22.1085 12.5343 22.1085 13.4629 21.6744C17.4467 19.8124 20 14.9622 20 10.5C20 6.00258 16.4183 2 12 2ZM12 12C13.1046 12 14 11.1046 14 10C14 8.89543 13.1046 8 12 8C10.8954 8 10 8.89543 10 10C10 11.1046 10.8954 12 12 12Z"
+                                fill="currentColor"></path>
+                        </svg>
+                    </div>
+                    <div class="my-3 font-light">
+                        <strong class="sm:text-xl">Văn phòng</strong>
+                    </div>
+                    <div class="font-semibold text-yellow-500">
+                        <p class="lg:text-base md:text-base">Tầng 6, Tòa nhà Kim Khí Thăng long, Sô 1 Lương Yên, Phường Bạch Đằng, Quận Hai Bà Trưng, Thành phố Hà Nội, Việt Nam</p>
+                    </div>
+                </div>
+                <div class="contact-box bg-slate-50 p-5 rounded-2xl h-auto">
+                    <div class=" bg-yellow-400 w-12 flex items-center justify-center px-3 py-2 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none"
+                            style="color: rgb(0, 0, 0);">
+                            <path d="M14 2C14 2 16.2 2.2 19 5C21.8 7.8 22 10 22 10" stroke="currentColor"
+                                stroke-width="1.5" stroke-linecap="round"></path>
+                            <path
+                                d="M14.207 5.53516C14.207 5.53516 15.197 5.818 16.6819 7.30292C18.1668 8.78785 18.4497 9.7778 18.4497 9.7778"
+                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                            <path
+                                d="M10.0376 5.31617L10.6866 6.4791C11.2723 7.52858 11.0372 8.90532 10.1147 9.8278C10.1147 9.8278 10.1147 9.8278 10.1147 9.8278C10.1146 9.82792 8.99588 10.9468 11.0245 12.9755C13.0525 15.0035 14.1714 13.8861 14.1722 13.8853C14.1722 13.8853 14.1722 13.8853 14.1722 13.8853C15.0947 12.9628 16.4714 12.7277 17.5209 13.3134L18.6838 13.9624C20.2686 14.8468 20.4557 17.0692 19.0628 18.4622C18.2258 19.2992 17.2004 19.9505 16.0669 19.9934C14.1588 20.0658 10.9183 19.5829 7.6677 16.3323C4.41713 13.0817 3.93421 9.84122 4.00655 7.93309C4.04952 6.7996 4.7008 5.77423 5.53781 4.93723C6.93076 3.54428 9.15317 3.73144 10.0376 5.31617Z"
+                                fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="my-3 font-light">
+                        <strong class="sm:text-xl">Điện thoại</strong>
+                    </div>
+                    <div class="font-semibold text-yellow-500">
+                        <p>0865868256</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+<footer class="bg-gray-200 h-auto rounded-tl-[100px] rounded-tr-[100px] py-5">
+    <section class="max-w-screen-xl mx-auto pt-[50px]">
+        <div class="grid xl:grid-cols-4">
+            <div class="footer-start">
+                <img src="images/Antlearn-logo.png" alt="" class="w-52 ml-[-50px] mt-[-30px]">
+            </div>
+            <div class="footer-mid-left">
+                <ul>
+                    <span class="font-semibold text-lg  text-[#344054]">Sản phẩm</span>
+                    <li class="font-medium text-base leading-10">
+                        Khóa học
+                    </li>
+                    <li class="font-medium text-base leading-10">
+                        Bài viết
+                    </li>
+                    <li class="font-medium text-base leading-10">
+                        Liên hệ
+                    </li>
+                </ul>
+            </div>
+            <div class="footer-mid-right ">
+                <ul class="">
+                    <span class="font-semibold text-[#344054] text-lg">Chính sách chung & Hỗ trợ</span>
+                    <li class="font-medium text-base leading-10">
+                        Điều khoản dịch vụ
+                    </li>
+                    <li class="font-medium text-base leading-10">
+                        Bài viết
+                    </li>
+                    <li class="font-medium text-base leading-10">
+                        Chính sách bảo mật thông tin
+                    </li>
+                </ul>
+            </div>
+            <div class="footer-end">
+                <div class="footer-end-head">
+                    <p class="text-[#344054] font-semibold mb-5">Nhận cập nhật mới nhất</p>
+                </div>
+                <div class="footer-end-mid flex">
+                    <input type="text" placeholder="Email" class=" px-2 w-[220px] py-0  rounded-xl">
+                    <button class="bg-yellow-400 rounded-xl py-2 px-3 ms-3 font-semibold">Đăng ký</button>
+                </div>
+                <div class="hotline mt-5 font-semibold">
+                    <p>Đường dây nóng: 0123 456 789</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</footer>
+<script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+
+</html>
