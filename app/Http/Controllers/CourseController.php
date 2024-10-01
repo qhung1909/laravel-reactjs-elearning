@@ -17,15 +17,46 @@ class CourseController extends Controller
         $this->course = $course;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $courses = Cache::remember('courses', 120, function () {
-            return $this->course::all();
+        $perPage = $request->input('per_page', 6);
+
+        $courses = Cache::remember('courses_page_' . $request->page, 120, function () use ($perPage) {
+            return $this->course->paginate($perPage);
         });
 
         return response()->json($courses);
     }
 
+    public function topPurchasedCourses()
+    {
+        $topCourses = Cache::remember('top_purchased_courses', 180, function () {
+            return Course::orderBy('is_buy', 'desc')
+                ->limit(4)
+                ->get();
+        });
+
+        if ($topCourses->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy khóa học'], 404);
+        }
+
+        return response()->json($topCourses, 200);
+    }
+
+    public function topViewedCourses()
+    {
+        $topCourses = Cache::remember('top_viewed_courses', 180, function () {
+            return Course::orderBy('views', 'desc')
+                ->limit(4)
+                ->get();
+        });
+
+        if ($topCourses->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy khóa học'], 404);
+        }
+
+        return response()->json($topCourses, 200);
+    }
 
     public function show(Request $request, $slug)
     {
@@ -37,16 +68,16 @@ class CourseController extends Controller
             return response()->json(['error' => 'Khóa học không tìm thấy'], 404);
         }
 
-        $ipAddress = $request->ip(); 
+        $ipAddress = $request->ip();
         $cacheKey = "course_view_{$slug}_{$ipAddress}";
 
         if (Cache::has($cacheKey)) {
             return response()->json($course);
         }
-        
+
         $course->increment('views');
 
-        Cache::put($cacheKey, true, 86400); 
+        Cache::put($cacheKey, true, 86400);
 
         return response()->json($course);
     }

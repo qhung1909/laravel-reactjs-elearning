@@ -35,6 +35,8 @@ Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
 Route::middleware(['admin'])->group(function () {
     // Courses
     Route::get('courses', [CourseController::class, 'index'])->name('courses.index');
+    Route::get('/top-purchased-courses', [CourseController::class, 'topPurchasedCourses']);
+    Route::get('/top-viewed-courses', [CourseController::class, 'topViewedCourses']);
     Route::get('course/{slug}', [CourseController::class, 'show'])->name('courses.show');
     Route::post('course', [CourseController::class, 'store'])->name('courses.store');
     Route::put('course/{slug}', [CourseController::class, 'update'])->name('courses.update');
