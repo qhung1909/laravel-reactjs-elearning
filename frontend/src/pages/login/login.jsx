@@ -22,6 +22,34 @@ export const Login = () => {
         };
     };
 
+    const getUserInfo = async () => {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            console.log('No token found');
+        }
+        try {
+            const res = await fetch(`${API_URL}/auth/me`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+
+            if (!res.ok) {
+                console.log('Failed to fetch data');
+            }
+            const dataUser = await res.json();
+            localStorage.setItem('user', JSON.stringify(dataUser))
+        } catch (error) {
+            console.log('Error fetching data user', error);
+
+        }
+
+
+
+    }
+
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedLogin = useCallback(debounce(async () => {
@@ -53,6 +81,7 @@ export const Login = () => {
             const data = await res.json();
             localStorage.setItem('access_token', data.access_token);
             setSuccess('Đăng nhập thành công');
+            await getUserInfo();
             navigate('/');
         } catch (error) {
             setError('Đã xảy ra lỗi: ' + error.message);
@@ -69,6 +98,9 @@ export const Login = () => {
 
 
 
+
+
+
     return (
         <div className="max-w-7xl mx-auto py-0 md:py-2 xl:py-12">
             <div className="grid grid-cols-1 py-6 md:py-6 lg:py-12 lg:grid-cols-2">
@@ -76,11 +108,11 @@ export const Login = () => {
                     <img
                         alt=""
                         className="w-full hidden md:pl-64 lg:pl-12 lg:block"
-                        src="/src/assets/images/signup.jpg"/>
+                        src="/src/assets/images/signup.jpg" />
                     <img
                         alt=""
                         className="w-full px-6 sm:px-24 md:px-48 block lg:hidden"
-                        src="/src/assets/images/signup-mb.png"/>
+                        src="/src/assets/images/signup-mb.png" />
                 </div>
                 <form onSubmit={submit} className="w-full px-6 sm:px-24 md:px-48 lg:px-16 xl:px-24 mx-auto">
                     <h1 className="text-center text-2xl lg:text-3xl font-semibold pb-3 md:pb-10 pt-3 lg:pt-0">
@@ -92,13 +124,13 @@ export const Login = () => {
                             placeholder=""
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}/>
+                            onChange={(e) => setEmail(e.target.value)} />
                         <label className="label-form">
                             Email
                         </label>
                     </div>
                     <div className="relative py-1">
-                        <input className="input-form peer" placeholder="" type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
+                        <input className="input-form peer" placeholder="" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                         <label className="label-form">
                             Mật khẩu
                         </label>
@@ -119,7 +151,7 @@ export const Login = () => {
                         <div className="flex-grow border-t border-gray-400" />
                     </div>
                     <div className="py-2">
-                        <button  className="h-16 w-full border border-black flex gap-3 m-auto justify-center place-items-center">
+                        <button className="h-16 w-full border border-black flex gap-3 m-auto justify-center place-items-center">
                             <svg
                                 className="flex-none"
                                 id="google"
