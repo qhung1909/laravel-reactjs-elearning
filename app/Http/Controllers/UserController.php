@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
 use App\Models\User;
 use App\Mail\WelcomeMail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -25,7 +23,7 @@ class UserController extends Controller
         
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Thông tin đã tồn tại.',
+                'message' => 'Đăng kí không thành công.',
                 'errors' => $validator->errors()
             ], 422);
         }

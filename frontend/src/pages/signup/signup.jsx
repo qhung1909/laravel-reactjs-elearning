@@ -43,6 +43,7 @@ export const Signup = () => {
                     name: formData.name,
                     email: formData.email,
                     password: formData.password,
+                    password_confirmation: formData.password_confirmation
                 }),
             });
 
@@ -89,7 +90,7 @@ export const Signup = () => {
                             className="input-form peer"
                             value={formData.name}
                             onChange={handleChange}
-                                
+
                         />
                         <label className="label-form">Tên</label>
                     </div>
@@ -101,7 +102,7 @@ export const Signup = () => {
                             className="input-form peer"
                             value={formData.email}
                             onChange={handleChange}
-                                
+
                         />
                         <label className="label-form">Email</label>
                     </div>
@@ -113,7 +114,7 @@ export const Signup = () => {
                             className="input-form peer"
                             value={formData.password}
                             onChange={handleChange}
-                                
+
                         />
                         <label className="label-form">Mật khẩu</label>
                     </div>
@@ -125,7 +126,7 @@ export const Signup = () => {
                             className="input-form peer"
                             value={formData.password_confirmation}
                             onChange={handleChange}
-                                
+
                         />
                         <label className="label-form">Xác nhận mật khẩu</label>
                     </div>
