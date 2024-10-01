@@ -9,6 +9,7 @@ import { PaymentComponent } from "./pages/testing/payment-vnpay.jsx";
 import { PaymentResult } from "./pages/testing/redicted-vnpay.jsx";
 import Blog from './pages/blog/blog.jsx';
 import Blogdetail from "./pages/blogdetail/blogdetail.jsx";
+import Contact from './pages/contact/contact.jsx'
 import Home from "./pages/home/home.jsx";
 import Header from "./pages/header/header.jsx";
 import Footer from "./pages/footer/footer.jsx";
@@ -21,6 +22,7 @@ function App() {
                 <Routes>
                     <Route path="/blogdetail" element={<Blogdetail/>}></Route>
                     <Route path="/blog" element={<Blog/>}></Route>
+                    <Route path="/contact" element={<Contact/>}></Route>
                     <Route path="/admin" element={<Dashboard />}></Route>
                     <Route path="/" element={<Home />}></Route>
                     <Route path="/login" element={<Login />}></Route>
