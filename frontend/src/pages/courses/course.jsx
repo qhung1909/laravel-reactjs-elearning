@@ -42,7 +42,10 @@ export const Courses = () => {
                 headers: {
                     'x-api-secret': `${API_KEY}`
                 }
+                
             });
+            console.log("Response data:", response.data);  // Thêm console.log để kiểm tra dữ liệu
+
             setCourses(response.data);
         } catch (error) {
             console.error("Error fetching API:", error);
