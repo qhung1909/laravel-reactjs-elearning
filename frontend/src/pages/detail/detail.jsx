@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import {
     Breadcrumb,
     BreadcrumbItem,
-    BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
@@ -15,6 +14,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -75,25 +75,18 @@ export const Detail = () => {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink>
-                                        <Link
-                                            href="/"
-                                            className="text-[#C0C4FC]"
-                                        >
-                                            Trang chủ
-                                        </Link>
-                                    </BreadcrumbLink>
+                                    <Link to="/" className="text-[#C0C4FC]">
+                                        Trang chủ
+                                    </Link>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator />
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink>
-                                        <Link
-                                            href="/courses"
-                                            className="text-[#C0C4FC]"
-                                        >
-                                            Khóa học
-                                        </Link>
-                                    </BreadcrumbLink>
+                                    <Link
+                                        to="/courses"
+                                        className="text-[#C0C4FC]"
+                                    >
+                                        Khóa học
+                                    </Link>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator />
                                 <BreadcrumbItem>
@@ -687,11 +680,13 @@ export const Detail = () => {
                             </h2>
                             <div className="flex items-start bg-white p-6 rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300">
                                 {/* Hình ảnh giảng viên */}
-                                <img
-                                    src="./src/assets/images/inclusion.jpg"
-                                    alt="Giảng viên"
-                                    className="w-24 h-24 object-cover rounded-full border-4 border-blue-500 mr-6"
-                                />
+                                <Avatar>
+                                    <AvatarImage
+                                        src="https://github.com/shadcn.png"
+                                        alt="@shadcn"
+                                    />
+                                    <AvatarFallback>CN</AvatarFallback>
+                                </Avatar>
                                 <div>
                                     {/* Thông tin giảng viên */}
                                     <h3

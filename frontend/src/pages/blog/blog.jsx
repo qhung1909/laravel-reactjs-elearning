@@ -15,7 +15,7 @@ function Blog() {
             <>
                 {/* banner */}
                 <section
-                    className="blog-banner flex items-center justify-center lg:h-[340px] md:h-[240px] sm:h-[200px] h-[200px]"
+                    className="blog-banner flex items-center justify-center xl:h-[340px] lg:h-[295px] md:h-[250px] sm:h-[170px] h-[150px] w-full"
                     style={{
                         backgroundImage: "url(./src/assets/images/bannerblog.png)",
                         objectFit: "cover"
