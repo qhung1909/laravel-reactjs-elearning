@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const Signup = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -10,6 +11,7 @@ export const Signup = () => {
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [loading, setLoading] =useState(false);
 
     const API_URL = import.meta.env.VITE_API_URL;
 
@@ -32,6 +34,8 @@ export const Signup = () => {
             setError('Mật khẩu không khớp');
             return;
         }
+
+        setLoading(true);
 
         try {
             const res = await fetch(`${API_URL}/register`, {
@@ -56,6 +60,7 @@ export const Signup = () => {
             const data = await res.json();
             localStorage.setItem('access_token', data.access_token);
             setSuccess('Đăng ký thành công!');
+            navigate('/login');
 
             setFormData({
                 name: '',
@@ -67,10 +72,19 @@ export const Signup = () => {
         } catch (error) {
             console.log(error);
             setError('Đã xảy ra lỗi. Vui lòng thử lại.');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
+        <>
+            {loading && (
+                <div className='loading'>
+                    <div className='loading-spin'></div>
+                </div>
+            )}
+
         <div className="max-w-7xl mx-auto py-0 md:py-2 xl:py-12">
             <div className="grid grid-cols-1 py-6 md:py-6 lg:py-12 lg:grid-cols-2">
                 <div className="img-signup">
@@ -166,5 +180,6 @@ export const Signup = () => {
                 </form>
             </div>
         </div>
-    );
+        </>
+    )
 };
