@@ -1,7 +1,7 @@
 function Footer() {
     return (
         <>
-            <footer className="bg-gray-200 h-auto lg:rounded-tl-[100px] lg:rounded-tr-[100px] md:rounded-tl-[50px] md:rounded-tr-[50px] rounded-tl-[50px] rounded-tr-[50px] md:py-5 lg:px-8 xl:px-0 mx-auto">
+            <footer className="bg-gray-100 h-auto lg:rounded-tl-[100px] lg:rounded-tr-[100px] md:rounded-tl-[50px] md:rounded-tr-[50px] rounded-tl-[50px] rounded-tr-[50px] md:py-5 lg:px-8 xl:px-0 mx-auto">
                 <section className="xl:max-w-screen-2xl lg:max-w-screen-lg mx-auto pt-[50px] lg:px-10 md:px-10">
                     <div className="grid grid-cols-5 ">
 
