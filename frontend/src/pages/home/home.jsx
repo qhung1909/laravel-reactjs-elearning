@@ -42,22 +42,24 @@ export const Home = () => {
 
     const purchasedProduct = Array.isArray(topPurchasedProduct) && topPurchasedProduct.length > 0 ? (
         topPurchasedProduct.map((item, index) => (
-            <div className="product md:mb-10 xl:mb-0" key={index}>
-                <div className="product-box ">
-                    <div className="product-box-img xl:h-[200px]">
+            <div className="product md:mb-10 xl:mb-0 text-center md:text-left" key={index}>
+                <div className="product-box">
+                    <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
                         <img
                             src={`/src/assets/images/${item.img}`}
                             alt=""
-                            className="rounded-xl xl:h-full xl:w-auto lg:h-auto lg:w-80 md:h-auto sm:h-auto sm:w-auto h-auto w-80"
+                            className="rounded-xl h-full sm:w-full md:h-full w-80"
                         />
                     </div>
-                    <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2 h-[300px]">
-                        <span className="lg:pe-5 pe-3">{`${item.title}`}</span>
+                    <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-lg font-semibold my-2  line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
+                        <span className="lg:pe-5 pe-3">
+                            {`${item.title}`}
+                        </span>
                     </div>
                     <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
                         <p>Bởi: Huy Hoàng</p>
                     </div>
-                    <div className="product-box-time-lesson md:text-sm text-[10px] flex gap-4 my-1 ">
+                    <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
                         <div className="product-box-time">
                             <p>35 bài học</p>
                         </div>
@@ -65,7 +67,7 @@ export const Home = () => {
                             <p>7 giờ kém 10</p>
                         </div>
                     </div>
-                    <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                    <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-xl text-lg">
                         <span>đ1,990,000</span>
                     </div>
                 </div>
@@ -77,30 +79,32 @@ export const Home = () => {
 
     const viewedProduct = Array.isArray(topViewedProduct) && topViewedProduct.length > 0 ? (
         topViewedProduct.map((item, index) => (
-            <div className="product md:mb-10 xl:mb-0" key={index}>
-                <div className="product-box ">
-                    <div className="product-box-img ">
+            <div className="product md:mb-10 xl:mb-0 text-center md:text-left" key={index}>
+                <div className="product-box">
+                    <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
                         <img
                             src={`/src/assets/images/${item.img}`}
                             alt=""
-                            className="object-cover rounded-xl xl:h-auto xl:w-80 lg:h-auto lg:w-80 md:h-auto sm:h-auto sm:w-auto h-auto w-80"
+                            className="rounded-xl h-full sm:w-full md:h-full w-80"
                         />
                     </div>
-                    <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2">
-                        <span className="lg:pe-5 pe-3">{`${item.title}`}</span>
+                    <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-lg font-semibold my-2  line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
+                        <span className="lg:pe-5 pe-3">
+                            {`${item.title}`}
+                        </span>
                     </div>
                     <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
                         <p>Bởi: Huy Hoàng</p>
                     </div>
-                    <div className="product-box-time-lesson md:text-sm text-[10px] flex gap-4 my-1">
+                    <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
                         <div className="product-box-time">
                             <p>35 bài học</p>
                         </div>
-                        <div className="product-box-lesson  hidden sm:block">
+                        <div className="product-box-lesson hidden sm:block">
                             <p>7 giờ kém 10</p>
                         </div>
                     </div>
-                    <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                    <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-xl text-lg">
                         <span>đ1,990,000</span>
                     </div>
                 </div>
@@ -171,7 +175,7 @@ return (
             <div className="home-page bestseller sm:max-w-screen-md md:max-w-screen-lg lg:max-w-screen-xl mx-auto xl:px-3 lg:px-5 px-3 xl:text-left">
                 <div className="bestseller-box lg:mt-20 md:mt-14 sm:mt-10 mt-6">
                     {/* bestseller - title */}
-                    <div className="bestseller-box-title xl:mb-10 sm:mb-5 mb-3 xl:text-[46px] lg:text-[36px] sm:text-[30px] text-[25px] text-left ">
+                    <div className="bestseller-box-title xl:mb-10 sm:mb-5 mb-3 xl:text-[46px] lg:text-[36px] sm:text-[30px] text-[25px] md:text-left text-center font-title ">
                         <h4>
                             Các khóa học{" "}
                             <span className="italic font-semibold text-yellow-400">
@@ -181,7 +185,7 @@ return (
                     </div>
                     <div className="best-seller-box-content ">
                         {/* box sản phẩm */}
-                        <div className="grid grid-cols-4 gap-3" >
+                        <div className="grid md:grid-cols-4 grid-cols-2 gap-3 sm:px-3 md:px-0" >
                             {purchasedProduct}
                         </div>
                     </div>
@@ -191,7 +195,7 @@ return (
             <div className="home-page bestquality sm:max-w-screen-md md:max-w-screen-lg lg:max-w-screen-xl mx-auto xl:px-3 lg:px-5 px-3 xl:text-left">
                 <div className="bestquality-box xl:mt-20 lg:mt-10 sm:mt-2 mt-6">
                     {/* bestseller - title */}
-                    <div className="bestquality-box-title xl:mb-10 sm:mb-5 mb-3 xl:text-[46px] lg:text-[36px] sm:text-[30px] text-[25px] text-left ">
+                    <div className="bestquality-box-title xl:mb-10 sm:mb-5 mb-3 xl:text-[46px] lg:text-[36px] sm:text-[30px] text-[25px] md:text-left text-center  font-title">
                         <h4>
                             Các khóa học{" "}
                             <span className="italic font-semibold text-yellow-400">
@@ -201,7 +205,7 @@ return (
                     </div>
                     <div className="best-bestquality-box-content ">
                         {/* box sản phẩm */}
-                        <div className="grid grid-cols-4 gap-3" >
+                        <div className="grid md:grid-cols-4 grid-cols-2 gap-3" >
                             {viewedProduct}
                         </div>
                     </div>
