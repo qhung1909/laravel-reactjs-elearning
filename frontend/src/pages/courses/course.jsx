@@ -25,11 +25,10 @@ const API_URL = import.meta.env.VITE_API_URL;
 console.log(API_KEY);
 
 export const Courses = () => {
-
     const [courses, setCourses] = useState([]);
     const [currentPage, setCurrentPage] = useState(1); 
     const [totalPages, setTotalPages] = useState(1); 
-    const [perPage] = useState(1); 
+    const [perPage] = useState(6); 
 
     const fetchCourses = async (page = 1) => {
         try {
@@ -57,7 +56,106 @@ export const Courses = () => {
         fetchCourses(currentPage); 
     }, [currentPage]);
     
+    const handlePageClick = (page) => {
+        setCurrentPage(page);
+    };
+
+    const renderPagination = () => {
+        if (totalPages <= 3) {
+            // Nếu số trang nhỏ hơn hoặc bằng 3, hiển thị tất cả các trang
+            return (
+                <Pagination>
+                    <PaginationContent>
+                        {[...Array(totalPages)].map((_, index) => (
+                            <PaginationItem key={index + 1}>
+                                <PaginationLink
+                                    href="#"
+                                    onClick={() => handlePageClick(index + 1)}
+                                    isActive={currentPage === index + 1}
+                                >
+                                    {index + 1}
+                                </PaginationLink>
+                            </PaginationItem>
+                        ))}
+                    </PaginationContent>
+                </Pagination>
+            );
+        } else {
+            const pages = [];
     
+            // Thêm trang 1
+            pages.push(
+                <PaginationItem key={1}>
+                    <PaginationLink
+                        href="#"
+                        onClick={() => handlePageClick(1)}
+                        isActive={currentPage === 1}
+                    >
+                        1
+                    </PaginationLink>
+                </PaginationItem>
+            );
+    
+            // Thêm dấu ba chấm nếu cần
+            if (currentPage > 3) {
+                pages.push(
+                    <PaginationItem key="ellipsis-start">
+                        <PaginationEllipsis />
+                    </PaginationItem>
+                );
+            }
+    
+            // Thêm các trang từ currentPage - 1 đến currentPage + 1
+            for (let i = Math.max(2, currentPage - 1); i <= Math.min(currentPage + 1, totalPages - 1); i++) {
+                pages.push(
+                    <PaginationItem key={i}>
+                        <PaginationLink
+                            href="#"
+                            onClick={() => handlePageClick(i)}
+                            isActive={currentPage === i}
+                        >
+                            {i}
+                        </PaginationLink>
+                    </PaginationItem>
+                );
+            }
+    
+            // Thêm dấu ba chấm nếu cần
+            if (currentPage < totalPages - 2) {
+                pages.push(
+                    <PaginationItem key="ellipsis-end">
+                        <PaginationEllipsis />
+                    </PaginationItem>
+                );
+            }
+    
+            // Thêm trang cuối
+            if (totalPages > 1) {
+                pages.push(
+                    <PaginationItem key={totalPages}>
+                        <PaginationLink
+                            href="#"
+                            onClick={() => handlePageClick(totalPages)}
+                            isActive={currentPage === totalPages}
+                        >
+                            {totalPages}
+                        </PaginationLink>
+                    </PaginationItem>
+                );
+            }
+    
+            return (
+                <Pagination>
+                    <PaginationContent>
+                        {pages}
+                    </PaginationContent>
+                </Pagination>
+            );
+        }
+    };
+    
+
+
     const render = courses.map((item,index)=> (
         <div key={index} >
             <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow flex group my-5">
@@ -1393,50 +1491,7 @@ export const Courses = () => {
 
 
             {/* Chuyển trang */}
-            <Pagination>
-                <PaginationContent>
-                    <PaginationItem>
-                        <PaginationPrevious 
-                            href="#" 
-                            onClick={(e) => {
-                                e.preventDefault(); 
-                                goToPage(currentPage - 1);
-                            }} 
-                            disabled={currentPage === 1}
-                        />
-                    </PaginationItem>
-
-                    {/* Hiển thị các trang */}
-                    {Array.from({ length: totalPages }).map((_, index) => (
-                        <PaginationItem key={index} active={currentPage === index + 1}>
-                            <PaginationLink 
-                                href="#" 
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    goToPage(index + 1);
-                                }}
-                            >
-                                {index + 1}
-                            </PaginationLink>
-                        </PaginationItem>
-                    ))}
-
-                    <PaginationItem>
-                        <PaginationEllipsis />
-                    </PaginationItem>
-
-                    <PaginationItem>
-                        <PaginationNext 
-                            href="#" 
-                            onClick={(e) => {
-                                e.preventDefault();
-                                goToPage(currentPage + 1);
-                            }} 
-                            disabled={currentPage === totalPages}
-                        />
-                    </PaginationItem>
-                </PaginationContent>
-            </Pagination>
+            {renderPagination()}
         </div>
     );
 };

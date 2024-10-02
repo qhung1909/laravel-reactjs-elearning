@@ -37,6 +37,10 @@ class AuthController extends Controller
             return response()->json(['error' => 'User ID is null or invalid'], 401);
         }
 
+        if ($user->verification_token !== null) {
+            return response()->json(['error' => 'Account not verified. Please verify your email.'], 403);
+        }
+        
         $refreshToken = $this->createRefreshToken();
 
         return $this->respondWithToken($token, $refreshToken);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Mail\WelcomeMail;
 use Illuminate\Http\Request;
+use App\Jobs\SendWelcomeEmail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -35,7 +36,7 @@ class UserController extends Controller
             'verification_token' => sha1(time()),
         ]);
 
-        Mail::to($user->email)->send(new WelcomeMail($user));
+        SendWelcomeEmail::dispatch($user);
 
         return response()->json([
             'message' => 'Đăng kí thành công. Vui lòng kiểm tra email để xác nhận tài khoản.',

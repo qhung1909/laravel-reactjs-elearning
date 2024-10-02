@@ -27,7 +27,7 @@ Route::group([
 });
 
 Route::post('register', [UserController::class, 'register']);
-Route::get('/verify-email/{token}', [UserController::class, 'verifyEmail']);
+Route::get('/verify-email/{token}', [UserController::class, 'verifyEmail'])->name('verify.email');
 
 Route::post('/vnpay-payment', [CartController::class, 'vnpay_payment']);
 Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
