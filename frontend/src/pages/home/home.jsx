@@ -24,7 +24,7 @@ function Home() {
                                             Làm chủ kỹ năng
                                         </p>
                                     </div>
-                                    <div className="banner-left-title text-4xl lg:text-[45px] xl:text-[55px] md:text-[60px] sm:text-[50px] text-[40px] md:mb-10 xl:my-10 my-6">
+                                    <div className="banner-left-title text-4xl  xl:text-[51px] lg:text-[40px] md:text-[60px] sm:text-[50px] text-[40px] md:mb-10 xl:my-10 my-6">
                                         <p className="leading-tight">
                                             Cách nhanh hơn để <br />
                                             <span className="text-yellow-400">phát triển</span> và{" "}
@@ -60,10 +60,10 @@ function Home() {
                     </div>
                 </div>
                 {/* Thân trang - sản phẩm được mua nhiều */}
-                <div className="home-page bestseller max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl mx-auto px-3 text-center xl:text-left">
+                <div className="home-page bestseller max-w-screen-sm md:max-w-screen-md lg:max-w-screen-xl xl:max-w-screen-xl mx-auto xl:px-3 lg:px-5 px-3 xl:text-left">
                     <div className="bestseller-box mt-20">
                         {/* bestseller - title */}
-                        <div className="bestseller-box-title mb-10 lg:text-[46px] text-[30px]">
+                        <div className="bestseller-box-title mb-10 xl:text-[46px] lg:text-[36px] sm:text-[30px] text-[25px] text-left ">
                             <h4>
                                 Các khóa học{" "}
                                 <span className="italic font-semibold text-yellow-400">
@@ -72,26 +72,26 @@ function Home() {
                             </h4>
                         </div>
                         <div className="best-seller-box-content">
-                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                                 {/* box sản phẩm */}
-                                <div className="product md:mb-10 xl:mb-0">
-                                    <div className="product-box">
+                                <div className="product md:mb-10 xl:mb-0 ">
+                                    <div className="product-box ">
                                         <div className="product-box-img ">
                                             <img
                                                 src="./src/assets/images/productimgtest.png"
                                                 alt=""
-                                                className="object-cover w-[100%] rounded-xl"
+                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[250px] md:h-[220px] sm:h-[200px] h-[180px]"
                                             />
                                         </div>
-                                        <div className="product-box-title text-lg xl:text-xl font-semibold my-2">
+                                        <div className="product-box-title xl:text-xl md:text-base text-sm font-semibold my-2 lg:pe-5 pe-3">
                                             <span>
                                                 React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
                                             </span>
                                         </div>
-                                        <div className="product-box-author text-lg font-semibold my-1 xl:text-base">
+                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
                                             <p>Bởi: Huy Hoàng</p>
                                         </div>
-                                        <div className="product-box-time-lesson text-lg xl:text-sm flex justify-center xl:justify-start gap-4 my-1">
+                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
                                             <div className="product-box-time">
                                                 <p>35 bài học</p>
                                             </div>
@@ -99,29 +99,29 @@ function Home() {
                                                 <p>7 giờ kém 10</p>
                                             </div>
                                         </div>
-                                        <div className="product-box-price font-semibold text-xl">
+                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
                                             <span>đ1,990,000</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="product md:mb-10 xl:mb-0">
-                                    <div className="product-box">
+                                <div className="product md:mb-10 xl:mb-0 ">
+                                    <div className="product-box ">
                                         <div className="product-box-img ">
                                             <img
                                                 src="./src/assets/images/productimgtest.png"
                                                 alt=""
-                                                className="object-cover w-[100%] rounded-xl"
+                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[250px] md:h-[220px] sm:h-[200px] h-[180px]"
                                             />
                                         </div>
-                                        <div className="product-box-title text-lg xl:text-xl font-semibold my-2">
+                                        <div className="product-box-title xl:text-xl md:text-base text-sm font-semibold my-2 lg:pe-5 pe-3">
                                             <span>
                                                 React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
                                             </span>
                                         </div>
-                                        <div className="product-box-author text-lg font-semibold my-1 xl:text-base">
+                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
                                             <p>Bởi: Huy Hoàng</p>
                                         </div>
-                                        <div className="product-box-time-lesson text-lg xl:text-sm flex justify-center xl:justify-start gap-4 my-1">
+                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
                                             <div className="product-box-time">
                                                 <p>35 bài học</p>
                                             </div>
@@ -129,29 +129,29 @@ function Home() {
                                                 <p>7 giờ kém 10</p>
                                             </div>
                                         </div>
-                                        <div className="product-box-price font-semibold text-xl">
+                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
                                             <span>đ1,990,000</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="product md:mb-10 xl:mb-0">
-                                    <div className="product-box">
+                                <div className="product md:mb-10 xl:mb-0 ">
+                                    <div className="product-box ">
                                         <div className="product-box-img ">
                                             <img
                                                 src="./src/assets/images/productimgtest.png"
                                                 alt=""
-                                                className="object-cover w-[100%] rounded-xl"
+                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[250px] md:h-[220px] sm:h-[200px] h-[180px]"
                                             />
                                         </div>
-                                        <div className="product-box-title text-lg xl:text-xl font-semibold my-2">
+                                        <div className="product-box-title xl:text-xl md:text-base text-sm font-semibold my-2 lg:pe-5 pe-3">
                                             <span>
                                                 React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
                                             </span>
                                         </div>
-                                        <div className="product-box-author text-lg font-semibold my-1 xl:text-base">
+                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
                                             <p>Bởi: Huy Hoàng</p>
                                         </div>
-                                        <div className="product-box-time-lesson text-lg xl:text-sm flex justify-center xl:justify-start gap-4 my-1">
+                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
                                             <div className="product-box-time">
                                                 <p>35 bài học</p>
                                             </div>
@@ -159,29 +159,29 @@ function Home() {
                                                 <p>7 giờ kém 10</p>
                                             </div>
                                         </div>
-                                        <div className="product-box-price font-semibold text-xl">
+                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
                                             <span>đ1,990,000</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="product md:mb-10 xl:mb-0">
-                                    <div className="product-box">
+                                <div className="product md:mb-10 xl:mb-0 ">
+                                    <div className="product-box ">
                                         <div className="product-box-img ">
                                             <img
                                                 src="./src/assets/images/productimgtest.png"
                                                 alt=""
-                                                className="object-cover w-[100%] rounded-xl"
+                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[250px] md:h-[220px] sm:h-[200px] h-[180px]"
                                             />
                                         </div>
-                                        <div className="product-box-title text-lg xl:text-xl font-semibold my-2">
+                                        <div className="product-box-title xl:text-xl md:text-base text-sm font-semibold my-2 lg:pe-5 pe-3">
                                             <span>
                                                 React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
                                             </span>
                                         </div>
-                                        <div className="product-box-author text-lg font-semibold my-1 xl:text-base">
+                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
                                             <p>Bởi: Huy Hoàng</p>
                                         </div>
-                                        <div className="product-box-time-lesson text-lg xl:text-sm flex justify-center xl:justify-start gap-4 my-1">
+                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
                                             <div className="product-box-time">
                                                 <p>35 bài học</p>
                                             </div>
@@ -189,7 +189,7 @@ function Home() {
                                                 <p>7 giờ kém 10</p>
                                             </div>
                                         </div>
-                                        <div className="product-box-price font-semibold text-xl">
+                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
                                             <span>đ1,990,000</span>
                                         </div>
                                     </div>
@@ -547,7 +547,7 @@ function Home() {
                 <div className="home-page homeblog xl:max-w-screen-xl lg:max-w-screen-lg mx-auto py-5">
                     <div className="homeblog-box grid grid-cols-1 lg:grid-cols-2 gap-3">
                         <div className="homeblog-box-img">
-                            <div className="homeblog-box-img-main relative md:flex md:justify-center lg:just">
+                            <div className="homeblog-box-img-main relative md:flex md:justify-center">
                                 <img src="./src/assets/images/homepage-blog.png" alt="" />
                             </div>
                             <div className="homeblog-box-img-content relative bg-white pb-3 xl:w-[240px] lg:w-[210px] md:w-[190px] w-[160px] xl:top-[-30%] xl:left-[15%] lg:top-[-32%] lg:left-[15%] md:left-[20%] md:top-[-35%] sm:top[-10%] top-[-35%] left-[20%]">
