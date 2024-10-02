@@ -19,10 +19,26 @@ import { PageNotFound } from "./pages/pageNotFound/pageNotFound.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === '/admin';
+    const notFoundRoutes = [
+        '/blogdetail',
+        '/blog',
+        '/contact',
+        '/admin',
+        '/',
+        '/login',
+        '/register',
+        '/courses',
+        '/lession',
+        '/detail',
+        '/detail/:slug',
+        '/tests',
+        '/tests-payment'
+    ];
+    const isPageNotFound = !notFoundRoutes.includes(location.pathname);
 
     return (
         <>
-            {!isAdminPage && <Header />}
+            {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
                 <Route path="/blogdetail" element={<Blogdetail/>}></Route>
                 <Route path="/blog" element={<Blog/>}></Route>
@@ -39,7 +55,7 @@ function AppContent() {
                 <Route path="/tests" element={<PaymentComponent />}></Route>
                 <Route path="/tests-payment" element={<PaymentResult />}></Route>
             </Routes>
-            {!isAdminPage && <Footer />}
+            {!isAdminPage && !isPageNotFound && <Footer />}
         </>
     );
 }
