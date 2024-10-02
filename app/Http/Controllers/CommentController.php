@@ -53,7 +53,8 @@ class CommentController extends Controller
             return response()->json(['error' => 'Khóa học không tìm thấy.'], 404);
         }
 
-        $existingComment = Comment::where('user_id', Auth::id())->where('course_id', $course->id)->first();
+        $existingComment = Comment::where('user_id', Auth::id())->where('course_id', $course->course_id)->first();
+        
         if ($existingComment) {
             return response()->json(['error' => 'Bạn chỉ được đánh giá một lần.'], 403);
         }
@@ -134,7 +135,7 @@ class CommentController extends Controller
         }
 
         $comment->delete();
-
+        
         return response()->json([
             'success' => true,
             'message' => 'Bình luận đã được xóa thành công.'
