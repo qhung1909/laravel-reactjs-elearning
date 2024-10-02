@@ -4,16 +4,23 @@ import {
     CarouselItem,
     CarouselNext,
     CarouselPrevious,
-  } from "@/components/ui/carousel"
-  import {
+} from "@/components/ui/carousel"
+import {
     Pagination,
     PaginationContent,
     PaginationEllipsis,
     PaginationItem,
     PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-  } from "@/components/ui/pagination"
+    // PaginationNext,
+    // PaginationPrevious,
+} from "@/components/ui/pagination"
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
+
 
 import { Link } from 'react-router-dom';
 import './courses.css'
@@ -26,9 +33,9 @@ console.log(API_KEY);
 
 export const Courses = () => {
     const [courses, setCourses] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1); 
-    const [totalPages, setTotalPages] = useState(1); 
-    const [perPage] = useState(6); 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [perPage] = useState(6);
 
     const fetchCourses = async (page = 1) => {
         try {
@@ -38,24 +45,24 @@ export const Courses = () => {
                 },
                 params: {
                     page: page,
-                    per_page: perPage, 
+                    per_page: perPage,
                 },
             });
 
-            console.log('Response data:', response.data); 
+            console.log('Response data:', response.data);
 
-            setCourses(response.data.data); 
-            setCurrentPage(response.data.current_page); 
-            setTotalPages(response.data.last_page); 
+            setCourses(response.data.data);
+            setCurrentPage(response.data.current_page);
+            setTotalPages(response.data.last_page);
         } catch (error) {
             console.error('Error fetching API:', error);
         }
     };
 
     useEffect(() => {
-        fetchCourses(currentPage); 
+        fetchCourses(currentPage);
     }, [currentPage]);
-    
+
     const handlePageClick = (page) => {
         setCurrentPage(page);
     };
@@ -82,7 +89,7 @@ export const Courses = () => {
             );
         } else {
             const pages = [];
-    
+
             // Thêm trang 1
             pages.push(
                 <PaginationItem key={1}>
@@ -95,7 +102,7 @@ export const Courses = () => {
                     </PaginationLink>
                 </PaginationItem>
             );
-    
+
             // Thêm dấu ba chấm nếu cần
             if (currentPage > 3) {
                 pages.push(
@@ -104,7 +111,7 @@ export const Courses = () => {
                     </PaginationItem>
                 );
             }
-    
+
             // Thêm các trang từ currentPage - 1 đến currentPage + 1
             for (let i = Math.max(2, currentPage - 1); i <= Math.min(currentPage + 1, totalPages - 1); i++) {
                 pages.push(
@@ -119,7 +126,7 @@ export const Courses = () => {
                     </PaginationItem>
                 );
             }
-    
+
             // Thêm dấu ba chấm nếu cần
             if (currentPage < totalPages - 2) {
                 pages.push(
@@ -128,7 +135,7 @@ export const Courses = () => {
                     </PaginationItem>
                 );
             }
-    
+
             // Thêm trang cuối
             if (totalPages > 1) {
                 pages.push(
@@ -143,7 +150,7 @@ export const Courses = () => {
                     </PaginationItem>
                 );
             }
-    
+
             return (
                 <Pagination>
                     <PaginationContent>
@@ -153,8 +160,6 @@ export const Courses = () => {
             );
         }
     };
-    
-
 
     const render = courses.map((item,index)=> (
         <div key={index} >
@@ -738,16 +743,10 @@ export const Courses = () => {
                     <div className="grid grid-cols-12 gap-10 pt-3 ">
                         {/* Bộ lọc */}
                         <div className="col-span-3 transition-all ease-in-out duration-500 "  id="filterContent">
-                            <div className="flex items-center my-3">
-                                <h2 className="font-bold text-xl flex-1">
-                                    Xếp hạng
-                                </h2>
-                                <span className="text-gray-500 hover:underline focus:outline-none cursor-pointer" id="toggle-btn">
-                                    <i className="bx bx-chevron-up" />
-                                </span>
-                            </div>
-                            <div className="lesson-content collapsed">
-                                <div className="flex items-center mb-2 ">
+                            <Accordion type="single" collapsible>
+                                <AccordionItem value="item-1">
+                                    <AccordionTrigger>Xếp hạng</AccordionTrigger>
+                                    <AccordionContent>
                                     <input className="mr-2" name="rating" type="radio"/>
                                     <span className="text-yellow-500 ">
                                         <i className="bx bxs-star " />
@@ -763,8 +762,7 @@ export const Courses = () => {
                                             (10.000)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="rating"
@@ -783,8 +781,7 @@ export const Courses = () => {
                                             (10.000)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="rating"
@@ -803,8 +800,7 @@ export const Courses = () => {
                                             (10.000)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="rating"
@@ -823,21 +819,14 @@ export const Courses = () => {
                                             (10.000)
                                         </span>
                                     </span>
-                                </div>
-                            </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
                             <hr />
-                            <div className="flex items-center my-3">
-                                <h2 className="font-bold text-xl flex-1">
-                                    Thời lượng video
-                                </h2>
-                                <span
-                                    className="text-gray-500 hover:underline focus:outline-none cursor-pointer"
-                                    id="toggle-btn-tlv">
-                                    <i className="bx bx-chevron-up" />
-                                </span>
-                            </div>
-                            <div className="lesson-content-tlv collapsed">
-                                <div className="flex items-center mb-2">
+                            <Accordion type="single" collapsible>
+                                <AccordionItem value="item-1">
+                                    <AccordionTrigger>Thời lượng video</AccordionTrigger>
+                                    <AccordionContent>
                                     <input
                                         className="mr-2 text-black"
                                         name="duration"
@@ -848,8 +837,7 @@ export const Courses = () => {
                                             (3.217)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2 text-black"
                                         name="duration"
@@ -860,8 +848,7 @@ export const Courses = () => {
                                             (10.000)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2 text-black"
                                         name="duration"
@@ -872,8 +859,7 @@ export const Courses = () => {
                                             (8.691)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                <br />
                                     <input
                                         className="mr-2 text-black"
                                         name="duration"
@@ -884,8 +870,7 @@ export const Courses = () => {
                                             (10.000)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2 text-black"
                                         name="duration"
@@ -896,21 +881,14 @@ export const Courses = () => {
                                             (4.518)
                                         </span>
                                     </span>
-                                </div>
-                            </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
                             <hr />
-                            <div className="flex items-center my-3">
-                                <h2 className="font-bold text-xl flex-1">
-                                    Chủ đề
-                                </h2>
-                                <span
-                                    className="text-gray-500 hover:underline focus:outline-none cursor-pointer"
-                                    id="toggle-btn-cd" >
-                                    <i className="bx bx-chevron-up" />
-                                </span>
-                            </div>
-                            <div className="lesson-content-cd collapsed">
-                                <div className="flex items-center mb-2">
+                            <Accordion type="single" collapsible>
+                                <AccordionItem value="item-1">
+                                    <AccordionTrigger>Chủ đề</AccordionTrigger>
+                                    <AccordionContent>
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -921,8 +899,7 @@ export const Courses = () => {
                                             (2.433)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -933,8 +910,7 @@ export const Courses = () => {
                                             (1.105)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -945,8 +921,7 @@ export const Courses = () => {
                                             (1.088)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -957,8 +932,7 @@ export const Courses = () => {
                                             (960)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -969,21 +943,14 @@ export const Courses = () => {
                                             (933)
                                         </span>
                                     </span>
-                                </div>
-                            </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
                             <hr />
-                            <div className="flex items-center my-3">
-                                <h2 className="font-bold text-xl flex-1">
-                                    Thể loại con
-                                </h2>
-                                <span
-                                    className="text-gray-500 hover:underline focus:outline-none cursor-pointer"
-                                    id="toggle-btn-tlc"            >
-                                    <i className="bx bx-chevron-up" />
-                                </span>
-                            </div>
-                            <div className="lesson-content-tlc collapsed">
-                                <div className="flex items-center mb-2">
+                            <Accordion type="single" collapsible>
+                                <AccordionItem value="item-1">
+                                    <AccordionTrigger>Thể loại con</AccordionTrigger>
+                                    <AccordionContent>
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -994,8 +961,7 @@ export const Courses = () => {
                                             (2.433)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1006,8 +972,7 @@ export const Courses = () => {
                                             (1.105)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1018,8 +983,7 @@ export const Courses = () => {
                                             (1.088)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1030,8 +994,7 @@ export const Courses = () => {
                                             (960)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1042,21 +1005,14 @@ export const Courses = () => {
                                             (960)
                                         </span>
                                     </span>
-                                </div>
-                            </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
                             <hr />
-                            <div className="flex items-center my-3">
-                                <h2 className="font-bold text-xl flex-1">
-                                    Cấp độ
-                                </h2>
-                                <span
-                                    className="text-gray-500 hover:underline focus:outline-none cursor-pointer"
-                                    id="toggle-btn-capdo"       >
-                                    <i className="bx bx-chevron-up" />
-                                </span>
-                            </div>
-                            <div className="lesson-content-capdo collapsed">
-                                <div className="flex items-center mb-2">
+                            <Accordion type="single" collapsible>
+                                <AccordionItem value="item-1">
+                                    <AccordionTrigger>Cấp độ</AccordionTrigger>
+                                    <AccordionContent>
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1067,8 +1023,7 @@ export const Courses = () => {
                                             (10.000)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1079,8 +1034,7 @@ export const Courses = () => {
                                             (10.000)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1091,8 +1045,7 @@ export const Courses = () => {
                                             (5.665)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1103,8 +1056,7 @@ export const Courses = () => {
                                             (621)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1115,21 +1067,14 @@ export const Courses = () => {
                                             (933)
                                         </span>
                                     </span>
-                                </div>
-                            </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
                             <hr />
-                            <div className="flex items-center my-3">
-                                <h2 className="font-bold text-xl flex-1">
-                                    Ngôn ngữ
-                                </h2>
-                                <span
-                                    className="text-gray-500 hover:underline focus:outline-none cursor-pointer"
-                                    id="toggle-btn-nn"       >
-                                    <i className="bx bx-chevron-up" />
-                                </span>
-                            </div>
-                            <div className="lesson-content-nn collapsed">
-                                <div className="flex items-center mb-2">
+                            <Accordion type="single" collapsible>
+                                <AccordionItem value="item-1">
+                                    <AccordionTrigger>Ngôn ngữ</AccordionTrigger>
+                                    <AccordionContent>
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1140,8 +1085,7 @@ export const Courses = () => {
                                             (1)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1152,8 +1096,7 @@ export const Courses = () => {
                                             (1)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br/>
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1164,21 +1107,14 @@ export const Courses = () => {
                                             (1)
                                         </span>
                                     </span>
-                                </div>
-                            </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
                             <hr />
-                            <div className="flex items-center my-3">
-                                <h2 className="font-bold text-xl flex-1">
-                                    Giá
-                                </h2>
-                                <span
-                                    className="text-gray-500 hover:underline focus:outline-none cursor-pointer"
-                                    id="toggle-btn-gia"       >
-                                    <i className="bx bx-chevron-up" />
-                                </span>
-                            </div>
-                            <div className="lesson-content-gia collapsed">
-                                <div className="flex items-center mb-2">
+                            <Accordion type="single" collapsible>
+                                <AccordionItem value="item-1">
+                                    <AccordionTrigger>Giá</AccordionTrigger>
+                                    <AccordionContent>
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1189,8 +1125,7 @@ export const Courses = () => {
                                             (68)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br/>
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1201,21 +1136,14 @@ export const Courses = () => {
                                             (23)
                                         </span>
                                     </span>
-                                </div>
-                            </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
                             <hr />
-                            <div className="flex items-center my-3">
-                                <h2 className="font-bold text-xl flex-1">
-                                    Đặc điểm
-                                </h2>
-                                <span
-                                    className="text-gray-500 hover:underline focus:outline-none cursor-pointer"
-                                    id="toggle-btn-dacdiem"       >
-                                    <i className="bx bx-chevron-up" />
-                                </span>
-                            </div>
-                            <div className="lesson-content-dacdiem collapsed">
-                                <div className="flex items-center mb-2">
+                            <Accordion type="single" collapsible>
+                                <AccordionItem value="item-1">
+                                    <AccordionTrigger>Đặc điểm</AccordionTrigger>
+                                    <AccordionContent>
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1226,8 +1154,7 @@ export const Courses = () => {
                                             (1)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br/>
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1238,8 +1165,7 @@ export const Courses = () => {
                                             (16)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1250,8 +1176,7 @@ export const Courses = () => {
                                             (8)
                                         </span>
                                     </span>
-                                </div>
-                                <div className="flex items-center mb-2">
+                                    <br />
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1262,21 +1187,14 @@ export const Courses = () => {
                                             (4)
                                         </span>
                                     </span>
-                                </div>
-                            </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
                             <hr />
-                            <div className="flex items-center my-3">
-                                <h2 className="font-bold text-xl flex-1">
-                                    Phụ đề
-                                </h2>
-                                <span
-                                    className="text-gray-500 hover:underline focus:outline-none cursor-pointer"
-                                    id="toggle-btn-phude"       >
-                                    <i className="bx bx-chevron-up" />
-                                </span>
-                            </div>
-                            <div className="lesson-content-phude collapsed">
-                                <div className="flex items-center mb-2">
+                            <Accordion type="single" collapsible>
+                                <AccordionItem value="item-1">
+                                    <AccordionTrigger>Phụ đề</AccordionTrigger>
+                                    <AccordionContent>
                                     <input
                                         className="mr-2"
                                         name="duration"
@@ -1287,8 +1205,9 @@ export const Courses = () => {
                                             (1)
                                         </span>
                                     </span>
-                                </div>
-                            </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
                             <hr />
                         </div>
 
@@ -1296,199 +1215,10 @@ export const Courses = () => {
                         <div className=" col-span-9 transition-all ease-in-out duration-500"
                             id="courseCol">
                                 {render}
-                            {/* <div className="relative bg-white p-4 rounded-lg shadow flex group my-5">
-                                <img
-                                    alt="React Ultimate"
-                                    className="w-30 h-20 md:w-50 md:h-40 object-cover mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div className="flex-1">
-                                    <h3 className="text-md md:text-lg font-semibold text-gray-800">
-                                        <a
-                                            className=" hover:underline"
-                                            href="#">
-                                            C++ Cơ bản dành cho người mới học
-                                            lập trình
-                                        </a>
-                                    </h3>
-                                    <p className="text-sm text-black">
-                                        Bắt đầu học lập trình bằng ngôn ngữ C++
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        Le Dan Dat
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong className="text-black">
-                                            4,7
-                                        </strong>{" "}★★★★☆ (297)
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        Tổng số giờ 10,5 giờ 92 bài giảng Sơ cấp
-                                    </p>
-                                </div>
-                                <div className="ml-auto">
-                                    <p className="text-md md:text-lg font-bold text-black">
-                                        ₫ 199.000
-                                    </p>
-                                    <p className="text-md md:text-lg text-gray-500 line-through">
-                                        ₫ 1.099.000
-                                    </p>
-                                </div>
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
-                                    <div className="space-y-2">
-                                        <h3 className="font-semibold text-gray-900">
-                                            Những kiến thức bạn sẽ học
-                                        </h3>
-                                        <p>
-                                            <i className="bx bx-check" /> Biết
-                                            cách lập trình cơ bản
-                                        </p>
-                                        <p>
-                                            <i className="bx bx-check" /> Có
-                                            khái niệm về lập trình C++
-                                        </p>
-                                        <p>
-                                            <i className="bx bx-check" /> Biết
-                                            cách sử dụng thư viện C++ để chuẩn
-                                            bị cho khoá học hướng đối tượng
-                                        </p>
-                                        <button className="bg-purple-600 text-white text-center font-bold px-20 py-3 rounded">
-                                            Thêm vào giỏ hàng
-                                        </button>
-                                    </div>
-                                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white"></div>
-                                </div>
-                            </div>
-                            <div className="relative bg-white p-4 rounded-lg shadow flex group my-5">
-                                <img
-                                    alt="React Ultimate"
-                                    className="w-30 h-20 md:w-50 md:h-40 object-cover mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div className="flex-1">
-                                    <h3 className="text-md md:text-lg font-semibold text-gray-800">
-                                        <a
-                                            className=" hover:underline"
-                                            href="#">
-                                            C++ Cơ bản dành cho người mới học
-                                            lập trình
-                                        </a>
-                                    </h3>
-                                    <p className="text-sm text-black">
-                                        Bắt đầu học lập trình bằng ngôn ngữ C++
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        Le Dan Dat
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong className="text-black">
-                                            4,7
-                                        </strong>{" "}
-                                        ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        Tổng số giờ 10,5 giờ 92 bài giảng Sơ cấp
-                                    </p>
-                                </div>
-                                <div className="ml-auto">
-                                    <p className="text-md md:text-lg font-bold text-black">
-                                        ₫ 199.000
-                                    </p>
-                                    <p className="text-md md:text-lg text-gray-500 line-through">
-                                        ₫ 1.099.000
-                                    </p>
-                                </div>
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
-                                    <div className="space-y-2">
-                                        <h3 className="font-semibold text-gray-900">
-                                            Những kiến thức bạn sẽ học
-                                        </h3>
-                                        <p>
-                                            <i className="bx bx-check" /> Biết
-                                            cách lập trình cơ bản
-                                        </p>
-                                        <p>
-                                            <i className="bx bx-check" /> Có
-                                            khái niệm về lập trình C++
-                                        </p>
-                                        <p>
-                                            <i className="bx bx-check" /> Biết
-                                            cách sử dụng thư viện C++ để chuẩn
-                                            bị cho khoá học hướng đối tượng
-                                        </p>
-                                        <button className="bg-purple-600 text-white text-center font-bold px-20 py-3 rounded">
-                                            Thêm vào giỏ hàng
-                                        </button>
-                                    </div>
-                                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white"></div>
-                                </div>
-                            </div>
-                            <div className="relative bg-white p-4 rounded-lg shadow flex group my-5">
-                                <img
-                                    alt="React Ultimate"
-                                    className="w-30 h-20 md:w-50 md:h-40 object-cover mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div className="flex-1">
-                                    <h3 className="text-md md:text-lg font-semibold text-gray-800">
-                                        <a
-                                            className=" hover:underline"
-                                            href="#">
-                                            C++ Cơ bản dành cho người mới học
-                                            lập trình
-                                        </a>
-                                    </h3>
-                                    <p className="text-sm text-black">
-                                        Bắt đầu học lập trình bằng ngôn ngữ C++
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        Le Dan Dat
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong className="text-black">
-                                            4,7
-                                        </strong>{" "}
-                                        ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        Tổng số giờ 10,5 giờ 92 bài giảng Sơ cấp
-                                    </p>
-                                </div>
-                                <div className="ml-auto">
-                                    <p className="text-md md:text-lg font-bold text-black">
-                                        ₫ 199.000
-                                    </p>
-                                    <p className="text-md md:text-lg text-gray-500 line-through">
-                                        ₫ 1.099.000
-                                    </p>
-                                </div>
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
-                                    <div className="space-y-2">
-                                        <h3 className="font-semibold text-gray-900">
-                                            Những kiến thức bạn sẽ học
-                                        </h3>
-                                        <p>
-                                            <i className="bx bx-check" /> Biết
-                                            cách lập trình cơ bản
-                                        </p>
-                                        <p>
-                                            <i className="bx bx-check" /> Có
-                                            khái niệm về lập trình C++
-                                        </p>
-                                        <p>
-                                            <i className="bx bx-check" /> Biết
-                                            cách sử dụng thư viện C++ để chuẩn
-                                            bị cho khoá học hướng đối tượng
-                                        </p>
-                                        <button className="bg-purple-600 text-white text-center font-bold px-20 py-3 rounded">
-                                            Thêm vào giỏ hàng
-                                        </button>
-                                    </div>
-                                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white"></div>
-                                </div>
-                            </div> */}
                         </div>
                     </div>
                 </div>
             </div>
-
 
             {/* Chuyển trang */}
             {renderPagination()}
