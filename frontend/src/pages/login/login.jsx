@@ -11,7 +11,7 @@ export const Login = () => {
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
+    success
     const debounce = (func, delay) => {
         let timer;
         return (...args) => {
@@ -145,7 +145,6 @@ export const Login = () => {
                                 {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                             </button>
                             {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
-                            {success && <p className="text-green-500 text-center pt-2">{success}</p>}
                         </div>
                         <div className="flex items-center justify-center my-4">
                             <div className="flex-grow border-t border-gray-400" />
