@@ -124,7 +124,7 @@ export const Home = () => {
                         <div className="" style={{ backgroundImage: "url(./src/assets/images/background-banner.jpg)" }}>
                             <div className="grid grid-cols-1 md:grid-cols-2 md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-2xl mx-auto">
                                 <div className="grid-left">
-                                    <div className="banner-left text-center md:text-left py-24 lg:py-20 lg:ps-10 ">
+                                    <div className="banner-left text-center md:text-left py-24 lg:py-20 lg:ps-10 md:px-5">
                                         <div className="banner-left-heading  max-lg:flex items-center justify-center md:justify-start">
                                             <p className="flex font-semibold items-center border rounded-full border-yellow-400 xl:w-44 lg:w-40 px-2 py-1 xl:text-base lg:text-sm md:text-xs sm:text-sm text-xs">
                                                 <svg
