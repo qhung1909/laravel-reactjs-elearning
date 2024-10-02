@@ -2,6 +2,7 @@ import "./detail.css";
 import "../../components/js/detail.js";
 import { Link } from "react-router-dom";
 import { Star } from "lucide-react";
+import { Edit, Trash } from "lucide-react"; // Biểu tượng sửa và xóa
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -16,6 +17,8 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Toaster, toast } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -26,7 +29,6 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const Detail = () => {
     const [detail, setDetail] = useState([]);
     const { slug } = useParams();
-
     // Tính % giá giảm
     const price = parseFloat(detail.price);
     const price_discount = parseFloat(detail.price_discount);
@@ -52,7 +54,6 @@ export const Detail = () => {
     const fetchComments = async (course_id) => {
         if (!course_id) {
             console.error("course_id không hợp lệ.");
-            console.log(course_id);
             return;
         }
         try {
@@ -186,6 +187,9 @@ export const Detail = () => {
         </div>
     );
 
+    // Lấy thông tin người dùng từ localStorage
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    const currentUserId = currentUser?.user_id; // Truy cập user_id hoặc để trống nếu không có user
     const renderComments = (
         <div className="space-y-3">
             {comments.length > 0 ? (
@@ -194,18 +198,44 @@ export const Detail = () => {
                         <Avatar>
                             <AvatarFallback>Avatar</AvatarFallback>
                             <AvatarImage
-                                        src="https://github.com/shadcn.png"
-                                        alt="@shadcn"
-                                    />
+                                src="https://github.com/shadcn.png"
+                                alt="@shadcn"
+                            />
                         </Avatar>
-                        <div className="ml-3">
-                            <div className="flex items-center">
-                                <span className="font-semibold">
-                                    id: {comment.user_id} {/* Hiển thị tên người dùng */}
-                                </span>
-                                <span className="text-gray-500 text-sm ml-2">
-                                    {formatDate(comment.created_at)}
-                                </span>
+                        <div className="ml-3 w-full">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center">
+                                    <span className="font-semibold">
+                                        id: {comment.user_id}{" "}
+                                        {/* Hiển thị tên người dùng */}
+                                    </span>
+                                    <span className="text-gray-500 text-sm ml-2">
+                                        {formatDate(comment.created_at)}
+                                    </span>
+                                </div>
+                                {/* Hiển thị nút sửa và xóa nếu là bình luận của người dùng hiện tại */}
+                                {currentUserId === comment.user_id && (
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() =>
+                                                editComment(comment.comment_id)
+                                            }
+                                            className="text-blue-500"
+                                        >
+                                            <Edit className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() =>
+                                                deleteComment(
+                                                    comment.comment_id
+                                                )
+                                            }
+                                            className="text-red-500"
+                                        >
+                                            <Trash className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                             <div className="text-yellow-500 flex">
                                 {[...Array(5)].map((_, i) => (
@@ -220,21 +250,20 @@ export const Detail = () => {
                                     />
                                 ))}
                             </div>
-                            <p className="mt-1 text-sm">
-                                {comment.content} {/* Nội dung bình luận */}
-                            </p>
+                            <p className="mt-1 text-sm">{comment.content}</p>
                             <button className="text-blue-500 mt-1 text-sm">
                                 Trả lời {/* Nút trả lời */}
                             </button>
+
                         </div>
                     </div>
                 ))
             ) : (
                 <p>Chưa có bình luận nào.</p>
             )}
+            <Toaster />
         </div>
     );
-
 
     const addComment = async () => {
         const token = localStorage.getItem("access_token");
@@ -260,7 +289,7 @@ export const Detail = () => {
                 content: comment,
             };
 
-            const res = await axios.post(
+            await axios.post(
                 `${API_URL}/courses/${slug}/comments`,
                 commentData,
                 {
@@ -275,13 +304,61 @@ export const Detail = () => {
             setRating(0);
             setErrorMessage("");
             fetchDetail(); // Fetch lại chi tiết sau khi thêm comment
-            window.location.reload();
-            console.log("Comment response:", res.data);
+            toast.success("Đăng thành công bình luận!");
         } catch (error) {
-            console.error("Error response data:", error.response.data);
-            console.error("Error status:", error.response.status);
+            // Kiểm tra nếu phản hồi lỗi từ backend chứa thông báo
+            if (
+                error.response &&
+                error.response.data &&
+                error.response.data.error
+            ) {
+                setErrorMessage(error.response.data.error); // Hiển thị thông báo từ backend
+            } else {
+                setErrorMessage("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
+            }
         }
     };
+
+    const deleteComment = async (commentId) => {
+        const { isConfirmed } = await Swal.fire({
+            title: 'Xác nhận xóa',
+            text: "Bạn có chắc chắn muốn xóa bình luận này? Hành động này không thể hoàn tác.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Có, xóa!',
+            cancelButtonText: 'Hủy',
+        });
+
+        if (!isConfirmed) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem("access_token");
+            await axios.delete(`${API_URL}/comments/${commentId}`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            fetchComments();
+            window.location.reload();
+        } catch (error) {
+            console.error(
+                "Error deleting comment:",
+                error.response?.data || error.message
+            );
+        }
+    };
+
+    // Hàm chỉnh sửa bình luận (hiển thị form hoặc chuyển sang trạng thái chỉnh sửa)
+    const editComment = (commentId) => {
+        // Logic xử lý chỉnh sửa (chuyển sang form chỉnh sửa)
+        console.log("Edit comment:", commentId);
+    };
+
     return (
         <>
             {/* Banner */}
