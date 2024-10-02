@@ -18,14 +18,17 @@ class CourseController extends Controller
         $this->course = $course;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $courses = Cache::remember('courses', 120, function () {
-            return $this->course::all();
+        $perPage = $request->input('per_page', 2);
+    
+        $courses = Cache::remember('courses_page_' . $request->page, 120, function () use ($perPage) {
+            return $this->course->paginate($perPage);
         });
-
+    
         return response()->json($courses);
     }
+    
 
     public function topPurchasedCourses()
     {

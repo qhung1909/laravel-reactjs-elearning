@@ -1,15 +1,65 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+    Cloud,
+    CreditCard,
+    Github,
+    LifeBuoy,
+    LogOut,
+    Mail,
+    MessageSquare,
+    Plus,
+    PlusCircle,
+    Settings,
+    User,
+    UserPlus,
+    Users,
+} from "lucide-react"
+
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuPortal,
+    DropdownMenuSeparator,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+import {
+    Avatar,
+    AvatarImage,
+} from "@/components/ui/avatar"
+
 function Header() {
     const [openMenu, setOpenMenu] = useState(false);
 
-    const toggleMenu = () =>{
+    const toggleMenu = () => {
         setOpenMenu(!openMenu);
     }
 
+    const [logined, setLogined] = useState(null);
+
+    useEffect(() => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
+            setLogined(user);
+        }
+    }, [])
+
+    const logout = () => {
+        localStorage.removeItem('user');
+        setLogined(null);
+    }
+
+
     return (
         <>
-          <header>
+            <header>
                 <nav className="navbar flex items-center w-[100%] mx-auto py-2 z-10 ps-3 xl:max-w-screen-2xl ms-auto">
                     {/* header - logo */}
                     <div className="navbar-logo mx-2 w-24">
@@ -32,9 +82,8 @@ function Header() {
                     {/* header - content */}
                     <div
                         id="navbar-content"
-                        className={`navbar-content xl:static xl:min-h-fit absolute bg-white min-h-[40vh] left-0 ${
-                            openMenu ? "top-[70px]" : "top-[-200%]"
-                        } flex xl:items-center xl:flex-row flex-col px-10 max-xl:w-full gap-2 max-xl:py-5 max-xl:gap-6`}
+                        className={`navbar-content xl:static xl:min-h-fit absolute bg-white min-h-[40vh] left-0 ${openMenu ? "top-[70px]" : "top-[-200%]"
+                            } flex xl:items-center xl:flex-row flex-col px-10 max-xl:w-full gap-2 max-xl:py-5 max-xl:gap-6`}
                     >
                         <ul className="items-center max-xl:pt-3 gap-3 xl:flex max-xl:flex-col text-base xl:text-base w-52">
                             <li className="max-xl:mb-4">
@@ -77,6 +126,85 @@ function Header() {
                                 </svg>
                             </div>
                         </div>
+                        {logined ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Avatar variant="outline">
+                                    <AvatarImage src="https://t4.ftcdn.net/jpg/02/29/75/83/360_F_229758328_7x8jwCwjtBMmC6rgFzLFhZoEpLobB6L8.jpg" alt="@shadcn" />
+                                </Avatar>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem>
+                                        <User className="mr-2 h-4 w-4" />
+                                        <span>Profile</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                        <CreditCard className="mr-2 h-4 w-4" />
+                                        <span>Billing</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                        <Settings className="mr-2 h-4 w-4" />
+                                        <span>Settings</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem>
+                                        <Users className="mr-2 h-4 w-4" />
+                                        <span>Team</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSub>
+                                        <DropdownMenuSubTrigger>
+                                            <UserPlus className="mr-2 h-4 w-4" />
+                                            <span>Invite users</span>
+                                        </DropdownMenuSubTrigger>
+                                        <DropdownMenuPortal>
+                                            <DropdownMenuSubContent>
+                                                <DropdownMenuItem>
+                                                    <Mail className="mr-2 h-4 w-4" />
+                                                    <span>Email</span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <MessageSquare className="mr-2 h-4 w-4" />
+                                                    <span>Message</span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem>
+                                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                                    <span>More...</span>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuSubContent>
+                                        </DropdownMenuPortal>
+                                    </DropdownMenuSub>
+                                    <DropdownMenuItem>
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        <span>New Team</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>
+                                    <Github className="mr-2 h-4 w-4" />
+                                    <span>GitHub</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <LifeBuoy className="mr-2 h-4 w-4" />
+                                    <span>Support</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem disabled>
+                                    <Cloud className="mr-2 h-4 w-4" />
+                                    <span>API</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    <span onClick={logout}>Log out</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        ):(
                         <div className="xl:flex max-xl:flex-col gap-2 items-center">
                             <div className="navbar-register  max-xl:mb-2">
                                 <Link to="/register">
@@ -93,6 +221,7 @@ function Header() {
                                 </Link>
                             </div>
                         </div>
+                    )}
                     </div>
                     <div
                         id="toggle-btn"

@@ -10,6 +10,22 @@ use App\Models\Course;
 
 class CommentController extends Controller
 {
+    public function index($slug)
+    {
+        $course = Course::where('slug', $slug)->first();
+
+        if (!$course) {
+            return response()->json(['error' => 'Khóa học không tìm thấy.'], 404);
+        }
+
+        $comments = Comment::where('course_id', $course->id)->get();
+
+        return response()->json([
+            'success' => true,
+            'comments' => $comments
+        ], 200);
+    }
+
     public function store(Request $request, $slug)
     {
         if (!Auth::check()) {
