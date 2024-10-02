@@ -13,12 +13,15 @@ class WelcomeMail extends Mailable
 {
     use Queueable, SerializesModels;
     public $user;
+    public $verificationUrl;
+
     /**
      * Create a new message instance.
      */
-    public function __construct($user)
+    public function __construct($user, $verificationUrl) 
     {
         $this->user = $user;
+        $this->verificationUrl = $verificationUrl; 
     }
 
     /**
@@ -41,13 +44,14 @@ class WelcomeMail extends Mailable
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
 
-    public function build()
-    {
-        return $this->view('emails.welcome')
-            ->subject('Chào mừng đến với ứng dụng của chúng tôi')
-            ->from('quochung190904@gmail.com', 'LMS AntLearn')
-            ->with([
-                'user' => $this->user,
-            ]);
-    }
+     public function build()
+     {
+         return $this->view('emails.welcome')
+             ->subject('Chào mừng đến với ứng dụng của chúng tôi')
+             ->from('quochung190904@gmail.com', 'LMS AntLearn')
+             ->with([
+                 'user' => $this->user,
+                 'verificationUrl' => $this->verificationUrl, 
+             ]);
+     }
 }

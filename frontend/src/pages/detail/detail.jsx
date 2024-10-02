@@ -43,6 +43,39 @@ export const Detail = () => {
         return format(date, "dd/MM/yyyy"); // Thay đổi định dạng theo ý muốn
     };
 
+    // Rating & comment
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [comments, setComments] = useState([]);
+
+    const fetchComments = async (course_id) => {
+        if (!course_id) {
+            console.error("course_id không hợp lệ.");
+            console.log(course_id);
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/comments/${course_id}`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                },
+            });
+            if (Array.isArray(res.data.comments)) {
+                setComments(res.data.comments);
+            } else {
+                console.error("Dữ liệu không phải là mảng:", res.data.comments);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy bình luận:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+                console.error("Trạng thái lỗi:", error.response.status);
+            } else {
+                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
+            }
+        }
+    };
     const fetchDetail = async () => {
         try {
             const res = await axios.get(`${API_URL}/course/${slug}`, {
@@ -51,6 +84,7 @@ export const Detail = () => {
                 },
             });
             setDetail(res.data);
+            fetchComments(res.data.course_id); // Lưu course_id vào fetchComments để truyền biến course_id vào hàm fetchComments
         } catch (error) {
             console.error("Chi tiết lỗi:", error.response.data);
             console.error("Trạng thái lỗi:", error.response.status);
@@ -62,6 +96,7 @@ export const Detail = () => {
             fetchDetail();
         }
     }, [slug]);
+
     const renderBannerDetail = (
         <div
             className="bg-gray-900 p-6 text-white"
@@ -150,10 +185,57 @@ export const Detail = () => {
             </div>
         </div>
     );
-    // Rating & comment
-    const [rating, setRating] = useState(0);
-    const [comment, setComment] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
+
+    const renderComments = (
+        <div className="space-y-3">
+            {comments.length > 0 ? (
+                comments.map((comment) => (
+                    <div key={comment.comment_id} className="flex items-start">
+                        <Avatar>
+                            <AvatarFallback>Avatar</AvatarFallback>
+                            <AvatarImage
+                                        src="https://github.com/shadcn.png"
+                                        alt="@shadcn"
+                                    />
+                        </Avatar>
+                        <div className="ml-3">
+                            <div className="flex items-center">
+                                <span className="font-semibold">
+                                    id: {comment.user_id} {/* Hiển thị tên người dùng */}
+                                </span>
+                                <span className="text-gray-500 text-sm ml-2">
+                                    {formatDate(comment.created_at)}
+                                </span>
+                            </div>
+                            <div className="text-yellow-500 flex">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star
+                                        key={i}
+                                        fill="currentColor"
+                                        className={`w-3 h-3 ${
+                                            i < parseFloat(comment.rating)
+                                                ? "text-yellow-500"
+                                                : "text-gray-300"
+                                        }`} // Hiển thị sao dựa trên rating
+                                    />
+                                ))}
+                            </div>
+                            <p className="mt-1 text-sm">
+                                {comment.content} {/* Nội dung bình luận */}
+                            </p>
+                            <button className="text-blue-500 mt-1 text-sm">
+                                Trả lời {/* Nút trả lời */}
+                            </button>
+                        </div>
+                    </div>
+                ))
+            ) : (
+                <p>Chưa có bình luận nào.</p>
+            )}
+        </div>
+    );
+
+
     const addComment = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -188,18 +270,18 @@ export const Detail = () => {
                     },
                 }
             );
-            // Reset comment và rating sau khi thêm thành công
+            // Reset comment và rating
             setComment("");
             setRating(0);
             setErrorMessage("");
             fetchDetail(); // Fetch lại chi tiết sau khi thêm comment
+            window.location.reload();
             console.log("Comment response:", res.data);
         } catch (error) {
             console.error("Error response data:", error.response.data);
             console.error("Error status:", error.response.status);
         }
     };
-
     return (
         <>
             {/* Banner */}
@@ -830,7 +912,7 @@ export const Detail = () => {
                             {/* Phần bình luận */}
                             <div>
                                 <h3 className="text-base font-semibold mb-2">
-                                    {detail.length || 0} Bình luận
+                                    {comments.length || 0} Bình luận
                                 </h3>
                                 <div className="space-y-3 mb-3">
                                     {/*phần chọn sao */}
@@ -867,66 +949,13 @@ export const Detail = () => {
                                     )}
                                     <button
                                         className="bg-black text-white px-3 py-1 rounded-md hover:bg-gray-800"
-                                        onClick={addComment} // Gọi hàm addComment khi nhấn nút
+                                        onClick={addComment}
                                     >
                                         Gửi bình luận
                                     </button>
                                 </div>
-
                                 {/* Hiển thị bình luận */}
-                                <div className="space-y-3">
-                                    {detail.comments?.map((comment, index) => (
-                                        <div
-                                            className="flex items-start"
-                                            key={index}
-                                        >
-                                            <Avatar>
-                                                <AvatarFallback>
-                                                    {comment.user.name[0]}
-                                                </AvatarFallback>
-                                                <AvatarImage
-                                                    src={
-                                                        comment.user.avatar_url
-                                                    }
-                                                />
-                                            </Avatar>
-                                            <div className="ml-3">
-                                                <div className="flex items-center">
-                                                    <span className="font-semibold">
-                                                        {comment.user.name}
-                                                    </span>
-                                                    <span className="text-gray-500 text-sm ml-2">
-                                                        {formatDate(
-                                                            comment.created_at
-                                                        )}
-                                                    </span>
-                                                </div>
-                                                <div className="text-yellow-500 flex">
-                                                    {[...Array(5)].map(
-                                                        (_, i) => (
-                                                            <Star
-                                                                key={i}
-                                                                fill="currentColor"
-                                                                className={`w-3 h-3 ${
-                                                                    i <
-                                                                    comment.rating
-                                                                        ? "text-yellow-500"
-                                                                        : "text-gray-300"
-                                                                }`}
-                                                            />
-                                                        )
-                                                    )}
-                                                </div>
-                                                <p className="mt-1 text-sm">
-                                                    {comment.content}
-                                                </p>
-                                                <button className="text-blue-500 mt-1 text-sm">
-                                                    Trả lời
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                                {renderComments}
                             </div>
                         </div>
 
