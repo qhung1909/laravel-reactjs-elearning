@@ -1,3 +1,11 @@
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+} from "@/components/ui/carousel"
+
 function Home() {
     return (
         <>
@@ -5,59 +13,59 @@ function Home() {
                 {/* banner */}
                 <div className="banner">
                     <div className="banner-box">
-                        <div className=""  style={{ backgroundImage: "url(./src/assets/images/background-banner.jpg)" }}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-2xl mx-auto">
-                            <div className="grid-left">
-                                <div className="banner-left text-center md:text-left py-24 lg:py-20 lg:ps-10 ">
-                                    <div className="banner-left-heading  max-lg:flex items-center justify-center md:justify-start">
-                                        <p className="flex font-semibold items-center border rounded-full border-yellow-400 xl:w-44 lg:w-40 px-2 py-1 xl:text-base lg:text-sm md:text-xs sm:text-sm text-xs">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="me-2 xl:w-5 xl:h-5 md:w-4 md:h-4 w-3 h-3"
+                        <div className="" style={{ backgroundImage: "url(./src/assets/images/background-banner.jpg)" }}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-2xl mx-auto">
+                                <div className="grid-left">
+                                    <div className="banner-left text-center md:text-left py-24 lg:py-20 lg:ps-10 ">
+                                        <div className="banner-left-heading  max-lg:flex items-center justify-center md:justify-start">
+                                            <p className="flex font-semibold items-center border rounded-full border-yellow-400 xl:w-44 lg:w-40 px-2 py-1 xl:text-base lg:text-sm md:text-xs sm:text-sm text-xs">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="me-2 xl:w-5 xl:h-5 md:w-4 md:h-4 w-3 h-3"
 
-                                                viewBox="0 0 24 24"
-                                                style={{ fill: "rgba(0, 0, 0, 1)" }}
-                                            >
-                                                <path d="M21.947 9.179a1.001 1.001 0 0 0-.868-.676l-5.701-.453-2.467-5.461a.998.998 0 0 0-1.822-.001L8.622 8.05l-5.701.453a1 1 0 0 0-.619 1.713l4.213 4.107-1.49 6.452a1 1 0 0 0 1.53 1.057L12 18.202l5.445 3.63a1.001 1.001 0 0 0 1.517-1.106l-1.829-6.4 4.536-4.082c.297-.268.406-.686.278-1.065z" />
-                                            </svg>
-                                            Làm chủ kỹ năng
-                                        </p>
+                                                    viewBox="0 0 24 24"
+                                                    style={{ fill: "rgba(0, 0, 0, 1)" }}
+                                                >
+                                                    <path d="M21.947 9.179a1.001 1.001 0 0 0-.868-.676l-5.701-.453-2.467-5.461a.998.998 0 0 0-1.822-.001L8.622 8.05l-5.701.453a1 1 0 0 0-.619 1.713l4.213 4.107-1.49 6.452a1 1 0 0 0 1.53 1.057L12 18.202l5.445 3.63a1.001 1.001 0 0 0 1.517-1.106l-1.829-6.4 4.536-4.082c.297-.268.406-.686.278-1.065z" />
+                                                </svg>
+                                                Làm chủ kỹ năng
+                                            </p>
+                                        </div>
+                                        <div className="font-title banner-left-title text-4xl xl:text-[70px] lg:text-[50px] md:text-[40px] sm:text-[45px] text-[35px] xl:my-10 my-5 sm:px-10 px-12 md:px-0">
+                                            <p className="leading-tight">
+                                                Cách nhanh hơn để
+                                                <span className="text-yellow-400 italic"> phát triển</span> và{" "}
+                                                <span className="text-yellow-400 italic"> nâng cao </span>
+                                                kỹ năng của bạn
+                                            </p>
+                                        </div>
+                                        <div className="banner-left-content lg:px-0 xl:text-base lg:text-sm md:text-xs sm:text-sm text-[12px] my-5 sm:px-32 px-24 md:px-0">
+                                            <p>
+                                                Cùng tìm hiểu các chiến lược tiên tiến để tối ưu quá trình học,
+                                                nâng cao kỹ năng, đạt được thành công nhanh chóng trong sự
+                                                nghiệp của bạn
+                                            </p>
+                                        </div>
+                                        <div className="banner-left-button">
+                                            <a href="">
+                                                <button className="bg-yellow-500 xl:mt-10 xl:px-5 xl:py-3 md:font-bold rounded-full xl:text-xl lg:text-base md:text-sm sm:text-base text-[14px] font-semibold mt-4 p-2 px-4">
+                                                    Khám phá khóa học
+                                                </button>
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div className="font-title banner-left-title text-4xl xl:text-[70px] lg:text-[50px] md:text-[40px] sm:text-[45px] text-[35px] xl:my-10 my-5 sm:px-10 px-12 md:px-0">
-                                        <p className="leading-tight">
-                                            Cách nhanh hơn để
-                                            <span className="text-yellow-400 italic"> phát triển</span> và{" "}
-                                            <span className="text-yellow-400 italic"> nâng cao </span>
-                                             kỹ năng của bạn
-                                        </p>
-                                    </div>
-                                    <div className="banner-left-content lg:px-0 xl:text-base lg:text-sm md:text-xs sm:text-sm text-[12px] my-5 sm:px-32 px-24 md:px-0">
-                                        <p>
-                                            Cùng tìm hiểu các chiến lược tiên tiến để tối ưu quá trình học,
-                                            nâng cao kỹ năng, đạt được thành công nhanh chóng trong sự
-                                            nghiệp của bạn
-                                        </p>
-                                    </div>
-                                    <div className="banner-left-button">
-                                        <a href="">
-                                            <button className="bg-yellow-500 xl:mt-10 xl:px-5 xl:py-3 md:font-bold rounded-full xl:text-xl lg:text-base md:text-sm sm:text-base text-[14px] font-semibold mt-4 p-2 px-4">
-                                                Khám phá khóa học
-                                            </button>
-                                        </a>
-                                    </div>
+
                                 </div>
-
+                                <div className="md:flex items-center justify-center hidden md:block">
+                                    <img src="./src/assets/images/banner-right.png" alt="" className="" />
+                                </div>
                             </div>
-                            <div className=" flex items-center justify-center hidden md:block">
-                                <img src="./src/assets/images/banner-right.png" alt="" className=""/>
-                            </div>
-                        </div>
                         </div>
 
                     </div>
                 </div>
                 {/* Thân trang - sản phẩm được mua nhiều */}
-                <div className="home-page bestseller max-w-screen-sm md:max-w-screen-md lg:max-w-screen-xl xl:max-w-screen-xl mx-auto xl:px-3 lg:px-5 px-3 xl:text-left">
+                <div className="home-page bestseller sm:max-w-screen-md md:max-w-screen-lg lg:max-w-screen-xl mx-auto xl:px-3 lg:px-5 px-3 xl:text-left">
                     <div className="bestseller-box mt-20">
                         {/* bestseller - title */}
                         <div className="bestseller-box-title mb-10 xl:text-[46px] lg:text-[36px] sm:text-[30px] text-[25px] text-left ">
@@ -68,269 +76,537 @@ function Home() {
                                 </span>
                             </h4>
                         </div>
-                        <div className="best-seller-box-content">
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div className="best-seller-box-content ">
                                 {/* box sản phẩm */}
-                                <div className="product md:mb-10 xl:mb-0 ">
-                                    <div className="product-box ">
-                                        <div className="product-box-img ">
-                                            <img
-                                                src="./src/assets/images/productimgtest.png"
-                                                alt=""
-                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[250px] md:h-[220px] sm:h-[200px] h-[180px]"
-                                            />
-                                        </div>
-                                        <div className="product-box-title xl:text-xl md:text-base text-sm font-semibold my-2 lg:pe-5 pe-3">
-                                            <span>
-                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
-                                            </span>
-                                        </div>
-                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
-                                            <p>Bởi: Huy Hoàng</p>
-                                        </div>
-                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
-                                            <div className="product-box-time">
-                                                <p>35 bài học</p>
+                                <Carousel>
+                                    <CarouselContent>
+                                        <CarouselItem>
+                                            <div className="grid grid-cols-4 gap-3">
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[140px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-[10px] flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[130px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-base font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[130px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[130px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                             </div>
-                                            <div className="product-box-lesson">
-                                                <p>7 giờ kém 10</p>
+                                        </CarouselItem>
+                                        <CarouselItem>
+                                            <div className="grid grid-cols-4 gap-3">
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[140px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-[10px] flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[130px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-base font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[130px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[130px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                             </div>
-                                        </div>
-                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
-                                            <span>đ1,990,000</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="product md:mb-10 xl:mb-0 ">
-                                    <div className="product-box ">
-                                        <div className="product-box-img ">
-                                            <img
-                                                src="./src/assets/images/productimgtest.png"
-                                                alt=""
-                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[250px] md:h-[220px] sm:h-[200px] h-[180px]"
-                                            />
-                                        </div>
-                                        <div className="product-box-title xl:text-xl md:text-base text-sm font-semibold my-2 lg:pe-5 pe-3">
-                                            <span>
-                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
-                                            </span>
-                                        </div>
-                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
-                                            <p>Bởi: Huy Hoàng</p>
-                                        </div>
-                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
-                                            <div className="product-box-time">
-                                                <p>35 bài học</p>
-                                            </div>
-                                            <div className="product-box-lesson">
-                                                <p>7 giờ kém 10</p>
-                                            </div>
-                                        </div>
-                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
-                                            <span>đ1,990,000</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="product md:mb-10 xl:mb-0 ">
-                                    <div className="product-box ">
-                                        <div className="product-box-img ">
-                                            <img
-                                                src="./src/assets/images/productimgtest.png"
-                                                alt=""
-                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[250px] md:h-[220px] sm:h-[200px] h-[180px]"
-                                            />
-                                        </div>
-                                        <div className="product-box-title xl:text-xl md:text-base text-sm font-semibold my-2 lg:pe-5 pe-3">
-                                            <span>
-                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
-                                            </span>
-                                        </div>
-                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
-                                            <p>Bởi: Huy Hoàng</p>
-                                        </div>
-                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
-                                            <div className="product-box-time">
-                                                <p>35 bài học</p>
-                                            </div>
-                                            <div className="product-box-lesson">
-                                                <p>7 giờ kém 10</p>
-                                            </div>
-                                        </div>
-                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
-                                            <span>đ1,990,000</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="product md:mb-10 xl:mb-0 ">
-                                    <div className="product-box ">
-                                        <div className="product-box-img ">
-                                            <img
-                                                src="./src/assets/images/productimgtest.png"
-                                                alt=""
-                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[250px] md:h-[220px] sm:h-[200px] h-[180px]"
-                                            />
-                                        </div>
-                                        <div className="product-box-title xl:text-xl md:text-base text-sm font-semibold my-2 lg:pe-5 pe-3">
-                                            <span>
-                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
-                                            </span>
-                                        </div>
-                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
-                                            <p>Bởi: Huy Hoàng</p>
-                                        </div>
-                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
-                                            <div className="product-box-time">
-                                                <p>35 bài học</p>
-                                            </div>
-                                            <div className="product-box-lesson">
-                                                <p>7 giờ kém 10</p>
-                                            </div>
-                                        </div>
-                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
-                                            <span>đ1,990,000</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                        </CarouselItem>
+                                    </CarouselContent>
+                                    <CarouselPrevious />
+                                    <CarouselNext />
+                                </Carousel>
                         </div>
                     </div>
                 </div>
                 {/* Thân trang - sản phẩm chất lượng cao */}
-                <div className="home-page bestquality max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl mx-auto px-3 text-center xl:text-left">
-                    <div className="bestquality-box mt-20">
+                <div className="home-page bestquality sm:max-w-screen-md md:max-w-screen-lg lg:max-w-screen-xl mx-auto xl:px-3 lg:px-5 px-3 xl:text-left">
+                <div className="bestseller-box mt-20">
                         {/* bestseller - title */}
-                        <div className="bestquality-box-title mb-10 lg:text-[46px] md:text-[30px] text-[20px]">
+                        <div className="bestseller-box-title mb-10 xl:text-[46px] lg:text-[36px] sm:text-[30px] text-[25px] text-left ">
                             <h4>
                                 Các khóa học{" "}
                                 <span className="italic font-semibold text-yellow-400">
-                                    chất lượng cao
+                                    được mua nhiều nhất
                                 </span>
                             </h4>
                         </div>
-                        <div className="best-seller-box-content">
-                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+                        <div className="best-seller-box-content ">
                                 {/* box sản phẩm */}
-                                <div className="product md:mb-10 xl:mb-0">
-                                    <div className="product-box">
-                                        <div className="product-box-img ">
-                                            <img
-                                                src="./src/assets/images/productimgtest.png"
-                                                alt=""
-                                                className="object-cover w-[100%] rounded-xl"
-                                            />
-                                        </div>
-                                        <div className="product-box-title text-lg xl:text-xl font-semibold my-2">
-                                            <span>
-                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
-                                            </span>
-                                        </div>
-                                        <div className="product-box-author text-lg font-semibold my-1 xl:text-base">
-                                            <p>Bởi: Huy Hoàng</p>
-                                        </div>
-                                        <div className="product-box-time-lesson text-lg xl:text-sm flex justify-center xl:justify-start gap-4 my-1">
-                                            <div className="product-box-time">
-                                                <p>35 bài học</p>
+                                <Carousel>
+                                    <CarouselContent>
+                                        <CarouselItem>
+                                            <div className="grid grid-cols-4 gap-3">
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[140px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-[10px] flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[130px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-base font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[130px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[130px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                             </div>
-                                            <div className="product-box-lesson">
-                                                <p>7 giờ kém 10</p>
+                                        </CarouselItem>
+                                        <CarouselItem>
+                                            <div className="grid grid-cols-4 gap-3">
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[140px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-[10px] flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[130px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-base font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[130px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="product md:mb-10 xl:mb-0 ">
+                                                    <div className="product-box ">
+                                                        <div className="product-box-img ">
+                                                            <img
+                                                                src="./src/assets/images/productimgtest.png"
+                                                                alt=""
+                                                                className="object-cover w-[100%] rounded-xl xl:h-[100%] lg:h-[230px] md:h-[200px] sm:h-[170px] h-[130px]"
+                                                            />
+                                                        </div>
+                                                        <div className="product-box-title xl:text-xl lg:text-xl md:text-lg sm:text-base text-sm font-semibold my-2  line-clamp-2">
+                                                            <span className="lg:pe-5 pe-3">
+                                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
+                                                            </span>
+                                                        </div>
+                                                        <div className="product-box-author font-mediummy-1 md:text-base text-sm">
+                                                            <p>Bởi: Huy Hoàng</p>
+                                                        </div>
+                                                        <div className="product-box-time-lesson md:text-sm text-xs flex gap-4 my-1">
+                                                            <div className="product-box-time">
+                                                                <p>35 bài học</p>
+                                                            </div>
+                                                            <div className="product-box-lesson">
+                                                                <p>7 giờ kém 10</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="product-box-price font-semibold xl:text-xl md:text-lg text-base">
+                                                            <span>đ1,990,000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                             </div>
-                                        </div>
-                                        <div className="product-box-price font-semibold text-xl">
-                                            <span>đ1,990,000</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="product md:mb-10 xl:mb-0">
-                                    <div className="product-box">
-                                        <div className="product-box-img ">
-                                            <img
-                                                src="./src/assets/images/productimgtest.png"
-                                                alt=""
-                                                className="object-cover w-[100%] rounded-xl"
-                                            />
-                                        </div>
-                                        <div className="product-box-title text-lg xl:text-xl font-semibold my-2">
-                                            <span>
-                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
-                                            </span>
-                                        </div>
-                                        <div className="product-box-author text-lg font-semibold my-1 xl:text-base">
-                                            <p>Bởi: Huy Hoàng</p>
-                                        </div>
-                                        <div className="product-box-time-lesson text-lg xl:text-sm flex justify-center xl:justify-start gap-4 my-1">
-                                            <div className="product-box-time">
-                                                <p>35 bài học</p>
-                                            </div>
-                                            <div className="product-box-lesson">
-                                                <p>7 giờ kém 10</p>
-                                            </div>
-                                        </div>
-                                        <div className="product-box-price font-semibold text-xl">
-                                            <span>đ1,990,000</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="product md:mb-10 xl:mb-0">
-                                    <div className="product-box">
-                                        <div className="product-box-img ">
-                                            <img
-                                                src="./src/assets/images/productimgtest.png"
-                                                alt=""
-                                                className="object-cover w-[100%] rounded-xl"
-                                            />
-                                        </div>
-                                        <div className="product-box-title text-lg xl:text-xl font-semibold my-2">
-                                            <span>
-                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
-                                            </span>
-                                        </div>
-                                        <div className="product-box-author text-lg font-semibold my-1 xl:text-base">
-                                            <p>Bởi: Huy Hoàng</p>
-                                        </div>
-                                        <div className="product-box-time-lesson text-lg xl:text-sm flex justify-center xl:justify-start gap-4 my-1">
-                                            <div className="product-box-time">
-                                                <p>35 bài học</p>
-                                            </div>
-                                            <div className="product-box-lesson">
-                                                <p>7 giờ kém 10</p>
-                                            </div>
-                                        </div>
-                                        <div className="product-box-price font-semibold text-xl">
-                                            <span>đ1,990,000</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="product md:mb-10 xl:mb-0">
-                                    <div className="product-box">
-                                        <div className="product-box-img ">
-                                            <img
-                                                src="./src/assets/images/productimgtest.png"
-                                                alt=""
-                                                className="object-cover w-[100%] rounded-xl"
-                                            />
-                                        </div>
-                                        <div className="product-box-title text-lg xl:text-xl font-semibold my-2">
-                                            <span>
-                                                React Ultimate - React.JS Cơ Bản Từ Z Đến A Cho Beginners
-                                            </span>
-                                        </div>
-                                        <div className="product-box-author text-lg font-semibold my-1 xl:text-base">
-                                            <p>Bởi: Huy Hoàng</p>
-                                        </div>
-                                        <div className="product-box-time-lesson text-lg xl:text-sm flex justify-center xl:justify-start gap-4 my-1">
-                                            <div className="product-box-time">
-                                                <p>35 bài học</p>
-                                            </div>
-                                            <div className="product-box-lesson">
-                                                <p>7 giờ kém 10</p>
-                                            </div>
-                                        </div>
-                                        <div className="product-box-price font-semibold text-xl">
-                                            <span>đ1,990,000</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                        </CarouselItem>
+                                    </CarouselContent>
+                                    <CarouselPrevious />
+                                    <CarouselNext />
+                                </Carousel>
                         </div>
                     </div>
                 </div>
