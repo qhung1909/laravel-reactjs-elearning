@@ -27,27 +27,37 @@ console.log(API_KEY);
 export const Courses = () => {
 
     const [courses, setCourses] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1); 
+    const [totalPages, setTotalPages] = useState(1); 
+    const [perPage] = useState(1); 
 
-    const fetchCourses = async () => {
+    const fetchCourses = async (page = 1) => {
         try {
             const response = await axios.get(`${API_URL}/courses`, {
                 headers: {
-                    'x-api-secret': `${API_KEY}`
-                }
-
+                    'x-api-secret': `${API_KEY}`,
+                },
+                params: {
+                    page: page,
+                    per_page: perPage, 
+                },
             });
-            console.log("Response data:", response.data);  // Thêm console.log để kiểm tra dữ liệu
 
-            setCourses(response.data);
+            console.log('Response data:', response.data); 
+
+            setCourses(response.data.data); 
+            setCurrentPage(response.data.current_page); 
+            setTotalPages(response.data.last_page); 
         } catch (error) {
-            console.error("Error fetching API:", error);
+            console.error('Error fetching API:', error);
         }
     };
 
     useEffect(() => {
-        fetchCourses();
-    }, []);
-
+        fetchCourses(currentPage); 
+    }, [currentPage]);
+    
+    
     const render = courses.map((item,index)=> (
         <div key={index} >
             <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow flex group my-5">
@@ -1386,16 +1396,44 @@ export const Courses = () => {
             <Pagination>
                 <PaginationContent>
                     <PaginationItem>
-                    <PaginationPrevious href="#" />
+                        <PaginationPrevious 
+                            href="#" 
+                            onClick={(e) => {
+                                e.preventDefault(); 
+                                goToPage(currentPage - 1);
+                            }} 
+                            disabled={currentPage === 1}
+                        />
                     </PaginationItem>
+
+                    {/* Hiển thị các trang */}
+                    {Array.from({ length: totalPages }).map((_, index) => (
+                        <PaginationItem key={index} active={currentPage === index + 1}>
+                            <PaginationLink 
+                                href="#" 
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    goToPage(index + 1);
+                                }}
+                            >
+                                {index + 1}
+                            </PaginationLink>
+                        </PaginationItem>
+                    ))}
+
                     <PaginationItem>
-                    <PaginationLink href="#">1</PaginationLink>
+                        <PaginationEllipsis />
                     </PaginationItem>
+
                     <PaginationItem>
-                    <PaginationEllipsis />
-                    </PaginationItem>
-                    <PaginationItem>
-                    <PaginationNext href="#" />
+                        <PaginationNext 
+                            href="#" 
+                            onClick={(e) => {
+                                e.preventDefault();
+                                goToPage(currentPage + 1);
+                            }} 
+                            disabled={currentPage === totalPages}
+                        />
                     </PaginationItem>
                 </PaginationContent>
             </Pagination>
