@@ -10,6 +10,26 @@ use App\Models\Course;
 
 class CommentController extends Controller
 {
+    public function index($course_id)
+    {
+        $course = Course::find($course_id);
+
+        if (!$course) {
+            return response()->json(['error' => 'Khóa học không tồn tại.'], 404);
+        }
+
+        $comments = Comment::where('course_id', $course_id)->get();
+
+        if ($comments->isEmpty()) {
+            return response()->json(['message' => 'Không có bình luận nào cho khóa học này.'], 200);
+        }
+
+        return response()->json([
+            'success' => true,
+            'comments' => $comments
+        ], 200);
+    }
+
     public function store(Request $request, $slug)
     {
         if (!Auth::check()) {
