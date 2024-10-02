@@ -9,11 +9,11 @@ function Home() {
                         <div className="grid grid-cols-1 md:grid-cols-2 md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-2xl mx-auto">
                             <div className="grid-left">
                                 <div className="banner-left text-center md:text-left py-24 lg:py-20 lg:ps-10 ">
-                                    <div className="banner-left-heading  max-lg:flex items-center sm:justify-center md:justify-start">
-                                        <p className="flex font-semibold items-center border rounded-full border-yellow-400 xl:w-44 lg:w-40 px-2 py-1 xl:text-base lg:text-sm md:text-xs sm:text-sm">
+                                    <div className="banner-left-heading  max-lg:flex items-center justify-center md:justify-start">
+                                        <p className="flex font-semibold items-center border rounded-full border-yellow-400 xl:w-44 lg:w-40 px-2 py-1 xl:text-base lg:text-sm md:text-xs sm:text-sm text-xs">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
-                                                className="me-2 xl:w-5 xl:h-5 md:w-4 md:h-4 sm:w-3 sm:h-3"
+                                                className="me-2 xl:w-5 xl:h-5 md:w-4 md:h-4 w-3 h-3"
 
                                                 viewBox="0 0 24 24"
                                                 style={{ fill: "rgba(0, 0, 0, 1)" }}
@@ -23,7 +23,7 @@ function Home() {
                                             Làm chủ kỹ năng
                                         </p>
                                     </div>
-                                    <div className="font-title banner-left-title text-4xl xl:text-[70px] lg:text-[50px] md:text-[40px] sm:text-[45px] text-[40px] xl:my-10 my-5 sm:px-10 md:px-0">
+                                    <div className="font-title banner-left-title text-4xl xl:text-[70px] lg:text-[50px] md:text-[40px] sm:text-[45px] text-[35px] xl:my-10 my-5 sm:px-10 px-12 md:px-0">
                                         <p className="leading-tight">
                                             Cách nhanh hơn để
                                             <span className="text-yellow-400 italic"> phát triển</span> và{" "}
@@ -31,7 +31,7 @@ function Home() {
                                              kỹ năng của bạn
                                         </p>
                                     </div>
-                                    <div className="banner-left-content lg:px-0 xl:text-base lg:text-sm md:text-xs sm:text-sm text-[14px] my-5 sm:px-32 md:px-0">
+                                    <div className="banner-left-content lg:px-0 xl:text-base lg:text-sm md:text-xs sm:text-sm text-[12px] my-5 sm:px-32 px-24 md:px-0">
                                         <p>
                                             Cùng tìm hiểu các chiến lược tiên tiến để tối ưu quá trình học,
                                             nâng cao kỹ năng, đạt được thành công nhanh chóng trong sự
@@ -40,7 +40,7 @@ function Home() {
                                     </div>
                                     <div className="banner-left-button">
                                         <a href="">
-                                            <button className="bg-yellow-500 xl:mt-10 xl:px-5 xl:py-3 md:font-bold rounded-full xl:text-xl lg:text-base md:text-sm sm:text-base text-[12px] font-semibold mt-4 p-2 px-4">
+                                            <button className="bg-yellow-500 xl:mt-10 xl:px-5 xl:py-3 md:font-bold rounded-full xl:text-xl lg:text-base md:text-sm sm:text-base text-[14px] font-semibold mt-4 p-2 px-4">
                                                 Khám phá khóa học
                                             </button>
                                         </a>
@@ -48,7 +48,7 @@ function Home() {
                                 </div>
 
                             </div>
-                            <div className=" flex items-center justify-center sm:hidden md:block">
+                            <div className=" flex items-center justify-center hidden md:block">
                                 <img src="./src/assets/images/banner-right.png" alt="" className=""/>
                             </div>
                         </div>
