@@ -26,9 +26,9 @@ console.log(API_KEY);
 
 export const Courses = () => {
     const [courses, setCourses] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1); 
-    const [totalPages, setTotalPages] = useState(1); 
-    const [perPage] = useState(6); 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [perPage] = useState(6);
 
     const fetchCourses = async (page = 1) => {
         try {
@@ -38,24 +38,24 @@ export const Courses = () => {
                 },
                 params: {
                     page: page,
-                    per_page: perPage, 
+                    per_page: perPage,
                 },
             });
 
-            console.log('Response data:', response.data); 
+            console.log('Response data:', response.data);
 
-            setCourses(response.data.data); 
-            setCurrentPage(response.data.current_page); 
-            setTotalPages(response.data.last_page); 
+            setCourses(response.data.data);
+            setCurrentPage(response.data.current_page);
+            setTotalPages(response.data.last_page);
         } catch (error) {
             console.error('Error fetching API:', error);
         }
     };
 
     useEffect(() => {
-        fetchCourses(currentPage); 
+        fetchCourses(currentPage);
     }, [currentPage]);
-    
+
     const handlePageClick = (page) => {
         setCurrentPage(page);
     };
@@ -82,7 +82,7 @@ export const Courses = () => {
             );
         } else {
             const pages = [];
-    
+
             // Thêm trang 1
             pages.push(
                 <PaginationItem key={1}>
@@ -95,7 +95,7 @@ export const Courses = () => {
                     </PaginationLink>
                 </PaginationItem>
             );
-    
+
             // Thêm dấu ba chấm nếu cần
             if (currentPage > 3) {
                 pages.push(
@@ -104,7 +104,7 @@ export const Courses = () => {
                     </PaginationItem>
                 );
             }
-    
+
             // Thêm các trang từ currentPage - 1 đến currentPage + 1
             for (let i = Math.max(2, currentPage - 1); i <= Math.min(currentPage + 1, totalPages - 1); i++) {
                 pages.push(
@@ -119,7 +119,7 @@ export const Courses = () => {
                     </PaginationItem>
                 );
             }
-    
+
             // Thêm dấu ba chấm nếu cần
             if (currentPage < totalPages - 2) {
                 pages.push(
@@ -128,7 +128,7 @@ export const Courses = () => {
                     </PaginationItem>
                 );
             }
-    
+
             // Thêm trang cuối
             if (totalPages > 1) {
                 pages.push(
@@ -143,7 +143,7 @@ export const Courses = () => {
                     </PaginationItem>
                 );
             }
-    
+
             return (
                 <Pagination>
                     <PaginationContent>
@@ -153,7 +153,7 @@ export const Courses = () => {
             );
         }
     };
-    
+
 
 
     const render = courses.map((item,index)=> (
@@ -432,23 +432,23 @@ export const Courses = () => {
                             </div>
                         </div>
                         {/* Hàng 2 */}
-    <div className="grid grid-cols-5 gap-2">
-        <div className="font-bold p-auto border">
-        <a className="text-gray-800 block text-center p-6" href="">Phát triển web</a>
-        </div>
-        <div className="font-bold p-auto border">
-        <a className="text-gray-800 block text-center p-6" href="">JavaScript</a>
-        </div>
-        <div className="font-bold p-auto border">
-        <a className="text-gray-800 block text-center p-6" href="">Unreal Engine</a>
-        </div>
-        <div className="font-bold p-auto border">
-        <a className="text-gray-800 block text-center p-6" href="">Học máy</a>
-        </div>
-        <div className="font-bold p-auto border">
-        <a className="text-gray-800 block text-center p-6" href="">Unity</a>
-        </div>
-    </div>
+                        <div className="grid grid-cols-5 gap-2">
+                            <div className="font-bold p-auto border">
+                            <a className="text-gray-800 block text-center p-6" href="">Phát triển web</a>
+                            </div>
+                            <div className="font-bold p-auto border">
+                            <a className="text-gray-800 block text-center p-6" href="">JavaScript</a>
+                            </div>
+                            <div className="font-bold p-auto border">
+                            <a className="text-gray-800 block text-center p-6" href="">Unreal Engine</a>
+                            </div>
+                            <div className="font-bold p-auto border">
+                            <a className="text-gray-800 block text-center p-6" href="">Học máy</a>
+                            </div>
+                            <div className="font-bold p-auto border">
+                            <a className="text-gray-800 block text-center p-6" href="">Unity</a>
+                            </div>
+                        </div>
                         </CarouselItem>
                         <CarouselItem className="grid grid-rows-2 gap-2 break-words" id="carousel">
                             {/* Hàng 1 */}
