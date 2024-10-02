@@ -33,7 +33,6 @@ Route::post('/vnpay-payment', [CartController::class, 'vnpay_payment']);
 Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
 
 Route::middleware(['admin'])->group(function () {
-    Route::get('/courses/{slug}/comments', [CommentController::class, 'index']);
 
     // Courses
     Route::get('courses', [CourseController::class, 'index'])->name('courses.index');
@@ -45,6 +44,8 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('course/{slug}', [CourseController::class, 'delete'])->name('courses.delete');
     Route::get('courses/featured', [CourseController::class, 'featureCouse']);
 
+
+    Route::get('/comments/{course_id}', [CommentController::class, 'index']);
     Route::post('/courses/{slug}/comments', [CommentController::class, 'store'])->middleware(CheckAuthMessage::class);
     Route::put('/comments/{commentId}', [CommentController::class, 'update'])->middleware(CheckAuthMessage::class);
     Route::delete('/comments/{commentId}', [CommentController::class, 'destroy'])->middleware(CheckAuthMessage::class);
