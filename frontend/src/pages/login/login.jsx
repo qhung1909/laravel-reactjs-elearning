@@ -1,8 +1,19 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Link, useNavigate } from 'react-router-dom';
 import './login.css'
 import { useCallback, useState } from 'react';
-
+import toast, { Toaster } from 'react-hot-toast';
 const API_URL = import.meta.env.VITE_API_URL;
+// const notify = (message) => toast.error(message);
+
+
+const notify = (message, type ) => {
+    if (type === 'success'){
+        toast.success(message);
+    } else {
+        toast.error(message)
+    }
+}
 
 export const Login = () => {
     const [email, setEmail] = useState("");
@@ -26,6 +37,7 @@ export const Login = () => {
         const token = localStorage.getItem('access_token');
         if (!token) {
             console.log('No token found');
+            return;
         }
         setLoading(true);
         try {
@@ -39,9 +51,9 @@ export const Login = () => {
 
             if (!res.ok) {
                 console.log('Failed to fetch data');
+            } else {
+                const _dataUser = await res.json();
             }
-            const dataUser = await res.json();
-            localStorage.setItem('user', JSON.stringify(dataUser))
         } catch (error) {
             console.log('Error fetching data user', error);
 
@@ -51,7 +63,7 @@ export const Login = () => {
     }
 
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     const debouncedLogin = useCallback(debounce(async () => {
         if (!email || !password) {
             setError('Vui lòng nhập đầy đủ thông tin');
@@ -72,14 +84,22 @@ export const Login = () => {
                 body: JSON.stringify({ email, password })
             });
 
+            if(res.status === 401){
+                setError('Tài khoản hoặc mật khẩu chưa chính xác!');
+                return;
+            }
+
             if (!res.ok) {
                 const errorData = await res.json();
-                setError(errorData.message || 'Đăng nhập thất bại');
+                console.log(errorData);
+                // setError(errorData.error);
+                notify('Vui lòng xác thực email!');
                 return;
             }
 
             const data = await res.json();
             localStorage.setItem('access_token', data.access_token);
+            notify('Đăng nhập thành công', 'success');
             setSuccess('Đăng nhập thành công');
             await getUserInfo();
             navigate('/');
@@ -89,11 +109,10 @@ export const Login = () => {
         } finally {
             setLoading(false);
         }
-    }, 300), [email, password]);
+    }, 300), [email, password, navigate, getUserInfo    ]);
 
     const submit = (e) => {
         e.preventDefault();
-        setLoading(true);
         debouncedLogin();
     };
 
@@ -188,8 +207,10 @@ export const Login = () => {
                             </h3>
                         </div>
                     </form>
+
                 </div>
             </div>
+            <Toaster />
         </>
     )
 }
