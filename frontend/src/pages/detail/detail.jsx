@@ -191,6 +191,59 @@ export const Detail = () => {
     // Lấy thông tin người dùng từ localStorage
     const currentUser = JSON.parse(localStorage.getItem("user"));
     const currentUserId = currentUser?.user_id; // Truy cập user_id hoặc để trống nếu không có user
+    const [editingCommentId, setEditingCommentId] = useState(null);
+    const [editingRating, setEditingRating] = useState(0);
+    const [editingContent, setEditingContent] = useState("");
+    // Hàm kích hoạt chế độ chỉnh sửa
+    const editComment = (comment) => {
+        setEditingCommentId(comment.comment_id); // Lưu ID của bình luận đang chỉnh sửa
+        setEditingRating(comment.rating); // Lưu giá trị rating hiện tại
+        setEditingContent(comment.content); // Lưu nội dung bình luận hiện tại
+    };
+    // Hàm hủy chỉnh sửa
+    const cancelEdit = () => {
+        setEditingCommentId(null); // Thoát chế độ chỉnh sửa
+        setEditingRating(0); // Reset rating
+        setEditingContent(""); // Reset content
+    };
+    const updateComment = async (commentId) => {
+        try {
+            const parsedRating = parseInt(editingRating, 10);
+            if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+                console.error("Rating phải là một số nguyên từ 1 đến 5.");
+                return;
+            }
+
+            const token = localStorage.getItem("access_token");
+
+            // Gửi request cập nhật bình luận
+            await axios.put(
+                `${API_URL}/comments/${commentId}`,
+                {
+                    rating: parsedRating,
+                    content: editingContent,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "x-api-secret": `${API_KEY}`,
+                    },
+                }
+            );
+            setEditingCommentId(null);
+            setEditingRating(0);
+            setEditingContent("");
+            toast.success("Sửa thành công bình luận!");
+            fetchDetail();
+        } catch (error) {
+            console.error(
+                "Error updating comment:",
+                error.response?.data || error.message
+            );
+            toast.error(error.response.data.error);
+        }
+    };
+
     const renderComments = (
         <div className="space-y-3">
             {comments.length > 0 ? (
@@ -207,20 +260,17 @@ export const Detail = () => {
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center">
                                     <span className="font-semibold">
-                                        id: {comment.user_id}{" "}
-                                        {/* Hiển thị tên người dùng */}
+                                        user_id: {comment.user_id}
                                     </span>
                                     <span className="text-gray-500 text-sm ml-2">
-                                        {formatDate(comment.created_at)}
+                                        {formatDate(comment.updated_at)}
                                     </span>
                                 </div>
-                                {/* Hiển thị nút sửa và xóa nếu là bình luận của người dùng hiện tại */}
+
                                 {currentUserId === comment.user_id && (
                                     <div className="flex space-x-2">
                                         <button
-                                            onClick={() =>
-                                                editComment(comment.comment_id)
-                                            }
+                                            onClick={() => editComment(comment)}
                                             className="text-blue-500"
                                         >
                                             <Edit className="w-4 h-4" />
@@ -238,21 +288,74 @@ export const Detail = () => {
                                     </div>
                                 )}
                             </div>
-                            <div className="text-yellow-500 flex">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        fill="currentColor"
-                                        className={`w-3 h-3 ${
-                                            i < parseFloat(comment.rating)
-                                                ? "text-yellow-500"
-                                                : "text-gray-300"
-                                        }`} // Hiển thị sao dựa trên rating
+
+                            {/* Hiển thị form chỉnh sửa nếu đang trong chế độ chỉnh sửa */}
+                            {editingCommentId === comment.comment_id ? (
+                                <div>
+                                    <div className="flex items-center space-x-1 mt-2">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star
+                                                key={i}
+                                                className={`w-6 h-6 cursor-pointer ${
+                                                    i < editingRating
+                                                        ? "text-yellow-500"
+                                                        : "text-gray-300"
+                                                }`}
+                                                fill="currentColor"
+                                                onClick={() =>
+                                                    setEditingRating(i + 1)
+                                                }
+                                            />
+                                        ))}
+                                    </div>
+
+                                    <textarea
+                                        value={editingContent}
+                                        onChange={(e) =>
+                                            setEditingContent(e.target.value)
+                                        }
+                                        className="w-full border rounded p-2 mt-1"
                                     />
-                                ))}
-                            </div>
-                            <p className="mt-1 text-sm">{comment.content}</p>
-                            
+                                    <div className="mt-2">
+                                        <button
+                                            onClick={() =>
+                                                updateComment(
+                                                    comment.comment_id
+                                                )
+                                            }
+                                            className="bg-blue-500 text-white px-3 py-1 rounded"
+                                        >
+                                            Lưu
+                                        </button>
+                                        <button
+                                            onClick={cancelEdit}
+                                            className="bg-gray-500 text-white px-3 py-1 rounded ml-2"
+                                        >
+                                            Hủy
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <div className="text-yellow-500 flex">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star
+                                                key={i}
+                                                fill="currentColor"
+                                                className={`w-3 h-3 ${
+                                                    i <
+                                                    parseFloat(comment.rating)
+                                                        ? "text-yellow-500"
+                                                        : "text-gray-300"
+                                                }`}
+                                            />
+                                        ))}
+                                    </div>
+                                    <p className="mt-1 text-sm">
+                                        {comment.content}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))
@@ -310,7 +413,7 @@ export const Detail = () => {
                 error.response.data &&
                 error.response.data.error
             ) {
-                setErrorMessage(error.response.data.error); // Hiển thị thông báo từ backend
+                toast.error(error.response.data.error); // Hiển thị thông báo từ backend
             } else {
                 setErrorMessage("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
             }
@@ -349,12 +452,6 @@ export const Detail = () => {
                 error.response?.data || error.message
             );
         }
-    };
-
-    // Hàm chỉnh sửa bình luận (hiển thị form hoặc chuyển sang trạng thái chỉnh sửa)
-    const editComment = (commentId) => {
-        // Logic xử lý chỉnh sửa (chuyển sang form chỉnh sửa)
-        console.log("Edit comment:", commentId);
     };
 
     return (
@@ -548,7 +645,6 @@ export const Detail = () => {
                                 <div className="border-b">
                                     <Accordion
                                         type="multiple"
-                                        collapsible
                                         className="w-full"
                                         defaultValue="item-1"
                                     >
