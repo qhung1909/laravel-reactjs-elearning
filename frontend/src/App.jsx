@@ -19,22 +19,7 @@ import { PageNotFound } from "./pages/pageNotFound/pageNotFound.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === '/admin';
-    const notFoundRoutes = [
-        '/blogdetail',
-        '/blog',
-        '/contact',
-        '/admin',
-        '/',
-        '/login',
-        '/register',
-        '/courses',
-        '/lession',
-        '/detail',
-        '/detail/:slug',
-        '/tests',
-        '/tests-payment'
-    ];
-    const isPageNotFound = !notFoundRoutes.includes(location.pathname);
+    const isPageNotFound = !['/blogdetail', '/blog', '/contact', '/admin', '/', '/login', '/register', '/courses', '/lession', '/tests', '/tests-payment'].includes(location.pathname) && !location.pathname.startsWith('/detail/');
 
     return (
         <>
