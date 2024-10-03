@@ -17,8 +17,8 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Toaster, toast } from 'react-hot-toast';
-import Swal from 'sweetalert2';
+import { Toaster, toast } from "react-hot-toast";
+import Swal from "sweetalert2";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -42,7 +42,8 @@ export const Detail = () => {
         const date = new Date(dateString);
         // Kiểm tra nếu date không hợp lệ
         if (isNaN(date)) return "Ngày không hợp lệ";
-        return format(date, "dd/MM/yyyy"); // Thay đổi định dạng theo ý muốn
+
+        return format(date, "dd/MM/yyyy - HH:mm a");
     };
 
     // Rating & comment
@@ -251,10 +252,7 @@ export const Detail = () => {
                                 ))}
                             </div>
                             <p className="mt-1 text-sm">{comment.content}</p>
-                            <button className="text-blue-500 mt-1 text-sm">
-                                Trả lời {/* Nút trả lời */}
-                            </button>
-
+                            
                         </div>
                     </div>
                 ))
@@ -321,14 +319,14 @@ export const Detail = () => {
 
     const deleteComment = async (commentId) => {
         const { isConfirmed } = await Swal.fire({
-            title: 'Xác nhận xóa',
+            title: "Xác nhận xóa",
             text: "Bạn có chắc chắn muốn xóa bình luận này? Hành động này không thể hoàn tác.",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Có, xóa!',
-            cancelButtonText: 'Hủy',
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Có, xóa!",
+            cancelButtonText: "Hủy",
         });
 
         if (!isConfirmed) {
@@ -549,9 +547,10 @@ export const Detail = () => {
                             <div className="bg-white rounded-lg overflow-hidden">
                                 <div className="border-b">
                                     <Accordion
-                                        type="single"
+                                        type="multiple"
                                         collapsible
                                         className="w-full"
+                                        defaultValue="item-1"
                                     >
                                         <AccordionItem value="item-1">
                                             <AccordionTrigger>
