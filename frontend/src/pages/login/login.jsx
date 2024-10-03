@@ -36,7 +36,7 @@ export const Login = () => {
     const getUserInfo = async () => {
         const token = localStorage.getItem('access_token');
         if (!token) {
-            console.log('No token found');
+                console.error('No token found');
             return;
         }
         setLoading(true);
@@ -50,12 +50,12 @@ export const Login = () => {
             })
 
             if (!res.ok) {
-                console.log('Failed to fetch data');
+                console.error('Failed to fetch data');
             } else {
                 const _dataUser = await res.json();
             }
         } catch (error) {
-            console.log('Error fetching data user', error);
+            console.error('Error fetching data user', error);
 
         } finally {
             setLoading(false);
