@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/accordion"
 
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './courses.css'
 import { useState, useEffect } from 'react';
 // import React from 'react';
@@ -33,193 +33,158 @@ console.log(API_KEY);
 
 export const Courses = () => {
     const [courses, setCourses] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [perPage] = useState(6);
+    const [coursesPerPage] = useState(5);
 
-    const fetchCourses = async (page = 1) => {
-        try {
-            const response = await axios.get(`${API_URL}/courses`, {
-                headers: {
-                    'x-api-secret': `${API_KEY}`,
-                },
-                params: {
-                    page: page,
-                    per_page: perPage,
-                },
-            });
+    const location = useLocation();
+    const navigate = useNavigate();
 
-            console.log('Response data:', response.data);
-
-            setCourses(response.data.data);
-            setCurrentPage(response.data.current_page);
-            setTotalPages(response.data.last_page);
-        } catch (error) {
-            console.error('Error fetching API:', error);
-        }
-    };
+    const queryParams = new URLSearchParams(location.search);
+    const currentPage = parseInt(queryParams.get("page")) || 1;
 
     useEffect(() => {
-        fetchCourses(currentPage);
-    }, [currentPage]);
+        const fetchCourses = async () => {
+            try {
+                const response = await axios.get(`${API_URL}/courses`, {
+                    headers: {
+                        'x-api-secret': `${API_KEY}`,
+                    },
+                });
+                setCourses(response.data);
+            } catch (error) {
+                console.error("Có lỗi xảy ra khi fetch dữ liệu: ", error);
+            }
+        };
 
-    const handlePageClick = (page) => {
-        setCurrentPage(page);
+        fetchCourses();
+    }, []);
+
+    const indexOfLastCourse = currentPage * coursesPerPage;
+    const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
+    const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
+
+
+    const paginate = (pageNumber) => {
+        navigate(`?page=${pageNumber}`);
     };
 
-    const renderPagination = () => {
-        if (totalPages <= 3) {
-            // Nếu số trang nhỏ hơn hoặc bằng 3, hiển thị tất cả các trang
-            return (
-                <Pagination>
-                    <PaginationContent>
-                        {[...Array(totalPages)].map((_, index) => (
-                            <PaginationItem key={index + 1}>
-                                <PaginationLink
-                                    href="#"
-                                    onClick={() => handlePageClick(index + 1)}
-                                    isActive={currentPage === index + 1}
-                                >
-                                    {index + 1}
-                                </PaginationLink>
-                            </PaginationItem>
-                        ))}
-                    </PaginationContent>
-                </Pagination>
-            );
-        } else {
-            const pages = [];
+    const totalPages = Math.ceil(courses.length / coursesPerPage);
 
-            // Thêm trang 1
-            pages.push(
-                <PaginationItem key={1}>
-                    <PaginationLink
-                        href="#"
-                        onClick={() => handlePageClick(1)}
-                        isActive={currentPage === 1}
-                    >
-                        1
-                    </PaginationLink>
-                </PaginationItem>
-            );
+    const renderPageNumbers = () => {
+        const pageNumbers = [];
+        const maxVisiblePages = 3;
 
-            // Thêm dấu ba chấm nếu cần
-            if (currentPage > 3) {
-                pages.push(
-                    <PaginationItem key="ellipsis-start">
-                        <PaginationEllipsis />
+        if (totalPages <= maxVisiblePages + 2) {
+            for (let i = 1; i <= totalPages; i++) {
+                pageNumbers.push(
+                    <PaginationItem key={i} className={i === currentPage ? 'active' : ''}>
+                        <PaginationLink onClick={() => paginate(i)} href="#">
+                            {i}
+                        </PaginationLink>
                     </PaginationItem>
                 );
             }
+        } else {
+            if (currentPage > 1) {
+                pageNumbers.push(
+                    <PaginationItem key={1} className={currentPage === 1 ? 'active' : ''}>
+                        <PaginationLink onClick={() => paginate(1)} href="#">
+                            1
+                        </PaginationLink>
+                    </PaginationItem>
+                );
+                if (currentPage > 3) {
+                    pageNumbers.push(<PaginationItem key="left-dots"><PaginationEllipsis /></PaginationItem>);
+                }
+            }
 
-            // Thêm các trang từ currentPage - 1 đến currentPage + 1
-            for (let i = Math.max(2, currentPage - 1); i <= Math.min(currentPage + 1, totalPages - 1); i++) {
-                pages.push(
-                    <PaginationItem key={i}>
-                        <PaginationLink
-                            href="#"
-                            onClick={() => handlePageClick(i)}
-                            isActive={currentPage === i}
-                        >
+            const startPage = Math.max(2, currentPage - 1);
+            const endPage = Math.min(currentPage + 1, totalPages - 1);
+
+            for (let i = startPage; i <= endPage; i++) {
+                pageNumbers.push(
+                    <PaginationItem key={i} className={i === currentPage ? 'active' : ''}>
+                        <PaginationLink onClick={() => paginate(i)} href="#">
                             {i}
                         </PaginationLink>
                     </PaginationItem>
                 );
             }
 
-            // Thêm dấu ba chấm nếu cần
             if (currentPage < totalPages - 2) {
-                pages.push(
-                    <PaginationItem key="ellipsis-end">
-                        <PaginationEllipsis />
-                    </PaginationItem>
-                );
+                pageNumbers.push(<PaginationItem key="right-dots"><PaginationEllipsis /></PaginationItem>);
             }
 
-            // Thêm trang cuối
-            if (totalPages > 1) {
-                pages.push(
-                    <PaginationItem key={totalPages}>
-                        <PaginationLink
-                            href="#"
-                            onClick={() => handlePageClick(totalPages)}
-                            isActive={currentPage === totalPages}
-                        >
-                            {totalPages}
-                        </PaginationLink>
-                    </PaginationItem>
-                );
-            }
-
-            return (
-                <Pagination>
-                    <PaginationContent>
-                        {pages}
-                    </PaginationContent>
-                </Pagination>
+            pageNumbers.push(
+                <PaginationItem key={totalPages} className={currentPage === totalPages ? 'active' : ''}>
+                    <PaginationLink onClick={() => paginate(totalPages)} href="#">
+                        {totalPages}
+                    </PaginationLink>
+                </PaginationItem>
             );
         }
+
+        return pageNumbers;
     };
 
     // Khóa học nổi bật
     const render_course_hot = courses
-    .filter(item => item.is_buy) // Lọc chỉ những sản phẩm nổi bật
-    .map((item, index) => (
-        <div key={index}>
-            <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow-md flex group my-5">
-                <img alt="Best-selling course"
-                     className="w-30 h-20 md:w-50 md:h-40 object-cover mr-10"
-                     src={`${item.img}`} />
-                <div className="bg-pink-300 p-6 border mx-8 flex flex-col lg:flex-row items-start">
-                    <div className="flex-1">
-                        <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                            {item.title}
-                        </h3>
-                        <p className="text-gray-700 mb-2">
-                            {item.description}
-                        </p>
-                        <p className="text-gray-500 text-xs mb-1">
-                            Bởi Shin Nguyen
-                        </p>
-                        <p className="font-thin text-xs text-green-600 mb-4">
-                            Đã cập nhật{" "}
-                            <span className="text-green-800 font-bold">
-                                tháng 8 năm 2024
-                            </span>
-                            <span className="text-gray-500 text-xs font-normal">
-                                Tổng số 126 giờ | 342 bài giảng | Tất cả trình độ
-                            </span>
-                        </p>
-                        <p className="text-lg text-gray-800 font-semibold mb-2">
-                            4,8
-                            <span className="text-yellow-500">
-                                <i className="bx bxs-star" />
-                                <i className="bx bxs-star" />
-                                <i className="bx bxs-star" />
-                                <i className="bx bxs-star" />
-                                <i className="bx bxs-star-half" />
-                            </span>
-                            <span className="text-xs text-gray-600">
-                                (43)
-                            </span>
-                            <span className="bg-yellow-200 text-gray-700 text-sm px-2 py-1 ml-2">
-                                Bán chạy nhất
-                            </span>
-                        </p>
-                        <p className="pt-10 text-lg font-bold text-black">
-                            {item.price}
-                        </p>
+        .filter(item => item.is_buy) // Lọc chỉ những sản phẩm nổi bật
+        .map((item, index) => (
+            <div key={index}>
+                <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow-md flex group my-5">
+                    <img alt="Best-selling course"
+                        className="w-30 h-20 md:w-50 md:h-40 object-cover mr-10"
+                        src={`${item.img}`} />
+                    <div className="bg-pink-300 p-6 border mx-8 flex flex-col lg:flex-row items-start">
+                        <div className="flex-1">
+                            <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                                {item.title}
+                            </h3>
+                            <p className="text-gray-700 mb-2">
+                                {item.description}
+                            </p>
+                            <p className="text-gray-500 text-xs mb-1">
+                                Bởi Shin Nguyen
+                            </p>
+                            <p className="font-thin text-xs text-green-600 mb-4">
+                                Đã cập nhật{" "}
+                                <span className="text-green-800 font-bold">
+                                    tháng 8 năm 2024
+                                </span>
+                                <span className="text-gray-500 text-xs font-normal">
+                                    Tổng số 126 giờ | 342 bài giảng | Tất cả trình độ
+                                </span>
+                            </p>
+                            <p className="text-lg text-gray-800 font-semibold mb-2">
+                                4,8
+                                <span className="text-yellow-500">
+                                    <i className="bx bxs-star" />
+                                    <i className="bx bxs-star" />
+                                    <i className="bx bxs-star" />
+                                    <i className="bx bxs-star" />
+                                    <i className="bx bxs-star-half" />
+                                </span>
+                                <span className="text-xs text-gray-600">
+                                    (43)
+                                </span>
+                                <span className="bg-yellow-200 text-gray-700 text-sm px-2 py-1 ml-2">
+                                    Bán chạy nhất
+                                </span>
+                            </p>
+                            <p className="pt-10 text-lg font-bold text-black">
+                                {item.price}
+                            </p>
+                        </div>
                     </div>
-                </div>
-            </Link>
-        </div>
-    ));
+                </Link>
+            </div>
+        ));
 
     // Danh sách khóa học
-    const render = courses.map((item,index)=> (
+    const render = currentCourses.map((item, index) => (
         <div key={index} >
             <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow flex group my-5">
-                <img alt="React Ultimate" className="w-30 h-20 md:w-50 md:h-40 object-cover mr-4" src={`${item.img}`}/>
+                <img alt="React Ultimate" className="w-30 h-20 md:w-50 md:h-40 object-cover mr-4" src={`${item.img}`} />
                 <div className="flex-1">
                     <h3 className="text-md md:text-lg font-semibold text-gray-800">
                         <a className=" hover:underline" href="#">
@@ -256,10 +221,10 @@ export const Courses = () => {
                             Những kiến thức bạn sẽ học
                         </h3>
                         <p>
-                            <i className="bx bx-check"/> Biết cách lập trình cơ bản
+                            <i className="bx bx-check" /> Biết cách lập trình cơ bản
                         </p>
                         <p>
-                            <i className="bx bx-check"/> Có khái niệm về lập trình C++
+                            <i className="bx bx-check" /> Có khái niệm về lập trình C++
                         </p>
                         <p>
                             <i className="bx bx-check" /> Biết cách sử dụng thư viện C++ để chuẩn bị cho khoá học hướng đối tượng
@@ -356,7 +321,7 @@ export const Courses = () => {
                         <li>
                             <div className="flex items-center">
                                 <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                                 </svg>
                                 <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
                                     Khoa học dữ liệu
@@ -366,7 +331,7 @@ export const Courses = () => {
                         <li>
                             <div className="flex items-center">
                                 <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                                 </svg>
                                 <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
                                     Ngôn ngữ lập trình
@@ -376,7 +341,7 @@ export const Courses = () => {
                         <li>
                             <div className="flex items-center">
                                 <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                                 </svg>
                                 <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
                                     Phát triển trò chơi
@@ -386,7 +351,7 @@ export const Courses = () => {
                         <li>
                             <div className="flex items-center">
                                 <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                                 </svg>
                                 <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
                                     Thiết kế & Phát triển cơ sở dữ liệu
@@ -396,7 +361,7 @@ export const Courses = () => {
                         <li aria-current="page">
                             <div className="flex items-center">
                                 <svg aria-hidden="true" className="rtl:rotate-180 w-3 h-3 mx-1 text-gray-400" fill="none" viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                                 </svg>
                                 <span className="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">
                                     Kiểm tra phần mềm
@@ -482,78 +447,78 @@ export const Courses = () => {
                 <Carousel>
                     <CarouselContent>
                         <CarouselItem className="grid grid-rows-2 gap-2 break-words " id="carousel">
-                        {/* Hàng 1 */}
-                        <div className="grid grid-cols-5 gap-2">
-                            <div className="font-bold p-auto border">
-                            <a className="text-gray-800 block text-center p-6" href="">Python</a>
-                            </div>
-                            <div className="font-bold p-auto border">
-                            <a className="text-gray-800 block text-center p-6" href="">Khoa học dữ liệu</a>
-                            </div>
-                            <div className="font-bold p-auto border">
-                            <a className="text-gray-800 block text-center p-6" href="">React JS</a>
-                            </div>
-                            <div className="font-bold p-auto border">
-                            <a className="text-gray-800 block text-center p-6" href="">Java</a>
-                            </div>
-                            <div className="font-bold p-auto border">
-                            <a className="text-gray-800 block text-center p-6" href="">C# (ngôn ngữ lập trình)</a>
-                            </div>
-                        </div>
-                        {/* Hàng 2 */}
-                        <div className="grid grid-cols-5 gap-2">
-                            <div className="font-bold p-auto border">
-                            <a className="text-gray-800 block text-center p-6" href="">Phát triển web</a>
-                            </div>
-                            <div className="font-bold p-auto border">
-                            <a className="text-gray-800 block text-center p-6" href="">JavaScript</a>
-                            </div>
-                            <div className="font-bold p-auto border">
-                            <a className="text-gray-800 block text-center p-6" href="">Unreal Engine</a>
-                            </div>
-                            <div className="font-bold p-auto border">
-                            <a className="text-gray-800 block text-center p-6" href="">Học máy</a>
-                            </div>
-                            <div className="font-bold p-auto border">
-                            <a className="text-gray-800 block text-center p-6" href="">Unity</a>
-                            </div>
-                        </div>
-                        </CarouselItem>
-                        <CarouselItem className="grid grid-rows-2 gap-2 break-words" id="carousel">
                             {/* Hàng 1 */}
                             <div className="grid grid-cols-5 gap-2">
                                 <div className="font-bold p-auto border">
-                                <a className="text-gray-800 block text-center p-6" href="">Python2</a>
+                                    <a className="text-gray-800 block text-center p-6" href="">Python</a>
                                 </div>
                                 <div className="font-bold p-auto border">
-                                <a className="text-gray-800 block text-center p-6" href="">Khoa học dữ liệu2</a>
+                                    <a className="text-gray-800 block text-center p-6" href="">Khoa học dữ liệu</a>
                                 </div>
                                 <div className="font-bold p-auto border">
-                                <a className="text-gray-800 block text-center p-6" href="">React JS2</a>
+                                    <a className="text-gray-800 block text-center p-6" href="">React JS</a>
                                 </div>
                                 <div className="font-bold p-auto border">
-                                <a className="text-gray-800 block text-center p-6" href="">Java2</a>
+                                    <a className="text-gray-800 block text-center p-6" href="">Java</a>
                                 </div>
                                 <div className="font-bold p-auto border">
-                                <a className="text-gray-800 block text-center p-6" href="">C# (ngôn ngữ lập trình)2</a>
+                                    <a className="text-gray-800 block text-center p-6" href="">C# (ngôn ngữ lập trình)</a>
                                 </div>
                             </div>
                             {/* Hàng 2 */}
                             <div className="grid grid-cols-5 gap-2">
                                 <div className="font-bold p-auto border">
-                                <a className="text-gray-800 block text-center p-6" href="">Phát triển web2</a>
+                                    <a className="text-gray-800 block text-center p-6" href="">Phát triển web</a>
                                 </div>
                                 <div className="font-bold p-auto border">
-                                <a className="text-gray-800 block text-center p-6" href="">JavaScript2</a>
+                                    <a className="text-gray-800 block text-center p-6" href="">JavaScript</a>
                                 </div>
                                 <div className="font-bold p-auto border">
-                                <a className="text-gray-800 block text-center p-6" href="">Unreal Engine2</a>
+                                    <a className="text-gray-800 block text-center p-6" href="">Unreal Engine</a>
                                 </div>
                                 <div className="font-bold p-auto border">
-                                <a className="text-gray-800 block text-center p-6" href="">Học máy2</a>
+                                    <a className="text-gray-800 block text-center p-6" href="">Học máy</a>
                                 </div>
                                 <div className="font-bold p-auto border">
-                                <a className="text-gray-800 block text-center p-6" href="">Unity2</a>
+                                    <a className="text-gray-800 block text-center p-6" href="">Unity</a>
+                                </div>
+                            </div>
+                        </CarouselItem>
+                        <CarouselItem className="grid grid-rows-2 gap-2 break-words" id="carousel">
+                            {/* Hàng 1 */}
+                            <div className="grid grid-cols-5 gap-2">
+                                <div className="font-bold p-auto border">
+                                    <a className="text-gray-800 block text-center p-6" href="">Python2</a>
+                                </div>
+                                <div className="font-bold p-auto border">
+                                    <a className="text-gray-800 block text-center p-6" href="">Khoa học dữ liệu2</a>
+                                </div>
+                                <div className="font-bold p-auto border">
+                                    <a className="text-gray-800 block text-center p-6" href="">React JS2</a>
+                                </div>
+                                <div className="font-bold p-auto border">
+                                    <a className="text-gray-800 block text-center p-6" href="">Java2</a>
+                                </div>
+                                <div className="font-bold p-auto border">
+                                    <a className="text-gray-800 block text-center p-6" href="">C# (ngôn ngữ lập trình)2</a>
+                                </div>
+                            </div>
+                            {/* Hàng 2 */}
+                            <div className="grid grid-cols-5 gap-2">
+                                <div className="font-bold p-auto border">
+                                    <a className="text-gray-800 block text-center p-6" href="">Phát triển web2</a>
+                                </div>
+                                <div className="font-bold p-auto border">
+                                    <a className="text-gray-800 block text-center p-6" href="">JavaScript2</a>
+                                </div>
+                                <div className="font-bold p-auto border">
+                                    <a className="text-gray-800 block text-center p-6" href="">Unreal Engine2</a>
+                                </div>
+                                <div className="font-bold p-auto border">
+                                    <a className="text-gray-800 block text-center p-6" href="">Học máy2</a>
+                                </div>
+                                <div className="font-bold p-auto border">
+                                    <a className="text-gray-800 block text-center p-6" href="">Unity2</a>
                                 </div>
                             </div>
                         </CarouselItem>
@@ -573,200 +538,200 @@ export const Courses = () => {
                 <Carousel>
                     <CarouselContent>
                         <CarouselItem className="pl-4">
-                        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 carousel-slide flex gap-4 overflow-x-auto"
-                            id="carouselSlide1">
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon ACBD
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
+                            <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 carousel-slide flex gap-4 overflow-x-auto"
+                                id="carouselSlide1">
+                                <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
+                                    <img
+                                        alt="Example"
+                                        className="w-16 h-16 object-cover rounded-full mr-4"
+                                        src="../images/5712300_b951_5.jpg" />
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-gray-800">
+                                            Brandon ACBD
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            Unreal Engine Blueprints
+                                        </p>
+                                        <p className="text-yellow-500 text-sm">
+                                            <strong>4,8</strong> ★★★★☆ (297)
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>982</strong> học viên
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>6</strong> khóa học
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
+                                    <img
+                                        alt="Example"
+                                        className="w-16 h-16 object-cover rounded-full mr-4"
+                                        src="../images/5712300_b951_5.jpg" />
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-gray-800">
+                                            Brandon ACBD
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            Unreal Engine Blueprints
+                                        </p>
+                                        <p className="text-yellow-500 text-sm">
+                                            <strong>4,8</strong> ★★★★☆ (297)
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>982</strong> học viên
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>6</strong> khóa học
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
+                                    <img
+                                        alt="Example"
+                                        className="w-16 h-16 object-cover rounded-full mr-4"
+                                        src="../images/5712300_b951_5.jpg" />
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-gray-800">
+                                            Brandon ACBD
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            Unreal Engine Blueprints
+                                        </p>
+                                        <p className="text-yellow-500 text-sm">
+                                            <strong>4,8</strong> ★★★★☆ (297)
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>982</strong> học viên
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>6</strong> khóa học
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
+                                    <img
+                                        alt="Example"
+                                        className="w-16 h-16 object-cover rounded-full mr-4"
+                                        src="../images/5712300_b951_5.jpg" />
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-gray-800">
+                                            Brandon ACBD
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            Unreal Engine Blueprints
+                                        </p>
+                                        <p className="text-yellow-500 text-sm">
+                                            <strong>4,8</strong> ★★★★☆ (297)
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>982</strong> học viên
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>6</strong> khóa học
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon ACBD
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon ACBD
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon ACBD
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
                         </CarouselItem>
                         <CarouselItem className="pl-4">
-                        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 carousel-slide flex gap-4 overflow-x-auto"
-                            id="carouselSlide1">
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon ACBD
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
+                            <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2 carousel-slide flex gap-4 overflow-x-auto"
+                                id="carouselSlide1">
+                                <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
+                                    <img
+                                        alt="Example"
+                                        className="w-16 h-16 object-cover rounded-full mr-4"
+                                        src="../images/5712300_b951_5.jpg" />
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-gray-800">
+                                            Brandon ACBD
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            Unreal Engine Blueprints
+                                        </p>
+                                        <p className="text-yellow-500 text-sm">
+                                            <strong>4,8</strong> ★★★★☆ (297)
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>982</strong> học viên
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>6</strong> khóa học
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
+                                    <img
+                                        alt="Example"
+                                        className="w-16 h-16 object-cover rounded-full mr-4"
+                                        src="../images/5712300_b951_5.jpg" />
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-gray-800">
+                                            Brandon ACBD
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            Unreal Engine Blueprints
+                                        </p>
+                                        <p className="text-yellow-500 text-sm">
+                                            <strong>4,8</strong> ★★★★☆ (297)
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>982</strong> học viên
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>6</strong> khóa học
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
+                                    <img
+                                        alt="Example"
+                                        className="w-16 h-16 object-cover rounded-full mr-4"
+                                        src="../images/5712300_b951_5.jpg" />
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-gray-800">
+                                            Brandon ACBD
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            Unreal Engine Blueprints
+                                        </p>
+                                        <p className="text-yellow-500 text-sm">
+                                            <strong>4,8</strong> ★★★★☆ (297)
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>982</strong> học viên
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>6</strong> khóa học
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
+                                    <img
+                                        alt="Example"
+                                        className="w-16 h-16 object-cover rounded-full mr-4"
+                                        src="../images/5712300_b951_5.jpg" />
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-gray-800">
+                                            Brandon ACBD
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            Unreal Engine Blueprints
+                                        </p>
+                                        <p className="text-yellow-500 text-sm">
+                                            <strong>4,8</strong> ★★★★☆ (297)
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>982</strong> học viên
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>6</strong> khóa học
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon ACBD
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon ACBD
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="bg-white border border-gray-400 p-5 pl-8 pr-2 flex items-start w-full">
-                                <img
-                                    alt="Example"
-                                    className="w-16 h-16 object-cover rounded-full mr-4"
-                                    src="../images/5712300_b951_5.jpg"/>
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-800">
-                                        Brandon ACBD
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        Unreal Engine Blueprints
-                                    </p>
-                                    <p className="text-yellow-500 text-sm">
-                                        <strong>4,8</strong> ★★★★☆ (297)
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>982</strong> học viên
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>6</strong> khóa học
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
                         </CarouselItem>
-                </CarouselContent>
+                    </CarouselContent>
                     <CarouselPrevious />
                     <CarouselNext />
                 </Carousel>
@@ -806,83 +771,83 @@ export const Courses = () => {
                     <hr />
                     <div className="grid grid-cols-12 gap-10 pt-3 ">
                         {/* Bộ lọc */}
-                        <div className="col-span-3 transition-all ease-in-out duration-500 "  id="filterContent">
+                        <div className="col-span-3 transition-all ease-in-out duration-500 " id="filterContent">
                             <Accordion type="single" collapsible>
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger>Xếp hạng</AccordionTrigger>
                                     <AccordionContent>
-                                    <input className="mr-2" name="rating" type="radio"/>
-                                    <span className="text-yellow-500 ">
-                                        <i className="bx bxs-star " />
-                                        <i className="bx bxs-star" />
-                                        <i className="bx bxs-star" />
-                                        <i className="bx bxs-star" />
-                                        <i className="bx bxs-star-half" />
-                                    </span>
-                                    <span className="text-sm text-gray-800">
-                                        {" "}
-                                        Từ 4.5 trở lên
-                                        <span className="text-gray-600">
-                                            (10.000)
+                                        <input className="mr-2" name="rating" type="radio" />
+                                        <span className="text-yellow-500 ">
+                                            <i className="bx bxs-star " />
+                                            <i className="bx bxs-star" />
+                                            <i className="bx bxs-star" />
+                                            <i className="bx bxs-star" />
+                                            <i className="bx bxs-star-half" />
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="rating"
-                                        type="radio"/>
-                                    <span className="text-yellow-500 ">
-                                        <i className="bx bxs-star " />
-                                        <i className="bx bxs-star" />
-                                        <i className="bx bxs-star" />
-                                        <i className="bx bxs-star" />
-                                        <i className="bx bx-star" />
-                                    </span>
-                                    <span className="text-sm text-gray-800">
-                                        {" "}
-                                        Từ 4.0 trở lên
-                                        <span className="text-gray-600">
-                                            (10.000)
+                                        <span className="text-sm text-gray-800">
+                                            {" "}
+                                            Từ 4.5 trở lên
+                                            <span className="text-gray-600">
+                                                (10.000)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="rating"
-                                        type="radio"/>
-                                    <span className="text-yellow-500">
-                                        <i className="bx bxs-star " />
-                                        <i className="bx bxs-star" />
-                                        <i className="bx bxs-star" />
-                                        <i className="bx bxs-star-half" />
-                                        <i className="bx bx-star" />
-                                    </span>
-                                    <span className="text-sm text-gray-800">
-                                        {" "}
-                                        Từ 3.5 trở lên
-                                        <span className="text-gray-600">
-                                            (10.000)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="rating"
+                                            type="radio" />
+                                        <span className="text-yellow-500 ">
+                                            <i className="bx bxs-star " />
+                                            <i className="bx bxs-star" />
+                                            <i className="bx bxs-star" />
+                                            <i className="bx bxs-star" />
+                                            <i className="bx bx-star" />
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="rating"
-                                        type="radio"/>
-                                    <span className="text-yellow-500">
-                                        <i className="bx bxs-star " />
-                                        <i className="bx bxs-star" />
-                                        <i className="bx bxs-star" />
-                                        <i className="bx bx-star" />
-                                        <i className="bx bx-star" />
-                                    </span>
-                                    <span className="text-sm text-gray-800">
-                                        {" "}
-                                        Từ 3.0 trở lên
-                                        <span className="text-gray-600">
-                                            (10.000)
+                                        <span className="text-sm text-gray-800">
+                                            {" "}
+                                            Từ 4.0 trở lên
+                                            <span className="text-gray-600">
+                                                (10.000)
+                                            </span>
                                         </span>
-                                    </span>
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="rating"
+                                            type="radio" />
+                                        <span className="text-yellow-500">
+                                            <i className="bx bxs-star " />
+                                            <i className="bx bxs-star" />
+                                            <i className="bx bxs-star" />
+                                            <i className="bx bxs-star-half" />
+                                            <i className="bx bx-star" />
+                                        </span>
+                                        <span className="text-sm text-gray-800">
+                                            {" "}
+                                            Từ 3.5 trở lên
+                                            <span className="text-gray-600">
+                                                (10.000)
+                                            </span>
+                                        </span>
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="rating"
+                                            type="radio" />
+                                        <span className="text-yellow-500">
+                                            <i className="bx bxs-star " />
+                                            <i className="bx bxs-star" />
+                                            <i className="bx bxs-star" />
+                                            <i className="bx bx-star" />
+                                            <i className="bx bx-star" />
+                                        </span>
+                                        <span className="text-sm text-gray-800">
+                                            {" "}
+                                            Từ 3.0 trở lên
+                                            <span className="text-gray-600">
+                                                (10.000)
+                                            </span>
+                                        </span>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -891,60 +856,60 @@ export const Courses = () => {
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger>Thời lượng video</AccordionTrigger>
                                     <AccordionContent>
-                                    <input
-                                        className="mr-2 text-black"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        0-1 giờ{" "}
-                                        <span className="text-gray-600">
-                                            (3.217)
+                                        <input
+                                            className="mr-2 text-black"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            0-1 giờ{" "}
+                                            <span className="text-gray-600">
+                                                (3.217)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2 text-black"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        1-3 giờ{" "}
-                                        <span className="text-gray-600">
-                                            (10.000)
+                                        <br />
+                                        <input
+                                            className="mr-2 text-black"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            1-3 giờ{" "}
+                                            <span className="text-gray-600">
+                                                (10.000)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2 text-black"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        3-6 giờ{" "}
-                                        <span className="text-gray-600">
-                                            (8.691)
+                                        <br />
+                                        <input
+                                            className="mr-2 text-black"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            3-6 giờ{" "}
+                                            <span className="text-gray-600">
+                                                (8.691)
+                                            </span>
                                         </span>
-                                    </span>
-                                <br />
-                                    <input
-                                        className="mr-2 text-black"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        6-17 giờ{" "}
-                                        <span className="text-gray-600">
-                                            (10.000)
+                                        <br />
+                                        <input
+                                            className="mr-2 text-black"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            6-17 giờ{" "}
+                                            <span className="text-gray-600">
+                                                (10.000)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2 text-black"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Hơn 17 giờ{" "}
-                                        <span className="text-gray-600">
-                                            (4.518)
+                                        <br />
+                                        <input
+                                            className="mr-2 text-black"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Hơn 17 giờ{" "}
+                                            <span className="text-gray-600">
+                                                (4.518)
+                                            </span>
                                         </span>
-                                    </span>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -953,60 +918,60 @@ export const Courses = () => {
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger>Chủ đề</AccordionTrigger>
                                     <AccordionContent>
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Python{" "}
-                                        <span className="text-gray-600">
-                                            (2.433)
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Python{" "}
+                                            <span className="text-gray-600">
+                                                (2.433)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        JavaScript{" "}
-                                        <span className="text-gray-600">
-                                            (1.105)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            JavaScript{" "}
+                                            <span className="text-gray-600">
+                                                (1.105)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Java{" "}
-                                        <span className="text-gray-600">
-                                            (1.088)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Java{" "}
+                                            <span className="text-gray-600">
+                                                (1.088)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Unity{" "}
-                                        <span className="text-gray-600">
-                                            (960)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Unity{" "}
+                                            <span className="text-gray-600">
+                                                (960)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Phát triển web{" "}
-                                        <span className="text-gray-600">
-                                            (933)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Phát triển web{" "}
+                                            <span className="text-gray-600">
+                                                (933)
+                                            </span>
                                         </span>
-                                    </span>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -1015,60 +980,60 @@ export const Courses = () => {
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger>Thể loại con</AccordionTrigger>
                                     <AccordionContent>
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Phát triển web{" "}
-                                        <span className="text-gray-600">
-                                            (2.433)
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Phát triển web{" "}
+                                            <span className="text-gray-600">
+                                                (2.433)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Ngôn ngữ lập trình{" "}
-                                        <span className="text-gray-600">
-                                            (1.105)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Ngôn ngữ lập trình{" "}
+                                            <span className="text-gray-600">
+                                                (1.105)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Khoa học dữ liệu{" "}
-                                        <span className="text-gray-600">
-                                            (1.088)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Khoa học dữ liệu{" "}
+                                            <span className="text-gray-600">
+                                                (1.088)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Phát triển ứng dụng di động{" "}
-                                        <span className="text-gray-600">
-                                            (960)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Phát triển ứng dụng di động{" "}
+                                            <span className="text-gray-600">
+                                                (960)
+                                            </span>
                                         </span>
-                                    </span>
-                                <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Thiết kế cơ sở dữ liệu{" "}
-                                        <span className="text-gray-600">
-                                            (960)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Thiết kế cơ sở dữ liệu{" "}
+                                            <span className="text-gray-600">
+                                                (960)
+                                            </span>
                                         </span>
-                                    </span>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -1077,60 +1042,60 @@ export const Courses = () => {
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger>Cấp độ</AccordionTrigger>
                                     <AccordionContent>
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Tất cả trình độ{" "}
-                                        <span className="text-gray-600">
-                                            (10.000)
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Tất cả trình độ{" "}
+                                            <span className="text-gray-600">
+                                                (10.000)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Sơ cấp{" "}
-                                        <span className="text-gray-600">
-                                            (10.000)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Sơ cấp{" "}
+                                            <span className="text-gray-600">
+                                                (10.000)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Trung cấp{" "}
-                                        <span className="text-gray-600">
-                                            (5.665)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Trung cấp{" "}
+                                            <span className="text-gray-600">
+                                                (5.665)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Chuyên gia{" "}
-                                        <span className="text-gray-600">
-                                            (621)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Chuyên gia{" "}
+                                            <span className="text-gray-600">
+                                                (621)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Phát triển web{" "}
-                                        <span className="text-gray-600">
-                                            (933)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Phát triển web{" "}
+                                            <span className="text-gray-600">
+                                                (933)
+                                            </span>
                                         </span>
-                                    </span>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -1139,38 +1104,38 @@ export const Courses = () => {
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger>Ngôn ngữ</AccordionTrigger>
                                     <AccordionContent>
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        English{" "}
-                                        <span className="text-gray-600">
-                                            (1)
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            English{" "}
+                                            <span className="text-gray-600">
+                                                (1)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        中国人{" "}
-                                        <span className="text-gray-600">
-                                            (1)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            中国人{" "}
+                                            <span className="text-gray-600">
+                                                (1)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br/>
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        日本語
-                                        <span className="text-gray-600">
-                                            (1)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            日本語
+                                            <span className="text-gray-600">
+                                                (1)
+                                            </span>
                                         </span>
-                                    </span>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -1179,27 +1144,27 @@ export const Courses = () => {
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger>Giá</AccordionTrigger>
                                     <AccordionContent>
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Có trả phí{" "}
-                                        <span className="text-gray-600">
-                                            (68)
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Có trả phí{" "}
+                                            <span className="text-gray-600">
+                                                (68)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br/>
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Miễn phí{" "}
-                                        <span className="text-gray-600">
-                                            (23)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Miễn phí{" "}
+                                            <span className="text-gray-600">
+                                                (23)
+                                            </span>
                                         </span>
-                                    </span>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -1208,49 +1173,49 @@ export const Courses = () => {
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger>Đặc điểm</AccordionTrigger>
                                     <AccordionContent>
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Phụ đề{" "}
-                                        <span className="text-gray-600">
-                                            (1)
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Phụ đề{" "}
+                                            <span className="text-gray-600">
+                                                (1)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br/>
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Trắc nghiệm{" "}
-                                        <span className="text-gray-600">
-                                            (16)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Trắc nghiệm{" "}
+                                            <span className="text-gray-600">
+                                                (16)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Bài tập Coding{" "}
-                                        <span className="text-gray-600">
-                                            (8)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Bài tập Coding{" "}
+                                            <span className="text-gray-600">
+                                                (8)
+                                            </span>
                                         </span>
-                                    </span>
-                                    <br />
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Bài kiểm tra thực hành{" "}
-                                        <span className="text-gray-600">
-                                            (4)
+                                        <br />
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Bài kiểm tra thực hành{" "}
+                                            <span className="text-gray-600">
+                                                (4)
+                                            </span>
                                         </span>
-                                    </span>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -1259,16 +1224,16 @@ export const Courses = () => {
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger>Phụ đề</AccordionTrigger>
                                     <AccordionContent>
-                                    <input
-                                        className="mr-2"
-                                        name="duration"
-                                        type="checkbox"/>
-                                    <span className="text-sm text-black">
-                                        Tiếng Việt{" "}
-                                        <span className="text-gray-600">
-                                            (1)
+                                        <input
+                                            className="mr-2"
+                                            name="duration"
+                                            type="checkbox" />
+                                        <span className="text-sm text-black">
+                                            Tiếng Việt{" "}
+                                            <span className="text-gray-600">
+                                                (1)
+                                            </span>
                                         </span>
-                                    </span>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -1278,14 +1243,18 @@ export const Courses = () => {
                         {/*Danh sách khóa học */}
                         <div className=" col-span-9 transition-all ease-in-out duration-500"
                             id="courseCol">
-                                {render}
+                            {render}
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Chuyển trang */}
-            {renderPagination()}
+            <Pagination>
+                <PaginationContent>
+                    {renderPageNumbers()}
+                </PaginationContent>
+            </Pagination>
         </div>
     );
 };
