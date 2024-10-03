@@ -171,45 +171,45 @@ export const Courses = () => {
                      className="w-30 h-20 md:w-50 md:h-40 object-cover mr-10"
                      src={`${item.img}`} />
                 <div className="bg-pink-300 p-6 border mx-8 flex flex-col lg:flex-row items-start">
-                        <div className="flex-1">
-                            <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                                {item.title}
-                            </h3>
-                            <p className="text-gray-700 mb-2">
-                                {item.description}
-                            </p>
-                            <p className="text-gray-500 text-xs mb-1">
-                                Bởi Shin Nguyen
-                            </p>
-                            <p className="font-thin text-xs text-green-600 mb-4">
-                                Đã cập nhật{" "}
-                                <span className="text-green-800 font-bold">
-                                    tháng 8 năm 2024
-                                </span>
-                                <span className="text-gray-500 text-xs font-normal">
-                                    Tổng số 126 giờ | 342 bài giảng | Tất cả trình độ
-                                </span>
-                            </p>
-                            <p className="text-lg text-gray-800 font-semibold mb-2">
-                                4,8
-                                <span className="text-yellow-500">
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star-half" />
-                                </span>
-                                <span className="text-xs text-gray-600">
-                                    (43)
-                                </span>
-                                <span className="bg-yellow-200 text-gray-700 text-sm px-2 py-1 ml-2">
-                                    Bán chạy nhất
-                                </span>
-                            </p>
-                            <p className="pt-10 text-lg font-bold text-black">
-                                {item.price}
-                            </p>
-                        </div>
+                    <div className="flex-1">
+                        <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                            {item.title}
+                        </h3>
+                        <p className="text-gray-700 mb-2">
+                            {item.description}
+                        </p>
+                        <p className="text-gray-500 text-xs mb-1">
+                            Bởi Shin Nguyen
+                        </p>
+                        <p className="font-thin text-xs text-green-600 mb-4">
+                            Đã cập nhật{" "}
+                            <span className="text-green-800 font-bold">
+                                tháng 8 năm 2024
+                            </span>
+                            <span className="text-gray-500 text-xs font-normal">
+                                Tổng số 126 giờ | 342 bài giảng | Tất cả trình độ
+                            </span>
+                        </p>
+                        <p className="text-lg text-gray-800 font-semibold mb-2">
+                            4,8
+                            <span className="text-yellow-500">
+                                <i className="bx bxs-star" />
+                                <i className="bx bxs-star" />
+                                <i className="bx bxs-star" />
+                                <i className="bx bxs-star" />
+                                <i className="bx bxs-star-half" />
+                            </span>
+                            <span className="text-xs text-gray-600">
+                                (43)
+                            </span>
+                            <span className="bg-yellow-200 text-gray-700 text-sm px-2 py-1 ml-2">
+                                Bán chạy nhất
+                            </span>
+                        </p>
+                        <p className="pt-10 text-lg font-bold text-black">
+                            {item.price}
+                        </p>
+                    </div>
                 </div>
             </Link>
         </div>
@@ -416,9 +416,7 @@ export const Courses = () => {
                     Nhiều học viên thích khóa học được đánh giá cao này vì nội
                     dung hấp dẫn của nó.
                 </p>
-                {/* {render_course_hot} */}
                 {/* <div className="">
-                    {render_course_hot}
                     <div className="flex flex-col lg:flex-row items-start">
                         <img
                             alt="Khóa học NextJS 14"
