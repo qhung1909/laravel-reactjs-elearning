@@ -161,6 +161,61 @@ export const Courses = () => {
         }
     };
 
+    // Khóa học nổi bật
+    const render_course_hot = courses
+    .filter(item => item.is_buy) // Lọc chỉ những sản phẩm nổi bật
+    .map((item, index) => (
+        <div key={index}>
+            <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow-md flex group my-5">
+                <img alt="Best-selling course"
+                     className="w-30 h-20 md:w-50 md:h-40 object-cover mr-10"
+                     src={`${item.img}`} />
+                <div className="bg-pink-300 p-6 border mx-8 flex flex-col lg:flex-row items-start">
+                        <div className="flex-1">
+                            <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                                {item.title}
+                            </h3>
+                            <p className="text-gray-700 mb-2">
+                                {item.description}
+                            </p>
+                            <p className="text-gray-500 text-xs mb-1">
+                                Bởi Shin Nguyen
+                            </p>
+                            <p className="font-thin text-xs text-green-600 mb-4">
+                                Đã cập nhật{" "}
+                                <span className="text-green-800 font-bold">
+                                    tháng 8 năm 2024
+                                </span>
+                                <span className="text-gray-500 text-xs font-normal">
+                                    Tổng số 126 giờ | 342 bài giảng | Tất cả trình độ
+                                </span>
+                            </p>
+                            <p className="text-lg text-gray-800 font-semibold mb-2">
+                                4,8
+                                <span className="text-yellow-500">
+                                    <i className="bx bxs-star" />
+                                    <i className="bx bxs-star" />
+                                    <i className="bx bxs-star" />
+                                    <i className="bx bxs-star" />
+                                    <i className="bx bxs-star-half" />
+                                </span>
+                                <span className="text-xs text-gray-600">
+                                    (43)
+                                </span>
+                                <span className="bg-yellow-200 text-gray-700 text-sm px-2 py-1 ml-2">
+                                    Bán chạy nhất
+                                </span>
+                            </p>
+                            <p className="pt-10 text-lg font-bold text-black">
+                                {item.price}
+                            </p>
+                        </div>
+                </div>
+            </Link>
+        </div>
+    ));
+
+    // Danh sách khóa học
     const render = courses.map((item,index)=> (
         <div key={index} >
             <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow flex group my-5">
@@ -361,7 +416,9 @@ export const Courses = () => {
                     Nhiều học viên thích khóa học được đánh giá cao này vì nội
                     dung hấp dẫn của nó.
                 </p>
-                <div className="bg-white p-6 border mb-8">
+                {/* {render_course_hot} */}
+                {/* <div className="">
+                    {render_course_hot}
                     <div className="flex flex-col lg:flex-row items-start">
                         <img
                             alt="Khóa học NextJS 14"
@@ -411,7 +468,16 @@ export const Courses = () => {
                             </p>
                         </div>
                     </div>
-                </div>
+                </div> */}
+                <Carousel>
+                    <CarouselContent>
+                        <CarouselItem>{render_course_hot}</CarouselItem>
+                        <CarouselItem>{render_course_hot}</CarouselItem>
+                        <CarouselItem>{render_course_hot}</CarouselItem>
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
 
                 {/* Chủ đề phổ biến */}
                 <h1 className="text-2xl font-semibold py-5">Chủ đề phổ biến</h1>
@@ -437,23 +503,23 @@ export const Courses = () => {
                             </div>
                         </div>
                         {/* Hàng 2 */}
-    <div className="grid grid-cols-5 gap-2">
-        <div className="font-bold p-auto border">
-        <a className="text-gray-800 block text-center p-6" href="">Phát triển web</a>
-        </div>
-        <div className="font-bold p-auto border">
-        <a className="text-gray-800 block text-center p-6" href="">JavaScript</a>
-        </div>
-        <div className="font-bold p-auto border">
-        <a className="text-gray-800 block text-center p-6" href="">Unreal Engine</a>
-        </div>
-        <div className="font-bold p-auto border">
-        <a className="text-gray-800 block text-center p-6" href="">Học máy</a>
-        </div>
-        <div className="font-bold p-auto border">
-        <a className="text-gray-800 block text-center p-6" href="">Unity</a>
-        </div>
-    </div>
+                        <div className="grid grid-cols-5 gap-2">
+                            <div className="font-bold p-auto border">
+                            <a className="text-gray-800 block text-center p-6" href="">Phát triển web</a>
+                            </div>
+                            <div className="font-bold p-auto border">
+                            <a className="text-gray-800 block text-center p-6" href="">JavaScript</a>
+                            </div>
+                            <div className="font-bold p-auto border">
+                            <a className="text-gray-800 block text-center p-6" href="">Unreal Engine</a>
+                            </div>
+                            <div className="font-bold p-auto border">
+                            <a className="text-gray-800 block text-center p-6" href="">Học máy</a>
+                            </div>
+                            <div className="font-bold p-auto border">
+                            <a className="text-gray-800 block text-center p-6" href="">Unity</a>
+                            </div>
+                        </div>
                         </CarouselItem>
                         <CarouselItem className="grid grid-rows-2 gap-2 break-words" id="carousel">
                             {/* Hàng 1 */}

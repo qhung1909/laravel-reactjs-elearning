@@ -10,7 +10,7 @@ import { PaymentResult } from "./pages/testing/redicted-vnpay.jsx";
 import Blog from './pages/blog/blog.jsx';
 import Blogdetail from "./pages/blogdetail/blogdetail.jsx";
 import Contact from './pages/contact/contact.jsx';
-import Home from "./pages/home/home.jsx";
+import { Home } from "./pages/home/home.jsx";
 import Header from "./pages/header/header.jsx";
 import Footer from "./pages/footer/footer.jsx";
 import AdminRole from "./pages/role/adminRole.jsx";
