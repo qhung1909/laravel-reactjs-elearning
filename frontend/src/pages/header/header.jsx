@@ -45,14 +45,14 @@ function Header() {
     const [logined, setLogined] = useState(null);
 
     useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('user'));
+        const user = localStorage.getItem('access_token');
         if (user) {
             setLogined(user);
         }
     }, [])
 
     const logout = () => {
-        localStorage.removeItem('user');
+        localStorage.removeItem('access_token');
         setLogined(null);
     }
 

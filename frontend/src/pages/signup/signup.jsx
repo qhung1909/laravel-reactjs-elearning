@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
+import toast, {Toaster} from 'react-hot-toast';
+const notify = (message, type) =>{
+    if (type === 'success'){
+        toast.success(message);
+    }
+}
 export const Signup = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -35,6 +40,11 @@ export const Signup = () => {
             return;
         }
 
+        if (formData.password.length <6 || formData.password_confirmation.length < 6){
+            setError('Mật khẩu phải từ 6 kí tự trở lên');
+            return
+        }
+
         setLoading(true);
 
         try {
@@ -53,14 +63,15 @@ export const Signup = () => {
 
             if (!res.ok) {
                 const errorData = await res.json();
-                setError(errorData.message || 'Đăng ký thất bại');
+                const emailError = errorData.errors.email[0]
+                setError(emailError || errorData.message || 'Đăng ký thất bại');
                 return;
             }
 
             const data = await res.json();
             localStorage.setItem('access_token', data.access_token);
-            setSuccess('Đăng ký thành công!');
-            navigate('/login');
+            notify('Đăng ký thành công', 'success');
+            // setSuccess('Đăng ký thành công!');
 
             setFormData({
                 name: '',
@@ -68,6 +79,10 @@ export const Signup = () => {
                 password: '',
                 password_confirmation: '',
             });
+
+            setTimeout(()=>{
+                navigate('/login');
+            }, 2000)
 
         } catch (error) {
             console.log(error);
@@ -180,6 +195,9 @@ export const Signup = () => {
                 </form>
             </div>
         </div>
+        <Toaster />
+
+
         </>
     )
 };
