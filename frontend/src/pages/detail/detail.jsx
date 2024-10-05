@@ -45,6 +45,43 @@ export const Detail = () => {
 
         return format(date, "dd/MM/yyyy - HH:mm a");
     };
+    // User
+    const [user, setUser] = useState([]);
+    // Fetch thông tin người dùng
+    const fetchUser = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/auth/me`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            // Kiểm tra cấu trúc dữ liệu trả về
+            if (res.data && res.data) {
+                setUser(res.data);
+            } else {
+                console.error(
+                    "Không tìm thấy thông tin người dùng trong phản hồi."
+                );
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy thông tin người dùng:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+                console.error("Trạng thái lỗi:", error.response.status);
+            } else {
+                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
+            }
+        }
+    };
+    useEffect(() => {
+        fetchUser();
+    }, []);
 
     // Rating & comment
     const [rating, setRating] = useState(0);
@@ -188,9 +225,6 @@ export const Detail = () => {
         </div>
     );
 
-    // Lấy thông tin người dùng từ localStorage
-    const currentUser = JSON.parse(localStorage.getItem("user"));
-    const currentUserId = currentUser?.user_id; // Truy cập user_id hoặc để trống nếu không có user
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editingRating, setEditingRating] = useState(0);
     const [editingContent, setEditingContent] = useState("");
@@ -267,7 +301,7 @@ export const Detail = () => {
                                     </span>
                                 </div>
 
-                                {currentUserId === comment.user_id && (
+                                {user && user.user_id === comment.user_id && (
                                     <div className="flex space-x-2">
                                         <button
                                             onClick={() => editComment(comment)}
