@@ -25,9 +25,9 @@
 }
 
 
-/* Section 1,3 */
+/* Section 3 */
 /* Trạng thái ban đầu hiển thị nội dung */
-.lesson-content, .section-3-content {
+ .section-3-content {
     transition: max-height 0.5s ease, opacity 0.5s ease, transform 0.5s ease;
     overflow: hidden;
     max-height: 1000px; /* Đặt giá trị đủ lớn để nội dung hiển thị hoàn toàn */
@@ -36,7 +36,29 @@
 }
 
 /* Trạng thái khi bị thu gọn */
-.lesson-content.collapsed, .section-3-content.collapsed {
+ .section-3-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    transform: scaleY(0.8); /* Giảm kích thước để tạo hiệu ứng */
+    pointer-events: none; /* Đảm bảo nội dung không thể tương tác khi thu gọn */
+}
+
+/* Đảm bảo nội dung không bị chồng lên nhau khi thu gọn */
+ .section-3-content {
+    will-change: max-height, opacity, transform;
+}
+
+ /* Section 1 */
+.lesson-content {
+    transition: max-height 0.5s ease, opacity 0.5s ease, transform 0.5s ease;
+    overflow: hidden;
+    max-height: 1000px; /* Đặt giá trị đủ lớn để nội dung hiển thị hoàn toàn */
+    opacity: 1;
+    transform: scaleY(1); /* Giữ nội dung ở kích thước ban đầu */
+}
+
+/* Trạng thái khi bị thu gọn */
+.lesson-content.collapsed {
     max-height: 0;
     opacity: 0;
     transform: scaleY(0.8); /* Giảm kích thước để tạo hiệu ứng */
@@ -47,25 +69,6 @@
 .lesson-content, .section-3-content {
     will-change: max-height, opacity, transform;
 }
-/* Section 5 */
-.instructor-content.collapsed {
-    max-height: 0;
-    opacity: 0;
-    transform: scaleY(0.8);
-    pointer-events: none;
-    overflow: hidden;
-}
-
-.instructor-content {
-    transition: max-height 0.5s ease, opacity 0.5s ease, transform 0.5s ease;
-    max-height: 1000px;
-    opacity: 1;
-    transform: scaleY(1);
-}
-
-
-
-
 
 
 

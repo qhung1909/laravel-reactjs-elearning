@@ -1,10 +1,12 @@
-export const ToggleDetail = () => {
-    // Section 1 Toggle Button
+// Hàm toggle cho Section 1
+export const toggleSection1 = () => {
     const toggleBtnSection1 = document.getElementById("toggle-btn");
     const lessonContents = document.querySelectorAll(".lesson-content");
+    console.log(lessonContents);
 
     if (toggleBtnSection1) {
-        toggleBtnSection1.addEventListener("click", function () {
+        toggleBtnSection1.onclick("click", function () {
+            console.log(toggleBtnSection1);
             lessonContents.forEach((content) => {
                 content.classList.toggle("collapsed");
             });
@@ -14,34 +16,15 @@ export const ToggleDetail = () => {
                 : "Ẩn bớt v";
         });
     }
+};
 
-    // Section 3 Toggle Button
-    const toggleBtnSection3 = document.getElementById("toggle-btn-section-3");
-    const section3Contents = document.querySelectorAll(".section-3-content");
 
-    if (toggleBtnSection3) {
-        toggleBtnSection3.addEventListener("click", function () {
-            section3Contents.forEach((content) => {
-                content.classList.toggle("collapsed");
-            });
 
-            toggleBtnSection3.textContent = section3Contents[0].classList.contains("collapsed")
-                ? "Hiện thêm ^"
-                : "Ẩn bớt v";
-        });
-    }
 
-    // Section 5 Toggle Button
-    const toggleBtnSection5 = document.getElementById("toggle-btn-section-5");
-    const instructorContent = document.querySelector(".instructor-content");
 
-    if (toggleBtnSection5 && instructorContent) {
-        toggleBtnSection5.addEventListener("click", function () {
-            instructorContent.classList.toggle("collapsed");
+// Hàm chính để gọi các hàm toggle
+export const ToggleDetail = () => {
+    toggleSection1();
 
-            toggleBtnSection5.textContent = instructorContent.classList.contains("collapsed")
-                ? "Hiện thêm ^"
-                : "Ẩn bớt v";
-        });
-    }
+
 };
