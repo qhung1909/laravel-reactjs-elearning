@@ -20,8 +20,8 @@ class CartController extends Controller
         $vnp_TmnCode = config('vnpay.vnp_TmnCode');
         $vnp_HashSecret = config('vnpay.vnp_HashSecret');
         $vnp_TxnRef = '1';
-        $vnp_OrderInfo = $request->input('vnp_OrderInfo');;
-        $vnp_OrderType = $request->input('vnp_OrderType');;
+        $vnp_OrderInfo = $request->input('vnp_OrderInfo');
+        $vnp_OrderType = $request->input('vnp_OrderType');
         $vnp_Amount = $request->input('vnp_Amount') * 100;
         $vnp_Locale = 'vn';
         $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
