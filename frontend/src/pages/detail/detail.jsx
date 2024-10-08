@@ -1,5 +1,5 @@
 import "./detail.css";
-import { Link } from "react-router-dom";
+import { Link, redirect, useNavigate } from "react-router-dom";
 import { Star } from "lucide-react";
 import { Edit, Trash } from "lucide-react"; // Biểu tượng sửa và xóa
 import {
@@ -28,6 +28,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const Detail = () => {
     const [detail, setDetail] = useState([]);
     const { slug } = useParams();
+    const navigate = useNavigate()
     // JS Section 1
     const [isSection1Expanded, setIsSection1Expanded] = useState(false);
     const toggleSection1 = () => {
@@ -136,8 +137,12 @@ export const Detail = () => {
             setDetail(res.data);
             fetchComments(res.data.course_id); // Lưu course_id vào fetchComments để truyền biến course_id vào hàm fetchComments
         } catch (error) {
-            console.error("Chi tiết lỗi:", error.response.data);
-            console.error("Trạng thái lỗi:", error.response.status);
+            if (error.response && error.response.status === 404) {
+                navigate('/404');
+            } else {
+                console.error("Chi tiết lỗi:", error.response?.data || error.message);
+                console.error("Trạng thái lỗi:", error.response?.status);
+            }
         }
     };
 

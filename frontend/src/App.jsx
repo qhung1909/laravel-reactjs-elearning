@@ -37,6 +37,7 @@ function AppContent() {
                 <Route path="/lession" element={<Lession />}></Route>
                 <Route path="/detail" element={<Detail />}></Route>
                 <Route path="*" element={<PageNotFound />}></Route>
+                <Route path="/404" element={<PageNotFound />}></Route>
                 <Route path="/detail/:slug" element={<Detail />}></Route>
                 <Route path="/tests" element={<PaymentComponent />}></Route>
                 <Route path="/tests-payment" element={<PaymentResult />}></Route>
