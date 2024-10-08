@@ -1,5 +1,4 @@
 import "./detail.css";
-import "../../components/js/detail.js";
 import { Link } from "react-router-dom";
 import { Star } from "lucide-react";
 import { Edit, Trash } from "lucide-react"; // Biểu tượng sửa và xóa
@@ -29,6 +28,18 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const Detail = () => {
     const [detail, setDetail] = useState([]);
     const { slug } = useParams();
+    // JS Section 1
+    const [isSection1Expanded, setIsSection1Expanded] = useState(false);
+    const toggleSection1 = () => {
+        setIsSection1Expanded(!isSection1Expanded);
+    };
+    // JS Section 3
+    const [isSection3Expanded, setIsSection3Expanded] = useState(false);
+
+    const toggleSection3 = () => {
+        setIsSection3Expanded(!isSection3Expanded);
+    };
+
     // Tính % giá giảm
     const price = parseFloat(detail.price);
     const price_discount = parseFloat(detail.price_discount);
@@ -45,6 +56,43 @@ export const Detail = () => {
 
         return format(date, "dd/MM/yyyy - HH:mm a");
     };
+    // User
+    const [user, setUser] = useState([]);
+    // Fetch thông tin người dùng
+    const fetchUser = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/auth/me`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            // Kiểm tra cấu trúc dữ liệu trả về
+            if (res.data && res.data) {
+                setUser(res.data);
+            } else {
+                console.error(
+                    "Không tìm thấy thông tin người dùng trong phản hồi."
+                );
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy thông tin người dùng:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+                console.error("Trạng thái lỗi:", error.response.status);
+            } else {
+                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
+            }
+        }
+    };
+    useEffect(() => {
+        fetchUser();
+    }, []);
 
     // Rating & comment
     const [rating, setRating] = useState(0);
@@ -188,9 +236,6 @@ export const Detail = () => {
         </div>
     );
 
-    // Lấy thông tin người dùng từ localStorage
-    const currentUser = JSON.parse(localStorage.getItem("user"));
-    const currentUserId = currentUser?.user_id; // Truy cập user_id hoặc để trống nếu không có user
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editingRating, setEditingRating] = useState(0);
     const [editingContent, setEditingContent] = useState("");
@@ -267,7 +312,7 @@ export const Detail = () => {
                                     </span>
                                 </div>
 
-                                {currentUserId === comment.user_id && (
+                                {user && user.user_id === comment.user_id && (
                                     <div className="flex space-x-2">
                                         <button
                                             onClick={() => editComment(comment)}
@@ -484,69 +529,124 @@ export const Detail = () => {
                             <h3 className="text-xl font-semibold mb-4">
                                 Nội dung bài học
                             </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-hidden">
-                                {/* Danh sách trái */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <ul className="space-y-2">
+                                    {/* Danh sách trái */}
                                     <li className="flex items-start">
-                                        Hiểu rõ đặc điểm của ngôn ngữ lập trình
-                                        Python và các ứng dụng có thể phát triển
-                                        bằng ngôn ngữ này
+                                    <span>- </span>
+                                        <span className="ml-2">
+                                            Hiểu rõ đặc điểm của ngôn ngữ lập
+                                            trình Python và các ứng dụng có thể
+                                            phát triển bằng ngôn ngữ này
+                                        </span>
                                     </li>
                                     <li className="flex items-start">
-                                        Nắm rõ cú pháp cơ bản của Python, cách
-                                        khai báo biến
+                                    <span>- </span>
+                                        <span className="ml-2">
+                                            Nắm rõ cú pháp cơ bản của Python,
+                                            cách khai báo biến
+                                        </span>
                                     </li>
                                     <li className="flex items-start">
-                                        Nắm được các phép toán số học và phép
-                                        toán logic trong Python
+                                    <span>- </span>
+                                        <span className="ml-2">
+                                            Nắm được các phép toán số học và
+                                            phép toán logic trong Python
+                                        </span>
                                     </li>
-                                    <li className="flex items-start lesson-content collapsed">
-                                        Nắm được kiểu dữ liệu List, Tuple và
-                                        Dictionary trong Python và ứng dụng
-                                    </li>
-                                    <li className="flex items-start lesson-content collapsed">
-                                        Biết cách lập trình hướng đối tượng với
-                                        lớp (class), kế thừa, đa hình
-                                    </li>
-                                    <li className="flex items-start lesson-content collapsed">
-                                        Hiểu và ứng dụng các thư viện Python
-                                        (web, khoa học dữ liệu, trí tuệ nhân
-                                        tạo, v.v.)
-                                    </li>
+                                    {isSection1Expanded && (
+                                        <>
+                                            <li className="flex items-start">
+                                            <span>- </span>
+                                                <span className="ml-2">
+                                                    Nắm được kiểu dữ liệu List,
+                                                    Tuple và Dictionary trong
+                                                    Python và ứng dụng
+                                                </span>
+                                            </li>
+                                            <li className="flex items-start">
+                                            <span>- </span>
+                                                <span className="ml-2">
+                                                    Biết cách lập trình hướng
+                                                    đối tượng với lớp (class),
+                                                    kế thừa, đa hình
+                                                </span>
+                                            </li>
+                                            <li className="flex items-start">
+                                            <span>- </span>
+                                                <span className="ml-2">
+                                                    Hiểu và ứng dụng các thư
+                                                    viện Python (web, khoa học
+                                                    dữ liệu, trí tuệ nhân tạo,
+                                                    v.v.)
+                                                </span>
+                                            </li>
+                                        </>
+                                    )}
                                 </ul>
-                                {/* Danh sách phải */}
                                 <ul className="space-y-2">
+                                    {/* Danh sách phải */}
                                     <li className="flex items-start">
-                                        Biết cách cài đặt môi trường phát triển
-                                        PyCharm để lập trình bằng Python
+                                    <span>- </span>
+                                        <span className="ml-2">
+                                            Biết cách cài đặt môi trường phát
+                                            triển PyCharm để lập trình bằng
+                                            Python
+                                        </span>
                                     </li>
                                     <li className="flex items-start">
-                                        Biết cách xử lý chuỗi (string), phương
-                                        thức về chuỗi
+                                    <span>- </span>
+                                        <span className="ml-2">
+                                            Biết cách xử lý chuỗi (string),
+                                            phương thức về chuỗi
+                                        </span>
                                     </li>
                                     <li className="flex items-start">
-                                        Nắm được cấu trúc điều khiển và vòng lặp
+                                    <span>- </span>
+                                        <span className="ml-2">
+                                            Nắm được cấu trúc điều khiển và vòng
+                                            lặp
+                                        </span>
                                     </li>
-                                    <li className="flex items-start lesson-content collapsed">
-                                        Biết cách sử dụng hàm (Function) và
-                                        Module trong Python
-                                    </li>
-                                    <li className="flex items-start lesson-content collapsed">
-                                        Cách xử lý lỗi và làm việc với File
-                                    </li>
-                                    <li className="flex items-start lesson-content collapsed">
-                                        Sử dụng ChatGPT hỗ trợ lập trình
-                                    </li>
+                                    {isSection1Expanded && (
+                                        <>
+                                            <li className="flex items-start">
+                                            <span>- </span>
+                                                <span className="ml-2">
+                                                    Biết cách sử dụng hàm
+                                                    (Function) và Module trong
+                                                    Python
+                                                </span>
+                                            </li>
+                                            <li className="flex items-start">
+                                                <span>- </span>
+                                                <span className="ml-2">
+                                                    Cách xử lý lỗi và làm việc
+                                                    với File
+                                                </span>
+                                            </li>
+                                            <li className="flex items-start">
+                                                <span>- </span>
+                                                <span className="ml-2">
+                                                    Sử dụng ChatGPT hỗ trợ lập
+                                                    trình
+                                                </span>
+                                            </li>
+                                        </>
+                                    )}
                                 </ul>
                             </div>
                             <button
-                                id="toggle-btn"
+                                onClick={toggleSection1}
                                 className="mt-4 text-blue-600 hover:underline focus:outline-none"
                             >
-                                Hiện thêm ^
+                                {isSection1Expanded
+                                    ? "Ẩn bớt ^"
+                                    : "Hiện thêm ^"}
                             </button>
                         </div>
                         {/* Kết thúc Section 1 */}
+
                         {/* Section 2 */}
                         <div className="bg-white p-6 rounded-lg shadow-md mt-8">
                             {/* Phần công ty cung cấp khóa học */}
@@ -634,12 +734,6 @@ export const Detail = () => {
                             <p className="text-gray-600 mb-6">
                                 19 phần - 121 bài giảng - 8 giờ 42 phút tổng
                                 thời lượng
-                                <button
-                                    className="text-blue-500 font-bold mb-4 ml-28 mt-4"
-                                    style={{ paddingLeft: 0 }}
-                                >
-                                    Mở rộng tất cả các phần
-                                </button>
                             </p>
                             <div className="bg-white rounded-lg overflow-hidden">
                                 <div className="border-b">
@@ -648,6 +742,7 @@ export const Detail = () => {
                                         className="w-full"
                                         defaultValue="item-1"
                                     >
+                                        {/* Accordion items */}
                                         <AccordionItem value="item-1">
                                             <AccordionTrigger>
                                                 Tìm hiểu về python
@@ -697,7 +792,11 @@ export const Detail = () => {
                                 </li>
                             </ul>
                             {/* Mô tả */}
-                            <div className="section-3-content collapsed mt-4">
+                            <div
+                                className={`section-3-content ${
+                                    isSection3Expanded ? "" : "collapsed"
+                                } mt-4`}
+                            >
                                 <h2 className="text-2xl font-bold mb-4">
                                     Mô tả
                                 </h2>
@@ -774,6 +873,19 @@ export const Detail = () => {
                                         hành và dự án cụ thể sẽ giúp bạn áp dụng
                                         ngay những gì đã học vào thực tế.
                                     </li>
+                                    <li>
+                                        Dễ dàng theo dõi: Với sự phân chia rõ
+                                        ràng giữa lý thuyết và thực hành, bạn sẽ
+                                        dễ dàng nắm bắt và theo dõi tiến trình
+                                        học tập của mình.
+                                    </li>
+                                    <li>
+                                        Cộng đồng hỗ trợ: Bạn sẽ được tham gia
+                                        vào một cộng đồng học viên năng động,
+                                        nơi bạn có thể trao đổi, thảo luận và
+                                        chia sẻ kinh nghiệm với những người cùng
+                                        học.
+                                    </li>
                                 </ul>
                                 <p className="text-gray-600 mb-6">
                                     Dù bạn là người mới bắt đầu hay đã có kinh
@@ -796,14 +908,18 @@ export const Detail = () => {
                                     </li>
                                 </ul>
                             </div>
+
                             <button
-                                id="toggle-btn-section-3"
+                                onClick={toggleSection3}
                                 className="mt-4 text-blue-600 hover:underline focus:outline-none"
                             >
-                                Hiện thêm ^
+                                {isSection3Expanded
+                                    ? "Ẩn bớt ^"
+                                    : "Hiện thêm ^"}
                             </button>
                         </div>
                         {/* Kết thúc Section 3 */}
+
                         {/* Section 4 */}
                         <div className="bg-white-50 py-8 sm:py-12">
                             <div className="container mx-auto px-4">
@@ -814,7 +930,7 @@ export const Detail = () => {
                                     {/* Khóa học 1 */}
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center bg-white p-4 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg">
                                         <img
-                                            src="./src/assets/images/inclusion.jpg"
+                                            src="/src/assets/images/inclusion2.jpg"
                                             alt="Khóa học 1"
                                             className="w-full sm:w-32 h-48 sm:h-32 object-cover rounded-lg mb-4 sm:mb-0 sm:mr-6"
                                         />
@@ -888,84 +1004,6 @@ export const Detail = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    {/* Khóa học 2 (tương tự như Khóa học 1) */}
-                                    <div className="flex flex-col sm:flex-row items-start sm:items-center bg-white p-4 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg">
-                                        <img
-                                            src="./src/assets/images/inclusion.jpg"
-                                            alt="Khóa học 2"
-                                            className="w-full sm:w-32 h-48 sm:h-32 object-cover rounded-lg mb-4 sm:mb-0 sm:mr-6"
-                                        />
-                                        <div className="flex-grow">
-                                            <div className="sm:flex sm:justify-between">
-                                                <div className="mb-4 sm:mb-0 sm:mr-6">
-                                                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                                                        Advanced Machine
-                                                        Learning: Deep Learning
-                                                        Techniques
-                                                    </h3>
-                                                    <p className="text-gray-600 text-sm">
-                                                        Tổng số 2 giờ • Đã cập
-                                                        nhật 3/2024
-                                                    </p>
-                                                </div>
-                                                <div className="flex flex-col sm:items-end">
-                                                    <div className="flex items-center mb-2">
-                                                        <span className="text-yellow-500 font-bold">
-                                                            4,9
-                                                        </span>
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            className="h-5 w-5 text-yellow-500 ml-1"
-                                                            viewBox="0 0 20 20"
-                                                            fill="currentColor"
-                                                        >
-                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                        </svg>
-                                                        <span className="text-gray-600 ml-2 flex items-center">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-5 w-5 mr-1"
-                                                                viewBox="0 0 20 20"
-                                                                fill="currentColor"
-                                                            >
-                                                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                                                            </svg>
-                                                            2.103
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex items-center justify-between sm:flex-col sm:items-end">
-                                                        <div className="flex flex-col sm:items-end">
-                                                            <p className="text-lg sm:text-xl font-bold text-black-600">
-                                                                ₫ 279.000
-                                                            </p>
-                                                            <span className="line-through text-gray-400 text-sm">
-                                                                ₫ 459.000
-                                                            </span>
-                                                        </div>
-                                                        <button className="ml-4 sm:ml-0 sm:mt-2 p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-300">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-6 w-6 text-gray-600"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth={
-                                                                        2
-                                                                    }
-                                                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                                                                />
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Thêm các khóa học khác tương tự nếu cần */}
                                 </div>
                                 {/* Nút Hiện thêm */}
                                 <div className="text-center mt-6">
@@ -1043,34 +1081,56 @@ export const Detail = () => {
                                         </li>
                                     </ul>
                                     {/* Mô tả giảng viên */}
-                                    <p className="text-gray-700 leading-relaxed instructor-content collapsed">
-                                        Hello there! I am Bill Toan. I have a
-                                        masters degree in computer system
-                                        information. I have been a Cisco
-                                        instructor since 2010. I hold CCNA, CCNP
-                                        Security, and Security+ certification.
-                                        My favorite teaching courses are CCNA
-                                        and CCNP Security. I come from a
-                                        background of network security engineer,
-                                        and now I am focusing on IoT and OT
-                                        security and applied machine learning
-                                        techniques on network security. I have
-                                        worked for over 14+ years on building
-                                        enterprise security solutions using
-                                        Cisco products. I have been a
-                                        super-moderator of a network security
-                                        forum named Whitehat for more than 10
-                                        years. I love sharing my experience with
-                                        students and inspiring them to the cyber
-                                        security world.
-                                        <strong>Happy Learning!</strong>
-                                    </p>
-                                    <button
-                                        id="toggle-btn-section-5"
-                                        className="mt-4 text-blue-600 hover:underline focus:outline-none"
+                                    <Accordion
+                                        type="single"
+                                        collapsible
+                                        className="w-full"
                                     >
-                                        Hiện thêm ^
-                                    </button>
+                                        <AccordionItem value="instructor-description">
+                                            <AccordionTrigger
+                                                style={{
+                                                    textDecoration: "none",
+                                                }}
+                                            >
+                                                Xem thêm
+                                            </AccordionTrigger>
+                                            <AccordionContent>
+                                                <p className="text-gray-700 leading-relaxed">
+                                                    Hello there! I am Bill Toan.
+                                                    I have a masters degree in
+                                                    computer system information.
+                                                    I have been a Cisco
+                                                    instructor since 2010. I
+                                                    hold CCNA, CCNP Security,
+                                                    and Security+ certification.
+                                                    My favorite teaching courses
+                                                    are CCNA and CCNP Security.
+                                                    I come from a background of
+                                                    network security
+                                                    engineering, and now I am
+                                                    focusing on IoT and OT
+                                                    security and applied machine
+                                                    learning techniques on
+                                                    network security. I have
+                                                    worked for over 14+ years on
+                                                    building enterprise security
+                                                    solutions using Cisco
+                                                    products. I have been a
+                                                    super-moderator of a network
+                                                    security forum named
+                                                    Whitehat for more than 10
+                                                    years. I love sharing my
+                                                    experience with students and
+                                                    inspiring them to the
+                                                    cybersecurity world.
+                                                    <strong>
+                                                        {" "}
+                                                        Happy Learning!
+                                                    </strong>
+                                                </p>
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    </Accordion>
                                 </div>
                             </div>
                         </div>
@@ -1130,9 +1190,7 @@ export const Detail = () => {
                                 {renderComments}
                             </div>
                         </div>
-
                         {/* Kết thúc Section 6 */}
-
                         {/* Section 7 */}
                         <div className="container mx-auto px-4 py-8">
                             <h2 className="text-2xl font-bold mb-6">
