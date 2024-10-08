@@ -20,7 +20,7 @@ import { Cart } from "./pages/cart/cart.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === '/admin';
-    const isPageNotFound = !['/blogdetail', '/blog', '/contact', '/admin', '/', '/login', '/register', '/courses', '/lession', '/tests', '/tests-payment'].includes(location.pathname) && !location.pathname.startsWith('/detail/');
+    const isPageNotFound = !['/blogdetail', '/blog', '/contact', '/admin', '/', '/login', '/register', '/courses', '/lession', '/tests', '/tests-payment','/payment','/cart'].includes(location.pathname) && !location.pathname.startsWith('/detail/');
 
     return (
         <>
