@@ -15,11 +15,12 @@ import Header from "./pages/header/header.jsx";
 import Footer from "./pages/footer/footer.jsx";
 import AdminRole from "./pages/role/adminRole.jsx";
 import { PageNotFound } from "./pages/pageNotFound/pageNotFound.jsx";
-
+import { Payment } from "./pages/payment/payment.jsx";
+import { Cart } from "./pages/cart/cart.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === '/admin';
-    const isPageNotFound = !['/blogdetail', '/blog', '/contact', '/admin', '/', '/login', '/register', '/courses', '/lession', '/tests', '/tests-payment'].includes(location.pathname) && !location.pathname.startsWith('/detail/');
+    const isPageNotFound = !['/blogdetail', '/blog', '/contact', '/admin', '/', '/login', '/register', '/courses', '/lession', '/tests', '/tests-payment','/payment','/cart'].includes(location.pathname) && !location.pathname.startsWith('/detail/');
 
     return (
         <>
@@ -39,6 +40,8 @@ function AppContent() {
                 <Route path="/detail/:slug" element={<Detail />}></Route>
                 <Route path="/tests" element={<PaymentComponent />}></Route>
                 <Route path="/tests-payment" element={<PaymentResult />}></Route>
+                <Route path="/payment" element={<Payment />}></Route>
+                <Route path="/cart" element={<Cart />}></Route>
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}
         </>
