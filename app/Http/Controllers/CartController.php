@@ -150,7 +150,7 @@ class CartController extends Controller
 
         return response()->json($orders, 200);
     }
-
+    
     public function addToCart(Request $request)
     {
         $request->validate([
