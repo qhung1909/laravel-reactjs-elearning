@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
     public function vnpay_payment(Request $request)
-    {   
+    {
         $user = auth()->user();
-        
+
         if (!$user) {
             return response()->json(['code' => '99', 'message' => 'Bạn cần đăng nhập để thực hiện thanh toán.'], 401);
         }
@@ -137,6 +139,52 @@ class CartController extends Controller
     }
 
 
-   
+    public function addToCart(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'coupon_id' => 'nullable|exists:coupons,id',
+            'items' => 'required|array',
+            'items.*.course_id' => 'required|exists:courses,id',
+            'items.*.price' => 'required|numeric'
+        ]);
 
+        $order = Order::create([
+            'user_id' => $request->user_id,
+            'coupon_id' => $request->coupon_id,
+            'total_price' => array_sum(array_column($request->items, 'price')),
+            'status' => 'pending',
+        ]);
+
+        foreach ($request->items as $item) {
+            OrderDetail::create([
+                'order_id' => $order->order_id,
+                'course_id' => $item['course_id'],
+                'price' => $item['price'],
+            ]);
+        }
+        
+        return response()->json([
+            'message' => 'Đơn hàng đã được thêm vào giỏ hàng thành công!',
+            'order' => $order,
+        ], 201);
+    }
+
+
+    public function removeItem(Request $request, $orderDetailId)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $orderDetail = OrderDetail::find($orderDetailId);
+
+        if (!$orderDetail || $orderDetail->order->user_id !== $request->user_id) {
+            return response()->json(['message' => 'Chi tiết đơn hàng không hợp lệ!'], 404);
+        }
+
+        $orderDetail->delete();
+
+        return response()->json(['message' => 'Mục đã được xóa khỏi đơn hàng!'], 200);
+    }
 }

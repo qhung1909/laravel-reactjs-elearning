@@ -128,7 +128,8 @@ export const Courses = () => {
 
     // Khóa học nổi bật
     const render_course_hot = courses
-        .filter(item => item.is_buy) // Lọc chỉ những sản phẩm nổi bật
+        .filter(item => item.is_buy)
+        .sort((a, b) => b.is_buy - a.is_buy) // Lọc chỉ những sản phẩm nổi bật
         .map((item, index) => (
             <div key={index}>
                 <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow-md flex group my-5">
@@ -434,9 +435,15 @@ export const Courses = () => {
                 </div> */}
                 <Carousel>
                     <CarouselContent>
-                        <CarouselItem>{render_course_hot}</CarouselItem>
-                        <CarouselItem>{render_course_hot}</CarouselItem>
-                        <CarouselItem>{render_course_hot}</CarouselItem>
+                        <CarouselItem>
+                            {render_course_hot[0]} {/* Hiển thị item đầu tiên */}
+                        </CarouselItem>
+                        <CarouselItem>
+                            {render_course_hot[1]} {/* Hiển thị item thứ hai */}
+                        </CarouselItem>
+                        <CarouselItem>
+                            {render_course_hot[2]} {/* Hiển thị item thứ ba */}
+                        </CarouselItem>
                     </CarouselContent>
                     <CarouselPrevious />
                     <CarouselNext />
