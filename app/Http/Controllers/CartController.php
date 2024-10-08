@@ -139,6 +139,18 @@ class CartController extends Controller
     }
 
 
+
+    public function getCart(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $orders = Order::with('orderDetails')->where('user_id', $request->user_id)->get();
+
+        return response()->json($orders, 200);
+    }
+
     public function addToCart(Request $request)
     {
         $request->validate([
@@ -163,7 +175,7 @@ class CartController extends Controller
                 'price' => $item['price'],
             ]);
         }
-        
+
         return response()->json([
             'message' => 'Đơn hàng đã được thêm vào giỏ hàng thành công!',
             'order' => $order,
