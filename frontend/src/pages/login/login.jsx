@@ -173,7 +173,7 @@ export const Login = () => {
                             <div className="flex-grow border-t border-gray-400" />
                         </div>
                         <div className="py-2">
-                            <button className="h-16 w-full border border-black flex gap-3 m-auto justify-center place-items-center">
+                            <button type='button' className="h-16 w-full border border-black flex gap-3 m-auto justify-center place-items-center">
                                 <svg
                                     className="flex-none"
                                     id="google"
