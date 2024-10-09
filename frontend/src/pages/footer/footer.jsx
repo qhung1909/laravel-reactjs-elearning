@@ -1,4 +1,4 @@
-function Footer() {
+export const Footer = () => {
     return (
         <>
             <footer className="bg-gray-100 h-auto lg:rounded-tl-[100px] lg:rounded-tr-[100px] md:rounded-tl-[50px] md:rounded-tr-[50px] rounded-tl-[50px] rounded-tr-[50px] md:py-5 lg:px-8 xl:px-0 mx-auto">
@@ -69,4 +69,3 @@ function Footer() {
     )
 }
 
-export default Footer
