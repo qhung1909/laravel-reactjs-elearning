@@ -8,7 +8,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Link } from 'react-router-dom'
-function Blogdetail() {
+export const Blogdetail = () => {
     return (
         <>
             <section className="blogdetail xl:max-w-screen-xl lg:max-w-screen-lg md:max-w-screen-md max-w-screen-sm mx-auto sm:px-10 px-4">
@@ -112,4 +112,3 @@ function Blogdetail() {
     )
 }
 
-export default Blogdetail
