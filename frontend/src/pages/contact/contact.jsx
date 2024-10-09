@@ -1,4 +1,4 @@
-function Contact(){
+export const Contact = () =>{
     return(
         <>
             <>
@@ -125,4 +125,3 @@ function Contact(){
     )
 }
 
-export default Contact;
