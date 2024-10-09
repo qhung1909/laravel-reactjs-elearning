@@ -33,7 +33,7 @@ console.log(API_KEY);
 
 export const Courses = () => {
     const [courses, setCourses] = useState([]);
-    const [coursesPerPage] = useState(5);
+    const [coursesPerPage] = useState(4);
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -128,7 +128,8 @@ export const Courses = () => {
 
     // Khóa học nổi bật
     const render_course_hot = courses
-        .filter(item => item.is_buy) // Lọc chỉ những sản phẩm nổi bật
+        .filter(item => item.is_buy)
+        .sort((a, b) => b.is_buy - a.is_buy) // Lọc chỉ những sản phẩm nổi bật
         .map((item, index) => (
             <div key={index}>
                 <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow-md flex group my-5">
@@ -434,9 +435,15 @@ export const Courses = () => {
                 </div> */}
                 <Carousel>
                     <CarouselContent>
-                        <CarouselItem>{render_course_hot}</CarouselItem>
-                        <CarouselItem>{render_course_hot}</CarouselItem>
-                        <CarouselItem>{render_course_hot}</CarouselItem>
+                        <CarouselItem>
+                            {render_course_hot[0]} {/* Hiển thị item đầu tiên */}
+                        </CarouselItem>
+                        <CarouselItem>
+                            {render_course_hot[1]} {/* Hiển thị item thứ hai */}
+                        </CarouselItem>
+                        <CarouselItem>
+                            {render_course_hot[2]} {/* Hiển thị item thứ ba */}
+                        </CarouselItem>
                     </CarouselContent>
                     <CarouselPrevious />
                     <CarouselNext />
@@ -528,7 +535,7 @@ export const Courses = () => {
                 </Carousel>
 
                 {/* Giảng viên */}
-                <h1 className="text-2xl font-semibold pt-10 ">
+                <h1 className="text-2xl font-semibold pt-10">
                     Giảng viên nổi tiếng
                 </h1>
                 <p className="text-gray-500 py-2">
@@ -738,7 +745,7 @@ export const Courses = () => {
 
                 {/* Tất cả các khóa học Phát triển web */}
                 <div className="">
-                    <div className="mb-4">
+                    <div className="mb-4 pt-8">
                         <h1 className="text-2xl font-bold">
                             Tất cả các khóa học Phát triển web
                         </h1>
@@ -750,12 +757,12 @@ export const Courses = () => {
                     </div>
                     <div className="flex">
                         <button
-                            className="flex items-center bg-white text-gray-800 border-2 px-4 py-2 rounded mr-3"
+                            className="flex items-center bg-white text-gray-800 border-2 px-4 py-4 rounded mr-3"
                             id="openButton">
                             <i className="bx bx-slider" /> Bộ lọc
                         </button>
                         <div className="relative inline-block text-left mr-3">
-                            <select className="block w-full bg-white border border-gray-300 rounded-lg py-2 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <select className="block w-full bg-white border border-gray-300 rounded-lg py-4 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <option defaultValue={0}>Sắp xếp theo</option>
                                 <option value="1">Phổ biến nhất</option>
                                 <option value="2">Thứ hạn cao nhất</option>
@@ -772,9 +779,9 @@ export const Courses = () => {
                     <div className="grid grid-cols-12 gap-10 pt-3 ">
                         {/* Bộ lọc */}
                         <div className="col-span-3 transition-all ease-in-out duration-500 " id="filterContent">
-                            <Accordion type="single" collapsible>
+                            <Accordion type="single" collapsible defaultValue="item-1">
                                 <AccordionItem value="item-1">
-                                    <AccordionTrigger>Xếp hạng</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">Xếp hạng</AccordionTrigger>
                                     <AccordionContent>
                                         <input className="mr-2" name="rating" type="radio" />
                                         <span className="text-yellow-500 ">
@@ -852,9 +859,9 @@ export const Courses = () => {
                                 </AccordionItem>
                             </Accordion>
                             <hr />
-                            <Accordion type="single" collapsible>
+                            <Accordion type="single" collapsible defaultValue="item-1">
                                 <AccordionItem value="item-1">
-                                    <AccordionTrigger>Thời lượng video</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">Thời lượng video</AccordionTrigger>
                                     <AccordionContent>
                                         <input
                                             className="mr-2 text-black"
@@ -916,7 +923,7 @@ export const Courses = () => {
                             <hr />
                             <Accordion type="single" collapsible>
                                 <AccordionItem value="item-1">
-                                    <AccordionTrigger>Chủ đề</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">Chủ đề</AccordionTrigger>
                                     <AccordionContent>
                                         <input
                                             className="mr-2"
@@ -978,7 +985,7 @@ export const Courses = () => {
                             <hr />
                             <Accordion type="single" collapsible>
                                 <AccordionItem value="item-1">
-                                    <AccordionTrigger>Thể loại con</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">Thể loại con</AccordionTrigger>
                                     <AccordionContent>
                                         <input
                                             className="mr-2"
@@ -1040,7 +1047,7 @@ export const Courses = () => {
                             <hr />
                             <Accordion type="single" collapsible>
                                 <AccordionItem value="item-1">
-                                    <AccordionTrigger>Cấp độ</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">Cấp độ</AccordionTrigger>
                                     <AccordionContent>
                                         <input
                                             className="mr-2"
@@ -1102,7 +1109,7 @@ export const Courses = () => {
                             <hr />
                             <Accordion type="single" collapsible>
                                 <AccordionItem value="item-1">
-                                    <AccordionTrigger>Ngôn ngữ</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">Ngôn ngữ</AccordionTrigger>
                                     <AccordionContent>
                                         <input
                                             className="mr-2"
@@ -1142,7 +1149,7 @@ export const Courses = () => {
                             <hr />
                             <Accordion type="single" collapsible>
                                 <AccordionItem value="item-1">
-                                    <AccordionTrigger>Giá</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">Giá</AccordionTrigger>
                                     <AccordionContent>
                                         <input
                                             className="mr-2"
@@ -1171,7 +1178,7 @@ export const Courses = () => {
                             <hr />
                             <Accordion type="single" collapsible>
                                 <AccordionItem value="item-1">
-                                    <AccordionTrigger>Đặc điểm</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">Đặc điểm</AccordionTrigger>
                                     <AccordionContent>
                                         <input
                                             className="mr-2"
@@ -1222,7 +1229,7 @@ export const Courses = () => {
                             <hr />
                             <Accordion type="single" collapsible>
                                 <AccordionItem value="item-1">
-                                    <AccordionTrigger>Phụ đề</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">Phụ đề</AccordionTrigger>
                                     <AccordionContent>
                                         <input
                                             className="mr-2"
