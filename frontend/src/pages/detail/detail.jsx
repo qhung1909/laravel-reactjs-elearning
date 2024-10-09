@@ -1,5 +1,5 @@
 import "./detail.css";
-import { Link, redirect, useNavigate } from "react-router-dom";
+import { Link , useNavigate } from "react-router-dom";
 import { Star } from "lucide-react";
 import { Edit, Trash } from "lucide-react"; // Biểu tượng sửa và xóa
 import {

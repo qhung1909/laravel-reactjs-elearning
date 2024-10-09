@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 export const Payment = () => {
     const [coupon, setCoupon] = useState("");
@@ -93,20 +93,6 @@ export const Payment = () => {
                                     500,000
                                 </span>
                             </p>
-                        </div>
-                    </div>
-                    <div className="flex items-start space-x-4">
-                        <img
-                            src="/src/assets/images/inclusion.jpg"
-                            alt="Course 2"
-                            className="w-20 h-20 object-cover rounded flex-shrink-0"
-                        />
-                        <div className="flex-grow">
-                            <h3 className="text-lg font-semibold mb-1">
-                                YOGA CHO BÀ BẦU - BÍ QUYẾT CHO MỘT THAI KỲ KHỎE
-                                MẠNH
-                            </h3>
-                            <p className="text-base text-blue-500">đ449,000</p>
                         </div>
                     </div>
                 </div>
