@@ -24,8 +24,8 @@ Route::group([
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('me', [AuthController::class, 'me']);
     Route::post('send-message', [MessageController::class, 'sendMessage'])->middleware(CheckAuthMessage::class);
-    Route::post('/addToCart', [CartController::class, 'addToCart']);
-    Route::delete('/cart/{orderDetailId}', [CartController::class, 'removeItem']);
+    Route::post('cart/addToCart', [CartController::class, 'addToCart']);
+    Route::delete('/cart/remove-item', [CartController::class, 'removeItem']);
     Route::get('/cart', [CartController::class, 'getCart']);
 
 });
