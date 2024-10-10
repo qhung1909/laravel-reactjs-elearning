@@ -35,7 +35,7 @@ import {
     AvatarImage,
 } from "@/components/ui/avatar"
 
-function Header() {
+export const Header = () => {
     const [openMenu, setOpenMenu] = useState(false);
 
     const toggleMenu = () => {
@@ -245,4 +245,3 @@ function Header() {
     );
 }
 
-export default Header;

@@ -9,7 +9,7 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination"
 import {Link} from 'react-router-dom'
-function Blog() {
+export const Blog = () => {
     return (
         <>
             <>
@@ -206,4 +206,3 @@ function Blog() {
     )
 }
 
-export default Blog
