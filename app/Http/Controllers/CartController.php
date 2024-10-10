@@ -163,9 +163,9 @@ class CartController extends Controller
                 'message' => 'Người dùng chưa đăng nhập.',
             ], 401);
         }
-
+    
         $user_id = Auth::id();
-
+    
         try {
             $request->validate([
                 'coupon_id' => 'nullable|exists:coupons,id',
@@ -176,32 +176,40 @@ class CartController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $e->errors()], 422);
         }
-
-        $total_price = 0;
-        foreach ($request->items as $index => $item) {
-            $total_price += $item['price'];
+    
+        $order = Order::where('user_id', $user_id)
+                      ->where('status', 'pending')
+                      ->first();
+    
+        if (!$order) {
+            $order = Order::create([
+                'user_id' => $user_id,
+                'coupon_id' => $request->coupon_id,
+                'total_price' => 0, 
+                'status' => 'pending',
+            ]);
         }
-
-        $order = Order::create([
-            'user_id' => $user_id,
-            'coupon_id' => $request->coupon_id,
-            'total_price' => $total_price,
-            'status' => 'pending',
-        ]);
-
+    
+        $new_total_price = $order->total_price;
+    
         foreach ($request->items as $item) {
-            $orderDetail = OrderDetail::create([
+            OrderDetail::create([
                 'order_id' => $order->order_id,
                 'course_id' => $item['course_id'],
                 'price' => $item['price'],
             ]);
+    
+            $new_total_price += $item['price'];
         }
-
+    
+        $order->update(['total_price' => $new_total_price]);
+    
         return response()->json([
             'message' => 'Đơn hàng đã được thêm vào giỏ hàng thành công!',
             'order' => $order,
         ], 201);
     }
+
 
     public function removeItem(Request $request)
     {

@@ -105,6 +105,9 @@ export const Detail = () => {
     const [comment, setComment] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [comments, setComments] = useState([]);
+    const [couponId, setCouponId] = useState(null);
+    const [items, setItems] = useState([]);
+    const [isAddedToCart, setIsAddedToCart] = useState(false);
 
     const fetchComments = async (course_id) => {
         if (!course_id) {
@@ -157,59 +160,73 @@ export const Detail = () => {
         }
     }, [slug]);
 
-    const addToCart = async (userId, couponId, items) => {
+
+    const addToCart = async (couponId) => {
         const token = localStorage.getItem('access_token');
         if (!token) {
             console.error('No token found');
-            notify('Bạn chưa đăng nhập'); // Notify user to login
+            notify('Bạn chưa đăng nhập'); 
             return;
         }
-
-        if (!userId || !items || items.length === 0) {
-            console.error('Invalid userId or items');
-            notify('Thông tin người dùng hoặc sản phẩm không hợp lệ');
+    
+        const isAlreadyAdded = localStorage.getItem(`added_to_cart_${detail.course_id}`);
+        if (isAlreadyAdded) {
+            notify('Sản phẩm này đã được thêm vào giỏ hàng rồi.');
             return;
         }
-
+    
+        const items = [
+            {
+                course_id: detail.course_id,
+                price: detail.price_discount || detail.price
+            },
+        ];
+    
+        console.log('Items trước khi gửi:', items);
+    
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            console.error('Thông tin sản phẩm không hợp lệ:', items);
+            notify('Thông tin sản phẩm không hợp lệ');
+            return;
+        }
+    
         setLoading(true);
         notify('Đang thêm sản phẩm vào giỏ hàng...');
-
+    
         try {
-            const res = await fetch(`${API_URL}/auth/cart`, {
+            const res = await fetch(`${API_URL}/auth/cart/addToCart`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    user_id: userId,
-                    coupon_id: couponId,
+                    coupon_id: couponId || null,
                     items: items
                 })
             });
-
+    
             if (!res.ok) {
                 const errorData = await res.json();
                 console.error('Failed to update cart:', errorData.message || 'Unknown error');
                 notify(errorData.message || 'Có lỗi xảy ra khi cập nhật giỏ hàng');
                 return;
             }
-
+    
             const data = await res.json();
-            console.log('Items:', data.items);
-            console.log('Cart updated successfully:', data);
+            console.log('Order:', data.order);
             notify('Sản phẩm đã được thêm vào giỏ hàng thành công!');
-
+    
+            localStorage.setItem(`added_to_cart_${detail.course_id}`, 'true');
+    
         } catch (error) {
             console.log('Error:', error);
             notify('Có lỗi xảy ra, vui lòng thử lại sau.');
-
         } finally {
-            setLoading(false); // End loading state
+            setLoading(false); 
         }
     };
-
-
+    
 
     const renderBannerDetail = (
         <div
@@ -1427,7 +1444,7 @@ export const Detail = () => {
                             <p className="text-sm text-gray-600 mb-2">
                                 6 ngày còn lại với mức giá này!
                             </p>
-                            <button onClick={addToCart} className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300">
+                            <button onClick={() => addToCart(couponId, items)} className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300">
                                 Thêm vào giỏ hàng
                             </button>
 
