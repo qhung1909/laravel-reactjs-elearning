@@ -1,4 +1,5 @@
 import "./detail.css";
+import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { Star } from "lucide-react";
@@ -25,11 +26,7 @@ import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
-const notify = (message, type) => {
-    if (type === "notLogin") {
-        toast.error(message);
-    }
-};
+
 export const Detail = () => {
     const [detail, setDetail] = useState([]);
     const { slug } = useParams();
@@ -151,7 +148,7 @@ export const Detail = () => {
             }
         } catch (error) {
             if (error.response && error.response.status === 404) {
-                Navigate("/404"); 
+                Navigate("/404");
             } else {
                 console.error(
                     "Chi tiết lỗi:",
@@ -1434,10 +1431,10 @@ export const Detail = () => {
                             </div>
                             <div className="flex items-center justify-between mb-1">
                                 <span className="text-3xl font-bold">
-                                    đ{detail.price_discount}
+                                    {formatCurrency(detail.price_discount)}
                                 </span>
                                 <span className="text-lg text-gray-500 line-through">
-                                    đ{detail.price}
+                                    {formatCurrency(detail.price)}
                                 </span>
                             </div>
                             <p className="text-red-500 mb-1">
