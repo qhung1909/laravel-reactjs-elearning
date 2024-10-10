@@ -1,5 +1,5 @@
 import "./detail.css";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Star } from "lucide-react";
 import { Edit, Trash } from "lucide-react"; // Biểu tượng sửa và xóa
 import {
@@ -24,10 +24,15 @@ import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
-
+const notify = (message, type ) => {
+    if (type === 'notLogin'){
+        toast.error(message);
+    }
+}
 export const Detail = () => {
     const [detail, setDetail] = useState([]);
     const { slug } = useParams();
+    const [ loading, setLoading] = useState([]);
     // JS Section 1
     const [isSection1Expanded, setIsSection1Expanded] = useState(false);
     const toggleSection1 = () => {
@@ -59,40 +64,40 @@ export const Detail = () => {
     // User
     const [user, setUser] = useState([]);
     // Fetch thông tin người dùng
-    const fetchUser = async () => {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            console.error("Người dùng chưa đăng nhập.");
-            return;
-        }
-        try {
-            const res = await axios.get(`${API_URL}/auth/me`, {
-                headers: {
-                    "x-api-secret": `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            // Kiểm tra cấu trúc dữ liệu trả về
-            if (res.data && res.data) {
-                setUser(res.data);
-            } else {
-                console.error(
-                    "Không tìm thấy thông tin người dùng trong phản hồi."
-                );
-            }
-        } catch (error) {
-            console.error("Lỗi khi lấy thông tin người dùng:", error);
-            if (error.response) {
-                console.error("Chi tiết lỗi:", error.response.data);
-                console.error("Trạng thái lỗi:", error.response.status);
-            } else {
-                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
-            }
-        }
-    };
-    useEffect(() => {
-        fetchUser();
-    }, []);
+    // const fetchUser = async () => {
+    //     const token = localStorage.getItem("access_token");
+    //     if (!token) {
+    //         console.error("Người dùng chưa đăng nhập.");
+    //         return;
+    //     }
+    //     try {
+    //         const res = await axios.get(`${API_URL}/auth/me`, {
+    //             headers: {
+    //                 "x-api-secret": `${API_KEY}`,
+    //                 Authorization: `Bearer ${token}`,
+    //             },
+    //         });
+    //         // Kiểm tra cấu trúc dữ liệu trả về
+    //         if (res.data && res.data) {
+    //             setUser(res.data);
+    //         } else {
+    //             console.error(
+    //                 "Không tìm thấy thông tin người dùng trong phản hồi."
+    //             );
+    //         }
+    //     } catch (error) {
+    //         console.error("Lỗi khi lấy thông tin người dùng:", error);
+    //         if (error.response) {
+    //             console.error("Chi tiết lỗi:", error.response.data);
+    //             console.error("Trạng thái lỗi:", error.response.status);
+    //         } else {
+    //             console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
+    //         }
+    //     }
+    // };
+    // useEffect(() => {
+    //     fetchUser();
+    // }, []);
 
     // Rating & comment
     const [rating, setRating] = useState(0);
@@ -146,6 +151,60 @@ export const Detail = () => {
             fetchDetail();
         }
     }, [slug]);
+
+    const addToCart = async (userId, couponId, items) => {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            console.error('No token found');
+            notify('Bạn chưa đăng nhập'); // Notify user to login
+            return;
+        }
+
+        if (!userId || !items || items.length === 0) {
+            console.error('Invalid userId or items');
+            notify('Thông tin người dùng hoặc sản phẩm không hợp lệ');
+            return;
+        }
+
+        setLoading(true);
+        notify('Đang thêm sản phẩm vào giỏ hàng...');
+
+        try {
+            const res = await fetch(`${API_URL}/auth/cart`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    coupon_id: couponId,
+                    items: items
+                })
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                console.error('Failed to update cart:', errorData.message || 'Unknown error');
+                notify(errorData.message || 'Có lỗi xảy ra khi cập nhật giỏ hàng');
+                return;
+            }
+
+            const data = await res.json();
+            console.log('Items:', data.items);
+            console.log('Cart updated successfully:', data);
+            notify('Sản phẩm đã được thêm vào giỏ hàng thành công!');
+
+        } catch (error) {
+            console.log('Error:', error);
+            notify('Có lỗi xảy ra, vui lòng thử lại sau.');
+
+        } finally {
+            setLoading(false); // End loading state
+        }
+    };
+
+
 
     const renderBannerDetail = (
         <div
@@ -665,7 +724,7 @@ export const Detail = () => {
                                     Tìm hiểu thêm
                                 </a>
                             </p>
-                            <div className="flex flex-wrap justify-center gap-4 mb-6">
+                            {/* <div className="flex flex-wrap justify-center gap-4 mb-6">
                                 <img
                                     src="https://dummyimage.com/100x40/000/fff&text=Nasdaq"
                                     alt="Nasdaq"
@@ -691,7 +750,7 @@ export const Detail = () => {
                                     alt="Eventbrite"
                                     className="h-10"
                                 />
-                            </div>
+                            </div> */}
                             {/* Phần bài tập coding */}
                             <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-center">
                                 <div className="w-full lg:w-1/2">
@@ -1363,7 +1422,7 @@ export const Detail = () => {
                             <p className="text-sm text-gray-600 mb-2">
                                 6 ngày còn lại với mức giá này!
                             </p>
-                            <button className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300">
+                            <button onClick={addToCart} className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300">
                                 Thêm vào giỏ hàng
                             </button>
 
