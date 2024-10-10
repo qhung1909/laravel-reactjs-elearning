@@ -5,7 +5,6 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 import axios from "axios";
 
-
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
         style: "currency",
@@ -87,13 +86,14 @@ export const Cart = () => {
                     ),
                 }))
             );
-
         } catch (error) {
             console.error(
                 "Error deleting course from cart:",
                 error.response?.data || error.message
             );
-            toast.error(`Lỗi: ${error.response?.data?.message || error.message}`);
+            toast.error(
+                `Lỗi: ${error.response?.data?.message || error.message}`
+            );
         }
     };
     const calculateTotalPrice = () => {
@@ -117,17 +117,17 @@ export const Cart = () => {
         return cart.map((item, index) => (
             <div key={index} className="mb-4 border-b pb-4">
                 <div className="flex items-center justify-between">
-                    <input
+                    {/* <input
                         className="mr-4 checked:bg-yellow-500"
                         defaultChecked
                         type="checkbox"
                         aria-label="Chọn khóa học"
-                    />
-                    <div className="ml-4">
+                    /> */}
+                    {/* <div className="ml-4">
                         <p className="font-bold">
                             Đơn hàng ID: {item.order_id}
                         </p>
-                    </div>
+                    </div> */}
                     <div className="text-right ml-auto">
                         {/* <button className="mt-2">
                             <box-icon
@@ -149,42 +149,48 @@ export const Cart = () => {
                     return (
                         <div
                             key={detailIndex}
-                            className="flex items-center mt-2"
+                            className="flex items-center mt-2 border-b pb-2"
                         >
+                            <input
+                                className="mr-4 checked:bg-yellow-500"
+                                defaultChecked
+                                type="checkbox"
+                                aria-label="Chọn khóa học"
+                            />
                             <img
                                 alt="Course Image"
-                                className="w-16 h-16 rounded-sm"
+                                className="w-16 h-16 rounded-sm object-cover"
                                 src={
                                     course
                                         ? course.img
                                         : "default-image-url.jpg"
                                 }
                             />
-                            <div className="ml-4">
+                            <div className="ml-4 flex-grow flex justify-between items-center">
                                 <p className="font-bold">
                                     {course
                                         ? course.title
                                         : "Khóa học không tồn tại"}
                                 </p>
-                                <p className="text-sm text-gray-500">
-                                    Giá: {formatCurrency(detail.price)}
+                                <p className="font-bold text-blue-600">
+                                    {formatCurrency(detail.price)}
                                 </p>
                             </div>
-                            <div className="ml-auto">
-                                <button
-                                    onClick={() =>
-                                        deleteCourseFromCart(
-                                            item.order_id,
-                                            detail.course_id
-                                        )
-                                    }
-                                >
-                                    <box-icon
-                                        name="trash-alt"
-                                        color="#ff0015"
-                                    ></box-icon>
-                                </button>
-                            </div>
+                            <button
+                                onClick={() =>
+                                    deleteCourseFromCart(
+                                        item.order_id,
+                                        detail.course_id
+                                    )
+                                }
+                                className="ml-4 text-red-500 hover:text-red-700"
+                                aria-label="Xóa khóa học"
+                            >
+                                <box-icon
+                                    name="trash-alt"
+                                    color="#ff0015"
+                                ></box-icon>
+                            </button>
                         </div>
                     );
                 })}
@@ -196,7 +202,7 @@ export const Cart = () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
             console.error("No token found");
-            toast.info("Bạn chưa đăng nhập");
+            toast.error("Bạn chưa đăng nhập");
             return;
         }
 
@@ -221,7 +227,6 @@ export const Cart = () => {
             const data = await response.json(); // Lấy dữ liệu phản hồi từ API
             // Xử lý dữ liệu trả về nếu cần, ví dụ như cập nhật giỏ hàng
             console.log("Added to cart successfully:", data);
-            toast.success("Đã thêm vào giỏ hàng thành công");
         } catch (error) {
             console.error("Error adding to cart:", error); // Bắt lỗi
             toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau.");
