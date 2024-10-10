@@ -14,14 +14,24 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet"
+
 export const Instructor = () => {
     return (
         <>
             <section>
                 <div className="flex bg-gray-100 h-sc">
                     {/* Sidebar */}
-                    <div className="w-72 bg-white shadow-md border-gray-100 border-r-[1px]">
-                        <div className="p-3">
+                    <div className=" w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
+                        <div className="pe-3">
+                            {/* logo */}
                             <div className="p-4 flex justify-between items-center">
                                 <div className="logo">
                                     <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-28 h-20" />
@@ -34,36 +44,37 @@ export const Instructor = () => {
                                     </svg>
                                 </div>
                             </div>
+                            {/* ul list */}
                             <ul className="">
-                                <li className="mb-2">
-                                    <a href="#" className="flex items-center px-4 py-4 rounded-2xl text-gray-700 bg-gray-100">
-                                        <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                        </svg>
+                                <li className="mb-3">
+                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 bg-gray-100">
+                                        <div className=" bg-yellow-400 mr-3 pt-1 px-1  rounded-full">
+                                            <box-icon   box-icon name='sidebar' color='#ffffff' ></box-icon>
+                                        </div>
                                         <p className="font-semibold text-lg">Bảng điều khiển</p>
                                     </a>
                                 </li>
-                                <li className="mb-2">
-                                    <a href="#" className="flex items-center px-4 py-4  text-gray-600 hover:bg-gray-100">
-                                        <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                        </svg>
+                                <li className="mb-3">
+                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl  text-gray-600 hover:bg-gray-100">
+                                        <div className="mr-3 pt-1 px-1 rounded-full">
+                                            <box-icon name='book-open'></box-icon>
+                                        </div>
                                         <p className="font-semibold text-lg">Bài học của tôi</p>
                                     </a>
                                 </li>
-                                <li className="mb-2">
-                                    <a href="#" className="flex items-center px-4 py-4  text-gray-600 hover:bg-gray-100">
-                                        <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
+                                <li className="mb-3">
+                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl  text-gray-600 hover:bg-gray-100">
+                                        <div className=" mr-3 pt-1 px-1 rounded-full">
+                                            <box-icon name='credit-card' ></box-icon>
+                                        </div>
                                         <p className="font-semibold text-lg">Lịch sử mua hàng</p>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#" className="flex items-center px-4 py-4  text-gray-600 hover:bg-gray-100">
-                                        <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
+                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                        <div className=" mr-3 pt-1 px-1 rounded-full">
+                                            <box-icon type='solid' name='user-circle'></box-icon>
+                                        </div>
                                         <p className="font-semibold text-lg">Thông tin tài khoản</p>
                                     </a>
                                 </li>
@@ -88,10 +99,13 @@ export const Instructor = () => {
                                         </svg>
                                     </button>
                                     <div className="flex items-center gap-3">
+                                        {/* avatar */}
                                         <Avatar>
                                             <AvatarImage src="./src/assets/images/doremon.jpg" />
                                             <AvatarFallback>CN</AvatarFallback>
                                         </Avatar>
+
+                                        {/* user control */}
                                         <div className="text-left">
                                             <span className="font-medium text-sm">Chấn Toàn</span>
                                             <br />
@@ -113,7 +127,65 @@ export const Instructor = () => {
 
                                             </DropdownMenu>
                                         </div>
+                                        {/* toggler */}
+                                        <div className="">
+                                            <Sheet>
+                                                <SheetTrigger>
+                                                    <div className="w-5 lg:hidden block">
+                                                        <box-icon name='menu'></box-icon>
 
+                                                    </div>
+                                                    {/* <img src="./src/assets/images/toggle.png"  alt="" /> */}
+                                                </SheetTrigger>
+                                                <SheetContent>
+                                                    <SheetHeader>
+                                                        <SheetTitle>
+                                                            <div className="p-4 flex justify-between items-center border-b-[1px]">
+                                                                <div className="logo">
+                                                                    <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-28 h-10 object-cover" />
+                                                                </div>
+                                                            </div>
+                                                        </SheetTitle>
+                                                        <SheetDescription>
+                                                            <ul className="">
+                                                                <li className="mb-2">
+                                                                    <a href="#" className="flex items-center px-4 py-4 rounded-2xl text-gray-700 bg-gray-100">
+                                                                        <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                                                        </svg>
+                                                                        <p className="font-semibold text-sm">Bảng điều khiển</p>
+                                                                    </a>
+                                                                </li>
+                                                                <li className="mb-2">
+                                                                    <a href="#" className="flex items-center px-4 py-4  text-gray-600 hover:bg-gray-100">
+                                                                        <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                                                        </svg>
+                                                                        <p className="font-semibold text-sm">Bài học của tôi</p>
+                                                                    </a>
+                                                                </li>
+                                                                <li className="mb-2">
+                                                                    <a href="#" className="flex items-center px-4 py-4  text-gray-600 hover:bg-gray-100">
+                                                                        <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                                        </svg>
+                                                                        <p className="font-semibold text-sm">Lịch sử mua hàng</p>
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#" className="flex items-center px-4 py-4  text-gray-600 hover:bg-gray-100">
+                                                                        <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                                        </svg>
+                                                                        <p className="font-semibold text-sm">Thông tin tài khoản</p>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </SheetDescription>
+                                                    </SheetHeader>
+                                                </SheetContent>
+                                            </Sheet>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -156,9 +228,9 @@ export const Instructor = () => {
 
                             {/* Hours */}
                             <div className="bg-white rounded-lg shadow-lg p-6 my-5">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-lg font-bold">Thống kê số giờ học</h3>
-                                    <div className="flex space-x-2">
+                                <div className="md:flex  justify-between items-center mb-4">
+                                    <h3 className="lg:text-lg md:text-md text-md font-bold text-center">Thống kê số giờ học</h3>
+                                    <div className="flex space-x-2 justify-center py-3">
                                         <button className="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-600 hover:bg-purple-100 ">
                                             <p className="font-bold">Ngày</p>
                                         </button>
@@ -177,7 +249,7 @@ export const Instructor = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex items-baseline space-x-2">
+                                <div className="flex items-baseline sm:justify-center md:justify-start space-x-2">
                                     <span className="text-3xl font-bold">0 giờ</span>
                                     <span className="text-sm text-green-700 font-semibold bg-green-100 px-3 rounded-full border-2 border-gray-200">↑ 0%</span>
                                 </div>
