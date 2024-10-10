@@ -170,7 +170,7 @@ class CartController extends Controller
             $request->validate([
                 'coupon_id' => 'nullable|exists:coupons,id',
                 'items' => 'required|array',
-                'items.*.course_id' => 'required|exists:courses,course_id', 
+                'items.*.course_id' => 'required|exists:courses,course_id',
                 'items.*.price' => 'required|numeric'
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -203,20 +203,52 @@ class CartController extends Controller
         ], 201);
     }
 
-    public function removeItem(Request $request, $orderDetailId)
+    public function removeItem(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
-
-        $orderDetail = OrderDetail::find($orderDetailId);
-
-        if (!$orderDetail || $orderDetail->order->user_id !== $request->user_id) {
-            return response()->json(['message' => 'Chi tiết đơn hàng không hợp lệ!'], 404);
+        if (!Auth::check()) {
+            return response()->json([
+                'message' => 'Người dùng chưa đăng nhập.',
+            ], 401);
         }
-
+    
+        $user_id = Auth::id();
+    
+        try {
+            $request->validate([
+                'order_id' => 'required|exists:orders,order_id,user_id,' . $user_id,
+                'course_id' => 'required|exists:courses,course_id',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $e->errors()], 422);
+        }
+    
+        $order = Order::find($request->order_id);
+    
+        if (!$order) {
+            return response()->json(['message' => 'Đơn hàng không tồn tại.'], 404);
+        }
+    
+        $orderDetail = OrderDetail::where('order_id', $order->order_id)
+            ->where('course_id', $request->course_id)
+            ->first();
+    
+        if (!$orderDetail) {
+            return response()->json(['message' => 'Món hàng không tồn tại trong đơn hàng.'], 404);
+        }
+    
         $orderDetail->delete();
-
-        return response()->json(['message' => 'Mục đã được xóa khỏi đơn hàng!'], 200);
+    
+        $order->total_price -= $orderDetail->price;
+        $order->save();
+    
+        if (OrderDetail::where('order_id', $order->order_id)->count() === 0) {
+            $order->delete();
+        }
+    
+        return response()->json([
+            'message' => 'Món hàng đã được xóa khỏi giỏ hàng thành công!',
+            'order' => $order,
+        ], 200);
     }
+    
 }

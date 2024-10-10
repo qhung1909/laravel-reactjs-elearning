@@ -16,8 +16,4 @@ class OrderDetail extends Model
         'price',
     ];
 
-    public function course()
-    {
-        return $this->belongsTo(Course::class, 'course_id');
-    }
 }
