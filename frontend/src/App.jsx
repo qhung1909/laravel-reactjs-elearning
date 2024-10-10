@@ -17,6 +17,7 @@ import AdminRole from "./pages/role/adminRole.jsx";
 import { PageNotFound } from "./pages/pageNotFound/pageNotFound.jsx";
 import { Payment } from "./pages/payment/payment.jsx";
 import { Cart } from "./pages/cart/cart.jsx";
+import { Instructor } from "./pages/instructor/instructor.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === '/admin';
@@ -26,6 +27,7 @@ function AppContent() {
         <>
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
+                <Route path="/instructor" element={<Instructor/>}></Route>
                 <Route path="/blogdetail" element={<Blogdetail/>}></Route>
                 <Route path="/blog" element={<Blog/>}></Route>
                 <Route path="/contact" element={<Contact/>}></Route>
