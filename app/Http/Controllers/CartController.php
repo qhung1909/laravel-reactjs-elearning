@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
@@ -140,63 +141,130 @@ class CartController extends Controller
 
 
 
-    public function getCart(Request $request)
+    public function getCart()
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
+        if (!Auth::check()) {
+            return response()->json([
+                'message' => 'Người dùng chưa đăng nhập.',
+            ], 401);
+        }
 
-        $orders = Order::with('orderDetails')->where('user_id', $request->user_id)->get();
+        $user_id = Auth::id();
+        $orders = Order::with('orderDetails')->where('user_id', $user_id)->get();
 
         return response()->json($orders, 200);
     }
-    
+
+
     public function addToCart(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'coupon_id' => 'nullable|exists:coupons,id',
-            'items' => 'required|array',
-            'items.*.course_id' => 'required|exists:courses,id',
-            'items.*.price' => 'required|numeric'
-        ]);
-
-        $order = Order::create([
-            'user_id' => $request->user_id,
-            'coupon_id' => $request->coupon_id,
-            'total_price' => array_sum(array_column($request->items, 'price')),
-            'status' => 'pending',
-        ]);
-
+        if (!Auth::check()) {
+            return response()->json([
+                'message' => 'Người dùng chưa đăng nhập.',
+            ], 401);
+        }
+    
+        $user_id = Auth::id();
+    
+        try {
+            $request->validate([
+                'coupon_id' => 'nullable|exists:coupons,id',
+                'items' => 'required|array',
+                'items.*.course_id' => 'required|exists:courses,course_id',
+                'items.*.price' => 'required|numeric'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $e->errors()], 422);
+        }
+    
+        $order = Order::where('user_id', $user_id)
+                      ->where('status', 'pending')
+                      ->first();
+    
+        if (!$order) {
+            $order = Order::create([
+                'user_id' => $user_id,
+                'coupon_id' => $request->coupon_id,
+                'total_price' => 0, 
+                'status' => 'pending',
+            ]);
+        }
+    
         foreach ($request->items as $item) {
+            $existingItem = OrderDetail::where('order_id', $order->order_id)
+                                       ->where('course_id', $item['course_id'])
+                                       ->first();
+    
+            if ($existingItem) {
+                return response()->json([
+                    'message' => 'Khóa học này đã có trong giỏ hàng.',
+                ], 409);
+            }
+    
             OrderDetail::create([
                 'order_id' => $order->order_id,
                 'course_id' => $item['course_id'],
                 'price' => $item['price'],
             ]);
+            
+            $order->total_price += $item['price'];
         }
-
+    
+        $order->update(['total_price' => $order->total_price]);
+    
         return response()->json([
             'message' => 'Đơn hàng đã được thêm vào giỏ hàng thành công!',
             'order' => $order,
         ], 201);
     }
+    
 
-
-    public function removeItem(Request $request, $orderDetailId)
+    public function removeItem(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
-
-        $orderDetail = OrderDetail::find($orderDetailId);
-
-        if (!$orderDetail || $orderDetail->order->user_id !== $request->user_id) {
-            return response()->json(['message' => 'Chi tiết đơn hàng không hợp lệ!'], 404);
+        if (!Auth::check()) {
+            return response()->json([
+                'message' => 'Người dùng chưa đăng nhập.',
+            ], 401);
         }
-
+    
+        $user_id = Auth::id();
+    
+        try {
+            $request->validate([
+                'order_id' => 'required|exists:orders,order_id,user_id,' . $user_id,
+                'course_id' => 'required|exists:courses,course_id',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $e->errors()], 422);
+        }
+    
+        $order = Order::find($request->order_id);
+    
+        if (!$order) {
+            return response()->json(['message' => 'Đơn hàng không tồn tại.'], 404);
+        }
+    
+        $orderDetail = OrderDetail::where('order_id', $order->order_id)
+            ->where('course_id', $request->course_id)
+            ->first();
+    
+        if (!$orderDetail) {
+            return response()->json(['message' => 'Món hàng không tồn tại trong đơn hàng.'], 404);
+        }
+    
         $orderDetail->delete();
-
-        return response()->json(['message' => 'Mục đã được xóa khỏi đơn hàng!'], 200);
+    
+        $order->total_price -= $orderDetail->price;
+        $order->save();
+    
+        if (OrderDetail::where('order_id', $order->order_id)->count() === 0) {
+            $order->delete();
+        }
+    
+        return response()->json([
+            'message' => 'Món hàng đã được xóa khỏi giỏ hàng thành công!',
+            'order' => $order,
+        ], 200);
     }
+    
 }

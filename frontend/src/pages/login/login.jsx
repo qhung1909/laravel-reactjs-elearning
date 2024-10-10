@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Link, useNavigate } from 'react-router-dom';
 import './login.css'
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect  } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 const API_URL = import.meta.env.VITE_API_URL;
 // const notify = (message) => toast.error(message);
@@ -22,7 +22,7 @@ export const Login = () => {
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    success
+
     const debounce = (func, delay) => {
         let timer;
         return (...args) => {
@@ -36,18 +36,17 @@ export const Login = () => {
     const getUserInfo = async () => {
         const token = localStorage.getItem('access_token');
         if (!token) {
-                console.error('No token found');
+            console.error('No token found');
             return;
         }
         setLoading(true);
         try {
-            const res = await fetch(`${API_URL}/auth/me`, {
+            const res = await makeApiRequest(`${API_URL}/auth/me`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
-            })
+            });
 
             if (!res.ok) {
                 console.error('Failed to fetch data');
@@ -56,13 +55,71 @@ export const Login = () => {
             }
         } catch (error) {
             console.error('Error fetching data user', error);
-
         } finally {
             setLoading(false);
         }
-    }
+    };
 
+    const refreshToken = async () => {
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (!refreshToken) {
+            console.error('No refresh token found');
+            return;
+        }
+        try {
+            const res = await fetch(`${API_URL}/auth/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ refresh_token: refreshToken })
+            });
 
+            if (!res.ok) {
+                console.error('Failed to refresh token');
+                return;
+            }
+
+            const data = await res.json();
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+            await getUserInfo(); 
+        } catch (error) {
+            console.error('Error refreshing token', error);
+        }
+    };
+
+    const makeApiRequest = async (url, options) => {
+        const token = localStorage.getItem('access_token');
+        const refreshToken = localStorage.getItem('refresh_token');
+
+        if (isTokenExpired(token)) {
+            if (refreshToken) {
+                await refreshToken(); 
+            } else {
+                alert("Session expired. Please log in again.");
+                navigate('/login'); 
+                return;
+            }
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                ...options.headers,
+                'Authorization': `Bearer ${token}`,
+            }
+        });
+
+        return response;
+    };
+
+    const isTokenExpired = (token) => {
+        if (!token) return true;
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const exp = payload.exp * 1000; 
+        return Date.now() > exp; 
+    };
 
     const debouncedLogin = useCallback(debounce(async () => {
         if (!email || !password) {
@@ -84,7 +141,7 @@ export const Login = () => {
                 body: JSON.stringify({ email, password })
             });
 
-            if(res.status === 401){
+            if (res.status === 401) {
                 setError('Tài khoản hoặc mật khẩu chưa chính xác!');
                 return;
             }
@@ -92,13 +149,13 @@ export const Login = () => {
             if (!res.ok) {
                 const errorData = await res.json();
                 console.log(errorData);
-                // setError(errorData.error);
                 notify('Vui lòng xác thực email!');
                 return;
             }
 
             const data = await res.json();
             localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
             notify('Đăng nhập thành công', 'success');
             setSuccess('Đăng nhập thành công');
             await getUserInfo();
@@ -109,12 +166,20 @@ export const Login = () => {
         } finally {
             setLoading(false);
         }
-    }, 300), [email, password, navigate, getUserInfo    ]);
+    }, 300), [email, password, navigate]);
 
     const submit = (e) => {
         e.preventDefault();
         debouncedLogin();
     };
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            refreshToken();
+        }, 1800000); 
+
+        return () => clearInterval(intervalId); 
+    }, []);
 
 
     return (
