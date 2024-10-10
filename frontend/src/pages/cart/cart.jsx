@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -258,7 +259,7 @@ export const Cart = () => {
                             <div className="flex flex-col lg:flex-row">
                                 {/* Cột bên trái: Danh sách sản phẩm */}
                                 <div className="flex flex-col justify-between p-2 border-b mr-20 w-full lg:w-2/3">
-                                    {/* Sản phẩm 1 */}
+                                    {/* Sản phẩm */}
                                     {renderCart()}
                                 </div>
 
@@ -272,9 +273,11 @@ export const Cart = () => {
                                             {formatCurrency(totalPrice)}
                                         </span>
                                     </div>
-                                    <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 rounded">
-                                        Thanh toán
-                                    </button>
+                                    <Link to="/payment">
+                                        <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 rounded">
+                                            Thanh toán
+                                        </button>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
