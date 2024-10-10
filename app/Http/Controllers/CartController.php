@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
@@ -140,36 +141,56 @@ class CartController extends Controller
 
 
 
-    public function getCart(Request $request)
+    public function getCart()
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
+        if (!Auth::check()) {
+            return response()->json([
+                'message' => 'Người dùng chưa đăng nhập.',
+            ], 401);
+        }
 
-        $orders = Order::with('orderDetails')->where('user_id', $request->user_id)->get();
+        $user_id = Auth::id();
+        $orders = Order::with('orderDetails')->where('user_id', $user_id)->get();
 
         return response()->json($orders, 200);
     }
-    
+
+
     public function addToCart(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'coupon_id' => 'nullable|exists:coupons,id',
-            'items' => 'required|array',
-            'items.*.course_id' => 'required|exists:courses,id',
-            'items.*.price' => 'required|numeric'
-        ]);
+        if (!Auth::check()) {
+            return response()->json([
+                'message' => 'Người dùng chưa đăng nhập.',
+            ], 401);
+        }
+
+        $user_id = Auth::id();
+
+        try {
+            $request->validate([
+                'coupon_id' => 'nullable|exists:coupons,id',
+                'items' => 'required|array',
+                'items.*.course_id' => 'required|exists:courses,course_id', 
+                'items.*.price' => 'required|numeric'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $e->errors()], 422);
+        }
+
+        $total_price = 0;
+        foreach ($request->items as $index => $item) {
+            $total_price += $item['price'];
+        }
 
         $order = Order::create([
-            'user_id' => $request->user_id,
+            'user_id' => $user_id,
             'coupon_id' => $request->coupon_id,
-            'total_price' => array_sum(array_column($request->items, 'price')),
+            'total_price' => $total_price,
             'status' => 'pending',
         ]);
 
         foreach ($request->items as $item) {
-            OrderDetail::create([
+            $orderDetail = OrderDetail::create([
                 'order_id' => $order->order_id,
                 'course_id' => $item['course_id'],
                 'price' => $item['price'],
@@ -181,7 +202,6 @@ class CartController extends Controller
             'order' => $order,
         ], 201);
     }
-
 
     public function removeItem(Request $request, $orderDetailId)
     {
