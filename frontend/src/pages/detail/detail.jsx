@@ -1,6 +1,6 @@
 import "./detail.css";
 import { Link } from "react-router-dom";
-// import { Navigate } from "react-router-dom"; đỏ
+import { Navigate } from "react-router-dom";
 import { Star } from "lucide-react";
 import { Edit, Trash } from "lucide-react"; // Biểu tượng sửa và xóa
 import {
@@ -25,15 +25,15 @@ import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
-const notify = (message, type ) => {
-    if (type === 'notLogin'){
+const notify = (message, type) => {
+    if (type === "notLogin") {
         toast.error(message);
     }
-}
+};
 export const Detail = () => {
     const [detail, setDetail] = useState([]);
     const { slug } = useParams();
-    const [ loading, setLoading] = useState([]);
+    const [loading, setLoading] = useState([]);
     // JS Section 1
     const [isSection1Expanded, setIsSection1Expanded] = useState(false);
     const toggleSection1 = () => {
@@ -65,40 +65,40 @@ export const Detail = () => {
     // User
     const [user, setUser] = useState([]);
     // Fetch thông tin người dùng
-    // const fetchUser = async () => {
-    //     const token = localStorage.getItem("access_token");
-    //     if (!token) {
-    //         console.error("Người dùng chưa đăng nhập.");
-    //         return;
-    //     }
-    //     try {
-    //         const res = await axios.get(`${API_URL}/auth/me`, {
-    //             headers: {
-    //                 "x-api-secret": `${API_KEY}`,
-    //                 Authorization: `Bearer ${token}`,
-    //             },
-    //         });
-    //         // Kiểm tra cấu trúc dữ liệu trả về
-    //         if (res.data && res.data) {
-    //             setUser(res.data);
-    //         } else {
-    //             console.error(
-    //                 "Không tìm thấy thông tin người dùng trong phản hồi."
-    //             );
-    //         }
-    //     } catch (error) {
-    //         console.error("Lỗi khi lấy thông tin người dùng:", error);
-    //         if (error.response) {
-    //             console.error("Chi tiết lỗi:", error.response.data);
-    //             console.error("Trạng thái lỗi:", error.response.status);
-    //         } else {
-    //             console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
-    //         }
-    //     }
-    // };
-    // useEffect(() => {
-    //     fetchUser();
-    // }, []);
+    const fetchUser = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/auth/me`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            // Kiểm tra cấu trúc dữ liệu trả về
+            if (res.data && res.data) {
+                setUser(res.data);
+            } else {
+                console.error(
+                    "Không tìm thấy thông tin người dùng trong phản hồi."
+                );
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy thông tin người dùng:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+                console.error("Trạng thái lỗi:", error.response.status);
+            } else {
+                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
+            }
+        }
+    };
+    useEffect(() => {
+        fetchUser();
+    }, []);
 
     // Rating & comment
     const [rating, setRating] = useState(0);
@@ -108,7 +108,7 @@ export const Detail = () => {
     const [couponId, setCouponId] = useState(null);
     const [items, setItems] = useState([]);
     const [cartItems, setCartItems] = useState([]);
-    
+
     const fetchComments = async (course_id) => {
         if (!course_id) {
             console.error("course_id không hợp lệ.");
@@ -142,13 +142,21 @@ export const Detail = () => {
                     "x-api-secret": `${API_KEY}`,
                 },
             });
-            setDetail(res.data);
-            fetchComments(res.data.course_id); // Lưu course_id vào fetchComments để truyền biến course_id vào hàm fetchComments
+
+            if (res.data && res.data.course_id) {
+                setDetail(res.data);
+                fetchComments(res.data.course_id); // Truyền course_id vào hàm fetchComments
+            } else {
+                Navigate("/404"); // Điều hướng đến trang 404 nếu slug không tồn tại
+            }
         } catch (error) {
             if (error.response && error.response.status === 404) {
-                // navigate('/404'); // đỏ
+                Navigate("/404"); // Điều hướng đến trang 404 nếu API trả về lỗi 404
             } else {
-                console.error("Chi tiết lỗi:", error.response?.data || error.message);
+                console.error(
+                    "Chi tiết lỗi:",
+                    error.response?.data || error.message
+                );
                 console.error("Trạng thái lỗi:", error.response?.status);
             }
         }
@@ -160,65 +168,69 @@ export const Detail = () => {
         }
     }, [slug]);
 
-
     const addToCart = async (couponId) => {
-        const token = localStorage.getItem('access_token');
+        const token = localStorage.getItem("access_token");
         if (!token) {
-            console.error('No token found');
-            notify('Bạn chưa đăng nhập'); 
+            console.error("No token found");
+            notify("Bạn chưa đăng nhập");
             return;
         }
 
-        const isAlreadyAdded = cartItems.some(item => item.course_id === detail.course_id);
+        const isAlreadyAdded = cartItems.some(
+            (item) => item.course_id === detail.course_id
+        );
         if (isAlreadyAdded) {
-            notify('Sản phẩm này đã được thêm vào giỏ hàng rồi.');
+            notify("Sản phẩm này đã được thêm vào giỏ hàng rồi.");
             return;
         }
 
         const newItem = {
             course_id: detail.course_id,
-            price: detail.price_discount || detail.price
+            price: detail.price_discount || detail.price,
         };
 
-        console.log('Item trước khi gửi:', newItem);
+        console.log("Item trước khi gửi:", newItem);
 
         setLoading(true);
-        notify('Đang thêm sản phẩm vào giỏ hàng...');
+        notify("Đang thêm sản phẩm vào giỏ hàng...");
 
         try {
             const res = await fetch(`${API_URL}/auth/cart/addToCart`, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     coupon_id: couponId || null,
-                    items: [newItem] 
-                })
+                    items: [newItem],
+                }),
             });
 
             if (!res.ok) {
                 const errorData = await res.json();
-                console.error('Failed to update cart:', errorData.message || 'Unknown error');
-                notify(errorData.message || 'Có lỗi xảy ra khi cập nhật giỏ hàng');
+                console.error(
+                    "Failed to update cart:",
+                    errorData.message || "Unknown error"
+                );
+                notify(
+                    errorData.message || "Có lỗi xảy ra khi cập nhật giỏ hàng"
+                );
                 return;
             }
 
             const data = await res.json();
-            console.log('Order:', data.order);
-            notify('Sản phẩm đã được thêm vào giỏ hàng thành công!');
+            console.log("Order:", data.order);
+            notify("Sản phẩm đã được thêm vào giỏ hàng thành công!");
 
-            setCartItems(prevItems => [...prevItems, newItem]);
-
+            setCartItems((prevItems) => [...prevItems, newItem]);
         } catch (error) {
-            console.log('Error:', error);
-            notify('Có lỗi xảy ra, vui lòng thử lại sau.');
+            console.log("Error:", error);
+            notify("Có lỗi xảy ra, vui lòng thử lại sau.");
         } finally {
-            setLoading(false); 
+            setLoading(false);
         }
     };
-    
 
     const renderBannerDetail = (
         <div
@@ -606,7 +618,7 @@ export const Detail = () => {
                                 <ul className="space-y-2">
                                     {/* Danh sách trái */}
                                     <li className="flex items-start">
-                                    <span>- </span>
+                                        <span>- </span>
                                         <span className="ml-2">
                                             Hiểu rõ đặc điểm của ngôn ngữ lập
                                             trình Python và các ứng dụng có thể
@@ -614,14 +626,14 @@ export const Detail = () => {
                                         </span>
                                     </li>
                                     <li className="flex items-start">
-                                    <span>- </span>
+                                        <span>- </span>
                                         <span className="ml-2">
                                             Nắm rõ cú pháp cơ bản của Python,
                                             cách khai báo biến
                                         </span>
                                     </li>
                                     <li className="flex items-start">
-                                    <span>- </span>
+                                        <span>- </span>
                                         <span className="ml-2">
                                             Nắm được các phép toán số học và
                                             phép toán logic trong Python
@@ -630,7 +642,7 @@ export const Detail = () => {
                                     {isSection1Expanded && (
                                         <>
                                             <li className="flex items-start">
-                                            <span>- </span>
+                                                <span>- </span>
                                                 <span className="ml-2">
                                                     Nắm được kiểu dữ liệu List,
                                                     Tuple và Dictionary trong
@@ -638,7 +650,7 @@ export const Detail = () => {
                                                 </span>
                                             </li>
                                             <li className="flex items-start">
-                                            <span>- </span>
+                                                <span>- </span>
                                                 <span className="ml-2">
                                                     Biết cách lập trình hướng
                                                     đối tượng với lớp (class),
@@ -646,7 +658,7 @@ export const Detail = () => {
                                                 </span>
                                             </li>
                                             <li className="flex items-start">
-                                            <span>- </span>
+                                                <span>- </span>
                                                 <span className="ml-2">
                                                     Hiểu và ứng dụng các thư
                                                     viện Python (web, khoa học
@@ -660,7 +672,7 @@ export const Detail = () => {
                                 <ul className="space-y-2">
                                     {/* Danh sách phải */}
                                     <li className="flex items-start">
-                                    <span>- </span>
+                                        <span>- </span>
                                         <span className="ml-2">
                                             Biết cách cài đặt môi trường phát
                                             triển PyCharm để lập trình bằng
@@ -668,14 +680,14 @@ export const Detail = () => {
                                         </span>
                                     </li>
                                     <li className="flex items-start">
-                                    <span>- </span>
+                                        <span>- </span>
                                         <span className="ml-2">
                                             Biết cách xử lý chuỗi (string),
                                             phương thức về chuỗi
                                         </span>
                                     </li>
                                     <li className="flex items-start">
-                                    <span>- </span>
+                                        <span>- </span>
                                         <span className="ml-2">
                                             Nắm được cấu trúc điều khiển và vòng
                                             lặp
@@ -684,7 +696,7 @@ export const Detail = () => {
                                     {isSection1Expanded && (
                                         <>
                                             <li className="flex items-start">
-                                            <span>- </span>
+                                                <span>- </span>
                                                 <span className="ml-2">
                                                     Biết cách sử dụng hàm
                                                     (Function) và Module trong
@@ -1436,7 +1448,10 @@ export const Detail = () => {
                             <p className="text-sm text-gray-600 mb-2">
                                 6 ngày còn lại với mức giá này!
                             </p>
-                            <button onClick={() => addToCart(couponId, items)} className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300">
+                            <button
+                                onClick={() => addToCart(couponId, items)}
+                                className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
+                            >
                                 Thêm vào giỏ hàng
                             </button>
 
