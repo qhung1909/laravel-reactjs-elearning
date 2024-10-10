@@ -18,6 +18,9 @@ import { PageNotFound } from "./pages/pageNotFound/pageNotFound.jsx";
 import { Payment } from "./pages/payment/payment.jsx";
 import { Cart } from "./pages/cart/cart.jsx";
 import { Instructor } from "./pages/instructor/instructor.jsx";
+import { InstructorHistory } from "./pages/instructor/instructorHistory.jsx";
+import { InstructorLesson } from "./pages/instructor/instructorLesson.jsx";
+import { InstructorProfile } from "./pages/instructor/instructorProfile.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === '/admin';
@@ -28,6 +31,9 @@ function AppContent() {
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
                 <Route path="/instructor" element={<Instructor/>}></Route>
+                <Route path="/instructorhistory" element={<InstructorHistory/>}></Route>
+                <Route path="/instructorlessson" element={<InstructorLesson/>}></Route>
+                <Route path="/instructorprofile" element={<InstructorProfile/>}></Route>
                 <Route path="/blogdetail" element={<Blogdetail/>}></Route>
                 <Route path="/blog" element={<Blog/>}></Route>
                 <Route path="/contact" element={<Contact/>}></Route>

@@ -57,28 +57,28 @@ export const Instructor = () => {
 
                                 </li>
                                 <li className="mb-3">
-                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl  text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructorlessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className="mr-3 pt-1 px-1 rounded-full">
                                             <box-icon name='book-open'></box-icon>
                                         </div>
                                         <p className="font-semibold text-base">Bài học của tôi</p>
-                                    </a>
+                                    </Link>
                                 </li>
                                 <li className="mb-3">
-                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl  text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructorhistory" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                             <box-icon name='credit-card' ></box-icon>
                                         </div>
                                         <p className="font-semibold text-base">Lịch sử mua hàng</p>
-                                    </a>
+                                    </Link>
                                 </li>
                                 <li>
-                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructorprofile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                             <box-icon type='solid' name='user-circle'></box-icon>
                                         </div>
                                         <p className="font-semibold text-base">Thông tin tài khoản</p>
-                                    </a>
+                                    </Link>
                                 </li>
                             </ul>
                         </div>
@@ -90,10 +90,10 @@ export const Instructor = () => {
                             <div className="flex items-center justify-between px-4 py-3">
                                 <h1 className="text-xl font-semibold ">
                                     <Link to="/">
-                                    <div className="flex items-center gap-1">
-                                        <box-icon name='home-alt-2' color='#daddf1' ></box-icon>
-                                        <p className="text-slate-600">Trang chủ</p>
-                                    </div>
+                                        <div className="flex items-center gap-1">
+                                            <box-icon name='home-alt-2' color='#daddf1' ></box-icon>
+                                            <p className="text-slate-600">Trang chủ</p>
+                                        </div>
 
                                     </Link>
                                 </h1>
@@ -159,36 +159,37 @@ export const Instructor = () => {
                                                         <SheetDescription>
                                                             <ul className="">
                                                                 <li className="mb-3">
-                                                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 bg-gray-100">
+                                                                    <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 bg-gray-100">
                                                                         <div className=" bg-yellow-400 mr-3 pt-1 px-1  rounded-full">
                                                                             <box-icon name='sidebar' color='#ffffff' ></box-icon>
                                                                         </div>
-                                                                        <p className="font-semibold text-lg">Bảng điều khiển</p>
-                                                                    </a>
+                                                                        <p className="font-semibold text-base">Bảng điều khiển</p>
+                                                                    </Link>
+
                                                                 </li>
                                                                 <li className="mb-3">
-                                                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl  text-gray-600 hover:bg-gray-100">
+                                                                    <Link to="/instructorlessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                                                         <div className="mr-3 pt-1 px-1 rounded-full">
                                                                             <box-icon name='book-open'></box-icon>
                                                                         </div>
-                                                                        <p className="font-semibold text-lg">Bài học của tôi</p>
-                                                                    </a>
+                                                                        <p className="font-semibold text-base">Bài học của tôi</p>
+                                                                    </Link>
                                                                 </li>
                                                                 <li className="mb-3">
-                                                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl  text-gray-600 hover:bg-gray-100">
+                                                                    <Link to="/instructorhistory" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                                                             <box-icon name='credit-card' ></box-icon>
                                                                         </div>
-                                                                        <p className="font-semibold text-lg">Lịch sử mua hàng</p>
-                                                                    </a>
+                                                                        <p className="font-semibold text-base">Lịch sử mua hàng</p>
+                                                                    </Link>
                                                                 </li>
                                                                 <li>
-                                                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                    <Link to="/instructorprofile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                                                             <box-icon type='solid' name='user-circle'></box-icon>
                                                                         </div>
-                                                                        <p className="font-semibold text-lg">Thông tin tài khoản</p>
-                                                                    </a>
+                                                                        <p className="font-semibold text-base">Thông tin tài khoản</p>
+                                                                    </Link>
                                                                 </li>
                                                             </ul>
                                                         </SheetDescription>
