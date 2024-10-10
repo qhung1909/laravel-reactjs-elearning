@@ -16,4 +16,5 @@ class OrderDetail extends Model
         'price',
     ];
 
+
 }

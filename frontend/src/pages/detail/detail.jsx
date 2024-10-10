@@ -107,8 +107,8 @@ export const Detail = () => {
     const [comments, setComments] = useState([]);
     const [couponId, setCouponId] = useState(null);
     const [items, setItems] = useState([]);
-    const [isAddedToCart, setIsAddedToCart] = useState(false);
-
+    const [cartItems, setCartItems] = useState([]);
+    
     const fetchComments = async (course_id) => {
         if (!course_id) {
             console.error("course_id không hợp lệ.");
@@ -168,31 +168,23 @@ export const Detail = () => {
             notify('Bạn chưa đăng nhập'); 
             return;
         }
-    
-        const isAlreadyAdded = localStorage.getItem(`added_to_cart_${detail.course_id}`);
+
+        const isAlreadyAdded = cartItems.some(item => item.course_id === detail.course_id);
         if (isAlreadyAdded) {
             notify('Sản phẩm này đã được thêm vào giỏ hàng rồi.');
             return;
         }
-    
-        const items = [
-            {
-                course_id: detail.course_id,
-                price: detail.price_discount || detail.price
-            },
-        ];
-    
-        console.log('Items trước khi gửi:', items);
-    
-        if (!items || !Array.isArray(items) || items.length === 0) {
-            console.error('Thông tin sản phẩm không hợp lệ:', items);
-            notify('Thông tin sản phẩm không hợp lệ');
-            return;
-        }
-    
+
+        const newItem = {
+            course_id: detail.course_id,
+            price: detail.price_discount || detail.price
+        };
+
+        console.log('Item trước khi gửi:', newItem);
+
         setLoading(true);
         notify('Đang thêm sản phẩm vào giỏ hàng...');
-    
+
         try {
             const res = await fetch(`${API_URL}/auth/cart/addToCart`, {
                 method: 'POST',
@@ -202,23 +194,23 @@ export const Detail = () => {
                 },
                 body: JSON.stringify({
                     coupon_id: couponId || null,
-                    items: items
+                    items: [newItem] 
                 })
             });
-    
+
             if (!res.ok) {
                 const errorData = await res.json();
                 console.error('Failed to update cart:', errorData.message || 'Unknown error');
                 notify(errorData.message || 'Có lỗi xảy ra khi cập nhật giỏ hàng');
                 return;
             }
-    
+
             const data = await res.json();
             console.log('Order:', data.order);
             notify('Sản phẩm đã được thêm vào giỏ hàng thành công!');
-    
-            localStorage.setItem(`added_to_cart_${detail.course_id}`, 'true');
-    
+
+            setCartItems(prevItems => [...prevItems, newItem]);
+
         } catch (error) {
             console.log('Error:', error);
             notify('Có lỗi xảy ra, vui lòng thử lại sau.');

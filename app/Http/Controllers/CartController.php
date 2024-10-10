@@ -190,26 +190,34 @@ class CartController extends Controller
             ]);
         }
     
-        $new_total_price = $order->total_price;
-    
         foreach ($request->items as $item) {
+            $existingItem = OrderDetail::where('order_id', $order->order_id)
+                                       ->where('course_id', $item['course_id'])
+                                       ->first();
+    
+            if ($existingItem) {
+                return response()->json([
+                    'message' => 'Khóa học này đã có trong giỏ hàng.',
+                ], 409);
+            }
+    
             OrderDetail::create([
                 'order_id' => $order->order_id,
                 'course_id' => $item['course_id'],
                 'price' => $item['price'],
             ]);
-    
-            $new_total_price += $item['price'];
+            
+            $order->total_price += $item['price'];
         }
     
-        $order->update(['total_price' => $new_total_price]);
+        $order->update(['total_price' => $order->total_price]);
     
         return response()->json([
             'message' => 'Đơn hàng đã được thêm vào giỏ hàng thành công!',
             'order' => $order,
         ], 201);
     }
-
+    
 
     public function removeItem(Request $request)
     {
