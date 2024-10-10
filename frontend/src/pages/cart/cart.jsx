@@ -108,8 +108,8 @@ export const Cart = () => {
                         {/* Cột bên phải: Tổng tiền */}
                         <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/3 mt-4 lg:mt-0">
                             <div className="flex justify-between mb-4">
-                                <span className="font-bold text-lg">Tổng</span>
-                                <span className="font-bold text-lg">đ279,000</span>
+                                <span className="font-bold text-lg ">Tổng</span>
+                                <span className="font-bold text-lg text-red-600">đ279,000</span>
                             </div>
                             <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 rounded">
                                 Thanh toán
