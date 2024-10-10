@@ -1,4 +1,5 @@
 import "./detail.css";
+import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { Star } from "lucide-react";
@@ -25,11 +26,7 @@ import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
-const notify = (message, type) => {
-    if (type === "notLogin") {
-        toast.error(message);
-    }
-};
+
 export const Detail = () => {
     const [detail, setDetail] = useState([]);
     const { slug } = useParams();
@@ -147,11 +144,11 @@ export const Detail = () => {
                 setDetail(res.data);
                 fetchComments(res.data.course_id); // Truyền course_id vào hàm fetchComments
             } else {
-                Navigate("/404"); // Điều hướng đến trang 404 nếu slug không tồn tại
+                Navigate("/404");
             }
         } catch (error) {
             if (error.response && error.response.status === 404) {
-                Navigate("/404"); // Điều hướng đến trang 404 nếu API trả về lỗi 404
+                Navigate("/404");
             } else {
                 console.error(
                     "Chi tiết lỗi:",
@@ -172,7 +169,7 @@ export const Detail = () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
             console.error("No token found");
-            notify("Bạn chưa đăng nhập");
+            toast.error("Bạn chưa đăng nhập");
             return;
         }
 
@@ -180,7 +177,7 @@ export const Detail = () => {
             (item) => item.course_id === detail.course_id
         );
         if (isAlreadyAdded) {
-            notify("Sản phẩm này đã được thêm vào giỏ hàng rồi.");
+            toast.error("Sản phẩm này đã có trong giỏ hàng.");
             return;
         }
 
@@ -192,8 +189,6 @@ export const Detail = () => {
         console.log("Item trước khi gửi:", newItem);
 
         setLoading(true);
-        notify("Đang thêm sản phẩm vào giỏ hàng...");
-
         try {
             const res = await fetch(`${API_URL}/auth/cart/addToCart`, {
                 method: "POST",
@@ -213,7 +208,7 @@ export const Detail = () => {
                     "Failed to update cart:",
                     errorData.message || "Unknown error"
                 );
-                notify(
+                toast.error(
                     errorData.message || "Có lỗi xảy ra khi cập nhật giỏ hàng"
                 );
                 return;
@@ -221,12 +216,12 @@ export const Detail = () => {
 
             const data = await res.json();
             console.log("Order:", data.order);
-            notify("Sản phẩm đã được thêm vào giỏ hàng thành công!");
+            toast.success("Thêm thành công sản phẩm vào giỏ hàng!");
 
             setCartItems((prevItems) => [...prevItems, newItem]);
         } catch (error) {
             console.log("Error:", error);
-            notify("Có lỗi xảy ra, vui lòng thử lại sau.");
+            toast.error("Có lỗi xảy ra, vui lòng thử lại sau.");
         } finally {
             setLoading(false);
         }
@@ -1436,10 +1431,10 @@ export const Detail = () => {
                             </div>
                             <div className="flex items-center justify-between mb-1">
                                 <span className="text-3xl font-bold">
-                                    đ{detail.price_discount}
+                                    {formatCurrency(detail.price_discount)}
                                 </span>
                                 <span className="text-lg text-gray-500 line-through">
-                                    đ{detail.price}
+                                    {formatCurrency(detail.price)}
                                 </span>
                             </div>
                             <p className="text-red-500 mb-1">

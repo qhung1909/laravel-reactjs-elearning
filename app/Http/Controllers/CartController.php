@@ -151,7 +151,14 @@ class CartController extends Controller
 
         $user_id = Auth::id();
         $orders = Order::with('orderDetails')->where('user_id', $user_id)->get();
+        
+        if ($orders->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có đơn hàng nào.',
+            ], 404);
+        }
 
+        
         return response()->json($orders, 200);
     }
 
