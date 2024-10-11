@@ -4,13 +4,7 @@ import Swal from "sweetalert2";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 import axios from "axios";
-
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("vi-VN", {
-        style: "currency",
-        currency: "VND",
-    }).format(amount);
-};
+import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 
 export const Cart = () => {
     const [cart, setCart] = useState([]);
@@ -110,8 +104,23 @@ export const Cart = () => {
     const totalPrice = calculateTotalPrice();
 
     const renderCart = () => {
+        // if (cart.length === 0) {
+        //     return <p>Giỏ hàng của bạn đang trống.</p>;
+        // }
+
         if (cart.length === 0) {
-            return <p>Giỏ hàng của bạn đang trống.</p>;
+            return (
+                <div className="flex flex-col items-center">
+                    <img
+                        src="cart-empty1.png" // Thay bằng đường dẫn tới hình ảnh của bạn
+                        alt="Giỏ hàng trống"
+                        className="w-30 h-30 object-cover" // Tùy chỉnh kích thước theo ý muốn
+                    />
+                    <p className="mt-4 text-lg font-semibold text-gray-600">
+                        Giỏ hàng của bạn đang trống.
+                    </p>
+                </div>
+            );
         }
 
         return cart.map((item, index) => (
@@ -159,7 +168,7 @@ export const Cart = () => {
                             />
                             <img
                                 alt="Course Image"
-                                className="w-16 h-16 rounded-sm object-cover"
+                                className="w-40 h-30 rounded-sm object-cover"
                                 src={
                                     course
                                         ? course.img
@@ -240,7 +249,7 @@ export const Cart = () => {
                 <div className="bg-white shadow-md rounded-lg p-6">
                     <div className="flex items-center justify-between mb-4">
                         <span className="font-bold">
-                            {cart.length || 0} Đơn hàng
+                            {cart.length || 0} đơn hàng
                         </span>
                         <div className="flex items-center">
                             <input
