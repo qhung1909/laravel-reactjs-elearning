@@ -64,9 +64,9 @@ export const Payment = () => {
             );
             if (response.data && response.data.name_coupon) {
                 let appliedDiscount = 0;
-                // Kiểm tra xem có discount_price hay percent_discount để áp dụng giảm giá
+                // Kiểm tra xem là giảm theo discount_price hay percent_discount
                 if (response.data.discount_price) {
-                    // Giảm giá trực tiếp theo giá tiền
+                    // Giảm giá theo giá tiền
                     appliedDiscount = response.data.discount_price;
                 } else if (response.data.percent_discount) {
                     // Giảm giá theo phần trăm
