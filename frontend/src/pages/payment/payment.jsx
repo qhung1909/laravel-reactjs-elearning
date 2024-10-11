@@ -3,7 +3,11 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 import axios from "axios";
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
+<<<<<<< HEAD
 import { Toaster, toast } from "react-hot-toast";
+=======
+import { toast } from "react-hot-toast";
+>>>>>>> 4287068dbcffe856f83e9a767734ffebd8915821
 export const Payment = () => {
     const [coupon, setCoupon] = useState("");
     const [cart, setCart] = useState([]);

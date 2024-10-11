@@ -4,14 +4,9 @@ import Swal from "sweetalert2";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 import axios from "axios";
+import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import { Link } from "react-router-dom";
 
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("vi-VN", {
-        style: "currency",
-        currency: "VND",
-    }).format(amount);
-};
 
 export const Cart = () => {
     const [cart, setCart] = useState([]);
@@ -111,9 +106,25 @@ export const Cart = () => {
     const totalPrice = calculateTotalPrice();
 
     const renderCart = () => {
+        // if (cart.length === 0) {
+        //     return <p>Giỏ hàng của bạn đang trống.</p>;
+        // }
+
         if (cart.length === 0) {
-            return <p>Giỏ hàng của bạn đang trống.</p>;
+            return (
+                <div className="flex flex-col items-center">
+                    <img
+                        src="https://maydongphucyte.com/default/template/img/cart-empty.png" // Thay bằng URL thực của hình ảnh
+                        alt="Giỏ hàng trống"
+                        className="w-32 h-32 object-cover" // Điều chỉnh kích thước nếu cần
+                    />
+                    <p className="mt-4 text-lg font-semibold text-gray-600">
+                        Giỏ hàng của bạn đang trống.
+                    </p>
+                </div>
+            );
         }
+
 
         return cart.map((item, index) => (
             <div key={index} className="mb-4 border-b pb-4">
@@ -160,7 +171,7 @@ export const Cart = () => {
                             />
                             <img
                                 alt="Course Image"
-                                className="w-16 h-16 rounded-sm object-cover"
+                                className="w-40 h-30 rounded-sm object-cover"
                                 src={
                                     course
                                         ? course.img
@@ -206,45 +217,45 @@ export const Cart = () => {
                 <h1 className="text-3xl font-bold mb-6">Giỏ hàng</h1>
                 <div className="bg-white shadow-md rounded-lg p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <span className="font-bold">
-                            {cart.length || 0} Đơn hàng
-                        </span>
-                        <div className="flex items-center">
-                            <input
-                                className="mr-2"
-                                defaultChecked
-                                id="selectAll"
-                                type="checkbox"
-                                aria-label="Chọn tất cả"
-                            />
-                            <label htmlFor="selectAll">Chọn tất cả</label>
-                        </div>
+                        <span className="font-bold">{cart.length || 0} đơn hàng</span>
+                        {cart.length > 0 && (
+                            <div className="flex items-center">
+                                <input
+                                    className="mr-2"
+                                    defaultChecked
+                                    id="selectAll"
+                                    type="checkbox"
+                                    aria-label="Chọn tất cả"
+                                />
+                                <label htmlFor="selectAll">Chọn tất cả</label>
+                            </div>
+                        )}
                     </div>
+
                     <div>
                         <div className="container mx-auto py-8">
                             <div className="flex flex-col lg:flex-row">
                                 {/* Cột bên trái: Danh sách sản phẩm */}
                                 <div className="flex flex-col justify-between p-2 border-b mr-20 w-full lg:w-2/3">
-                                    {/* Sản phẩm */}
                                     {renderCart()}
                                 </div>
 
-                                {/* Cột bên phải: Tổng tiền */}
-                                <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/3 mt-4 lg:mt-0">
-                                    <div className="flex justify-between mb-4">
-                                        <span className="font-bold text-lg ">
-                                            Tổng
-                                        </span>
-                                        <span className="font-bold text-lg text-red-600">
-                                            {formatCurrency(totalPrice)}
-                                        </span>
+                                {/* Cột bên phải: Chỉ hiển thị khi giỏ hàng có sản phẩm */}
+                                {cart.length > 0 && (
+                                    <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/3 mt-4 lg:mt-0">
+                                        <div className="flex justify-between mb-4">
+                                            <span className="font-bold text-lg">Tổng</span>
+                                            <span className="font-bold text-lg text-red-600">
+                                                {formatCurrency(totalPrice)}
+                                            </span>
+                                        </div>
+                                        <Link to="/payment">
+                                            <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 rounded">
+                                                Thanh toán
+                                            </button>
+                                        </Link>
                                     </div>
-                                    <Link to="/payment">
-                                        <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 rounded">
-                                            Thanh toán
-                                        </button>
-                                    </Link>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -252,4 +263,5 @@ export const Cart = () => {
             </div>
         </div>
     );
+
 };
