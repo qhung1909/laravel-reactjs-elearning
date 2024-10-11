@@ -23,18 +23,19 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 
+import { Link } from "react-router-dom"
 export const Instructor = () => {
     return (
         <>
-            <section>
+            <section className="instructor-home">
                 <div className="flex bg-gray-100 h-sc">
                     {/* Sidebar */}
                     <div className=" w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
-                        <div className="pe-3">
+                        <div className="p-3">
                             {/* logo */}
                             <div className="p-4 flex justify-between items-center">
-                                <div className="logo">
-                                    <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-28 h-20" />
+                                <div className="logo ml-[-35px]">
+                                    <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-32 h-14 object-cover" />
                                 </div>
                                 <div className="logout">
                                     <svg width="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="duration-200 ease-out transition transform">
@@ -47,36 +48,37 @@ export const Instructor = () => {
                             {/* ul list */}
                             <ul className="">
                                 <li className="mb-3">
-                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 bg-gray-100">
+                                    <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 bg-gray-100">
                                         <div className=" bg-yellow-400 mr-3 pt-1 px-1  rounded-full">
-                                            <box-icon   box-icon name='sidebar' color='#ffffff' ></box-icon>
+                                            <box-icon name='sidebar' color='#ffffff' ></box-icon>
                                         </div>
-                                        <p className="font-semibold text-lg">Bảng điều khiển</p>
-                                    </a>
+                                        <p className="font-semibold text-base">Bảng điều khiển</p>
+                                    </Link>
+
                                 </li>
                                 <li className="mb-3">
-                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl  text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructorlessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className="mr-3 pt-1 px-1 rounded-full">
                                             <box-icon name='book-open'></box-icon>
                                         </div>
-                                        <p className="font-semibold text-lg">Bài học của tôi</p>
-                                    </a>
+                                        <p className="font-semibold text-base">Bài học của tôi</p>
+                                    </Link>
                                 </li>
                                 <li className="mb-3">
-                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl  text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructorhistory" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                             <box-icon name='credit-card' ></box-icon>
                                         </div>
-                                        <p className="font-semibold text-lg">Lịch sử mua hàng</p>
-                                    </a>
+                                        <p className="font-semibold text-base">Lịch sử mua hàng</p>
+                                    </Link>
                                 </li>
                                 <li>
-                                    <a href="#" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructorprofile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                             <box-icon type='solid' name='user-circle'></box-icon>
                                         </div>
-                                        <p className="font-semibold text-lg">Thông tin tài khoản</p>
-                                    </a>
+                                        <p className="font-semibold text-base">Thông tin tài khoản</p>
+                                    </Link>
                                 </li>
                             </ul>
                         </div>
@@ -86,7 +88,15 @@ export const Instructor = () => {
                         {/* Header */}
                         <div className="bg-white shadow-sm p-2">
                             <div className="flex items-center justify-between px-4 py-3">
-                                <h1 className="text-xl font-semibold">Trang chủ</h1>
+                                <h1 className="text-xl font-semibold ">
+                                    <Link to="/">
+                                        <div className="flex items-center gap-1">
+                                            <box-icon name='home-alt-2' color='#daddf1' ></box-icon>
+                                            <p className="text-slate-600">Trang chủ</p>
+                                        </div>
+
+                                    </Link>
+                                </h1>
                                 <div className="flex items-center space-x-4">
                                     <button className="p-1 rounded-full hover:bg-gray-100">
                                         <svg className="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -141,44 +151,45 @@ export const Instructor = () => {
                                                     <SheetHeader>
                                                         <SheetTitle>
                                                             <div className="p-4 flex justify-between items-center border-b-[1px]">
-                                                                <div className="logo">
-                                                                    <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-28 h-10 object-cover" />
+                                                                <div className="logo ml-[-35px]">
+                                                                    <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-32 h-14 object-cover" />
                                                                 </div>
                                                             </div>
                                                         </SheetTitle>
                                                         <SheetDescription>
                                                             <ul className="">
-                                                                <li className="mb-2">
-                                                                    <a href="#" className="flex items-center px-4 py-4 rounded-2xl text-gray-700 bg-gray-100">
-                                                                        <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                                                        </svg>
-                                                                        <p className="font-semibold text-sm">Bảng điều khiển</p>
-                                                                    </a>
+                                                                <li className="mb-3">
+                                                                    <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 bg-gray-100">
+                                                                        <div className=" bg-yellow-400 mr-3 pt-1 px-1  rounded-full">
+                                                                            <box-icon name='sidebar' color='#ffffff' ></box-icon>
+                                                                        </div>
+                                                                        <p className="font-semibold text-base">Bảng điều khiển</p>
+                                                                    </Link>
+
                                                                 </li>
-                                                                <li className="mb-2">
-                                                                    <a href="#" className="flex items-center px-4 py-4  text-gray-600 hover:bg-gray-100">
-                                                                        <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                                                        </svg>
-                                                                        <p className="font-semibold text-sm">Bài học của tôi</p>
-                                                                    </a>
+                                                                <li className="mb-3">
+                                                                    <Link to="/instructorlessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                        <div className="mr-3 pt-1 px-1 rounded-full">
+                                                                            <box-icon name='book-open'></box-icon>
+                                                                        </div>
+                                                                        <p className="font-semibold text-base">Bài học của tôi</p>
+                                                                    </Link>
                                                                 </li>
-                                                                <li className="mb-2">
-                                                                    <a href="#" className="flex items-center px-4 py-4  text-gray-600 hover:bg-gray-100">
-                                                                        <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                                        </svg>
-                                                                        <p className="font-semibold text-sm">Lịch sử mua hàng</p>
-                                                                    </a>
+                                                                <li className="mb-3">
+                                                                    <Link to="/instructorhistory" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                        <div className=" mr-3 pt-1 px-1 rounded-full">
+                                                                            <box-icon name='credit-card' ></box-icon>
+                                                                        </div>
+                                                                        <p className="font-semibold text-base">Lịch sử mua hàng</p>
+                                                                    </Link>
                                                                 </li>
                                                                 <li>
-                                                                    <a href="#" className="flex items-center px-4 py-4  text-gray-600 hover:bg-gray-100">
-                                                                        <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                                        </svg>
-                                                                        <p className="font-semibold text-sm">Thông tin tài khoản</p>
-                                                                    </a>
+                                                                    <Link to="/instructorprofile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                        <div className=" mr-3 pt-1 px-1 rounded-full">
+                                                                            <box-icon type='solid' name='user-circle'></box-icon>
+                                                                        </div>
+                                                                        <p className="font-semibold text-base">Thông tin tài khoản</p>
+                                                                    </Link>
                                                                 </li>
                                                             </ul>
                                                         </SheetDescription>
