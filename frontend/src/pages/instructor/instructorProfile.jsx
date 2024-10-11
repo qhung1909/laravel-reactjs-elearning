@@ -194,8 +194,8 @@ export const InstructorProfile = () => {
                         </div>
 
                         {/* Profile content */}
-                        <div className="md:p-6 p-2 max-lg:h-screen">
-                            <Tabs defaultValue="account" className="w-[100%]">
+                        <div className="md:p-6 max-lg:h-screen">
+                            <Tabs defaultValue="account" className="w-[100%] py-10 md:py-0">
                                 {/* tabs - header */}
                                 <TabsList>
                                     <div className="bg-gray-200 p-1 rounded-xl">
@@ -214,7 +214,7 @@ export const InstructorProfile = () => {
                                     </div>
                                 </TabsList>
                                 {/* tabs - content */}
-                                <div className="my-20">
+                                <div className="my-16">
                                     {/* tabs - profile */}
                                     <TabsContent value="profile" className="">
                                         <div className="bg-white rounded-xl py-5 max-w-screen-xl w-full mx-auto">
@@ -226,7 +226,7 @@ export const InstructorProfile = () => {
                                                         <p>Điều này sẽ được chia sẻ với các học viên khác</p>
                                                     </div>
                                                     <div className="">
-                                                        <button className="bg-yellow-400 px-4 py-2 rounded-xl font-bold">Lưu</button>
+                                                        <button className="bg-yellow-400 px-4 py-2 rounded-xl font-bold sm:block hidden">Lưu</button>
                                                     </div>
                                                 </div>
                                                 <hr className="my-5" />
@@ -241,34 +241,34 @@ export const InstructorProfile = () => {
                                                                 <p className="font-bold">Ảnh</p>
                                                             </div>
                                                             <div className="">
-                                                                <p className="font-bold text-gray-600 lg:text-lg sm:text-sm text-xs">PNG hoặc JPG có chiều rộng và chiều cao không lớn hơn 800px</p>
+                                                                <p className="font-bold text-gray-600 lg:text-lg sm:text-sm sm:block hidden">PNG hoặc JPG có chiều rộng và chiều cao không lớn hơn 800px</p>
                                                             </div>
                                                         </div>
                                                     </div>
 
                                                     {/* name - birthday */}
-                                                    <div className="flex my-5 gap-5">
-                                                        <div className="w-[24%]">
+                                                    <div className="sm:flex my-5 gap-5">
+                                                        <div className="sm:w-[24%] w-[100%]">
                                                             <Label htmlFor="firstname" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Tên</p></Label>
                                                             <Input type="firstname" id="firstname" placeholder="Tên" className="p-6 mt-2 rounded-xl font-semibold text-base" />
                                                         </div>
-                                                        <div className="w-[24%]">
+                                                        <div className="sm:w-[24%] w-[100%] my-5 sm:my-0">
                                                             <Label htmlFor="lastname" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Họ</p></Label>
                                                             <Input type="lastname" id="lastname" placeholder="Họ tên" className="p-6 mt-2 rounded-xl font-semibold text-base" />
                                                         </div>
-                                                        <div className="w-[50%]">
+                                                        <div className="sm:w-[24%] w-[100%] ">
                                                             <Label htmlFor="birthday" className="flex gap-2 text-base"><p>Sinh nhật</p></Label>
                                                             <Input type="birthday" id="birthday" placeholder="Sinh nhật" className="p-6 mt-2 rounded-xl font-semibold text-base" />
                                                         </div>
                                                     </div>
 
                                                     {/* email - phone */}
-                                                    <div className="flex my-5 gap-5">
-                                                        <div className="w-[50%]">
+                                                    <div className="sm:flex my-5 gap-5">
+                                                        <div className="sm:w-[50%] w-[100%]">
                                                             <Label htmlFor="email" className="flex gap-2 text-base"><p className="text-sm">Email</p></Label>
                                                             <Input type="email" id="email" placeholder="Email" className="p-6 mt-2 rounded-xl font-semibold" />
                                                         </div>
-                                                        <div className="w-[50%]">
+                                                        <div className="sm:w-[50%] w-[100%] my-5 sm:m-0">
                                                             <Label htmlFor="phone" className="flex gap-2 text-base"><p className="text-sm">Số điện thoại</p></Label>
                                                             <Input type="phone" id="phone" placeholder="Số điện thoại" className="p-6 mt-2 rounded-xl font-semibold" />
                                                         </div>
@@ -284,6 +284,11 @@ export const InstructorProfile = () => {
                                                     <div className="w-[100%] my-5">
                                                         <Label htmlFor="address" className="flex gap-2 text-base"><p className="text-sm">Mô tả</p></Label>
                                                         <Textarea placeholder="Mô tả" className=" mt-2 rounded-xl font-semibold h-40" />
+                                                    </div>
+
+                                                    {/* button - hidden */}
+                                                    <div className="">
+                                                        <button className="bg-yellow-400 px-4 py-2 rounded-xl font-bold sm:hidden block">Lưu</button>
                                                     </div>
                                                 </div>
                                             </div>
