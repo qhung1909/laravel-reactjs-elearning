@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from 'axios';
+import { Link } from "react-router-dom";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -8,6 +9,28 @@ export const Home = () => {
 
     const [topPurchasedProduct, setTopPurchasedProduct] = useState([]);
     const [topViewedProduct, setTopViewedProduct] = useState([]);
+    const [categories,setCategories] = useState([]);
+    const [firstCategories, setFirstCategories] = useState([]);
+    const [secondCategories, setSecondCategories] = useState([]);
+
+    const fetchCategories = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/categories`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                },
+            });
+            const allCategories = response.data;
+
+            setFirstCategories(allCategories.slice(0,5));
+            setSecondCategories(allCategories.slice(5,8))
+
+            setCategories(allCategories)
+        } catch (error) {
+            console.log('Error fetching API: ', error)
+        }
+    }
+
     const fetchTopPurchasedProduct = async () => {
         try {
             const response = await axios.get(`${API_URL}/top-purchased-courses`, {
@@ -38,25 +61,40 @@ export const Home = () => {
     useEffect(() => {
         fetchTopPurchasedProduct();
         fetchTopViewedProduct();
+        fetchCategories();
     }, []);
 
+    const renderCategories = (categoryGroup) => {
+        return Array.isArray(categoryGroup) && categoryGroup.length > 0 ? (
+            categoryGroup.map((item, index) => (
+                <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 me-2" key={index}>
+                    <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">{item.name}</p>
+                </button>
+            ))
+        ) : (
+            <p>Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
+        );
+    };
 
     const purchasedProduct = Array.isArray(topPurchasedProduct) && topPurchasedProduct.length > 0 ? (
         topPurchasedProduct.map((item, index) => (
             <div className="product md:mb-10 xl:mb-0 text-center md:text-left" key={index}>
                 <div className="product-box">
-                    <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
-                        <img
-                            src={`/src/assets/images/${item.img}`}
-                            alt=""
-                            className="rounded-xl h-full sm:w-full md:h-full w-80"
-                        />
-                    </div>
-                    <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-lg font-semibold my-2  line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
-                        <span className="lg:pe-5 pe-3">
-                            {`${item.title}`}
-                        </span>
-                    </div>
+                    <Link to={`/detail/${item.slug}`}>
+                        <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
+                            <img
+                                src={`/src/assets/images/${item.img}`}
+                                alt=""
+                                className="rounded-xl h-full sm:w-full md:h-full w-80"
+                            />
+                        </div>
+                        <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-lg font-semibold my-2  line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
+                            <span className="lg:pe-5 pe-3">
+                                {`${item.title}`}
+                            </span>
+                        </div>
+                    </Link>
+
                     <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
                         <p>Bởi: Huy Hoàng</p>
                     </div>
@@ -75,25 +113,28 @@ export const Home = () => {
             </div>
         ))
     ) : (
-        <p>No products available</p>
+        <p>Không có sản phẩm phù hợp ngay lúc này, thử lại sau</p>
     );
 
     const viewedProduct = Array.isArray(topViewedProduct) && topViewedProduct.length > 0 ? (
         topViewedProduct.map((item, index) => (
             <div className="product md:mb-10 xl:mb-0 text-center md:text-left" key={index}>
                 <div className="product-box">
-                    <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
-                        <img
-                            src={`/src/assets/images/${item.img}`}
-                            alt=""
-                            className="rounded-xl h-full sm:w-full md:h-full w-80"
-                        />
-                    </div>
-                    <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-lg font-semibold my-2  line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
-                        <span className="lg:pe-5 pe-3">
-                            {`${item.title}`}
-                        </span>
-                    </div>
+                    <Link to={`/detail/${item.slug}`}>
+                        <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
+                            <img
+                                src={`/src/assets/images/${item.img}`}
+                                alt=""
+                                className="rounded-xl h-full sm:w-full md:h-full w-80"
+                            />
+                        </div>
+                        <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-lg font-semibold my-2  line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
+                            <span className="lg:pe-5 pe-3">
+                                {`${item.title}`}
+                            </span>
+                        </div>
+                    </Link>
+
                     <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
                         <p>Bởi: Huy Hoàng</p>
                     </div>
@@ -112,8 +153,7 @@ export const Home = () => {
             </div>
         ))
     ) : (
-        <p>No products available</p>
-
+        <p>Không có sản phẩm phù hợp ngay lúc này, thử lại sau</p>
     )
     return (
         <>
@@ -228,63 +268,12 @@ export const Home = () => {
                         <div className="homecatelog-box-content mt-5 text-center">
                             <div className="homecatelog-box-content-row">
                                 <div className="homecatelog-box-content-row-main">
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
+                                    {renderCategories(firstCategories)}
                                 </div>
                             </div>
-                            <div className="homecatelog-box-content-row">
+                            <div className="homecatelog-box-content-row my-3">
                                 <div className="homecatelog-box-content-row-main">
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 my-2 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 my-2 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 my-2 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 my-2 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="homecatelog-box-content-row">
-                                <div className="homecatelog-box-content-row-main">
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 mb-2 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 mb-2 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 mb-2 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="homecatelog-box-content-row">
-                                <div className="homecatelog-box-content-row-main">
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
-                                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 me-2">
-                                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">Danh mục</p>
-                                    </button>
+                                    {renderCategories(secondCategories)}
                                 </div>
                             </div>
                         </div>
