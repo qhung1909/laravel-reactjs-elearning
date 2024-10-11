@@ -3,11 +3,12 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 import axios from "axios";
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
+import { toast } from "sonner";
 export const Payment = () => {
     const [coupon, setCoupon] = useState("");
     const [cart, setCart] = useState([]);
     const [courses, setCourses] = useState([]);
-
+    const [discount, setDiscount] = useState(0);
     useEffect(() => {
         const fetchAllData = async () => {
             try {
@@ -26,14 +27,14 @@ export const Payment = () => {
                 ]);
 
                 setCourses(coursesResponse.data);
-                setCart(cartResponse.data); // Cập nhật state cho cart
+                setCart(cartResponse.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         };
 
         fetchAllData();
-    }, []); // Chỉ chạy một lần khi component mount
+    }, []);
     const calculateTotalPrice = () => {
         return cart.reduce((total, item) => {
             const itemTotal = item.order_details.reduce((subtotal, detail) => {
@@ -45,7 +46,45 @@ export const Payment = () => {
         }, 0);
     };
 
-    const totalPrice = calculateTotalPrice();
+    const totalPrice = calculateTotalPrice(); // Tổng tiền khi cộng các sp trong cart
+    const finalPrice = totalPrice - discount; // Thành tiền sau khi trừ giảm giá
+
+    const handleApplyCoupon = async () => {
+        try {
+            const token = localStorage.getItem("access_token");
+            const response = await axios.post(
+                `${API_URL}/check-discount`,
+                { name_coupon: coupon },
+                {
+                    headers: {
+                        "x-api-secret": `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            if (response.data && response.data.name_coupon) {
+                setDiscount(response.data);
+                console.log("discount",discount);
+                toast.success("Áp dụng mã giảm giá thành công!");
+            } else {
+                toast.error(
+                    response.data.message || "Mã giảm giá không hợp lệ."
+                );
+            }
+        } catch (error) {
+            console.error("Có lỗi xảy ra:", error);
+            if (error.response) {
+                toast.error(
+                    error.response.data.message ||
+                        "Có lỗi xảy ra khi áp dụng mã giảm giá."
+                );
+            } else {
+                toast.error(
+                    "Không thể kết nối đến server. Vui lòng thử lại sau."
+                );
+            }
+        }
+    };
 
     const handlePayment = async () => {
         const token = localStorage.getItem("access_token");
@@ -178,7 +217,7 @@ export const Payment = () => {
                                     Giảm giá coupon
                                 </span>
                                 <span className="font-semibold text-black-600">
-                                    0
+                                    {formatCurrency(discount)}
                                 </span>
                             </div>
                             <div className="flex space-x-2">
@@ -189,7 +228,10 @@ export const Payment = () => {
                                     onChange={(e) => setCoupon(e.target.value)}
                                     className="flex-grow py-2 px-4 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                                 />
-                                <button className="px-4 py-2 bg-yellow-400 text-gray-800 rounded-lg font-semibold hover:bg-yellow-500 transition-colors duration-200">
+                                <button
+                                    onClick={handleApplyCoupon}
+                                    className="px-4 py-2 bg-yellow-400 text-gray-800 rounded-lg font-semibold hover:bg-yellow-500 transition-colors duration-200"
+                                >
                                     Áp dụng
                                 </button>
                             </div>
@@ -197,7 +239,7 @@ export const Payment = () => {
                         <div className="flex justify-between items-center font-semibold text-lg mb-6 pt-4 border-t border-gray-200">
                             <span>Thành tiền:</span>
                             <span className="text-black-600">
-                                {formatCurrency(totalPrice)}
+                                {formatCurrency(finalPrice)}
                             </span>
                         </div>
 
@@ -218,19 +260,6 @@ export const Payment = () => {
                                     <img
                                         src="/src/assets/images/vnpay-icon-site.png"
                                         alt="VNPay"
-                                        className="w-20 h-20"
-                                    />
-                                </label>
-                                <label className="flex items-center cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="paymentMethod"
-                                        value="VietQR"
-                                        className="mr-2 hidden"
-                                    />
-                                    <img
-                                        src="/src/assets/images/vietqr-icon-site2.png"
-                                        alt="VietQR"
                                         className="w-20 h-20"
                                     />
                                 </label>
