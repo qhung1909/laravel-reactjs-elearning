@@ -7,6 +7,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CheckAuthMessage;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\CommentController;
@@ -35,6 +36,8 @@ Route::get('/verify-email/{token}', [UserController::class, 'verifyEmail'])->nam
 
 Route::post('/vnpay-payment', [CartController::class, 'vnpay_payment']);
 Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
+
+Route::post('/check-discount', [CouponController::class, 'checkDiscount']);
 
 Route::middleware(['admin'])->group(function () {
 
@@ -68,6 +71,8 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/lessons', [LessonController::class, 'store']);
     Route::put('/lessons/{slug}', [LessonController::class, 'update']);
     Route::delete('/lessons/{slug}', [LessonController::class, 'delete']);
+    Route::apiResource('coupons', CouponController::class);
+
 });
 
 
