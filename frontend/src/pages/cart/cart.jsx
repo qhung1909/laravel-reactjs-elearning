@@ -199,40 +199,6 @@ export const Cart = () => {
         ));
     };
 
-    const addToCart = async (couponId) => {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            console.error("No token found");
-            toast.error("Bạn chưa đăng nhập");
-            return;
-        }
-
-        const API_URL = import.meta.env.VITE_API_URL; // Đường dẫn API
-        try {
-            const response = await fetch(`${API_URL}/cart/add`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`, // Thêm token vào header
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ couponId }), // Gửi couponId trong body
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error("Failed to add to cart:", errorData);
-                toast.success("Thêm vào giỏ hàng không thành công");
-                return; // Trả về nếu không thành công
-            }
-
-            const data = await response.json(); // Lấy dữ liệu phản hồi từ API
-            // Xử lý dữ liệu trả về nếu cần, ví dụ như cập nhật giỏ hàng
-            console.log("Added to cart successfully:", data);
-        } catch (error) {
-            console.error("Error adding to cart:", error); // Bắt lỗi
-            toast.error("Đã xảy ra lỗi. Vui lòng thử lại sau.");
-        }
-    };
 
     return (
         <div className="bg-gray-100">

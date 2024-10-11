@@ -104,7 +104,11 @@ class CourseController extends Controller
             return response()->json(['error' => 'Giá không được nhỏ hơn giá giảm giá.'], 422);
         }
 
+        $userId = auth()->id();
+
+
         $course = Course::create([
+            'user_id' => $userId,
             'course_category_id' => $request->course_category_id,
             'price' => $request->price,
             'price_discount' => $request->price_discount,
@@ -148,6 +152,10 @@ class CourseController extends Controller
             return response()->json(['error' => 'Khóa học không tìm thấy'], 404);
         }
 
+        if ($course->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Bạn không có quyền cập nhật khóa học này.'], 403);
+        }
+
         $newSlug = $request->input('slug', $course->slug);
         if ($newSlug !== $course->slug && $this->course->where('slug', $newSlug)->exists()) {
             return response()->json(['error' => 'Slug đã tồn tại'], 422);
@@ -161,6 +169,7 @@ class CourseController extends Controller
             'title' => $request->input('title', $course->title),
             'img' => $this->handleImageUpload($request, $course->img),
             'slug' => $newSlug,
+            'user_id' => auth()->id()
         ]);
 
         return response()->json([
@@ -169,7 +178,7 @@ class CourseController extends Controller
             'course' => $course
         ], 200);
     }
-
+    
     private function handleImageUpload(Request $request, $currentImage = null)
     {
         if ($request->hasFile('img')) {
