@@ -3,7 +3,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 import axios from "axios";
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
-import { toast } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
 export const Payment = () => {
     const [coupon, setCoupon] = useState("");
     const [cart, setCart] = useState([]);
@@ -63,21 +63,33 @@ export const Payment = () => {
                 }
             );
             if (response.data && response.data.name_coupon) {
-                setDiscount(response.data);
-                console.log("discount",discount);
+                let appliedDiscount = 0;
+                // Kiểm tra xem có discount_price hay percent_discount để áp dụng giảm giá
+                if (response.data.discount_price) {
+                    // Giảm giá trực tiếp theo giá tiền
+                    appliedDiscount = response.data.discount_price;
+                } else if (response.data.percent_discount) {
+                    // Giảm giá theo phần trăm
+                    const discountAmount =
+                        (totalPrice * response.data.percent_discount) / 100;
+                    // Kiểm tra max_discount nếu có
+                    appliedDiscount = response.data.max_discount
+                        ? Math.min(discountAmount, response.data.max_discount)
+                        : discountAmount;
+                }
+
+                // Cập nhật giá trị discount
+                setDiscount(appliedDiscount);
+                // Thông báo thành công
                 toast.success("Áp dụng mã giảm giá thành công!");
             } else {
-                toast.error(
-                    response.data.message || "Mã giảm giá không hợp lệ."
-                );
+                // Thông báo lỗi nếu mã không hợp lệ
+                toast.error("Có lỗi xảy ra khi áp dụng mã giảm giá.");
             }
         } catch (error) {
             console.error("Có lỗi xảy ra:", error);
             if (error.response) {
-                toast.error(
-                    error.response.data.message ||
-                        "Có lỗi xảy ra khi áp dụng mã giảm giá."
-                );
+                toast.error("Mã giảm giá không hợp lệ.");
             } else {
                 toast.error(
                     "Không thể kết nối đến server. Vui lòng thử lại sau."
@@ -90,7 +102,7 @@ export const Payment = () => {
         const token = localStorage.getItem("access_token");
 
         if (!token) {
-            alert("Bạn cần đăng nhập để thực hiện thanh toán.");
+            toast.error("Bạn cần đăng nhập để thực hiện thanh toán.");
             return;
         }
 
@@ -108,7 +120,7 @@ export const Payment = () => {
             .join(", ");
 
         const orderType = "purchase";
-        const orderAmount = totalPrice;
+        const orderAmount = finalPrice;
 
         try {
             const response = await axios.post(
@@ -186,6 +198,7 @@ export const Payment = () => {
                         )
                     )}
                 </div>
+                <Toaster />
             </div>
         );
     };
@@ -217,7 +230,7 @@ export const Payment = () => {
                                     Giảm giá coupon
                                 </span>
                                 <span className="font-semibold text-black-600">
-                                    {formatCurrency(discount)}
+                                    - {formatCurrency(discount)}
                                 </span>
                             </div>
                             <div className="flex space-x-2">

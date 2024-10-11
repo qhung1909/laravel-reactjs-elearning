@@ -67,7 +67,7 @@ export const Header = () => {
                 <nav className="navbar flex items-center justify-center w-[100%] mx-auto py-2 z-10 ps-3 xl:max-w-screen-2xl ms-auto">
 
                     {/* header - logo */}
-                    <div className="navbar-logo mx-2 w-34 h-24 object-cover flex items-center">
+                    <div className="navbar-logo mx-2 w-28 h-24 object-cover flex items-center">
                         <Link to="/">
                             <img
                                 src="./src/assets/images/antlearn.png"
@@ -78,7 +78,7 @@ export const Header = () => {
                     </div>
 
                     {/* header - search */}
-                    <div className="navbar-search xl:w-[50%]  xl:px-0 w-[100%]">
+                    <div className="navbar-search xl:w-[50%]  xl:px-0 w-[100%] p-2">
                         <input
                             type="text"
                             placeholder="Tìm kiếm..."
@@ -202,18 +202,18 @@ export const Header = () => {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         ) : (
-                            <div className="xl:flex max-xl:flex-col gap-2 items-center">
-                                <div className="navbar-register  max-xl:mb-2">
-                                    <Link to="/register">
-                                        <button className="w-32 me-3 border rounded-lg font-semibold border-black p-1 hover:border-1 hover:border-white hover:bg-yellow-300 hover:text-white duration-300">
-                                            Đăng ký
+                            <div className="xl:flex max-xl:flex-col items-center">
+                                <div className="navbar-login max-xl:mb-2">
+                                    <Link to="/login">
+                                        <button className="w-28 py-2 me-3 border rounded-3xl font-semibold border-gray-400 p-1 hover:border-1 hover:border-white hover:bg-black hover:text-white duration-300">
+                                            Đăng nhập
                                         </button>
                                     </Link>
                                 </div>
-                                <div className="navbar-login">
-                                    <Link to="/login">
-                                        <button className="w-32 border rounded-lg font-semibold p-1 bg-yellow-300 hover:border-1 hover:border-black hover:bg-black hover:text-white duration-300">
-                                            Đăng nhập
+                                <div className="navbar-register">
+                                    <Link to="/register">
+                                        <button className="w-24 py-2 me-3 border rounded-3xl font-semibold p-1 bg-yellow-500 hover:border-1 hover:border-black hover:bg-black hover:text-white duration-300">
+                                            Đăng ký
                                         </button>
                                     </Link>
                                 </div>
@@ -225,9 +225,25 @@ export const Header = () => {
                     <div className="w-[92px] xl:hidden  mx-auto flex items-center justify-center">
                         <Sheet>
                             <SheetTrigger>
-                                <div className="flex items-center ">
-                                    <box-icon name='menu'></box-icon>
+                                {/* icons*/}
+                                <div className="navbar-icons flex items-center gap-2 xl:mx-3 my-5">
+                                    <div className="navbar-noti cursor-pointer">
+                                        <Link to="/instructor">
+                                            <box-icon type='solid' name='bell'></box-icon>
+                                        </Link>
+
+                                    </div>
+
+                                    <div className="">
+                                        <Link to='/cart'>
+                                            <box-icon name='cart-alt' type='solid' ></box-icon>
+                                        </Link>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <box-icon name='menu'></box-icon>
+                                    </div>
                                 </div>
+
                             </SheetTrigger>
                             <SheetContent>
                                 <SheetHeader>
@@ -236,10 +252,14 @@ export const Header = () => {
                                             <div className="logo ml-[-35px]">
                                                 <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-32 h-14 object-cover" />
                                             </div>
+                                            <div className="navbar-language cursor-pointer">
+                                        <box-icon type='solid' name='brightness'></box-icon>
+                                    </div>
                                         </div>
                                     </SheetTitle>
                                     <SheetDescription>
 
+                                        {/* nav list */}
                                         <ul className="max-xl:pt-3 gap-3 text-base xl:text-base text-left">
                                             <li className="max-xl:mb-4">
                                                 <Link to="/courses" className="hover:text-gray-500">
@@ -257,24 +277,8 @@ export const Header = () => {
                                                 </Link>
                                             </li>
                                         </ul>
-                                        <div className="navbar-icons flex items-center gap-2 xl:mx-3 my-5">
-                                            <div className="navbar-noti cursor-pointer">
-                                                <Link to="/instructor">
-                                                    <box-icon type='solid' name='bell'></box-icon>
-                                                </Link>
-
-                                            </div>
-                                            <div className="navbar-language cursor-pointer">
-                                                <box-icon type='solid' name='brightness'></box-icon>
-                                            </div>
-                                            <div className="">
-                                                <Link to='/cart'>
-                                                    <box-icon name='cart-alt' type='solid' ></box-icon>
-                                                </Link>
-                                            </div>
 
 
-                                        </div>
                                         {logined ? (
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -354,18 +358,18 @@ export const Header = () => {
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         ) : (
-                                            <div className="xl:flex max-xl:flex-col gap-2 items-center text-left">
-                                                <div className="navbar-register max-xl:mb-2">
-                                                    <Link to="/register">
-                                                        <button className="w-32 me-3 border rounded-lg font-semibold border-black p-1 hover:border-1 hover:border-white hover:bg-yellow-300 hover:text-white duration-300">
-                                                            Đăng ký
+                                            <div className="my-5">
+                                                <div className="navbar-login  max-xl:mb-2">
+                                                    <Link to="/login">
+                                                        <button className="w-full py-3 me-3 border rounded-3xl font-semibold border-gray-400 p-1 hover:border-1 hover:border-white hover:bg-black hover:text-white duration-300">
+                                                            Đăng nhập
                                                         </button>
                                                     </Link>
                                                 </div>
-                                                <div className="navbar-login">
-                                                    <Link to="/login">
-                                                        <button className="w-32 border rounded-lg font-semibold p-1 bg-yellow-300 hover:border-1 hover:border-black hover:bg-black hover:text-white duration-300">
-                                                            Đăng nhập
+                                                <div className="navbar-register my-3">
+                                                    <Link to="/register">
+                                                        <button className="w-full py-3 me-3 border rounded-3xl font-semibold p-1 text-black bg-yellow-500 hover:border-1 hover:border-black hover:bg-black hover:text-white duration-300">
+                                                            Đăng ký
                                                         </button>
                                                     </Link>
                                                 </div>
