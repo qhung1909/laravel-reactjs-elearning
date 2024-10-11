@@ -194,7 +194,7 @@ export const InstructorProfile = () => {
                         </div>
 
                         {/* Profile content */}
-                        <div className="md:p-6 max-lg:h-screen">
+                        <div className="md:p-6 ">
                             <Tabs defaultValue="account" className="w-[100%] py-10 md:py-0">
                                 {/* tabs - header */}
                                 <TabsList>
@@ -217,7 +217,7 @@ export const InstructorProfile = () => {
                                 <div className="my-16">
                                     {/* tabs - profile */}
                                     <TabsContent value="profile" className="">
-                                        <div className="bg-white rounded-xl py-5 max-w-screen-xl w-full mx-auto">
+                                        <div className="bg-white rounded-xl py-5  w-full mx-auto">
                                             <div className="">
                                                 {/* header */}
                                                 <div className="flex justify-between items-center px-8">
