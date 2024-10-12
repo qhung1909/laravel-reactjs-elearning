@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 
 export const PaymentResult = () => {
     const [result, setResult] = useState(null);
-    const [loading, setLoading] = useState(true); 
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -27,7 +27,7 @@ export const PaymentResult = () => {
                 console.error("Error verifying payment:", error);
                 setResult({ code: '99', message: 'Xác thực giao dịch thất bại' });
             } finally {
-                setLoading(false); 
+                setLoading(false);
             }
         };
 
@@ -35,7 +35,7 @@ export const PaymentResult = () => {
     }, []);
 
     if (loading) {
-        return <div>Đang xác thực giao dịch...</div>; 
+        return <div>Đang xác thực giao dịch...</div>;
     }
 
     return (
