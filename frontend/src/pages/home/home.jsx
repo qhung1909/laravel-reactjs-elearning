@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from 'axios';
 import { Link } from "react-router-dom";
+import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -107,7 +108,7 @@ export const Home = () => {
                         </div>
                     </div>
                     <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
-                        <span>đ1,990,000</span>
+                        {formatCurrency(item.price_discount)}
                     </div>
                 </div>
             </div>
@@ -147,7 +148,7 @@ export const Home = () => {
                         </div>
                     </div>
                     <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
-                        <span>đ1,990,000</span>
+                        {formatCurrency(item.price_discount)}
                     </div>
                 </div>
             </div>
