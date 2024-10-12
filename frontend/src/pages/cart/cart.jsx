@@ -141,7 +141,7 @@ export const Cart = () => {
                             <input
                                 className="mr-4 mt-2 h-5 w-5 flex-shrink-0 rounded border-gray-300 checked:bg-yellow-500"
                                 defaultChecked
-                                type=""
+                                type="checkbox"
                                 aria-label="Chọn khóa học"
                             />
                             <img
