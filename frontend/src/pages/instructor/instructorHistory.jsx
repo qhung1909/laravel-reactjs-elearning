@@ -48,7 +48,7 @@ export const InstructorHistory = () => {
                             <ul className="">
                                 <li className="mb-3">
                                     <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 hover:bg-gray-100">
-                                        <div className="  mr-3 pt-1 px-1  rounded-full">
+                                        <div className="mr-3 pt-1 px-1  rounded-full">
                                             <box-icon name='sidebar'></box-icon>
                                         </div>
                                         <p className="font-semibold text-base">Bảng điều khiển</p>

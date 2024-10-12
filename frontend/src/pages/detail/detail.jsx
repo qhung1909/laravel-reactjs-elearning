@@ -102,7 +102,6 @@ export const Detail = () => {
     const [comment, setComment] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [comments, setComments] = useState([]);
-    const [couponId, setCouponId] = useState(null);
     const [items, setItems] = useState([]);
     const [cartItems, setCartItems] = useState([]);
 
@@ -165,7 +164,7 @@ export const Detail = () => {
         }
     }, [slug]);
 
-    const addToCart = async (couponId) => {
+    const addToCart = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
             console.error("No token found");
@@ -197,7 +196,7 @@ export const Detail = () => {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    coupon_id: couponId || null,
+
                     items: [newItem],
                 }),
             });
@@ -216,7 +215,7 @@ export const Detail = () => {
 
             const data = await res.json();
             console.log("Order:", data.order);
-            toast.success("Thêm thành công sản phẩm vào giỏ hàng!");
+            toast.success("Thêm thành công khóa học vào giỏ hàng!");
 
             setCartItems((prevItems) => [...prevItems, newItem]);
         } catch (error) {
@@ -1444,7 +1443,7 @@ export const Detail = () => {
                                 6 ngày còn lại với mức giá này!
                             </p>
                             <button
-                                onClick={() => addToCart(couponId, items)}
+                                onClick={() => addToCart(items)}
                                 className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
                             >
                                 Thêm vào giỏ hàng
@@ -1525,7 +1524,7 @@ export const Detail = () => {
                                         Chứng chỉ hoàn thành
                                     </li>
                                 </ul>
-                                <div className="mt-2">
+                                {/* <div className="mt-2">
                                     <h4 className="font-semibold mb-2">
                                         Áp dụng coupon:
                                     </h4>
@@ -1539,7 +1538,7 @@ export const Detail = () => {
                                             Áp dụng
                                         </button>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>
