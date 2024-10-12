@@ -21,7 +21,7 @@ export const PaymentResult = () => {
         const payDate = params.get("vnp_PayDate");
         const transactionStatus = params.get("vnp_TransactionStatus");
         const tmnCode = params.get("vnp_TmnCode");
-
+        
         const verifyPayment = async () => {
             try {
                 const response = await fetch(
