@@ -381,72 +381,25 @@ export const Courses = () => {
                     Nhiều học viên thích khóa học được đánh giá cao này vì nội
                     dung hấp dẫn của nó.
                 </p>
-                {/* <div className="">
-                    <div className="flex flex-col lg:flex-row items-start">
-                        <img
-                            alt="Khóa học NextJS 14"
-                            className="w-full lg:w-1/3 h-auto mb-4 lg:mb-0 lg:mr-6 object-cover"
-                            src="../images/5712300_b951_5.jpg"/>
-                        <div className="flex-1">
-                            <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                                Khóa học NextJS 14-ReactJS-Typescript thực chiến
-                                2024 PRO
-                            </h3>
-                            <p className="text-gray-700 mb-2">
-                                Khóa học Nextjs 14, ReactJS, Typescript từ cơ
-                                bản đến thực chiến cho người mới bắt đầu 2024
-                                PRO - Lập trình thật dễ
-                            </p>
-                            <p className="text-gray-500 text-xs mb-1">
-                                Bởi Shin Nguyen
-                            </p>
-                            <p className="font-thin text-xs text-green-600 mb-4">
-                                Đã cập nhật{" "}
-                                <span className="text-green-800 font-bold">
-                                    tháng 8 năm 2024
-                                </span>
-                                <span className="text-gray-500 text-xs font-normal">
-                                    Tổng số 126 giờ | 342 bài giảng | Tất cả
-                                    trình độ
-                                </span>
-                            </p>
-                            <p className="text-lg text-gray-800 font-semibold mb-2">
-                                4,8
-                                <span className="text-yellow-500">
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star-half" />
-                                </span>
-                                <span className="text-xs text-gray-600">
-                                    (43)
-                                </span>
-                                <span className="bg-yellow-200 text-gray-700 text-sm px-2 py-1">
-                                    Bán chạy nhất
-                                </span>
-                            </p>
-                            <p className="pt-10 text-lg font-bold text-black">
-                                ₫ 2.199.000
-                            </p>
-                        </div>
-                    </div>
-                </div> */}
                 <Carousel>
-                    <CarouselContent>
-                        <CarouselItem>
-                            {render_course_hot[0]} {/* Hiển thị item đầu tiên */}
-                        </CarouselItem>
-                        <CarouselItem>
-                            {render_course_hot[1]} {/* Hiển thị item thứ hai */}
-                        </CarouselItem>
-                        <CarouselItem>
-                            {render_course_hot[2]} {/* Hiển thị item thứ ba */}
-                        </CarouselItem>
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                </Carousel>
+    <CarouselContent>
+        <CarouselItem>
+            {render_course_hot[0]} {/* Hiển thị item đầu tiên */}
+        </CarouselItem>
+        <CarouselItem>
+            {render_course_hot[1]} {/* Hiển thị item thứ hai */}
+        </CarouselItem>
+        <CarouselItem>
+            {render_course_hot[2]} {/* Hiển thị item thứ ba */}
+        </CarouselItem>
+    </CarouselContent>
+    {/* Đặt nút điều hướng bên ngoài CarouselContent */}
+    <div className="flex justify-between items-center absolute w-full top-1/2 transform -translate-y-1/2">
+        <CarouselPrevious className="z-10" />
+        <CarouselNext className="z-10" />
+    </div>
+</Carousel>
+
 
                 {/* Chủ đề phổ biến */}
                 <h1 className="text-2xl font-semibold py-5">Chủ đề phổ biến</h1>
