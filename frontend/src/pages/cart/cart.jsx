@@ -131,7 +131,7 @@ export const Cart = () => {
                             />
                             <img
                                 alt="Course Image"
-                                className="w-24 h-16 flex-shrink-0 rounded-md object-cover" // Kích thước hình ảnh nhỏ hơn
+                                className="sm:w-48 sm:h-28 w-52 g-24  flex-shrink-0 rounded-2xl object-cover" // Kích thước hình ảnh nhỏ hơn
                                 src={
                                     course
                                         ? course.img
@@ -141,7 +141,7 @@ export const Cart = () => {
                             <div className="ml-2 flex-grow flex flex-col">
                                 <div className="md:flex justify-between items-center">
                                     <div className="md:w-3/5">
-                                        <p className="font-bold md:text-lg text-base md:line-clamp-1 line-clamp-2 uppercase">
+                                        <p className="font-bold md:text-lg text-base md:line-clamp-1 line-clamp-2 uppercase ">
                                             {course
                                                 ? course.title
                                                 : "Khóa học không tồn tại"}
@@ -205,7 +205,7 @@ export const Cart = () => {
                             {cart.length > 0 ?
                                 // Nếu có giỏ hàng
                                 (
-                                    <div className="flex flex-col lg:flex-row justify-between gap-10">
+                                    <div className="flex flex-col lg:flex-row justify-between lg:gap-10">
                                         {/* Cột bên trái: Danh sách sản phẩm */}
                                         <div className="flex flex-col justify-between lg:w-2/3 w-full">
                                             {renderCart()}
