@@ -64,7 +64,7 @@ export const Header = () => {
     return (
         <>
             <header>
-                <nav className="navbar flex items-center justify-center w-[100%] mx-auto py-2 z-10 ps-3 xl:max-w-screen-2xl ms-auto">
+                <nav className="navbar flex items-center justify-center w-[100%] mx-auto py-2 z-10 ps-3 xl:max-w-screen-2xl ms-auto border-b-[1px] border-gray-200">
 
                     {/* header - logo */}
                     <div className="navbar-logo mx-2 w-28 h-24 object-cover flex items-center">
