@@ -167,52 +167,27 @@ const CarouselPrevious = React.forwardRef(({ className, variant = "outline", siz
     </Button>)
   );
 })
+CarouselPrevious.displayName = "CarouselPrevious"
+
 const CarouselNext = React.forwardRef(({ className, variant = "outline", size = "icon", ...props }, ref) => {
-  const { orientation, api, canScrollNext } = useCarousel();
-
-  const handleNextClick = React.useCallback(() => {
-    if (!api) return;
-
-    const totalSlides = api.scrollSnapList().length; // Tổng số slide
-    const currentSlide = api.selectedScrollSnap(); // Slide hiện tại
-
-    // Nếu đang ở slide cuối cùng
-    if (currentSlide === totalSlides - 1) {
-      // Không làm gì để tránh quay về slide đầu tiên ngay lập tức
-      // Hoặc bạn có thể thêm hiệu ứng nào đó ở đây nếu muốn
-      return;
-    } else {
-      // Cuộn đến slide tiếp theo
-      api.scrollNext();
-    }
-  }, [api]);
+  const { orientation, scrollNext, canScrollNext } = useCarousel()
 
   return (
-    <Button
+    (<Button
       ref={ref}
       variant={variant}
       size={size}
-      className={cn(
-        "absolute h-8 w-8 rounded-full",
-        orientation === "horizontal"
-          ? "-right-12 top-1/2 -translate-y-1/2"
-          : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
-        className
-      )}
+      className={cn("absolute h-8 w-8 rounded-full", orientation === "horizontal"
+        ? "-right-12 top-1/2 -translate-y-1/2"
+        : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90", className)}
       disabled={!canScrollNext}
-      onClick={handleNextClick}
-      {...props}
-    >
+      onClick={scrollNext}
+      {...props}>
       <ArrowRight className="h-4 w-4" />
       <span className="sr-only">Next slide</span>
-    </Button>
+    </Button>)
   );
-});
-
-
-
-
-
+})
 CarouselNext.displayName = "CarouselNext"
 
 export { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext };

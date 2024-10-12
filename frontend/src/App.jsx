@@ -5,8 +5,6 @@ import { Lession } from "./pages/lession/lession.jsx";
 import { Detail } from "./pages/detail/detail.jsx";
 import { Dashboard } from "./pages/admin/admin.jsx";
 import { Courses } from "./pages/courses/course.jsx";
-import { PaymentComponent } from "./pages/testing/payment-vnpay.jsx";
-import { PaymentResult } from "./pages/testing/redicted-vnpay.jsx";
 import { Blog } from './pages/blog/blog.jsx';
 import { Blogdetail } from "./pages/blogdetail/blogdetail.jsx";
 import { Contact } from './pages/contact/contact.jsx';
@@ -21,10 +19,11 @@ import { Instructor } from "./pages/instructor/instructor.jsx";
 import { InstructorHistory } from "./pages/instructor/instructorHistory.jsx";
 import { InstructorLesson } from "./pages/instructor/instructorLesson.jsx";
 import { InstructorProfile } from "./pages/instructor/instructorProfile.jsx";
+import { PaymentResult } from "./pages/payment/payment-result.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === '/admin';
-    const isPageNotFound = !['/blogdetail', '/blog', '/contact', '/admin', '/', '/login', '/register', '/courses', '/lession', '/tests', '/tests-payment','/payment','/cart'].includes(location.pathname) && !location.pathname.startsWith('/detail/');
+    const isPageNotFound = !['/blogdetail', '/blog', '/contact', '/admin', '/', '/login', '/register', '/courses', '/lession', '/payment-result','/payment','/cart'].includes(location.pathname) && !location.pathname.startsWith('/detail/');
 
     return (
         <>
@@ -47,8 +46,7 @@ function AppContent() {
                 <Route path="*" element={<PageNotFound />}></Route>
                 <Route path="/404" element={<PageNotFound />}></Route>
                 <Route path="/detail/:slug" element={<Detail />}></Route>
-                <Route path="/tests" element={<PaymentComponent />}></Route>
-                <Route path="/tests-payment" element={<PaymentResult />}></Route>
+                <Route path="/payment-result" element={<PaymentResult />}></Route>
                 <Route path="/payment" element={<Payment />}></Route>
                 <Route path="/cart" element={<Cart />}></Route>
             </Routes>
