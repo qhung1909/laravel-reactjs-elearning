@@ -106,9 +106,6 @@ export const Cart = () => {
     const totalPrice = calculateTotalPrice();
 
     const renderCart = () => {
-        // if (cart.length === 0) {
-        //     return <p>Giỏ hàng của bạn đang trống.</p>;
-        // }
 
         if (cart.length === 0) {
             return (
@@ -121,6 +118,7 @@ export const Cart = () => {
                     <p className="mt-4 text-lg font-semibold text-gray-600">
                         Giỏ hàng của bạn đang trống.
                     </p>
+
                 </div>
             );
         }
@@ -194,7 +192,7 @@ export const Cart = () => {
     };
 
     return (
-        <div className=" p-10">
+        <div className="bg-gray-100 p-10 my-10">
             <div className="container mx-auto py-8">
                 <h1 className="text-3xl font-bold mb-6">Giỏ hàng</h1>
                 <div className="bg-white shadow-md rounded-lg p-6">
