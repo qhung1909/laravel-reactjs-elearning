@@ -149,7 +149,7 @@ class CartController extends Controller
 
                         $order->status = 'success';
                         $order->save();
-                        OrderDetail::where('order_id', $order->order_id)->delete();
+                        OrderDetail::where('order_detail_id', $order->order_detail_id)->delete();
                         Log::info('Order status updated to success');
                     }
                 } else {
