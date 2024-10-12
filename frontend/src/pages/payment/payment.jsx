@@ -9,6 +9,7 @@ export const Payment = () => {
     const [cart, setCart] = useState([]);
     const [courses, setCourses] = useState([]);
     const [discount, setDiscount] = useState(0);
+    const [orderId, setOrderId] = useState(null);
     useEffect(() => {
         const fetchAllData = async () => {
             try {
@@ -121,7 +122,13 @@ export const Payment = () => {
 
         const orderType = "purchase";
         const orderAmount = finalPrice;
-
+        // Log orderId để kiểm tra
+        console.log("Order ID:", orderId);
+        // Sử dụng orderId từ state
+        if (!orderId) {
+            toast.error("Không tìm thấy mã đơn hàng.");
+            return;
+        }
         try {
             const response = await axios.post(
                 `${API_URL}/vnpay-payment`,
@@ -129,6 +136,7 @@ export const Payment = () => {
                     vnp_OrderInfo: orderInfo,
                     vnp_OrderType: orderType,
                     vnp_Amount: orderAmount,
+                    vnp_Txnref: orderId,
                 },
                 {
                     headers: {
@@ -161,6 +169,12 @@ export const Payment = () => {
                                 const course = courses.find(
                                     (c) => c.course_id === orderDetail.course_id
                                 );
+
+                                // Lưu order_id vào state (có thể chỉ lưu một lần nếu cần)
+                                if (!orderId) {
+                                    setOrderId(orderDetail.order_id);
+                                }
+
                                 return (
                                     <div
                                         key={`${index}-${orderDetailIndex}`}
