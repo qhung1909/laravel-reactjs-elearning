@@ -216,14 +216,18 @@ class CartController extends Controller
             return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $e->errors()], 422);
         }
 
-        $order = Order::create([
-            'user_id' => $user_id,
-            'coupon_id' => $request->coupon_id,
-            'total_price' => 0,
-            'status' => 'pending', 
-            'created_at' => now(), 
-            'updated_at' => now(), 
-        ]);
+        $order = Order::where('user_id', $user_id)
+            ->where('status', 'pending')
+            ->first();
+
+        if (!$order) {
+            $order = Order::create([
+                'user_id' => $user_id,
+                'coupon_id' => $request->coupon_id,
+                'total_price' => 0,
+                'status' => 'pending',
+            ]);
+        }
 
         foreach ($request->items as $item) {
             $existingItem = OrderDetail::where('order_id', $order->order_id)
@@ -252,7 +256,6 @@ class CartController extends Controller
             'order' => $order,
         ], 201);
     }
-
 
 
 
