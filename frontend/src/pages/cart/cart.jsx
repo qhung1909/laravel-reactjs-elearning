@@ -106,20 +106,6 @@ export const Cart = () => {
     const totalPrice = calculateTotalPrice();
 
     const renderCart = () => {
-        if (cart.length === 0) {
-            return (
-                <div className="flex flex-col items-center justify-center h-full">
-                    <img
-                        src="https://maydongphucyte.com/default/template/img/cart-empty.png"
-                        alt="Giỏ hàng trống"
-                        className="w-32 h-32 object-cover"
-                    />
-                    <p className="mt-4 text-lg font-semibold text-gray-600">
-                        Giỏ hàng của bạn đang trống.
-                    </p>
-                </div>
-            );
-        }
 
         return cart.map((item, index) => (
             <div key={index} className="mb-6 bg-white rounded-lg shadow-sm p-4">
@@ -166,10 +152,10 @@ export const Cart = () => {
                                     </div>
                                     <p className="font-bold text-black text-base w-1/5 text-right ">
                                         {formatCurrency(detail.price)}
-                                        <button onClick={() => deleteCourseFromCart( item.order_id, detail.course_id )}
+                                        <button onClick={() => deleteCourseFromCart(item.order_id, detail.course_id)}
                                             className="p-1 text-red-500 hover:text-red-700 hover:bg-red-100 rounded-full ml-2"
                                             aria-label="Xóa khóa học">
-                                            <box-icon name="trash-alt"color="#ff0015"></box-icon>
+                                            <box-icon name="trash-alt" color="#ff0015"></box-icon>
                                         </button>
                                     </p>
                                 </div>
@@ -211,34 +197,55 @@ export const Cart = () => {
 
                     <div>
                         <div className="container mx-auto py-8">
-                            <div className="flex flex-col lg:flex-row">
-                                {/* Cột bên trái: Danh sách sản phẩm */}
-                                <div className="flex flex-col justify-between p-2 border-b mr-20 w-full lg:w-2/3">
-                                    {renderCart()}
-                                </div>
 
-                                {/* Cột bên phải: Chỉ hiển thị khi giỏ hàng có sản phẩm */}
-                                {cart.length > 0 && (
-                                    <div className="bg-white px-6 rounded-lg shadow-lg box-shadow-lg w-full lg:w-1/4 mt-4 h-40  lg:mt-0">
-                                        <div className="flex justify-between mb-2">
-                                            <span className="font-bold text-xl">
-                                                Tổng
-                                            </span>
-                                            {/* <span className="font-bold text-2xl text-red-600">
+                            {/* Kiểm tra xem có giỏ hàng không */}
+
+                            {cart.length > 0 ?
+                                // Nếu có giỏ hàng
+                                (
+                                    <div className="flex flex-col lg:flex-row">
+                                        {/* Cột bên trái: Danh sách sản phẩm */}
+                                        <div className="flex flex-col justify-between p-2 border-b mr-20 w-full lg:w-2/3">
+                                            {renderCart()}
+                                        </div>
+
+                                        {/* Cột bên phải: Chỉ hiển thị khi giỏ hàng có sản phẩm */}
+                                        {cart.length > 0 && (
+                                            <div className="bg-white px-6 rounded-lg shadow-lg box-shadow-lg w-full lg:w-1/4 mt-4 h-40  lg:mt-0">
+                                                <div className="flex justify-between mb-2">
+                                                    <span className="font-bold text-xl">
+                                                        Tổng
+                                                    </span>
+                                                    {/* <span className="font-bold text-2xl text-red-600">
                                                 {formatCurrency(totalPrice)}
                                             </span> */}
-                                        </div>
-                                        <div className="font-bold text-3xl mb-5 text-red-600">
-                                            {formatCurrency(totalPrice)}
-                                        </div>
-                                        <Link to="/payment">
-                                            <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-lg font-bold py-3 rounded-xl">
-                                                Thanh toán
-                                            </button>
-                                        </Link>
+                                                </div>
+                                                <div className="font-bold text-3xl mb-5 text-red-600">
+                                                    {formatCurrency(totalPrice)}
+                                                </div>
+                                                <Link to="/payment">
+                                                    <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-lg font-bold py-3 rounded-xl">
+                                                        Thanh toán
+                                                    </button>
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) :
+                                // Nếu không có giỏ hàng
+                                (
+                                    <div className="flex flex-col items-center justify-center h-full">
+                                        <img
+                                            src="https://maydongphucyte.com/default/template/img/cart-empty.png"
+                                            alt="Giỏ hàng trống"
+                                            className="w-32 h-32 object-cover"
+                                        />
+                                        <p className="mt-4 text-lg font-semibold text-gray-600">
+                                            Giỏ hàng của bạn đang trống.
+                                        </p>
                                     </div>
                                 )}
-                            </div>
+
                         </div>
                     </div>
                 </div>
