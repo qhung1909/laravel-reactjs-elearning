@@ -191,10 +191,10 @@ export const Courses = () => {
                             {item.title}
                         </a>
                     </h3>
-                    <p className="text-sm text-black">
+                    <p className="text-sm text-black pr-5">
                         {item.description}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 ">
                         Le Dan Dat
                     </p>
                     <p className="text-yellow-500 text-sm">

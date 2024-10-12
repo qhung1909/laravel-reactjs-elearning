@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from 'axios';
 import { Link } from "react-router-dom";
+import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -83,7 +84,7 @@ export const Home = () => {
                     <Link to={`/detail/${item.slug}`}>
                         <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
                             <img
-                                src={`/src/assets/images/${item.img}`}
+                                src={`${item.img}`}
                                 alt=""
                                 className="rounded-xl h-full sm:w-full md:h-full w-80"
                             />
@@ -107,7 +108,7 @@ export const Home = () => {
                         </div>
                     </div>
                     <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
-                        <span>đ1,990,000</span>
+                        {formatCurrency(item.price_discount)}
                     </div>
                 </div>
             </div>
@@ -123,7 +124,7 @@ export const Home = () => {
                     <Link to={`/detail/${item.slug}`}>
                         <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
                             <img
-                                src={`/src/assets/images/${item.img}`}
+                                src={`${item.img}`}
                                 alt=""
                                 className="rounded-xl h-full sm:w-full md:h-full w-80"
                             />
@@ -147,7 +148,7 @@ export const Home = () => {
                         </div>
                     </div>
                     <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
-                        <span>đ1,990,000</span>
+                        {formatCurrency(item.price_discount)}
                     </div>
                 </div>
             </div>

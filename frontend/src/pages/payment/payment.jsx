@@ -55,7 +55,8 @@ export const Payment = () => {
             const token = localStorage.getItem("access_token");
             const response = await axios.post(
                 `${API_URL}/check-discount`,
-                { name_coupon: coupon },
+                { name_coupon: coupon, order_id: orderId },
+
                 {
                     headers: {
                         "x-api-secret": `${API_KEY}`,
