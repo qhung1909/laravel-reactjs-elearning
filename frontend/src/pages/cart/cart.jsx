@@ -252,13 +252,13 @@ export const Cart = () => {
                             alt="Giỏ hàng trống"
                             className="w-80 h-60 object-cover"
                         />
-                        <p className="mt-4 text-2xl font-semibold text-gray-600">
+                        <p className="mt-4 md:text-2xl text-lg px-5 font-semibold text-gray-600 text-center md:text-left">
                             Giỏ hàng của bạn đang trống. Hãy tìm mua cho mình một khóa học nhé
                         </p>
                         <Link to="/">
-                        <div className="flex items-center justify-center gap-3 mt-10">
+                        <div className="flex items-center justify-center gap-3 md:mt-10 mt-5">
                             <box-icon name='arrow-back' color="gray"></box-icon>
-                            <p className="text-gray-500 font-bold text-xl">Về lại trang chủ</p>
+                            <p className="text-gray-500 font-bold md:text-xl text-base">Về lại trang chủ</p>
                         </div>
                         </Link>
                     </div>
