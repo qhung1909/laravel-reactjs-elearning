@@ -298,8 +298,8 @@ export const Header = () => {
                                             <SheetHeader>
                                                 <SheetTitle>
                                                     <div className="p-4 flex justify-between items-center border-b-[1px]">
-                                                        <div className="logo ml-[-35px]">
-                                                            <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-32 h-14 object-cover" />
+                                                        <div className="logo">
+                                                            <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className=" w-20 h-14 object-cover" />
                                                         </div>
                                                         <div className="flex">
                                                             <div className="navbar-language cursor-pointer">
@@ -429,8 +429,8 @@ export const Header = () => {
                                         <SheetHeader>
                                             <SheetTitle>
                                                 <div className="p-4 flex justify-between items-center border-b-[1px]">
-                                                    <div className="logo ml-[-35px]">
-                                                        <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-32 h-14 object-cover" />
+                                                    <div className="logo ">
+                                                        <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                                     </div>
                                                     <div className="navbar-language cursor-pointer">
                                                         <box-icon type='solid' name='brightness'></box-icon>
