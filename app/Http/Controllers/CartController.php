@@ -201,9 +201,9 @@ class CartController extends Controller
                 'message' => 'Người dùng chưa đăng nhập.',
             ], 401);
         }
-
+    
         $user_id = Auth::id();
-
+    
         try {
             $request->validate([
                 'coupon_id' => 'nullable|exists:coupons,id',
@@ -214,54 +214,43 @@ class CartController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $e->errors()], 422);
         }
-
-        $order = Order::where('user_id', $user_id)
-            ->whereIn('status', ['pending', 'success'])
-            ->first();
-
-        if ($order && $order->status === 'success') {
-            $order = Order::create([
-                'user_id' => $user_id,
-                'coupon_id' => $request->coupon_id,
-                'total_price' => 0,
-                'status' => 'pending',
-            ]);
-        } elseif (!$order) {
-            $order = Order::create([
-                'user_id' => $user_id,
-                'coupon_id' => $request->coupon_id,
-                'total_price' => 0,
-                'status' => 'pending',
-            ]);
-        }
-
+    
+        // Tạo đơn hàng mới mà không cần kiểm tra trạng thái của đơn hàng cũ
+        $order = Order::create([
+            'user_id' => $user_id,
+            'coupon_id' => $request->coupon_id,
+            'total_price' => 0,
+            'status' => 'pending', // Đặt trạng thái là 'pending'
+        ]);
+    
         foreach ($request->items as $item) {
             $existingItem = OrderDetail::where('order_id', $order->order_id)
                 ->where('course_id', $item['course_id'])
                 ->first();
-
+    
             if ($existingItem) {
                 return response()->json([
                     'message' => 'Khóa học này đã có trong giỏ hàng.',
                 ], 409);
             }
-
+    
             OrderDetail::create([
                 'order_id' => $order->order_id,
                 'course_id' => $item['course_id'],
                 'price' => $item['price'],
             ]);
-
+    
             $order->total_price += $item['price'];
         }
-
+    
         $order->update(['total_price' => $order->total_price]);
-
+    
         return response()->json([
             'message' => 'Đơn hàng đã được thêm vào giỏ hàng thành công!',
             'order' => $order,
         ], 201);
     }
+    
 
 
     public function removeItem(Request $request)
