@@ -209,10 +209,10 @@ export const Courses = () => {
                 </div>
                 <div className="ml-auto">
                     <p className="text-md md:text-lg font-bold text-black">
-                        {formatCurrency(item.price)}
+                        {formatCurrency(item.price_discount)}
                     </p>
                     <p className="text-md md:text-lg text-gray-500 line-through">
-                        {formatCurrency(item.price_discount)}
+                        {formatCurrency(item.price)}
                     </p>
                 </div>
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
