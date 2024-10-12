@@ -140,7 +140,7 @@ export const Cart = () => {
                             />
                             <div className="ml-2 flex-grow flex flex-col">
                                 <div className="md:flex justify-between items-center">
-                                    <div className="md:w-3/5">
+                                    <div className="md:w-3/5 pl-5">
                                         <p className="font-bold md:text-lg text-base md:line-clamp-1 line-clamp-2 uppercase ">
                                             {course
                                                 ? course.title
@@ -150,14 +150,14 @@ export const Cart = () => {
                                             bởi: <span>AntLearn</span>
                                         </p>
                                     </div>
-                                    <p className="font-bold text-black text-base md:w-1/5 text-right flex justify-between sm:justify-normal md:flex-col gap-5 sm:my-3 md:my-0">
+                                    <p className="font-bold text-gray-400 text-base md:w-1/5 text-right flex justify-between sm:justify-normal md:flex-col gap-5 sm:my-3 md:my-0">
                                         <div className="pricing text-[#2F57EF] font-medium">
                                             {formatCurrency(detail.price)}
                                         </div>
                                         <button onClick={() => deleteCourseFromCart(item.order_id, detail.course_id)}
-                                            className=" text-red-500 hover:text-red-700 text-right"
+                                            className="text-black hover:text-red-500 text-right"
                                             aria-label="Xóa khóa học">
-                                            <box-icon name='trash'></box-icon>
+                                            <box-icon name='trash-alt'  color="currentColor"></box-icon>
                                         </button>
                                     </p>
                                 </div>
@@ -213,7 +213,7 @@ export const Cart = () => {
 
                                         {/* Cột bên phải: Chỉ hiển thị khi giỏ hàng có sản phẩm */}
                                         {cart.length > 0 && (
-                                            <div className="bg-white rounded-3xl box-shadow-lg md:h-48  p-5 lg:w-1/3 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_-10px_15px_-3px_rgba(0,0,0,0.1)]">
+                                            <div className="bg-white rounded-3xl box-shadow-lg md:h-48  p-6 lg:w-1/3 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_-10px_15px_-3px_rgba(0,0,0,0.1)]">
                                                 <div className=" mb-2 text-center lg:text-left">
                                                     <span className="font-bold md:text-xl text-lg  text-gray-600">
                                                         Tổng
