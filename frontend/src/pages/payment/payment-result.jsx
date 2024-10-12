@@ -21,7 +21,7 @@ export const PaymentResult = () => {
         const payDate = params.get("vnp_PayDate");
         const transactionStatus = params.get("vnp_TransactionStatus");
         const tmnCode = params.get("vnp_TmnCode");
-        
+
         const verifyPayment = async () => {
             try {
                 const response = await fetch(
@@ -73,13 +73,21 @@ export const PaymentResult = () => {
                             >
                                 <CheckCircle className="h-5 w-5 text-green-600" />
                                 <AlertTitle className="text-green-800">
-                                    Giao dịch thành công!
+                                    Thanh toán thành công!
                                 </AlertTitle>
                                 <AlertDescription className="text-green-700">
-                                    Mã phản hồi: {result.RspCode}
-                                    <br />
-                                    Thông điệp: {result.Message}
+                                    Cảm ơn bạn đã tin tưởng và chọn khóa học của
+                                    chúng tôi. Chúc bạn học tập hiệu quả và
+                                    thành công!
                                 </AlertDescription>
+                                <div className="mt-4 text-center">
+                                    <a
+                                        href="/"
+                                        className="text-black-600  hover:text-indigo-800 transition duration-150 ease-in-out"
+                                    >
+                                        Quay về trang chủ
+                                    </a>
+                                </div>
                             </Alert>
                         ) : (
                             <Alert variant="destructive">
