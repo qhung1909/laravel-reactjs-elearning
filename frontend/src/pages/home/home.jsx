@@ -83,7 +83,7 @@ export const Home = () => {
                     <Link to={`/detail/${item.slug}`}>
                         <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
                             <img
-                                src={`/src/assets/images/${item.img}`}
+                                src={`${item.img}`}
                                 alt=""
                                 className="rounded-xl h-full sm:w-full md:h-full w-80"
                             />
@@ -123,7 +123,7 @@ export const Home = () => {
                     <Link to={`/detail/${item.slug}`}>
                         <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
                             <img
-                                src={`/src/assets/images/${item.img}`}
+                                src={`${item.img}`}
                                 alt=""
                                 className="rounded-xl h-full sm:w-full md:h-full w-80"
                             />
