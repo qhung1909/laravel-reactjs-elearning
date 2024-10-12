@@ -92,10 +92,10 @@ class CartController extends Controller
     public function vnpay_callback(Request $request)
     {
         Log::info('VNPay Callback Triggered');
-    
+
         $vnp_TmnCode = config('vnpay.vnp_TmnCode');
         $vnp_HashSecret = config('vnpay.vnp_HashSecret');
-    
+
         $inputData = [];
         $returnData = [];
         foreach ($request->query() as $key => $value) {
@@ -103,37 +103,37 @@ class CartController extends Controller
                 $inputData[$key] = $value;
             }
         }
-    
+
         $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? null;
         unset($inputData['vnp_SecureHash']);
         Log::info('Input Data: ' . json_encode($inputData));
-    
+
         ksort($inputData);
         $hashData = http_build_query($inputData);
         $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
-    
+
         Log::info('Secure Hash: ' . $secureHash);
         Log::info('VNP Secure Hash: ' . $vnp_SecureHash);
-    
+
         $vnpTranId = $inputData['vnp_TransactionNo'] ?? null;
         $vnp_BankCode = $inputData['vnp_BankCode'] ?? null;
         $vnp_Amount = $inputData['vnp_Amount'] / 100;
-    
+
         Log::info('Transaction ID: ' . $vnpTranId);
         Log::info('Bank Code: ' . $vnp_BankCode);
         Log::info('Amount: ' . $vnp_Amount);
-    
+
         $orderId = $inputData['vnp_TxnRef'];
         $order = Order::where('order_id', $orderId)->first();
         Log::info('Order ID: ' . $orderId);
-    
+
         if ($secureHash === $vnp_SecureHash && $order) {
             Log::info('Signature matched and Order found: ' . json_encode($order));
-    
+
             if ($order->total_price == $vnp_Amount) {
                 if ($inputData['vnp_ResponseCode'] == '00' && $inputData['vnp_TransactionStatus'] == '00') {
                     Log::info('Transaction Success');
-                    
+
                     $orderDetails = OrderDetail::where('order_id', $order->order_id)->get();
                     if ($orderDetails->isNotEmpty()) {
                         foreach ($orderDetails as $detail) {
@@ -146,15 +146,16 @@ class CartController extends Controller
                             ]);
                             Log::info('UserCourse created or found with Course ID: ' . $detail->course_id);
                         }
-                        
+
                         $order->status = 'success';
                         $order->save();
+                        OrderDetail::where('order_detail_id', $order->order_detail_id)->delete();
                         Log::info('Order status updated to success');
                     }
                 } else {
                     Log::info('Transaction failed');
                     $order->status = 'failed';
-                    $order->save(); 
+                    $order->save();
                     Log::info('Order status updated to failed');
                 }
                 $returnData = ['RspCode' => '00', 'Message' => 'Confirm Success'];
@@ -166,11 +167,11 @@ class CartController extends Controller
             Log::info('Signature mismatch or Order not found');
             $returnData = ['RspCode' => '97', 'Message' => 'Invalid signature or order not found'];
         }
-    
+
         Log::info('Return Data: ' . json_encode($returnData));
         return response()->json($returnData);
     }
-    
+
 
     public function getCart()
     {
@@ -255,6 +256,7 @@ class CartController extends Controller
             'order' => $order,
         ], 201);
     }
+
 
 
     public function removeItem(Request $request)
