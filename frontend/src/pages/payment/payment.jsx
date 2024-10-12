@@ -97,10 +97,7 @@ export const Payment = () => {
                 setIsVoucherApplied(true); // Đánh dấu đã áp dụng voucher
                 toast.success("Áp dụng mã giảm giá thành công! ");
             } else {
-                toast.error(
-                    response.data.message ||
-                        "Có lỗi xảy ra khi áp dụng mã giảm giá."
-                );
+                toast.error("Có lỗi xảy ra khi áp dụng mã giảm giá.");
             }
         } catch (error) {
             console.error("Có lỗi xảy ra:", error);
@@ -109,7 +106,7 @@ export const Payment = () => {
                 error.response.data &&
                 error.response.data.message
             ) {
-                toast.error(error.response.data.message);
+                toast.error("Có lỗi xảy ra khi áp dụng voucher");
             } else if (error.response) {
                 toast.error("Mã giảm giá không hợp lệ.");
             } else {
