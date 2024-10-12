@@ -126,7 +126,7 @@ export const Cart = () => {
                             <input
                                 className="mr-2 h-4 w-4 flex-shrink-0 rounded border-gray-300 checked:bg-yellow-500"
                                 defaultChecked
-                                type="checkbox"
+                                type=""
                                 aria-label="Chọn khóa học"
                             />
                             <img
@@ -141,7 +141,7 @@ export const Cart = () => {
                             <div className="ml-2 flex-grow flex flex-col">
                                 <div className="flex justify-between items-center">
                                     <div className="w-3/5">
-                                        <p className="font-bold text-xs sm:text-sm break-words ">
+                                        <p className="font-bold text-xl line-clamp-1 ">
                                             {course
                                                 ? course.title
                                                 : "Khóa học không tồn tại"}
@@ -173,13 +173,13 @@ export const Cart = () => {
 
 
     return (
-        <div className="bg-gray-100 p-10 my-10">
-            <div className="container mx-auto py-8">
-                <h1 className="text-3xl font-bold mb-6">Giỏ hàng</h1>
-                <div className="bg-white shadow-md rounded-lg p-6">
+        <div className="bg-gray-100 p-10 my-5">
+            <div className="container mx-auto">
+                <h1 className="text-5xl font-bold mb-6">Giỏ hàng</h1>
+                <div className="bg-white shadow-md rounded-lg">
                     <div className="flex items-center justify-between mb-4">
-                        <span className="font-bold">
-                            {cart.length || 0} đơn hàng
+                        <span className="font-semibold text-gray-400 text-lg">
+                            {cart.length || 0} Khóa học trong giỏ hàng
                         </span>
                         {cart.length > 0 && (
                             <div className="flex items-center">
@@ -196,7 +196,7 @@ export const Cart = () => {
                     </div>
 
                     <div>
-                        <div className="container mx-auto py-8">
+                        <div className="container mx-auto">
 
                             {/* Kiểm tra xem có giỏ hàng không */}
 
