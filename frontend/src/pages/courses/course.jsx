@@ -132,53 +132,52 @@ export const Courses = () => {
         .sort((a, b) => b.is_buy - a.is_buy) // Lọc chỉ những sản phẩm nổi bật
         .map((item, index) => (
             <div key={index}>
-                <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow-md flex group my-5">
-                    <img alt="Best-selling course"
-                        className="w-30 h-20 md:w-50 md:h-40 object-cover mr-10"
-                        src={`${item.img}`} />
-                    <div className="bg-pink-300 p-6 border mx-8 flex flex-col lg:flex-row items-start">
-                        <div className="flex-1">
-                            <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                                {item.title}
-                            </h3>
-                            <p className="text-gray-700 mb-2">
-                                {item.description}
-                            </p>
-                            <p className="text-gray-500 text-xs mb-1">
-                                Bởi Shin Nguyen
-                            </p>
-                            <p className="font-thin text-xs text-green-600 mb-4">
-                                Đã cập nhật{" "}
-                                <span className="text-green-800 font-bold">
-                                    tháng 8 năm 2024
-                                </span>
-                                <span className="text-gray-500 text-xs font-normal">
-                                    Tổng số 126 giờ | 342 bài giảng | Tất cả trình độ
-                                </span>
-                            </p>
-                            <p className="text-lg text-gray-800 font-semibold mb-2">
-                                4,8
-                                <span className="text-yellow-500">
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star-half" />
-                                </span>
-                                <span className="text-xs text-gray-600">
-                                    (43)
-                                </span>
-                                <span className="bg-yellow-200 text-gray-700 text-sm px-2 py-1 ml-2">
-                                    Bán chạy nhất
-                                </span>
-                            </p>
-                            <p className="pt-10 text-lg font-bold text-black">
-                                {formatCurrency(item.price_discount)}
-                            </p>
-                        </div>
+            <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow-md flex flex-col lg:flex-row group my-5">
+                <img alt="Best-selling course" className="w-full custom-img-height md:h-82 lg:h-60 lg:w-96 object-cover mb-4 lg:mb-0 lg:mr-4 border" src={`${item.img}`}/>
+                <div className="bg-white p-6 flex flex-col justify-between">
+                    <div className="flex-1">
+                        <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
+                            {item.title}
+                        </h3>
+                        <p className="text-gray-700 mb-2">
+                            {item.description}
+                        </p>
+                        <p className="text-gray-500 text-xs mb-1">
+                            Bởi Shin Nguyen
+                        </p>
+                        <p className="font-thin text-xs text-green-600 mb-4">
+                            Đã cập nhật{" "}
+                            <span className="text-green-800 font-bold">
+                                tháng 8 năm 2024
+                            </span>
+                            <span className="text-gray-500 text-xs font-normal">
+                                Tổng số 126 giờ | 342 bài giảng | Tất cả trình độ
+                            </span>
+                        </p>
+                        <p className="text-lg text-gray-800 font-semibold mb-2">
+                            4,8
+                            <span className="text-yellow-500">
+                                <i className="bx bxs-star" />
+                                <i className="bx bxs-star" />
+                                <i className="bx bxs-star" />
+                                <i className="bx bxs-star" />
+                                <i className="bx bxs-star-half" />
+                            </span>
+                            <span className="text-xs text-gray-600">
+                                (43)
+                            </span>
+                            <span className="bg-yellow-200 text-gray-700 text-sm px-2 py-1 ml-2">
+                                Bán chạy nhất
+                            </span>
+                        </p>
                     </div>
-                </Link>
+                    <p className="pt-4 text-lg font-bold text-black">
+                        {formatCurrency(item.price_discount)}
+                    </p>
+                </div>
+            </Link>
             </div>
+
         ));
 
     // Danh sách khóa học
@@ -192,10 +191,10 @@ export const Courses = () => {
                             {item.title}
                         </a>
                     </h3>
-                    <p className="text-sm text-black">
+                    <p className="text-sm text-black pr-5">
                         {item.description}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 ">
                         Le Dan Dat
                     </p>
                     <p className="text-yellow-500 text-sm">
@@ -210,10 +209,10 @@ export const Courses = () => {
                 </div>
                 <div className="ml-auto">
                     <p className="text-md md:text-lg font-bold text-black">
-                        {formatCurrency(item.price)}
+                        {formatCurrency(item.price_discount)}
                     </p>
                     <p className="text-md md:text-lg text-gray-500 line-through">
-                        {formatCurrency(item.price_discount)}
+                        {formatCurrency(item.price)}
                     </p>
                 </div>
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-white border border-gray-300 shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 px-6 py-4">
@@ -382,72 +381,25 @@ export const Courses = () => {
                     Nhiều học viên thích khóa học được đánh giá cao này vì nội
                     dung hấp dẫn của nó.
                 </p>
-                {/* <div className="">
-                    <div className="flex flex-col lg:flex-row items-start">
-                        <img
-                            alt="Khóa học NextJS 14"
-                            className="w-full lg:w-1/3 h-auto mb-4 lg:mb-0 lg:mr-6 object-cover"
-                            src="../images/5712300_b951_5.jpg"/>
-                        <div className="flex-1">
-                            <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                                Khóa học NextJS 14-ReactJS-Typescript thực chiến
-                                2024 PRO
-                            </h3>
-                            <p className="text-gray-700 mb-2">
-                                Khóa học Nextjs 14, ReactJS, Typescript từ cơ
-                                bản đến thực chiến cho người mới bắt đầu 2024
-                                PRO - Lập trình thật dễ
-                            </p>
-                            <p className="text-gray-500 text-xs mb-1">
-                                Bởi Shin Nguyen
-                            </p>
-                            <p className="font-thin text-xs text-green-600 mb-4">
-                                Đã cập nhật{" "}
-                                <span className="text-green-800 font-bold">
-                                    tháng 8 năm 2024
-                                </span>
-                                <span className="text-gray-500 text-xs font-normal">
-                                    Tổng số 126 giờ | 342 bài giảng | Tất cả
-                                    trình độ
-                                </span>
-                            </p>
-                            <p className="text-lg text-gray-800 font-semibold mb-2">
-                                4,8
-                                <span className="text-yellow-500">
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star" />
-                                    <i className="bx bxs-star-half" />
-                                </span>
-                                <span className="text-xs text-gray-600">
-                                    (43)
-                                </span>
-                                <span className="bg-yellow-200 text-gray-700 text-sm px-2 py-1">
-                                    Bán chạy nhất
-                                </span>
-                            </p>
-                            <p className="pt-10 text-lg font-bold text-black">
-                                ₫ 2.199.000
-                            </p>
-                        </div>
-                    </div>
-                </div> */}
                 <Carousel>
-                    <CarouselContent>
-                        <CarouselItem>
-                            {render_course_hot[0]} {/* Hiển thị item đầu tiên */}
-                        </CarouselItem>
-                        <CarouselItem>
-                            {render_course_hot[1]} {/* Hiển thị item thứ hai */}
-                        </CarouselItem>
-                        <CarouselItem>
-                            {render_course_hot[2]} {/* Hiển thị item thứ ba */}
-                        </CarouselItem>
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                </Carousel>
+    <CarouselContent>
+        <CarouselItem>
+            {render_course_hot[0]} {/* Hiển thị item đầu tiên */}
+        </CarouselItem>
+        <CarouselItem>
+            {render_course_hot[1]} {/* Hiển thị item thứ hai */}
+        </CarouselItem>
+        <CarouselItem>
+            {render_course_hot[2]} {/* Hiển thị item thứ ba */}
+        </CarouselItem>
+    </CarouselContent>
+    {/* Đặt nút điều hướng bên ngoài CarouselContent */}
+    <div className="flex justify-between items-center absolute w-full top-1/2 transform -translate-y-1/2">
+        <CarouselPrevious className="z-10" />
+        <CarouselNext className="z-10" />
+    </div>
+</Carousel>
+
 
                 {/* Chủ đề phổ biến */}
                 <h1 className="text-2xl font-semibold py-5">Chủ đề phổ biến</h1>

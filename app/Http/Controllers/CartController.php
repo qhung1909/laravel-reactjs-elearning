@@ -7,6 +7,7 @@ use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Models\UserCourse;
 
 class CartController extends Controller
 {
@@ -22,7 +23,7 @@ class CartController extends Controller
         $vnp_Returnurl = config('vnpay.vnp_ReturnUrl');
         $vnp_TmnCode = config('vnpay.vnp_TmnCode');
         $vnp_HashSecret = config('vnpay.vnp_HashSecret');
-        $vnp_TxnRef = '1';
+        $vnp_TxnRef = $request->input('vnp_Txnref');
         $vnp_OrderInfo = $request->input('vnp_OrderInfo');
         $vnp_OrderType = $request->input('vnp_OrderType');
         $vnp_Amount = $request->input('vnp_Amount') * 100;
@@ -40,8 +41,7 @@ class CartController extends Controller
             "vnp_OrderInfo" => $vnp_OrderInfo,
             "vnp_OrderType" => $vnp_OrderType,
             "vnp_ReturnUrl" => $vnp_Returnurl,
-            "vnp_TxnRef" => $vnp_TxnRef
-
+            "vnp_TxnRef" => $vnp_TxnRef,
         );
 
         if (isset($vnp_BankCode) && $vnp_BankCode != "") {
@@ -91,55 +91,86 @@ class CartController extends Controller
 
     public function vnpay_callback(Request $request)
     {
+        Log::info('VNPay Callback Triggered');
+    
         $vnp_TmnCode = config('vnpay.vnp_TmnCode');
         $vnp_HashSecret = config('vnpay.vnp_HashSecret');
-
-        $inputData = array();
-        $returnData = array();
+    
+        $inputData = [];
+        $returnData = [];
         foreach ($request->query() as $key => $value) {
             if (substr($key, 0, 4) == "vnp_") {
                 $inputData[$key] = $value;
             }
         }
-
-        $vnp_SecureHash = $inputData['vnp_SecureHash'];
+    
+        $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? null;
         unset($inputData['vnp_SecureHash']);
         Log::info('Input Data: ' . json_encode($inputData));
-
+    
         ksort($inputData);
-        $i = 0;
-        $hashData = "";
-        foreach ($inputData as $key => $value) {
-            if ($i == 1) {
-                $hashData = $hashData . '&' . urlencode($key) . "=" . urlencode($value);
-            } else {
-                $hashData = $hashData . urlencode($key) . "=" . urlencode($value);
-                $i = 1;
-            }
-        }
-
+        $hashData = http_build_query($inputData);
         $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
-
+    
         Log::info('Secure Hash: ' . $secureHash);
         Log::info('VNP Secure Hash: ' . $vnp_SecureHash);
-
-        $vnpTranId = $inputData['vnp_TransactionNo'];
-        $vnp_BankCode = $inputData['vnp_BankCode'];
+    
+        $vnpTranId = $inputData['vnp_TransactionNo'] ?? null;
+        $vnp_BankCode = $inputData['vnp_BankCode'] ?? null;
         $vnp_Amount = $inputData['vnp_Amount'] / 100;
-
-        $Status = 0;
+    
+        Log::info('Transaction ID: ' . $vnpTranId);
+        Log::info('Bank Code: ' . $vnp_BankCode);
+        Log::info('Amount: ' . $vnp_Amount);
+    
         $orderId = $inputData['vnp_TxnRef'];
-
-        $returnData = ['RspCode' => '97', 'Message' => 'Invalid signature'];
-
-        if ($secureHash === $vnp_SecureHash) {
-            $returnData = ['RspCode' => '00', 'Message' => 'Confirm Success'];
+        $order = Order::where('order_id', $orderId)->first();
+        Log::info('Order ID: ' . $orderId);
+    
+        if ($secureHash === $vnp_SecureHash && $order) {
+            Log::info('Signature matched and Order found: ' . json_encode($order));
+    
+            if ($order->total_price == $vnp_Amount) {
+                if ($inputData['vnp_ResponseCode'] == '00' && $inputData['vnp_TransactionStatus'] == '00') {
+                    Log::info('Transaction Success');
+                    
+                    $orderDetails = OrderDetail::where('order_id', $order->order_id)->get();
+                    if ($orderDetails->isNotEmpty()) {
+                        foreach ($orderDetails as $detail) {
+                            UserCourse::firstOrCreate([
+                                'user_id' => $order->user_id,
+                                'course_id' => $detail->course_id,
+                                'order_id' => $orderId,
+                            ], [
+                                'created_at' => now(),
+                            ]);
+                            Log::info('UserCourse created or found with Course ID: ' . $detail->course_id);
+                        }
+                        
+                        $order->status = 'success';
+                        $order->save();
+                        Log::info('Order status updated to success');
+                    }
+                } else {
+                    Log::info('Transaction failed');
+                    $order->status = 'failed';
+                    $order->save(); 
+                    Log::info('Order status updated to failed');
+                }
+                $returnData = ['RspCode' => '00', 'Message' => 'Confirm Success'];
+            } else {
+                Log::info('Invalid amount: Expected ' . $order->total_price . ', Got ' . $vnp_Amount);
+                $returnData = ['RspCode' => '97', 'Message' => 'Invalid amount'];
+            }
+        } else {
+            Log::info('Signature mismatch or Order not found');
+            $returnData = ['RspCode' => '97', 'Message' => 'Invalid signature or order not found'];
         }
-
+    
+        Log::info('Return Data: ' . json_encode($returnData));
         return response()->json($returnData);
     }
-
-
+    
 
     public function getCart()
     {
@@ -151,14 +182,14 @@ class CartController extends Controller
 
         $user_id = Auth::id();
         $orders = Order::with('orderDetails')->where('user_id', $user_id)->get();
-        
+
         if ($orders->isEmpty()) {
             return response()->json([
                 'message' => 'Không có đơn hàng nào.',
             ], 404);
         }
 
-        
+
         return response()->json($orders, 200);
     }
 
@@ -170,9 +201,9 @@ class CartController extends Controller
                 'message' => 'Người dùng chưa đăng nhập.',
             ], 401);
         }
-    
+
         $user_id = Auth::id();
-    
+
         try {
             $request->validate([
                 'coupon_id' => 'nullable|exists:coupons,id',
@@ -183,48 +214,48 @@ class CartController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $e->errors()], 422);
         }
-    
+
         $order = Order::where('user_id', $user_id)
-                      ->where('status', 'pending')
-                      ->first();
-    
+            ->where('status', 'pending')
+            ->first();
+
         if (!$order) {
             $order = Order::create([
                 'user_id' => $user_id,
                 'coupon_id' => $request->coupon_id,
-                'total_price' => 0, 
+                'total_price' => 0,
                 'status' => 'pending',
             ]);
         }
-    
+
         foreach ($request->items as $item) {
             $existingItem = OrderDetail::where('order_id', $order->order_id)
-                                       ->where('course_id', $item['course_id'])
-                                       ->first();
-    
+                ->where('course_id', $item['course_id'])
+                ->first();
+
             if ($existingItem) {
                 return response()->json([
                     'message' => 'Khóa học này đã có trong giỏ hàng.',
                 ], 409);
             }
-    
+
             OrderDetail::create([
                 'order_id' => $order->order_id,
                 'course_id' => $item['course_id'],
                 'price' => $item['price'],
             ]);
-            
+
             $order->total_price += $item['price'];
         }
-    
+
         $order->update(['total_price' => $order->total_price]);
-    
+
         return response()->json([
             'message' => 'Đơn hàng đã được thêm vào giỏ hàng thành công!',
             'order' => $order,
         ], 201);
     }
-    
+
 
     public function removeItem(Request $request)
     {
@@ -233,9 +264,9 @@ class CartController extends Controller
                 'message' => 'Người dùng chưa đăng nhập.',
             ], 401);
         }
-    
+
         $user_id = Auth::id();
-    
+
         try {
             $request->validate([
                 'order_id' => 'required|exists:orders,order_id,user_id,' . $user_id,
@@ -244,34 +275,33 @@ class CartController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $e->errors()], 422);
         }
-    
+
         $order = Order::find($request->order_id);
-    
+
         if (!$order) {
             return response()->json(['message' => 'Đơn hàng không tồn tại.'], 404);
         }
-    
+
         $orderDetail = OrderDetail::where('order_id', $order->order_id)
             ->where('course_id', $request->course_id)
             ->first();
-    
+
         if (!$orderDetail) {
             return response()->json(['message' => 'Món hàng không tồn tại trong đơn hàng.'], 404);
         }
-    
+
         $orderDetail->delete();
-    
+
         $order->total_price -= $orderDetail->price;
         $order->save();
-    
+
         if (OrderDetail::where('order_id', $order->order_id)->count() === 0) {
             $order->delete();
         }
-    
+
         return response()->json([
             'message' => 'Món hàng đã được xóa khỏi giỏ hàng thành công!',
             'order' => $order,
         ], 200);
     }
-    
 }

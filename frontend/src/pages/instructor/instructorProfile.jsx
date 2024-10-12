@@ -195,7 +195,7 @@ export const InstructorProfile = () => {
 
                         {/* Profile content */}
                         <div className="md:p-6 ">
-                            <Tabs defaultValue="account" className="w-[100%] py-10 md:py-0">
+                            <Tabs defaultValue="profile" className="w-[100%] py-10 md:py-0">
                                 {/* tabs - header */}
                                 <TabsList>
                                     <div className="bg-gray-200 p-1 rounded-xl">

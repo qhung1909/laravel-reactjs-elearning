@@ -38,10 +38,10 @@ export const Blog = () => {
                             {/* blog - main -left */}
 
                             <div className="blog-main-left">
-                                <span className="xl:text-3xl lg:text-2xl md:text-xl sm:text-base text-[14px] leading-none font-bold">
+                                <span className="xl:text-3xl lg:text-2xl md:text-xl sm:text-base text-[15px] leading-none font-bold">
                                     Hướng dẫn cách lấy nhạc tiktok làm nhạc chuông trong 3 giây
                                 </span>
-                                <p className="xl:my-5 md:my-3 sm:my-2 my-1 xl:text-base lg:text-sm md:text-xs sm:text-[7px] text-[8px]">
+                                <p className="xl:my-5 md:my-3 sm:my-2 my-1 xl:text-base lg:text-sm md:text-xs sm:text-[7px] text-[11px]">
                                     Nếu bạn chưa biết cách sử dụng nhạc tiktok làm nhạc chuông, đọc ngay
                                     bài viết này của Edumall để thực hiện nhé!
                                 </p>
@@ -49,13 +49,13 @@ export const Blog = () => {
                                     <div className="rounded-full">
                                         <img
                                             src="./src/assets/images/blog-miniimg.webp"
-                                            className="rounded-full xl:w-12 xl:h-11 lg:w-10 lg:h-11 md:w-7 md:h-7 sm:w-6 sm:h8 w-4 h-5 object-cover"
+                                            className="rounded-full xl:w-12 xl:h-11 lg:w-10 lg:h-11 md:w-7 md:h-7 sm:w-6 sm:h8 w-6 h-7 object-cover"
                                             alt=""
                                         />
                                     </div>
                                     <div className="mb-2 md:mb-2 lg:mb-0">
-                                        <strong className='xl:text-xl lg:text-sm md:text-[12px] sm:text-[9px] text-[7px]'>Antlearn</strong>
-                                        <p className='xl:test-base lg:text-sm md:text-[8px] sm:text-[6px] text-[5px]'>28 tháng 9 2024</p>
+                                        <strong className='xl:text-xl lg:text-sm md:text-[12px] sm:text-[9px] text-[12px]'>Antlearn</strong>
+                                        <p className='xl:test-base lg:text-sm md:text-[8px] sm:text-[6px] text-[10px]'>28 tháng 9 2024</p>
                                     </div>
                                 </div>
                             </div>
@@ -64,7 +64,7 @@ export const Blog = () => {
                             <div className="blog-main-right">
                                 <img
                                     src="./src/assets/images/blog-imgmain.png"
-                                    className="rounded-tl-2xl rounded-tr-2xl  object-cover "
+                                    className="rounded-tl-2xl rounded-tr-2xl h-40 sm:h-full object-cover "
                                     alt=""
                                 />
                             </div>
