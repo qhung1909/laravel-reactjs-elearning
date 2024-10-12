@@ -134,60 +134,55 @@ export const Cart = () => {
                     return (
                         <div
                             key={detailIndex}
-                            className="flex items-start py-3 border-b last:border-b-0"
+                            className="flex items-center py-3 border-b last:border-b-0"
                         >
-                            <span className="mr-4 font-bold">{detailIndex + 1}</span> {/* Thêm số thứ tự */}
+                            <span className="mr-2 font-bold text-sm">{detailIndex + 1}</span> {/* Kích thước chữ nhỏ hơn */}
                             <input
-                                className="mr-4 mt-2 h-5 w-5 flex-shrink-0 rounded border-gray-300 checked:bg-yellow-500"
+                                className="mr-2 h-4 w-4 flex-shrink-0 rounded border-gray-300 checked:bg-yellow-500"
                                 defaultChecked
                                 type=""
                                 aria-label="Chọn khóa học"
                             />
                             <img
                                 alt="Course Image"
-                                className="w-40 h-30 flex-shrink-0 rounded-md object-cover"
+                                className="w-24 h-16 flex-shrink-0 rounded-md object-cover" // Kích thước hình ảnh nhỏ hơn
                                 src={
                                     course
                                         ? course.img
                                         : "default-image-url.jpg"
                                 }
                             />
-                            <div className="ml-4 flex-grow flex items-start">
-                                <div className="w-3/5 mr-4">
-                                    <p className="font-bold text-lg break-words">
-                                        {course
-                                            ? course.title
-                                            : "Khóa học không tồn tại"}
-                                    </p>
-                                    <p className="text-sm text-gray-600 mt-1 break-words">
-                                        {course?.description ||
-                                            "Không có mô tả"}
+                            <div className="ml-2 flex-grow flex flex-col">
+                                <div className="flex justify-between items-center">
+                                    <div className="w-3/5">
+                                        <p className="font-bold text-xs sm:text-sm break-words ">
+                                            {course
+                                                ? course.title
+                                                : "Khóa học không tồn tại"}
+                                        </p>
+                                        <p className="text-xs text-gray-600 mt-1 break-words ">
+                                            bởi AntLearn
+                                        </p>
+                                    </div>
+                                    <p className="font-bold text-black text-base w-1/5 text-right ">
+                                        {formatCurrency(detail.price)}
+                                        <button onClick={() => deleteCourseFromCart( item.order_id, detail.course_id )}
+                                            className="p-1 text-red-500 hover:text-red-700 hover:bg-red-100 rounded-full ml-2"
+                                            aria-label="Xóa khóa học">
+                                            <box-icon name="trash-alt"color="#ff0015"></box-icon>
+                                        </button>
                                     </p>
                                 </div>
-                                <p className="font-bold text-black text-xl w-1/5 text-right">
-                                    {formatCurrency(detail.price)}
-                                </p>
-                                <button
-                                    onClick={() =>
-                                        deleteCourseFromCart(
-                                            item.order_id,
-                                            detail.course_id
-                                        )
-                                    }
-                                    className="ml-4 p-2 flex-shrink-0 text-red-500 hover:text-red-700 hover:bg-red-100 rounded-full transition-colors duration-200"
-                                    aria-label="Xóa khóa học"
-                                >
-                                    <box-icon
-                                        name="trash-alt"
-                                        color="#ff0015"
-                                    ></box-icon>
-                                </button>
                             </div>
                         </div>
                     );
                 })}
             </div>
         ));
+
+
+
+
     };
 
 
