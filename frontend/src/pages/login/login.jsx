@@ -193,8 +193,11 @@ export const Login = () => {
             )}
             <div className="relative m-auto h-screen overflow-hidden items-center shadow-inner lg:grid  lg:grid-cols-2 pt-32 lg:pt-0">
             <Link className='absolute top-1 left-0 xl:top-8 xl:left-8' to='/'>
-            <img  src="/src/assets/images/antlearn.png" width={150}/>
-            </Link>
+                    <div className="flex items-center gap-3">
+                        <box-icon name='arrow-back' color='gray' ></box-icon>
+                        <p className="text-gray-600">Trang chủ</p>
+                    </div>
+                </Link>
 
                 <div className=" flex items-center justify-center">
 
