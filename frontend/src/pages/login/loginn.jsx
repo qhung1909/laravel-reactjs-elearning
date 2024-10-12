@@ -1,8 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Link, useNavigate } from 'react-router-dom';
+import './login.css'
 import { useCallback, useState, useEffect  } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import './login.css'
-
 const API_URL = import.meta.env.VITE_API_URL;
 // const notify = (message) => toast.error(message);
 
@@ -14,10 +14,6 @@ const notify = (message, type ) => {
         toast.error(message)
     }
 }
-
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 
 export const Login = () => {
     const [email, setEmail] = useState("");
@@ -184,58 +180,67 @@ export const Login = () => {
 
         return () => clearInterval(intervalId);
     }, []);
+
+
     return (
         <>
+
             {loading && (
                 <div className='loading'>
                     <div className='loading-spin'></div>
                 </div>
             )}
-            <div className="relative m-auto h-screen overflow-hidden items-center shadow-inner lg:grid  lg:grid-cols-2 pt-32 lg:pt-0">
-            <Link className='absolute top-1 left-0 xl:top-8 xl:left-8' to='/'>
-            <img  src="/src/assets/images/antlearn.png" width={150}/>
-            </Link>
-
-                <div className=" flex items-center justify-center">
-
-                    <form onSubmit={submit} className="relative mx-auto grid w-[350px] gap-6">
-                        <div className="grid gap-2">
-                            <h1 className="text-3xl font-bold">Chào mừng trở lại</h1>
-                            <p className="text-balance text-muted-foreground">
-                                Chào mừng trở lại! Hãy nhập thông tin của bạn
-                            </p>
+            <div className="max-w-7xl mx-auto py-0 md:py-2 xl:py-12">
+                <div className="grid grid-cols-1 py-6 md:py-6 lg:py-12 lg:grid-cols-2">
+                    <div className="img-signup">
+                        <img
+                            alt=""
+                            className="w-full hidden md:pl-64 lg:pl-12 lg:block"
+                            src="/src/assets/images/signup.jpg" />
+                        <img
+                            alt=""
+                            className="w-full px-6 sm:px-24 md:px-48 block lg:hidden"
+                            src="/src/assets/images/signup-mb.png" />
+                    </div>
+                    <form onSubmit={submit} className="w-full px-6 sm:px-24 md:px-48 lg:px-16 xl:px-24 mx-auto">
+                        <h1 className="text-center text-2xl lg:text-3xl font-semibold pb-3 md:pb-10 pt-3 lg:pt-0">
+                            Đăng nhập để tiếp tục cuộc hành trình của bạn
+                        </h1>
+                        <div className="relative py-1">
+                            <input
+                                className="input-form peer"
+                                placeholder=""
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)} />
+                            <label className="label-form">
+                                Email
+                            </label>
                         </div>
-                        <div className="grid gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="m@example.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <div className="flex items-center">
-                                    <Label htmlFor="password">Mật khẩu</Label>
-                                    <Link
-                                        to="#"
-                                        className="ml-auto inline-block text-sm underline"
-                                    >
-                                        Quên mật khẩu?
-                                    </Link>
-                                </div>
-                                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                            </div>
-                            <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600">
-                                Đăng nhập
-                            </Button>
-                            {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
+                        <div className="relative py-1">
+                            <input className="input-form peer" placeholder="" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                            <label className="label-form">
+                                Mật khẩu
+                            </label>
 
-                            <Button variant="outline" className="w-full">
+                        </div>
+                        <div className="py-2">
+                            <button type='submit' className="h-16 w-full bg-yellow-500 font-bold">
+                                {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                            </button>
+                            {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
+                        </div>
+                        <div className="flex items-center justify-center my-4">
+                            <div className="flex-grow border-t border-gray-400" />
+                            <span className="mx-2">
+                                Tùy chọn khác
+                            </span>
+                            <div className="flex-grow border-t border-gray-400" />
+                        </div>
+                        <div className="py-2">
+                            <button type='button' className="h-16 w-full border border-black flex gap-3 m-auto justify-center place-items-center">
                                 <svg
-                                    className="flex-none mr-3"
+                                    className="flex-none"
                                     id="google"
                                     preserveAspectRatio="xMidYMid"
                                     viewBox="0 0 256 262"
@@ -254,24 +259,20 @@ export const Login = () => {
                                         d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0 79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
                                         fill="#EB4335" />
                                 </svg>
-                                Đăng nhập với Google
-                            </Button>
+                                <p className="flex-none">
+                                    Đăng nhập bằng Google
+                                </p>
+                            </button>
+
                         </div>
-                        <div className="mt-4 text-center text-sm">
-                            Bạn chưa có tài khoản?{" "}
-                            <Link to="/register" className="underline">
-                                Đăng ký
-                            </Link>
+                        <div className="pt-2">
+                            <h3 className="text-lg lg:text-xl">
+                                Chưa có tài khoản?{' '}
+                                <Link className='text-black font-medium underline' to='/register'>Đăng ký</Link>
+                            </h3>
                         </div>
                     </form>
-                </div>
-                <div className="hidden bg-muted lg:block">
-                    <img
-                        src="/src/assets/images/login-bg.jpg"
-                        alt="Image"
-                            className=" object-cover dark:brightness-[0.2] dark:grayscale"
-                            width='100%'
-                    />
+
                 </div>
             </div>
             <Toaster />
