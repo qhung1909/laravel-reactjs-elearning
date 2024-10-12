@@ -37,7 +37,7 @@ class UserController extends Controller
         ]);
 
         SendWelcomeEmail::dispatch($user);
-
+        
         return response()->json([
             'message' => 'Đăng kí thành công. Vui lòng kiểm tra email để xác nhận tài khoản.',
             'status' => 200
@@ -47,16 +47,15 @@ class UserController extends Controller
     public function verifyEmail($token)
     {
         $user = User::where('verification_token', $token)->first();
-    
+
         if (!$user) {
-            return response()->json(['message' => 'Token không hợp lệ.'], 400);
+            return redirect('http://localhost:5173/verification-error');
         }
-    
+        
         $user->email_verified_at = now();
         $user->verification_token = null; 
         $user->save();
         
-        return response()->json(['message' => 'Email đã được xác nhận thành công!'], 200);
+        return redirect('http://localhost:5173/verification-success?token=' . $token);
     }
-    
 }
