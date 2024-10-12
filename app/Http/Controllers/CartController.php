@@ -202,9 +202,9 @@ class CartController extends Controller
                 'message' => 'Người dùng chưa đăng nhập.',
             ], 401);
         }
-
+    
         $user_id = Auth::id();
-
+    
         try {
             $request->validate([
                 'coupon_id' => 'nullable|exists:coupons,id',
@@ -215,43 +215,59 @@ class CartController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $e->errors()], 422);
         }
-
-        $order = Order::create([
-            'user_id' => $user_id,
-            'coupon_id' => $request->coupon_id,
-            'total_price' => 0,
-            'status' => 'pending', 
-            'created_at' => now(), 
-            'updated_at' => now(), 
-        ]);
-
+    
+        // Tìm đơn hàng đang ở trạng thái 'pending' của người dùng
+        $order = Order::where('user_id', $user_id)
+            ->where('status', 'pending')
+            ->first();
+    
+        // Nếu không có đơn hàng 'pending', tạo một đơn hàng mới
+        if (!$order) {
+            $order = Order::create([
+                'user_id' => $user_id,
+                'coupon_id' => $request->coupon_id,
+                'total_price' => 0,
+                'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    
+        // Biến để lưu tổng giá
+        $totalPrice = $order->total_price;
+    
         foreach ($request->items as $item) {
+            // Kiểm tra xem khóa học đã có trong chi tiết đơn hàng hay chưa
             $existingItem = OrderDetail::where('order_id', $order->order_id)
                 ->where('course_id', $item['course_id'])
                 ->first();
-
+    
             if ($existingItem) {
                 return response()->json([
                     'message' => 'Khóa học này đã có trong giỏ hàng.',
                 ], 409);
             }
-
+    
+            // Thêm chi tiết đơn hàng
             OrderDetail::create([
                 'order_id' => $order->order_id,
                 'course_id' => $item['course_id'],
                 'price' => $item['price'],
             ]);
-
-            $order->total_price += $item['price'];
+    
+            // Cộng dồn tổng giá
+            $totalPrice += $item['price'];
         }
-
-        $order->update(['total_price' => $order->total_price]);
-
+    
+        // Cập nhật tổng giá của đơn hàng
+        $order->update(['total_price' => $totalPrice]);
+    
         return response()->json([
             'message' => 'Đơn hàng đã được thêm vào giỏ hàng thành công!',
             'order' => $order,
         ], 201);
     }
+    
 
 
 
