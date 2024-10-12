@@ -23,7 +23,7 @@ export const Signup = () => {
         password_confirmation: ''
     });
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [_success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
 
     const API_URL = import.meta.env.VITE_API_URL;

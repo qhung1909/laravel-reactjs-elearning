@@ -132,6 +132,7 @@ export const Detail = () => {
         }
     };
     const fetchDetail = async () => {
+        setLoading(true);
         try {
             const res = await axios.get(`${API_URL}/course/${slug}`, {
                 headers: {
@@ -142,6 +143,7 @@ export const Detail = () => {
             if (res.data && res.data.course_id) {
                 setDetail(res.data);
                 fetchComments(res.data.course_id); // Truyền course_id vào hàm fetchComments
+                setLoading(false)
             } else {
                 Navigate("/404");
             }
@@ -187,7 +189,6 @@ export const Detail = () => {
 
         console.log("Item trước khi gửi:", newItem);
 
-        setLoading(true);
         try {
             const res = await fetch(`${API_URL}/auth/cart/addToCart`, {
                 method: "POST",
@@ -215,6 +216,7 @@ export const Detail = () => {
 
             const data = await res.json();
             console.log("Order:", data.order);
+            setLoading(true)
             toast.success("Thêm thành công khóa học vào giỏ hàng!");
 
             setCartItems((prevItems) => [...prevItems, newItem]);
@@ -580,6 +582,12 @@ export const Detail = () => {
 
     return (
         <>
+
+            {loading && (
+                <div className='loading'>
+                    <div className='loading-spin'></div>
+                </div>
+            )}
             {/* Banner */}
             {renderBannerDetail}
             {/* Kết thúc Banner */}
