@@ -90,6 +90,23 @@ export const Header = () => {
                             <>
                                 {/* header - content */}
                                 <div className="navbar-content xl:static xl:min-h-fit  bg-white xl:flex xl:items-center px-10 max-xl:w-full gap-2 xl:block hidden">
+                                <ul className="items-center max-xl:pt-3 gap-3 flex text-base xl:text-base w-52">
+                                    <li className="max-xl:mb-4">
+                                        <Link to="/courses" className="hover:text-gray-500">
+                                            Khóa học
+                                        </Link>
+                                    </li>
+                                    <li className="max-xl:mb-4">
+                                        <Link to="/contact" className="hover:text-gray-500">
+                                            Liên hệ
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link to="/blog" className="hover:text-gray-500">
+                                            Bài viết
+                                        </Link>
+                                    </li>
+                                </ul>
                                     <div className="navbar-icons flex items-center gap-2 xl:mx-3">
                                         <div className="navbar-noti cursor-pointer">
                                             <Link to="/instructor">
