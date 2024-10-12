@@ -122,9 +122,7 @@ export const Payment = () => {
 
         const orderType = "purchase";
         const orderAmount = finalPrice;
-        // Log orderId để kiểm tra
-        console.log("Order ID:", orderId);
-        // Sử dụng orderId từ state
+
         if (!orderId) {
             toast.error("Không tìm thấy mã đơn hàng.");
             return;
@@ -170,7 +168,7 @@ export const Payment = () => {
                                     (c) => c.course_id === orderDetail.course_id
                                 );
 
-                                // Lưu order_id vào state (có thể chỉ lưu một lần nếu cần)
+                                // Lưu order_id vào state
                                 if (!orderId) {
                                     setOrderId(orderDetail.order_id);
                                 }
