@@ -155,7 +155,7 @@ export const Cart = () => {
                                             {formatCurrency(detail.price)}
                                         </div>
                                         <button onClick={() => deleteCourseFromCart(item.order_id, detail.course_id)}
-                                            className=" text-red-500 hover:text-red-700 hover:bg-red-100 text-right"
+                                            className=" text-red-500 hover:text-red-700 text-right"
                                             aria-label="Xóa khóa học">
                                             <box-icon name='trash'></box-icon>
                                         </button>
