@@ -108,7 +108,7 @@ export const Cart = () => {
     const renderCart = () => {
 
         return cart.map((item, index) => (
-            <div key={index} className="mb-6 bg-white rounded-lg shadow-sm p-4">
+            <div key={index} className="mb-6 bg-white rounded-lg  ">
                 <div className="flex items-center justify-between mb-2">
                     {/* <p className="font-semibold text-lg">Đơn hàng #{item.order_id}</p> */}
                 </div>
@@ -120,7 +120,7 @@ export const Cart = () => {
                     return (
                         <div
                             key={detailIndex}
-                            className="flex items-center py-3 border-b last:border-b-0"
+                            className="flex items-center py-3 border-t last:border-b-0"
                         >
                             <span className="mr-2 font-bold text-sm">{detailIndex + 1}</span> {/* Kích thước chữ nhỏ hơn */}
                             <input
@@ -139,23 +139,25 @@ export const Cart = () => {
                                 }
                             />
                             <div className="ml-2 flex-grow flex flex-col">
-                                <div className="flex justify-between items-center">
-                                    <div className="w-3/5">
-                                        <p className="font-bold text-xl line-clamp-1 ">
+                                <div className="md:flex justify-between items-center">
+                                    <div className="md:w-3/5">
+                                        <p className="font-bold md:text-lg text-base md:line-clamp-1 line-clamp-2 uppercase">
                                             {course
                                                 ? course.title
                                                 : "Khóa học không tồn tại"}
                                         </p>
-                                        <p className="text-xs text-gray-600 mt-1 break-words ">
-                                            bởi AntLearn
+                                        <p className="text-sm text-black mt-1 break-words font-normal ">
+                                            bởi: <span>AntLearn</span>
                                         </p>
                                     </div>
-                                    <p className="font-bold text-black text-base w-1/5 text-right ">
-                                        {formatCurrency(detail.price)}
+                                    <p className="font-bold text-black text-base md:w-1/5 text-right flex justify-between sm:justify-normal md:flex-col gap-5 sm:my-3 md:my-0">
+                                        <div className="pricing text-[#2F57EF] font-medium">
+                                            {formatCurrency(detail.price)}
+                                        </div>
                                         <button onClick={() => deleteCourseFromCart(item.order_id, detail.course_id)}
-                                            className="p-1 text-red-500 hover:text-red-700 hover:bg-red-100 rounded-full ml-2"
+                                            className=" text-red-500 hover:text-red-700 hover:bg-red-100 text-right"
                                             aria-label="Xóa khóa học">
-                                            <box-icon name="trash-alt" color="#ff0015"></box-icon>
+                                            <box-icon name='trash'></box-icon>
                                         </button>
                                     </p>
                                 </div>
@@ -173,12 +175,12 @@ export const Cart = () => {
 
 
     return (
-        <div className="bg-gray-100 p-10 my-5">
+        <div className="p-10 md:my-5 my-2 max-w-screen-xl mx-auto">
             <div className="container mx-auto">
-                <h1 className="text-5xl font-bold mb-6">Giỏ hàng</h1>
-                <div className="bg-white shadow-md rounded-lg">
-                    <div className="flex items-center justify-between mb-4">
-                        <span className="font-semibold text-gray-400 text-lg">
+                <h1 className="lg:text-5xl md:text-4xl text-3xl text-center md:text-left font-bold md:mb-6 mb-3">Giỏ hàng</h1>
+                <div className="bg-white ">
+                    <div className=" mb-4 text-center md:text-left">
+                        <span className="font-semibold text-gray-500 lg:text-lg md:text-base text-base ">
                             {cart.length || 0} Khóa học trong giỏ hàng
                         </span>
                         {cart.length > 0 && (
@@ -203,28 +205,28 @@ export const Cart = () => {
                             {cart.length > 0 ?
                                 // Nếu có giỏ hàng
                                 (
-                                    <div className="flex flex-col lg:flex-row">
+                                    <div className="flex flex-col lg:flex-row justify-between gap-10">
                                         {/* Cột bên trái: Danh sách sản phẩm */}
-                                        <div className="flex flex-col justify-between p-2 border-b mr-20 w-full lg:w-2/3">
+                                        <div className="flex flex-col justify-between lg:w-2/3 w-full">
                                             {renderCart()}
                                         </div>
 
                                         {/* Cột bên phải: Chỉ hiển thị khi giỏ hàng có sản phẩm */}
                                         {cart.length > 0 && (
-                                            <div className="bg-white px-6 rounded-lg shadow-lg box-shadow-lg w-full lg:w-1/4 mt-4 h-40  lg:mt-0">
-                                                <div className="flex justify-between mb-2">
-                                                    <span className="font-bold text-xl">
+                                            <div className="bg-white rounded-3xl box-shadow-lg md:h-48  p-5 lg:w-1/3 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_-10px_15px_-3px_rgba(0,0,0,0.1)]">
+                                                <div className=" mb-2 text-center lg:text-left">
+                                                    <span className="font-bold md:text-xl text-lg  text-gray-600">
                                                         Tổng
                                                     </span>
                                                     {/* <span className="font-bold text-2xl text-red-600">
-                                                {formatCurrency(totalPrice)}
-                                            </span> */}
+                                                        {formatCurrency(totalPrice)}
+                                                    </span> */}
                                                 </div>
-                                                <div className="font-bold text-3xl mb-5 text-red-600">
+                                                <div className="font-bold md:text-3xl text-2xl mb-5 text-black text-center lg:text-left">
                                                     {formatCurrency(totalPrice)}
                                                 </div>
                                                 <Link to="/payment">
-                                                    <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-lg font-bold py-3 rounded-xl">
+                                                    <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black md:text-lg text-base font-medium py-2 rounded-3xl">
                                                         Thanh toán
                                                     </button>
                                                 </Link>
