@@ -106,7 +106,6 @@ export const Cart = () => {
     const totalPrice = calculateTotalPrice();
 
     const renderCart = () => {
-
         if (cart.length === 0) {
             return (
                 <div className="flex flex-col items-center justify-center h-full">
@@ -118,7 +117,6 @@ export const Cart = () => {
                     <p className="mt-4 text-lg font-semibold text-gray-600">
                         Giỏ hàng của bạn đang trống.
                     </p>
-
                 </div>
             );
         }
@@ -138,6 +136,7 @@ export const Cart = () => {
                             key={detailIndex}
                             className="flex items-start py-3 border-b last:border-b-0"
                         >
+                            <span className="mr-4 font-bold">{detailIndex + 1}</span> {/* Thêm số thứ tự */}
                             <input
                                 className="mr-4 mt-2 h-5 w-5 flex-shrink-0 rounded border-gray-300 checked:bg-yellow-500"
                                 defaultChecked
@@ -190,6 +189,7 @@ export const Cart = () => {
             </div>
         ));
     };
+
 
     return (
         <div className="bg-gray-100 p-10 my-10">
