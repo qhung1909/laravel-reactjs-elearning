@@ -80,7 +80,7 @@ export const Footer = () => {
                         <div className="md:flex col-span-2 lg:justify-between gap-5 md:ps-0 mt-5 lg:mt-0">
                             <div className="flex items-start gap-5 lg:w-2/3 md:w-2/5">
                                 {/* thẻ 1 */}
-                                <div className="footer-mid-left md:w-1/3 sm:w-1/5">
+                                <div className="footer-mid-left md:w-1/3 sm:w-1/4 w-1/3">
                                     <span className="font-semibold text-[#344054] text-[14px]">
                                         Sản phẩm
                                     </span>
