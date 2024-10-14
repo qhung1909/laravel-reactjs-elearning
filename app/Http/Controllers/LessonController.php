@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Lesson;
@@ -17,7 +18,7 @@ class LessonController extends Controller
         return response()->json($lessons);
     }
 
-    public function show($slug) 
+    public function show($slug)
     {
         $lesson = Cache::remember("lesson_{$slug}", 90, function () use ($slug) {
             return Lesson::where('slug', $slug)->first();
@@ -61,7 +62,7 @@ class LessonController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, $slug) 
+    public function update(Request $request, $slug)
     {
         $rules = [
             'course_id' => 'sometimes|required|integer|exists:courses,course_id',
@@ -111,6 +112,4 @@ class LessonController extends Controller
             'message' => 'Bài học đã được xóa thành công.'
         ], 200);
     }
-
-
 }

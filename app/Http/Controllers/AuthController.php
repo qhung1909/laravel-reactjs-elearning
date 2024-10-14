@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Google_Client;
 use Exception;
 use App\Models\User;
@@ -23,8 +24,8 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function login()
-    {   
-    
+    {
+
         $credentials = request()->only('email', 'password');
 
         if (!$token = auth('api')->attempt($credentials)) {
@@ -35,12 +36,12 @@ class AuthController extends Controller
 
         if (!$user || !$user->getJWTIdentifier()) {
             return response()->json(['error' => 'User ID is null or invalid'], 401);
-        }   
+        }
 
         if ($user->verification_token !== null) {
             return response()->json(['error' => 'Your account is not verified.'], 403);
         }
-        
+
         $refreshToken = $this->createRefreshToken();
 
         return $this->respondWithToken($token, $refreshToken);
@@ -156,7 +157,7 @@ class AuthController extends Controller
     //             'refresh_token' => $refreshToken,
     //             'redirect_url' => $frontendUrl,
     //         ]);
-            
+
     //     } catch (\Exception $e) {
     //         return response()->json(['error' => 'Đăng nhập Google thất bại 22'], 500);
     //     }

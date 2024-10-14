@@ -181,6 +181,11 @@ export const Cart = () => {
 
     return (
         <>
+            {loading && (
+                <div className='loading'>
+                    <div className='loading-spin'></div>
+                </div>
+            )}
             <div className="p-10 md:my-5 my-2 max-w-screen-xl mx-auto">
                 <div className="container mx-auto">
                     <h1 className="lg:text-5xl md:text-4xl text-3xl text-center md:text-left font-bold md:mb-6 mb-3">Giỏ hàng</h1>

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\QuizController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CheckAuthMessage;
@@ -14,7 +15,8 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\CategoryController;
 use Symfony\Component\Mime\MessageConverter;
-
+use App\Http\Controllers\QuizQuestionController;
+use App\Http\Controllers\QuizAnswController;
 // Authentication
 Route::group([
     'middleware' => 'api',
@@ -73,6 +75,9 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('/lessons/{slug}', [LessonController::class, 'delete']);
     Route::apiResource('coupons', CouponController::class);
 
+    Route::apiResource('quizzes', QuizController::class);
+    Route::apiResource('quizzes/{quiz}/questions', QuizQuestionController::class);
+    Route::apiResource('questions/{question}/answers', QuizAnswController::class);
 });
 
 

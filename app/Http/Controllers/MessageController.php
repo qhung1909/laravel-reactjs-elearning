@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use App\Events\MyEvent;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,7 @@ class MessageController extends Controller
             return response()->json(['status' => 'Đăng nhập để gửi tin nhắn.'], 401);
         }
 
-        $message = $request->input('message'); 
+        $message = $request->input('message');
 
         $userId = Auth::id();
 
