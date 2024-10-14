@@ -11,8 +11,10 @@ export const Payment = () => {
     const [discount, setDiscount] = useState(0);
     const [orderId, setOrderId] = useState(null);
     const [isVoucherApplied, setIsVoucherApplied] = useState(false);
+    const [loading, setLoading] = useState(false)
     useEffect(() => {
         const fetchAllData = async () => {
+            setLoading(true)
             try {
                 const token = localStorage.getItem("access_token");
                 // Fetch đồng thời cả courses và cart
@@ -32,6 +34,9 @@ export const Payment = () => {
                 setCart(cartResponse.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false)
+
             }
         };
 
@@ -128,10 +133,9 @@ export const Payment = () => {
             .flatMap((item) =>
                 item.order_details.map(
                     (detail) =>
-                        `${
-                            courses.find(
-                                (c) => c.course_id === detail.course_id
-                            )?.title || "Khóa học"
+                        `${courses.find(
+                            (c) => c.course_id === detail.course_id
+                        )?.title || "Khóa học"
                         } x 1`
                 )
             )
@@ -178,14 +182,23 @@ export const Payment = () => {
                     Thông tin đơn hàng
                 </h2>
                 <div className="divide-y divide-gray-200">
-                    {cart.flatMap((item, index) =>
-                        item.order_details.map(
-                            (orderDetail, orderDetailIndex) => {
+                    {loading ? (
+                        <div className="flex flex-col space-y-4 p-4">
+                            <div className="flex items-center space-x-4 p-4">
+                                <div className="bg-gray-200 w-16 h-16 rounded-md animate-pulse"></div>
+                                <div className="flex-grow">
+                                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2 animate-pulse"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        cart.flatMap((item, index) =>
+                            item.order_details.map((orderDetail, orderDetailIndex) => {
                                 const course = courses.find(
                                     (c) => c.course_id === orderDetail.course_id
                                 );
 
-                                // Lưu order_id vào state
                                 if (!orderId) {
                                     setOrderId(orderDetail.order_id);
                                 }
@@ -207,8 +220,7 @@ export const Payment = () => {
                                         />
                                         <div className="flex-grow">
                                             <h3 className="text-base font-medium text-gray-900 line-clamp-2">
-                                                {course?.title ||
-                                                    "Tên khóa học"}
+                                                {course?.title || "Tên khóa học"}
                                             </h3>
                                             <p className="text-sm text-gray-500">
                                                 {course.slug}
@@ -216,14 +228,12 @@ export const Payment = () => {
                                         </div>
                                         <div className="text-right">
                                             <p className="text-lg font-semibold text-black-600">
-                                                {formatCurrency(
-                                                    orderDetail.price
-                                                )}
+                                                {formatCurrency(orderDetail.price)}
                                             </p>
                                         </div>
                                     </div>
                                 );
-                            }
+                            })
                         )
                     )}
                 </div>
@@ -250,9 +260,14 @@ export const Payment = () => {
                         <div className="space-y-4 mb-6">
                             <div className="flex justify-between items-center text-base">
                                 <span className="text-gray-600">Tổng tiền</span>
-                                <span className="font-semibold text-black-600">
-                                    {formatCurrency(totalPrice)}
-                                </span>
+                                {loading ? (
+                                    <div className="bg-gray-200 h-6 rounded w-1/4 animate-pulse"></div>
+                                ) : (
+                                    <span className="font-semibold text-black-600">
+                                        {formatCurrency(totalPrice)}
+                                    </span>
+
+                                )}
                             </div>
                             <div className="flex justify-between items-center text-base">
                                 <span className="text-gray-600">
@@ -280,9 +295,17 @@ export const Payment = () => {
                         </div>
                         <div className="flex justify-between items-center font-semibold text-lg mb-6 pt-4 border-t border-gray-200">
                             <span>Thành tiền:</span>
-                            <span className="text-black-600">
-                                {formatCurrency(finalPrice)}
-                            </span>
+                            {loading ? (
+                                <div className="bg-gray-200 h-6 rounded w-1/3 animate-pulse"></div>
+                            ) : (
+                                <span className="text-black-600">
+                                    {formatCurrency(finalPrice)}
+                                </span>
+
+                            )}
+
+
+
                         </div>
 
                         {/* Phần lựa chọn phương thức thanh toán */}

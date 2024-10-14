@@ -54,3 +54,42 @@ export const SkeletonLoaderProduct = () => {
         </div>
     );
 };
+
+
+export const CartSkeleton = () => {
+    return (
+        <div className="p-10 md:my-5 my-2 max-w-screen-xl mx-auto">
+            <div className="container mx-auto">
+                <h1 className="lg:text-5xl md:text-4xl text-3xl text-center md:text-left font-bold md:mb-6 mb-3 bg-gray-200 h-8 rounded w-1/2 md:w-1/4 mx-auto md:mx-0 animate-pulse"></h1>
+                <div className="bg-white">
+                    <div className="mb-4 text-center md:text-left">
+                        <span className="font-semibold text-gray-500 lg:text-lg md:text-base text-base bg-gray-200 h-6 rounded w-1/3 md:w-1/5 mx-auto md:mx-0 block animate-pulse"></span>
+                    </div>
+                    <div>
+                        <div className="container mx-auto">
+                            <div className="flex flex-col lg:flex-row justify-between lg:gap-10">
+                                {/* Cột bên trái: Danh sách sản phẩm */}
+                                <div className="flex flex-col justify-between lg:w-2/3 w-full">
+                                    <div className="bg-gray-200 h-32 mb-4 rounded animate-pulse"></div>
+                                </div>
+
+                                {/* Cột bên phải: Tổng tiền */}
+                                <div className="bg-gray-200 rounded-3xl box-shadow-lg md:h-48 p-6 lg:w-1/3 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_-10px_15px_-3px_rgba(0,0,0,0.1)]">
+                                    <div className="mb-2 text-left">
+                                        <span className="font-bold md:text-xl text-lg text-gray-200 bg-gray-200 h-6 rounded w-1/2 mx-auto md:mx-0 block animate-pulse"></span>
+                                    </div>
+                                    <div className="font-bold md:text-3xl text-2xl mb-5 text-black text-center lg:text-left bg-gray-200 h-8 rounded w-2/3 mx-auto md:mx-0 block animate-pulse"></div>
+                                    <button className="w-full bg-yellow-200 h-10 rounded-3xl animate-pulse"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+
+

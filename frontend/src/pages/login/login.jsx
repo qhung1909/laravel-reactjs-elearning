@@ -237,7 +237,7 @@ export const Login = () => {
                             </Button>
                             {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
 
-                            <Button variant="outline" className="w-full">
+                            <Button type='button' variant="outline" className="w-full">
                                 <svg
                                     className="flex-none mr-3"
                                     id="google"
