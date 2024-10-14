@@ -115,7 +115,7 @@ export const Header = () => {
                     <div className="navbar-logo mx-2 w-28 h-24 object-cover flex items-center">
                         <Link to="/">
                             <img
-                                src="./src/assets/images/antlearn.png"
+                                src="/src/assets/images/antlearn.png"
                                 alt=""
                                 className="w-40"
                             />
