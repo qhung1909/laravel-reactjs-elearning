@@ -143,7 +143,6 @@ export const Detail = () => {
             if (res.data && res.data.course_id) {
                 setDetail(res.data);
                 fetchComments(res.data.course_id); // Truyền course_id vào hàm fetchComments
-                setLoading(false)
             } else {
                 Navigate("/404");
             }
@@ -157,6 +156,8 @@ export const Detail = () => {
                 );
                 console.error("Trạng thái lỗi:", error.response?.status);
             }
+        } finally {
+            setLoading(false); // Kết thúc tải dữ liệu
         }
     };
 
@@ -583,11 +584,7 @@ export const Detail = () => {
     return (
         <>
 
-            {loading && (
-                <div className='loading'>
-                    <div className='loading-spin'></div>
-                </div>
-            )}
+
             {/* Banner */}
             {renderBannerDetail}
             {/* Kết thúc Banner */}
