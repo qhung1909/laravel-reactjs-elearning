@@ -169,7 +169,7 @@ export const Signup = () => {
                             <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600">
                                 Đăng ký
                             </Button>
-                            {error && <p className="text-red-500 text-center pt-2">{error}</p>}
+                            {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
 
                             <Button variant="outline" className="w-full">
                                 <svg

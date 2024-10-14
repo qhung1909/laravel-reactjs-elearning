@@ -30,10 +30,10 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import {
-    Avatar,
-    AvatarImage,
-} from "@/components/ui/avatar"
+// import {
+//     Avatar,
+//     AvatarImage,
+// } from "@/components/ui/avatar"
 
 import {
     Sheet,
@@ -45,11 +45,14 @@ import {
 } from "@/components/ui/sheet"
 import axios from "axios";
 
+import { Skeleton } from "@/components/ui/skeleton"
+
 export const Header = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const [logined, setLogined] = useState(null);
     const [user, setUser] = useState([]);
+    const [loading , setLoading ] = useState(false);
 
 
     useEffect(() => {
@@ -70,6 +73,7 @@ export const Header = () => {
             console.error("Người dùng chưa đăng nhập.");
             return;
         }
+        setLoading(true);
         try {
             const res = await axios.get(`${API_URL}/auth/me`, {
                 headers: {
@@ -93,6 +97,8 @@ export const Header = () => {
             } else {
                 console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
             }
+        } finally {
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -167,7 +173,11 @@ export const Header = () => {
                                                     <box-icon name='user-circle' type='solid' ></box-icon>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="w-56">
-                                                    <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
+                                                            {loading ? (
+                                                                <Skeleton className="h-4 w-[250px]" />
+                                                            ) : (
+                                                                <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
+                                                            )}
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuGroup>
                                                         <DropdownMenuItem>
@@ -207,7 +217,11 @@ export const Header = () => {
                                                             <box-icon name='user-circle' type='solid' ></box-icon>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent className="w-56">
-                                                            <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
+                                                            {loading ? (
+                                                                <Skeleton className="mr-2 h-4 w-4" />
+                                                            ) : (
+                                                                <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
+                                                            )}
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuGroup>
                                                                 <DropdownMenuItem>
@@ -223,53 +237,7 @@ export const Header = () => {
                                                                     <span>Settings</span>
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuGroup>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuGroup>
-                                                                <DropdownMenuItem>
-                                                                    <Users className="mr-2 h-4 w-4" />
-                                                                    <span>Team</span>
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuSub>
-                                                                    <DropdownMenuSubTrigger>
-                                                                        <UserPlus className="mr-2 h-4 w-4" />
-                                                                        <span>Invite users</span>
-                                                                    </DropdownMenuSubTrigger>
-                                                                    <DropdownMenuPortal>
-                                                                        <DropdownMenuSubContent>
-                                                                            <DropdownMenuItem>
-                                                                                <Mail className="mr-2 h-4 w-4" />
-                                                                                <span>Email</span>
-                                                                            </DropdownMenuItem>
-                                                                            <DropdownMenuItem>
-                                                                                <MessageSquare className="mr-2 h-4 w-4" />
-                                                                                <span>Message</span>
-                                                                            </DropdownMenuItem>
-                                                                            <DropdownMenuSeparator />
-                                                                            <DropdownMenuItem>
-                                                                                <PlusCircle className="mr-2 h-4 w-4" />
-                                                                                <span>More...</span>
-                                                                            </DropdownMenuItem>
-                                                                        </DropdownMenuSubContent>
-                                                                    </DropdownMenuPortal>
-                                                                </DropdownMenuSub>
-                                                                <DropdownMenuItem>
-                                                                    <Plus className="mr-2 h-4 w-4" />
-                                                                    <span>New Team</span>
-                                                                </DropdownMenuItem>
-                                                            </DropdownMenuGroup>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem>
-                                                                <Github className="mr-2 h-4 w-4" />
-                                                                <span>GitHub</span>
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem>
-                                                                <LifeBuoy className="mr-2 h-4 w-4" />
-                                                                <span>Support</span>
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem disabled>
-                                                                <Cloud className="mr-2 h-4 w-4" />
-                                                                <span>API</span>
-                                                            </DropdownMenuItem>
+
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem>
                                                                 <LogOut className="mr-2 h-4 w-4" />
