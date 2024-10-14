@@ -181,34 +181,6 @@ export const Cart = () => {
 
     return (
         <>
-<<<<<<< HEAD
-            {loading && (
-                <div className='loading'>
-                    <div className='loading-spin'></div>
-                </div>
-            )}
-            <div className="p-10 md:my-5 my-2 max-w-screen-xl mx-auto">
-                <div className="container mx-auto">
-                    <h1 className="lg:text-5xl md:text-4xl text-3xl text-center md:text-left font-bold md:mb-6 mb-3">Giỏ hàng</h1>
-                    <div className="bg-white ">
-                        <div className=" mb-4 text-center md:text-left">
-                            <span className="font-semibold text-gray-500 lg:text-lg md:text-base text-base ">
-                                {cart.length || 0} Khóa học trong giỏ hàng
-                            </span>
-                            {cart.length > 0 && (
-                                <div className="flex items-center">
-                                    {/* <input
-                                    className="mr-2"
-                                    defaultChecked
-                                    id="selectAll"
-                                    type="checkbox"
-                                    aria-label="Chọn tất cả"
-                                />
-                                <label htmlFor="selectAll">Chọn tất cả</label> */}
-                                </div>
-                            )}
-                        </div>
-=======
             {cart.length > 0 ?
                 // Nếu có giỏ hàng
                 (<div className="p-10 md:my-5 my-2 max-w-screen-xl mx-auto">
@@ -232,7 +204,6 @@ export const Cart = () => {
                                     </div>
                                 )}
                             </div>
->>>>>>> b908815b1dad01cb4ce211aba59d4a12092721a8
 
                             <div>
                                 <div className="container mx-auto">
