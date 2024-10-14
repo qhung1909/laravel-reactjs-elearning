@@ -149,7 +149,7 @@ class CartController extends Controller
 
                         $order->status = 'success';
                         $order->save();
-                        OrderDetail::where('order_detail_id', $order->order_detail_id)->delete();
+                        OrderDetail::where('order_id', $order->order_id)->delete();
                         Log::info('Order status updated to success');
                     }
                 } else {
@@ -180,20 +180,23 @@ class CartController extends Controller
                 'message' => 'Người dùng chưa đăng nhập.',
             ], 401);
         }
-
+    
         $user_id = Auth::id();
-        $orders = Order::with('orderDetails')->where('user_id', $user_id)->get();
-
+        
+        $orders = Order::with('orderDetails')
+            ->where('user_id', $user_id)
+            ->where('status', 'pending') 
+            ->get();
+        
         if ($orders->isEmpty()) {
             return response()->json([
                 'message' => 'Không có đơn hàng nào.',
             ], 404);
         }
-
-
+        
         return response()->json($orders, 200);
     }
-
+    
 
     public function addToCart(Request $request)
     {
@@ -216,17 +219,30 @@ class CartController extends Controller
             return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $e->errors()], 422);
         }
 
-        $order = Order::where('user_id', $user_id)
-            ->where('status', 'pending')
+        $existingSuccessfulOrder = Order::where('user_id', $user_id)
+            ->where('status', 'success')
             ->first();
 
-        if (!$order) {
+        if ($existingSuccessfulOrder) {
             $order = Order::create([
                 'user_id' => $user_id,
                 'coupon_id' => $request->coupon_id,
                 'total_price' => 0,
                 'status' => 'pending',
             ]);
+        } else {
+            $order = Order::where('user_id', $user_id)
+                ->where('status', 'pending')
+                ->first();
+
+            if (!$order) {
+                $order = Order::create([
+                    'user_id' => $user_id,
+                    'coupon_id' => $request->coupon_id,
+                    'total_price' => 0,
+                    'status' => 'pending',
+                ]);
+            }
         }
 
         foreach ($request->items as $item) {
@@ -256,8 +272,6 @@ class CartController extends Controller
             'order' => $order,
         ], 201);
     }
-
-
 
     public function removeItem(Request $request)
     {
