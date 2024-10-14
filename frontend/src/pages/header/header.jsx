@@ -43,10 +43,14 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
+import axios from "axios";
 
 export const Header = () => {
-
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
     const [logined, setLogined] = useState(null);
+    const [user, setUser] = useState([]);
+
 
     useEffect(() => {
         const user = localStorage.getItem('access_token');
@@ -59,6 +63,41 @@ export const Header = () => {
         localStorage.removeItem('access_token');
         setLogined(null);
     }
+
+    const fetchUser = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/auth/me`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            // Kiểm tra cấu trúc dữ liệu trả về
+            if (res.data && res.data) {
+                setUser(res.data);
+            } else {
+                console.error(
+                    "Không tìm thấy thông tin người dùng trong phản hồi."
+                );
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy thông tin người dùng:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+                console.error("Trạng thái lỗi:", error.response.status);
+            } else {
+                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
+            }
+        }
+    };
+    useEffect(() => {
+        fetchUser();
+    }, []);
 
 
     return (
@@ -90,23 +129,23 @@ export const Header = () => {
                             <>
                                 {/* header - content */}
                                 <div className="navbar-content xl:static xl:min-h-fit  bg-white xl:flex xl:items-center px-10 max-xl:w-full gap-2 xl:block hidden">
-                                <ul className="items-center max-xl:pt-3 gap-3 flex text-base xl:text-base w-52">
-                                    <li className="max-xl:mb-4">
-                                        <Link to="/courses" className="hover:text-gray-500">
-                                            Khóa học
-                                        </Link>
-                                    </li>
-                                    <li className="max-xl:mb-4">
-                                        <Link to="/contact" className="hover:text-gray-500">
-                                            Liên hệ
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to="/blog" className="hover:text-gray-500">
-                                            Bài viết
-                                        </Link>
-                                    </li>
-                                </ul>
+                                    <ul className="items-center max-xl:pt-3 gap-3 flex text-base xl:text-base w-52">
+                                        <li className="max-xl:mb-4">
+                                            <Link to="/courses" className="hover:text-gray-500">
+                                                Khóa học
+                                            </Link>
+                                        </li>
+                                        <li className="max-xl:mb-4">
+                                            <Link to="/contact" className="hover:text-gray-500">
+                                                Liên hệ
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link to="/blog" className="hover:text-gray-500">
+                                                Bài viết
+                                            </Link>
+                                        </li>
+                                    </ul>
                                     <div className="navbar-icons flex items-center gap-2 xl:mx-3">
                                         <div className="navbar-noti cursor-pointer">
                                             <Link to="/instructor">
@@ -128,7 +167,7 @@ export const Header = () => {
                                                     <box-icon name='user-circle' type='solid' ></box-icon>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="w-56">
-                                                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                                    <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuGroup>
                                                         <DropdownMenuItem>
@@ -144,53 +183,8 @@ export const Header = () => {
                                                             <span>Settings</span>
                                                         </DropdownMenuItem>
                                                     </DropdownMenuGroup>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuGroup>
-                                                        <DropdownMenuItem>
-                                                            <Users className="mr-2 h-4 w-4" />
-                                                            <span>Team</span>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuSub>
-                                                            <DropdownMenuSubTrigger>
-                                                                <UserPlus className="mr-2 h-4 w-4" />
-                                                                <span>Invite users</span>
-                                                            </DropdownMenuSubTrigger>
-                                                            <DropdownMenuPortal>
-                                                                <DropdownMenuSubContent>
-                                                                    <DropdownMenuItem>
-                                                                        <Mail className="mr-2 h-4 w-4" />
-                                                                        <span>Email</span>
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuItem>
-                                                                        <MessageSquare className="mr-2 h-4 w-4" />
-                                                                        <span>Message</span>
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem>
-                                                                        <PlusCircle className="mr-2 h-4 w-4" />
-                                                                        <span>More...</span>
-                                                                    </DropdownMenuItem>
-                                                                </DropdownMenuSubContent>
-                                                            </DropdownMenuPortal>
-                                                        </DropdownMenuSub>
-                                                        <DropdownMenuItem>
-                                                            <Plus className="mr-2 h-4 w-4" />
-                                                            <span>New Team</span>
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuGroup>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem>
-                                                        <Github className="mr-2 h-4 w-4" />
-                                                        <span>GitHub</span>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem>
-                                                        <LifeBuoy className="mr-2 h-4 w-4" />
-                                                        <span>Support</span>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem disabled>
-                                                        <Cloud className="mr-2 h-4 w-4" />
-                                                        <span>API</span>
-                                                    </DropdownMenuItem>
+
+
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem>
                                                         <LogOut className="mr-2 h-4 w-4" />
@@ -213,7 +207,7 @@ export const Header = () => {
                                                             <box-icon name='user-circle' type='solid' ></box-icon>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent className="w-56">
-                                                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                                            <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuGroup>
                                                                 <DropdownMenuItem>
@@ -298,8 +292,8 @@ export const Header = () => {
                                             <SheetHeader>
                                                 <SheetTitle>
                                                     <div className="p-4 flex justify-between items-center border-b-[1px]">
-                                                        <div className="logo ml-[-35px]">
-                                                            <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-32 h-14 object-cover" />
+                                                        <div className="logo">
+                                                            <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className=" w-20 h-14 object-cover" />
                                                         </div>
                                                         <div className="flex">
                                                             <div className="navbar-language cursor-pointer">
@@ -429,8 +423,8 @@ export const Header = () => {
                                         <SheetHeader>
                                             <SheetTitle>
                                                 <div className="p-4 flex justify-between items-center border-b-[1px]">
-                                                    <div className="logo ml-[-35px]">
-                                                        <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-32 h-14 object-cover" />
+                                                    <div className="logo ">
+                                                        <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                                     </div>
                                                     <div className="navbar-language cursor-pointer">
                                                         <box-icon type='solid' name='brightness'></box-icon>

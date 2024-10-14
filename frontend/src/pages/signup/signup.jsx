@@ -1,13 +1,10 @@
-
-
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+
 const notify = (message, type) => {
     if (type === 'success') {
         toast.success(message);
@@ -108,7 +105,10 @@ export const Signup = () => {
             )}
             <div className="relative m-auto h-screen items-center shadow-inner lg:grid  lg:grid-cols-2 pt-32 lg:pt-20 xl:pt-0">
                 <Link className='absolute top-1 left-0 xl:top-8 xl:left-8' to='/'>
-                    <img src="/src/assets/images/antlearn.png" width={150} />
+                    <div className="flex items-center gap-3">
+                        <box-icon name='arrow-back' color='gray' ></box-icon>
+                        <p className="text-gray-600">Trang chủ</p>
+                    </div>
                 </Link>
 
                 <form onSubmit={submit} className=" flex items-center justify-center">
@@ -126,7 +126,8 @@ export const Signup = () => {
                                 <Input
                                     name="name"
                                     type="text"
-                                    placeholder="Tên của bạn"
+                                    placeholder="Nhập tên..."
+                                    className="p-5"
                                     value={formData.name}
                                     onChange={handleChange}
                                 />
@@ -136,6 +137,7 @@ export const Signup = () => {
                                 <Input
                                     name="email"
                                     type="email"
+                                    className="p-5"
                                     placeholder="m@example.com"
                                     value={formData.email}
                                     onChange={handleChange}
@@ -150,7 +152,7 @@ export const Signup = () => {
                                     >
                                     </Link>
                                 </div>
-                                <Input name="password" type="password" placeholder="Nhập mật khẩu" value={formData.password} onChange={handleChange}
+                                <Input name="password" type="password" className="p-5" placeholder="Nhập mật khẩu" value={formData.password} onChange={handleChange}
                                 />
                             </div>
                             <div className="grid gap-2">
@@ -162,7 +164,7 @@ export const Signup = () => {
                                     >
                                     </Link>
                                 </div>
-                                <Input name="password_confirmation" type="password" placeholder="Xác nhận mật khẩu" value={formData.password_confirmation} onChange={handleChange} />
+                                <Input name="password_confirmation" className="p-5" type="password" placeholder="Xác nhận mật khẩu" value={formData.password_confirmation} onChange={handleChange} />
                             </div>
                             <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600">
                                 Đăng ký
