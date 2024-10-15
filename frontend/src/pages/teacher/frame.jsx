@@ -164,8 +164,9 @@ export const FrameTeacher = () => {
                     <div className="border-b-2"></div>
                 </div>
 
-
-                <h1>đây là chương trình giảng dạy</h1>
+                <div className="p-10">
+                    <h2 className="pb-6 font-medium text-lg">đây là chương trình giảng dạy</h2>
+                </div>
 
             </>
         )
@@ -322,7 +323,7 @@ export const FrameTeacher = () => {
                         </h2>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="bg-red-100">
-                                <img className="bg-red-100"/>
+                                <img className="bg-red-100" />
 
                             </div>
                             <div className=" ml-12">
@@ -358,7 +359,49 @@ export const FrameTeacher = () => {
                     </div>
                     <div className="border-b-2"></div>
                 </div>
-                <h1>đây là định giá</h1>
+                <div className="p-10">
+                    <h2 className="pb-6 font-medium text-lg">Đặt giá cho khóa học của bạn</h2>
+                    <p>Vui lòng chọn đơn vị tiền tệ và mức giá cho khóa học của bạn. Nếu muốn cung cấp miễn phí khóa học của mình thì khóa học đó phải có tổng thời lượng video dưới 2 giờ. Ngoài ra, các khóa học có bài kiểm tra thực hành không thể miễn phí.</p>
+                    <form>
+
+
+                        <div className="flex flex-cols-2 gap-4 pt-6 pb-3">
+                            <div className="">
+                                <p className="pb-1 font-medium">
+                                    Tiền tệ
+                                </p>
+                                <Select>
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Chọn" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="vnd">VND</SelectItem>
+                                        <SelectItem value="usd">USD</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="">
+                                <p className="pb-1 font-medium">
+                                    Mức giá
+                                </p>
+                                <Select>
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Chọn" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="free">Miễn phí</SelectItem>
+                                        <SelectItem value="basic">Cơ bản (100.000 VNĐ)</SelectItem>
+                                        <SelectItem value="standard">Tiêu chuẩn (300.000 VNĐ)</SelectItem>
+                                        <SelectItem value="premium">Nâng cao (500.000 VNĐ)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                        </div>
+                        <button className="w-16 h-10 bg-yellow-500 text-white font-bold">Lưu</button>
+                    </form>
+                </div>
+
             </>
         )
     }
@@ -372,7 +415,57 @@ export const FrameTeacher = () => {
                     </div>
                     <div className="border-b-2"></div>
                 </div>
-                <h1>đây là định giá</h1>
+                <div className="p-10">
+                    <div className="border border-slate-400 px-3 py-5 mb-6">
+                        <div className="">
+                            <h2 className="font-medium text-lg">Giới thiệu cho học viên</h2>
+                        </div>
+                        <p className="pb-3">
+                            Bất cứ khi nào học viên sử dụng đường liên kết này để mua khóa học. Chúng tôi sẽ tính doanh thu cho bạn.
+                        </p>
+                        <div className="flex w-11/12 pb-3">
+                            <input className="border border-slate-600 w-full  p-2" placeholder="Nhập đường dẫn" />
+                            <button className="border border-slate-600 w-32 p-2">Sao chép</button>
+                        </div>
+
+                    </div>
+
+
+                    <h2 className="font-medium text-lg pb-1">Coupon</h2>
+                    <div className="border border-slate-400 px-3 py-5 mb-6">
+                        <p className="font-medium">Tháng 10 coupon</p>
+                        <p>Bạn không thể tạo coupon cho khóa học miễn phí</p>
+                    </div>
+
+                    <div className="flex flex-cols-2">
+                        <h2 className="flex-1 font-medium pb-2">Coupon đang hoạt động/đã lên lịch phát hành</h2>
+                        <Link to="">
+                            <p className="flex-0 text-right underline underline-offset-2 text-blue-700">Tạo nhiều coupon</p>
+                        </Link>
+                    </div>
+
+
+                    <div className="border border-slate-400 p-3 text-center mb-6">
+                        <p>Không tìm thấy coupon</p>
+                    </div>
+
+
+                    <div className="pb-3 flex items-end relative">
+                        <h2 className="flex-1 font-medium">Coupon đã hết hạn</h2>
+                        <div className="flex-1 text-right">
+                            <div className="flex justify-end">
+                                <input className="border border-slate-500 h-10 px-3" placeholder="Tìm kiếm mã coupon" />
+                                <button className="bg-slate-800 w-10 h-10">
+                                    <box-icon name='search' color='#ffffff'></box-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="border border-slate-400 p-3 text-center mb-6">
+                        <p>Không tìm thấy coupon</p>
+                    </div>
+
+                </div>
             </>
         )
     }
@@ -391,8 +484,8 @@ export const FrameTeacher = () => {
                     </div>
                     <div className="p-10 lg:pr-32">
 
-                        <div>
-
+                        <div className="pb-6">
+                            <p>Bạn có thể viết tin nhắn cho học viên (tùy chọn) để khuyến khích học viên tương tác với nội dung khóa học. Tin nhắn này sẽ được tự động gửi đi khi họ tham gia hoặc hoàn thành khóa học. Nếu bạn không muốn gửi tin nhắn chào mừng hoặc chúc mừng. Hãy để trống ô văn bản này</p>
                         </div>
 
                         <p className="pb-3 font-medium">Tin nhắn chào mừng</p>
