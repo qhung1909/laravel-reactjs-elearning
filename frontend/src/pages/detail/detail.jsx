@@ -24,7 +24,10 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
-import { SkeletonLoaderBanner, SkeletonLoaderProduct } from "../skeletonEffect/skeleton";
+import {
+    SkeletonLoaderBanner,
+    SkeletonLoaderProduct,
+} from "../skeletonEffect/skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -65,7 +68,7 @@ export const Detail = () => {
     const [user, setUser] = useState([]);
     // Fetch thông tin người dùng
     const fetchUser = async () => {
-        setLoading(true)
+        setLoading(true);
         const token = localStorage.getItem("access_token");
         if (!token) {
             console.error("Người dùng chưa đăng nhập.");
@@ -95,7 +98,7 @@ export const Detail = () => {
                 console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
             }
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -208,7 +211,6 @@ export const Detail = () => {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-
                     items: [newItem],
                 }),
             });
@@ -227,7 +229,7 @@ export const Detail = () => {
 
             const data = await res.json();
             console.log("Order:", data.order);
-            setLoading(true)
+            setLoading(true);
             toast.success("Thêm thành công khóa học vào giỏ hàng!");
 
             setCartItems((prevItems) => [...prevItems, newItem]);
@@ -238,8 +240,6 @@ export const Detail = () => {
             setLoading(false);
         }
     };
-
-
 
     const renderBannerDetail = loading ? (
         <SkeletonLoaderBanner />
@@ -348,7 +348,6 @@ export const Detail = () => {
         setEditingContent(""); // Reset content
     };
     const updateComment = async (commentId) => {
-        setLoading(true)
         try {
             const parsedRating = parseInt(editingRating, 10);
             if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
@@ -375,7 +374,7 @@ export const Detail = () => {
             setEditingCommentId(null);
             setEditingRating(0);
             setEditingContent("");
-            toast.success("Sửa thành công bình luận!");
+            toast.success("Sửa bình luận thành công!");
             fetchDetail();
         } catch (error) {
             console.error(
@@ -383,135 +382,129 @@ export const Detail = () => {
                 error.response?.data || error.message
             );
             toast.error(error.response.data.error);
-        } finally {
-            setLoading(false)
         }
     };
 
-    const renderComments = loading ? (
-        <div className="flex items-center space-x-4">
-            <Skeleton className="h-12 w-12 rounded-full" />
-            <div className="space-y-2">
-                <Skeleton className="h-4 w-[250px]" />
-                <Skeleton className="h-4 w-[200px]" />
-            </div>
-        </div>
-    ) : (
+    const renderComments = (
         <div className="space-y-3">
-            {comments.length > 0 ? (
-                comments.map((comment) => (
-                    <div key={comment.comment_id} className="flex items-start">
-                        <Avatar>
-                            <AvatarFallback>Avatar</AvatarFallback>
-                            <AvatarImage
-                                src="https://github.com/shadcn.png"
-                                alt="@shadcn"
-                            />
-                        </Avatar>
-                        <div className="ml-3 w-full">
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center">
-                                    <span className="font-semibold">
-                                        user_id: {comment.user_id}
-                                    </span>
-                                    <span className="text-gray-500 text-sm ml-2">
-                                        {formatDate(comment.updated_at)}
-                                    </span>
-                                </div>
+            {comments.length > 0
+                ? comments.map((comment) => (
+                      <div
+                          key={comment.comment_id}
+                          className="flex items-start"
+                      >
+                          <Avatar>
+                              <AvatarFallback>Avatar</AvatarFallback>
+                              <AvatarImage
+                                  src="https://github.com/shadcn.png"
+                                  alt="@shadcn"
+                              />
+                          </Avatar>
+                          <div className="ml-3 w-full">
+                              <div className="flex justify-between items-center">
+                                  <div className="flex items-center">
+                                      <span className="font-semibold">
+                                          user_id: {comment.user_id}
+                                      </span>
+                                      <span className="text-gray-500 text-sm ml-2">
+                                          {formatDate(comment.updated_at)}
+                                      </span>
+                                  </div>
 
-                                {user && user.user_id === comment.user_id && (
-                                    <div className="flex space-x-2">
-                                        <button
-                                            onClick={() => editComment(comment)}
-                                            className="text-blue-500"
-                                        >
-                                            <Edit className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() =>
-                                                deleteComment(
-                                                    comment.comment_id
-                                                )
-                                            }
-                                            className="text-red-500"
-                                        >
-                                            <Trash className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+                                  {user && user.user_id === comment.user_id && (
+                                      <div className="flex space-x-2">
+                                          <button
+                                              onClick={() =>
+                                                  editComment(comment)
+                                              }
+                                              className="text-blue-500"
+                                          >
+                                              <Edit className="w-4 h-4" />
+                                          </button>
+                                          <button
+                                              onClick={() =>
+                                                  deleteComment(
+                                                      comment.comment_id
+                                                  )
+                                              }
+                                              className="text-red-500"
+                                          >
+                                              <Trash className="w-4 h-4" />
+                                          </button>
+                                      </div>
+                                  )}
+                              </div>
 
-                            {/* Hiển thị form chỉnh sửa nếu đang trong chế độ chỉnh sửa */}
-                            {editingCommentId === comment.comment_id ? (
-                                <div>
-                                    <div className="flex items-center space-x-1 mt-2">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                className={`w-6 h-6 cursor-pointer ${i < editingRating
-                                                    ? "text-yellow-500"
-                                                    : "text-gray-300"
-                                                    }`}
-                                                fill="currentColor"
-                                                onClick={() =>
-                                                    setEditingRating(i + 1)
-                                                }
-                                            />
-                                        ))}
-                                    </div>
+                              {editingCommentId === comment.comment_id ? (
+                                  <div>
+                                      <div className="flex items-center space-x-1 mt-2">
+                                          {[...Array(5)].map((_, i) => (
+                                              <Star
+                                                  key={i}
+                                                  className={`w-6 h-6 cursor-pointer ${
+                                                      i < editingRating
+                                                          ? "text-yellow-500"
+                                                          : "text-gray-300"
+                                                  }`}
+                                                  fill="currentColor"
+                                                  onClick={() =>
+                                                      setEditingRating(i + 1)
+                                                  }
+                                              />
+                                          ))}
+                                      </div>
 
-                                    <textarea
-                                        value={editingContent}
-                                        onChange={(e) =>
-                                            setEditingContent(e.target.value)
-                                        }
-                                        className="w-full border rounded p-2 mt-1"
-                                    />
-                                    <div className="mt-2">
-                                        <button
-                                            onClick={() =>
-                                                updateComment(
-                                                    comment.comment_id
-                                                )
-                                            }
-                                            className="bg-blue-500 text-white px-3 py-1 rounded"
-                                        >
-                                            Lưu
-                                        </button>
-                                        <button
-                                            onClick={cancelEdit}
-                                            className="bg-gray-500 text-white px-3 py-1 rounded ml-2"
-                                        >
-                                            Hủy
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div>
-                                    <div className="text-yellow-500 flex">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                fill="currentColor"
-                                                className={`w-3 h-3 ${i <
-                                                    parseFloat(comment.rating)
-                                                    ? "text-yellow-500"
-                                                    : "text-gray-300"
-                                                    }`}
-                                            />
-                                        ))}
-                                    </div>
-                                    <p className="mt-1 text-sm">
-                                        {comment.content}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                ))
-            ) : (
-                !loading && comments.length === 0 && <p>Chưa có bình luận nào.</p>
-            )}
+                                      <textarea
+                                          value={editingContent}
+                                          onChange={(e) =>
+                                              setEditingContent(e.target.value)
+                                          }
+                                          className="w-full border rounded p-2 mt-1"
+                                      />
+                                      <div className="mt-2">
+                                          <button
+                                              onClick={() =>
+                                                  updateComment(
+                                                      comment.comment_id
+                                                  )
+                                              }
+                                              className="bg-blue-500 text-white px-3 py-1 rounded"
+                                          >
+                                              Lưu
+                                          </button>
+                                          <button
+                                              onClick={cancelEdit}
+                                              className="bg-gray-500 text-white px-3 py-1 rounded ml-2"
+                                          >
+                                              Hủy
+                                          </button>
+                                      </div>
+                                  </div>
+                              ) : (
+                                  <div>
+                                      <div className="text-yellow-500 flex">
+                                          {[...Array(5)].map((_, i) => (
+                                              <Star
+                                                  key={i}
+                                                  fill="currentColor"
+                                                  className={`w-3 h-3 ${
+                                                      i <
+                                                      parseFloat(comment.rating)
+                                                          ? "text-yellow-500"
+                                                          : "text-gray-300"
+                                                  }`}
+                                              />
+                                          ))}
+                                      </div>
+                                      <p className="mt-1 text-sm">
+                                          {comment.content}
+                                      </p>
+                                  </div>
+                              )}
+                          </div>
+                      </div>
+                  ))
+                : comments.length === 0 && <p>Chưa có bình luận nào.</p>}
             <Toaster />
         </div>
     );
@@ -534,7 +527,7 @@ export const Detail = () => {
             );
             return;
         }
-        setLoading(true);
+
         try {
             const commentData = {
                 rating,
@@ -551,25 +544,21 @@ export const Detail = () => {
                     },
                 }
             );
-            // Reset comment và rating
             setComment("");
             setRating(0);
             setErrorMessage("");
-            fetchDetail(); // Fetch lại chi tiết sau khi thêm comment
+            fetchDetail();
             toast.success("Đăng thành công bình luận!");
         } catch (error) {
-            // Kiểm tra nếu phản hồi lỗi từ backend chứa thông báo
             if (
                 error.response &&
                 error.response.data &&
                 error.response.data.error
             ) {
-                toast.error(error.response.data.error); // Hiển thị thông báo từ backend
+                toast.error(error.response.data.error);
             } else {
                 setErrorMessage("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
             }
-        } finally {
-            setLoading(false)
         }
     };
 
@@ -609,8 +598,6 @@ export const Detail = () => {
 
     return (
         <>
-
-
             {/* Banner */}
             {renderBannerDetail}
             {/* Kết thúc Banner */}
@@ -903,8 +890,9 @@ export const Detail = () => {
                             </ul>
                             {/* Mô tả */}
                             <div
-                                className={`section-3-content ${isSection3Expanded ? "" : "collapsed"
-                                    } mt-4`}
+                                className={`section-3-content ${
+                                    isSection3Expanded ? "" : "collapsed"
+                                } mt-4`}
                             >
                                 <h2 className="text-2xl font-bold mb-4">
                                     Mô tả
@@ -1255,11 +1243,8 @@ export const Detail = () => {
                                 <h3 className="text-base font-semibold mb-2">
                                     {loading ? (
                                         <Skeleton className="h-4 w-[100px]" />
-                                    ):(<>
-
-                                    {comments.length || 0} Bình luận
-                                    </>
-
+                                    ) : (
+                                        <>{comments.length || 0} Bình luận</>
                                     )}
                                 </h3>
                                 <div className="space-y-3 mb-3">
@@ -1268,10 +1253,11 @@ export const Detail = () => {
                                         {[...Array(5)].map((_, i) => (
                                             <Star
                                                 key={i}
-                                                className={`w-6 h-6 cursor-pointer ${i < rating
-                                                    ? "text-yellow-500"
-                                                    : "text-gray-300"
-                                                    }`}
+                                                className={`w-6 h-6 cursor-pointer ${
+                                                    i < rating
+                                                        ? "text-yellow-500"
+                                                        : "text-gray-300"
+                                                }`}
                                                 fill="currentColor"
                                                 onClick={() => setRating(i + 1)} // Cập nhật số sao khi click
                                             />
