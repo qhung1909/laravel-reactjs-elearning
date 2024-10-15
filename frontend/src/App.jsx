@@ -22,6 +22,7 @@ import { InstructorProfile } from "./pages/instructor/instructorProfile.jsx";
 import { PaymentResult } from "./pages/payment/payment-result.jsx";
 import { VerificationEmail } from "./pages/verification/verification-email.jsx";
 import Demo from "./pages/teacher/demo.jsx";
+import { UserProfile } from "./pages/userprofile/userprofile.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === '/admin';
@@ -31,6 +32,8 @@ function AppContent() {
         <>
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
+                <Route path="/demo" element={<Demo/>}></Route>
+                <Route path="/userprofile" element={<UserProfile/>}></Route>
                 <Route path="/instructor" element={<Instructor/>}></Route>
                 <Route path="/instructorhistory" element={<InstructorHistory/>}></Route>
                 <Route path="/instructorlessson" element={<InstructorLesson/>}></Route>
