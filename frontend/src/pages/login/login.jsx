@@ -9,9 +9,17 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const notify = (message, type ) => {
     if (type === 'success'){
-        toast.success(message);
+        toast.success(message,{
+            style:{
+                padding: '16px'
+            }
+        });
     } else {
-        toast.error(message)
+        toast.error(message,{
+            style:{
+                padding: '16px'
+            }
+        })
     }
 }
 
