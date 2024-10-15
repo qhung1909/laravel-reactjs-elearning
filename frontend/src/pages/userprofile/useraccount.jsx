@@ -38,26 +38,26 @@ export const UserAccount = () => {
                 <div className="border border-gray-200 rounded-xl px-10 py-5">
                     <div className="py-5 border-b">
                         <span className="font-semibold text-xl">Cài đặt</span>
-                        <p className="text-gray-500 text-sm">Quản lý cài đặt tài khoản của bạn.</p>
+                        <p className="text-gray-500 text-sm">Quản lý cài đặt tài khoản của bạn</p>
                     </div>
                     <div className="grid grid-cols-4 gap-5 my-5">
                         <div className="col-span-1">
                             <ul className="space-y-3 text-sm font-medium">
                                 <li className="py-1 px-3 rounded-md">
-                                    <Link>
+                                    <Link className="hover:underline" to="/userprofile">
                                         <p>Hồ sơ cá nhân</p>
                                     </Link>
                                 </li>
                                 <li className="bg-gray-100 py-1 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/useraccount">
+                                    <Link  to="/useraccount">
                                         <p>Tài khoản</p>
                                     </Link>
                                 </li>
-                                <li className="py-1 px-3 rounded-md">
+                                {/* <li className="py-1 px-3 rounded-md">
                                     <Link className="hover:underline" to="/userappearance">
                                         <p>Giao diện</p>
                                     </Link>
-                                </li>
+                                </li> */}
                                 <li className="py-1 px-3 rounded-md">
                                     <Link className="hover:underline" to="/usernoti">
                                         <p>Thông báo</p>
@@ -133,20 +133,13 @@ export const UserAccount = () => {
                                                     </Command>
                                                 </PopoverContent>
                                             </Popover>
-                                            <p className="text-xs text-gray-500">Bạn có thể @tag đến những người dùng và các nhóm để liên kết với họ.</p>
+                                            <p className="text-xs text-gray-500">Bạn có thể chọn ngôn ngữ bạn muốn tại đây</p>
                                         </div>
                                     </div>
-                                    <div className="mb-10">
-                                        <div className="space-y-2">
-                                            <Label className="font-medium text-sm">URLs</Label>
-                                            <p className="text-xs text-gray-500">Thêm liên kết đến website, mạng xã hội, truyền thông của bạn</p>
-                                            <Input></Input>
-                                            <Button className="bg-white border text-black text-xs px-2 hover:text-white duration-300">Add URL</Button>
-                                        </div>
-                                    </div>
+
                                     <div className="mb-5">
                                         <div className="">
-                                            <Button className="text-xs px-3 hover:text-white duration-300">Update profile</Button>
+                                            <Button className="text-xs px-3 hover:text-white duration-300">Update tài khoản</Button>
                                         </div>
                                     </div>
                                 </form>

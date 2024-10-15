@@ -10,13 +10,13 @@ export const UserProfile = () => {
                 <div className="border border-gray-200 rounded-xl px-10 py-5">
                     <div className="py-5 border-b">
                         <span className="font-semibold text-xl">Cài đặt</span>
-                        <p className="text-gray-500 text-sm">Quản lý cài đặt tài khoản của bạn.</p>
+                        <p className="text-gray-500 text-sm">Quản lý cài đặt tài khoản của bạn</p>
                     </div>
                     <div className="grid grid-cols-4 gap-5 my-5">
                         <div className="col-span-1">
                             <ul className="space-y-3 text-sm font-medium">
                                 <li className="bg-gray-100 py-1 px-3 rounded-md">
-                                    <Link>
+                                    <Link to="/userprofile">
                                         <p>Hồ sơ cá nhân</p>
                                     </Link>
                                 </li>
@@ -25,11 +25,11 @@ export const UserProfile = () => {
                                         <p>Tài khoản</p>
                                     </Link>
                                 </li>
-                                <li className="py-1 px-3 rounded-md">
+                                {/* <li className="py-1 px-3 rounded-md">
                                     <Link className="hover:underline" to="/userappearance">
                                         <p>Giao diện</p>
                                     </Link>
-                                </li>
+                                </li> */}
                                 <li className="py-1 px-3 rounded-md">
                                     <Link className="hover:underline" to="/usernoti">
                                         <p>Thông báo</p>
@@ -75,7 +75,7 @@ export const UserProfile = () => {
                                     </div>
                                     <div className="mb-5">
                                         <div className="">
-                                            <Button className=" text-xs px-3 hover:text-white duration-300">Update profile</Button>
+                                            <Button className=" text-xs px-3 hover:text-white duration-300">Update hồ sơ</Button>
                                         </div>
                                     </div>
                                 </form>

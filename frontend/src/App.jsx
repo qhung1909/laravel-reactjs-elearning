@@ -24,10 +24,11 @@ import { VerificationEmail } from "./pages/verification/verification-email.jsx";
 import Demo from "./pages/teacher/demo.jsx";
 import { UserProfile } from "./pages/userprofile/userprofile.jsx";
 import { UserAccount } from "./pages/userprofile/useraccount.jsx";
+import { UserNoti } from "./pages/userprofile/usernoti.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === '/admin';
-    const isPageNotFound = !['/blogdetail', '/blog', '/contact', '/', '/courses', '/lession', '/payment-result','/payment','/cart','/userprofile','/useraccount'].includes(location.pathname) && !location.pathname.startsWith('/detail/');
+    const isPageNotFound = !['/blogdetail', '/blog', '/contact', '/', '/courses', '/lession', '/payment-result','/payment','/cart','/userprofile','/useraccount','/usernoti'].includes(location.pathname) && !location.pathname.startsWith('/detail/');
 
     return (
         <>
@@ -36,6 +37,7 @@ function AppContent() {
                 <Route path="/demo" element={<Demo/>}></Route>
                 <Route path="/useraccount" element={<UserAccount/>}></Route>
                 <Route path="/userprofile" element={<UserProfile/>}></Route>
+                <Route path="/usernoti" element={<UserNoti/>}></Route>
                 <Route path="/instructor" element={<Instructor/>}></Route>
                 <Route path="/instructorhistory" element={<InstructorHistory/>}></Route>
                 <Route path="/instructorlessson" element={<InstructorLesson/>}></Route>
