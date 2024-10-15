@@ -283,7 +283,7 @@ export const Home = () => {
                                 {purchasedProduct}
                             </div>
                             <div className="homecatelog homecatelog-button text-center">
-                                <button className="bg-yellow-500 lg:py-3 lg:px-8 md:px-8 sm:px-7 py-2 px-7 rounded-full font-semibold xl:mt-10 mt-3 lg:text-base md:text-sm sm:text-sm text-[13px]">
+                                <button className="hover:bg-black hover:text-white duration-300 bg-yellow-500 lg:py-3 lg:px-8 md:px-8 sm:px-7 py-2 px-7 rounded-full font-semibold xl:mt-10 mt-3 lg:text-base md:text-sm sm:text-sm text-[13px]">
                                     Xem thêm
                                 </button>
                             </div>
