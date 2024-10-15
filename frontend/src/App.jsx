@@ -26,7 +26,7 @@ import { UserProfile } from "./pages/userprofile/userprofile.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === '/admin';
-    const isPageNotFound = !['/blogdetail', '/blog', '/contact', '/', '/courses', '/lession', '/payment-result','/payment','/cart'].includes(location.pathname) && !location.pathname.startsWith('/detail/');
+    const isPageNotFound = !['/blogdetail', '/blog', '/contact', '/', '/courses', '/lession', '/payment-result','/payment','/cart','/userprofile'].includes(location.pathname) && !location.pathname.startsWith('/detail/');
 
     return (
         <>
