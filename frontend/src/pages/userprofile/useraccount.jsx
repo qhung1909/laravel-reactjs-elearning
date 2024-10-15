@@ -1,12 +1,37 @@
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Label } from "@radix-ui/react-dropdown-menu"
 import { Link } from "react-router-dom"
+import { cn } from "@/lib/utils"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+  } from "@/components/ui/popover"
+import {
+Command,
+CommandEmpty,
+CommandGroup,
+CommandInput,
+CommandItem,
+CommandList,
+} from "@/components/ui/command"
+import { Check, ChevronsUpDown } from "lucide-react"
 
+import React from "react"
 export const UserAccount = () => {
-
-
+    const [open, setOpen] = React.useState(false)
+    const [value, setValue] = React.useState("")
+    const language = [
+        {
+          value: "tiengAnh",
+          label: "Tiếng Anh",
+        },
+        {
+          value: "tiengViet",
+          label: "Tiếng Việt",
+        }
+      ]
     return (
         <>
             <section className="useraccount my-10 mx-auto max-w-screen-xl">
@@ -57,36 +82,57 @@ export const UserAccount = () => {
                                     <div className="mb-5">
                                         <div className="space-y-2">
                                             <Label className="font-medium text-sm">Sinh nhật</Label>
-                                            <input type="date" className="border p-2 w-[40%] rounded-lg"/>
-                                            {/* <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant={"outline"}
-                                                        className={cn(
-                                                            "w-[280px] justify-start text-left font-normal",
-                                                            !date && "text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                                        {date ? format(date, "PPP") : <span>Chọn ngày sinh nhật</span>}
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={date}
-                                                        onSelect={setDate}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover> */}
+                                            <input type="date" className="border p-2 w-[40%] rounded-lg" />
+
                                             <p className="text-xs text-gray-500">Bạn có thể cập nhật ngày sinh của bạn tại đây.</p>
                                         </div>
                                     </div>
                                     <div className="mb-5">
                                         <div className="space-y-2">
-                                            <Label className="font-medium text-sm">Tiểu sử</Label>
-                                            <Textarea placeholder="Nhập tiểu sử của bạn tại đây..." className="text-xs"></Textarea>
+                                            <Label className="font-medium text-sm">Ngôn ngữ</Label>
+                                            <Popover open={open} onOpenChange={setOpen}>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        role="combobox"
+                                                        aria-expanded={open}
+                                                        className="w-[200px] justify-between"
+                                                    >
+                                                        {value
+                                                            ? language.find((framework) => framework.value === value)?.label
+                                                            : "Chọn ngôn ngữ..."}
+                                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[200px] p-0">
+                                                    <Command>
+                                                        <CommandInput placeholder="Search framework..." />
+                                                        <CommandList>
+                                                            <CommandEmpty>No framework found.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                {language.map((framework) => (
+                                                                    <CommandItem
+                                                                        key={framework.value}
+                                                                        value={framework.value}
+                                                                        onSelect={(currentValue) => {
+                                                                            setValue(currentValue === value ? "" : currentValue)
+                                                                            setOpen(false)
+                                                                        }}
+                                                                    >
+                                                                        <Check
+                                                                            className={cn(
+                                                                                "mr-2 h-4 w-4",
+                                                                                value === framework.value ? "opacity-100" : "opacity-0"
+                                                                            )}
+                                                                        />
+                                                                        {framework.label}
+                                                                    </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
                                             <p className="text-xs text-gray-500">Bạn có thể @tag đến những người dùng và các nhóm để liên kết với họ.</p>
                                         </div>
                                     </div>
@@ -100,7 +146,7 @@ export const UserAccount = () => {
                                     </div>
                                     <div className="mb-5">
                                         <div className="">
-                                            <Button className=" text-xs px-3 hover:text-white duration-300">Update profile</Button>
+                                            <Button className="text-xs px-3 hover:text-white duration-300">Update profile</Button>
                                         </div>
                                     </div>
                                 </form>
