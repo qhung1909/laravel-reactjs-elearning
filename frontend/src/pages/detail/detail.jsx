@@ -25,6 +25,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { SkeletonLoaderBanner, SkeletonLoaderProduct } from "../skeletonEffect/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -64,6 +65,7 @@ export const Detail = () => {
     const [user, setUser] = useState([]);
     // Fetch thông tin người dùng
     const fetchUser = async () => {
+        setLoading(true)
         const token = localStorage.getItem("access_token");
         if (!token) {
             console.error("Người dùng chưa đăng nhập.");
@@ -92,6 +94,8 @@ export const Detail = () => {
             } else {
                 console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
             }
+        } finally {
+            setLoading(false)
         }
     };
     useEffect(() => {
@@ -111,6 +115,8 @@ export const Detail = () => {
             console.error("course_id không hợp lệ.");
             return;
         }
+        setLoading(true);
+
         try {
             const res = await axios.get(`${API_URL}/comments/${course_id}`, {
                 headers: {
@@ -130,6 +136,8 @@ export const Detail = () => {
             } else {
                 console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
             }
+        } finally {
+            setLoading(false);
         }
     };
     const fetchDetail = async () => {
@@ -192,6 +200,7 @@ export const Detail = () => {
         console.log("Item trước khi gửi:", newItem);
 
         try {
+            setLoading(true);
             const res = await fetch(`${API_URL}/auth/cart/addToCart`, {
                 method: "POST",
                 headers: {
@@ -339,6 +348,7 @@ export const Detail = () => {
         setEditingContent(""); // Reset content
     };
     const updateComment = async (commentId) => {
+        setLoading(true)
         try {
             const parsedRating = parseInt(editingRating, 10);
             if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
@@ -373,10 +383,20 @@ export const Detail = () => {
                 error.response?.data || error.message
             );
             toast.error(error.response.data.error);
+        } finally {
+            setLoading(false)
         }
     };
 
-    const renderComments = (
+    const renderComments = loading ? (
+        <div className="flex items-center space-x-4">
+            <Skeleton className="h-12 w-12 rounded-full" />
+            <div className="space-y-2">
+                <Skeleton className="h-4 w-[250px]" />
+                <Skeleton className="h-4 w-[200px]" />
+            </div>
+        </div>
+    ) : (
         <div className="space-y-3">
             {comments.length > 0 ? (
                 comments.map((comment) => (
@@ -429,8 +449,8 @@ export const Detail = () => {
                                             <Star
                                                 key={i}
                                                 className={`w-6 h-6 cursor-pointer ${i < editingRating
-                                                        ? "text-yellow-500"
-                                                        : "text-gray-300"
+                                                    ? "text-yellow-500"
+                                                    : "text-gray-300"
                                                     }`}
                                                 fill="currentColor"
                                                 onClick={() =>
@@ -474,9 +494,9 @@ export const Detail = () => {
                                                 key={i}
                                                 fill="currentColor"
                                                 className={`w-3 h-3 ${i <
-                                                        parseFloat(comment.rating)
-                                                        ? "text-yellow-500"
-                                                        : "text-gray-300"
+                                                    parseFloat(comment.rating)
+                                                    ? "text-yellow-500"
+                                                    : "text-gray-300"
                                                     }`}
                                             />
                                         ))}
@@ -490,7 +510,7 @@ export const Detail = () => {
                     </div>
                 ))
             ) : (
-                <p>Chưa có bình luận nào.</p>
+                !loading && comments.length === 0 && <p>Chưa có bình luận nào.</p>
             )}
             <Toaster />
         </div>
@@ -514,6 +534,7 @@ export const Detail = () => {
             );
             return;
         }
+        setLoading(true);
         try {
             const commentData = {
                 rating,
@@ -547,6 +568,8 @@ export const Detail = () => {
             } else {
                 setErrorMessage("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
             }
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -1230,7 +1253,14 @@ export const Detail = () => {
                             {/* Phần bình luận */}
                             <div>
                                 <h3 className="text-base font-semibold mb-2">
+                                    {loading ? (
+                                        <Skeleton className="h-4 w-[100px]" />
+                                    ):(<>
+
                                     {comments.length || 0} Bình luận
+                                    </>
+
+                                    )}
                                 </h3>
                                 <div className="space-y-3 mb-3">
                                     {/*phần chọn sao */}
@@ -1239,8 +1269,8 @@ export const Detail = () => {
                                             <Star
                                                 key={i}
                                                 className={`w-6 h-6 cursor-pointer ${i < rating
-                                                        ? "text-yellow-500"
-                                                        : "text-gray-300"
+                                                    ? "text-yellow-500"
+                                                    : "text-gray-300"
                                                     }`}
                                                 fill="currentColor"
                                                 onClick={() => setRating(i + 1)} // Cập nhật số sao khi click
