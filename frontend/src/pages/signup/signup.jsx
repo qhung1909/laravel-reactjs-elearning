@@ -7,7 +7,11 @@ import toast, { Toaster } from 'react-hot-toast';
 
 const notify = (message, type) => {
     if (type === 'success') {
-        toast.success(message);
+        toast.success(message,{
+            style:{
+                padding: '16px'
+            }
+        });
     }
 }
 

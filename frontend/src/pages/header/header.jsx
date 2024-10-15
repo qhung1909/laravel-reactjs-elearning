@@ -182,23 +182,27 @@ export const Header = () => {
                                                     <DropdownMenuGroup>
                                                         <DropdownMenuItem>
                                                             <User className="mr-2 h-4 w-4" />
-                                                            <span>Profile</span>
+                                                            <Link to="/userprofile">
+                                                                <span>Thông tin cá nhân</span>
+                                                            </Link>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem>
                                                             <CreditCard className="mr-2 h-4 w-4" />
-                                                            <span>Billing</span>
+                                                            <Link>
+                                                                <span>Billing</span>
+                                                            </Link>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem>
                                                             <Settings className="mr-2 h-4 w-4" />
-                                                            <span>Settings</span>
+                                                            <Link>
+                                                                <span>Cài đặt</span>
+                                                            </Link>
                                                         </DropdownMenuItem>
                                                     </DropdownMenuGroup>
-
-
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem>
                                                         <LogOut className="mr-2 h-4 w-4" />
-                                                        <span onClick={logout}>Log out</span>
+                                                        <span onClick={logout}>Đăng xuất</span>
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
