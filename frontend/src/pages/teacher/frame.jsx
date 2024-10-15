@@ -134,12 +134,12 @@ export const FrameTeacher = () => {
 
                     </div>
                 </div>
-                <div className="w-10/12 shadow-lg">
+                <div className="w-full lg:w-10/12 shadow-lg">
                     <div className="m-2">
                         <h1 className="text-xl font-medium px-10 p-4">Học viên mục tiêu</h1>
                     </div>
                     <div className="border-b-2"></div>
-                    <div className="p-10 pr-32">
+                    <div className="p-10 lg:pr-32">
                         <div className="content-start pb-6">
                             <h3 className="pb-3 text-lg font-medium">Học viên sẽ học được gì trong khóa học của bạn?</h3>
                             <p className="pb-3">

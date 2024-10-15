@@ -90,6 +90,34 @@ export const CartSkeleton = () => {
     );
 };
 
+export const ProductSkeletonHome = () => (
+    <div className="product md:mb-10 xl:mb-0 text-center md:text-left animate-pulse">
+        <div className="product-box">
+            <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
+                <div className="bg-gray-300 rounded-xl h-full w-80" />
+            </div>
+            <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-lg font-semibold my-2 line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
+                <div className="bg-gray-300 h-full rounded" />
+            </div>
+            <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
+                <div className="bg-gray-300 h-4 rounded w-1/2" />
+            </div>
+            <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1">
+                <div className="product-box-time">
+                    <div className="bg-gray-300 h-4 rounded w-20" />
+                </div>
+                <div className="product-box-lesson hidden sm:block">
+                    <div className="bg-gray-300 h-4 rounded w-24" />
+                </div>
+            </div>
+            <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
+                <div className="bg-gray-300 h-4 rounded w-16" />
+            </div>
+        </div>
+    </div>
+);
+
+
 
 
 

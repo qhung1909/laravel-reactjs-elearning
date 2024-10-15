@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from 'axios';
 import { Link } from "react-router-dom";
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
+import { Skeleton } from "@/components/ui/skeleton";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -10,11 +11,13 @@ export const Home = () => {
 
     const [topPurchasedProduct, setTopPurchasedProduct] = useState([]);
     const [topViewedProduct, setTopViewedProduct] = useState([]);
-    const [categories,setCategories] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [firstCategories, setFirstCategories] = useState([]);
     const [secondCategories, setSecondCategories] = useState([]);
+    const [loading, setLoading] = useState(false)
 
     const fetchCategories = async () => {
+        setLoading(true)
         try {
             const response = await axios.get(`${API_URL}/categories`, {
                 headers: {
@@ -23,16 +26,19 @@ export const Home = () => {
             });
             const allCategories = response.data;
 
-            setFirstCategories(allCategories.slice(0,5));
-            setSecondCategories(allCategories.slice(5,8))
+            setFirstCategories(allCategories.slice(0, 5));
+            setSecondCategories(allCategories.slice(5, 8))
 
             setCategories(allCategories)
         } catch (error) {
             console.log('Error fetching API: ', error)
+        } finally {
+            setLoading(false);
         }
     }
 
     const fetchTopPurchasedProduct = async () => {
+        setLoading(true);
         try {
             const response = await axios.get(`${API_URL}/top-purchased-courses`, {
                 headers: {
@@ -42,10 +48,13 @@ export const Home = () => {
             setTopPurchasedProduct(response.data);
         } catch (error) {
             console.log('Error fetching API:', error);
+        } finally {
+            setLoading(false);
         }
     }
 
     const fetchTopViewedProduct = async () => {
+        setLoading(true);
         try {
             const response = await axios.get(`${API_URL}/top-viewed-courses`, {
                 headers: {
@@ -56,6 +65,8 @@ export const Home = () => {
             setTopViewedProduct(response.data);
         } catch (error) {
             console.log('Error fetching API', error);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -66,96 +77,131 @@ export const Home = () => {
     }, []);
 
     const renderCategories = (categoryGroup) => {
-        return Array.isArray(categoryGroup) && categoryGroup.length > 0 ? (
-            categoryGroup.map((item, index) => (
-                <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 me-2" key={index}>
-                    <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">{item.name}</p>
-                </button>
-            ))
-        ) : (
-            <p>Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
-        );
+        return loading ? (
+            <div className="flex flex-wrap justify-center items-center">
+        {Array.from({ length: 3 }).map((_, index) => (
+            <div className="bg-gray-100 h-10 w-20 rounded-lg animate-pulse mx-2" key={index}></div>
+        ))}
+    </div>
+        ) :
+            Array.isArray(categoryGroup) && categoryGroup.length > 0 ? (
+                categoryGroup.map((item, index) => (
+                    <button className="bg-gray-100 p-3 rounded-lg hover:bg-white border hover:border-yellow-400 duration-300 me-2" key={index}>
+                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">{item.name}</p>
+                    </button>
+                ))
+            ) : (
+                <p>Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
+            );
     };
 
-    const purchasedProduct = Array.isArray(topPurchasedProduct) && topPurchasedProduct.length > 0 ? (
-        topPurchasedProduct.map((item, index) => (
-            <div className="product md:mb-10 xl:mb-0 text-center md:text-left" key={index}>
-                <div className="product-box">
-                    <Link to={`/detail/${item.slug}`}>
-                        <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
-                            <img
-                                src={`${item.img}`}
-                                alt=""
-                                className="rounded-xl h-full sm:w-full md:h-full w-80"
-                            />
-                        </div>
-                        <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-lg font-semibold my-2  line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
-                            <span className="lg:pe-5 pe-3">
-                                {`${item.title}`}
-                            </span>
-                        </div>
-                    </Link>
-
-                    <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
-                        <p>Bởi: Huy Hoàng</p>
-                    </div>
-                    <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
-                        <div className="product-box-time">
-                            <p>35 bài học</p>
-                        </div>
-                        <div className="product-box-lesson hidden sm:block">
-                            <p>7 giờ kém 10</p>
-                        </div>
-                    </div>
-                    <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
-                        {formatCurrency(item.price_discount)}
+    const purchasedProduct = loading ? (
+        <>
+            {Array.from({ length: 4 }).map((_, index) => (
+                <div className="flex flex-col space-y-3" key={index}>
+                    <Skeleton className="h-[125px] w-11/12 rounded-xl" />
+                    <div className="flex flex-col space-y-2 items-center md:items-start">
+                        <Skeleton className="h-4 w-8/12 md:w-11/12" />
+                        <Skeleton className="h-4 w-5/12 md:w-9/12 " />
                     </div>
                 </div>
-            </div>
-        ))
-    ) : (
-        <p>Không có sản phẩm phù hợp ngay lúc này, thử lại sau</p>
-    );
 
-    const viewedProduct = Array.isArray(topViewedProduct) && topViewedProduct.length > 0 ? (
-        topViewedProduct.map((item, index) => (
-            <div className="product md:mb-10 xl:mb-0 text-center md:text-left" key={index}>
-                <div className="product-box">
-                    <Link to={`/detail/${item.slug}`}>
-                        <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
-                            <img
-                                src={`${item.img}`}
-                                alt=""
-                                className="rounded-xl h-full sm:w-full md:h-full w-80"
-                            />
-                        </div>
-                        <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-lg font-semibold my-2  line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
-                            <span className="lg:pe-5 pe-3">
-                                {`${item.title}`}
-                            </span>
-                        </div>
-                    </Link>
+            ))}
+        </>
+    ) :
+        Array.isArray(topPurchasedProduct) && topPurchasedProduct.length > 0 ? (
+            topPurchasedProduct.map((item, index) => (
+                <div className="product md:mb-10 xl:mb-0 text-center md:text-left" key={index}>
+                    <div className="product-box">
+                        <Link to={`/detail/${item.slug}`}>
+                            <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
+                                <img
+                                    src={`${item.img}`}
+                                    alt=""
+                                    className="rounded-xl h-full sm:w-full md:h-full w-80"
+                                />
+                            </div>
+                            <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-lg font-semibold my-2  line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
+                                <span className="lg:pe-5 pe-3">
+                                    {`${item.title}`}
+                                </span>
+                            </div>
+                        </Link>
 
-                    <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
-                        <p>Bởi: Huy Hoàng</p>
-                    </div>
-                    <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
-                        <div className="product-box-time">
-                            <p>35 bài học</p>
+                        <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
+                            <p>Bởi: Huy Hoàng</p>
                         </div>
-                        <div className="product-box-lesson hidden sm:block">
-                            <p>7 giờ kém 10</p>
+                        <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
+                            <div className="product-box-time">
+                                <p>35 bài học</p>
+                            </div>
+                            <div className="product-box-lesson hidden sm:block">
+                                <p>7 giờ kém 10</p>
+                            </div>
                         </div>
-                    </div>
-                    <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
-                        {formatCurrency(item.price_discount)}
+                        <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
+                            {formatCurrency(item.price_discount)}
+                        </div>
                     </div>
                 </div>
-            </div>
-        ))
-    ) : (
-        <p>Không có sản phẩm phù hợp ngay lúc này, thử lại sau</p>
-    )
+            ))
+        ) : (
+            <p>Không có sản phẩm phù hợp ngay lúc này, thử lại sau</p>
+        );
+
+    const viewedProduct =
+        loading ? (
+            <>
+                {Array.from({ length: 4 }).map((_, index) => (
+                    <div className="flex flex-col space-y-3" key={index}>
+                        <Skeleton className="h-[125px] w-11/12 rounded-xl" />
+                        <div className="flex flex-col space-y-2 items-center md:items-start">
+                            <Skeleton className="h-4 w-8/12 md:w-11/12" />
+                            <Skeleton className="h-4 w-5/12 md:w-9/12 " />
+                        </div>
+                    </div>
+
+                ))}
+            </>
+        ) : Array.isArray(topViewedProduct) && topViewedProduct.length > 0 ? (
+            topViewedProduct.map((item, index) => (
+                <div className="product md:mb-10 xl:mb-0 text-center md:text-left" key={index}>
+                    <div className="product-box">
+                        <Link to={`/detail/${item.slug}`}>
+                            <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
+                                <img
+                                    src={`${item.img}`}
+                                    alt=""
+                                    className="rounded-xl h-full sm:w-full md:h-full w-80"
+                                />
+                            </div>
+                            <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-lg font-semibold my-2  line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
+                                <span className="lg:pe-5 pe-3">
+                                    {`${item.title}`}
+                                </span>
+                            </div>
+                        </Link>
+
+                        <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
+                            <p>Bởi: Huy Hoàng</p>
+                        </div>
+                        <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
+                            <div className="product-box-time">
+                                <p>35 bài học</p>
+                            </div>
+                            <div className="product-box-lesson hidden sm:block">
+                                <p>7 giờ kém 10</p>
+                            </div>
+                        </div>
+                        <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
+                            {formatCurrency(item.price_discount)}
+                        </div>
+                    </div>
+                </div>
+            ))
+        ) : (
+            <p>Không có sản phẩm phù hợp ngay lúc này, thử lại sau</p>
+        )
     return (
         <>
             <>
