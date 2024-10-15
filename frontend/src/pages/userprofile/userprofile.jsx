@@ -30,17 +30,17 @@ export const UserProfile = () => {
                                     </Link>
                                 </li>
                                 <li className="py-1 px-3 rounded-md">
-                                    <Link className="hover:underline">
+                                    <Link className="hover:underline" to="/useraccount">
                                         <p>Tài khoản</p>
                                     </Link>
                                 </li>
                                 <li className="py-1 px-3 rounded-md">
-                                    <Link className="hover:underline">
+                                    <Link className="hover:underline" to="/userappearance">
                                         <p>Giao diện</p>
                                     </Link>
                                 </li>
                                 <li className="py-1 px-3 rounded-md">
-                                    <Link className="hover:underline">
+                                    <Link className="hover:underline" to="/usernoti">
                                         <p>Thông báo</p>
                                     </Link>
                                 </li>
