@@ -11,7 +11,7 @@ export const Footer = () => {
 
                             </div> */}
                             <img
-                                src="./src/assets/images/antlearn.png"
+                                src="/src/assets/images/antlearn.png"
                                 alt=""
                                 className="w-20 md:w-32 "
                             />
