@@ -19,7 +19,7 @@ export const UserProfile = () => {
                 <div className="border border-gray-200 rounded-xl px-10 py-5">
                     <div className="py-5 border-b">
                         <span className="font-semibold text-xl">Cài đặt</span>
-                        <p className="text-gray-500 text-sm">Quản lý cài đặt tài khoản của bạn và đặt tùy chọn e-mail.</p>
+                        <p className="text-gray-500 text-sm">Quản lý cài đặt tài khoản của bạn.</p>
                     </div>
                     <div className="grid grid-cols-4 gap-5 my-5">
                         <div className="col-span-1">

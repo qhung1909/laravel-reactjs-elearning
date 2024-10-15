@@ -1,19 +1,10 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
-    Cloud,
     CreditCard,
-    Github,
-    LifeBuoy,
     LogOut,
-    Mail,
-    MessageSquare,
-    Plus,
-    PlusCircle,
     Settings,
     User,
-    UserPlus,
-    Users,
 } from "lucide-react"
 
 import {
@@ -22,18 +13,9 @@ import {
     DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuPortal,
     DropdownMenuSeparator,
-    DropdownMenuSub,
-    DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-// import {
-//     Avatar,
-//     AvatarImage,
-// } from "@/components/ui/avatar"
 
 import {
     Sheet,
