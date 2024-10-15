@@ -183,7 +183,11 @@ export const Detail = () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
             console.error("No token found");
-            toast.error("Bạn chưa đăng nhập");
+            toast.error("Bạn chưa đăng nhập",{
+                style:{
+                    padding:'16px'
+                }
+            });
             return;
         }
 
@@ -191,7 +195,11 @@ export const Detail = () => {
             (item) => item.course_id === detail.course_id
         );
         if (isAlreadyAdded) {
-            toast.error("Sản phẩm này đã có trong giỏ hàng.");
+            toast.error("Sản phẩm này đã có trong giỏ hàng.",{
+                style:{
+                    padding:'16px'
+                }
+            });
             return;
         }
 
@@ -222,7 +230,11 @@ export const Detail = () => {
                     errorData.message || "Unknown error"
                 );
                 toast.error(
-                    errorData.message || "Có lỗi xảy ra khi cập nhật giỏ hàng"
+                    errorData.message || "Có lỗi xảy ra khi cập nhật giỏ hàng",{
+                        style:{
+                            padding:'16px'
+                        }
+                    }
                 );
                 return;
             }
@@ -230,12 +242,21 @@ export const Detail = () => {
             const data = await res.json();
             console.log("Order:", data.order);
             setLoading(true);
-            toast.success("Thêm thành công khóa học vào giỏ hàng!");
+            toast.success("Thêm thành công khóa học vào giỏ hàng!",{
+                style:{
+                    padding:'16px',
+                    fontSize:'14px'
+                }
+            });
 
             setCartItems((prevItems) => [...prevItems, newItem]);
         } catch (error) {
             console.log("Error:", error);
-            toast.error("Có lỗi xảy ra, vui lòng thử lại sau.");
+            toast.error("Có lỗi xảy ra, vui lòng thử lại sau.",{
+                style:{
+                    padding:'16px'
+                }
+            });
         } finally {
             setLoading(false);
         }
@@ -374,7 +395,11 @@ export const Detail = () => {
             setEditingCommentId(null);
             setEditingRating(0);
             setEditingContent("");
-            toast.success("Sửa bình luận thành công!");
+            toast.success("Sửa bình luận thành công!",{
+                style:{
+                    padding:'16px'
+                }
+            });
             fetchDetail();
         } catch (error) {
             console.error(
@@ -548,14 +573,22 @@ export const Detail = () => {
             setRating(0);
             setErrorMessage("");
             fetchDetail();
-            toast.success("Đăng thành công bình luận!");
+            toast.success("Đăng thành công bình luận!",{
+                style:{
+                    padding:'16px'
+                }
+            });
         } catch (error) {
             if (
                 error.response &&
                 error.response.data &&
                 error.response.data.error
             ) {
-                toast.error(error.response.data.error);
+                toast.error(error.response.data.error,{
+                    style:{
+                        padding:'16px'
+                    }
+                });
             } else {
                 setErrorMessage("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
             }
