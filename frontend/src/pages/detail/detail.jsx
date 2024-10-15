@@ -24,6 +24,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+import { SkeletonLoaderBanner, SkeletonLoaderProduct } from "../skeletonEffect/skeleton";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -229,7 +230,11 @@ export const Detail = () => {
         }
     };
 
-    const renderBannerDetail = (
+
+
+    const renderBannerDetail = loading ? (
+        <SkeletonLoaderBanner />
+    ) : (
         <div
             className="bg-gray-900 p-6 text-white"
             style={{ backgroundColor: "#2d2f31" }}
@@ -423,11 +428,10 @@ export const Detail = () => {
                                         {[...Array(5)].map((_, i) => (
                                             <Star
                                                 key={i}
-                                                className={`w-6 h-6 cursor-pointer ${
-                                                    i < editingRating
+                                                className={`w-6 h-6 cursor-pointer ${i < editingRating
                                                         ? "text-yellow-500"
                                                         : "text-gray-300"
-                                                }`}
+                                                    }`}
                                                 fill="currentColor"
                                                 onClick={() =>
                                                     setEditingRating(i + 1)
@@ -469,12 +473,11 @@ export const Detail = () => {
                                             <Star
                                                 key={i}
                                                 fill="currentColor"
-                                                className={`w-3 h-3 ${
-                                                    i <
-                                                    parseFloat(comment.rating)
+                                                className={`w-3 h-3 ${i <
+                                                        parseFloat(comment.rating)
                                                         ? "text-yellow-500"
                                                         : "text-gray-300"
-                                                }`}
+                                                    }`}
                                             />
                                         ))}
                                     </div>
@@ -877,9 +880,8 @@ export const Detail = () => {
                             </ul>
                             {/* Mô tả */}
                             <div
-                                className={`section-3-content ${
-                                    isSection3Expanded ? "" : "collapsed"
-                                } mt-4`}
+                                className={`section-3-content ${isSection3Expanded ? "" : "collapsed"
+                                    } mt-4`}
                             >
                                 <h2 className="text-2xl font-bold mb-4">
                                     Mô tả
@@ -1236,11 +1238,10 @@ export const Detail = () => {
                                         {[...Array(5)].map((_, i) => (
                                             <Star
                                                 key={i}
-                                                className={`w-6 h-6 cursor-pointer ${
-                                                    i < rating
+                                                className={`w-6 h-6 cursor-pointer ${i < rating
                                                         ? "text-yellow-500"
                                                         : "text-gray-300"
-                                                }`}
+                                                    }`}
                                                 fill="currentColor"
                                                 onClick={() => setRating(i + 1)} // Cập nhật số sao khi click
                                             />
@@ -1423,113 +1424,116 @@ export const Detail = () => {
                         {/* Kết thúc Section 7 */}
                     </div>
                     {/* Cột phải (thông tin mua hàng) */}
-                    <div className="w-full lg:w-1/3 px-4 mt-8 lg:mt-0 sticky-container">
-                        <div className="bg-white p-6 rounded-lg shadow-md sticky-element">
-                            <div className="mb-4">
-                                <img
-                                    src={detail.img}
-                                    alt="Preview khóa học"
-                                    className="w-full rounded-lg"
-                                    style={{ maxHeight: 150 }}
-                                />
-                            </div>
-                            <div className="flex items-center justify-between mb-1">
-                                <span className="text-3xl font-bold">
-                                    {formatCurrency(detail.price_discount)}
-                                </span>
-                                <span className="text-lg text-gray-500 line-through">
-                                    {formatCurrency(detail.price)}
-                                </span>
-                            </div>
-                            <p className="text-red-500 mb-1">
-                                Giảm {percentDiscount}%
-                            </p>
-                            <p className="text-sm text-gray-600 mb-2">
-                                6 ngày còn lại với mức giá này!
-                            </p>
-                            <button
-                                onClick={() => addToCart(items)}
-                                className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
-                            >
-                                Thêm vào giỏ hàng
-                            </button>
+                    {loading ? (
+                        <SkeletonLoaderProduct />
+                    ) : (
+                        <div className="w-full lg:w-1/3 px-4 mt-8 lg:mt-0 sticky-container">
+                            <div className="bg-white p-6 rounded-lg shadow-md sticky-element">
+                                <div className="mb-4">
+                                    <img
+                                        src={detail.img}
+                                        alt="Preview khóa học"
+                                        className="w-full rounded-lg"
+                                        style={{ maxHeight: 150 }}
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="text-3xl font-bold">
+                                        {formatCurrency(detail.price_discount)}
+                                    </span>
+                                    <span className="text-lg text-gray-500 line-through">
+                                        {formatCurrency(detail.price)}
+                                    </span>
+                                </div>
+                                <p className="text-red-500 mb-1">
+                                    Giảm {percentDiscount}%
+                                </p>
+                                <p className="text-sm text-gray-600 mb-2">
+                                    6 ngày còn lại với mức giá này!
+                                </p>
+                                <button
+                                    onClick={() => addToCart(items)}
+                                    className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
+                                >
+                                    Thêm vào giỏ hàng
+                                </button>
 
-                            <button className="w-full bg-white text-black border border-black py-2 rounded-lg mb-2 hover:bg-gray-100 transition duration-300">
-                                Mua ngay
-                            </button>
-                            <p className="text-sm text-center text-gray-600">
-                                Đảm bảo hoàn tiền trong 30 ngày
-                            </p>
-                            <div className="mt-2">
-                                <h4 className="font-semibold mb-2">
-                                    Khóa học này bao gồm:
-                                </h4>
-                                <ul className="text-sm space-y-2">
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="video"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        8,5 giờ video theo yêu cầu
-                                    </li>
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="code"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        1 bài tập coding
-                                    </li>
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="file"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        35 bài viết
-                                    </li>
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="download"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        7 tài nguyên có thể tải xuống
-                                    </li>
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="mobile"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        Truy cập trên thiết bị di động và TV
-                                    </li>
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="accessibility"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        Quyền truy cập trọn đời
-                                    </li>
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="medal"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        Chứng chỉ hoàn thành
-                                    </li>
-                                </ul>
-                                {/* <div className="mt-2">
+                                <button className="w-full bg-white text-black border border-black py-2 rounded-lg mb-2 hover:bg-gray-100 transition duration-300">
+                                    Mua ngay
+                                </button>
+                                <p className="text-sm text-center text-gray-600">
+                                    Đảm bảo hoàn tiền trong 30 ngày
+                                </p>
+                                <div className="mt-2">
+                                    <h4 className="font-semibold mb-2">
+                                        Khóa học này bao gồm:
+                                    </h4>
+                                    <ul className="text-sm space-y-2">
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="video"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            8,5 giờ video theo yêu cầu
+                                        </li>
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="code"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            1 bài tập coding
+                                        </li>
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="file"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            35 bài viết
+                                        </li>
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="download"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            7 tài nguyên có thể tải xuống
+                                        </li>
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="mobile"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            Truy cập trên thiết bị di động và TV
+                                        </li>
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="accessibility"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            Quyền truy cập trọn đời
+                                        </li>
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="medal"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            Chứng chỉ hoàn thành
+                                        </li>
+                                    </ul>
+                                    {/* <div className="mt-2">
                                     <h4 className="font-semibold mb-2">
                                         Áp dụng coupon:
                                     </h4>
@@ -1544,9 +1548,11 @@ export const Detail = () => {
                                         </button>
                                     </div>
                                 </div> */}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
+
                     {/* Kết thúc cột phải */}
                 </div>
             </div>
