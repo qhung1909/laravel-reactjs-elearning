@@ -102,6 +102,10 @@ export const FrameTeacher = () => {
     const [welcomeText, setWelcomeText] = useState('');
     const [congratulationsText, setCongratulationsText] = useState('');
 
+    const allInputsCourseMessageFilled = () => {
+        return welcomeText.trim() !== "" && congratulationsText.trim() !== "";
+      };
+
     // course overview
 
     // const [courseDescriptionText, setCourseDescriptionText] = useState('');
@@ -131,6 +135,17 @@ export const FrameTeacher = () => {
     };
 
 
+    // valuation
+    const [currency, setCurrency] = useState("");
+    const [price, setPrice] = useState("");
+
+
+
+    const allInputsValuationFilled = () => {
+        return currency !== "" && price !== "";
+      };
+
+
 
     // promotion
     const inputRef = useRef(null);
@@ -144,6 +159,19 @@ export const FrameTeacher = () => {
             setTimeout(() => setCopyText('Sao chép'), 1500);
         }
     };
+
+
+    const [isChecked, setIsChecked] = useState(false);
+
+
+
+
+    // ================================================================================
+    // ================================================================================
+    // ================================================================================
+    // ================================================================================
+    // ================================================================================
+
 
     // Học viên mục tiêu || targetStudents
 
@@ -233,6 +261,9 @@ export const FrameTeacher = () => {
                 </div>
 
                 <div className="p-10">
+                    <div>
+
+                    </div>
                     <h2 className="pb-6 font-medium text-lg">đây là chương trình giảng dạy</h2>
                 </div>
 
@@ -315,8 +346,8 @@ export const FrameTeacher = () => {
                                 <SelectContent>
                                     <SelectGroup>
                                         <SelectLabel>Ngôn ngữ</SelectLabel>
-                                        <SelectItem value="english">Tiếng Anh</SelectItem>
                                         <SelectItem value="vietnamese">Tiếng Việt</SelectItem>
+                                        <SelectItem value="english">Tiếng Anh</SelectItem>
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
@@ -381,7 +412,7 @@ export const FrameTeacher = () => {
                         <h2 className="pb-1 text-lg font-medium">Hình ảnh khóa học</h2>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="bg-red-100">
-                                {/* <img src={courseImage ? URL.createObjectURL(courseImage) : ""} alt="Hình ảnh khóa học" /> */}
+                                <img src={courseImage ? URL.createObjectURL(courseImage) : ""} alt="Hình ảnh khóa học" />
                             </div>
                             <div className="ml-12">
                                 <p className="pb-4">
@@ -389,7 +420,7 @@ export const FrameTeacher = () => {
                                 </p>
                                 <input
                                     type="file"
-                                    // onChange={(e) => setCourseImage(e.target.files[0])}
+                                    onChange={(e) => setCourseImage(e.target.files[0])}
                                     className="w-7/12 mb-2 border-slate-300 border-2 py-2 pl-3"
                                 />
                             </div>
@@ -423,7 +454,7 @@ export const FrameTeacher = () => {
                                 <p className="pb-1 font-medium">
                                     Tiền tệ
                                 </p>
-                                <Select>
+                                <Select onValueChange={setCurrency}>
                                     <SelectTrigger className="w-[180px]">
                                         <SelectValue placeholder="Chọn" />
                                     </SelectTrigger>
@@ -437,7 +468,7 @@ export const FrameTeacher = () => {
                                 <p className="pb-1 font-medium">
                                     Mức giá
                                 </p>
-                                <Select>
+                                <Select onValueChange={setPrice}>
                                     <SelectTrigger className="w-[180px]">
                                         <SelectValue placeholder="Chọn" />
                                     </SelectTrigger>
@@ -480,9 +511,10 @@ export const FrameTeacher = () => {
                         </p>
                         <div className="flex w-11/12 pb-3 relative">
                             <input
+                                readOnly
                                 ref={inputRef}
                                 className="border border-slate-600 w-full p-2"
-                                placeholder="Nhập đường dẫn"
+                                value="https://www.antlearn.com/course/draft/6238987/?referralCode=BC35172C1961B63D8CE4"
                             />
                             <button onClick={copyToClipboard} className="border border-slate-600 w-32 p-2">
                                 {copyText}
@@ -671,7 +703,7 @@ export const FrameTeacher = () => {
                             </div>
                             <div className="flex items-center space-x-2 my-4">
                                 <Checkbox
-                                    // checked={allInputsFilled()}
+                                    checked={allInputsValuationFilled()}
                                     readOnly
                                 />
                                 <label
@@ -684,11 +716,14 @@ export const FrameTeacher = () => {
                             <div className="flex items-center space-x-2 my-4">
                                 <Checkbox
                                     id="terms"
-                                    // checked={allInputsFilled()}
+                                    checked={isChecked}
                                     readOnly
                                 />
                                 <label
-                                    onClick={() => setActiveSection("promotion")}
+                                    onClick={() => {
+                                        setIsChecked(true); // Tự động tick vào checkbox
+                                        setActiveSection("promotion"); // Chuyển đến phần khuyến mại
+                                      }}
                                     className="cursor-pointer"
                                 >
                                     Khuyến mại
@@ -696,7 +731,7 @@ export const FrameTeacher = () => {
                             </div>
                             <div className="flex items-center space-x-2 mt-2 mb-8">
                                 <Checkbox
-                                    // checked={allInputsFilled()}
+                                    checked={allInputsCourseMessageFilled()}
                                     readOnly
                                 />
                                 <label
