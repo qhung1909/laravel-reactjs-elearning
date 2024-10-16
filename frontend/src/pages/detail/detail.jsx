@@ -24,6 +24,11 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+import {
+    SkeletonLoaderBanner,
+    SkeletonLoaderProduct,
+} from "../skeletonEffect/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -63,6 +68,7 @@ export const Detail = () => {
     const [user, setUser] = useState([]);
     // Fetch thông tin người dùng
     const fetchUser = async () => {
+        setLoading(true);
         const token = localStorage.getItem("access_token");
         if (!token) {
             console.error("Người dùng chưa đăng nhập.");
@@ -91,6 +97,8 @@ export const Detail = () => {
             } else {
                 console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
             }
+        } finally {
+            setLoading(false);
         }
     };
     useEffect(() => {
@@ -110,6 +118,8 @@ export const Detail = () => {
             console.error("course_id không hợp lệ.");
             return;
         }
+        setLoading(true);
+
         try {
             const res = await axios.get(`${API_URL}/comments/${course_id}`, {
                 headers: {
@@ -129,6 +139,8 @@ export const Detail = () => {
             } else {
                 console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
             }
+        } finally {
+            setLoading(false);
         }
     };
     const fetchDetail = async () => {
@@ -143,7 +155,6 @@ export const Detail = () => {
             if (res.data && res.data.course_id) {
                 setDetail(res.data);
                 fetchComments(res.data.course_id); // Truyền course_id vào hàm fetchComments
-                setLoading(false)
             } else {
                 Navigate("/404");
             }
@@ -157,6 +168,8 @@ export const Detail = () => {
                 );
                 console.error("Trạng thái lỗi:", error.response?.status);
             }
+        } finally {
+            setLoading(false); // Kết thúc tải dữ liệu
         }
     };
 
@@ -170,7 +183,11 @@ export const Detail = () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
             console.error("No token found");
-            toast.error("Bạn chưa đăng nhập");
+            toast.error("Bạn chưa đăng nhập",{
+                style:{
+                    padding:'16px'
+                }
+            });
             return;
         }
 
@@ -178,7 +195,11 @@ export const Detail = () => {
             (item) => item.course_id === detail.course_id
         );
         if (isAlreadyAdded) {
-            toast.error("Sản phẩm này đã có trong giỏ hàng.");
+            toast.error("Sản phẩm này đã có trong giỏ hàng.",{
+                style:{
+                    padding:'16px'
+                }
+            });
             return;
         }
 
@@ -190,6 +211,7 @@ export const Detail = () => {
         console.log("Item trước khi gửi:", newItem);
 
         try {
+            setLoading(true);
             const res = await fetch(`${API_URL}/auth/cart/addToCart`, {
                 method: "POST",
                 headers: {
@@ -197,7 +219,6 @@ export const Detail = () => {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-
                     items: [newItem],
                 }),
             });
@@ -209,26 +230,41 @@ export const Detail = () => {
                     errorData.message || "Unknown error"
                 );
                 toast.error(
-                    errorData.message || "Có lỗi xảy ra khi cập nhật giỏ hàng"
+                    errorData.message || "Có lỗi xảy ra khi cập nhật giỏ hàng",{
+                        style:{
+                            padding:'16px'
+                        }
+                    }
                 );
                 return;
             }
 
             const data = await res.json();
             console.log("Order:", data.order);
-            setLoading(true)
-            toast.success("Thêm thành công khóa học vào giỏ hàng!");
+            setLoading(true);
+            toast.success("Thêm thành công khóa học vào giỏ hàng!",{
+                style:{
+                    padding:'16px',
+                    fontSize:'14px'
+                }
+            });
 
             setCartItems((prevItems) => [...prevItems, newItem]);
         } catch (error) {
             console.log("Error:", error);
-            toast.error("Có lỗi xảy ra, vui lòng thử lại sau.");
+            toast.error("Có lỗi xảy ra, vui lòng thử lại sau.",{
+                style:{
+                    padding:'16px'
+                }
+            });
         } finally {
             setLoading(false);
         }
     };
 
-    const renderBannerDetail = (
+    const renderBannerDetail = loading ? (
+        <SkeletonLoaderBanner />
+    ) : (
         <div
             className="bg-gray-900 p-6 text-white"
             style={{ backgroundColor: "#2d2f31" }}
@@ -359,7 +395,11 @@ export const Detail = () => {
             setEditingCommentId(null);
             setEditingRating(0);
             setEditingContent("");
-            toast.success("Sửa thành công bình luận!");
+            toast.success("Sửa bình luận thành công!",{
+                style:{
+                    padding:'16px'
+                }
+            });
             fetchDetail();
         } catch (error) {
             console.error(
@@ -372,122 +412,124 @@ export const Detail = () => {
 
     const renderComments = (
         <div className="space-y-3">
-            {comments.length > 0 ? (
-                comments.map((comment) => (
-                    <div key={comment.comment_id} className="flex items-start">
-                        <Avatar>
-                            <AvatarFallback>Avatar</AvatarFallback>
-                            <AvatarImage
-                                src="https://github.com/shadcn.png"
-                                alt="@shadcn"
-                            />
-                        </Avatar>
-                        <div className="ml-3 w-full">
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center">
-                                    <span className="font-semibold">
-                                        user_id: {comment.user_id}
-                                    </span>
-                                    <span className="text-gray-500 text-sm ml-2">
-                                        {formatDate(comment.updated_at)}
-                                    </span>
-                                </div>
+            {comments.length > 0
+                ? comments.map((comment) => (
+                      <div
+                          key={comment.comment_id}
+                          className="flex items-start"
+                      >
+                          <Avatar>
+                              <AvatarFallback>Avatar</AvatarFallback>
+                              <AvatarImage
+                                  src="https://github.com/shadcn.png"
+                                  alt="@shadcn"
+                              />
+                          </Avatar>
+                          <div className="ml-3 w-full">
+                              <div className="flex justify-between items-center">
+                                  <div className="flex items-center">
+                                      <span className="font-semibold">
+                                          user_id: {comment.user_id}
+                                      </span>
+                                      <span className="text-gray-500 text-sm ml-2">
+                                          {formatDate(comment.updated_at)}
+                                      </span>
+                                  </div>
 
-                                {user && user.user_id === comment.user_id && (
-                                    <div className="flex space-x-2">
-                                        <button
-                                            onClick={() => editComment(comment)}
-                                            className="text-blue-500"
-                                        >
-                                            <Edit className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() =>
-                                                deleteComment(
-                                                    comment.comment_id
-                                                )
-                                            }
-                                            className="text-red-500"
-                                        >
-                                            <Trash className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+                                  {user && user.user_id === comment.user_id && (
+                                      <div className="flex space-x-2">
+                                          <button
+                                              onClick={() =>
+                                                  editComment(comment)
+                                              }
+                                              className="text-blue-500"
+                                          >
+                                              <Edit className="w-4 h-4" />
+                                          </button>
+                                          <button
+                                              onClick={() =>
+                                                  deleteComment(
+                                                      comment.comment_id
+                                                  )
+                                              }
+                                              className="text-red-500"
+                                          >
+                                              <Trash className="w-4 h-4" />
+                                          </button>
+                                      </div>
+                                  )}
+                              </div>
 
-                            {/* Hiển thị form chỉnh sửa nếu đang trong chế độ chỉnh sửa */}
-                            {editingCommentId === comment.comment_id ? (
-                                <div>
-                                    <div className="flex items-center space-x-1 mt-2">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                className={`w-6 h-6 cursor-pointer ${
-                                                    i < editingRating
-                                                        ? "text-yellow-500"
-                                                        : "text-gray-300"
-                                                }`}
-                                                fill="currentColor"
-                                                onClick={() =>
-                                                    setEditingRating(i + 1)
-                                                }
-                                            />
-                                        ))}
-                                    </div>
+                              {editingCommentId === comment.comment_id ? (
+                                  <div>
+                                      <div className="flex items-center space-x-1 mt-2">
+                                          {[...Array(5)].map((_, i) => (
+                                              <Star
+                                                  key={i}
+                                                  className={`w-6 h-6 cursor-pointer ${
+                                                      i < editingRating
+                                                          ? "text-yellow-500"
+                                                          : "text-gray-300"
+                                                  }`}
+                                                  fill="currentColor"
+                                                  onClick={() =>
+                                                      setEditingRating(i + 1)
+                                                  }
+                                              />
+                                          ))}
+                                      </div>
 
-                                    <textarea
-                                        value={editingContent}
-                                        onChange={(e) =>
-                                            setEditingContent(e.target.value)
-                                        }
-                                        className="w-full border rounded p-2 mt-1"
-                                    />
-                                    <div className="mt-2">
-                                        <button
-                                            onClick={() =>
-                                                updateComment(
-                                                    comment.comment_id
-                                                )
-                                            }
-                                            className="bg-blue-500 text-white px-3 py-1 rounded"
-                                        >
-                                            Lưu
-                                        </button>
-                                        <button
-                                            onClick={cancelEdit}
-                                            className="bg-gray-500 text-white px-3 py-1 rounded ml-2"
-                                        >
-                                            Hủy
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div>
-                                    <div className="text-yellow-500 flex">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                fill="currentColor"
-                                                className={`w-3 h-3 ${
-                                                    i <
-                                                    parseFloat(comment.rating)
-                                                        ? "text-yellow-500"
-                                                        : "text-gray-300"
-                                                }`}
-                                            />
-                                        ))}
-                                    </div>
-                                    <p className="mt-1 text-sm">
-                                        {comment.content}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                ))
-            ) : (
-                <p>Chưa có bình luận nào.</p>
-            )}
+                                      <textarea
+                                          value={editingContent}
+                                          onChange={(e) =>
+                                              setEditingContent(e.target.value)
+                                          }
+                                          className="w-full border rounded p-2 mt-1"
+                                      />
+                                      <div className="mt-2">
+                                          <button
+                                              onClick={() =>
+                                                  updateComment(
+                                                      comment.comment_id
+                                                  )
+                                              }
+                                              className="bg-blue-500 text-white px-3 py-1 rounded"
+                                          >
+                                              Lưu
+                                          </button>
+                                          <button
+                                              onClick={cancelEdit}
+                                              className="bg-gray-500 text-white px-3 py-1 rounded ml-2"
+                                          >
+                                              Hủy
+                                          </button>
+                                      </div>
+                                  </div>
+                              ) : (
+                                  <div>
+                                      <div className="text-yellow-500 flex">
+                                          {[...Array(5)].map((_, i) => (
+                                              <Star
+                                                  key={i}
+                                                  fill="currentColor"
+                                                  className={`w-3 h-3 ${
+                                                      i <
+                                                      parseFloat(comment.rating)
+                                                          ? "text-yellow-500"
+                                                          : "text-gray-300"
+                                                  }`}
+                                              />
+                                          ))}
+                                      </div>
+                                      <p className="mt-1 text-sm">
+                                          {comment.content}
+                                      </p>
+                                  </div>
+                              )}
+                          </div>
+                      </div>
+                  ))
+                : comments.length === 0 && <p>Chưa có bình luận nào.</p>}
             <Toaster />
         </div>
     );
@@ -510,6 +552,7 @@ export const Detail = () => {
             );
             return;
         }
+
         try {
             const commentData = {
                 rating,
@@ -526,20 +569,26 @@ export const Detail = () => {
                     },
                 }
             );
-            // Reset comment và rating
             setComment("");
             setRating(0);
             setErrorMessage("");
-            fetchDetail(); // Fetch lại chi tiết sau khi thêm comment
-            toast.success("Đăng thành công bình luận!");
+            fetchDetail();
+            toast.success("Đăng thành công bình luận!",{
+                style:{
+                    padding:'16px'
+                }
+            });
         } catch (error) {
-            // Kiểm tra nếu phản hồi lỗi từ backend chứa thông báo
             if (
                 error.response &&
                 error.response.data &&
                 error.response.data.error
             ) {
-                toast.error(error.response.data.error); // Hiển thị thông báo từ backend
+                toast.error(error.response.data.error,{
+                    style:{
+                        padding:'16px'
+                    }
+                });
             } else {
                 setErrorMessage("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
             }
@@ -582,12 +631,6 @@ export const Detail = () => {
 
     return (
         <>
-
-            {loading && (
-                <div className='loading'>
-                    <div className='loading-spin'></div>
-                </div>
-            )}
             {/* Banner */}
             {renderBannerDetail}
             {/* Kết thúc Banner */}
@@ -1231,7 +1274,11 @@ export const Detail = () => {
                             {/* Phần bình luận */}
                             <div>
                                 <h3 className="text-base font-semibold mb-2">
-                                    {comments.length || 0} Bình luận
+                                    {loading ? (
+                                        <Skeleton className="h-4 w-[100px]" />
+                                    ) : (
+                                        <>{comments.length || 0} Bình luận</>
+                                    )}
                                 </h3>
                                 <div className="space-y-3 mb-3">
                                     {/*phần chọn sao */}
@@ -1426,113 +1473,116 @@ export const Detail = () => {
                         {/* Kết thúc Section 7 */}
                     </div>
                     {/* Cột phải (thông tin mua hàng) */}
-                    <div className="w-full lg:w-1/3 px-4 mt-8 lg:mt-0 sticky-container">
-                        <div className="bg-white p-6 rounded-lg shadow-md sticky-element">
-                            <div className="mb-4">
-                                <img
-                                    src={detail.img}
-                                    alt="Preview khóa học"
-                                    className="w-full rounded-lg"
-                                    style={{ maxHeight: 150 }}
-                                />
-                            </div>
-                            <div className="flex items-center justify-between mb-1">
-                                <span className="text-3xl font-bold">
-                                    {formatCurrency(detail.price_discount)}
-                                </span>
-                                <span className="text-lg text-gray-500 line-through">
-                                    {formatCurrency(detail.price)}
-                                </span>
-                            </div>
-                            <p className="text-red-500 mb-1">
-                                Giảm {percentDiscount}%
-                            </p>
-                            <p className="text-sm text-gray-600 mb-2">
-                                6 ngày còn lại với mức giá này!
-                            </p>
-                            <button
-                                onClick={() => addToCart(items)}
-                                className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
-                            >
-                                Thêm vào giỏ hàng
-                            </button>
+                    {loading ? (
+                        <SkeletonLoaderProduct />
+                    ) : (
+                        <div className="w-full lg:w-1/3 px-4 mt-8 lg:mt-0 sticky-container">
+                            <div className="bg-white p-6 rounded-lg shadow-md sticky-element">
+                                <div className="mb-4">
+                                    <img
+                                        src={detail.img}
+                                        alt="Preview khóa học"
+                                        className="w-full rounded-lg"
+                                        style={{ maxHeight: 150 }}
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="text-3xl font-bold">
+                                        {formatCurrency(detail.price_discount)}
+                                    </span>
+                                    <span className="text-lg text-gray-500 line-through">
+                                        {formatCurrency(detail.price)}
+                                    </span>
+                                </div>
+                                <p className="text-red-500 mb-1">
+                                    Giảm {percentDiscount}%
+                                </p>
+                                <p className="text-sm text-gray-600 mb-2">
+                                    6 ngày còn lại với mức giá này!
+                                </p>
+                                <button
+                                    onClick={() => addToCart(items)}
+                                    className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
+                                >
+                                    Thêm vào giỏ hàng
+                                </button>
 
-                            <button className="w-full bg-white text-black border border-black py-2 rounded-lg mb-2 hover:bg-gray-100 transition duration-300">
-                                Mua ngay
-                            </button>
-                            <p className="text-sm text-center text-gray-600">
-                                Đảm bảo hoàn tiền trong 30 ngày
-                            </p>
-                            <div className="mt-2">
-                                <h4 className="font-semibold mb-2">
-                                    Khóa học này bao gồm:
-                                </h4>
-                                <ul className="text-sm space-y-2">
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="video"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        8,5 giờ video theo yêu cầu
-                                    </li>
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="code"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        1 bài tập coding
-                                    </li>
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="file"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        35 bài viết
-                                    </li>
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="download"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        7 tài nguyên có thể tải xuống
-                                    </li>
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="mobile"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        Truy cập trên thiết bị di động và TV
-                                    </li>
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="accessibility"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        Quyền truy cập trọn đời
-                                    </li>
-                                    <li className="flex items-center">
-                                        <box-icon
-                                            name="medal"
-                                            color="#10B981"
-                                            class="w-4 h-4 mr-2"
-                                            size="sm"
-                                        ></box-icon>
-                                        Chứng chỉ hoàn thành
-                                    </li>
-                                </ul>
-                                {/* <div className="mt-2">
+                                <button className="w-full bg-white text-black border border-black py-2 rounded-lg mb-2 hover:bg-gray-100 transition duration-300">
+                                    Mua ngay
+                                </button>
+                                <p className="text-sm text-center text-gray-600">
+                                    Đảm bảo hoàn tiền trong 30 ngày
+                                </p>
+                                <div className="mt-2">
+                                    <h4 className="font-semibold mb-2">
+                                        Khóa học này bao gồm:
+                                    </h4>
+                                    <ul className="text-sm space-y-2">
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="video"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            8,5 giờ video theo yêu cầu
+                                        </li>
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="code"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            1 bài tập coding
+                                        </li>
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="file"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            35 bài viết
+                                        </li>
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="download"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            7 tài nguyên có thể tải xuống
+                                        </li>
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="mobile"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            Truy cập trên thiết bị di động và TV
+                                        </li>
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="accessibility"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            Quyền truy cập trọn đời
+                                        </li>
+                                        <li className="flex items-center">
+                                            <box-icon
+                                                name="medal"
+                                                color="#10B981"
+                                                class="w-4 h-4 mr-2"
+                                                size="sm"
+                                            ></box-icon>
+                                            Chứng chỉ hoàn thành
+                                        </li>
+                                    </ul>
+                                    {/* <div className="mt-2">
                                     <h4 className="font-semibold mb-2">
                                         Áp dụng coupon:
                                     </h4>
@@ -1547,9 +1597,11 @@ export const Detail = () => {
                                         </button>
                                     </div>
                                 </div> */}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
+
                     {/* Kết thúc cột phải */}
                 </div>
             </div>

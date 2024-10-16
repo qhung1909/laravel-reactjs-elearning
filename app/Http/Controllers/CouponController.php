@@ -91,7 +91,7 @@ class CouponController extends Controller
 
         $order->total_price = $newTotalPrice;
         $order->coupon_id = $coupon->coupon_id;
-        $order->updated_at = now(); 
+        $order->updated_at = now();
 
         try {
             $order->save();

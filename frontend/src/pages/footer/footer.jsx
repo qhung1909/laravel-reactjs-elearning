@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom"
+
 export const Footer = () => {
     return (
         <>
@@ -11,7 +13,7 @@ export const Footer = () => {
 
                             </div> */}
                             <img
-                                src="./src/assets/images/antlearn.png"
+                                src="/src/assets/images/antlearn.png"
                                 alt=""
                                 className="w-20 md:w-32 "
                             />
@@ -26,9 +28,9 @@ export const Footer = () => {
                                         Sản phẩm
                                     </span>
                                     <ul className="mt-2">
-                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9 sm:leading-7 leading-loose ">Khóa học</li>
-                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9 sm:leading-7 leading-loose">Bài viết</li>
-                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9 sm:leading-7 leading-loose">Liên hệ</li>
+                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9 sm:leading-7 leading-loose "><Link to='/courses'>Khóa học</Link></li>
+                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9 sm:leading-7 leading-loose"><Link to='/blog'>Bài viết</Link></li>
+                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9 sm:leading-7 leading-loose"><Link to='/contact'>Liên hệ</Link></li>
                                     </ul>
                                 </div>
 
@@ -58,7 +60,7 @@ export const Footer = () => {
                                         placeholder="Email"
                                         className="px-2 xl:py-3 border lg:py-3 sm:py-2 py-2 xl:w-[250px] lg:w-[230px] md:w-[300px] sm:w-[300px] w-[200px]  rounded-xl text-[14px]"
                                     />
-                                    <button className=" font-semibold bg-yellow-400 lg:px-4 rounded-xl py-1 sm:py-2 px-2 sm:w-[300px] md:w-auto lg:ms-3 ms-0 lg:my-0 md:my-2 my-0 font-semiboldtext-[14px] md:px-[8px]">
+                                    <button className=" bg-yellow-400 lg:px-4 rounded-xl py-1 sm:py-2 px-2 sm:w-[300px] lg:w-24 lg:ms-3 ms-0 lg:my-0 md:my-2 my-0 font-semibold text-[14px] md:px-[8px]">
                                         Đăng ký
                                     </button>
                                 </div>

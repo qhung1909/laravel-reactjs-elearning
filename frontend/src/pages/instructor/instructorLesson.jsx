@@ -26,8 +26,8 @@ export const InstructorLesson = () => {
                         <div className="p-3">
                             {/* logo */}
                             <div className="p-4 flex justify-between items-center">
-                                <div className="logo ml-[-35px]">
-                                    <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-32 h-14 object-cover" />
+                            <div className="logo ">
+                                    <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                 </div>
                                 <div className="logout">
                                     <svg width="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="duration-200 ease-out transition transform">
@@ -139,9 +139,9 @@ export const InstructorLesson = () => {
                                                     <SheetHeader>
                                                         <SheetTitle>
                                                             <div className="p-4 flex justify-between items-center border-b-[1px]">
-                                                                <div className="logo ml-[-35px]">
-                                                                    <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-32 h-14 object-cover" />
-                                                                </div>
+                                                                <div className="logo ">
+                                                                    <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
+                                                                 </div>
                                                             </div>
                                                         </SheetTitle>
                                                         <SheetDescription>

@@ -4,16 +4,20 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\QuizController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CheckAuthMessage;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\EnrollController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\QuizAnswController;
 use Symfony\Component\Mime\MessageConverter;
+use App\Http\Controllers\QuizQuestionController;
 
 // Authentication
 Route::group([
@@ -30,13 +34,13 @@ Route::group([
     Route::get('/cart', [CartController::class, 'getCart']);
 
 });
-
+//Register
 Route::post('register', [UserController::class, 'register']);
 Route::get('/verify-email/{token}', [UserController::class, 'verifyEmail'])->name('verify.email');
-
+//Payment VNPay
 Route::post('/vnpay-payment', [CartController::class, 'vnpay_payment']);
 Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
-
+//Coupons check
 Route::post('/check-discount', [CouponController::class, 'checkDiscount']);
 
 Route::middleware(['admin'])->group(function () {
@@ -51,13 +55,13 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('course/{slug}', [CourseController::class, 'delete'])->name('courses.delete');
     Route::get('courses/featured', [CourseController::class, 'featureCouse']);
 
-
+    //Comment
     Route::get('/comments/{course_id}', [CommentController::class, 'index']);
     Route::post('/courses/{slug}/comments', [CommentController::class, 'store'])->middleware(CheckAuthMessage::class);
     Route::put('/comments/{commentId}', [CommentController::class, 'update'])->middleware(CheckAuthMessage::class);
     Route::delete('/comments/{commentId}', [CommentController::class, 'destroy'])->middleware(CheckAuthMessage::class);
 
-
+    //Categories
     Route::prefix('categories')->group(function () {
         Route::get('/', [CategoryController::class, 'index']);
         Route::get('{slug}', [CategoryController::class, 'show']);
@@ -65,14 +69,22 @@ Route::middleware(['admin'])->group(function () {
         Route::put('{slug}', [CategoryController::class, 'update']);
         Route::delete('{slug}', [CategoryController::class, 'delete']);
     });
-
+    //Lessons
     Route::get('/lessons', [LessonController::class, 'index']);
     Route::get('/lessons/{slug}', [LessonController::class, 'show']);
     Route::post('/lessons', [LessonController::class, 'store']);
     Route::put('/lessons/{slug}', [LessonController::class, 'update']);
     Route::delete('/lessons/{slug}', [LessonController::class, 'delete']);
+    //Coupons
     Route::apiResource('coupons', CouponController::class);
+    //Quiz
+    Route::apiResource('quizzes', QuizController::class);
 
+    Route::apiResource('quizzes/{quiz}/questions', QuizQuestionController::class);
+
+    Route::apiResource('questions/{question}/answers', QuizAnswController::class);
+    //Enrolls
+    Route::apiResource('enrolls', EnrollController::class);
 });
 
 

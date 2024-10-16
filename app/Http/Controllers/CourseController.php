@@ -23,10 +23,10 @@ class CourseController extends Controller
         $courses = Cache::remember('courses', 120, function () {
             return $this->course->all();
         });
-    
+
         return response()->json($courses);
     }
-    
+
 
     public function topPurchasedCourses()
     {
@@ -178,7 +178,7 @@ class CourseController extends Controller
             'course' => $course
         ], 200);
     }
-    
+
     private function handleImageUpload(Request $request, $currentImage = null)
     {
         if ($request->hasFile('img')) {
