@@ -26,6 +26,14 @@ import { UserProfile } from "./pages/userprofile/userprofile.jsx";
 import { UserAccount } from "./pages/userprofile/useraccount.jsx";
 import { UserNoti } from "./pages/userprofile/usernoti.jsx";
 import ScrollToTop from "./pages/scrollToTop/scrollToTop.jsx";
+import { QuizSingleChoice } from "./pages/quizzes/quizSingleChoice.jsx";
+import { QuizFillInBlank } from "./pages/quizzes/quizFillInBlank.jsx";
+import { QuizMultipleChoice } from "./pages/quizzes/quizMultipleChoice.jsx";
+import { QuizTrueFalse } from "./pages/quizzes/quizTrueFalse.jsx";
+
+
+
+
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === '/admin';
@@ -61,6 +69,10 @@ function AppContent() {
                 <Route path="/payment" element={<Payment />}></Route>
                 <Route path="/cart" element={<Cart />}></Route>
                 <Route path="/verification-success" element={<VerificationEmail />}></Route>
+                <Route path="/quizSingleChoice" element={<QuizSingleChoice/>}></Route>
+                <Route path="/quizFillInBlank" element={<QuizFillInBlank/>}></Route>
+                <Route path="/quizMultipleChoice" element={<QuizMultipleChoice/>}></Route>
+                <Route path="/quizTrueFlase" element={<QuizTrueFalse/>}></Route>
 
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}

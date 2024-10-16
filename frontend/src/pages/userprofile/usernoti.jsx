@@ -9,21 +9,21 @@ import { Checkbox } from "@/components/ui/checkbox"
 export const UserNoti = () => {
     return (
         <>
-            <section className="useraccount my-10 mx-auto max-w-screen-xl">
-                <div className="border border-gray-200 rounded-xl px-10 py-5">
+            <section className="usernoti my-10 mx-auto  px-4 lg:px-10 xl:px-20">
+                <div className="border border-gray-200 rounded-xl px-10 py-5 shadow-lg">
                     <div className="py-5 border-b">
                         <span className="font-semibold text-xl">Cài đặt</span>
                         <p className="text-gray-500 text-sm">Quản lý cài đặt tài khoản của bạn</p>
                     </div>
-                    <div className="grid grid-cols-4 gap-5 my-5">
-                        <div className="col-span-1">
-                            <ul className="space-y-3 text-sm font-medium">
-                                <li className="py-1 px-3 rounded-md">
+                    <div className="lg:grid grid-cols-4 gap-5 ">
+                        <div className="col-span-1 my-3 lg:my-5 ">
+                            <ul className="gap-3 text-sm font-medium max-lg:items-center flex lg:flex-col">
+                                <li className=" py-1 lg:py-1 px-3 rounded-md">
                                     <Link className="hover:underline" to="/userprofile">
                                         <p>Hồ sơ cá nhân</p>
                                     </Link>
                                 </li>
-                                <li className="py-1 px-3 rounded-md">
+                                <li className="py-3 lg:py-1 px-3 rounded-md">
                                     <Link className="hover:underline" to="/useraccount">
                                         <p>Tài khoản</p>
                                     </Link>
@@ -33,14 +33,14 @@ export const UserNoti = () => {
                                         <p>Giao diện</p>
                                     </Link>
                                 </li> */}
-                                <li className="bg-gray-100 py-1 px-3 rounded-md">
+                                <li className=" bg-gray-100 py-3 lg:py-1 px-3 rounded-md">
                                     <Link to="/usernoti">
                                         <p>Thông báo</p>
                                     </Link>
                                 </li>
                             </ul>
                         </div>
-                        <div className="col-span-3">
+                        <div className="col-span-3 my-3 lg:my-5">
                             <div className="border-b pb-5">
                                 <span className="font-medium">Thông báo</span>
                                 <p className="text-sm text-gray-500 ">Tinh chỉnh lại cách bạn nhận thông báo</p>
@@ -50,7 +50,7 @@ export const UserNoti = () => {
                                     <div className="">
                                         <span className="font-medium">Thông báo cho tôi về...</span>
                                         <div className="my-3">
-                                            <RadioGroup defaultValue="option-one">
+                                            <RadioGroup defaultValue="option-one" className="text-sm">
                                                 <div className="flex items-center space-x-2">
                                                     <RadioGroupItem value="option-one" id="option-one" />
                                                     <Label htmlFor="option-one">Tất cả thông báo</Label>
@@ -60,7 +60,7 @@ export const UserNoti = () => {
                                                     <Label htmlFor="option-two">Tin nhắn trực tiếp và các đề cập</Label>
                                                 </div>
                                                 <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="option-two" id="option-two" />
+                                                    <RadioGroupItem value="option-three" id="option-three" />
                                                     <Label htmlFor="option-two">Không nhận</Label>
                                                 </div>
                                             </RadioGroup>
@@ -73,7 +73,7 @@ export const UserNoti = () => {
                                             <div className="flex items-center justify-between border rounded-md px-5 py-3 my-4">
                                                 <div className="">
                                                     <Label className="font-medium">Email liên lạc</Label>
-                                                    <p>Nhận email về hoạt động tài khoản của bạn</p>
+                                                    <p className="text-sm text-gray-500">Nhận email về hoạt động tài khoản của bạn</p>
                                                 </div>
                                                 <div className="">
                                                     <Switch />
@@ -83,7 +83,7 @@ export const UserNoti = () => {
                                             <div className="flex items-center justify-between border rounded-md px-5 py-3 my-4">
                                                 <div className="">
                                                     <Label className="font-medium">Email marketing</Label>
-                                                    <p>Nhận email về các sản phẩm, tính năng mới và hơn thế nữa</p>
+                                                    <p className="text-sm text-gray-500">Nhận email về các sản phẩm, tính năng mới và hơn thế nữa</p>
                                                 </div>
                                                 <div className="">
                                                     <Switch />
@@ -93,7 +93,7 @@ export const UserNoti = () => {
                                             <div className="flex items-center justify-between border rounded-md px-5 py-3 my-4">
                                                 <div className="">
                                                     <Label className="font-medium">Email bảo mật</Label>
-                                                    <p>Nhận email về hoạt động và bảo mật tài khoản của bạn.</p>
+                                                    <p className="text-sm text-gray-500">Nhận email về hoạt động và bảo mật tài khoản của bạn.</p>
                                                 </div>
                                                 <div className="">
                                                     <Switch />
@@ -102,14 +102,14 @@ export const UserNoti = () => {
 
                                         </div>
                                     </div>
-                                    <div className="my-3">
+                                    <div className="my-5">
                                         <div className="flex gap-3">
                                             <div className="">
                                                 <Checkbox></Checkbox>
                                             </div>
                                             <div className="">
                                                 <Label className="font-medium">Sử dụng cài đặt khác nhau cho thiết bị điện thoại</Label>
-                                                <p>Bạn có thể quản lý thông báo trên thiết bị di động của mình trong trang cài đặt trên thiết bị di động</p>
+                                                <p className="text-sm text-gray-500">Bạn có thể quản lý thông báo trên thiết bị di động của mình trong trang cài đặt trên thiết bị di động</p>
                                             </div>
                                         </div>
                                     </div>

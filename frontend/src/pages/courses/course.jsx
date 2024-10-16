@@ -34,6 +34,11 @@ console.log(API_KEY);
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Courses = () => {
+
+
+
+
+
     const [courses, setCourses] = useState([]);
     const [coursesPerPage] = useState(4);
     const [loading, setLoading] = useState(false)
@@ -444,24 +449,24 @@ export const Courses = () => {
                     Nhiều học viên thích khóa học được đánh giá cao này vì nội
                     dung hấp dẫn của nó.
                 </p>
-                <Carousel>
-                    <CarouselContent>
-                        <CarouselItem>
-                            {render_course_hot[0]} {/* Hiển thị item đầu tiên */}
-                        </CarouselItem>
-                        <CarouselItem>
-                            {render_course_hot[1]} {/* Hiển thị item thứ hai */}
-                        </CarouselItem>
-                        <CarouselItem>
-                            {render_course_hot[2]} {/* Hiển thị item thứ ba */}
-                        </CarouselItem>
-                    </CarouselContent>
-                    {/* Đặt nút điều hướng bên ngoài CarouselContent */}
-                    <div className="flex justify-between items-center absolute w-full top-1/2 transform -translate-y-1/2">
-                        <CarouselPrevious className="z-10" />
-                        <CarouselNext className="z-10" />
-                    </div>
-                </Carousel>
+                    <Carousel>
+                        <CarouselContent>
+                            <CarouselItem>
+                                {render_course_hot[0]} {/* Hiển thị item đầu tiên */}
+                            </CarouselItem>
+                            <CarouselItem>
+                                {render_course_hot[1]} {/* Hiển thị item thứ hai */}
+                            </CarouselItem>
+                            <CarouselItem>
+                                {render_course_hot[2]} {/* Hiển thị item thứ ba */}
+                            </CarouselItem>
+                        </CarouselContent>
+                        {/* Đặt nút điều hướng bên ngoài CarouselContent */}
+                        <div className="flex justify-between items-center absolute w-full top-1/2 transform -translate-y-1/2">
+                            <CarouselPrevious className="z-10" />
+                            <CarouselNext className="z-10" />
+                        </div>
+                    </Carousel>
 
 
                 {/* Chủ đề phổ biến */}
