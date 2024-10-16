@@ -60,7 +60,7 @@ export const UserNoti = () => {
                                                     <Label htmlFor="option-two">Tin nhắn trực tiếp và các đề cập</Label>
                                                 </div>
                                                 <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="option-two" id="option-two" />
+                                                    <RadioGroupItem value="option-three" id="option-three" />
                                                     <Label htmlFor="option-two">Không nhận</Label>
                                                 </div>
                                             </RadioGroup>
