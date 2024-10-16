@@ -1,5 +1,5 @@
 import { Checkbox } from "@/components/ui/checkbox"
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Footer } from "../footer/footer";
 import ReactQuill from 'react-quill';
@@ -15,6 +15,21 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 export const FrameTeacher = () => {
+
+    // alert reload
+    const handleBeforeUnload = (event) => {
+        const message = "Bạn có chắc chắn muốn rời khỏi trang? Tất cả nội dung đã nhập sẽ bị mất!";
+        event.returnValue = message; // Trình duyệt sẽ hiển thị thông báo này
+        return message; // Một số trình duyệt vẫn cần giá trị trả về
+    };
+
+    useEffect(() => {
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
 
     const [inputs, setInputs] = useState([
         "Ví dụ: Xác định vai trò và trách nhiệm của người quản lý dự án",
@@ -80,6 +95,21 @@ export const FrameTeacher = () => {
 
     // course overview
     const [courseDescriptionText, setCourseDescriptionText] = useState('');
+
+
+
+    // promotion
+    const inputRef = useRef(null);
+    const [copyText, setCopyText] = useState('Sao chép');
+
+    const copyToClipboard = () => {
+        if (inputRef.current) {
+            inputRef.current.select();
+            document.execCommand('copy');
+            setCopyText('Đã sao chép');
+            setTimeout(() => setCopyText('Sao chép'), 1500);
+        }
+    };
 
     const targetStudents = () => {
         return (
@@ -423,9 +453,15 @@ export const FrameTeacher = () => {
                         <p className="pb-3">
                             Bất cứ khi nào học viên sử dụng đường liên kết này để mua khóa học. Chúng tôi sẽ tính doanh thu cho bạn.
                         </p>
-                        <div className="flex w-11/12 pb-3">
-                            <input className="border border-slate-600 w-full  p-2" placeholder="Nhập đường dẫn" />
-                            <button className="border border-slate-600 w-32 p-2">Sao chép</button>
+                        <div className="flex w-11/12 pb-3 relative">
+                            <input
+                                ref={inputRef}
+                                className="border border-slate-600 w-full p-2"
+                                placeholder="Nhập đường dẫn"
+                            />
+                            <button onClick={copyToClipboard} className="border border-slate-600 w-32 p-2">
+                                {copyText}
+                            </button>
                         </div>
 
                     </div>
