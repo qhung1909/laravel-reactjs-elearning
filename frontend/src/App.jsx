@@ -25,6 +25,7 @@ import Demo from "./pages/teacher/demo.jsx";
 import { UserProfile } from "./pages/userprofile/userprofile.jsx";
 import { UserAccount } from "./pages/userprofile/useraccount.jsx";
 import { UserNoti } from "./pages/userprofile/usernoti.jsx";
+import ScrollToTop from "./pages/scrollToTop/scrollToTop.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === '/admin';
@@ -32,6 +33,7 @@ function AppContent() {
 
     return (
         <>
+            <ScrollToTop />
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
                 <Route path="/demo" element={<Demo/>}></Route>

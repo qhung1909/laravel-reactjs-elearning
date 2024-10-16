@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom"
+
 export const Footer = () => {
     return (
         <>
@@ -26,9 +28,9 @@ export const Footer = () => {
                                         Sản phẩm
                                     </span>
                                     <ul className="mt-2">
-                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9 sm:leading-7 leading-loose ">Khóa học</li>
-                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9 sm:leading-7 leading-loose">Bài viết</li>
-                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9 sm:leading-7 leading-loose">Liên hệ</li>
+                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9 sm:leading-7 leading-loose "><Link to='/courses'>Khóa học</Link></li>
+                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9 sm:leading-7 leading-loose"><Link to='/blog'>Bài viết</Link></li>
+                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9 sm:leading-7 leading-loose"><Link to='/contact'>Liên hệ</Link></li>
                                     </ul>
                                 </div>
 

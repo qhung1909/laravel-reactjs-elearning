@@ -1,5 +1,5 @@
 import { Checkbox } from "@/components/ui/checkbox"
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Footer } from "../footer/footer";
 import ReactQuill from 'react-quill';
@@ -16,6 +16,25 @@ import {
 } from "@/components/ui/select"
 export const FrameTeacher = () => {
 
+
+    // start-alert reload
+    const handleBeforeUnload = (event) => {
+        const message = "Bạn có chắc chắn muốn rời khỏi trang? Tất cả nội dung đã nhập sẽ bị mất!";
+        event.returnValue = message; // Trình duyệt sẽ hiển thị thông báo này
+        return message; // Một số trình duyệt vẫn cần giá trị trả về
+    };
+
+    useEffect(() => {
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
+    // end-aler reload
+
+
+    // start-Học viên mục tiêu
     const [inputs, setInputs] = useState([
         "Ví dụ: Xác định vai trò và trách nhiệm của người quản lý dự án",
         "Ví dụ: Ước tính tiến độ và ngân sách dự án",
@@ -67,19 +86,66 @@ export const FrameTeacher = () => {
     };
 
     const allInputsFilled = () => {
-        return values.every(value => value.trim() !== "") &&
-            requirementValues.every(value => value.trim() !== "") &&
-            audienceValues.every(value => value.trim() !== "");
+        const goalsFilled = values.filter(value => value.trim() !== "").length >= 3;
+        const requirementsFilled = requirementValues.filter(value => value.trim() !== "").length >= 1;
+        const audiencesFilled = audienceValues.filter(value => value.trim() !== "").length >= 1;
+
+        return goalsFilled && requirementsFilled && audiencesFilled;
     };
 
+    // end-Học viên mục tiêu
+
     const [activeSection, setActiveSection] = useState("targetStudents");
+
 
     // courseMessage
     const [welcomeText, setWelcomeText] = useState('');
     const [congratulationsText, setCongratulationsText] = useState('');
 
     // course overview
-    const [courseDescriptionText, setCourseDescriptionText] = useState('');
+
+    // const [courseDescriptionText, setCourseDescriptionText] = useState('');
+    const [courseTitle, setCourseTitle] = useState("");
+    const [courseSubtitle, setCourseSubtitle] = useState("");
+    const [courseDescriptionText, setCourseDescriptionText] = useState("");
+    const [selectedLanguage, setSelectedLanguage] = useState("");
+    const [selectedLevel, setSelectedLevel] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedTopic, setSelectedTopic] = useState("");
+    const [mainContent, setMainContent] = useState("");
+    const [courseImage, setCourseImage] = useState(null);
+
+    const allInputsCourseFilled = () => {
+        return (
+            courseTitle.trim() !== "" &&
+            courseSubtitle.trim() !== "" &&
+            // courseDescriptionText.trim().length >= 200 &&
+            courseDescriptionText.trim() !== "" &&
+            selectedLanguage !== "" &&
+            selectedLevel !== "" &&
+            selectedCategory !== "" &&
+            selectedTopic !== "" &&
+            mainContent.trim() !== ""
+            // courseImage // Kiểm tra nếu có hình ảnh
+        );
+    };
+
+
+
+    // promotion
+    const inputRef = useRef(null);
+    const [copyText, setCopyText] = useState('Sao chép');
+
+    const copyToClipboard = () => {
+        if (inputRef.current) {
+            inputRef.current.select();
+            document.execCommand('copy');
+            setCopyText('Đã sao chép');
+            setTimeout(() => setCopyText('Sao chép'), 1500);
+        }
+    };
+
+    // Học viên mục tiêu || targetStudents
 
     const targetStudents = () => {
         return (
@@ -154,6 +220,8 @@ export const FrameTeacher = () => {
         )
     }
 
+    // Chương trình giảng dạy || curriculum
+
     const curriculum = () => {
         return (
             <>
@@ -172,6 +240,7 @@ export const FrameTeacher = () => {
         )
     }
 
+    // Tổng quan khóa học || courseOverview
 
     const courseOverview = () => {
         return (
@@ -186,13 +255,14 @@ export const FrameTeacher = () => {
                     <p className="pb-10">
                         Trang tổng quan khóa học của bạn rất quan trọng đối với thành công của bạn trên AntLearn. Nếu được thực hiện đúng, trang này cũng có thể giúp bạn hiển thị trong các công cụ tìm kiếm như Google. Khi bạn hoàn thành phần này, hãy nghĩ đến việc tạo  Trang tổng quan khóa học hấp dẫn thể hiện lý do ai đó muốn ghi danh khóa học của bạn. Tìm hiểu về cách tạo trang tổng quan khóa học của bạn và các tiêu chuẩn tiêu đề khóa học.
                     </p>
+
                     <div className="pb-6">
-                        <h2 className="pb-1 text-lg font-medium">
-                            Tiêu đề khóa học
-                        </h2>
+                        <h2 className="pb-1 text-lg font-medium">Tiêu đề khóa học</h2>
                         <input
                             className="w-full mb-2 border-slate-300 border-2 py-2 pl-3"
                             placeholder='Chèn tiêu đề khóa học'
+                            value={courseTitle}
+                            onChange={(e) => setCourseTitle(e.target.value)}
                         />
                         <p className="text-sm text-gray-400">
                             Tiêu đề của bạn không những phải thu hút sự chú ý, chứa nhiều thông tin mà còn được tối ưu hóa dễ tìm kiếm
@@ -200,26 +270,24 @@ export const FrameTeacher = () => {
                     </div>
 
                     <div className="pb-6">
-                        <h2 className="pb-1 text-lg font-medium">
-                            Phụ đề khóa học
-                        </h2>
+                        <h2 className="pb-1 text-lg font-medium">Phụ đề khóa học</h2>
                         <input
                             className="w-full mb-2 border-slate-300 border-2 py-2 pl-3"
                             placeholder='Chèn phụ đề khóa học'
+                            value={courseSubtitle}
+                            onChange={(e) => setCourseSubtitle(e.target.value)}
                         />
                         <p className="text-sm text-gray-400">
-                            Sử dụng 1 hoặc  2 từ khóa có liên quan và đề cập đến 3 - 4 lĩnh vực quan trọng nhất mà bạn đã đề cập trong khóa học học của bạn
+                            Sử dụng 1 hoặc 2 từ khóa có liên quan và đề cập đến 3 - 4 lĩnh vực quan trọng nhất mà bạn đã đề cập trong khóa học của bạn
                         </p>
                     </div>
 
                     <div className="pb-6">
-                        <h2 className="pb-1 text-lg font-medium">
-                            Mô tả khóa học
-                        </h2>
+                        <h2 className="pb-1 text-lg font-medium">Mô tả khóa học</h2>
                         <ReactQuill
                             className="pb-2"
-                            value={courseDescriptionText} // Sử dụng state cho mô tả khóa học
-                            onChange={setCourseDescriptionText} // Cập nhật state
+                            value={courseDescriptionText}
+                            onChange={setCourseDescriptionText}
                             modules={{
                                 toolbar: [
                                     [{ 'header': [1, 2, 3, false] }],
@@ -234,18 +302,13 @@ export const FrameTeacher = () => {
                                 'list', 'bullet', 'link', 'image', 'code-block'
                             ]}
                         />
-                        <p className="text-sm text-gray-400">
-                            Mô tả phải dài ít nhất 200 từ
-                        </p>
+                        <p className="text-sm text-gray-400">Mô tả phải dài ít nhất 200 từ</p>
                     </div>
 
-
                     <div className="pb-6">
-                        <h2 className="pb-1 text-lg font-medium">
-                            Thông tin cơ bản
-                        </h2>
+                        <h2 className="pb-1 text-lg font-medium">Thông tin cơ bản</h2>
                         <div className="grid grid-cols-3 gap-4">
-                            <Select>
+                            <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="-- Chọn ngôn ngữ --" />
                                 </SelectTrigger>
@@ -257,9 +320,7 @@ export const FrameTeacher = () => {
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
-
-
-                            <Select>
+                            <Select value={selectedLevel} onValueChange={setSelectedLevel}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="-- Chọn trình độ --" />
                                 </SelectTrigger>
@@ -272,8 +333,7 @@ export const FrameTeacher = () => {
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
-
-                            <Select>
+                            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="-- Chọn thể loại khóa học --" />
                                 </SelectTrigger>
@@ -289,7 +349,7 @@ export const FrameTeacher = () => {
                             </Select>
 
                             <div className="col-end-4">
-                                <Select>
+                                <Select value={selectedTopic} onValueChange={setSelectedTopic}>
                                     <SelectTrigger className="w-full">
                                         <SelectValue placeholder="-- Chọn chủ đề khóa học --" />
                                     </SelectTrigger>
@@ -304,51 +364,44 @@ export const FrameTeacher = () => {
                                     </SelectContent>
                                 </Select>
                             </div>
-
                         </div>
                     </div>
 
-
                     <div className="pb-6">
-                        <h2 className="pb-1 text-lg font-medium">
-                            Khóa học của bạn chủ yếu giảng dạy nội dung nào ?
-                        </h2>
-                        <input className="w-7/12 mb-2 border-slate-300 border-2 py-2 pl-3" placeholder="Ví dụ ReactJS" />
-
+                        <h2 className="pb-1 text-lg font-medium">Khóa học của bạn chủ yếu giảng dạy nội dung nào?</h2>
+                        <input
+                            className="w-7/12 mb-2 border-slate-300 border-2 py-2 pl-3"
+                            placeholder="Ví dụ ReactJS"
+                            value={mainContent}
+                            onChange={(e) => setMainContent(e.target.value)}
+                        />
                     </div>
 
                     <div className="pb-6">
-                        <h2 className="pb-1 text-lg font-medium">
-                            Hình ảnh khóa học
-                        </h2>
+                        <h2 className="pb-1 text-lg font-medium">Hình ảnh khóa học</h2>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="bg-red-100">
-                                <img className="bg-red-100" />
-
+                                {/* <img src={courseImage ? URL.createObjectURL(courseImage) : ""} alt="Hình ảnh khóa học" /> */}
                             </div>
-                            <div className=" ml-12">
+                            <div className="ml-12">
                                 <p className="pb-4">
-                                    Tải hình ảnh  lên đây. Để được chấp nhận, hình ảnh phải đáp ứng tiêu chuẩn chất lượng hình ảnh khóa học. Hướng dẫn quan trọng 750x422 pixel, jqg, jpeg, gif hoặc png và không có nhu cầu trên hình ảnh.
+                                    Tải hình ảnh lên đây. Để được chấp nhận, hình ảnh phải đáp ứng tiêu chuẩn chất lượng hình ảnh khóa học. Hướng dẫn quan trọng 750x422 pixel, jpg, jpeg, gif hoặc png và không có nhu cầu trên hình ảnh.
                                 </p>
-                                <input type="file" className="w-7/12 mb-2 border-slate-300 border-2 py-2 pl-3" placeholder="Ví dụ ReactJS" />
+                                <input
+                                    type="file"
+                                    // onChange={(e) => setCourseImage(e.target.files[0])}
+                                    className="w-7/12 mb-2 border-slate-300 border-2 py-2 pl-3"
+                                />
                             </div>
-
-
                         </div>
-
                     </div>
-
-
-
-
-
-
-
                 </div>
             </>
         )
     }
 
+
+    // Định giá || valuation
 
     const valuation = () => {
         return (
@@ -406,6 +459,8 @@ export const FrameTeacher = () => {
         )
     }
 
+    // Khuyến mại || promotion
+
     const promotion = () => {
         return (
             <>
@@ -423,9 +478,15 @@ export const FrameTeacher = () => {
                         <p className="pb-3">
                             Bất cứ khi nào học viên sử dụng đường liên kết này để mua khóa học. Chúng tôi sẽ tính doanh thu cho bạn.
                         </p>
-                        <div className="flex w-11/12 pb-3">
-                            <input className="border border-slate-600 w-full  p-2" placeholder="Nhập đường dẫn" />
-                            <button className="border border-slate-600 w-32 p-2">Sao chép</button>
+                        <div className="flex w-11/12 pb-3 relative">
+                            <input
+                                ref={inputRef}
+                                className="border border-slate-600 w-full p-2"
+                                placeholder="Nhập đường dẫn"
+                            />
+                            <button onClick={copyToClipboard} className="border border-slate-600 w-32 p-2">
+                                {copyText}
+                            </button>
                         </div>
 
                     </div>
@@ -469,6 +530,9 @@ export const FrameTeacher = () => {
             </>
         )
     }
+
+    // Tin nhắn khóa học || courseMessage
+
     const courseMessage = () => {
         return (
             <>
@@ -567,16 +631,19 @@ export const FrameTeacher = () => {
                                 />
                                 <label
                                     className='cursor-pointer'
-                                    onClick={() => setActiveSection("targetStudents")}
+                                    onClick={() => {
+                                        setActiveSection("targetStudents");
+                                    }}
                                 >
                                     Học viên mục tiêu
                                 </label>
                             </div>
 
+
                             <h2 className="font-medium">Tạo nội dung của bạn</h2>
                             <div className="flex items-center space-x-2 mt-4 mb-8">
                                 <Checkbox
-                                    checked={allInputsFilled()}
+                                    // checked={allInputsFilled()}
                                     readOnly
 
                                 />
@@ -590,20 +657,21 @@ export const FrameTeacher = () => {
                             <h2 className="font-medium">Xuất bản khóa học của bạn</h2>
                             <div className="flex items-center space-x-2 my-4">
                                 <Checkbox
-                                    checked={allInputsFilled()}
+                                    checked={allInputsCourseFilled()} // Đảm bảo gọi đúng hàm
                                     readOnly
-
                                 />
                                 <label
                                     className='cursor-pointer'
-                                    onClick={() => setActiveSection("courseOverview")}
+                                    onClick={() => {
+                                        setActiveSection("courseOverview");
+                                    }}
                                 >
                                     Trang tổng quan khóa học
                                 </label>
                             </div>
                             <div className="flex items-center space-x-2 my-4">
                                 <Checkbox
-                                    checked={allInputsFilled()}
+                                    // checked={allInputsFilled()}
                                     readOnly
                                 />
                                 <label
@@ -616,7 +684,7 @@ export const FrameTeacher = () => {
                             <div className="flex items-center space-x-2 my-4">
                                 <Checkbox
                                     id="terms"
-                                    checked={allInputsFilled()}
+                                    // checked={allInputsFilled()}
                                     readOnly
                                 />
                                 <label
@@ -628,7 +696,7 @@ export const FrameTeacher = () => {
                             </div>
                             <div className="flex items-center space-x-2 mt-2 mb-8">
                                 <Checkbox
-                                    checked={allInputsFilled()}
+                                    // checked={allInputsFilled()}
                                     readOnly
                                 />
                                 <label
