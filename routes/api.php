@@ -15,9 +15,10 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\QuizAnswController;
+use App\Http\Controllers\QuizOptionController;
 use Symfony\Component\Mime\MessageConverter;
 use App\Http\Controllers\QuizQuestionController;
+use App\Models\QuizAnsw;
 
 // Authentication
 Route::group([
@@ -78,12 +79,25 @@ Route::middleware(['admin'])->group(function () {
     //Coupons
     Route::apiResource('coupons', CouponController::class);
     //Quiz
-    Route::apiResource('quizzes', QuizController::class);
+    Route::get('quizzes', [QuizController::class, 'index']);
+    Route::post('quizzes', [QuizController::class, 'store']);
+    Route::get('quizzes/{id}', [QuizController::class, 'show']);
+    Route::put('quizzes/{id}', [QuizController::class, 'update']);
+    Route::delete('quizzes/{id}', [QuizController::class, 'destroy']);
 
-    Route::apiResource('quizzes/{quiz}/questions', QuizQuestionController::class);
+    Route::get('/quizzes/{quizId}/questions', [QuizQuestionController::class, 'index']);
+    Route::post('/quizzes/{quizId}/questions', [QuizQuestionController::class, 'store']);
+    Route::get('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'show']);
+    Route::put('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'update']);
+    Route::delete('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'destroy']);
 
-    Route::apiResource('questions/{question}/answers', QuizAnswController::class);
-    //Enrolls
+    Route::post('questions/{questionId}/submitAnswer', [QuizOptionController::class, 'submitAnswer']);
+
+    Route::get('questions/{questionId}/options', [QuizOptionController::class, 'index']);
+    Route::post('questions/{questionId}/options', [QuizOptionController::class, 'store']);
+    Route::put('questions/{questionId}/options/{id}', [QuizOptionController::class, 'update']);
+    Route::delete('questions/{questionId}/options/{id}', [QuizOptionController::class, 'destroy']);
+
     Route::apiResource('enrolls', EnrollController::class);
 });
 

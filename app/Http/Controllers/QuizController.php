@@ -18,7 +18,6 @@ class QuizController extends Controller
 
     public function store(Request $request)
     {
-
         if (!Auth::check()) {
             return response()->json([
                 'message' => 'Người dùng chưa đăng nhập.',

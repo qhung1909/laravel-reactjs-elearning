@@ -9,9 +9,9 @@ class Category extends Model
 {
     use HasFactory;
     protected $table = 'categories';
-    protected $primaryKey = 'course_category_id'; 
+    protected $primaryKey = 'course_category_id';
     protected $fillable = [
-        'course_category_id', 
+        'course_category_id',
         'description',
         'name',
         'title',
@@ -19,8 +19,7 @@ class Category extends Model
     ];
 
     public function courses()
-{
-    return $this->hasMany(Course::class, 'course_category_id');
-}
-
+    {
+        return $this->hasMany(Course::class, 'course_category_id');
+    }
 }

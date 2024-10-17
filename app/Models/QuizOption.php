@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class QuizAnsw extends Model
+class QuizOption extends Model
 {
     use HasFactory;
-    protected $fillable = ['user_id', 'question_id', 'answer', 'is_correct', 'created_at', 'updated_at'];
+    protected $table = 'quiz_options';
+    protected $primaryKey = 'option_id';
+
+    protected $fillable = ['question_id', 'answer', 'is_correct', 'created_at', 'updated_at'];
 
     public function question()
     {
