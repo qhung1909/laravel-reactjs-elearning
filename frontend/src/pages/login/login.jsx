@@ -48,7 +48,7 @@ export const Login = () => {
     const getUserInfo = async () => {
         const token = localStorage.getItem('access_token');
         if (!token) {
-            console.error('No token found');
+            // console.error('No token found');
             return;
         }
         setLoading(true);
@@ -61,7 +61,7 @@ export const Login = () => {
             });
 
             if (!res.ok) {
-                console.error('Failed to fetch data');
+                // console.error('Failed to fetch data');
             } else {
                 const _dataUser = await res.json();
             }
@@ -75,7 +75,7 @@ export const Login = () => {
     const refreshToken = async () => {
         const refreshToken = localStorage.getItem('refresh_token');
         if (!refreshToken) {
-            console.error('No refresh token found');
+            // console.error('No refresh token found');
             return;
         }
         try {
@@ -88,7 +88,7 @@ export const Login = () => {
             });
 
             if (!res.ok) {
-                console.error('Failed to refresh token');
+                // console.error('Failed to refresh token');
                 return;
             }
 
@@ -96,8 +96,9 @@ export const Login = () => {
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('refresh_token', data.refresh_token);
             await getUserInfo();
-        } catch (error) {
-            console.error('Error refreshing token', error);
+        } catch {
+            // console.error('Error refreshing token', error);
+            return;
         }
     };
 
@@ -133,6 +134,7 @@ export const Login = () => {
         return Date.now() > exp;
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedLogin = useCallback(debounce(async () => {
         setLoading(false);
         if (!email || !password) {
