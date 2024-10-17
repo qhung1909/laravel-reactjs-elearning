@@ -112,7 +112,7 @@ export const FrameTeacher = () => {
 
     // const [courseDescriptionText, setCourseDescriptionText] = useState('');
     const [courseTitle, setCourseTitle] = useState("");
-    const [courseSubtitle, setCourseSubtitle] = useState("");
+    // const [courseSubtitle, setCourseSubtitle] = useState("");
     const [courseDescriptionText, setCourseDescriptionText] = useState("");
     const [selectedLanguage, setSelectedLanguage] = useState("");
     const [selectedLevel, setSelectedLevel] = useState("");
@@ -124,7 +124,7 @@ export const FrameTeacher = () => {
     const allInputsCourseFilled = () => {
         return (
             courseTitle.trim() !== "" &&
-            courseSubtitle.trim() !== "" &&
+            // courseSubtitle.trim() !== "" &&
             // courseDescriptionText.trim().length >= 200 &&
             courseDescriptionText.trim() !== "" &&
             selectedLanguage !== "" &&
@@ -141,26 +141,24 @@ export const FrameTeacher = () => {
     const [currency, setCurrency] = useState("");
     const [price, setPrice] = useState("");
 
-
-
     const allInputsValuationFilled = () => {
-        return currency !== "" && price !== "";
+        return currency !== "" && price.trim() !== "";
     };
 
 
 
     // promotion
-    const inputRef = useRef(null);
-    const [copyText, setCopyText] = useState('Sao chép');
+    // const inputRef = useRef(null);
+    // const [copyText, setCopyText] = useState('Sao chép');
 
-    const copyToClipboard = () => {
-        if (inputRef.current) {
-            inputRef.current.select();
-            document.execCommand('copy');
-            setCopyText('Đã sao chép');
-            setTimeout(() => setCopyText('Sao chép'), 1500);
-        }
-    };
+    // const copyToClipboard = () => {
+    //     if (inputRef.current) {
+    //         inputRef.current.select();
+    //         document.execCommand('copy');
+    //         setCopyText('Đã sao chép');
+    //         setTimeout(() => setCopyText('Sao chép'), 1500);
+    //     }
+    // };
 
 
     const [isChecked, setIsChecked] = useState(false);
@@ -476,20 +474,8 @@ export const FrameTeacher = () => {
                                     Mức giá
                                 </p>
                                 <div>
-                                    <Input type="text" placeholder="Giá" />
+                                    <Input onChange={(e) => setPrice(e.target.value)} type="text" placeholder="Giá" />
                                 </div>
-
-                                {/* <Select onValueChange={setPrice}>
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Chọn" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="free">Miễn phí</SelectItem>
-                                        <SelectItem value="basic">Cơ bản (100.000 VNĐ)</SelectItem>
-                                        <SelectItem value="standard">Tiêu chuẩn (300.000 VNĐ)</SelectItem>
-                                        <SelectItem value="premium">Nâng cao (500.000 VNĐ)</SelectItem>
-                                    </SelectContent>
-                                </Select> */}
                             </div>
 
                         </div>
