@@ -1,16 +1,13 @@
 // import './detail.css'
-// import './style.css'
-<<<<<<< HEAD
-export const Lesson = () => {
-=======
+
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
-} from "@/components/ui/accordion";
-export const Lession = () => {
->>>>>>> 91b338b35135737d55f1aef8012fd926d8b0b915
+  } from "@/components/ui/accordion"
+// import './style.css'
+export const Lesson = () => {
     function toggleDropdown(event) {
         const element = event.currentTarget;
         const submenu = element.nextElementSibling;
