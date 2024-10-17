@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
     CreditCard,
@@ -34,21 +34,55 @@ export const Header = () => {
     const API_URL = import.meta.env.VITE_API_URL;
     const [logined, setLogined] = useState(null);
     const [user, setUser] = useState([]);
-    const [loading , setLoading ] = useState(false);
+    const [loadingLogout, setLoadingLogout] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-
-    useEffect(() => {
-        const user = localStorage.getItem('access_token');
-        if (user) {
-            setLogined(user);
-        }
-    }, [])
+    const navigate = useNavigate();
 
     const logout = () => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        setLogined(null);
+        setLoadingLogout(true)
+        setTimeout(() => {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            setLogined(null);
+            setLoadingLogout(false)
+        }, 800)
+
     }
+
+
+    const refreshToken = async () => {
+        const storedRefreshToken = localStorage.getItem('refresh_token');
+        if (!storedRefreshToken) {
+            alert('Session expired. Please log in again.');
+            navigate('/login');
+            return;
+        }
+        try {
+            const res = await fetch(`${API_URL}/auth/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ refresh_token: storedRefreshToken })
+            });
+
+            if (!res.ok) {
+                alert('Session expired. Please log in again.');
+                navigate('/login');
+                return;
+            }
+
+            const data = await res.json();
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+            return data.access_token;
+        } catch {
+            alert('Session expired. Please log in again.');
+            navigate('/login');
+        }
+    };
+
 
     const fetchUser = async () => {
         const token = localStorage.getItem("access_token");
@@ -75,8 +109,15 @@ export const Header = () => {
         } catch (error) {
             console.error("Lỗi khi lấy thông tin người dùng:", error);
             if (error.response) {
-                console.error("Chi tiết lỗi:", error.response.data);
-                console.error("Trạng thái lỗi:", error.response.status);
+                if (error.response.status === 401) {
+                    const newToken = await refreshToken();
+                    if (newToken) {
+                        await fetchUser();
+                    }
+                } else {
+                    console.error("Chi tiết lỗi:", error.response.data);
+                    console.error("Trạng thái lỗi:", error.response.status);
+                }
             } else {
                 console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
             }
@@ -84,13 +125,29 @@ export const Header = () => {
             setLoading(false);
         }
     };
+
+
+
+
     useEffect(() => {
-        fetchUser();
+        const userToken = localStorage.getItem('access_token');
+        if (userToken) {
+            console.log("Fetching data...");
+            setLogined(userToken);
+            fetchUser();
+        }
     }, []);
+    console.log("Component mounted");
+
 
 
     return (
         <>
+            {loadingLogout && (
+                <div className='loading'>
+                    <div className='loading-spin'></div>
+                </div>
+            )}
             <header>
                 <nav className="navbar flex items-center justify-center w-full mx-auto py-2 z-10 ps-3 xl:max-w-screen-2xl">
 
@@ -156,11 +213,11 @@ export const Header = () => {
                                                     <box-icon name='user-circle' type='solid' ></box-icon>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="w-56">
-                                                            {loading ? (
-                                                                <Skeleton className="h-4 w-[250px]" />
-                                                            ) : (
-                                                                <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
-                                                            )}
+                                                    {loading ? (
+                                                        <Skeleton className="h-4 w-[250px]" />
+                                                    ) : (
+                                                        <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
+                                                    )}
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuGroup>
                                                         <DropdownMenuItem>

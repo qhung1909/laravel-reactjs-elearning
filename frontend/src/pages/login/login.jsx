@@ -87,13 +87,13 @@ export const Login = () => {
                 },
                 body: JSON.stringify({ refresh_token: storedRefreshToken })
             });
-            
+
             if (!res.ok) {
                 alert('Session expired. Please log in again.');
                 navigate('/login');
                 return;
             }
-    
+
             const data = await res.json();
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('refresh_token', data.refresh_token);
@@ -110,7 +110,7 @@ export const Login = () => {
 
         if (isTokenExpired(accessToken)) {
             if (storedRefreshToken) {
-                await refreshToken(); 
+                await refreshToken();
             } else {
                 alert("Session expired. Please log in again.");
                 navigate('/login');
@@ -122,7 +122,7 @@ export const Login = () => {
             ...options,
             headers: {
                 ...options.headers,
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`, 
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
             }
         });
 
