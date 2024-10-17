@@ -74,54 +74,26 @@ export const Home = () => {
 
     const fetchProductByCategory = async (slug) => {
         if (!slug) return;
-        setLoading(true)
+        setLoading(true);
         try {
-            const response = await axios.get(`${API_URL}/categories/${slug}`, {
+            const response = await axios.get(`${API_URL}/course/${slug}`, {
                 headers: {
                     'x-api-secret': `${API_KEY}`,
                 },
             });
-            setProductsByCategory(response.data);
+
+            // Kiểm tra xem dữ liệu trả về có phải là đối tượng không
+            setProductsByCategory([response.data]); // Chuyển đổi thành mảng
             setSelectedCategory(slug);
+
         } catch (error) {
             console.log('Error fetching product by category', error);
             setProductsByCategory([]);
         } finally {
             setLoading(false);
         }
-    }
-
-    useEffect(() => {
-        fetchTopPurchasedProduct();
-        fetchTopViewedProduct();
-        fetchCategories();
-    }, []);
-
-    const renderCategories = (categoryGroup) => {
-        return loading ? (
-            <div className="flex flex-wrap justify-center items-center">
-                {Array.from({ length: 3 }).map((_, index) => (
-                    <div className="bg-gray-100 h-10 w-20 rounded-lg animate-pulse mx-2" key={index}></div>
-                ))}
-            </div>
-        ) :
-            Array.isArray(categoryGroup) && categoryGroup.length > 0 ? (
-                categoryGroup.map((item) => (
-                    <button
-                        onClick={() => fetchProductByCategory(item.slug)}
-                        className={`p-3 rounded-lg duration-300 me-2 ${selectedCategory === item.slug
-                                ? 'bg-yellow-400 text-white'
-                                : 'bg-gray-100 hover:bg-white hover:border-yellow-400 border'
-                            }`}
-                        key={item.slug}
-                    >
-                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">{item.name}</p>
-                    </button>
-                ))
-            ) : (
-                <p>Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
-            );
     };
+
 
     const purchasedProduct = loading ? (
         <>
@@ -175,7 +147,7 @@ export const Home = () => {
             ))
         ) : (
             <p>Không có sản phẩm phù hợp ngay lúc này, thử lại sau</p>
-        );
+    );
 
     const viewedProduct = loading ? (
         <>
@@ -229,7 +201,35 @@ export const Home = () => {
             ))
         ) : (
             <p>Không có sản phẩm phù hợp ngay lúc này, thử lại sau</p>
-        )
+    )
+
+    const renderCategories = (categoryGroup) => {
+        return loading ? (
+            <div className="flex flex-wrap justify-center items-center">
+                {Array.from({ length: 3 }).map((_, index) => (
+                    <div className="bg-gray-100 h-10 w-20 rounded-lg animate-pulse mx-2" key={index}></div>
+                ))}
+            </div>
+        ) :
+            Array.isArray(categoryGroup) && categoryGroup.length > 0 ? (
+                categoryGroup.map((item) => (
+                    <button
+                        onClick={() => fetchProductByCategory(item.slug)}
+                        className={`p-3 rounded-lg duration-300 me-2 ${selectedCategory === item.slug
+                                ? 'bg-yellow-400 text-white'
+                                : 'bg-gray-100 hover:bg-white hover:border-yellow-400 border'
+                            }`}
+                        key={item.slug}
+                    >
+                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">{item.name}</p>
+                    </button>
+                ))
+            ) : (
+                <p>Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
+            );
+    };
+
+
 
     const renderProductsByCategory = () => {
         return loading ? (
@@ -239,24 +239,52 @@ export const Home = () => {
                 ))}
             </div>
         ) : Array.isArray(productsByCategory) && productsByCategory.length > 0 ? (
-            productsByCategory.map((product, index) => (
-                <div className="product-card" key={index}>
-                    <Link to={`/detail/${product.slug}`}>
-                        <div className="product-card-image">
-                            <img src={product.img} alt={product.title} className="rounded-lg h-40 w-full" />
+            productsByCategory.map((item, index) => (
+                <div className="product md:mb-10 xl:mb-0 text-center md:text-left" key={index}>
+                    <div className="product-box">
+                        <Link to={`/detail/${item.slug}`}>
+                            <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
+                                <img
+                                    src={`${item.img}`}
+                                    alt=""
+                                    className="rounded-xl h-full sm:w-full md:h-full w-80"
+                                />
+                            </div>
+                            <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-lg font-semibold my-2  line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
+                                <span className="lg:pe-5 pe-3">
+                                    {`${item.title}`}
+                                </span>
+                            </div>
+                        </Link>
+                        <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
+                            <p>Bởi: Huy Hoàng</p>
                         </div>
-                        <div className="product-card-info">
-                            <h3 className="font-semibold text-lg my-2">{product.title}</h3>
-                            <p className="text-sm">Price: {formatCurrency(product.price_discount)}</p>
+                        <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
+                            <div className="product-box-time">
+                                <p>35 bài học</p>
+                            </div>
+                            <div className="product-box-lesson hidden sm:block">
+                                <p>7 giờ kém 10</p>
+                            </div>
                         </div>
-                    </Link>
+                        <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
+                            {formatCurrency(item.price_discount)}
+                        </div>
+                    </div>
                 </div>
             ))
         ) : (
-            // Hiển thị khi không có sản phẩm phù hợp
             <p className="">Không có sản phẩm theo danh mục phù hợp ngay lúc này, thử lại sau.</p>
         );
     };
+
+    useEffect(() => {
+        fetchTopPurchasedProduct();
+        fetchTopViewedProduct();
+
+        fetchCategories();
+    }, []);
+
     return (
         <>
             {/* banner */}
@@ -379,7 +407,7 @@ export const Home = () => {
                         </div>
                     </div>
                     <div className="homecatelog homecatelog-products mt-10">
-                        {selectedCategory && ( // Chỉ hiển thị khi có category được chọn
+                        {selectedCategory && (
                             <div className="grid md:grid-cols-4 grid-cols-2 gap-3 sm:px-3 md:px-0">
                                 {renderProductsByCategory()}
                             </div>
