@@ -15,7 +15,7 @@ class QuizQuestionController extends Controller
         $questions = QuizQuestion::where('quiz_id', $quizId)->get();
         return response()->json($questions);
     }
-
+    
     public function store(Request $request, $quizId)
     {
         if (!Auth::check()) {

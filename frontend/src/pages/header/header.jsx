@@ -46,6 +46,7 @@ export const Header = () => {
 
     const logout = () => {
         localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
         setLogined(null);
     }
 
