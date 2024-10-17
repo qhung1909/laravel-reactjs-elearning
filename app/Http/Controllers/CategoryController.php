@@ -39,8 +39,11 @@ class CategoryController extends Controller
         if (!$category) {
             return response()->json(['error' => 'Danh mục không tìm thấy'], 404);
         }
+        $courses = $category->courses;
 
-        return response()->json($category);
+        return response()->json([
+            'category' => $category,
+        ]);
     }
 
     public function store(Request $request)

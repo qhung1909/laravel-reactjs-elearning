@@ -34,14 +34,20 @@ export const Header = () => {
     const API_URL = import.meta.env.VITE_API_URL;
     const [logined, setLogined] = useState(null);
     const [user, setUser] = useState([]);
-    const [loading , setLoading ] = useState(false);
+    const [loadingLogout, setLoadingLogout] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
     const logout = () => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        setLogined(null);
+        setLoadingLogout(true)
+        setTimeout(() => {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            setLogined(null);
+            setLoadingLogout(false)
+        }, 800)
+
     }
 
 
@@ -76,7 +82,7 @@ export const Header = () => {
             navigate('/login');
         }
     };
- 
+
 
     const fetchUser = async () => {
         const token = localStorage.getItem("access_token");
@@ -137,6 +143,11 @@ export const Header = () => {
 
     return (
         <>
+            {loadingLogout && (
+                <div className='loading'>
+                    <div className='loading-spin'></div>
+                </div>
+            )}
             <header>
                 <nav className="navbar flex items-center justify-center w-full mx-auto py-2 z-10 ps-3 xl:max-w-screen-2xl">
 
@@ -202,11 +213,11 @@ export const Header = () => {
                                                     <box-icon name='user-circle' type='solid' ></box-icon>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="w-56">
-                                                            {loading ? (
-                                                                <Skeleton className="h-4 w-[250px]" />
-                                                            ) : (
-                                                                <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
-                                                            )}
+                                                    {loading ? (
+                                                        <Skeleton className="h-4 w-[250px]" />
+                                                    ) : (
+                                                        <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
+                                                    )}
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuGroup>
                                                         <DropdownMenuItem>

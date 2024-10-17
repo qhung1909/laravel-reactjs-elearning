@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { Star } from "lucide-react";
 import { Edit, Trash } from "lucide-react"; // Biểu tượng sửa và xóa
+import { Calendar, Globe } from 'lucide-react';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -183,10 +184,10 @@ export const Detail = () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
             console.error("No token found");
-            toast.error("Bạn chưa đăng nhập",{
-                style:{
-                    padding:'16px'
-                }
+            toast.error("Bạn chưa đăng nhập", {
+                style: {
+                    padding: "16px",
+                },
             });
             return;
         }
@@ -195,10 +196,10 @@ export const Detail = () => {
             (item) => item.course_id === detail.course_id
         );
         if (isAlreadyAdded) {
-            toast.error("Sản phẩm này đã có trong giỏ hàng.",{
-                style:{
-                    padding:'16px'
-                }
+            toast.error("Sản phẩm này đã có trong giỏ hàng.", {
+                style: {
+                    padding: "16px",
+                },
             });
             return;
         }
@@ -230,10 +231,11 @@ export const Detail = () => {
                     errorData.message || "Unknown error"
                 );
                 toast.error(
-                    errorData.message || "Có lỗi xảy ra khi cập nhật giỏ hàng",{
-                        style:{
-                            padding:'16px'
-                        }
+                    errorData.message || "Có lỗi xảy ra khi cập nhật giỏ hàng",
+                    {
+                        style: {
+                            padding: "16px",
+                        },
                     }
                 );
                 return;
@@ -242,20 +244,20 @@ export const Detail = () => {
             const data = await res.json();
             console.log("Order:", data.order);
             setLoading(true);
-            toast.success("Thêm thành công khóa học vào giỏ hàng!",{
-                style:{
-                    padding:'16px',
-                    fontSize:'14px'
-                }
+            toast.success("Thêm thành công khóa học vào giỏ hàng!", {
+                style: {
+                    padding: "16px",
+                    fontSize: "14px",
+                },
             });
 
             setCartItems((prevItems) => [...prevItems, newItem]);
         } catch (error) {
             console.log("Error:", error);
-            toast.error("Có lỗi xảy ra, vui lòng thử lại sau.",{
-                style:{
-                    padding:'16px'
-                }
+            toast.error("Có lỗi xảy ra, vui lòng thử lại sau.", {
+                style: {
+                    padding: "16px",
+                },
             });
         } finally {
             setLoading(false);
@@ -266,91 +268,59 @@ export const Detail = () => {
         <SkeletonLoaderBanner />
     ) : (
         <div
-            className="bg-gray-900 p-6 text-white"
-            style={{ backgroundColor: "#2d2f31" }}
-        >
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-44">
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-                    {/* Cột trái (Văn bản) */}
-                    <div className="col-span-1 lg:col-span-8">
-                        {/* Điều hướng Breadcrumb */}
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                <BreadcrumbItem>
-                                    <Link to="/" className="text-[#C0C4FC]">
-                                        Trang chủ
-                                    </Link>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    <Link
-                                        to="/courses"
-                                        className="text-[#C0C4FC]"
-                                    >
-                                        Khóa học
-                                    </Link>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="text-[#C0C4FC]">
-                                        Chi tiết
-                                    </BreadcrumbPage>
-                                </BreadcrumbItem>
-                            </BreadcrumbList>
-                        </Breadcrumb>
+        className="relative bg-gray-900 text-white overflow-hidden "
+        style={{
+          backgroundImage: `url(/src/assets/images/bg-detail4.png)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          minHeight: '400px', // Đảm bảo banner có chiều cao tối thiểu
+        }}
+      >
+        {/* Overlay gradient để đảm bảo text dễ đọc */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40"></div>
 
-                        {/* Tiêu đề */}
-                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
-                            {detail.title}
-                        </h1>
-                        {/* Mô tả */}
-                        <p className="text-base sm:text-lg md:text-xl text-white-400 mb-4">
-                            {detail.description}
-                        </p>
-                        {/* Đánh giá */}
-                        <div className="flex items-center mb-2">
-                            <span className="text-yellow-500 text-sm font-semibold">
-                                4,6
-                            </span>
-                            <span className="ml-2 text-sm text-white-400">
-                                (43 xếp hạng)
-                            </span>
-                            <span className="ml-4 text-sm text-white-400">
-                                382 học viên
-                            </span>
-                        </div>
-                        <p className="text-xs sm:text-sm text-white-400 flex items-center">
-                            <box-icon
-                                name="calendar"
-                                color="#9CA3AF"
-                                className="mr-2"
-                                size="sm"
-                            />
-                            Ngày cập nhật gần nhất{" "}
-                            {formatDate(detail.updated_at)}
-                        </p>
-                        <p className="text-xs sm:text-sm text-white-400 flex items-center mt-1">
-                            <box-icon
-                                name="globe"
-                                color="#9CA3AF"
-                                className="mr-2"
-                                size="sm"
-                            />
-                            Vietnamese
-                        </p>
-                    </div>
-                    {/* Cột phải (Hình ảnh) */}
-                    <div className="col-span-1 lg:col-span-4 flex justify-center items-center">
-                        <img
-                            src="/src/assets/images/inclusion2.jpg"
-                            alt="Inclusion "
-                            className="max-w-full"
-                            style={{ maxHeight: 200 }}
-                        />
-                    </div>
-                </div>
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 xl:px-44 py-12">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <Link to="/" className="text-gray-300 hover:text-white">Trang chủ</Link>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <Link to="/courses" className="text-gray-300 hover:text-white">Khóa học</Link>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-gray-300">Chi tiết</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+
+          <div className="mt-8 max-w-3xl">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-white shadow-text">
+              {detail.title}
+            </h1>
+            <p className="text-lg sm:text-xl md:text-2xl mb-6 text-gray-200 shadow-text">
+              {detail.description}
+            </p>
+
+            <div className="flex items-center mb-4">
+              <span className="text-yellow-400 text-lg font-semibold shadow-text">4,6</span>
+              <span className="ml-2 text-gray-300 shadow-text">(43 xếp hạng)</span>
+              <span className="ml-4 text-gray-300 shadow-text">382 học viên</span>
             </div>
+
+            <div className="flex items-center text-sm text-gray-300 mb-2">
+              <Calendar className="mr-2" size={18} />
+              <span className="shadow-text">Ngày cập nhật gần nhất {formatDate(detail.updated_at)}</span>
+            </div>
+            <div className="flex items-center text-sm text-gray-300">
+              <Globe className="mr-2" size={18} />
+              <span className="shadow-text">Vietnamese</span>
+            </div>
+          </div>
         </div>
+      </div>
     );
 
     const [editingCommentId, setEditingCommentId] = useState(null);
@@ -395,10 +365,10 @@ export const Detail = () => {
             setEditingCommentId(null);
             setEditingRating(0);
             setEditingContent("");
-            toast.success("Sửa bình luận thành công!",{
-                style:{
-                    padding:'16px'
-                }
+            toast.success("Sửa bình luận thành công!", {
+                style: {
+                    padding: "16px",
+                },
             });
             fetchDetail();
         } catch (error) {
@@ -573,10 +543,10 @@ export const Detail = () => {
             setRating(0);
             setErrorMessage("");
             fetchDetail();
-            toast.success("Đăng thành công bình luận!",{
-                style:{
-                    padding:'16px'
-                }
+            toast.success("Đăng thành công bình luận!", {
+                style: {
+                    padding: "16px",
+                },
             });
         } catch (error) {
             if (
@@ -584,10 +554,10 @@ export const Detail = () => {
                 error.response.data &&
                 error.response.data.error
             ) {
-                toast.error(error.response.data.error,{
-                    style:{
-                        padding:'16px'
-                    }
+                toast.error(error.response.data.error, {
+                    style: {
+                        padding: "16px",
+                    },
                 });
             } else {
                 setErrorMessage("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
