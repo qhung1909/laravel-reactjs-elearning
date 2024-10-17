@@ -1,6 +1,6 @@
 // import './detail.css'
 // import './style.css'
-export const Lession = () => {
+export const Lesson = () => {
     function toggleDropdown(event) {
         const element = event.currentTarget;
         const submenu = element.nextElementSibling;
