@@ -276,7 +276,7 @@ export const Login = () => {
                         </div>
                         <div className="mt-4 text-center text-sm">
                             Bạn chưa có tài khoản?{" "}
-                            <Link to="/register" className="underline">
+                            <Link to="/register" className="underline font-medium hover:text-yellow-500 duration-700">
                                 Đăng ký
                             </Link>
                         </div>
