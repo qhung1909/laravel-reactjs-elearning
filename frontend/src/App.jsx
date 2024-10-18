@@ -26,7 +26,7 @@ import { UserProfile } from "./pages/userprofile/userprofile.jsx";
 import { UserAccount } from "./pages/userprofile/useraccount.jsx";
 import { UserNoti } from "./pages/userprofile/usernoti.jsx";
 import ScrollToTop from "./pages/scrollToTop/scrollToTop.jsx";
-import QuizSingleChoice from './pages/quizzes/quizSingleChoice';
+import { QuizSingleChoice } from './pages/quizzes/quizSingleChoice';
 import { QuizFillInBlank } from "./pages/quizzes/quizFillInBlank.jsx";
 import { QuizMultipleChoice } from "./pages/quizzes/quizMultipleChoice.jsx";
 import { QuizTrueFalse } from "./pages/quizzes/quizTrueFalse.jsx";
