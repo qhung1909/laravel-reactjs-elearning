@@ -76,14 +76,14 @@ export const Home = () => {
         if (!slug) return;
         setLoading(true);
         try {
-            const response = await axios.get(`${API_URL}/course/${slug}`, {
+            const response = await axios.get(`${API_URL}/categories/${slug}`, {
                 headers: {
                     'x-api-secret': `${API_KEY}`,
                 },
             });
 
-            // Kiểm tra xem dữ liệu trả về có phải là đối tượng không
-            setProductsByCategory([response.data]); // Chuyển đổi thành mảng
+            const courses = response.data.courses || [];
+            setProductsByCategory(courses); 
             setSelectedCategory(slug);
 
         } catch (error) {

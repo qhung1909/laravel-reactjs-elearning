@@ -32,6 +32,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 export const Header = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
+    const [categories, setCategories] = useState([]);
     const [logined, setLogined] = useState(null);
     const [user, setUser] = useState([]);
     const [loadingLogout, setLoadingLogout] = useState(false);
@@ -126,8 +127,47 @@ export const Header = () => {
         }
     };
 
+    const fetchCategories = async () => {
+        setLoading(true)
+        try {
+            const response = await axios.get(`${API_URL}/categories`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                },
+            });
+            const allCategories = response.data;
 
+            setCategories(allCategories)
+        } catch (error) {
+            console.log('Error fetching categories', error)
+        } finally {
+            setLoading(false)
+        }
+    }
 
+    const renderCategories = () => {
+        return loading ? (
+            <div className="flex flex-wrap justify-center items-center">
+                {Array.from({ length: 3 }).map((_, index) => (
+                    <div className="bg-gray-100 h-10 w-20 rounded-lg animate-pulse mx-2" key={index}></div>
+                ))}
+            </div>
+        ) : Array.isArray(categories) && categories.length > 0 ? (
+            categories.map((item) => {
+                return (
+                    <div key={item.slug} className="px-5 hover:bg-gray-100 duration-300 cursor-pointer">
+                        <DropdownMenuItem>
+                            <Link className="flex gap-3 hover:text-yellow-400 duration-300 px-5 py-1 rounded-md">
+                                <span className="font-semibold text-base">{item.name}</span>
+                            </Link>
+                        </DropdownMenuItem>
+                    </div>
+                )
+            })
+        ) : (
+            <p>Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
+        )
+    }
 
     useEffect(() => {
         const userToken = localStorage.getItem('access_token');
@@ -135,10 +175,12 @@ export const Header = () => {
             console.log("Fetching data...");
             setLogined(userToken);
             fetchUser();
-        }
-    }, []);
-    console.log("Component mounted");
+        };
 
+        fetchCategories();
+    }, []);
+
+    console.log('API Key being used:', API_KEY);
 
 
     return (
@@ -180,6 +222,7 @@ export const Header = () => {
                                             <Link to="/courses" className="hover:text-gray-500">
                                                 Khóa học
                                             </Link>
+
                                         </li>
                                         <li className="max-xl:mb-4">
                                             <Link to="/contact" className="hover:text-gray-500">
@@ -357,11 +400,36 @@ export const Header = () => {
                         <>
                             {/* header - content */}
                             <div className="navbar-content xl:static xl:min-h-fit  bg-white xl:flex xl:items-center px-10 max-xl:w-full gap-2 xl:block hidden">
-                                <ul className="items-center max-xl:pt-3 gap-3 flex text-base xl:text-base w-52">
+                                <ul className="items-center max-xl:pt-3 gap-3 flex text-base xl:text-base w-52 font-medium">
                                     <li className="max-xl:mb-4">
-                                        <Link to="/courses" className="hover:text-gray-500">
-                                            Khóa học
-                                        </Link>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger>
+                                                <Link to="/courses" className="hover:text-gray-500 border-none">
+                                                    Khóa học
+                                                </Link>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent>
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div className="grid-1">
+                                                        <DropdownMenuLabel className="px-5 text-base text-blue-900 uppercase font-bold">Loại</DropdownMenuLabel>
+                                                        <div className="px-3 duration-300 cursor-pointer">
+                                                            <DropdownMenuItem>
+                                                                <Link className="flex gap-3 hover:text-yellow-400 duration-300 px-5 py-1 rounded-md">
+                                                                    <svg width="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 8C4 5.17157 4 3.75736 4.87868 2.87868C5.75736 2 7.17157 2 10 2H14C16.8284 2 18.2426 2 19.1213 2.87868C20 3.75736 20 5.17157 20 8V16C20 18.8284 20 20.2426 19.1213 21.1213C18.2426 22 16.8284 22 14 22H10C7.17157 22 5.75736 22 4.87868 21.1213C4 20.2426 4 18.8284 4 16V8Z" stroke="currentColor" strokeWidth="2"></path><path d="M19.8978 16H7.89778C6.96781 16 6.50282 16 6.12132 16.1022C5.08604 16.3796 4.2774 17.1883 4 18.2235" stroke="currentColor" strokeWidth="2"></path><path d="M8 7H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"></path><path d="M8 10.5H13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"></path></svg>
+                                                                    <span className="font-semibold text-base">Tất cả khóa học</span>
+                                                                </Link>
+                                                            </DropdownMenuItem>
+
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid-2">
+                                                        <DropdownMenuLabel className="px-5 text-base text-blue-900 uppercase font-bold">Danh mục</DropdownMenuLabel>
+
+                                                        {renderCategories()}
+                                                    </div>
+                                                </div>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </li>
                                     <li className="max-xl:mb-4">
                                         <Link to="/contact" className="hover:text-gray-500">
