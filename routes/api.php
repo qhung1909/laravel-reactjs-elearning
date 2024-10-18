@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\QuizAnsw;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -15,8 +16,9 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\QuizAnswController;
 use Symfony\Component\Mime\MessageConverter;
+use App\Http\Controllers\QuizOptionController;
+use App\Http\Controllers\UserCourseController;
 use App\Http\Controllers\QuizQuestionController;
 
 // Authentication
@@ -34,6 +36,10 @@ Route::group([
     Route::get('/cart', [CartController::class, 'getCart']);
 
 });
+
+
+
+
 //Register
 Route::post('register', [UserController::class, 'register']);
 Route::get('/verify-email/{token}', [UserController::class, 'verifyEmail'])->name('verify.email');
@@ -54,6 +60,7 @@ Route::middleware(['admin'])->group(function () {
     Route::put('course/{slug}', [CourseController::class, 'update'])->name('courses.update');
     Route::delete('course/{slug}', [CourseController::class, 'delete'])->name('courses.delete');
     Route::get('courses/featured', [CourseController::class, 'featureCouse']);
+    Route::get('/userCourses/{userId}', [UserCourseController::class, 'show']);
 
     //Comment
     Route::get('/comments/{course_id}', [CommentController::class, 'index']);
@@ -78,12 +85,33 @@ Route::middleware(['admin'])->group(function () {
     //Coupons
     Route::apiResource('coupons', CouponController::class);
     //Quiz
-    Route::apiResource('quizzes', QuizController::class);
+    Route::get('quizzes', [QuizController::class, 'index']);
+    Route::post('quizzes', [QuizController::class, 'store']);
+    Route::get('quizzes/{id}', [QuizController::class, 'show']);
+    Route::put('quizzes/{id}', [QuizController::class, 'update']);
+    Route::delete('quizzes/{id}', [QuizController::class, 'destroy']);
 
-    Route::apiResource('quizzes/{quiz}/questions', QuizQuestionController::class);
 
-    Route::apiResource('questions/{question}/answers', QuizAnswController::class);
-    //Enrolls
+
+    Route::get('/quizzes/{quizId}/questions', [QuizQuestionController::class, 'index']);
+    Route::post('/quizzes/{quizId}/questions', [QuizQuestionController::class, 'store']);
+    Route::get('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'show']);
+    Route::put('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'update']);
+    Route::delete('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'destroy']);
+
+    Route::get('quiz-questions/export', [QuizQuestionController::class, 'exportQuizQuestions']);
+
+    
+    Route::post('/quizzes/start/{quizId}', [QuizOptionController::class, 'startQuiz']);
+    Route::post('/quizzes/submit', [QuizOptionController::class, 'submitAnswers']);
+    Route::post('/quizzes/continue', [QuizOptionController::class, 'continueQuiz']);
+    
+    
+    Route::get('questions/{questionId}/options', [QuizOptionController::class, 'index']);
+    Route::post('questions/{questionId}/options', [QuizOptionController::class, 'store']);
+    Route::put('questions/{questionId}/options/{id}', [QuizOptionController::class, 'update']);
+    Route::delete('questions/{questionId}/options/{id}', [QuizOptionController::class, 'destroy']);
+
     Route::apiResource('enrolls', EnrollController::class);
 });
 

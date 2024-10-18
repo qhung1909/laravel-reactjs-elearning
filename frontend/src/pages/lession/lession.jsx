@@ -1,13 +1,25 @@
-// import './detail.css'
-
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
-  } from "@/components/ui/accordion"
-// import './style.css'
+} from "@/components/ui/accordion";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { Link, useParams } from "react-router-dom";
+const API_KEY = import.meta.env.VITE_API_KEY;
+const API_URL = import.meta.env.VITE_API_URL;
+import { format } from "date-fns";
 export const Lesson = () => {
+    // Format ngày tháng
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        // Kiểm tra nếu date không hợp lệ
+        if (isNaN(date)) return "Ngày không hợp lệ";
+
+        return format(date, "dd/MM/yyyy - HH:mm a");
+    };
+
     function toggleDropdown(event) {
         const element = event.currentTarget;
         const submenu = element.nextElementSibling;
@@ -21,11 +33,38 @@ export const Lesson = () => {
             icon.setAttribute("name", "chevron-up");
         }
     }
-
     function toggleMenu() {
         const menu = document.getElementById("menuContent");
         menu.classList.toggle("show");
     }
+    const [lesson, setLesson] = useState([]);
+    const { slug } = useParams();
+
+    const fetchLesson = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/lessons/${slug}`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                },
+            });
+            if (res.data && res.data.lesson_id) {
+                setLesson(res.data);
+            } else {
+                console.error("Dữ liệu không hợp lệ:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu bài học:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (slug) {
+            fetchLesson();
+        }
+    }, [slug]);
 
     return (
         <>
@@ -37,18 +76,23 @@ export const Lesson = () => {
                     >
                         <box-icon color="white" name="menu" />
                     </button>
-                    <button className="text-white">
-                        <box-icon color="white" name="chevron-left" />
-                    </button>
+                    <Link to={`/detail/${slug}`}>
+                        <button className="text-white">
+                            <box-icon color="white" name="chevron-left" />
+                        </button>
+                    </Link>
+
                     <div className="text-white font-bold flex items-center">
-                        <div className="w-12 h-12 flex items-center justify-center text-white mr-4">
-                            <img
-                                alt=""
-                                className="w-full h-full object-contain"
-                                src="./images/Antlearn-logo-footer.png"
-                            />
-                        </div>
-                        <h1 className="text-xl">Kiến Thức Nhập Môn IT</h1>
+                        <Link to="/">
+                            <div className="w-12 h-12 flex items-center justify-center text-white mr-4">
+                                <img
+                                    alt=""
+                                    className="w-full h-full object-contain"
+                                    src="/src/assets/images/antlearn.png"
+                                />
+                            </div>
+                        </Link>
+                        <h1 className="text-xl">{lesson.name}</h1>
                     </div>
                     <div className="ml-auto flex items-center space-x-6">
                         <div className="flex items-center space-x-2">
@@ -84,15 +128,12 @@ export const Lesson = () => {
                             </div>
                             <div className="p-6 text-black">
                                 <h2 className="text-2xl font-bold mb-2">
-                                    Mô hình Client - Server là gì?
+                                    {lesson.name}
                                 </h2>
                                 <p className="text-sm text-gray-400">
-                                    Cập nhật tháng 11 năm 2022
+                                    {formatDate(lesson.updated_at)}
                                 </p>
-                                <p className="mt-4">
-                                    Tham gia các cộng đồng để cùng học hỏi, chia
-                                    sẻ và thám thính xem F8 sắp có gì mới nhé!
-                                </p>
+                                <p className="mt-4">{lesson.description}</p>
                                 <ul className="mt-4 space-y-2">
                                     <li>
                                         <a
@@ -110,24 +151,6 @@ export const Lesson = () => {
                                         >
                                             Group:
                                             https://www.facebook.com/groups/649972919142215
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            className="text-orange-400 hover:underline"
-                                            href="https://www.youtube.com/F8VNOfficial"
-                                        >
-                                            Youtube:
-                                            https://www.youtube.com/F8VNOfficial
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            className="text-orange-400 hover:underline"
-                                            href="https://www.facebook.com/sondnf8"
-                                        >
-                                            Sơn Đặng:
-                                            https://www.facebook.com/sondnf8
                                         </a>
                                     </li>
                                 </ul>
