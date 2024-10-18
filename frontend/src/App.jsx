@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Login } from "./pages/login/login.jsx";
 import { Signup } from "./pages/signup/signup.jsx";
-import { Lession } from "./pages/lession/lession.jsx";
+import { Lesson } from "./pages/lession/lession.jsx";
 import { Detail } from "./pages/detail/detail.jsx";
 import { Dashboard } from "./pages/admin/admin.jsx";
 import { Courses } from "./pages/courses/course.jsx";
@@ -37,7 +37,7 @@ import { QuizTrueFalse } from "./pages/quizzes/quizTrueFalse.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === '/admin';
-    const isPageNotFound = !['/blogdetail', '/blog', '/contact', '/', '/courses', '/lession', '/payment-result','/payment','/cart','/userprofile','/useraccount','/usernoti'].includes(location.pathname) && !location.pathname.startsWith('/detail/');
+    const isPageNotFound = !['/blogdetail', '/blog', '/contact', '/', '/courses', '/payment-result','/payment','/cart','/userprofile','/useraccount','/usernoti'].includes(location.pathname) && !location.pathname.startsWith('/detail/');
 
     return (
         <>
@@ -60,7 +60,7 @@ function AppContent() {
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/register" element={<Signup />}></Route>
                 <Route path="/courses" element={<Courses/>}></Route>
-                <Route path="/lession" element={<Lession />}></Route>
+                <Route path="/lesson" element={<Lesson />}></Route>
                 <Route path="/detail" element={<Detail />}></Route>
                 <Route path="*" element={<PageNotFound />}></Route>
                 <Route path="/404" element={<PageNotFound />}></Route>

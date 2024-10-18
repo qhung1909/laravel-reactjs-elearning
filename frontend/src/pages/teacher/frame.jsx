@@ -1,4 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Footer } from "../footer/footer";
@@ -104,13 +106,13 @@ export const FrameTeacher = () => {
 
     const allInputsCourseMessageFilled = () => {
         return welcomeText.trim() !== "" && congratulationsText.trim() !== "";
-      };
+    };
 
     // course overview
 
     // const [courseDescriptionText, setCourseDescriptionText] = useState('');
     const [courseTitle, setCourseTitle] = useState("");
-    const [courseSubtitle, setCourseSubtitle] = useState("");
+    // const [courseSubtitle, setCourseSubtitle] = useState("");
     const [courseDescriptionText, setCourseDescriptionText] = useState("");
     const [selectedLanguage, setSelectedLanguage] = useState("");
     const [selectedLevel, setSelectedLevel] = useState("");
@@ -122,7 +124,7 @@ export const FrameTeacher = () => {
     const allInputsCourseFilled = () => {
         return (
             courseTitle.trim() !== "" &&
-            courseSubtitle.trim() !== "" &&
+            // courseSubtitle.trim() !== "" &&
             // courseDescriptionText.trim().length >= 200 &&
             courseDescriptionText.trim() !== "" &&
             selectedLanguage !== "" &&
@@ -139,26 +141,24 @@ export const FrameTeacher = () => {
     const [currency, setCurrency] = useState("");
     const [price, setPrice] = useState("");
 
-
-
     const allInputsValuationFilled = () => {
-        return currency !== "" && price !== "";
-      };
+        return currency !== "" && price.trim() !== "";
+    };
 
 
 
     // promotion
-    const inputRef = useRef(null);
-    const [copyText, setCopyText] = useState('Sao chép');
+    // const inputRef = useRef(null);
+    // const [copyText, setCopyText] = useState('Sao chép');
 
-    const copyToClipboard = () => {
-        if (inputRef.current) {
-            inputRef.current.select();
-            document.execCommand('copy');
-            setCopyText('Đã sao chép');
-            setTimeout(() => setCopyText('Sao chép'), 1500);
-        }
-    };
+    // const copyToClipboard = () => {
+    //     if (inputRef.current) {
+    //         inputRef.current.select();
+    //         document.execCommand('copy');
+    //         setCopyText('Đã sao chép');
+    //         setTimeout(() => setCopyText('Sao chép'), 1500);
+    //     }
+    // };
 
 
     const [isChecked, setIsChecked] = useState(false);
@@ -300,18 +300,18 @@ export const FrameTeacher = () => {
                         </p>
                     </div>
 
-                    <div className="pb-6">
-                        <h2 className="pb-1 text-lg font-medium">Phụ đề khóa học</h2>
-                        <input
-                            className="w-full mb-2 border-slate-300 border-2 py-2 pl-3"
-                            placeholder='Chèn phụ đề khóa học'
-                            value={courseSubtitle}
-                            onChange={(e) => setCourseSubtitle(e.target.value)}
-                        />
-                        <p className="text-sm text-gray-400">
-                            Sử dụng 1 hoặc 2 từ khóa có liên quan và đề cập đến 3 - 4 lĩnh vực quan trọng nhất mà bạn đã đề cập trong khóa học của bạn
-                        </p>
-                    </div>
+                    {/* <div className="pb-6">
+                            <h2 className="pb-1 text-lg font-medium">Phụ đề khóa học</h2>
+                            <input
+                                className="w-full mb-2 border-slate-300 border-2 py-2 pl-3"
+                                placeholder='Chèn phụ đề khóa học'
+                                value={courseSubtitle}
+                                onChange={(e) => setCourseSubtitle(e.target.value)}
+                            />
+                            <p className="text-sm text-gray-400">
+                                Sử dụng 1 hoặc 2 từ khóa có liên quan và đề cập đến 3 - 4 lĩnh vực quan trọng nhất mà bạn đã đề cập trong khóa học của bạn
+                            </p>
+                        </div> */}
 
                     <div className="pb-6">
                         <h2 className="pb-1 text-lg font-medium">Mô tả khóa học</h2>
@@ -418,11 +418,16 @@ export const FrameTeacher = () => {
                                 <p className="pb-4">
                                     Tải hình ảnh lên đây. Để được chấp nhận, hình ảnh phải đáp ứng tiêu chuẩn chất lượng hình ảnh khóa học. Hướng dẫn quan trọng 750x422 pixel, jpg, jpeg, gif hoặc png và không có nhu cầu trên hình ảnh.
                                 </p>
-                                <input
+
+                                <div className="grid w-full max-w-sm items-center gap-1.5">
+                                    <Label htmlFor="picture">Hình ảnh</Label>
+                                    <Input onChange={(e) => setCourseImage(e.target.files[0])} id="picture" type="file" />
+                                </div>
+                                {/* <input
                                     type="file"
-                                    onChange={(e) => setCourseImage(e.target.files[0])}
+
                                     className="w-7/12 mb-2 border-slate-300 border-2 py-2 pl-3"
-                                />
+                                /> */}
                             </div>
                         </div>
                     </div>
@@ -468,17 +473,9 @@ export const FrameTeacher = () => {
                                 <p className="pb-1 font-medium">
                                     Mức giá
                                 </p>
-                                <Select onValueChange={setPrice}>
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Chọn" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="free">Miễn phí</SelectItem>
-                                        <SelectItem value="basic">Cơ bản (100.000 VNĐ)</SelectItem>
-                                        <SelectItem value="standard">Tiêu chuẩn (300.000 VNĐ)</SelectItem>
-                                        <SelectItem value="premium">Nâng cao (500.000 VNĐ)</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <div>
+                                    <Input onChange={(e) => setPrice(e.target.value)} type="text" placeholder="Giá" />
+                                </div>
                             </div>
 
                         </div>
@@ -502,7 +499,7 @@ export const FrameTeacher = () => {
                     <div className="border-b-2"></div>
                 </div>
                 <div className="p-10">
-                    <div className="border border-slate-400 px-3 py-5 mb-6">
+                    {/* <div className="border border-slate-400 px-3 py-5 mb-6">
                         <div className="">
                             <h2 className="font-medium text-lg">Giới thiệu cho học viên</h2>
                         </div>
@@ -521,7 +518,7 @@ export const FrameTeacher = () => {
                             </button>
                         </div>
 
-                    </div>
+                    </div> */}
 
 
                     <h2 className="font-medium text-lg pb-1">Coupon</h2>
@@ -723,7 +720,7 @@ export const FrameTeacher = () => {
                                     onClick={() => {
                                         setIsChecked(true); // Tự động tick vào checkbox
                                         setActiveSection("promotion"); // Chuyển đến phần khuyến mại
-                                      }}
+                                    }}
                                     className="cursor-pointer"
                                 >
                                     Khuyến mại

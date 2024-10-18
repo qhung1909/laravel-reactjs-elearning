@@ -10,6 +10,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -25,15 +26,16 @@ class AuthController extends Controller
      */
     public function login()
     {
-
+        Log::info('Login attempt', request()->only('email', 'password'));
         $credentials = request()->only('email', 'password');
 
         if (!$token = auth('api')->attempt($credentials)) {
+            Log::error('Unauthorized login attempt', $credentials);
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $user = auth('api')->user();
-
+        Log::info('User found', ['user' => $user]);
         if (!$user || !$user->getJWTIdentifier()) {
             return response()->json(['error' => 'User ID is null or invalid'], 401);
         }
@@ -43,19 +45,24 @@ class AuthController extends Controller
         }
 
         $refreshToken = $this->createRefreshToken();
+        Log::info('Login successful', ['token' => $token, 'refresh_token' => $refreshToken]);
 
         return $this->respondWithToken($token, $refreshToken);
     }
 
 
     private function createRefreshToken()
-    {
+    {   
+        
         $data = [
             'sub' => auth('api')->user()->user_id,
             'random' => rand() . time(),
             'exp' => time() + config('jwt.refresh_ttl')
         ];
-        $refreshToken = JWTAuth::getJWTProvider()->encode($data);;
+        Log::info('Creating refresh token', ['data' => $data]);
+
+        $refreshToken = JWTAuth::getJWTProvider()->encode($data);
+        Log::info('Refresh token created', ['refresh_token' => $refreshToken]);
         return $refreshToken;
     }
     public function me()
@@ -80,19 +87,23 @@ class AuthController extends Controller
     public function refresh()
     {
         $refreshToken = request()->refresh_token;
-
+        Log::info('Refresh token attempt', ['refresh_token' => $refreshToken]);
         if (!$refreshToken) {
+            Log::error('No refresh token provided');
             return response()->json(['error' => 'No refresh token provided'], 400);
         }
 
         try {
             $decoded = JWTAuth::getJWTProvider()->decode($refreshToken);
+            Log::info('Refresh token decoded', ['decoded' => $decoded]);
             $user = User::find($decoded['sub']);
             if (!$user) {
+                Log::error('User not found', ['sub' => $decoded['sub']]);
                 return response()->json(['error' => 'User not found'], 404);
             }
             $token = auth('api')->login($user);
             $refreshToken = $this->createRefreshToken();
+            Log::info('Token refreshed', ['new_token' => $token, 'new_refresh_token' => $refreshToken]);
 
             return $this->respondWithToken($token, $refreshToken);
         } catch (JWTException $exception) {
@@ -102,7 +113,9 @@ class AuthController extends Controller
 
 
     private function respondWithToken($token, $refreshToken)
-    {
+    {   
+        Log::info('Responding with tokens', ['access_token' => $token, 'refresh_token' => $refreshToken]);
+        
         return response()->json([
             'access_token' => $token,
             'refresh_token' => $refreshToken,

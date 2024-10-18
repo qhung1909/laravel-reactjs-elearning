@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useCallback, useState, useEffect  } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import './login.css'
 
@@ -7,16 +7,16 @@ const API_URL = import.meta.env.VITE_API_URL;
 // const notify = (message) => toast.error(message);
 
 
-const notify = (message, type ) => {
-    if (type === 'success'){
-        toast.success(message,{
-            style:{
+const notify = (message, type) => {
+    if (type === 'success') {
+        toast.success(message, {
+            style: {
                 padding: '16px'
             }
         });
     } else {
-        toast.error(message,{
-            style:{
+        toast.error(message, {
+            style: {
                 padding: '16px'
             }
         })
@@ -48,7 +48,7 @@ export const Login = () => {
     const getUserInfo = async () => {
         const token = localStorage.getItem('access_token');
         if (!token) {
-            console.error('No token found');
+            // console.error('No token found');
             return;
         }
         setLoading(true);
@@ -61,7 +61,7 @@ export const Login = () => {
             });
 
             if (!res.ok) {
-                console.error('Failed to fetch data');
+                // console.error('Failed to fetch data');
             } else {
                 const _dataUser = await res.json();
             }
@@ -73,9 +73,10 @@ export const Login = () => {
     };
 
     const refreshToken = async () => {
-        const refreshToken = localStorage.getItem('refresh_token');
-        if (!refreshToken) {
-            console.error('No refresh token found');
+        const storedRefreshToken = localStorage.getItem('refresh_token');
+        if (!storedRefreshToken) {
+            alert('Session expired. Please log in again.');
+            navigate('/login');
             return;
         }
         try {
@@ -84,11 +85,12 @@ export const Login = () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ refresh_token: refreshToken })
+                body: JSON.stringify({ refresh_token: storedRefreshToken })
             });
 
             if (!res.ok) {
-                console.error('Failed to refresh token');
+                alert('Session expired. Please log in again.');
+                navigate('/login');
                 return;
             }
 
@@ -97,16 +99,17 @@ export const Login = () => {
             localStorage.setItem('refresh_token', data.refresh_token);
             await getUserInfo();
         } catch (error) {
-            console.error('Error refreshing token', error);
+            alert('Session expired. Please log in again.');
+            navigate('/login');
         }
     };
 
     const makeApiRequest = async (url, options) => {
-        const token = localStorage.getItem('access_token');
-        const refreshToken = localStorage.getItem('refresh_token');
+        const accessToken = localStorage.getItem('access_token');
+        const storedRefreshToken = localStorage.getItem('refresh_token');
 
-        if (isTokenExpired(token)) {
-            if (refreshToken) {
+        if (isTokenExpired(accessToken)) {
+            if (storedRefreshToken) {
                 await refreshToken();
             } else {
                 alert("Session expired. Please log in again.");
@@ -119,12 +122,13 @@ export const Login = () => {
             ...options,
             headers: {
                 ...options.headers,
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
             }
         });
 
         return response;
     };
+
 
     const isTokenExpired = (token) => {
         if (!token) return true;
@@ -133,6 +137,7 @@ export const Login = () => {
         return Date.now() > exp;
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedLogin = useCallback(debounce(async () => {
         setLoading(false);
         if (!email || !password) {
@@ -200,7 +205,7 @@ export const Login = () => {
                 </div>
             )}
             <div className="relative m-auto h-screen overflow-hidden items-center shadow-inner lg:grid  lg:grid-cols-2 pt-32 lg:pt-0">
-            <Link className='absolute top-1 left-0 xl:top-8 xl:left-8' to='/'>
+                <Link className='absolute top-1 left-0 xl:top-8 xl:left-8' to='/'>
                     <div className="flex items-center gap-3">
                         <box-icon name='arrow-back' color='gray' ></box-icon>
                         <p className="text-gray-600">Trang chủ</p>
@@ -238,7 +243,7 @@ export const Login = () => {
                                         Quên mật khẩu?
                                     </Link>
                                 </div>
-                                <Input id="password" type="password" tabindex="2" value={password} onChange={(e) => setPassword(e.target.value)}  />
+                                <Input id="password" type="password" tabindex="2" value={password} onChange={(e) => setPassword(e.target.value)} />
                             </div>
                             <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600">
                                 Đăng nhập
@@ -281,8 +286,8 @@ export const Login = () => {
                     <img
                         src="/src/assets/images/login-bg.jpg"
                         alt="Image"
-                            className=" object-cover dark:brightness-[0.2] dark:grayscale"
-                            width='100%'
+                        className=" object-cover dark:brightness-[0.2] dark:grayscale"
+                        width='100%'
                     />
                 </div>
             </div>
