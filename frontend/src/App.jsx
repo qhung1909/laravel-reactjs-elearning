@@ -88,7 +88,7 @@ function AppContent() {
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/register" element={<Signup />}></Route>
                 <Route path="/courses" element={<Courses />}></Route>
-                <Route path="/lesson" element={<Lesson />}></Route>
+                <Route path="/lessons/:slug" element={<Lesson />}></Route>
                 <Route path="/detail" element={<Detail />}></Route>
                 <Route path="*" element={<PageNotFound />}></Route>
                 <Route path="/404" element={<PageNotFound />}></Route>
