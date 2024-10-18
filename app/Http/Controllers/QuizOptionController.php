@@ -48,26 +48,25 @@ class QuizOptionController extends Controller
         if (!Auth::check()) {
             return response()->json(['message' => 'Người dùng chưa đăng nhập.'], 401);
         }
-    
+
         $answers = $request->input('answers');
         $response = [];
         $userId = Auth::id();
         $quizSession = QuizSession::where('user_id', $userId)->latest()->first();
-    
+
         if (!$quizSession) {
             return response()->json(['message' => 'Không tìm thấy phiên quiz.'], 404);
         }
-    
-        $correctAnswersCount = 0; 
-        $totalAnswersCount = count($answers); 
-    
+
+        $correctAnswersCount = 0;
+
         foreach ($answers as $answer) {
             $questionId = $answer['question_id'];
-    
+
             $existingAnswer = UserAnswer::where('user_id', $userId)
                 ->where('question_id', $questionId)
                 ->first();
-    
+
             if ($existingAnswer) {
                 $response[] = [
                     'question_id' => $questionId,
@@ -76,12 +75,12 @@ class QuizOptionController extends Controller
                 ];
                 continue;
             }
-    
+
             $validator = Validator::make($answer, [
                 'option_id' => 'required|exists:quiz_options,option_id',
                 'question_id' => 'required|exists:quizzes_questions,question_id',
             ]);
-    
+
             if ($validator->fails()) {
                 $response[] = [
                     'question_id' => $questionId,
@@ -90,11 +89,11 @@ class QuizOptionController extends Controller
                 ];
                 continue;
             }
-    
+
             $option = QuizOption::where('option_id', $answer['option_id'])
                 ->where('question_id', $questionId)
                 ->first();
-    
+
             if (!$option) {
                 $response[] = [
                     'question_id' => $questionId,
@@ -103,47 +102,51 @@ class QuizOptionController extends Controller
                 ];
                 continue;
             }
-    
+
             try {
-                $userAnswer = UserAnswer::create([
+                UserAnswer::create([
                     'user_id' => $userId,
                     'question_id' => $questionId,
                     'option_id' => $option->option_id,
                     'is_correct' => $option->is_correct,
                 ]);
-    
-                if ($option->is_correct == 1) { 
+
+                if ($option->is_correct) {
                     $correctAnswersCount++;
                 } else {
-                    Log::info("Câu trả lời sai cho câu hỏi: $questionId"); 
+                    Log::info("Câu trả lời sai cho câu hỏi: $questionId");
                 }
-    
+
                 $response[] = [
                     'question_id' => $questionId,
                     'message' => $option->is_correct ? 'Câu trả lời đúng' : 'Câu trả lời sai',
                     'is_correct' => $option->is_correct,
-                    'user_answer' => $userAnswer,
                     'status' => 200,
                 ];
             } catch (\Exception $e) {
                 return response()->json(['message' => 'Không thể lưu câu trả lời. Vui lòng thử lại.'], 500);
             }
         }
-    
-        Log::info("Số câu trả lời đúng: $correctAnswersCount");
-    
-        $totalQuestions = QuizQuestion::where('quiz_id', $quizSession->quiz_id)->count(); 
-        $score = ($correctAnswersCount / $totalQuestions) * 100; 
-    
-        $quizSession->update(['score' => $score]); 
-        Log::info("Điểm số sau khi cập nhật: " . $quizSession->score);
-    
-        $this->endQuiz();
-    
+
+
+        $quizSession->score += $correctAnswersCount;
+        $quizSession->save();
+
+
+        $totalQuestions = QuizQuestion::where('quiz_id', $quizSession->quiz_id)->count();
+
+        $answeredQuestions = UserAnswer::where('user_id', $userId)
+            ->whereIn('question_id', QuizQuestion::where('quiz_id', $quizSession->quiz_id)->pluck('question_id'))
+            ->count();
+
+        if ($answeredQuestions === $totalQuestions) {
+            $quizSession->update(['status' => 'completed']);
+        }
+
         return response()->json($response);
     }
-    
-    
+
+
 
     public function continueQuiz(Request $request)
     {
@@ -187,35 +190,30 @@ class QuizOptionController extends Controller
     {
         $userId = Auth::id();
         $quizSession = QuizSession::where('user_id', $userId)->latest()->first();
-    
+
         if ($quizSession) {
             $totalQuestions = QuizQuestion::where('quiz_id', $quizSession->quiz_id)->count();
-            Log::info('Tổng số câu hỏi: ' . $totalQuestions);
-    
+
             if ($totalQuestions === 0) {
                 return response()->json(['message' => 'Không có câu hỏi nào trong phiên quiz.'], 404);
             }
-    
+
             $answeredQuestions = UserAnswer::where('user_id', $userId)
                 ->whereIn('question_id', QuizQuestion::where('quiz_id', $quizSession->quiz_id)->pluck('question_id'))
                 ->count();
-            Log::info('Số câu hỏi đã trả lời: ' . $answeredQuestions);
-    
+
             try {
                 if ($answeredQuestions === $totalQuestions) {
                     $quizSession->update(['status' => 'completed']);
-                    Log::info('Đã cập nhật trạng thái thành công: completed');
-    
+
                     $quizSession->token = null;
                     $quizSession->save();
-                    Log::info('Token đã được xóa cho phiên quiz:', ['user_id' => $userId, 'quiz_session' => $quizSession]);
                 }
             } catch (\Exception $e) {
-                Log::error('Lỗi khi cập nhật phiên quiz:', ['error' => $e->getMessage()]);
                 return response()->json(['message' => 'Không thể cập nhật điểm số. Vui lòng thử lại.'], 500);
             }
         } else {
-            Log::warning('Không tìm thấy phiên quiz cho người dùng:', ['user_id' => $userId]);
+            return response()->json(['message' => 'Không tìm thấy phiên quiz cho người dùng.'], 404);
         }
     }
 

@@ -51,13 +51,33 @@ class EnrollController extends Controller
         return response()->json($enroll, 201);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         if (!Auth::check()) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-        return response()->json(Enroll::all(), 200);
+    
+        $perPage = $request->input('per_page', 10);
+        
+        $query = Enroll::where('user_id', Auth::id());
+    
+        if ($request->filled('course_id')) {
+            $query->where('course_id', $request->course_id);
+        }
+    
+        if ($request->filled('start_date')) {
+            $query->where('created_at', '>=', $request->start_date);
+        }
+    
+        if ($request->filled('end_date')) {
+            $query->where('created_at', '<=', $request->end_date);
+        }
+    
+        $enrolls = $query->paginate($perPage);
+    
+        return response()->json($enrolls, 200);
     }
+    
 
     public function show($id)
     {
