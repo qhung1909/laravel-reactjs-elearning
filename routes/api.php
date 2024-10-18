@@ -56,7 +56,7 @@ Route::middleware(['admin'])->group(function () {
     Route::put('course/{slug}', [CourseController::class, 'update'])->name('courses.update');
     Route::delete('course/{slug}', [CourseController::class, 'delete'])->name('courses.delete');
     Route::get('courses/featured', [CourseController::class, 'featureCouse']);
-    Route::get('/userCourses/{user_course_id}', [UserCourseController::class, 'show']);
+    Route::get('/userCourses/{userId}', [UserCourseController::class, 'show']);
 
     //Comment
     Route::get('/comments/{course_id}', [CommentController::class, 'index']);
@@ -93,8 +93,11 @@ Route::middleware(['admin'])->group(function () {
     Route::put('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'update']);
     Route::delete('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'destroy']);
 
-    Route::post('questions/submitAnswers', [QuizOptionController::class, 'submitAnswers']);
-
+    Route::post('/quizzes/start/{quizId}', [QuizOptionController::class, 'startQuiz']);
+    Route::post('/quizzes/submit', [QuizOptionController::class, 'submitAnswers']);
+    Route::get('/quizzes/continue', [QuizOptionController::class, 'continueQuiz']);
+    
+    
     Route::get('questions/{questionId}/options', [QuizOptionController::class, 'index']);
     Route::post('questions/{questionId}/options', [QuizOptionController::class, 'store']);
     Route::put('questions/{questionId}/options/{id}', [QuizOptionController::class, 'update']);

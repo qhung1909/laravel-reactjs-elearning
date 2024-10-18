@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\QuizOption;
 use App\Models\UserAnswer;
+use App\Models\QuizSession;
+use Illuminate\Support\Str;
 use App\Models\QuizQuestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +13,27 @@ use Illuminate\Support\Facades\Validator;
 
 class QuizOptionController extends Controller
 {
+    public function startQuiz($quizId)
+    {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Người dùng chưa đăng nhập.'], 401);
+        }
+
+        try {
+            $token = Str::random(60);
+
+            $quizSession = QuizSession::create([
+                'user_id' => Auth::id(),
+                'quiz_id' => $quizId,
+                'token' => $token,
+            ]);
+
+            return response()->json(['token' => $token]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Không thể tạo phiên quiz. Vui lòng thử lại.'], 500);
+        }
+    }
+
     public function submitAnswers(Request $request)
     {
         if (!Auth::check()) {
@@ -19,11 +42,17 @@ class QuizOptionController extends Controller
 
         $answers = $request->input('answers');
         $response = [];
+        $userId = Auth::id();
+        $quizSession = QuizSession::where('user_id', $userId)->latest()->first();
+
+        if (!$quizSession) {
+            return response()->json(['message' => 'Không tìm thấy phiên quiz.'], 404);
+        }
 
         foreach ($answers as $answer) {
             $questionId = $answer['question_id'];
 
-            $existingAnswer = UserAnswer::where('user_id', Auth::id())
+            $existingAnswer = UserAnswer::where('user_id', $userId)
                 ->where('question_id', $questionId)
                 ->first();
 
@@ -37,8 +66,8 @@ class QuizOptionController extends Controller
             }
 
             $validator = Validator::make($answer, [
-                'option_id' => 'required|exists:quiz_options,option_id',  
-                'question_id' => 'required|exists:quizzes_questions,question_id', 
+                'option_id' => 'required|exists:quiz_options,option_id',
+                'question_id' => 'required|exists:quizzes_questions,question_id',
             ]);
 
             if ($validator->fails()) {
@@ -51,8 +80,8 @@ class QuizOptionController extends Controller
             }
 
             $option = QuizOption::where('option_id', $answer['option_id'])
-            ->where('question_id', $questionId) 
-            ->first();
+                ->where('question_id', $questionId)
+                ->first();
 
             if (!$option) {
                 $response[] = [
@@ -62,26 +91,85 @@ class QuizOptionController extends Controller
                 ];
                 continue;
             }
-            
-            $userAnswer = UserAnswer::create([
-                'user_id' => Auth::id(),
-                'question_id' => $questionId,
-                'option_id' => $option->option_id,
-                'is_correct' => $option->is_correct,
-            ]);
 
-            $response[] = [
-                'question_id' => $questionId,
-                'message' => $option->is_correct ? 'Correct answer' : 'Incorrect answer',
-                'is_correct' => $option->is_correct,
-                'user_answer' => $userAnswer,
-                'status' => 200,
-            ];
+            try {
+                $userAnswer = UserAnswer::create([
+                    'user_id' => $userId,
+                    'question_id' => $questionId,
+                    'option_id' => $option->option_id,
+                    'is_correct' => $option->is_correct,
+                ]);
+
+                $response[] = [
+                    'question_id' => $questionId,
+                    'message' => $option->is_correct ? 'Câu trả lời đúng' : 'Câu trả lời sai',
+                    'is_correct' => $option->is_correct,
+                    'user_answer' => $userAnswer,
+                    'status' => 200,
+                ];
+            } catch (\Exception $e) {
+                return response()->json(['message' => 'Không thể lưu câu trả lời. Vui lòng thử lại.'], 500);
+            }
         }
+
+        $this->endQuiz();
 
         return response()->json($response);
     }
 
+
+    public function continueQuiz(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Người dùng chưa đăng nhập.'], 401);
+        }
+
+        $userId = Auth::id();
+        $quizSession = QuizSession::where('user_id', $userId)->latest()->first();
+
+        if (!$quizSession) {
+            return response()->json(['message' => 'Không tìm thấy phiên quiz.'], 404);
+        }
+
+        $questions = $quizSession->questions()->get();
+
+        $answeredQuestions = UserAnswer::where('user_id', $userId)
+            ->whereIn('question_id', $questions->pluck('id'))
+            ->pluck('question_id')
+            ->toArray();
+
+        $unansweredQuestions = $questions->whereNotIn('id', $answeredQuestions);
+
+        if ($unansweredQuestions->isEmpty()) {
+            return response()->json(['message' => 'Tất cả câu hỏi đã được trả lời.'], 200);
+        }
+
+        return response()->json(['questions' => $unansweredQuestions]);
+    }
+
+    protected function endQuiz()
+    {
+        $userId = Auth::id();
+        $quizSession = QuizSession::where('user_id', $userId)->latest()->first();
+
+        if ($quizSession) {
+            $totalQuestions = QuizQuestion::where('quiz_id', $quizSession->quiz_id)->count();
+            if ($totalQuestions === 0) {
+                return;
+            }
+
+            $answeredQuestions = UserAnswer::where('user_id', $userId)
+                ->whereIn('question_id', QuizQuestion::where('quiz_id', $quizSession->quiz_id)->pluck('question_id'))
+                ->count();
+
+            try {
+                $score = ($answeredQuestions / $totalQuestions) * 100;
+                $quizSession->update(['score' => $score]);
+            } catch (\Exception $e) {
+                return response()->json(['message' => 'Không thể cập nhật điểm số. Vui lòng thử lại.'], 500);
+            }
+        }
+    }
 
     public function index($questionId)
     {

@@ -8,15 +8,15 @@ use Illuminate\Support\Facades\Auth;
 
 class UserCourseController extends Controller
 {
-    public function show($userCourseId)
+    public function show($userId)
     {
-        $userCourse = UserCourse::find($userCourseId);
-    
-        if (!$userCourse || $userCourse->user_id !== Auth::id()) {
-            return response()->json(['message' => 'No information about this purchased course found.'], 404);
+        $userCourses = UserCourse::with('course')->where('user_id', $userId)->get();
+
+        if ($userCourses->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy thông tin về khóa học đã mua.'], 404);
         }
     
-        return response()->json($userCourse); 
+        return response()->json($userCourses);
     }
     
 }
