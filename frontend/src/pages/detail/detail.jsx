@@ -726,13 +726,13 @@ export const Detail = () => {
                             </span>
                         </div>
                         {/* Section 1 */}
-                        <div className="bg-white p-6 rounded-lg shadow-md">
+                        {/* <div className="bg-white p-6 rounded-lg shadow-md">
                             <h3 className="text-xl font-semibold mb-4">
                                 Nội dung bài học
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <ul className="space-y-2">
-                                    {/* Danh sách trái */}
+
                                     <li className="flex items-start">
                                         <span>- </span>
                                         <span className="ml-2">
@@ -786,7 +786,7 @@ export const Detail = () => {
                                     )}
                                 </ul>
                                 <ul className="space-y-2">
-                                    {/* Danh sách phải */}
+
                                     <li className="flex items-start">
                                         <span>- </span>
                                         <span className="ml-2">
@@ -845,12 +845,12 @@ export const Detail = () => {
                                     ? "Ẩn bớt ^"
                                     : "Hiện thêm ^"}
                             </button>
-                        </div>
+                        </div> */}
                         {/* Kết thúc Section 1 */}
 
                         {/* Section 2 */}
-                        <div className="bg-white p-6 rounded-lg shadow-md mt-8">
-                            {/* Phần công ty cung cấp khóa học */}
+                        {/* <div className="bg-white p-6 rounded-lg shadow-md mt-8">
+
                             <div className="text-gray-700 text-lg font-bold mb-4">
                                 Các công ty hàng đầu cung cấp khóa học này cho
                                 nhân viên
@@ -866,34 +866,8 @@ export const Detail = () => {
                                     Tìm hiểu thêm
                                 </a>
                             </p>
-                            {/* <div className="flex flex-wrap justify-center gap-4 mb-6">
-                                <img
-                                    src="https://dummyimage.com/100x40/000/fff&text=Nasdaq"
-                                    alt="Nasdaq"
-                                    className="h-10"
-                                />
-                                <img
-                                    src="https://dummyimage.com/100x40/000/fff&text=Volkswagen"
-                                    alt="Volkswagen"
-                                    className="h-10"
-                                />
-                                <img
-                                    src="https://dummyimage.com/100x40/000/fff&text=Box"
-                                    alt="Box"
-                                    className="h-10"
-                                />
-                                <img
-                                    src="https://dummyimage.com/100x40/000/fff&text=NetApp"
-                                    alt="NetApp"
-                                    className="h-10"
-                                />
-                                <img
-                                    src="https://dummyimage.com/100x40/000/fff&text=Eventbrite"
-                                    alt="Eventbrite"
-                                    className="h-10"
-                                />
-                            </div> */}
-                            {/* Phần bài tập coding */}
+
+
                             <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-center">
                                 <div className="w-full lg:w-1/2">
                                     <h3 className="text-2xl font-bold mb-2">
@@ -925,7 +899,7 @@ export const Detail = () => {
                                     />
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                         {/* Kết thúc Section 2 */}
                         {/* Section 3 */}
                         <div className="container mx-auto px-4 py-8">
