@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { Star } from "lucide-react";
 import { Edit, Trash } from "lucide-react"; // Biểu tượng sửa và xóa
-import { Calendar, Globe } from 'lucide-react';
+import { Calendar, Globe } from "lucide-react";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -65,8 +65,46 @@ export const Detail = () => {
 
         return format(date, "dd/MM/yyyy - HH:mm a");
     };
+
+    // Rating & comment
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [comments, setComments] = useState([]);
+    const [items, setItems] = useState([]);
+    const [cartItems, setCartItems] = useState([]);
+
+    // const [lessons, setLessons] = useState([]);
+
+    // const fetchLessons = async () => {
+    //     try {
+    //         const res = await axios.get(`${API_URL}/lessons`, {
+    //             headers: {
+    //                 "x-api-secret": `${API_KEY}`,
+    //             },
+    //         });
+
+    //         if (Array.isArray(res.data)) {
+    //             setLessons(res.data);
+    //         } else {
+    //             console.error("Dữ liệu không phải là mảng:", res.data);
+    //         }
+    //     } catch (error) {
+    //         console.error("Lỗi khi lấy danh sách bài học:", error);
+    //         if (error.response) {
+    //             console.error("Chi tiết lỗi:", error.response.data);
+    //         }
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     fetchLessons();
+    // }, []);
+
+    // useEffect(() => {}, [lessons]);
+
     // User
-    const [user, setUser] = useState([]);
+    const [user, setUser] = useState({});
     // Fetch thông tin người dùng
     const fetchUser = async () => {
         setLoading(true);
@@ -85,6 +123,7 @@ export const Detail = () => {
             // Kiểm tra cấu trúc dữ liệu trả về
             if (res.data && res.data) {
                 setUser(res.data);
+                checkEnroll(res.data.user_id);
             } else {
                 console.error(
                     "Không tìm thấy thông tin người dùng trong phản hồi."
@@ -106,14 +145,6 @@ export const Detail = () => {
         fetchUser();
     }, []);
 
-    // Rating & comment
-    const [rating, setRating] = useState(0);
-    const [comment, setComment] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
-    const [comments, setComments] = useState([]);
-    const [items, setItems] = useState([]);
-    const [cartItems, setCartItems] = useState([]);
-
     const fetchComments = async (course_id) => {
         if (!course_id) {
             console.error("course_id không hợp lệ.");
@@ -129,8 +160,6 @@ export const Detail = () => {
             });
             if (Array.isArray(res.data.comments)) {
                 setComments(res.data.comments);
-            } else {
-                console.error("Dữ liệu không phải là mảng:", res.data.comments);
             }
         } catch (error) {
             console.error("Lỗi khi lấy bình luận:", error);
@@ -156,6 +185,10 @@ export const Detail = () => {
             if (res.data && res.data.course_id) {
                 setDetail(res.data);
                 fetchComments(res.data.course_id); // Truyền course_id vào hàm fetchComments
+                // Gọi checkEnroll sau khi đã có detail
+                if (user.user_id) {
+                    checkEnroll(user.user_id);
+                }
             } else {
                 Navigate("/404");
             }
@@ -179,6 +212,53 @@ export const Detail = () => {
             fetchDetail();
         }
     }, [slug]);
+
+    const [isEnroll, setEnroll] = useState(false);
+    // Check xem đã mua khóa học chưa
+    const checkEnroll = async (user_id) => {
+        setLoading(true);
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            return;
+        }
+
+        try {
+            const res = await axios.get(`${API_URL}/userCourses/${user_id}`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            // Kiểm tra dữ liệu trả về
+            if (Array.isArray(res.data)) {
+                const enrolledCourses = res.data;
+                const currentCourseId = detail && detail.course_id; // Lấy course_id từ detail
+
+                // Kiểm tra xem có khóa học nào đã mua
+                const isEnrolled = enrolledCourses.some(
+                    (course) => course.course_id === currentCourseId
+                );
+                setEnroll(isEnrolled); // Cập nhật trạng thái đã đăng ký
+            } else {
+                console.error("Dữ liệu không phải là mảng:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi kiểm tra khóa học đã mua:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+            }
+        } finally {
+            setLoading(false); // Kết thúc loading trong cả hai trường hợp
+        }
+    };
+
+    useEffect(() => {
+        if (user.user_id && detail.course_id) {
+            checkEnroll(user.user_id);
+        }
+    }, [user, detail]);
 
     const addToCart = async () => {
         const token = localStorage.getItem("access_token");
@@ -268,59 +348,80 @@ export const Detail = () => {
         <SkeletonLoaderBanner />
     ) : (
         <div
-        className="relative bg-gray-900 text-white overflow-hidden "
-        style={{
-          backgroundImage: `url(/src/assets/images/bg-detail4.png)`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          minHeight: '400px', // Đảm bảo banner có chiều cao tối thiểu
-        }}
-      >
-        {/* Overlay gradient để đảm bảo text dễ đọc */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40"></div>
+            className="relative bg-gray-900 text-white overflow-hidden "
+            style={{
+                backgroundImage: `url(/src/assets/images/bg-detail5.png)`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                minHeight: "400px", // Đảm bảo banner có chiều cao tối thiểu
+            }}
+        >
+            {/* Overlay gradient để đảm bảo text dễ đọc */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40"></div>
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 xl:px-44 py-12">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <Link to="/" className="text-gray-300 hover:text-white">Trang chủ</Link>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <Link to="/courses" className="text-gray-300 hover:text-white">Khóa học</Link>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage className="text-gray-300">Chi tiết</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+            <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 xl:px-44 py-12">
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <Link
+                                to="/"
+                                className="text-gray-300 hover:text-white"
+                            >
+                                Trang chủ
+                            </Link>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <Link
+                                to="/courses"
+                                className="text-gray-300 hover:text-white"
+                            >
+                                Khóa học
+                            </Link>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage className="text-gray-300">
+                                Chi tiết
+                            </BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
 
-          <div className="mt-8 max-w-3xl">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-white shadow-text">
-              {detail.title}
-            </h1>
-            <p className="text-lg sm:text-xl md:text-2xl mb-6 text-gray-200 shadow-text">
-              {detail.description}
-            </p>
+                <div className="mt-8 max-w-3xl">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-white shadow-text">
+                        {detail.title}
+                    </h1>
+                    <p className="text-lg sm:text-xl md:text-2xl mb-6 text-gray-200 shadow-text">
+                        {detail.description}
+                    </p>
 
-            <div className="flex items-center mb-4">
-              <span className="text-yellow-400 text-lg font-semibold shadow-text">4,6</span>
-              <span className="ml-2 text-gray-300 shadow-text">(43 xếp hạng)</span>
-              <span className="ml-4 text-gray-300 shadow-text">382 học viên</span>
+                    <div className="flex items-center mb-4">
+                        <span className="text-yellow-400 text-lg font-semibold shadow-text">
+                            4,6
+                        </span>
+                        <span className="ml-2 text-gray-300 shadow-text">
+                            (43 xếp hạng)
+                        </span>
+                        <span className="ml-4 text-gray-300 shadow-text">
+                            382 học viên
+                        </span>
+                    </div>
+
+                    <div className="flex items-center text-sm text-gray-300 mb-2">
+                        <Calendar className="mr-2" size={18} />
+                        <span className="shadow-text">
+                            Ngày cập nhật gần nhất{" "}
+                            {formatDate(detail.updated_at)}
+                        </span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-300">
+                        <Globe className="mr-2" size={18} />
+                        <span className="shadow-text">Vietnamese</span>
+                    </div>
+                </div>
             </div>
-
-            <div className="flex items-center text-sm text-gray-300 mb-2">
-              <Calendar className="mr-2" size={18} />
-              <span className="shadow-text">Ngày cập nhật gần nhất {formatDate(detail.updated_at)}</span>
-            </div>
-            <div className="flex items-center text-sm text-gray-300">
-              <Globe className="mr-2" size={18} />
-              <span className="shadow-text">Vietnamese</span>
-            </div>
-          </div>
         </div>
-      </div>
     );
 
     const [editingCommentId, setEditingCommentId] = useState(null);
@@ -1470,16 +1571,34 @@ export const Detail = () => {
                                 <p className="text-sm text-gray-600 mb-2">
                                     6 ngày còn lại với mức giá này!
                                 </p>
-                                <button
-                                    onClick={() => addToCart(items)}
-                                    className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
-                                >
-                                    Thêm vào giỏ hàng
-                                </button>
-
-                                <button className="w-full bg-white text-black border border-black py-2 rounded-lg mb-2 hover:bg-gray-100 transition duration-300">
-                                    Mua ngay
-                                </button>
+                                {isEnroll ? (
+                                    // lessons.map((lesson) => (
+                                    <Link
+                                        // key={lesson.lesson_id}
+                                        to={`/lessons/${slug}`}
+                                    >
+                                        <button className="w-full bg-green-500 text-white py-2 rounded-lg mb-2 hover:bg-green-600 transition duration-300">
+                                            Vào học ngay
+                                        </button>
+                                    </Link>
+                                ) : (
+                                    // ))
+                                    <>
+                                        <button
+                                            onClick={() =>
+                                                addToCart({
+                                                    id: detail.course_id,
+                                                })
+                                            } // Thay courseId bằng detail.course_id
+                                            className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
+                                        >
+                                            Thêm vào giỏ hàng
+                                        </button>
+                                        <button className="w-full bg-white text-black border border-black py-2 rounded-lg mb-2 hover:bg-gray-100 transition duration-300">
+                                            Mua ngay
+                                        </button>
+                                    </>
+                                )}
                                 <p className="text-sm text-center text-gray-600">
                                     Đảm bảo hoàn tiền trong 30 ngày
                                 </p>
@@ -1552,21 +1671,6 @@ export const Detail = () => {
                                             Chứng chỉ hoàn thành
                                         </li>
                                     </ul>
-                                    {/* <div className="mt-2">
-                                    <h4 className="font-semibold mb-2">
-                                        Áp dụng coupon:
-                                    </h4>
-                                    <div className="flex items-center space-x-2">
-                                        <input
-                                            type="text"
-                                            placeholder="Nhập mã coupon"
-                                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500"
-                                        />
-                                        <button className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition duration-300">
-                                            Áp dụng
-                                        </button>
-                                    </div>
-                                </div> */}
                                 </div>
                             </div>
                         </div>

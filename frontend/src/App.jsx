@@ -31,7 +31,7 @@ import { UserProfile } from "./pages/userprofile/userprofile.jsx";
 import { UserAccount } from "./pages/userprofile/useraccount.jsx";
 import { UserNoti } from "./pages/userprofile/usernoti.jsx";
 import ScrollToTop from "./pages/scrollToTop/scrollToTop.jsx";
-import { QuizSingleChoice } from "./pages/quizzes/quizSingleChoice";
+import { QuizSingleChoice } from './pages/quizzes/quizSingleChoice';
 import { QuizFillInBlank } from "./pages/quizzes/quizFillInBlank.jsx";
 import { QuizMultipleChoice } from "./pages/quizzes/quizMultipleChoice.jsx";
 import { QuizTrueFalse } from "./pages/quizzes/quizTrueFalse.jsx";
@@ -88,7 +88,7 @@ function AppContent() {
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/register" element={<Signup />}></Route>
                 <Route path="/courses" element={<Courses />}></Route>
-                <Route path="/lesson" element={<Lesson />}></Route>
+                <Route path="/lessons/:slug" element={<Lesson />}></Route>
                 <Route path="/detail" element={<Detail />}></Route>
                 <Route path="*" element={<PageNotFound />}></Route>
                 <Route path="/404" element={<PageNotFound />}></Route>

@@ -36,6 +36,10 @@ Route::group([
     Route::get('/cart', [CartController::class, 'getCart']);
 
 });
+
+
+
+
 //Register
 Route::post('register', [UserController::class, 'register']);
 Route::get('/verify-email/{token}', [UserController::class, 'verifyEmail'])->name('verify.email');
@@ -87,15 +91,20 @@ Route::middleware(['admin'])->group(function () {
     Route::put('quizzes/{id}', [QuizController::class, 'update']);
     Route::delete('quizzes/{id}', [QuizController::class, 'destroy']);
 
+
+
     Route::get('/quizzes/{quizId}/questions', [QuizQuestionController::class, 'index']);
     Route::post('/quizzes/{quizId}/questions', [QuizQuestionController::class, 'store']);
     Route::get('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'show']);
     Route::put('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'update']);
     Route::delete('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'destroy']);
 
+    Route::get('quiz-questions/export', [QuizQuestionController::class, 'exportQuizQuestions']);
+
+    
     Route::post('/quizzes/start/{quizId}', [QuizOptionController::class, 'startQuiz']);
     Route::post('/quizzes/submit', [QuizOptionController::class, 'submitAnswers']);
-    Route::get('/quizzes/continue', [QuizOptionController::class, 'continueQuiz']);
+    Route::post('/quizzes/continue', [QuizOptionController::class, 'continueQuiz']);
     
     
     Route::get('questions/{questionId}/options', [QuizOptionController::class, 'index']);
