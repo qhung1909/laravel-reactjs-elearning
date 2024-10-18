@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\QuizAnsw;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -15,10 +16,10 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\QuizOptionController;
 use Symfony\Component\Mime\MessageConverter;
+use App\Http\Controllers\QuizOptionController;
+use App\Http\Controllers\UserCourseController;
 use App\Http\Controllers\QuizQuestionController;
-use App\Models\QuizAnsw;
 
 // Authentication
 Route::group([
@@ -55,6 +56,7 @@ Route::middleware(['admin'])->group(function () {
     Route::put('course/{slug}', [CourseController::class, 'update'])->name('courses.update');
     Route::delete('course/{slug}', [CourseController::class, 'delete'])->name('courses.delete');
     Route::get('courses/featured', [CourseController::class, 'featureCouse']);
+    Route::get('/userCourses/{userId}', [UserCourseController::class, 'show']);
 
     //Comment
     Route::get('/comments/{course_id}', [CommentController::class, 'index']);
@@ -91,8 +93,11 @@ Route::middleware(['admin'])->group(function () {
     Route::put('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'update']);
     Route::delete('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'destroy']);
 
-    Route::post('questions/{questionId}/submitAnswer', [QuizOptionController::class, 'submitAnswer']);
-
+    Route::post('/quizzes/start/{quizId}', [QuizOptionController::class, 'startQuiz']);
+    Route::post('/quizzes/submit', [QuizOptionController::class, 'submitAnswers']);
+    Route::post('/quizzes/continue', [QuizOptionController::class, 'continueQuiz']);
+    
+    
     Route::get('questions/{questionId}/options', [QuizOptionController::class, 'index']);
     Route::post('questions/{questionId}/options', [QuizOptionController::class, 'store']);
     Route::put('questions/{questionId}/options/{id}', [QuizOptionController::class, 'update']);
