@@ -95,7 +95,7 @@ Route::middleware(['admin'])->group(function () {
 
     Route::post('/quizzes/start/{quizId}', [QuizOptionController::class, 'startQuiz']);
     Route::post('/quizzes/submit', [QuizOptionController::class, 'submitAnswers']);
-    Route::get('/quizzes/continue', [QuizOptionController::class, 'continueQuiz']);
+    Route::post('/quizzes/continue', [QuizOptionController::class, 'continueQuiz']);
     
     
     Route::get('questions/{questionId}/options', [QuizOptionController::class, 'index']);

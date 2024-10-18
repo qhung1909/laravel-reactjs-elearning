@@ -11,7 +11,7 @@ class QuizSession extends Model
 
     protected $table = 'quiz_sessions';
     protected $primaryKey = 'quiz_session_id';
-    protected $fillable = ['user_id', 'quiz_id', 'token', 'score', 'completed', 'created_at', 'updated_at'];
+    protected $fillable = ['user_id', 'quiz_id', 'token', 'score', 'status', 'created_at', 'updated_at'];
 
     public function quiz()
     {

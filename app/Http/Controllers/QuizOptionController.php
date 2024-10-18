@@ -8,6 +8,7 @@ use App\Models\QuizSession;
 use Illuminate\Support\Str;
 use App\Models\QuizQuestion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -20,6 +21,14 @@ class QuizOptionController extends Controller
         }
 
         try {
+            $existingSession = QuizSession::where('user_id', Auth::id())
+                ->where('quiz_id', $quizId)
+                ->first();
+
+            if ($existingSession) {
+                return response()->json(['message' => 'Bạn đã bắt đầu quiz này rồi.'], 409);
+            }
+
             $token = Str::random(60);
 
             $quizSession = QuizSession::create([
@@ -33,6 +42,7 @@ class QuizOptionController extends Controller
             return response()->json(['message' => 'Không thể tạo phiên quiz. Vui lòng thử lại.'], 500);
         }
     }
+
 
     public function submitAnswers(Request $request)
     {
@@ -48,6 +58,8 @@ class QuizOptionController extends Controller
         if (!$quizSession) {
             return response()->json(['message' => 'Không tìm thấy phiên quiz.'], 404);
         }
+
+        $correctAnswersCount = 0; 
 
         foreach ($answers as $answer) {
             $questionId = $answer['question_id'];
@@ -100,6 +112,10 @@ class QuizOptionController extends Controller
                     'is_correct' => $option->is_correct,
                 ]);
 
+                if ($option->is_correct) {
+                    $correctAnswersCount++;
+                }
+
                 $response[] = [
                     'question_id' => $questionId,
                     'message' => $option->is_correct ? 'Câu trả lời đúng' : 'Câu trả lời sai',
@@ -110,6 +126,11 @@ class QuizOptionController extends Controller
             } catch (\Exception $e) {
                 return response()->json(['message' => 'Không thể lưu câu trả lời. Vui lòng thử lại.'], 500);
             }
+        }
+
+        if ($correctAnswersCount > 0) {
+            $score = ($correctAnswersCount / count($answers)) * 100; 
+            $quizSession->update(['score' => $score]); 
         }
 
         $this->endQuiz();
@@ -131,21 +152,30 @@ class QuizOptionController extends Controller
             return response()->json(['message' => 'Không tìm thấy phiên quiz.'], 404);
         }
 
-        $questions = $quizSession->questions()->get();
+        $quizId = $quizSession->quiz_id;
+
+        $questions = QuizQuestion::where('quiz_id', $quizId)->get();
 
         $answeredQuestions = UserAnswer::where('user_id', $userId)
-            ->whereIn('question_id', $questions->pluck('id'))
+            ->whereIn('question_id', $questions->pluck('question_id'))
             ->pluck('question_id')
             ->toArray();
 
-        $unansweredQuestions = $questions->whereNotIn('id', $answeredQuestions);
+        $unansweredQuestions = $questions->whereNotIn('question_id', $answeredQuestions);
 
         if ($unansweredQuestions->isEmpty()) {
-            return response()->json(['message' => 'Tất cả câu hỏi đã được trả lời.'], 200);
+            return response()->json([
+                'message' => 'Tất cả câu hỏi đã được trả lời.',
+                'status' => 'completed'
+            ], 200);
         }
 
-        return response()->json(['questions' => $unansweredQuestions]);
+        return response()->json([
+            'questions' => $unansweredQuestions,
+            'status' => $quizSession->status
+        ]);
     }
+
 
     protected function endQuiz()
     {
@@ -154,22 +184,38 @@ class QuizOptionController extends Controller
 
         if ($quizSession) {
             $totalQuestions = QuizQuestion::where('quiz_id', $quizSession->quiz_id)->count();
+            Log::info('Tổng số câu hỏi: ' . $totalQuestions);
+
             if ($totalQuestions === 0) {
-                return;
+                return response()->json(['message' => 'Không có câu hỏi nào trong phiên quiz.'], 404);
             }
 
             $answeredQuestions = UserAnswer::where('user_id', $userId)
                 ->whereIn('question_id', QuizQuestion::where('quiz_id', $quizSession->quiz_id)->pluck('question_id'))
                 ->count();
+            Log::info('Số câu hỏi đã trả lời: ' . $answeredQuestions);
 
             try {
                 $score = ($answeredQuestions / $totalQuestions) * 100;
                 $quizSession->update(['score' => $score]);
+
+                if ($answeredQuestions === $totalQuestions) {
+                    $quizSession->update(['status' => 'completed']);
+                    Log::info('Đã cập nhật trạng thái thành công: completed');
+
+                    $quizSession->token = null;
+                    $quizSession->save();
+                    Log::info('Token đã được xóa cho phiên quiz:', ['user_id' => $userId, 'quiz_session' => $quizSession]);
+                }
             } catch (\Exception $e) {
+                Log::error('Lỗi khi cập nhật phiên quiz:', ['error' => $e->getMessage()]);
                 return response()->json(['message' => 'Không thể cập nhật điểm số. Vui lòng thử lại.'], 500);
             }
+        } else {
+            Log::warning('Không tìm thấy phiên quiz cho người dùng:', ['user_id' => $userId]);
         }
     }
+
 
     public function index($questionId)
     {
