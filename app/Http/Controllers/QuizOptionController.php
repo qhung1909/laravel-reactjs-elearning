@@ -43,7 +43,6 @@ class QuizOptionController extends Controller
         }
     }
 
-
     public function submitAnswers(Request $request)
     {
         if (!Auth::check()) {
@@ -59,7 +58,7 @@ class QuizOptionController extends Controller
             return response()->json(['message' => 'Không tìm thấy phiên quiz.'], 404);
         }
 
-        $correctAnswersCount = 0; 
+        $correctAnswersCount = 0;
 
         foreach ($answers as $answer) {
             $questionId = $answer['question_id'];
@@ -105,7 +104,7 @@ class QuizOptionController extends Controller
             }
 
             try {
-                $userAnswer = UserAnswer::create([
+                UserAnswer::create([
                     'user_id' => $userId,
                     'question_id' => $questionId,
                     'option_id' => $option->option_id,
@@ -114,13 +113,14 @@ class QuizOptionController extends Controller
 
                 if ($option->is_correct) {
                     $correctAnswersCount++;
+                } else {
+                    Log::info("Câu trả lời sai cho câu hỏi: $questionId");
                 }
 
                 $response[] = [
                     'question_id' => $questionId,
                     'message' => $option->is_correct ? 'Câu trả lời đúng' : 'Câu trả lời sai',
                     'is_correct' => $option->is_correct,
-                    'user_answer' => $userAnswer,
                     'status' => 200,
                 ];
             } catch (\Exception $e) {
@@ -128,15 +128,24 @@ class QuizOptionController extends Controller
             }
         }
 
-        if ($correctAnswersCount > 0) {
-            $score = ($correctAnswersCount / count($answers)) * 100; 
-            $quizSession->update(['score' => $score]); 
-        }
 
-        $this->endQuiz();
+        $quizSession->score += $correctAnswersCount;
+        $quizSession->save();
+
+
+        $totalQuestions = QuizQuestion::where('quiz_id', $quizSession->quiz_id)->count();
+
+        $answeredQuestions = UserAnswer::where('user_id', $userId)
+            ->whereIn('question_id', QuizQuestion::where('quiz_id', $quizSession->quiz_id)->pluck('question_id'))
+            ->count();
+
+        if ($answeredQuestions === $totalQuestions) {
+            $quizSession->update(['status' => 'completed']);
+        }
 
         return response()->json($response);
     }
+
 
 
     public function continueQuiz(Request $request)
@@ -184,7 +193,6 @@ class QuizOptionController extends Controller
 
         if ($quizSession) {
             $totalQuestions = QuizQuestion::where('quiz_id', $quizSession->quiz_id)->count();
-            Log::info('Tổng số câu hỏi: ' . $totalQuestions);
 
             if ($totalQuestions === 0) {
                 return response()->json(['message' => 'Không có câu hỏi nào trong phiên quiz.'], 404);
@@ -193,29 +201,21 @@ class QuizOptionController extends Controller
             $answeredQuestions = UserAnswer::where('user_id', $userId)
                 ->whereIn('question_id', QuizQuestion::where('quiz_id', $quizSession->quiz_id)->pluck('question_id'))
                 ->count();
-            Log::info('Số câu hỏi đã trả lời: ' . $answeredQuestions);
 
             try {
-                $score = ($answeredQuestions / $totalQuestions) * 100;
-                $quizSession->update(['score' => $score]);
-
                 if ($answeredQuestions === $totalQuestions) {
                     $quizSession->update(['status' => 'completed']);
-                    Log::info('Đã cập nhật trạng thái thành công: completed');
 
                     $quizSession->token = null;
                     $quizSession->save();
-                    Log::info('Token đã được xóa cho phiên quiz:', ['user_id' => $userId, 'quiz_session' => $quizSession]);
                 }
             } catch (\Exception $e) {
-                Log::error('Lỗi khi cập nhật phiên quiz:', ['error' => $e->getMessage()]);
                 return response()->json(['message' => 'Không thể cập nhật điểm số. Vui lòng thử lại.'], 500);
             }
         } else {
-            Log::warning('Không tìm thấy phiên quiz cho người dùng:', ['user_id' => $userId]);
+            return response()->json(['message' => 'Không tìm thấy phiên quiz cho người dùng.'], 404);
         }
     }
-
 
     public function index($questionId)
     {
