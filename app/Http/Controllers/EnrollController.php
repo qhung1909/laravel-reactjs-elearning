@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Enroll;
+use App\Models\UserCourse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -23,9 +24,18 @@ class EnrollController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
+        $userCourse = UserCourse::where('user_id', Auth::id())
+        ->where('course_id', $request->course_id)
+        ->first();
+
+
+        if (!$userCourse) {
+            return response()->json(['message' => 'Bạn phải mua khóa học trước.'], 409);
+        }
+
         $existingEnroll = Enroll::where('user_id', Auth::id())
-            ->where('course_id', $request->course_id)
-            ->first();
+        ->where('course_id', $request->course_id)
+        ->first();
 
         if ($existingEnroll) {
             return response()->json(['message' => 'You are already enrolled in this course.'], 409);

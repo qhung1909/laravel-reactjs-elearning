@@ -10,45 +10,79 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class QuizOptionController extends Controller
-{   
-    public function submitAnswer(Request $request, $questionId)
+{
+    public function submitAnswers(Request $request)
     {
         if (!Auth::check()) {
             return response()->json(['message' => 'Người dùng chưa đăng nhập.'], 401);
         }
-    
-        $existingAnswer = UserAnswer::where('user_id', Auth::id())
-            ->where('question_id', $questionId)
+
+        $answers = $request->input('answers');
+        $response = [];
+
+        foreach ($answers as $answer) {
+            $questionId = $answer['question_id'];
+
+            $existingAnswer = UserAnswer::where('user_id', Auth::id())
+                ->where('question_id', $questionId)
+                ->first();
+
+            if ($existingAnswer) {
+                $response[] = [
+                    'question_id' => $questionId,
+                    'message' => 'Người dùng đã trả lời câu hỏi này rồi.',
+                    'status' => 403,
+                ];
+                continue;
+            }
+
+            $validator = Validator::make($answer, [
+                'option_id' => 'required|exists:quiz_options,option_id',  
+                'question_id' => 'required|exists:quizzes_questions,question_id', 
+            ]);
+
+            if ($validator->fails()) {
+                $response[] = [
+                    'question_id' => $questionId,
+                    'message' => $validator->errors(),
+                    'status' => 400,
+                ];
+                continue;
+            }
+
+            $option = QuizOption::where('option_id', $answer['option_id'])
+            ->where('question_id', $questionId) 
             ->first();
-    
-        if ($existingAnswer) {
-            return response()->json(['message' => 'Người dùng đã trả lời câu hỏi này rồi.'], 403);
+
+            if (!$option) {
+                $response[] = [
+                    'question_id' => $questionId,
+                    'message' => 'Lựa chọn không hợp lệ cho câu hỏi này.',
+                    'status' => 400,
+                ];
+                continue;
+            }
+            
+            $userAnswer = UserAnswer::create([
+                'user_id' => Auth::id(),
+                'question_id' => $questionId,
+                'option_id' => $option->option_id,
+                'is_correct' => $option->is_correct,
+            ]);
+
+            $response[] = [
+                'question_id' => $questionId,
+                'message' => $option->is_correct ? 'Correct answer' : 'Incorrect answer',
+                'is_correct' => $option->is_correct,
+                'user_answer' => $userAnswer,
+                'status' => 200,
+            ];
         }
-    
-        $validator = Validator::make($request->all(), [
-            'option_id' => 'required|exists:quiz_options,option_id',
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
-    
-        $option = QuizOption::find($request->option_id);
-    
-        $userAnswer = UserAnswer::create([
-            'user_id' => Auth::id(),
-            'question_id' => $questionId,
-            'option_id' => $option->option_id,
-            'is_correct' => $option->is_correct,
-        ]);
-    
-        return response()->json([
-            'message' => $option->is_correct ? 'Correct answer' : 'Incorrect answer',
-            'is_correct' => $option->is_correct,
-            'user_answer' => $userAnswer,
-        ]);
+
+        return response()->json($response);
     }
-    
+
+
     public function index($questionId)
     {
         $options = QuizOption::where('question_id', $questionId)->get();
