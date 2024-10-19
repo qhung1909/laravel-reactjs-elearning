@@ -292,7 +292,7 @@ export const Header = () => {
                                                 <img src="./src/assets/images/cart.svg" className="w-12" alt="" />
                                             </Link>
                                         </div>
-                                        <div className="">
+                                        <div className=" cursor-pointer">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <img src="./src/assets/images/user.svg" className="w-12" alt="" />
@@ -355,7 +355,7 @@ export const Header = () => {
                                                             <DropdownMenuGroup>
                                                                 <DropdownMenuItem>
                                                                     <User className="mr-2 h-4 w-4" />
-                                                                    <span>Profile</span>
+                                                                    <span>Thông tin cá nhân</span>
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem>
                                                                     <CreditCard className="mr-2 h-4 w-4" />
@@ -363,14 +363,14 @@ export const Header = () => {
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem>
                                                                     <Settings className="mr-2 h-4 w-4" />
-                                                                    <span>Settings</span>
+                                                                    <span>Cài đặt</span>
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuGroup>
 
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem>
                                                                 <LogOut className="mr-2 h-4 w-4" />
-                                                                <span onClick={logout}>Log out</span>
+                                                                <span onClick={logout}>Đăng xuất</span>
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
@@ -413,7 +413,7 @@ export const Header = () => {
                                                         <li className="max-xl:mb-4">
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger>
-                                                                    <Link to="/courses" className="hover:text-gray-500 border-none">
+                                                                    <Link className="hover:text-gray-500 border-none">
                                                                         Khóa học
                                                                     </Link>
                                                                 </DropdownMenuTrigger>
@@ -492,14 +492,14 @@ export const Header = () => {
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </li>
-                                    <li className="max-xl:mb-4">
-                                        <Link to="/contact" className="hover:text-gray-500">
+                                    <li>
+                                        <Link to="/contact" className={`p-3 rounded ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
                                             Liên hệ
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link to="/blog" className="hover:text-gray-500">
-                                            Bài viết
+                                        <Link to="/blog" className={` p-3 rounded ${isBlogPage ? "bg-yellow-100" : "hover:bg-gray-100"}`}>
+                                            Blog
                                         </Link>
                                     </li>
                                 </ul>
@@ -546,12 +546,12 @@ export const Header = () => {
                                         <div className="navbar-icons flex items-center gap-2 xl:mx-3 my-5">
                                             <div className="navbar-noti cursor-pointer">
                                                 <Link to="/instructor">
-                                                <img src="./src/assets/images/notification.svg" className="w-16" alt="" />
+                                                    <img src="./src/assets/images/notification.svg" className="w-16" alt="" />
                                                 </Link>
                                             </div>
                                             <div className="">
                                                 <Link to='/cart'>
-                                                <img src="./src/assets/images/cart.svg" className="w-16" alt="" />
+                                                    <img src="./src/assets/images/cart.svg" className="w-16" alt="" />
                                                 </Link>
                                             </div>
                                             <div className="flex items-center">
@@ -579,7 +579,7 @@ export const Header = () => {
                                                     <li className="max-xl:mb-4">
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger>
-                                                                <Link to="/courses" className="hover:text-gray-500 border-none">
+                                                                <Link className="hover:text-gray-500 border-none">
                                                                     Khóa học
                                                                 </Link>
                                                             </DropdownMenuTrigger>
