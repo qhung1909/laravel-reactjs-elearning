@@ -248,9 +248,6 @@ class QuizOptionController extends Controller
         }
     }
 
-
-
-
     protected function handleTrueFalse($answer, $question, &$response, &$correctAnswersCount)
     {
         $validator = Validator::make($answer, [

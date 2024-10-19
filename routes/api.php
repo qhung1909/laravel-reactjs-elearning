@@ -34,7 +34,7 @@ Route::group([
     Route::post('cart/addToCart', [CartController::class, 'addToCart']);
     Route::delete('/cart/remove-item', [CartController::class, 'removeItem']);
     Route::get('/cart', [CartController::class, 'getCart']);
-
+    Route::post('/enroll', [EnrollController::class, 'enroll']);
 });
 
 
@@ -112,7 +112,6 @@ Route::middleware(['admin'])->group(function () {
     Route::put('questions/{questionId}/options/{id}', [QuizOptionController::class, 'update']);
     Route::delete('questions/{questionId}/options/{id}', [QuizOptionController::class, 'destroy']);
 
-    Route::apiResource('enrolls', EnrollController::class);
 });
 
 
