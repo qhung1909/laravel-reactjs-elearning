@@ -8,17 +8,22 @@ use Illuminate\Http\Request;
 use App\Jobs\SendWelcomeEmail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
+    public function getAllUsers(Request $request)
+    {
+        $perPage = $request->input('per_page', 10); 
 
-    public function index(){
-        $user = User::all();
-        return response()->json([
-            $user
-        ]);
+        $users = Cache::remember('users_list', 180, function () use ($perPage) {
+            return User::select('email', 'name', 'role', 'avatar')->paginate($perPage);
+        });
+
+        return response()->json($users, 200);
     }
+
 
     public function register(Request $request)
     {
