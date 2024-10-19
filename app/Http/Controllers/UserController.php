@@ -15,16 +15,16 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Coupon; 
+use App\Models\Coupon;
 
 class UserController extends Controller
 {
     public function getAllUsers(Request $request)
     {
-        $perPage = $request->input('per_page', 10); 
+        $perPage = $request->input('per_page', 10);
 
         $users = Cache::remember('users_list', 180, function () use ($perPage) {
-            return User::select('email', 'name', 'role', 'avatar')->paginate($perPage);
+            return User::select('user_id','email', 'name', 'role', 'avatar')->paginate($perPage);
         });
 
         return response()->json($users, 200);
@@ -129,7 +129,6 @@ class UserController extends Controller
         return $status === Password::PASSWORD_RESET
             ? response()->json(['message' => 'Mật khẩu đã được cập nhật thành công!'], 200)
             : response()->json(['message' => 'Có lỗi xảy ra, vui lòng thử lại.'], 500);
-    
     }
 
     public function updateProfile(Request $request)
@@ -144,7 +143,7 @@ class UserController extends Controller
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -163,7 +162,7 @@ class UserController extends Controller
         }
 
         if ($request->has('password')) {
-            $user->password = Hash::make($request->password); 
+            $user->password = Hash::make($request->password);
         }
 
         if ($request->hasFile('avatar')) {
@@ -181,7 +180,7 @@ class UserController extends Controller
     }
 
     public function getOrderHistory()
-    {   
+    {
         if (!Auth::check()) {
             return response()->json(['message' => 'Bạn cần đăng nhập để thực hiện hành động này.'], 401);
         }
@@ -189,23 +188,72 @@ class UserController extends Controller
         $userId = Auth::id();
 
         $orders = Order::where('user_id', $userId)
-            ->with('coupon') 
+            ->with(['coupon', 'userCourses.course'])
             ->select('order_id', 'total_price', 'coupon_id', 'status', 'payment_method', 'created_at')
             ->orderBy('created_at', 'desc')
             ->get();
 
-            $orders = $orders->map(function ($order) {
-                return [
-                    'order_id' => $order->order_id,
-                    'name_coupon' => $order->coupon ? $order->coupon->name_coupon : null, 
-                    'total_price' => $order->total_price,
-                    'status' => $order->status,
-                    'payment_method' => $order->payment_method,
-                    'created_at' => $order->created_at->format('d-m-Y H:i:s'), 
-                ];
-            });
+        $orders = $orders->map(function ($order) {
+            return [
+                'order_id' => $order->order_id,
+                'name_coupon' => $order->coupon ? $order->coupon->name_coupon : null,
+                'total_price' => $order->total_price,
+                'status' => $order->status,
+                'payment_method' => $order->payment_method,
+                'created_at' => $order->created_at->format('d-m-Y H:i:s'),
+                'courses' => $order->userCourses->map(function ($userCourse) {
+                    return [
+                        'course_title' => $userCourse->course ? $userCourse->course->title : null,
+                    ];
+                }),
+            ];
+        });
 
         return response()->json($orders, 200);
     }
 
+
+    public function searchOrderHistory(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Bạn cần đăng nhập để thực hiện hành động này.'], 401);
+        }
+
+        $userId = Auth::id();
+        $keyword = $request->input('keyword');
+
+        $query = Order::where('user_id', $userId)
+            ->with(['coupon', 'userCourses.course']) 
+            ->select('order_id', 'total_price', 'coupon_id', 'status', 'payment_method', 'created_at');
+
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('order_id', 'like', "%$keyword%")
+                    ->orWhereHas('userCourses.course', function ($query) use ($keyword) {
+                        $query->where('title', 'like', "%$keyword%"); 
+                    });
+            });
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->get();
+
+        $orders = $orders->map(function ($order) {
+            return [
+                'order_id' => $order->order_id,
+                'name_coupon' => $order->coupon ? $order->coupon->name_coupon : null,
+                'total_price' => $order->total_price,
+                'status' => $order->status,
+                'payment_method' => $order->payment_method,
+                'created_at' => $order->created_at->format('d-m-Y H:i:s'),
+                'courses' => $order->userCourses->map(function ($userCourse) {
+                    return [
+                        'course_id' => $userCourse->course_id,
+                        'course_title' => $userCourse->course ? $userCourse->course->title : null, 
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json($orders, 200);
+    }
 }
