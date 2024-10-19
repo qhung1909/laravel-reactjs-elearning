@@ -355,7 +355,7 @@ export const Header = () => {
                                                             <DropdownMenuGroup>
                                                                 <DropdownMenuItem>
                                                                     <User className="mr-2 h-4 w-4" />
-                                                                    <span>Profile</span>
+                                                                    <span>Thông tin cá nhân</span>
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem>
                                                                     <CreditCard className="mr-2 h-4 w-4" />
@@ -363,14 +363,14 @@ export const Header = () => {
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem>
                                                                     <Settings className="mr-2 h-4 w-4" />
-                                                                    <span>Settings</span>
+                                                                    <span>Cài đặt</span>
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuGroup>
 
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem>
                                                                 <LogOut className="mr-2 h-4 w-4" />
-                                                                <span onClick={logout}>Log out</span>
+                                                                <span onClick={logout}>Đăng xuất</span>
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
@@ -413,7 +413,7 @@ export const Header = () => {
                                                         <li className="max-xl:mb-4">
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger>
-                                                                    <Link to="/courses" className="hover:text-gray-500 border-none">
+                                                                    <Link className="hover:text-gray-500 border-none">
                                                                         Khóa học
                                                                     </Link>
                                                                 </DropdownMenuTrigger>
@@ -579,7 +579,7 @@ export const Header = () => {
                                                     <li className="max-xl:mb-4">
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger>
-                                                                <Link to="/courses" className="hover:text-gray-500 border-none">
+                                                                <Link className="hover:text-gray-500 border-none">
                                                                     Khóa học
                                                                 </Link>
                                                             </DropdownMenuTrigger>
