@@ -10,9 +10,9 @@ class Course extends Model
     use HasFactory;
 
     protected $table = 'courses';
-    protected $primaryKey = 'course_id'; 
+    protected $primaryKey = 'course_id';
     protected $fillable = [
-        'course_category_id', 
+        'course_category_id',
         'price',
         'price_discount',
         'description',
@@ -25,5 +25,9 @@ class Course extends Model
     {
         return $this->belongsTo(Category::class);
     }
-    
+
+    public function enrolls()
+    {
+        return $this->hasMany(Enroll::class, 'course_id');
+    }
 }

@@ -32,7 +32,7 @@ class EnrollController extends Controller
         if (!$userCourse) {
             return response()->json(['message' => 'Bạn phải mua khóa học trước.'], 409);
         }
-
+        
         $existingEnroll = Enroll::where('user_id', Auth::id())
         ->where('course_id', $request->course_id)
         ->first();
