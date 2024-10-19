@@ -292,7 +292,7 @@ export const Header = () => {
                                                 <img src="./src/assets/images/cart.svg" className="w-12" alt="" />
                                             </Link>
                                         </div>
-                                        <div className=" cursor-pointer">
+                                        <div className="cursor-pointer">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <img src="./src/assets/images/user.svg" className="w-12" alt="" />
@@ -327,7 +327,7 @@ export const Header = () => {
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem>
                                                         <LogOut className="mr-2 h-4 w-4" />
-                                                        <span onClick={logout}>Đăng xuất</span>
+                                                        <span className="cursor-pointer" onClick={logout}>Đăng xuất</span>
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
@@ -340,7 +340,7 @@ export const Header = () => {
                                         <SheetTrigger>
                                             {/* icons*/}
                                             <div className="navbar-icons flex items-center gap-2 xl:mx-3 my-5">
-                                                <div className="cursor-pointer">
+                                                <div className="">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
                                                             <img src="./src/assets/images/user.svg" className="w-20" alt="" />
@@ -355,22 +355,22 @@ export const Header = () => {
                                                             <DropdownMenuGroup>
                                                                 <DropdownMenuItem>
                                                                     <User className="mr-2 h-4 w-4" />
-                                                                    <span>Thông tin cá nhân</span>
+                                                                    <span className="cursor-pointer">Thông tin cá nhân</span>
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem>
                                                                     <CreditCard className="mr-2 h-4 w-4" />
-                                                                    <span>Billing</span>
+                                                                    <span className="cursor-pointer">Billing</span>
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem>
                                                                     <Settings className="mr-2 h-4 w-4" />
-                                                                    <span>Cài đặt</span>
+                                                                    <span className="cursor-pointer">Cài đặt</span>
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuGroup>
 
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem>
                                                                 <LogOut className="mr-2 h-4 w-4" />
-                                                                <span onClick={logout}>Đăng xuất</span>
+                                                                <span className="cursor-pointer" onClick={logout}>Đăng xuất</span>
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
