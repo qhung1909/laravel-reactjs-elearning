@@ -34,13 +34,16 @@ Route::group([
     Route::post('cart/addToCart', [CartController::class, 'addToCart']);
     Route::delete('/cart/remove-item', [CartController::class, 'removeItem']);
     Route::get('/cart', [CartController::class, 'getCart']);
+    Route::post('/enroll', [EnrollController::class, 'enroll']);
+    Route::get('/enrollment/check', [EnrollController::class, 'checkEnrollment']);
+    Route::put('user/profile', [UserController::class, 'updateProfile']);
+    Route::get('orders/history', [UserController::class, 'getOrderHistory']);
 
 });
 
-
-
-
 //Register
+Route::get('/courses/{slug}/related', [CourseController::class, 'relatedCourses']);
+Route::get('/courses/search', [CourseController::class, 'search']);
 Route::post('register', [UserController::class, 'register']);
 Route::get('/verify-email/{token}', [UserController::class, 'verifyEmail'])->name('verify.email');
 //Payment VNPay
@@ -49,9 +52,14 @@ Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
 //Coupons check
 Route::post('/check-discount', [CouponController::class, 'checkDiscount']);
 
+//Reset Password
+Route::post('reset-password', [UserController::class, 'sendResetLink']);
+Route::post('reset-password/{token}', [UserController::class, 'resetPassword']);
+
 Route::middleware(['admin'])->group(function () {
 
     // Courses
+    Route::get('/instructors/top', [CourseController::class, 'topInstructorsWithCourses']);
     Route::get('courses', [CourseController::class, 'index'])->name('courses.index');
     Route::get('/top-purchased-courses', [CourseController::class, 'topPurchasedCourses']);
     Route::get('/top-viewed-courses', [CourseController::class, 'topViewedCourses']);
@@ -61,6 +69,7 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('course/{slug}', [CourseController::class, 'delete'])->name('courses.delete');
     Route::get('courses/featured', [CourseController::class, 'featureCouse']);
     Route::get('/userCourses/{userId}', [UserCourseController::class, 'show']);
+    Route::get('/courses/related/{categoryId}/{slug}', [CourseController::class, 'relatedCoursesByCategory']);
 
     //Comment
     Route::get('/comments/{course_id}', [CommentController::class, 'index']);
@@ -112,7 +121,8 @@ Route::middleware(['admin'])->group(function () {
     Route::put('questions/{questionId}/options/{id}', [QuizOptionController::class, 'update']);
     Route::delete('questions/{questionId}/options/{id}', [QuizOptionController::class, 'destroy']);
 
-    Route::apiResource('enrolls', EnrollController::class);
+    Route::get('/users', [UserController::class, 'getAllUsers']);
+    
 });
 
 

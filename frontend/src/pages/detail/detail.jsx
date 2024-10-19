@@ -38,10 +38,10 @@ export const Detail = () => {
     const { slug } = useParams();
     const [loading, setLoading] = useState([]);
     // JS Section 1
-    const [isSection1Expanded, setIsSection1Expanded] = useState(false);
-    const toggleSection1 = () => {
-        setIsSection1Expanded(!isSection1Expanded);
-    };
+    // const [isSection1Expanded, setIsSection1Expanded] = useState(false);
+    // const toggleSection1 = () => {
+    //     setIsSection1Expanded(!isSection1Expanded);
+    // };
     // JS Section 3
     const [isSection3Expanded, setIsSection3Expanded] = useState(false);
 
@@ -123,7 +123,7 @@ export const Detail = () => {
             // Kiểm tra cấu trúc dữ liệu trả về
             if (res.data && res.data) {
                 setUser(res.data);
-                checkEnroll(res.data.user_id);
+                checkPaymentCourse(res.data.user_id);
             } else {
                 console.error(
                     "Không tìm thấy thông tin người dùng trong phản hồi."
@@ -185,9 +185,9 @@ export const Detail = () => {
             if (res.data && res.data.course_id) {
                 setDetail(res.data);
                 fetchComments(res.data.course_id); // Truyền course_id vào hàm fetchComments
-                // Gọi checkEnroll sau khi đã có detail
+                // Gọi checkPaymentCourse sau khi đã có detail
                 if (user.user_id) {
-                    checkEnroll(user.user_id);
+                    checkPaymentCourse(user.user_id);
                 }
             } else {
                 Navigate("/404");
@@ -213,16 +213,15 @@ export const Detail = () => {
         }
     }, [slug]);
 
-    const [isEnroll, setEnroll] = useState(false);
+    const [isPaymentCourse, setPaymentCourse] = useState(false);
     // Check xem đã mua khóa học chưa
-    const checkEnroll = async (user_id) => {
+    const checkPaymentCourse = async (user_id) => {
         setLoading(true);
         const token = localStorage.getItem("access_token");
         if (!token) {
             toast.error("Bạn chưa đăng nhập.");
             return;
         }
-
         try {
             const res = await axios.get(`${API_URL}/userCourses/${user_id}`, {
                 headers: {
@@ -233,14 +232,14 @@ export const Detail = () => {
 
             // Kiểm tra dữ liệu trả về
             if (Array.isArray(res.data)) {
-                const enrolledCourses = res.data;
+                const isPaymentCourse = res.data;
                 const currentCourseId = detail && detail.course_id; // Lấy course_id từ detail
 
                 // Kiểm tra xem có khóa học nào đã mua
-                const isEnrolled = enrolledCourses.some(
+                const isPaymented = isPaymentCourse.some(
                     (course) => course.course_id === currentCourseId
                 );
-                setEnroll(isEnrolled); // Cập nhật trạng thái đã đăng ký
+                setPaymentCourse(isPaymented); // Cập nhật trạng thái đã đăng ký
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
@@ -256,9 +255,53 @@ export const Detail = () => {
 
     useEffect(() => {
         if (user.user_id && detail.course_id) {
-            checkEnroll(user.user_id);
+            checkPaymentCourse(user.user_id);
         }
     }, [user, detail]);
+
+    const [isEnrolled, setIsEnrolled] = useState(false);
+    // Gọi API enroll khi người dùng nhấn nút Enroll
+    const handleEnroll = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            return;
+        }
+        try {
+            const res = await axios.post(
+                `${API_URL}/enrolls`,
+                {
+                    course_id: detail.course_id,
+                },
+                {
+                    headers: {
+                        "x-api-secret": `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (res.status === 200) {
+                toast.success("Đăng ký khóa học thành công!");
+                setIsEnrolled(true);
+            } else {
+                toast.error(`Đăng ký khóa học thất bại! Status: ${res.status}`);
+            }
+        } catch (error) {
+            console.error("Lỗi khi đăng ký khóa học:", error);
+
+            if (error.response) {
+                // Lỗi từ server với response
+                console.log("Server response:", error.response.data);
+            } else if (error.request) {
+                // Lỗi không có response từ server
+                toast.error("Không thể kết nối đến server.");
+            } else {
+                // Lỗi khác
+                toast.error("Lỗi trong quá trình đăng ký: " + error.message);
+            }
+        }
+    };
 
     const addToCart = async () => {
         const token = localStorage.getItem("access_token");
@@ -711,28 +754,14 @@ export const Detail = () => {
                 <div className="flex flex-wrap -mx-4">
                     {/* Cột trái (Nội dung bài học) */}
                     <div className="w-full lg:w-2/3 px-4">
-                        <h2 className="text-2xl font-bold mb-4">
-                            Khám phá các chủ đề liên quan
-                        </h2>
-                        <div className="flex flex-wrap space-x-2 mb-6">
-                            <span className="custom-tag">
-                                <a href="#">Python</a>
-                            </span>
-                            <span className="custom-tag">
-                                <a href="#">Ngôn ngữ lập trình</a>
-                            </span>
-                            <span className="custom-tag">
-                                <a href="#">Phát triển</a>
-                            </span>
-                        </div>
                         {/* Section 1 */}
-                        <div className="bg-white p-6 rounded-lg shadow-md">
+                        {/* <div className="bg-white p-6 rounded-lg shadow-md">
                             <h3 className="text-xl font-semibold mb-4">
                                 Nội dung bài học
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <ul className="space-y-2">
-                                    {/* Danh sách trái */}
+
                                     <li className="flex items-start">
                                         <span>- </span>
                                         <span className="ml-2">
@@ -786,7 +815,7 @@ export const Detail = () => {
                                     )}
                                 </ul>
                                 <ul className="space-y-2">
-                                    {/* Danh sách phải */}
+
                                     <li className="flex items-start">
                                         <span>- </span>
                                         <span className="ml-2">
@@ -845,12 +874,12 @@ export const Detail = () => {
                                     ? "Ẩn bớt ^"
                                     : "Hiện thêm ^"}
                             </button>
-                        </div>
+                        </div> */}
                         {/* Kết thúc Section 1 */}
 
                         {/* Section 2 */}
-                        <div className="bg-white p-6 rounded-lg shadow-md mt-8">
-                            {/* Phần công ty cung cấp khóa học */}
+                        {/* <div className="bg-white p-6 rounded-lg shadow-md mt-8">
+
                             <div className="text-gray-700 text-lg font-bold mb-4">
                                 Các công ty hàng đầu cung cấp khóa học này cho
                                 nhân viên
@@ -866,34 +895,8 @@ export const Detail = () => {
                                     Tìm hiểu thêm
                                 </a>
                             </p>
-                            {/* <div className="flex flex-wrap justify-center gap-4 mb-6">
-                                <img
-                                    src="https://dummyimage.com/100x40/000/fff&text=Nasdaq"
-                                    alt="Nasdaq"
-                                    className="h-10"
-                                />
-                                <img
-                                    src="https://dummyimage.com/100x40/000/fff&text=Volkswagen"
-                                    alt="Volkswagen"
-                                    className="h-10"
-                                />
-                                <img
-                                    src="https://dummyimage.com/100x40/000/fff&text=Box"
-                                    alt="Box"
-                                    className="h-10"
-                                />
-                                <img
-                                    src="https://dummyimage.com/100x40/000/fff&text=NetApp"
-                                    alt="NetApp"
-                                    className="h-10"
-                                />
-                                <img
-                                    src="https://dummyimage.com/100x40/000/fff&text=Eventbrite"
-                                    alt="Eventbrite"
-                                    className="h-10"
-                                />
-                            </div> */}
-                            {/* Phần bài tập coding */}
+
+
                             <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-center">
                                 <div className="w-full lg:w-1/2">
                                     <h3 className="text-2xl font-bold mb-2">
@@ -925,7 +928,7 @@ export const Detail = () => {
                                     />
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                         {/* Kết thúc Section 2 */}
                         {/* Section 3 */}
                         <div className="container mx-auto px-4 py-8">
@@ -1535,11 +1538,6 @@ export const Detail = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="mt-8">
-                                <button className="w-full py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                                    Báo cáo lạm dụng
-                                </button>
-                            </div>
                         </div>
                         {/* Kết thúc Section 7 */}
                     </div>
@@ -1571,34 +1569,37 @@ export const Detail = () => {
                                 <p className="text-sm text-gray-600 mb-2">
                                     6 ngày còn lại với mức giá này!
                                 </p>
-                                {isEnroll ? (
-                                    // lessons.map((lesson) => (
-                                    <Link
-                                        // key={lesson.lesson_id}
-                                        to={`/lessons/${slug}`}
+                                {/* Nếu người dùng đã mua khóa học và chưa enroll */}
+                                {isPaymentCourse && !isEnrolled && (
+                                    <button
+                                        onClick={handleEnroll}
+                                        className="w-full bg-blue-500 text-white py-2 rounded-lg mb-2 hover:bg-blue-600 transition duration-300"
                                     >
+                                        Enroll
+                                    </button>
+                                )}
+
+                                {/* Sau khi người dùng đã enroll */}
+                                {isPaymentCourse && isEnrolled && (
+                                    <Link to={`/lessons/${slug}`}>
                                         <button className="w-full bg-green-500 text-white py-2 rounded-lg mb-2 hover:bg-green-600 transition duration-300">
                                             Vào học ngay
                                         </button>
                                     </Link>
-                                ) : (
-                                    // ))
-                                    <>
-                                        <button
-                                            onClick={() =>
-                                                addToCart({
-                                                    id: detail.course_id,
-                                                })
-                                            } // Thay courseId bằng detail.course_id
-                                            className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
-                                        >
-                                            Thêm vào giỏ hàng
-                                        </button>
-                                        <button className="w-full bg-white text-black border border-black py-2 rounded-lg mb-2 hover:bg-gray-100 transition duration-300">
-                                            Mua ngay
-                                        </button>
-                                    </>
                                 )}
+
+                                {/* Nếu người dùng chưa mua khóa học */}
+                                {!isPaymentCourse && (
+                                    <button
+                                        onClick={() =>
+                                            addToCart({ id: detail.course_id })
+                                        } // Thay courseId bằng detail.course_id
+                                        className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
+                                    >
+                                        Thêm vào giỏ hàng
+                                    </button>
+                                )}
+
                                 <p className="text-sm text-center text-gray-600">
                                     Đảm bảo hoàn tiền trong 30 ngày
                                 </p>

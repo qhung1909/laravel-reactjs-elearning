@@ -83,7 +83,7 @@ export const Home = () => {
             });
 
             const courses = response.data.courses || [];
-            setProductsByCategory(courses); 
+            setProductsByCategory(courses.slice(0, 4));
             setSelectedCategory(slug);
 
         } catch (error) {
@@ -281,7 +281,6 @@ export const Home = () => {
     useEffect(() => {
         fetchTopPurchasedProduct();
         fetchTopViewedProduct();
-
         fetchCategories();
     }, []);
 
@@ -413,9 +412,12 @@ export const Home = () => {
                             </div>
                         )}
                         <div className="homecatelog homecatelog-button text-center">
-                            <button className="hover:bg-black hover:text-white duration-300 bg-yellow-500 lg:py-3 lg:px-8 md:px-8 sm:px-7 py-2 px-7 rounded-full font-semibold xl:mt-10 mt-3 lg:text-base md:text-sm sm:text-sm text-[13px]">
-                                Xem thêm
-                            </button>
+                            <Link to="/courses">
+                                <button className="hover:bg-black hover:text-white duration-300 bg-yellow-500 lg:py-3 lg:px-8 md:px-8 sm:px-7 py-2 px-7 rounded-full font-semibold xl:mt-10 mt-3 lg:text-base md:text-sm sm:text-sm text-[13px]">
+                                    Xem thêm
+                                </button>
+                            </Link>
+
                         </div>
                     </div>
                 </div>

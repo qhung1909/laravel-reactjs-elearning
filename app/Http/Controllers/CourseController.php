@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request;
+use App\Models\User;
 use App\Models\Course;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Validator;
 
 class CourseController extends Controller
 {
@@ -18,6 +20,51 @@ class CourseController extends Controller
         $this->course = $course;
     }
 
+
+    public function topInstructorsWithCourses()
+    {
+        $instructors = User::select('users.*', DB::raw('MAX(courses.is_buy) as max_is_buy'))
+            ->join('courses', 'users.user_id', '=', 'courses.user_id')
+            ->where('users.role', 'teacher')
+            ->groupBy('users.user_id')
+            ->orderBy('max_is_buy', 'desc')
+            ->get();
+
+        if ($instructors->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy giảng viên nổi tiếng nào.'], 404);
+        }
+
+        return response()->json($instructors, 200);
+    }
+
+
+    public function search(Request $request)
+    {
+        $rules = [
+            'query' => 'required|string|max:255',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $query = $request->input('query');
+
+        $searchResults = Cache::remember("search_courses_{$query}", 180, function () use ($query) {
+            return $this->course->where('title', 'like', "%{$query}%")
+                ->orWhere('description', 'like', "%{$query}%")
+                ->get();
+        });
+
+        if ($searchResults->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy khóa học nào.'], 404);
+        }
+
+        return response()->json($searchResults, 200);
+    }
+
+
     public function index(Request $request)
     {
         $courses = Cache::remember('courses', 120, function () {
@@ -27,6 +74,44 @@ class CourseController extends Controller
         return response()->json($courses);
     }
 
+    public function relatedCourses($slug)
+    {
+        $course = Course::where('slug', $slug)->first();
+
+        if (!$course) {
+            return response()->json(['message' => 'Khóa học không tìm thấy'], 404);
+        }
+
+        $relatedCourses = Course::where('course_category_id', $course->course_category_id)
+            ->where('user_id', $course->user_id)
+            ->where('slug', '!=', $slug)
+            ->get();
+
+        if ($relatedCourses->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy khóa học liên quan.'], 404);
+        }
+
+        return response()->json($relatedCourses, 200);
+    }
+
+    public function relatedCoursesByCategory($categoryId, $slug)
+    {
+        $course = Course::where('slug', $slug)->first();
+
+        if (!$course) {
+            return response()->json(['message' => 'Khóa học không tìm thấy.'], 404);
+        }
+
+        $relatedCourses = Course::where('course_category_id', $categoryId)
+            ->where('slug', '!=', $slug) 
+            ->get();
+
+        if ($relatedCourses->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy khóa học liên quan.'], 404);
+        }
+
+        return response()->json($relatedCourses, 200);
+    }
 
     public function topPurchasedCourses()
     {

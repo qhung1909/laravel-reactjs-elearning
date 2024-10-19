@@ -11,7 +11,7 @@ class QuizQuestion extends Model
 
     protected $table = 'quizzes_questions';
     protected $primaryKey = 'question_id';
-    protected $fillable = ['quiz_id', 'question', 'created_at', 'updated_at'];
+    protected $fillable = ['quiz_id', 'question','question_type', 'created_at', 'updated_at'];
 
     public function quiz()
     {
