@@ -292,7 +292,7 @@ export const Header = () => {
                                                 <img src="./src/assets/images/cart.svg" className="w-12" alt="" />
                                             </Link>
                                         </div>
-                                        <div className="">
+                                        <div className=" cursor-pointer">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <img src="./src/assets/images/user.svg" className="w-12" alt="" />
