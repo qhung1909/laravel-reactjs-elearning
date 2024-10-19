@@ -260,18 +260,20 @@ export const Detail = () => {
     }, [user, detail]);
 
     const [isEnrolled, setIsEnrolled] = useState(false);
-    // Gọi API enroll khi người dùng nhấn nút Enroll
+    // Gọi API enroll
     const handleEnroll = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
             toast.error("Bạn chưa đăng nhập.");
             return;
         }
+
         try {
             const res = await axios.post(
-                `${API_URL}/enrolls`,
+                `${API_URL}/auth/enroll`,
                 {
                     course_id: detail.course_id,
+                    user_id: user.user_id,
                 },
                 {
                     headers: {
@@ -281,20 +283,22 @@ export const Detail = () => {
                 }
             );
 
-            if (res.status === 200) {
+            // Kiểm tra nếu mã trạng thái là 200 hoặc 201
+            if (res.status === 200 || res.status === 201) {
                 toast.success("Đăng ký khóa học thành công!");
+                checkEnrollment(user.user_id, detail.course_id);
                 setIsEnrolled(true);
             } else {
-                toast.error(`Đăng ký khóa học thất bại! Status: ${res.status}`);
+                toast.error(`Đăng kí thất bại`);
             }
         } catch (error) {
             console.error("Lỗi khi đăng ký khóa học:", error);
-
             if (error.response) {
-                // Lỗi từ server với response
+                // Lỗi từ phía server
                 console.log("Server response:", error.response.data);
+                toast.error(`Đăng kí thất bại`);
             } else if (error.request) {
-                // Lỗi không có response từ server
+                // Không có phản hồi từ server
                 toast.error("Không thể kết nối đến server.");
             } else {
                 // Lỗi khác
@@ -302,7 +306,44 @@ export const Detail = () => {
             }
         }
     };
+    // Check xem user enroll chưa
+    const checkEnrollment = async (user_id, course_id) => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            return;
+        }
 
+        try {
+            const res = await axios.get(`${API_URL}/auth/enrollment/check`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+                params: {
+                    user_id: user_id,
+                    course_id: course_id,
+                },
+            });
+            if (res.status === 200 && res.data.enrolled) {
+                setIsEnrolled(true); // Người dùng đã đăng ký khóa học
+            } else {
+                setIsEnrolled(false); // Người dùng chưa đăng ký khóa học
+            }
+        } catch (error) {
+            console.error("Lỗi khi kiểm tra trạng thái đăng ký:", error);
+            if (error.response) {
+                console.error("Lỗi từ server: " + error.response.data.message);
+            } else {
+                console.error("Lỗi kết nối đến server.");
+            }
+        }
+    };
+    useEffect(() => {
+        if (user.user_id && detail.course_id) {
+            checkEnrollment(user.user_id, detail.course_id); // Kiểm tra trạng thái đăng ký
+        }
+    }, [user, detail]);
     const addToCart = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -1579,7 +1620,6 @@ export const Detail = () => {
                                     </button>
                                 )}
 
-                                {/* Sau khi người dùng đã enroll */}
                                 {isPaymentCourse && isEnrolled && (
                                     <Link to={`/lessons/${slug}`}>
                                         <button className="w-full bg-green-500 text-white py-2 rounded-lg mb-2 hover:bg-green-600 transition duration-300">
@@ -1588,12 +1628,11 @@ export const Detail = () => {
                                     </Link>
                                 )}
 
-                                {/* Nếu người dùng chưa mua khóa học */}
                                 {!isPaymentCourse && (
                                     <button
                                         onClick={() =>
                                             addToCart({ id: detail.course_id })
-                                        } // Thay courseId bằng detail.course_id
+                                        }
                                         className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
                                     >
                                         Thêm vào giỏ hàng
