@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
 
+    public function index(){
+        $user = User::all();
+        return response()->json([
+            $user
+        ]);
+    }
+
     public function register(Request $request)
     {
 

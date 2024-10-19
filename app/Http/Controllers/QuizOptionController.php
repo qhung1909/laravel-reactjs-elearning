@@ -204,9 +204,10 @@ class QuizOptionController extends Controller
 
             try {
                 if ($answeredQuestions === $totalQuestions) {
+                    
+                    $quizSession->token = null;
                     $quizSession->update(['status' => 'completed']);
 
-                    $quizSession->token = null;
                     $quizSession->save();
                 }
             } catch (\Exception $e) {
