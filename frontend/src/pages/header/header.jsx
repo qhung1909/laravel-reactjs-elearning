@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
     CreditCard,
@@ -30,6 +30,7 @@ import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton"
 
 export const Header = () => {
+    const location = useLocation();
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const [categories, setCategories] = useState([]);
@@ -37,6 +38,8 @@ export const Header = () => {
     const [user, setUser] = useState([]);
     const [loadingLogout, setLoadingLogout] = useState(false);
     const [loading, setLoading] = useState(false);
+    const isBlogPage = location.pathname === "/blog";
+    const isContactPage = location.pathname ==="/contact";
     const categoryImages = {
         javascript: "./src/assets/images/javascript.svg",
         python: "./src/assets/images/python.svg",
@@ -49,6 +52,8 @@ export const Header = () => {
         nodejs: "./src/assets/images/nodejs.svg",
 
     };
+
+
     const navigate = useNavigate();
 
     const logout = () => {
@@ -261,14 +266,14 @@ export const Header = () => {
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </li>
-                                        <li className="max-xl:mb-4">
-                                            <Link to="/contact" className="hover:text-gray-500">
+                                        <li>
+                                            <Link to="/contact" className={`p-2 rounded ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
                                                 Liên hệ
                                             </Link>
                                         </li>
                                         <li>
-                                            <Link to="/blog" className="hover:text-gray-500">
-                                                Bài viết
+                                            <Link to="/blog" className={` p-2 rounded ${isBlogPage ? "bg-yellow-100" : "hover:bg-gray-100"}`}>
+                                                Blog
                                             </Link>
                                         </li>
                                     </ul>
@@ -445,10 +450,6 @@ export const Header = () => {
                                                             </Link>
                                                         </li>
                                                     </ul>
-
-
-
-
                                                 </SheetDescription>
                                             </SheetHeader>
                                         </SheetContent>
