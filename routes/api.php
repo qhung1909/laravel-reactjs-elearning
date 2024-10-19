@@ -35,10 +35,11 @@ Route::group([
     Route::delete('/cart/remove-item', [CartController::class, 'removeItem']);
     Route::get('/cart', [CartController::class, 'getCart']);
     Route::post('/enroll', [EnrollController::class, 'enroll']);
+    Route::get('/enrollment/check', [EnrollController::class, 'checkEnrollment']);
+    Route::put('user/profile', [UserController::class, 'updateProfile']);
+    Route::get('orders/history', [UserController::class, 'getOrderHistory']);
+
 });
-
-
-
 
 //Register
 Route::get('/courses/{slug}/related', [CourseController::class, 'relatedCourses']);
@@ -50,6 +51,10 @@ Route::post('/vnpay-payment', [CartController::class, 'vnpay_payment']);
 Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
 //Coupons check
 Route::post('/check-discount', [CouponController::class, 'checkDiscount']);
+
+//Reset Password
+Route::post('reset-password', [UserController::class, 'sendResetLink']);
+Route::post('reset-password/{token}', [UserController::class, 'resetPassword']);
 
 Route::middleware(['admin'])->group(function () {
 
