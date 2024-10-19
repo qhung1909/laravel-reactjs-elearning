@@ -104,8 +104,46 @@ export const Detail = () => {
     // useEffect(() => {}, [lessons]);
 
     // User
+    const [users, setUsers] = useState([]);
+    //fetch thông tin user comment
+    const fetchUsers = async () => {
+        const token = localStorage.getItem("access_token");
+        try {
+            const res = await axios.get(`${API_URL}/users`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            // Kiểm tra xem dữ liệu có phải là mảng không và thiết lập users
+            if (res.data && Array.isArray(res.data.data)) {
+                const usersObject = res.data.data.reduce((acc, user) => {
+                    acc[user.user_id] = user;
+                    return acc;
+                }, {});
+                setUsers(usersObject);
+            } else {
+                console.error(
+                    "Không tìm thấy danh sách người dùng trong phản hồi."
+                );
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy danh sách người dùng:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+                console.error("Trạng thái lỗi:", error.response.status);
+            } else {
+                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
+            }
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
     const [user, setUser] = useState({});
-    // Fetch thông tin người dùng
+    // Fetch thông tin user đang đăng nhập
     const fetchUser = async () => {
         setLoading(true);
         const token = localStorage.getItem("access_token");
@@ -576,15 +614,18 @@ export const Detail = () => {
                           <Avatar>
                               <AvatarFallback>Avatar</AvatarFallback>
                               <AvatarImage
-                                  src="https://github.com/shadcn.png"
-                                  alt="@shadcn"
+                                  src={
+                                      users[comment.user_id]?.avatar ||
+                                      "default_avatar_url"
+                                  }
                               />
                           </Avatar>
                           <div className="ml-3 w-full">
                               <div className="flex justify-between items-center">
                                   <div className="flex items-center">
                                       <span className="font-semibold">
-                                          user_id: {comment.user_id}
+                                          {users[comment.user_id]?.name ||
+                                              "Người dùng"}
                                       </span>
                                       <span className="text-gray-500 text-sm ml-2">
                                           {formatDate(comment.updated_at)}
