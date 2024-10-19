@@ -63,6 +63,16 @@ class QuizOptionController extends Controller
         foreach ($answers as $answer) {
             $questionId = $answer['question_id'];
 
+            $question = QuizQuestion::find($questionId);
+            if (!$question) {
+                $response[] = [
+                    'question_id' => $questionId,
+                    'message' => 'Câu hỏi không tồn tại.',
+                    'status' => 404,
+                ];
+                continue;
+            }
+
             $existingAnswer = UserAnswer::where('user_id', $userId)
                 ->where('question_id', $questionId)
                 ->first();
@@ -76,113 +86,267 @@ class QuizOptionController extends Controller
                 continue;
             }
 
-            $validator = Validator::make($answer, [
-                'option_id' => 'required|exists:quiz_options,option_id',
-                'question_id' => 'required|exists:quizzes_questions,question_id',
-            ]);
-
-            if ($validator->fails()) {
-                $response[] = [
-                    'question_id' => $questionId,
-                    'message' => $validator->errors(),
-                    'status' => 400,
-                ];
-                continue;
-            }
-
-            $option = QuizOption::where('option_id', $answer['option_id'])
-                ->where('question_id', $questionId)
-                ->first();
-
-            if (!$option) {
-                $response[] = [
-                    'question_id' => $questionId,
-                    'message' => 'Lựa chọn không hợp lệ cho câu hỏi này.',
-                    'status' => 400,
-                ];
-                continue;
-            }
-
-            try {
-                UserAnswer::create([
-                    'user_id' => $userId,
-                    'question_id' => $questionId,
-                    'option_id' => $option->option_id,
-                    'is_correct' => $option->is_correct,
-                ]);
-
-                if ($option->is_correct) {
-                    $correctAnswersCount++;
-                } else {
-                    Log::info("Câu trả lời sai cho câu hỏi: $questionId");
-                }
-
-                $response[] = [
-                    'question_id' => $questionId,
-                    'message' => $option->is_correct ? 'Câu trả lời đúng' : 'Câu trả lời sai',
-                    'is_correct' => $option->is_correct,
-                    'status' => 200,
-                ];
-            } catch (\Exception $e) {
-                return response()->json(['message' => 'Không thể lưu câu trả lời. Vui lòng thử lại.'], 500);
+            switch ($question->question_type) {
+                case 'single_choice':
+                    $this->handleSingleChoice($answer, $question, $response, $correctAnswersCount);
+                    break;
+                case 'mutiple_choice':
+                    $this->handleMultipleChoice($answer, $question, $response, $correctAnswersCount);
+                    break;
+                case 'true_false':
+                    $this->handleTrueFalse($answer, $question, $response, $correctAnswersCount);
+                    break;
+                case 'fill_blank':
+                    $this->handleFillBlank($answer, $question, $response, $correctAnswersCount);
+                    break;
+                default:
+                    $response[] = [
+                        'question_id' => $questionId,
+                        'message' => 'Loại câu hỏi không được hỗ trợ.',
+                        'status' => 400,
+                    ];
+                    break;
             }
         }
-
 
         $quizSession->score += $correctAnswersCount;
         $quizSession->save();
 
-
         $totalQuestions = QuizQuestion::where('quiz_id', $quizSession->quiz_id)->count();
-
+        $questionIds = QuizQuestion::where('quiz_id', $quizSession->quiz_id)->pluck('question_id');
         $answeredQuestions = UserAnswer::where('user_id', $userId)
-            ->whereIn('question_id', QuizQuestion::where('quiz_id', $quizSession->quiz_id)->pluck('question_id'))
-            ->count();
+            ->whereIn('question_id', $questionIds)
+            ->distinct() 
+            ->count('question_id');
+
+        Log::info('Total questions: ' . $totalQuestions);
+        Log::info('Answered questions: ' . $answeredQuestions);
 
         if ($answeredQuestions === $totalQuestions) {
-            $quizSession->update(['status' => 'completed']);
+            Log::info('All questions answered, updating quiz session to completed.');
+
+            try {
+                $quizSession->update([
+                    'status' => 'completed',
+                    'token' => null,
+                ]);
+                Log::info('Quiz session updated to completed.');
+            } catch (\Exception $e) {
+                Log::error('Error updating quiz session: ' . $e->getMessage());
+            }
+        } else {
+            Log::info('Not all questions answered yet.');
         }
 
         return response()->json($response);
     }
 
-    protected function endQuiz()
+    protected function handleSingleChoice($answer, $question, &$response, &$correctAnswersCount)
     {
-        $userId = Auth::id();
-        $quizSession = QuizSession::where('user_id', $userId)->latest()->first();
+        $validator = Validator::make($answer, [
+            'option_id' => 'required|exists:quiz_options,option_id',
+            'question_id' => 'required|exists:quizzes_questions,question_id',
+        ]);
 
-        if ($quizSession) {
-            $totalQuestions = QuizQuestion::where('quiz_id', $quizSession->quiz_id)->count();
+        if ($validator->fails()) {
+            $response[] = [
+                'question_id' => $question->question_id,
+                'message' => $validator->errors(),
+                'status' => 400,
+            ];
+            return;
+        }
 
-            if ($totalQuestions === 0) {
-                return response()->json(['message' => 'Không có câu hỏi nào trong phiên quiz.'], 404);
+        $option = QuizOption::where('option_id', $answer['option_id'])
+            ->where('question_id', $question->question_id)
+            ->first();
+
+        if (!$option) {
+            $response[] = [
+                'question_id' => $question->question_id,
+                'message' => 'Lựa chọn không hợp lệ cho câu hỏi này.',
+                'status' => 400,
+            ];
+            return;
+        }
+
+        UserAnswer::create([
+            'user_id' => Auth::id(),
+            'question_id' => $question->question_id,
+            'option_id' => $option->option_id,
+            'is_correct' => $option->is_correct,
+        ]);
+
+        if ($option->is_correct) {
+            $correctAnswersCount++;
+        }
+
+        $response[] = [
+            'question_id' => $question->question_id,
+            'message' => $option->is_correct ? 'Câu trả lời đúng' : 'Câu trả lời sai',
+            'is_correct' => $option->is_correct,
+            'status' => 200,
+        ];
+    }
+
+    protected function handleMultipleChoice($answer, $question, &$response, &$correctAnswersCount)
+    {
+        $validator = Validator::make($answer, [
+            'option_ids' => 'required|array',
+            'option_ids.*' => 'exists:quiz_options,option_id',
+            'question_id' => 'required|exists:quizzes_questions,question_id',
+        ]);
+
+        if ($validator->fails()) {
+            $response[] = [
+                'question_id' => $question->question_id,
+                'message' => $validator->errors(),
+                'status' => 400,
+            ];
+            return;
+        }
+
+        $selectedOptions = $answer['option_ids'];
+        $correctOptionIds = QuizOption::where('question_id', $question->question_id)
+            ->where('is_correct', true)
+            ->pluck('option_id')
+            ->toArray();
+
+        $allCorrectSelected = !array_diff($correctOptionIds, $selectedOptions);
+        $anyIncorrectSelected = array_diff($selectedOptions, $correctOptionIds);
+
+        if ($allCorrectSelected && empty($anyIncorrectSelected)) {
+            foreach ($selectedOptions as $optionId) {
+                UserAnswer::create([
+                    'user_id' => Auth::id(),
+                    'question_id' => $question->question_id,
+                    'option_id' => $optionId,
+                    'is_correct' => true,
+                ]);
             }
-
-            $answeredQuestions = UserAnswer::where('user_id', $userId)
-                ->whereIn('question_id', QuizQuestion::where('quiz_id', $quizSession->quiz_id)->pluck('question_id'))
-                ->count();
-
-            try {
-                if ($answeredQuestions === $totalQuestions) {
-
-                    $quizSession->update(['status' => 'completed']);
-                    Log::info('Token before setting null', ['token' => $quizSession->token]);
-
-
-                    $quizSession->token = null;
-                    
-                    Log::info('Token after setting null', ['token' => $quizSession->token]);
-
-                    
-                    $quizSession->save();
-                }
-            } catch (\Exception $e) {
-                return response()->json(['message' => 'Không thể cập nhật điểm số. Vui lòng thử lại.'], 500);
-            }
+            $correctAnswersCount++;
+            $response[] = [
+                'question_id' => $question->question_id,
+                'message' => 'Câu trả lời đúng',
+                'is_correct' => true,
+                'status' => 200,
+            ];
         } else {
-            return response()->json(['message' => 'Không tìm thấy phiên quiz cho người dùng.'], 404);
+            foreach ($selectedOptions as $optionId) {
+                UserAnswer::create([
+                    'user_id' => Auth::id(),
+                    'question_id' => $question->question_id,
+                    'option_id' => $optionId,
+                ]);
+            }
+            $response[] = [
+                'question_id' => $question->question_id,
+                'message' => 'Câu trả lời sai',
+                'is_correct' => false,
+                'status' => 200,
+            ];
         }
     }
+
+
+
+
+    protected function handleTrueFalse($answer, $question, &$response, &$correctAnswersCount)
+    {
+        $validator = Validator::make($answer, [
+            'option_id' => 'required|exists:quiz_options,option_id',
+        ]);
+
+        if ($validator->fails()) {
+            $response[] = [
+                'question_id' => $question->question_id,
+                'message' => $validator->errors(),
+                'status' => 400,
+            ];
+            return;
+        }
+
+        $option = QuizOption::where('option_id', $answer['option_id'])
+            ->where('question_id', $question->question_id)
+            ->first();
+
+        if (!$option) {
+            $response[] = [
+                'question_id' => $question->question_id,
+                'message' => 'Lựa chọn không hợp lệ cho câu hỏi này.',
+                'status' => 400,
+            ];
+            return;
+        }
+
+        UserAnswer::create([
+            'user_id' => Auth::id(),
+            'question_id' => $question->question_id,
+            'option_id' => $option->option_id,
+            'is_correct' => $option->is_correct,
+        ]);
+
+        if ($option->is_correct) {
+            $correctAnswersCount++;
+        }
+
+        $response[] = [
+            'question_id' => $question->question_id,
+            'message' => $option->is_correct ? 'Câu trả lời đúng' : 'Câu trả lời sai',
+            'is_correct' => $option->is_correct,
+            'status' => 200,
+        ];
+    }
+
+    protected function handleFillBlank($answer, $question, &$response, &$correctAnswersCount)
+    {
+        $validator = Validator::make($answer, [
+            'text_answer' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            $response[] = [
+                'question_id' => $question->question_id,
+                'message' => $validator->errors(),
+                'status' => 400,
+            ];
+            return;
+        }
+
+        $correctAnswer = QuizOption::where('question_id', $question->question_id)
+            ->where('is_correct', true)
+            ->first();
+
+        if (!$correctAnswer) {
+            $response[] = [
+                'question_id' => $question->question_id,
+                'message' => 'Không tìm thấy đáp án đúng cho câu hỏi này.',
+                'status' => 404,
+            ];
+            return;
+        }
+
+        $isCorrect = strtolower(trim($answer['text_answer'])) === strtolower(trim($correctAnswer->answer));
+
+        UserAnswer::create([
+            'user_id' => Auth::id(),
+            'question_id' => $question->question_id,
+            'text_answer' => $answer['text_answer'],
+            'is_correct' => $isCorrect,
+        ]);
+
+        if ($isCorrect) {
+            $correctAnswersCount++;
+        }
+
+        $response[] = [
+            'question_id' => $question->question_id,
+            'message' => $isCorrect ? 'Câu trả lời đúng' : 'Câu trả lời sai',
+            'is_correct' => $isCorrect,
+            'status' => 200,
+        ];
+    }
+
 
     public function continueQuiz(Request $request)
     {
