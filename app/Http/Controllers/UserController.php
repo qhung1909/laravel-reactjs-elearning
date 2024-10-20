@@ -179,25 +179,30 @@ class UserController extends Controller
         if (!Auth::check()) {
             return response()->json(['message' => 'Bạn cần đăng nhập để thực hiện hành động này.'], 401);
         }
-
+    
         $user = Auth::user();
-
+    
         $validator = Validator::make($request->all(), [
             'password' => 'required|string|min:6|confirmed',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Cập nhật mật khẩu không thành công.',
                 'errors' => $validator->errors()
             ], 422);
         }
-
+    
+        if (Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Mật khẩu mới không được trùng với mật khẩu hiện tại.'], 400);
+        }
+    
         $user->password = Hash::make($request->password);
         $user->save();
-
+    
         return response()->json(['message' => 'Cập nhật mật khẩu thành công!'], 200);
     }
+    
 
 
     public function getOrderHistory()
