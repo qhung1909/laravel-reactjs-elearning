@@ -9,7 +9,60 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination"
 import {Link} from 'react-router-dom'
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 export const Blog = () => {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
+    const [blogs,setBlogs] = useState([]);
+    const [randomBlog, setRandomBlog] = useState([]);
+
+    const fetchBlogs = async() =>{
+        try{
+            const response = await axios.get(`${API_URL}/blog`,{
+                headers: {
+                    'x-api-secret': `${API_KEY}`
+                }
+            });
+            const fetchedBlogs = response.data;
+            setBlogs(fetchedBlogs);
+
+            if (Array.isArray(fetchedBlogs) && fetchedBlogs.length > 0) {
+                const randomIndex = Math.floor(Math.random() * fetchedBlogs.length);
+                setRandomBlog(fetchedBlogs[randomIndex]);
+            }
+
+        }catch(error){
+            console.log('Error fetching blogs', error)
+        }
+    }
+
+
+    const renderBlogs = () =>{
+        Array.isArray(blogs) && blogs.length >0 ? (
+            blogs.map((item,index)=>{
+                <div className="blog-list-content mb-5">
+                    <div className="blog-img">
+                        <Link to="/blogdetail">
+                        <img
+                            src={`${item.img}`}
+                            className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px] object-cover w-full"                        />
+                        </Link>
+
+                    </div>
+                    <div className="blog-title">
+                        <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
+                            {item.name}
+                        </p>
+                    </div>
+                </div>
+            })
+        ) : (
+            <p> Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
+        )
+    }
+
     return (
         <>
             <>

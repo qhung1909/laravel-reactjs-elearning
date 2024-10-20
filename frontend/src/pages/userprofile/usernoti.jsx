@@ -18,22 +18,17 @@ export const UserNoti = () => {
                     <div className="lg:grid grid-cols-4 gap-5 ">
                         <div className="col-span-1 my-3 lg:my-5 ">
                             <ul className="gap-3 text-sm font-medium max-lg:items-center flex lg:flex-col">
-                                <li className=" py-1 lg:py-1 px-3 rounded-md">
+                                <li className=" py-1 lg:py-2 px-3 rounded-md">
                                     <Link className="hover:underline" to="/userprofile">
                                         <p>Hồ sơ cá nhân</p>
                                     </Link>
                                 </li>
-                                <li className="py-3 lg:py-1 px-3 rounded-md">
+                                <li className="py-3 lg:py-2 px-3 rounded-md">
                                     <Link className="hover:underline" to="/useraccount">
                                         <p>Tài khoản</p>
                                     </Link>
                                 </li>
-                                {/* <li className="py-1 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/userappearance">
-                                        <p>Giao diện</p>
-                                    </Link>
-                                </li> */}
-                                <li className=" bg-gray-100 py-3 lg:py-1 px-3 rounded-md">
+                                <li className=" bg-gray-100 py-3 lg:py-2 px-3 rounded-md">
                                     <Link to="/usernoti">
                                         <p>Thông báo</p>
                                     </Link>

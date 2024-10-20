@@ -227,6 +227,7 @@ export const InstructorHistory = () => {
                                     </TableHeader>
                                     <TableBody>
                                         <TableRow>
+                                            {/* sau khi có dữ liệu, dưới đây là dữ liệu mẫu */}
                                             {/* <TableCell className="font-medium">Môn học 1 1111111111111111111111111</TableCell>
                                             <TableCell>22-04-2024</TableCell>
                                             <TableCell>1.290.000đ</TableCell>

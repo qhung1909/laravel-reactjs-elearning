@@ -43,22 +43,17 @@ export const UserAccount = () => {
                     <div className="lg:grid grid-cols-4 gap-5 ">
                         <div className="col-span-1 my-3 lg:my-5 ">
                             <ul className="gap-3 text-sm font-medium max-lg:items-center flex lg:flex-col">
-                                <li className=" py-1 lg:py-1 px-3 rounded-md">
+                                <li className=" py-1 lg:py-2 px-3 rounded-md">
                                     <Link to="/userprofile" className="hover:underline">
                                         <p>Hồ sơ cá nhân</p>
                                     </Link>
                                 </li>
-                                <li className="bg-gray-100  py-3 lg:py-1 px-3 rounded-md">
+                                <li className="bg-gray-100  py-3 lg:py-2 px-3 rounded-md">
                                     <Link  to="/useraccount">
                                         <p>Tài khoản</p>
                                     </Link>
                                 </li>
-                                {/* <li className="py-1 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/userappearance">
-                                        <p>Giao diện</p>
-                                    </Link>
-                                </li> */}
-                                <li className="py-3 lg:py-1 px-3 rounded-md">
+                                <li className="py-3 lg:py-2 px-3 rounded-md">
                                     <Link className="hover:underline" to="/usernoti">
                                         <p>Thông báo</p>
                                     </Link>
@@ -75,16 +70,8 @@ export const UserAccount = () => {
                                     <div className="mb-5">
                                         <div className="space-y-2">
                                             <Label className="font-medium text-sm">Họ tên</Label>
-                                            <Input placeholder="Nhập tên của bạn..." className="text-xs"></Input>
+                                            <Input placeholder="Nhập tên của bạn..." className="text-sm py-7"></Input>
                                             <p className="text-xs text-gray-500">Tên này sẽ được hiển thị ở hồ sơ của bạn</p>
-                                        </div>
-                                    </div>
-                                    <div className="mb-5">
-                                        <div className="space-y-2">
-                                            <Label className="font-medium text-sm">Sinh nhật</Label>
-                                            <input type="date" className="border p-2 w-[40%] rounded-lg" />
-
-                                            <p className="text-xs text-gray-500">Bạn có thể cập nhật ngày sinh của bạn tại đây.</p>
                                         </div>
                                     </div>
                                     <div className="mb-5">
