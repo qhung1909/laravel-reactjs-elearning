@@ -37,8 +37,9 @@ Route::group([
     Route::post('/enroll', [EnrollController::class, 'enroll']);
     Route::get('/enrollment/check', [EnrollController::class, 'checkEnrollment']);
     Route::put('user/profile', [UserController::class, 'updateProfile']);
+    Route::put('/user/updatePassword', [UserController::class, 'updatePassword']);
     Route::get('orders/history', [UserController::class, 'getOrderHistory']);
-
+    Route::get('/orders/searchHistory', [UserController::class, 'searchOrderHistory']);
 });
 
 //Register
@@ -53,8 +54,8 @@ Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
 Route::post('/check-discount', [CouponController::class, 'checkDiscount']);
 
 //Reset Password
-Route::post('reset-password', [UserController::class, 'sendResetLink']);
-Route::post('reset-password/{token}', [UserController::class, 'resetPassword']);
+Route::post('reset-password', [UserController::class, 'sendResetLink'])->name('password.update');
+Route::post('reset-password/{token}', [UserController::class, 'resetPassword'])->name('password.reset');
 
 Route::middleware(['admin'])->group(function () {
 
