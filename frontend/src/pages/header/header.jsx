@@ -306,9 +306,21 @@ export const Header = () => {
                                                     <DropdownMenuGroup>
                                                         <DropdownMenuItem>
                                                             <User className="mr-2 h-4 w-4" />
-                                                            <Link to="/userprofile">
+                                                            {/* <Link to="/userprofile">
                                                                 <span>Thông tin cá nhân</span>
-                                                            </Link>
+                                                            </Link> */}
+                                                            <span
+                                                                className="cursor-pointer"
+                                                                onClick={() => {
+                                                                    if (user.role === 'user') {
+                                                                        navigate('/userprofile');
+                                                                    } else if (user.role === 'teacher') {
+                                                                        navigate('/instructor');
+                                                                    }
+                                                                }}
+                                                            >
+                                                                Thông tin cá nhân
+                                                            </span>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem>
                                                             <CreditCard className="mr-2 h-4 w-4" />
