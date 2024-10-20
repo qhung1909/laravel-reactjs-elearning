@@ -37,7 +37,7 @@ Route::group([
     Route::post('/enroll', [EnrollController::class, 'enroll']);
     Route::get('/enrollment/check', [EnrollController::class, 'checkEnrollment']);
     Route::put('user/profile', [UserController::class, 'updateProfile']);
-    Route::put('/user/updatePassword', [UserController::class, 'updatePassword']);
+    Route::post('/user/updatePassword', [UserController::class, 'updatePassword']);
     Route::get('orders/history', [UserController::class, 'getOrderHistory']);
     Route::get('/orders/searchHistory', [UserController::class, 'searchOrderHistory']);
 });
@@ -111,19 +111,19 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('quiz-questions/export', [QuizQuestionController::class, 'exportQuizQuestions']);
 
-    
+
     Route::post('/quizzes/start/{quizId}', [QuizOptionController::class, 'startQuiz']);
     Route::post('/quizzes/submit', [QuizOptionController::class, 'submitAnswers']);
     Route::post('/quizzes/continue', [QuizOptionController::class, 'continueQuiz']);
-    
-    
+
+
     Route::get('questions/{questionId}/options', [QuizOptionController::class, 'index']);
     Route::post('questions/{questionId}/options', [QuizOptionController::class, 'store']);
     Route::put('questions/{questionId}/options/{id}', [QuizOptionController::class, 'update']);
     Route::delete('questions/{questionId}/options/{id}', [QuizOptionController::class, 'destroy']);
 
     Route::get('/users', [UserController::class, 'getAllUsers']);
-    
+
 });
 
 

@@ -3,7 +3,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Label } from "@radix-ui/react-dropdown-menu"
 import { Link } from "react-router-dom"
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import axios from "axios";
 
 
@@ -12,32 +12,50 @@ export const UserProfile = () => {
     const API_URL = import.meta.env.VITE_API_URL;
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [description, setDescription] = useState('');
+    const [avatar, setAvatar] = useState(null)
+    const fetchUserProfile = async () =>{
+        const token = localStorage.getItem("access_token");
+        try{
+            const response = await axios.get(`${API_URL}/auth/me`,{
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const userData = response.data;
+            setUserName(userData.name || '');
+            setEmail(userData.email || '')
+
+        }catch(error){
+            console.log('Error fetching user profile', error)
+        }
+    }
 
     const updateUserProfile = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("access_token");
+        e.preventDefault();
+        const token = localStorage.getItem("access_token");
 
-    // Lấy access token từ localStorage
-    try {
-        const response = await axios.put(`${API_URL}/auth/user/profile`, {
-            name: userName,  // Đảm bảo các trường dữ liệu phù hợp với API
-            email: email,
-            phone: phone,
-            description: description,
-        }, {
-            headers: {
-                Authorization: `Bearer ${token}`,  // Chắc chắn rằng token là chính xác
-                'x-api-secret': `${API_KEY}`,  // Nếu API yêu cầu khóa bí mật
-            },
-        });
-        console.log('Update hồ sơ thành công', response.data);
-    } catch (error) {
-        console.log('Error updating profile', error.response ? error.response.data : error.message);
-    }
-};
+        try {
+            const response = await axios.put(`${API_URL}/auth/user/profile`, {
+                name: userName,
+                email: email,
 
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'x-api-secret': `${API_KEY}`,
+                },
+            });
+            console.log('Update hồ sơ thành công', response.data);
+        } catch (error) {
+            console.log('Error updating profile', error);
+        }
+    };
+
+    useEffect(()=>{
+        fetchUserProfile();
+    },[])
 
 
     return (
@@ -76,7 +94,6 @@ export const UserProfile = () => {
                             <div className="my-5">
                                 <form onSubmit={updateUserProfile}>
 
-
                                     {/* img */}
                                     <div className="image mb-5">
                                         <p className="font-bold text-sm my-3">Ảnh hồ sơ</p>
@@ -85,7 +102,7 @@ export const UserProfile = () => {
                                                 <p className="font-bold">Ảnh</p>
                                             </div>
                                             <div className="">
-                                                <p className="font-bold text-gray-600 lg:text-lg sm:text-sm sm:block hidden">PNG hoặc JPG có chiều rộng và chiều cao không lớn hơn 800px</p>
+                                                <p className="font-bold text-gray-600 lg:text-lg sm:text-sm sm:block hidden">Nhập ảnh của bạn vào đây để cập nhật avatar</p>
                                             </div>
                                         </div>
                                     </div>
@@ -116,35 +133,6 @@ export const UserProfile = () => {
                                                 onChange={(e) => setEmail(e.target.value)}
                                             />
                                             <p className="text-xs text-gray-500">Bạn có thể quản lý các địa chỉ email đã được xác minh trong cài đặt email của mình.</p>
-                                        </div>
-                                    </div>
-
-                                    {/* phone */}
-                                    <div className="mb-5">
-                                        <div className="space-y-2">
-                                            <Label className="font-medium text-sm">Số điện thoại</Label>
-                                            <Input
-                                                placeholder="Nhập số điện thoại của bạn tại đây..."
-                                                className="text-sm py-7"
-                                                type="text"
-                                                value={phone}
-                                                onChange={(e) => setPhone(e.target.value)}
-                                            />
-                                            <p className="text-xs text-gray-500">Bạn có thể quản lý số điện thoại đã xác minh trong cài đặt.</p>
-                                        </div>
-                                    </div>
-
-                                    {/* description */}
-                                    <div className="mb-5">
-                                        <div className="space-y-2">
-                                            <Label className="font-medium text-sm">Mô tả</Label>
-                                            <Textarea
-                                                placeholder="Nhập mô tả của bạn tại đây..."
-                                                className="text-sm"
-                                                value={description}
-                                                onChange={(e) => setDescription(e.target.value)}
-                                            />
-                                            <p className="text-xs text-gray-500">Bạn có thể @tag đến những người dùng và các nhóm để liên kết với họ.</p>
                                         </div>
                                     </div>
 
