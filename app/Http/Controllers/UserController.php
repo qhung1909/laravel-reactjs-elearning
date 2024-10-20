@@ -136,43 +136,39 @@ class UserController extends Controller
         if (!Auth::check()) {
             return response()->json(['message' => 'Bạn cần đăng nhập để thực hiện hành động này.'], 401);
         }
-
+    
         $user = Auth::user();
-
+    
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
-            'email' => 'nullable|email|unique:users,email,' . $user->user_id . ',user_id',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Cập nhật không thành công.',
                 'errors' => $validator->errors()
             ], 422);
         }
-
+    
         if ($request->has('name')) {
             $user->name = $request->name;
         }
-
-        if ($request->has('email')) {
-            $user->email = $request->email;
-        }
-
+    
         if ($request->hasFile('avatar')) {
             if ($user->avatar) {
                 Storage::delete($user->avatar);
             }
-
+    
             $path = $request->file('avatar')->store('avatars', 'public');
             $user->avatar = $path;
         }
-
+    
         $user->save();
-
+    
         return response()->json(['message' => 'Cập nhật thông tin tài khoản thành công!'], 200);
     }
+    
 
     public function updatePassword(Request $request)
     {
