@@ -54,8 +54,8 @@ Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
 Route::post('/check-discount', [CouponController::class, 'checkDiscount']);
 
 //Reset Password
-Route::post('reset-password', [UserController::class, 'sendResetLink']);
-Route::post('reset-password/{token}', [UserController::class, 'resetPassword']);
+Route::post('reset-password', [UserController::class, 'sendResetLink'])->name('password.update');
+Route::post('reset-password/{token}', [UserController::class, 'resetPassword'])->name('password.reset');
 
 Route::middleware(['admin'])->group(function () {
 
