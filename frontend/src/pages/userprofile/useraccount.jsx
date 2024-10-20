@@ -50,7 +50,7 @@ export const UserAccount = () => {
                                 </li>
                                 <li className="bg-gray-100  py-3 lg:py-2 px-3 rounded-md">
                                     <Link  to="/useraccount">
-                                        <p>Tài khoản</p>
+                                        <p>Cài đặt</p>
                                     </Link>
                                 </li>
                                 <li className="py-3 lg:py-2 px-3 rounded-md">
@@ -62,18 +62,12 @@ export const UserAccount = () => {
                         </div>
                         <div className="col-span-3 my-3 lg:my-5">
                             <div className="border-b pb-5">
-                                <span className="font-medium">Tài khoản</span>
-                                <p className="text-sm text-gray-500 ">Thiết lập tài khoản của bạn.</p>
+                                <span className="font-medium">Cài đặt</span>
+                                <p className="text-sm text-gray-500 ">Thiết lập cho tài khoản của bạn.</p>
                             </div>
                             <div className="my-5">
                                 <form action="">
-                                    <div className="mb-5">
-                                        <div className="space-y-2">
-                                            <Label className="font-medium text-sm">Họ tên</Label>
-                                            <Input placeholder="Nhập tên của bạn..." className="text-sm py-7"></Input>
-                                            <p className="text-xs text-gray-500">Tên này sẽ được hiển thị ở hồ sơ của bạn</p>
-                                        </div>
-                                    </div>
+
                                     <div className="mb-5">
                                         <div className="space-y-2">
                                             <Label className="font-medium text-sm">Ngôn ngữ</Label>
@@ -126,7 +120,7 @@ export const UserAccount = () => {
 
                                     <div className="mb-5">
                                         <div className="">
-                                            <Button className="text-xs px-3 hover:text-white duration-300">Update tài khoản</Button>
+                                            <Button className="text-xs px-3 hover:text-white duration-300">Update cài đặt</Button>
                                         </div>
                                     </div>
                                 </form>

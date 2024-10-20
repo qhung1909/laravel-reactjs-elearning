@@ -5,23 +5,50 @@ import { Label } from "@radix-ui/react-dropdown-menu"
 import { Link } from "react-router-dom"
 import { useEffect, useReducer, useState } from "react";
 import axios from "axios";
+import toast, { Toaster } from 'react-hot-toast';
 
+const notify = (message, type) => {
+    if (type === 'success') {
+        toast.success(message, {
+            style: {
+                padding: '16px'
+            }
+        });
+    } else {
+        toast.error(message, {
+            style: {
+                padding: '16px'
+            }
+        })
+    }
+}
 
 export const UserProfile = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
+    const [_success, setSuccess] = useState("");
+    const [error, setError] = useState("");
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
     const [avatar, setAvatar] = useState(null)
+
+
     const fetchUserProfile = async () =>{
         const token = localStorage.getItem("access_token");
+
+
+
         try{
+
+
             const response = await axios.get(`${API_URL}/auth/me`,{
                 headers: {
                     'x-api-secret': `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
                 },
             });
+
+
 
             const userData = response.data;
             setUserName(userData.name || '');
@@ -32,11 +59,23 @@ export const UserProfile = () => {
         }
     }
 
+    const handleUserNameChange = (e) => {
+        const newName = e.target.value;
+        if (newName.trim() !== "") {
+            setUserName(newName);
+        }
+    }
+
     const updateUserProfile = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem("access_token");
-
+        if (!userName.trim()) {
+            notify('Tên tài khoản không được để trống', 'error');
+            return;
+        }
         try {
+            setSuccess("");
+            setError("");
             const response = await axios.put(`${API_URL}/auth/user/profile`, {
                 name: userName,
                 email: email,
@@ -47,11 +86,19 @@ export const UserProfile = () => {
                     'x-api-secret': `${API_KEY}`,
                 },
             });
+
+
+
             console.log('Update hồ sơ thành công', response.data);
+            notify('Cập nhật thành công', 'success');
+            setSuccess('Đăng nhập thành công');
+
         } catch (error) {
             console.log('Error updating profile', error);
         }
     };
+
+
 
     useEffect(()=>{
         fetchUserProfile();
@@ -76,7 +123,7 @@ export const UserProfile = () => {
                                 </li>
                                 <li className="py-3 lg:py-2 px-3 rounded-md">
                                     <Link className="hover:underline" to="/useraccount">
-                                        <p>Tài khoản</p>
+                                        <p>Cài đặt</p>
                                     </Link>
                                 </li>
                                 <li className="py-3 lg:py-2 px-3 rounded-md">
@@ -102,7 +149,8 @@ export const UserProfile = () => {
                                                 <p className="font-bold">Ảnh</p>
                                             </div>
                                             <div className="">
-                                                <p className="font-bold text-gray-600 lg:text-lg sm:text-sm sm:block hidden">Nhập ảnh của bạn vào đây để cập nhật avatar</p>
+                                                <Label className="font-medium text-sm mb-2">Nhập ảnh của bạn vào đây để cập nhật avatar</Label>
+                                                <Input id="picture" type="file" />
                                             </div>
                                         </div>
                                     </div>
@@ -112,6 +160,7 @@ export const UserProfile = () => {
                                         <div className="space-y-2">
                                             <Label className="font-medium text-sm">Tên tài khoản</Label>
                                             <Input
+
                                                 placeholder="Nhập tên tài khoản của bạn tại đây..."
                                                 className="text-sm py-7"
                                                 value={userName}
@@ -126,13 +175,14 @@ export const UserProfile = () => {
                                         <div className="space-y-2">
                                             <Label className="font-medium text-sm">Email</Label>
                                             <Input
+                                                disabled
                                                 placeholder="Nhập email của bạn tại đây..."
                                                 className="text-sm py-7"
                                                 type="email"
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                             />
-                                            <p className="text-xs text-gray-500">Bạn có thể quản lý các địa chỉ email đã được xác minh trong cài đặt email của mình.</p>
+                                            <p className="text-xs text-gray-500">Mỗi tài khoản chỉ sử dụng một email.</p>
                                         </div>
                                     </div>
 
@@ -148,6 +198,7 @@ export const UserProfile = () => {
                 </div>
 
             </section>
+            <Toaster />
 
         </>
     )
