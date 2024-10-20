@@ -24,7 +24,7 @@ class UserController extends Controller
         $perPage = $request->input('per_page', 10);
 
         $users = Cache::remember('users_list', 180, function () use ($perPage) {
-            return User::select('user_id','email', 'name', 'role', 'avatar')->paginate($perPage);
+            return User::select('user_id', 'email', 'name', 'role', 'avatar')->paginate($perPage);
         });
 
         return response()->json($users, 200);
@@ -142,7 +142,6 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:6|confirmed',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -161,10 +160,6 @@ class UserController extends Controller
             $user->email = $request->email;
         }
 
-        if ($request->has('password')) {
-            $user->password = Hash::make($request->password);
-        }
-
         if ($request->hasFile('avatar')) {
             if ($user->avatar) {
                 Storage::delete($user->avatar);
@@ -178,6 +173,37 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Cập nhật thông tin tài khoản thành công!'], 200);
     }
+
+    public function updatePassword(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Bạn cần đăng nhập để thực hiện hành động này.'], 401);
+        }
+    
+        $user = Auth::user();
+    
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Cập nhật mật khẩu không thành công.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+    
+        if (Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Mật khẩu mới không được trùng với mật khẩu hiện tại.'], 400);
+        }
+    
+        $user->password = Hash::make($request->password);
+        $user->save();
+    
+        return response()->json(['message' => 'Cập nhật mật khẩu thành công!'], 200);
+    }
+    
+
 
     public function getOrderHistory()
     {
@@ -223,14 +249,14 @@ class UserController extends Controller
         $keyword = $request->input('keyword');
 
         $query = Order::where('user_id', $userId)
-            ->with(['coupon', 'userCourses.course']) 
+            ->with(['coupon', 'userCourses.course'])
             ->select('order_id', 'total_price', 'coupon_id', 'status', 'payment_method', 'created_at');
 
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {
                 $q->where('order_id', 'like', "%$keyword%")
                     ->orWhereHas('userCourses.course', function ($query) use ($keyword) {
-                        $query->where('title', 'like', "%$keyword%"); 
+                        $query->where('title', 'like', "%$keyword%");
                     });
             });
         }
@@ -248,7 +274,7 @@ class UserController extends Controller
                 'courses' => $order->userCourses->map(function ($userCourse) {
                     return [
                         'course_id' => $userCourse->course_id,
-                        'course_title' => $userCourse->course ? $userCourse->course->title : null, 
+                        'course_title' => $userCourse->course ? $userCourse->course->title : null,
                     ];
                 }),
             ];

@@ -119,12 +119,8 @@ class QuizOptionController extends Controller
             ->distinct() 
             ->count('question_id');
 
-        Log::info('Total questions: ' . $totalQuestions);
-        Log::info('Answered questions: ' . $answeredQuestions);
 
         if ($answeredQuestions === $totalQuestions) {
-            Log::info('All questions answered, updating quiz session to completed.');
-
             try {
                 $quizSession->update([
                     'status' => 'completed',

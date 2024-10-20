@@ -37,6 +37,7 @@ Route::group([
     Route::post('/enroll', [EnrollController::class, 'enroll']);
     Route::get('/enrollment/check', [EnrollController::class, 'checkEnrollment']);
     Route::put('user/profile', [UserController::class, 'updateProfile']);
+    Route::post('/user/updatePassword', [UserController::class, 'updatePassword']);
     Route::get('orders/history', [UserController::class, 'getOrderHistory']);
     Route::get('/orders/searchHistory', [UserController::class, 'searchOrderHistory']);
 });
