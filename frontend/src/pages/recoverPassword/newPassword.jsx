@@ -1,0 +1,158 @@
+import { Link, useNavigate } from 'react-router-dom';
+import { useCallback, useState, useEffect } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+const notify = (message, type) => {
+    if (type === 'success') {
+        toast.success(message, {
+            style: {
+                padding: '16px'
+            }
+        });
+    } else {
+        toast.error(message, {
+            style: {
+                padding: '16px'
+            }
+        })
+    }
+}
+
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
+export const NewPassword = () => {
+    const [password, setPassword] = useState("");
+    const [password_confirmation, setPasswordComfirmation] = useState("");
+    const [error, setError] = useState("");
+    const [_success, setSuccess] = useState("");
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+
+
+
+
+
+
+
+
+
+
+    const debouncedLogin = async () => {
+        setLoading(false);
+        if (!password || !password_confirmation) {
+            setError('Vui lòng nhập đầy đủ thông tin');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError("");
+            setSuccess("");
+
+            const res = await fetch(`${API_URL}/auth/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ password })
+            });
+
+            if (res.status === 401) {
+                setError('Tài khoản hoặc mật khẩu chưa chính xác!');
+                return;
+            }
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                console.log(errorData);
+                notify('Vui lòng xác thực email!');
+                return;
+            }
+
+            await res.json();
+            notify('Đăng nhập thành công', 'success');
+            navigate('/');
+            window.location.reload();
+        } catch (error) {
+            setError('Đã xảy ra lỗi: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const submit = (e) => {
+        e.preventDefault();
+        debouncedLogin();
+    };
+
+
+    return (
+        <>
+            {loading && (
+                <div className='loading'>
+                    <div className='loading-spin'></div>
+                </div>
+            )}
+            <div className="relative m-auto h-screen overflow-hidden items-center shadow-inner lg:grid  lg:grid-cols-2 pt-32 lg:pt-0">
+                <Link className='absolute top-1 left-0 xl:top-8 xl:left-8' to='/'>
+                    <div className="flex items-center gap-3">
+                        <box-icon name='arrow-back' color='gray' ></box-icon>
+                        <p className="text-gray-600">Trang chủ</p>
+                    </div>
+                </Link>
+
+                <div className=" flex items-center justify-center">
+
+                    <form onSubmit={submit} className="relative mx-auto grid w-[350px] gap-6">
+                    <div className="text-center">
+                            <box-icon name='key' size='lg'></box-icon>
+                        </div>
+                        <div className="grid gap-2">
+                            <h1 className="text-3xl font-bold text-center">Đặt mật khẩu mới</h1>
+
+                        </div>
+                        <div className="grid gap-4">
+
+                            <div className="grid gap-2">
+                                <div className="flex items-center">
+                                    <Label htmlFor="password">Mật khẩu</Label>
+
+                                </div>
+                                <Input id="password" type="password" placeholder="Nhập mật khẩu  mới"  value={password} onChange={(e) => setPassword(e.target.value)} />
+                            </div>
+                            <div className="grid gap-2">
+                                <div className="flex items-center">
+                                    <Label htmlFor="password">Nhập lại mật khẩu</Label>
+                                </div>
+                                <Input name="password_confirmation" className="p-5" type="password" placeholder="Nhập lại mật khẩu" value={password_confirmation} />
+                            </div>
+                            <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600">
+                                Xác nhận
+                            </Button>
+                            {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
+                        </div>
+                        <Link to="/login" className=" font-medium hover:text-yellow-500 duration-700">
+                            <div className="flex justify-center items-center gap-3">
+                                <box-icon name='arrow-back' color='gray' ></box-icon>
+                                <p className="text-gray-600">Trở về Đăng nhập</p>
+                            </div>
+                        </Link>
+                    </form>
+                </div>
+                <div className="hidden bg-muted lg:block">
+                    <img
+                        src="/src/assets/images/login-bg.jpg"
+                        alt="Image"
+                        className=" object-cover dark:brightness-[0.2] dark:grayscale"
+                        width='100%'
+                    />
+                </div>
+            </div>
+            <Toaster />
+        </>
+    )
+}

@@ -35,6 +35,9 @@ import { QuizSingleChoice } from './pages/quizzes/quizSingleChoice';
 import { QuizFillInBlank } from "./pages/quizzes/quizFillInBlank.jsx";
 import { QuizMultipleChoice } from "./pages/quizzes/quizMultipleChoice.jsx";
 import { QuizTrueFalse } from "./pages/quizzes/quizTrueFalse.jsx";
+import { NewPassword } from "./pages/recoverPassword/newPassword.jsx";
+import { ResetPassword } from "./pages/recoverPassword/resetPassword.jsx";
+import { VerifyEmail } from "./pages/recoverPassword/verifyEmail.jsx";
 
 function AppContent() {
     const location = useLocation();
@@ -87,6 +90,9 @@ function AppContent() {
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/register" element={<Signup />}></Route>
+                <Route path="/forgot-password" element={<ResetPassword />}></Route>
+                <Route path="/new-password" element={<NewPassword />}></Route>
+                <Route path="/verify-email" element={<VerifyEmail />}></Route>
                 <Route path="/courses" element={<Courses />}></Route>
                 <Route path="/lessons/:slug" element={<Lesson />}></Route>
                 <Route path="/detail" element={<Detail />}></Route>

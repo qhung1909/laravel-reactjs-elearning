@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Order;
+use App\Models\Coupon;
 use App\Mail\WelcomeMail;
 use Illuminate\Http\Request;
 use App\Jobs\SendWelcomeEmail;
+use App\Jobs\SendPasswordResetLink;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,7 +18,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Coupon;
 
 class UserController extends Controller
 {
@@ -82,26 +84,24 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Email không hợp lệ.',
                 'errors' => $validator->errors()
             ], 422);
         }
-
+    
         $user = User::where('email', $request->email)->first();
         if (!$user) {
             return response()->json([
                 'message' => 'Email không tồn tại trong hệ thống.',
             ], 404);
         }
-
-        $status = Password::sendResetLink($request->only('email'));
-
-        return $status === Password::RESET_LINK_SENT
-            ? response()->json(['message' => 'Email reset password đã được gửi!'], 200)
-            : response()->json(['message' => 'Có lỗi xảy ra, vui lòng thử lại.'], 500);
+    
+        SendPasswordResetLink::dispatch($request->email);
+     
+        return response()->json(['message' => 'Email reset password đã được gửi!'], 200);
     }
 
     public function resetPassword(Request $request, $token)
@@ -136,69 +136,69 @@ class UserController extends Controller
         if (!Auth::check()) {
             return response()->json(['message' => 'Bạn cần đăng nhập để thực hiện hành động này.'], 401);
         }
-    
+
         $user = Auth::user();
-    
+
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Cập nhật không thành công.',
                 'errors' => $validator->errors()
             ], 422);
         }
-    
+
         if ($request->has('name')) {
             $user->name = $request->name;
         }
-    
+
         if ($request->hasFile('avatar')) {
             if ($user->avatar) {
                 Storage::delete($user->avatar);
             }
-    
+
             $path = $request->file('avatar')->store('avatars', 'public');
             $user->avatar = $path;
         }
-    
+
         $user->save();
-    
+
         return response()->json(['message' => 'Cập nhật thông tin tài khoản thành công!'], 200);
     }
-    
+
 
     public function updatePassword(Request $request)
     {
         if (!Auth::check()) {
             return response()->json(['message' => 'Bạn cần đăng nhập để thực hiện hành động này.'], 401);
         }
-    
+
         $user = Auth::user();
-    
+
         $validator = Validator::make($request->all(), [
             'password' => 'required|string|min:6|confirmed',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Cập nhật mật khẩu không thành công.',
                 'errors' => $validator->errors()
             ], 422);
         }
-    
+
         if (Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Mật khẩu mới không được trùng với mật khẩu hiện tại.'], 400);
         }
-    
+
         $user->password = Hash::make($request->password);
         $user->save();
-    
+
         return response()->json(['message' => 'Cập nhật mật khẩu thành công!'], 200);
     }
-    
+
 
 
     public function getOrderHistory()
