@@ -1,5 +1,4 @@
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Label } from "@radix-ui/react-dropdown-menu"
 import { Link } from "react-router-dom"
@@ -35,20 +34,13 @@ export const UserProfile = () => {
 
     const fetchUserProfile = async () =>{
         const token = localStorage.getItem("access_token");
-
-
-
         try{
-
-
             const response = await axios.get(`${API_URL}/auth/me`,{
                 headers: {
                     'x-api-secret': `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
                 },
             });
-
-
 
             const userData = response.data;
             setUserName(userData.name || '');
@@ -59,18 +51,14 @@ export const UserProfile = () => {
         }
     }
 
-    const handleUserNameChange = (e) => {
-        const newName = e.target.value;
-        if (newName.trim() !== "") {
-            setUserName(newName);
-        }
-    }
+
 
     const updateUserProfile = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem("access_token");
         if (!userName.trim()) {
             notify('Tên tài khoản không được để trống', 'error');
+            setError('Thiết lập thất bại')
             return;
         }
         try {
@@ -86,12 +74,8 @@ export const UserProfile = () => {
                     'x-api-secret': `${API_KEY}`,
                 },
             });
-
-
-
-            console.log('Update hồ sơ thành công', response.data);
             notify('Cập nhật thành công', 'success');
-            setSuccess('Đăng nhập thành công');
+            setSuccess('Cập nhật thành công');
 
         } catch (error) {
             console.log('Error updating profile', error);
