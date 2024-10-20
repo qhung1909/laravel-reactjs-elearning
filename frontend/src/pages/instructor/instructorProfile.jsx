@@ -18,14 +18,26 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom"
+import { Link,useNavigate } from "react-router-dom"
 import axios from "axios";
+import toast, { Toaster } from 'react-hot-toast';
 
+const notify = (message, type ) => {
+    if (type === 'success'){
+        toast.success(message);
+    } else {
+        toast.error(message)
+    }
+}
 export const InstructorProfile = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const [userName, setUserName] = useState('');
     const [role, setRole] = useState('');
+    const [loadingLogout, setLoadingLogout] = useState(false);
+    const [logined, setLogined] = useState(null);
+    const navigate = useNavigate();
+    const [_success, setSuccess] = useState("");
 
     const fetchUserProfile = async () =>{
         const token = localStorage.getItem("access_token");
@@ -45,6 +57,20 @@ export const InstructorProfile = () => {
             console.log('Error fetching user profile', error)
         }
     }
+
+    const logout = () => {
+        setSuccess("");
+        setLoadingLogout(true)
+        notify('Đăng xuất thành công', 'success');
+        setTimeout(() => {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            setLogined(null);
+            setLoadingLogout(false)
+            navigate('/login')
+        }, 800)
+    }
+
 
     useEffect(()=>{
         fetchUserProfile();
@@ -146,8 +172,9 @@ export const InstructorProfile = () => {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent>
                                                     <div className="p-3">
-                                                        <DropdownMenuItem>Tài khoản của tôi</DropdownMenuItem>
-                                                        <DropdownMenuItem>Đăng xuất</DropdownMenuItem>
+                                                        <DropdownMenuItem>
+                                                            <span className="cursor-pointer" onClick={logout}>Đăng xuất</span>
+                                                        </DropdownMenuItem>
                                                     </div>
                                                 </DropdownMenuContent>
 
@@ -353,6 +380,7 @@ export const InstructorProfile = () => {
                     </div>
                 </div>
             </section>
+            <Toaster />
         </>
     )
 }
