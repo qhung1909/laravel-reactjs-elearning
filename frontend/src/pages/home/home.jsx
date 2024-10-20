@@ -488,9 +488,12 @@ export const Home = () => {
                             </p>
                         </div>
                         <div className="homeblog-box-content-button xl:ps-40 lg:ps-32 sm:flex sm:justify-center lg:justify-start lg:py-5 px-4 md:text-[10px] lg:text-[12px] xl:text-[16px] text-[12px]">
+                            <Link to="/blog">
                             <button className="bg-yellow-400 font-semibold lg:py-3 lg:px-5 md:py-2 md:px-4 px-5 py-2 rounded-full hover:bg-yellow-300 duration-300 ">
                                 Khám phá thêm
                             </button>
+                            </Link>
+
                         </div>
                     </div>
                 </div>
