@@ -3,7 +3,95 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Label } from "@radix-ui/react-dropdown-menu"
 import { Link } from "react-router-dom"
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+
 export const UserProfile = () => {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
+    const [userName, setUserName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [description, setDescription] = useState('');
+    const [loading, setLoading] = useState(false);
+
+
+    const refreshToken = async () => {
+        const storedRefreshToken = localStorage.getItem('refresh_token');
+        if (!storedRefreshToken) {
+            alert('Session expired. Please log in again.');
+            return;
+        }
+        try {
+            const res = await fetch(`${API_URL}/auth/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ refresh_token: storedRefreshToken }),
+            });
+
+            if (!res.ok) {
+                alert('Session expired. Please log in again.');
+                return;
+            }
+
+            const data = await res.json();
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+            return data.access_token;
+        } catch (error) {
+            alert('Session expired. Please log in again.');
+        }
+    };
+
+    const updateUserProfile = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        // Lấy access_token từ localStorage
+        let token = localStorage.getItem('access_token');
+        if (!token) {
+            alert('Bạn chưa đăng nhập.');
+            return;
+        }
+
+        try {
+            const response = await axios.put(
+                `${API_URL}/auth/user/profile`,
+                {
+                    name: userName,
+                    email: email,
+                    phone: phone,
+                    description: description,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'x-api-secret': `${API_KEY}`,
+                    },
+                }
+            );
+            console.log('Update hồ sơ thành công', response.data);
+        } catch (error) {
+            console.error('Lỗi khi cập nhật hồ sơ:', error);
+            if (error.response && error.response.status === 401) {
+                // Nếu token hết hạn, refresh token và thử lại
+                const newToken = await refreshToken();
+                if (newToken) {
+                    token = newToken;
+                    await updateUserProfile(e); // Thử lại với token mới
+                }
+            } else {
+                console.error('Chi tiết lỗi:', error.response?.data);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     return (
         <>
             <section className="userprofile my-10 mx-auto  px-4 lg:px-10 xl:px-20">
@@ -31,23 +119,6 @@ export const UserProfile = () => {
                                     </Link>
                                 </li>
                             </ul>
-                            {/* <div className="gap-3 text-sm font-medium max-lg:items-center flex lg:flex-col">
-                                <div className="bg-gray-100 py-1 lg:py-1 px-3 rounded-md">
-                                    <Link to="/userprofile">
-                                        <p className="">Hồ sơ cá nhân</p>
-                                    </Link>
-                                </div>
-                                <div className="bg-gray-100 py-3 lg:py-1 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/useraccount">
-                                        <p>Tài khoản</p>
-                                    </Link>
-                                </div>
-                                <div className=" py-3 lg:py-1 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/usernoti">
-                                        <p>Thông báo</p>
-                                    </Link>
-                                </div>
-                            </div> */}
                         </div>
                         <div className="col-span-3 my-3 lg:my-5">
                             <div className="border-b pb-5">
@@ -55,62 +126,38 @@ export const UserProfile = () => {
                                 <p className="text-sm text-gray-500 ">Người khác sẽ nhìn ra bạn với những thông tin dưới đây</p>
                             </div>
                             <div className="my-5">
-                                <form action="">
+                                <form onSubmit={updateUserProfile}>
+                                    <Label htmlFor="userName">Tên người dùng</Label>
+                                    <Input
+                                        id="userName"
+                                        value={userName}
+                                        onChange={(e) => setUserName(e.target.value)}
+                                    />
 
+                                    <Label htmlFor="email">Email</Label>
+                                    <Input
+                                        id="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
 
-                                    {/* img */}
-                                    <div className="image mb-5">
-                                        <p className="font-bold text-sm my-3">Ảnh hồ sơ</p>
-                                        <div className="flex items-center gap-20">
-                                            <div className="rounded-xl px-10 py-14 border-gray-300 border ">
-                                                <p className="font-bold">Ảnh</p>
-                                            </div>
-                                            <div className="">
-                                                <p className="font-bold text-gray-600 lg:text-lg sm:text-sm sm:block hidden">PNG hoặc JPG có chiều rộng và chiều cao không lớn hơn 800px</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <Label htmlFor="phone">Số điện thoại</Label>
+                                    <Input
+                                        id="phone"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                    />
 
-                                    {/* name */}
-                                    <div className="mb-5">
-                                        <div className="space-y-2">
-                                            <Label className="font-medium text-sm">Tên tài khoản</Label>
-                                            <Input placeholder="Nhập tên tài khoản của bạn tại đây..." className="text-sm py-7"></Input>
-                                            <p className="text-xs text-gray-500">Đây là tên hiển thị công khai của bạn. Nó có thể là tên thật hoặc biệt danh của bạn.</p>
-                                        </div>
-                                    </div>
+                                    <Label htmlFor="description">Mô tả</Label>
+                                    <Textarea
+                                        id="description"
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                    />
 
-                                    {/* email */}
-                                    <div className="mb-5">
-                                        <div className="space-y-2">
-                                            <Label className="font-medium text-sm">Email</Label>
-                                            <Input placeholder="Nhập email của bạn tại đây..." className="text-sm py-7" type="email"></Input>
-                                            <p className="text-xs text-gray-500">Bạn có thể quản lý các địa chỉ email đã được xác minh trong cài đặt email của mình.</p>
-                                        </div>
-                                    </div>
-
-                                    {/* phone */}
-                                    <div className="mb-5">
-                                        <div className="space-y-2">
-                                            <Label className="font-medium text-sm">Số điện thoại</Label>
-                                            <Input placeholder="Nhập email của bạn tại đây..." className="text-sm py-7" type="email"></Input>
-                                            <p className="text-xs text-gray-500">Bạn có thể quản lý các địa chỉ email đã được xác minh trong cài đặt email của mình.</p>
-                                        </div>
-                                    </div>
-
-                                    {/* description */}
-                                    <div className="mb-5">
-                                        <div className="space-y-2">
-                                            <Label className="font-medium text-sm">Mô tả</Label>
-                                            <Textarea placeholder="Nhập mô tả của bạn tại đây..." className="text-sm"></Textarea>
-                                            <p className="text-xs text-gray-500">Bạn có thể @tag đến những người dùng và các nhóm để liên kết với họ.</p>
-                                        </div>
-                                    </div>
-                                    <div className="mb-5">
-                                        <div className="">
-                                            <Button className=" text-xs px-3 hover:text-white duration-300">Update hồ sơ</Button>
-                                        </div>
-                                    </div>
+                                    <Button type="submit" disabled={loading}>
+                                        {loading ? 'Đang cập nhật...' : 'Cập nhật hồ sơ'}
+                                    </Button>
                                 </form>
                             </div>
                         </div>

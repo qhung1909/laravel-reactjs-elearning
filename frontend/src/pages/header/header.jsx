@@ -199,7 +199,6 @@ export const Header = () => {
         fetchCategories();
     }, []);
 
-    console.log('API Key being used:', API_KEY);
 
 
     return (
