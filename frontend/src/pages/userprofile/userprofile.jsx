@@ -14,82 +14,30 @@ export const UserProfile = () => {
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [description, setDescription] = useState('');
-    const [loading, setLoading] = useState(false);
-
-
-    const refreshToken = async () => {
-        const storedRefreshToken = localStorage.getItem('refresh_token');
-        if (!storedRefreshToken) {
-            alert('Session expired. Please log in again.');
-            return;
-        }
-        try {
-            const res = await fetch(`${API_URL}/auth/refresh`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ refresh_token: storedRefreshToken }),
-            });
-
-            if (!res.ok) {
-                alert('Session expired. Please log in again.');
-                return;
-            }
-
-            const data = await res.json();
-            localStorage.setItem('access_token', data.access_token);
-            localStorage.setItem('refresh_token', data.refresh_token);
-            return data.access_token;
-        } catch (error) {
-            alert('Session expired. Please log in again.');
-        }
-    };
 
     const updateUserProfile = async (e) => {
-        e.preventDefault();
-        setLoading(true);
+    e.preventDefault();
+    const token = localStorage.getItem("access_token");
 
-        // Lấy access_token từ localStorage
-        let token = localStorage.getItem('access_token');
-        if (!token) {
-            alert('Bạn chưa đăng nhập.');
-            return;
-        }
+    // Lấy access token từ localStorage
+    try {
+        const response = await axios.put(`${API_URL}/auth/user/profile`, {
+            name: userName,  // Đảm bảo các trường dữ liệu phù hợp với API
+            email: email,
+            phone: phone,
+            description: description,
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`,  // Chắc chắn rằng token là chính xác
+                'x-api-secret': `${API_KEY}`,  // Nếu API yêu cầu khóa bí mật
+            },
+        });
+        console.log('Update hồ sơ thành công', response.data);
+    } catch (error) {
+        console.log('Error updating profile', error.response ? error.response.data : error.message);
+    }
+};
 
-        try {
-            const response = await axios.put(
-                `${API_URL}/auth/user/profile`,
-                {
-                    name: userName,
-                    email: email,
-                    phone: phone,
-                    description: description,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'x-api-secret': `${API_KEY}`,
-                    },
-                }
-            );
-            console.log('Update hồ sơ thành công', response.data);
-        } catch (error) {
-            console.error('Lỗi khi cập nhật hồ sơ:', error);
-            if (error.response && error.response.status === 401) {
-                // Nếu token hết hạn, refresh token và thử lại
-                const newToken = await refreshToken();
-                if (newToken) {
-                    token = newToken;
-                    await updateUserProfile(e); // Thử lại với token mới
-                }
-            } else {
-                console.error('Chi tiết lỗi:', error.response?.data);
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
 
 
     return (
@@ -127,37 +75,84 @@ export const UserProfile = () => {
                             </div>
                             <div className="my-5">
                                 <form onSubmit={updateUserProfile}>
-                                    <Label htmlFor="userName">Tên người dùng</Label>
-                                    <Input
-                                        id="userName"
-                                        value={userName}
-                                        onChange={(e) => setUserName(e.target.value)}
-                                    />
 
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input
-                                        id="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                    />
 
-                                    <Label htmlFor="phone">Số điện thoại</Label>
-                                    <Input
-                                        id="phone"
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                    />
+                                    {/* img */}
+                                    <div className="image mb-5">
+                                        <p className="font-bold text-sm my-3">Ảnh hồ sơ</p>
+                                        <div className="flex items-center gap-20">
+                                            <div className="rounded-xl px-10 py-14 border-gray-300 border ">
+                                                <p className="font-bold">Ảnh</p>
+                                            </div>
+                                            <div className="">
+                                                <p className="font-bold text-gray-600 lg:text-lg sm:text-sm sm:block hidden">PNG hoặc JPG có chiều rộng và chiều cao không lớn hơn 800px</p>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                    <Label htmlFor="description">Mô tả</Label>
-                                    <Textarea
-                                        id="description"
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                    />
+                                    {/* name */}
+                                    <div className="mb-5">
+                                        <div className="space-y-2">
+                                            <Label className="font-medium text-sm">Tên tài khoản</Label>
+                                            <Input
+                                                placeholder="Nhập tên tài khoản của bạn tại đây..."
+                                                className="text-sm py-7"
+                                                value={userName}
+                                                onChange={(e) => setUserName(e.target.value)}
+                                            />
+                                            <p className="text-xs text-gray-500">Đây là tên hiển thị công khai của bạn. Nó có thể là tên thật hoặc biệt danh của bạn.</p>
+                                        </div>
+                                    </div>
 
-                                    <Button type="submit" disabled={loading}>
-                                        {loading ? 'Đang cập nhật...' : 'Cập nhật hồ sơ'}
-                                    </Button>
+                                    {/* email */}
+                                    <div className="mb-5">
+                                        <div className="space-y-2">
+                                            <Label className="font-medium text-sm">Email</Label>
+                                            <Input
+                                                placeholder="Nhập email của bạn tại đây..."
+                                                className="text-sm py-7"
+                                                type="email"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                            />
+                                            <p className="text-xs text-gray-500">Bạn có thể quản lý các địa chỉ email đã được xác minh trong cài đặt email của mình.</p>
+                                        </div>
+                                    </div>
+
+                                    {/* phone */}
+                                    <div className="mb-5">
+                                        <div className="space-y-2">
+                                            <Label className="font-medium text-sm">Số điện thoại</Label>
+                                            <Input
+                                                placeholder="Nhập số điện thoại của bạn tại đây..."
+                                                className="text-sm py-7"
+                                                type="text"
+                                                value={phone}
+                                                onChange={(e) => setPhone(e.target.value)}
+                                            />
+                                            <p className="text-xs text-gray-500">Bạn có thể quản lý số điện thoại đã xác minh trong cài đặt.</p>
+                                        </div>
+                                    </div>
+
+                                    {/* description */}
+                                    <div className="mb-5">
+                                        <div className="space-y-2">
+                                            <Label className="font-medium text-sm">Mô tả</Label>
+                                            <Textarea
+                                                placeholder="Nhập mô tả của bạn tại đây..."
+                                                className="text-sm"
+                                                value={description}
+                                                onChange={(e) => setDescription(e.target.value)}
+                                            />
+                                            <p className="text-xs text-gray-500">Bạn có thể @tag đến những người dùng và các nhóm để liên kết với họ.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-5">
+                                        <div className="">
+                                            <Button type="submit" className=" text-xs px-3 hover:text-white duration-300">Update hồ sơ</Button>
+                                        </div>
+                                    </div>
                                 </form>
                             </div>
                         </div>
