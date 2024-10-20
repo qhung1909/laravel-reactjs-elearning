@@ -246,20 +246,10 @@ export const InstructorProfile = () => {
                                                         </div>
                                                     </div>
 
-                                                    {/* name - birthday */}
-                                                    <div className="sm:flex my-5 gap-5">
-                                                        <div className="sm:w-[24%] w-[100%]">
-                                                            <Label htmlFor="firstname" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Tên</p></Label>
-                                                            <Input type="firstname" id="firstname" placeholder="Tên" className="p-6 mt-2 rounded-xl font-semibold text-base" />
-                                                        </div>
-                                                        <div className="sm:w-[24%] w-[100%] my-5 sm:my-0">
-                                                            <Label htmlFor="lastname" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Họ</p></Label>
-                                                            <Input type="lastname" id="lastname" placeholder="Họ tên" className="p-6 mt-2 rounded-xl font-semibold text-base" />
-                                                        </div>
-                                                        <div className="sm:w-[24%] w-[100%] ">
-                                                            <Label htmlFor="birthday" className="flex gap-2 text-base"><p>Sinh nhật</p></Label>
-                                                            <Input type="birthday" id="birthday" placeholder="Sinh nhật" className="p-6 mt-2 rounded-xl font-semibold text-base" />
-                                                        </div>
+                                                    {/* name  */}
+                                                    <div className="w-[49%] my-5">
+                                                        <Label htmlFor="firstname" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Tên</p></Label>
+                                                        <Input type="firstname" id="firstname" placeholder="Tên" className="p-6 mt-2 rounded-xl font-semibold text-base" />
                                                     </div>
 
                                                     {/* email - phone */}
@@ -272,12 +262,6 @@ export const InstructorProfile = () => {
                                                             <Label htmlFor="phone" className="flex gap-2 text-base"><p className="text-sm">Số điện thoại</p></Label>
                                                             <Input type="phone" id="phone" placeholder="Số điện thoại" className="p-6 mt-2 rounded-xl font-semibold" />
                                                         </div>
-                                                    </div>
-
-                                                    {/* address */}
-                                                    <div className="w-[100%] my-5">
-                                                        <Label htmlFor="address" className="flex gap-2 text-base"><p className="text-sm">Địa chỉ</p></Label>
-                                                        <Input type="address" id="address" className="p-6 mt-2 rounded-xl font-semibold" />
                                                     </div>
 
                                                     {/* description */}
