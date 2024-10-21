@@ -39,6 +39,7 @@ export const InstructorHistory = () => {
     const API_URL = import.meta.env.VITE_API_URL;
     const [userName, setUserName] = useState('');
     const [role, setRole] = useState('');
+    const [avatar, setAvatar] = useState(null);
     const [loadingLogout, setLoadingLogout] = useState(false);
     const [logined, setLogined] = useState(null);
     const navigate = useNavigate();
@@ -57,6 +58,7 @@ export const InstructorHistory = () => {
             const userData = response.data;
             setUserName(userData.name || '');
             setRole(userData.role || '')
+            setAvatar(userData.avatar || '');
 
         } catch (error) {
             console.log('Error fetching user profile', error)
@@ -89,7 +91,7 @@ export const InstructorHistory = () => {
                         <div className="p-3">
                             {/* logo */}
                             <div className="p-4 flex justify-between items-center">
-                                <div className="logo ">
+                                <div className="logo">
                                     <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                 </div>
                                 <div className="logout">
@@ -156,10 +158,16 @@ export const InstructorHistory = () => {
 
                                     <div className="flex items-center gap-3">
                                         {/* avatar */}
-                                        <Avatar>
-                                            <AvatarImage src="./src/assets/images/doremon.jpg" />
-                                            <AvatarFallback>CN</AvatarFallback>
-                                        </Avatar>
+                                        {avatar ? (
+                                            <img
+                                                src={avatar}
+                                                alt="User Avatar"
+                                                className="w-10 h-10 object-cover rounded-full"
+                                            />
+                                        ) : (
+
+                                            <img src="./src/assets/images/user.svg" className="w-8" alt="" />
+                                        )}
 
                                         {/* user control */}
                                         <div className="text-left">

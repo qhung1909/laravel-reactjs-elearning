@@ -173,7 +173,7 @@ export const UserProfile = () => {
                                     </Link>
                                 </li>
                                 <li className="py-3 lg:py-2 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/user/noti">
+                                    <Link className="hover:underline" to="/usernoti">
                                         <p>Thông báo</p>
                                     </Link>
                                 </li>
@@ -191,11 +191,11 @@ export const UserProfile = () => {
                                     <div className="image mb-5">
                                         <p className="font-bold text-sm my-3">Ảnh hồ sơ</p>
                                         <div className="flex items-center gap-20">
-                                            <div className="rounded-xl px-10 py-14 border-gray-300 border">
+                                            <div className="rounded-xl border-gray-300 border">
                                                 {currentAvatar ? (
                                                     <img src={currentAvatar} alt="Avatar" className="rounded-xl" width="150" height="150" />
                                                 ) : (
-                                                    <p className="font-bold">Ảnh</p>
+                                                    <p className="font-bold px-14 py-10">Ảnh</p>
                                                 )}
                                             </div>
                                             <div>
