@@ -684,8 +684,8 @@ export const Header = () => {
                                 <Sheet>
                                     <SheetTrigger>
                                         {/* icons*/}
-                                        <div className="navbar-icons flex gap-2 xl:mx-3 my-5">
-                                            <div className="navbar-noti cursor-pointer ">
+                                        <div className="navbar-icons flex items-center justify-center gap-2 xl:mx-3 my-5">
+                                            <div className="navbar-noti cursor-pointer mt-1">
                                                 <DropdownMenu >
                                                     <DropdownMenuTrigger>
                                                         <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-14" alt="" />
