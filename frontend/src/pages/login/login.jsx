@@ -230,7 +230,7 @@ export const Login = () => {
                                     placeholder="m@example.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    tabIndex="1"
+                                    tabIndex="1" 
                                 />
                             </div>
                             <div className="grid gap-2">
