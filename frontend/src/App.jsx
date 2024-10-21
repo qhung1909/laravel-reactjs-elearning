@@ -134,11 +134,11 @@ function AppContent() {
 
 function App() {
     return (
-        <UserProvider>
-            <Router>
+        <Router>
+            <UserProvider>
                 <AppContent />
-            </Router>
-        </UserProvider>
+            </UserProvider>
+        </Router>
 
     );
 }
