@@ -25,6 +25,8 @@ const notify = (message, type) => {
     }
 }
 
+
+
 export const ResetPassword = () => {
 
     const [email, setEmail] = useState("");
@@ -60,6 +62,7 @@ export const ResetPassword = () => {
                 return;
             }
 
+
             if (!res.ok) {
                 const errorData = await res.json();
                 console.log(errorData);
@@ -77,6 +80,8 @@ export const ResetPassword = () => {
             setLoading(false);
         }
     };
+
+
 
     const submit = (e) => {
         e.preventDefault();

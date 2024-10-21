@@ -36,12 +36,18 @@ export const NewPassword = () => {
     const token = query.get('token');
 
 
-    const debouncedLogin = async () => {
+    const newPassword = async () => {
         setLoading(false);
         if (!password || !password_confirmation) {
             setError('Vui lòng nhập đầy đủ thông tin');
             return;
         }
+
+        if (password !== password_confirmation) {
+            setError('Mật khẩu không khớp');
+            return;
+        }
+
 
         try {
             setLoading(true);
@@ -53,11 +59,11 @@ export const NewPassword = () => {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ password })
+                body: JSON.stringify({ password, password_confirmation })
             });
 
             if (res.status === 422) {
-                setError('Câp nhật mật khẩu không thành công!');
+                setError('Cập nhật mật khẩu không thành công!');
                 return;
             }
 
@@ -68,10 +74,16 @@ export const NewPassword = () => {
                 return;
             }
 
-            await res.json();
-            notify('Đổi mật khẩu thành công', 'success');
-            navigate('/login');
-            window.location.reload();
+            if (res.ok) {
+                await res.json();
+                notify('Đổi mật khẩu thành công', 'success');
+
+            }
+
+            setTimeout(() => {
+                navigate('/login');
+            }, 2000)
+
         } catch (error) {
             setError('Đã xảy ra lỗi: ' + error.message);
         } finally {
@@ -81,7 +93,7 @@ export const NewPassword = () => {
 
     const submit = (e) => {
         e.preventDefault();
-        debouncedLogin();
+        newPassword();
     };
 
 

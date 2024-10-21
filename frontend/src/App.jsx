@@ -90,7 +90,7 @@ function AppContent() {
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/register" element={<Signup />}></Route>
-                <Route path="/forgot-password" element={<ResetPassword />}></Route>
+                <Route path="/reset-password" element={<ResetPassword />}></Route>
                 <Route path="/new-password" element={<NewPassword />}></Route>
                 <Route path="/verify-email" element={<VerifyEmail />}></Route>
                 <Route path="/courses" element={<Courses />}></Route>
