@@ -28,6 +28,7 @@ export const UserProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [_success, setSuccess] = useState("");
+    const [password, setPassword] = useState(""); // Trạng thái lưu mật khẩu
 
     const navigate = useNavigate();
 
@@ -56,6 +57,33 @@ export const UserProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
+    };
+
+    // hàm thay đổi mật khẩu
+    const updatePassword = async (currentPassword, newPassword) => {
+        const token = localStorage.getItem('access_token');
+        try {
+            const response = await axios.post(`${API_URL}/auth/user/updatePassword`, {
+                currentPassword,
+                newPassword,
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "x-api-secret": `${API_KEY}`,
+                },
+            });
+
+            if (response.status === 200) {
+                // Xử lý khi cập nhật thành công, có thể thông báo cho người dùng
+                console.log('Cập nhật mật khẩu thành công');
+                return true;
+            }
+        } catch (error) {
+            console.error('Lỗi cập nhật mật khẩu', error);
+            // Xử lý lỗi (có thể hiển thị thông báo cho người dùng)
+            return false;
+        }
+        return false;
     };
 
     // refreshtoken
@@ -137,7 +165,7 @@ export const UserProvider = ({ children }) => {
     }, []);
 
     return (
-        <UserContext.Provider value={{ user, logined, loading, fetchUser, logout, refreshToken, updateUserProfile }}>
+        <UserContext.Provider value={{ user, logined, loading, fetchUser, logout, refreshToken, updateUserProfile,updatePassword }}>
             {children}
             <Toaster/>
         </UserContext.Provider>

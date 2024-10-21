@@ -23,13 +23,17 @@ const notify = (message, type) => {
 }
 
 export const UserProfile = () => {
-    const { user,fetchUser, loading, updateUserProfile } = useContext(UserContext);
+    const { user, updateUserProfile, updatePassword } = useContext(UserContext);
     const [_success, setSuccess] = useState("");
     const [error, setError] = useState("");
     const [avatar, setAvatar] = useState(null);
     const [currentAvatar, setCurrentAvatar] = useState('');
     const [userName, setUserName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [isCurrentPasswordCorrect, setIsCurrentPasswordCorrect] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -53,6 +57,40 @@ export const UserProfile = () => {
     const handleUpdateProfile = (e) => {
         e.preventDefault();
         updateUserProfile(userName, email, avatar);
+    };
+
+    // hàm xử lý thay đổi mk
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
+        if (!isCurrentPasswordCorrect) {
+            setError('Mật khẩu hiện tại không đúng');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            setError("Mật khẩu xác nhận không khớp");
+            return;
+        }
+
+        const isUpdated = await updatePassword(currentPassword, newPassword);
+        if (!isUpdated) {
+            setError('Có lỗi xảy ra khi cập nhật mật khẩu');
+        }
+    };
+
+    // hàm xác thực mật khẩu
+    const handleVerifyCurrentPassword = async (e) => {
+        e.preventDefault();
+        // Gọi API để xác thực mật khẩu hiện tại
+        const isValid = await verifyCurrentPassword(currentPassword);
+        setIsCurrentPasswordCorrect(isValid);
+        setError(isValid ? '' : 'Mật khẩu hiện tại không đúng');
+    };
+
+    const verifyCurrentPassword = async (password) => {
+        // Gọi API để xác thực mật khẩu hiện tại (có thể sử dụng một API riêng)
+        // Giả lập
+        return true; // Xóa khi có API thực tế
     };
 
 
@@ -98,7 +136,7 @@ export const UserProfile = () => {
                                         <p className="font-bold text-sm my-3">Ảnh hồ sơ</p>
                                         <div className="flex items-center gap-20">
                                             <div className=" border-gray-300 border rounded-2xl">
-                                            <div className="w-52">
+                                                <div className="w-52">
                                                     {currentAvatar ? (
                                                         <img src={currentAvatar} alt="User Avatar" className="rounded-2xl w-full h-full object-cover" />
                                                     ) : (
@@ -143,6 +181,82 @@ export const UserProfile = () => {
                                             <p className="text-xs text-gray-500">Mỗi tài khoản chỉ sử dụng một email.</p>
                                         </div>
                                     </div>
+
+                                    {/* password */}
+                                    {/* <div className="mb-5">
+                                        <div className="space-y-2">
+                                            <Label className="font-medium text-sm">Mật khẩu</Label>
+                                            <Input
+                                                placeholder="Nhập mật khẩu của bạn tại đây..."
+                                                className="text-sm py-7"
+                                                type=""
+                                                value={currentPassword}
+
+                                            />
+                                            <p className="text-xs text-gray-500">Đừng tiết lộ mật khẩu với ai.</p>
+                                        </div>
+                                    </div>
+                                    <div className="mb-5">
+                                        <div className="flex gap-5">
+                                            <div className="space-y-2 w-full">
+                                                <Label className="font-medium text-sm">Thay đổi mật khẩu</Label>
+                                                <Input
+                                                    placeholder="Thay đổi mật khẩu của bạn tại đây..."
+                                                    className="text-sm py-7"
+                                                    type="password"
+                                                />
+                                                <p className="text-xs text-gray-500">Đổi lại mật khẩu để tăng bảo mật.</p>
+                                            </div>
+                                            <div className="space-y-2 w-full">
+                                                <Label className="font-medium text-sm">Xác nhận mật khẩu</Label>
+                                                <Input
+                                                    placeholder="Xác thực mật khẩu của bạn tại đây..."
+                                                    className="text-sm py-7"
+                                                    type="password"
+                                                />
+                                                <p className="text-xs text-gray-500">Phải trùng với mật khẩu bạn vừa thay đổi.</p>
+                                            </div>
+                                        </div>
+
+                                    </div> */}
+                                    <div>
+                                        <Label className="font-medium text-sm">Mật khẩu hiện tại</Label>
+                                        <Input
+                                            placeholder="Nhập mật khẩu hiện tại..."
+                                            className="text-sm py-7"
+                                            type="password"
+                                            value={currentPassword}
+                                            onChange={(e) => setCurrentPassword(e.target.value)}
+                                        />
+                                        <Button onClick={handleVerifyCurrentPassword}>Xác thực mật khẩu</Button>
+                                        {error && <p className="text-red-500">{error}</p>}
+                                    </div>
+
+                                    {isCurrentPasswordCorrect && (
+                                        <>
+                                            <div>
+                                                <Label className="font-medium text-sm">Thay đổi mật khẩu</Label>
+                                                <Input
+                                                    placeholder="Nhập mật khẩu mới..."
+                                                    className="text-sm py-7"
+                                                    type="password"
+                                                    value={newPassword}
+                                                    onChange={(e) => setNewPassword(e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <Label className="font-medium text-sm">Xác nhận mật khẩu</Label>
+                                                <Input
+                                                    placeholder="Xác nhận mật khẩu mới..."
+                                                    className="text-sm py-7"
+                                                    type="password"
+                                                    value={confirmPassword}
+                                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                                />
+                                            </div>
+                                            <Button onClick={handleChangePassword}>Cập nhật mật khẩu</Button>
+                                        </>
+                                    )}
 
                                     <div className="mb-5">
                                         <div className="">

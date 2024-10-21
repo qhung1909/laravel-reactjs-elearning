@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState,useContext } from "react";
 import {
     CreditCard,
     LogOut,
@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/sheet"
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton"
-import { useContext } from 'react';
 import { UserContext } from "../usercontext/usercontext";
 
 export const Header = () => {
@@ -69,7 +68,7 @@ export const Header = () => {
     };
 
     const navigate = useNavigate();
-    
+
     const fetchCategories = async () => {
         setLoading(true)
         try {
