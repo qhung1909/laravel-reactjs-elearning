@@ -191,8 +191,7 @@ export const Lesson = () => {
                                             Is it animated?
                                         </AccordionTrigger>
                                         <AccordionContent>
-                                            Yes. Its animated by default, but
-                                            you can disable it if you prefer.
+                                        <Link to="/quizSingleChoice">QUIZ</Link>
                                         </AccordionContent>
                                     </AccordionItem>
                                 </Accordion>

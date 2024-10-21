@@ -122,7 +122,7 @@ function AppContent() {
                     element={<QuizMultipleChoice />}
                 ></Route>
                 <Route
-                    path="/quizTrueFlase"
+                    path="/quizTrueFalse"
                     element={<QuizTrueFalse />}
                 ></Route>
             </Routes>
