@@ -137,7 +137,6 @@ class UserController extends Controller
     public function resetPassword(Request $request, $token)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
             'password' => 'required|string|min:6|confirmed',
         ]);
     
@@ -180,6 +179,7 @@ class UserController extends Controller
     
         return response()->json(['message' => 'Mật khẩu đã được cập nhật thành công!'], 200);
     }
+    
     
 
     public function updateProf(Request $request)
