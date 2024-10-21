@@ -11,8 +11,12 @@ use App\Mail\WelcomeMail;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Jobs\SendWelcomeEmail;
+use App\Mail\ResetPasswordMail;
+use App\Models\PasswordResetToken;
+use Illuminate\Support\Facades\DB;
 use App\Jobs\SendPasswordResetLink;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -102,38 +106,82 @@ class UserController extends Controller
             ], 404);
         }
 
-        SendPasswordResetLink::dispatch($request->email);
+        $token = Str::random(70) . '-' . uniqid() . '-' . Str::random(70);
+
+        DB::table('password_reset_tokens')->insert([
+            'email' => $request->email,
+            'token' => $token,
+            'created_at' => now(),
+        ]);
+
+        $link = URL::to('http://localhost:5173/new-password?token=' . $token);
+
+        // Gửi email qua hàng đợi
+        SendPasswordResetLink::dispatch($request->email, $link);
 
         return response()->json(['message' => 'Email reset password đã được gửi!'], 200);
     }
 
+
+
     public function resetPassword(Request $request, $token)
     {
+        Log::info('Reset Password Request:', [
+            'token' => $token,
+            'email' => $request->email,
+            'request_data' => $request->all(),
+        ]);
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
         if ($validator->fails()) {
+            Log::warning('Validation failed:', [
+                'errors' => $validator->errors()
+            ]);
+
             return response()->json([
                 'message' => 'Cập nhật mật khẩu không thành công.',
                 'errors' => $validator->errors()
             ], 422);
         }
 
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation') + ['token' => $token],
-            function ($user, $password) {
-                $user->password = bcrypt($password);
-                $user->save();
-            }
-        );
+        $passwordReset = DB::table('password_reset_tokens')->where('token', $token)->first();
 
-        return $status === Password::PASSWORD_RESET
-            ? response()->json(['message' => 'Mật khẩu đã được cập nhật thành công!'], 200)
-            : response()->json(['message' => 'Có lỗi xảy ra, vui lòng thử lại.'], 500);
+        if (!$passwordReset) {
+            Log::warning('Invalid token:', ['token' => $token]);
+            return response()->json([
+                'message' => 'Token không hợp lệ hoặc đã hết hạn.',
+                'error' => 'passwords.token'
+            ], 400);
+        }
+
+        Log::info('Token valid:', [
+            'token' => $token,
+            'email' => $passwordReset->email
+        ]);
+
+        $user = User::where('email', $passwordReset->email)->first();
+
+        if (!$user) {
+            Log::warning('User not found for email:', ['email' => $passwordReset->email]);
+            return response()->json([
+                'message' => 'Người dùng không tồn tại.',
+                'error' => 'user.not_found'
+            ], 404);
+        }
+
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        DB::table('password_reset_tokens')->where('token', $token)->delete();
+
+        Log::info('Password updated for user:', ['email' => $user->email]);
+
+        return response()->json(['message' => 'Mật khẩu đã được cập nhật thành công!'], 200);
     }
-
 
     public function updateProf(Request $request)
     {
@@ -183,11 +231,11 @@ class UserController extends Controller
         }
 
         $filePath = $file->getRealPath();
-        $userId = $user->user_id;  // Lấy user_id
-        $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME); 
-        $extension = $file->getClientOriginalExtension(); 
-        $newFileName = "{$userId}.{$originalFileName}.{$extension}"; 
-        $key = 'uploads/' . $newFileName; 
+        $userId = $user->user_id;
+        $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $newFileName = "{$userId}.{$originalFileName}.{$extension}";
+        $key = 'uploads/' . $newFileName;
 
         $contentType = match ($extension) {
             'jpg', 'jpeg' => 'image/jpeg',
@@ -209,10 +257,6 @@ class UserController extends Controller
             throw new \Exception('Could not upload new avatar to S3: ' . $e->getMessage());
         }
     }
-
-
-
-
 
     public function updatePassword(Request $request)
     {
