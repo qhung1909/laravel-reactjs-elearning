@@ -1,7 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useEffect, useRef, useState } from "react";
+import { useEffect , useState } from "react";
 import { Link } from "react-router-dom";
 import { Footer } from "../footer/footer";
 import ReactQuill from 'react-quill';
@@ -262,9 +262,12 @@ export const FrameTeacher = () => {
 
                 <div className="p-10">
                     <div>
-
+                        Thêm nội dung
                     </div>
-                    <h2 className="pb-6 font-medium text-lg">đây là chương trình giảng dạy</h2>
+
+
+
+                    {/* <h2 className="pb-6 font-medium text-lg">đây là chương trình giảng dạy</h2> */}
                 </div>
 
             </>
