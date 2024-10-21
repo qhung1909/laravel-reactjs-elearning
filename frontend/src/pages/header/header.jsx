@@ -40,15 +40,15 @@ export const Header = () => {
     const isBlogPage = location.pathname === "/blog";
     const isContactPage = location.pathname === "/contact";
     const categoryImages = {
-        javascript: "./src/assets/images/javascript.svg",
-        python: "./src/assets/images/python.svg",
-        reactjs: "./src/assets/images/reactjs.svg",
-        angular: "./src/assets/images/angular.svg",
-        css: "./src/assets/images/css.svg",
-        html: "./src/assets/images/html.svg",
-        next: "./src/assets/images/next.svg",
-        asp: "./src/assets/images/asp.svg",
-        nodejs: "./src/assets/images/nodejs.svg",
+        javascript: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/javascript.svg",
+        python: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/python.svg",
+        reactjs: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/reactjs.svg",
+        angular: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/angular.svg",
+        css: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/css.svg",
+        html: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/html.svg",
+        next: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/next.svg",
+        asp: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/asp.svg",
+        nodejs: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/nodejs.svg",
     };
     const { user, logined } = useContext(UserContext);
 
@@ -167,7 +167,7 @@ export const Header = () => {
             </div>
         ) : Array.isArray(categories) && categories.length > 0 ? (
             categories.map((item) => {
-                const categoryImage = categoryImages[item.slug] || "./src/assets/images/default.svg";
+                const categoryImage = categoryImages[item.slug] || "/src/assets/images/default.svg";
                 return (
                     <div key={item.slug} className="duration-300 cursor-pointer py-1">
                         <DropdownMenuItem>
@@ -276,7 +276,7 @@ export const Header = () => {
                                         <div className="navbar-noti cursor-pointer ">
                                             <DropdownMenu >
                                                 <DropdownMenuTrigger>
-                                                    <img src="./src/assets/images/notification.svg" className="w-12" alt="" />
+                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-12" alt="" />
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="rounded-2xl p-3 mr-48 mt-1">
                                                     <div className=" w-96">
@@ -288,7 +288,7 @@ export const Header = () => {
                                                                         Thông báo
                                                                     </div>
                                                                     <div className="">
-                                                                        <img src="./src/assets/images/doublecheck.svg" className="w-4" alt="" />
+                                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/doublecheck.svg" className="w-4" alt="" />
                                                                     </div>
                                                                 </div>
                                                             </DropdownMenuLabel>
@@ -316,11 +316,11 @@ export const Header = () => {
                                             </DropdownMenu>
                                         </div>
                                         <div className="navbar-language cursor-pointer">
-                                            <img src="./src/assets/images/language.svg" className="w-12" alt="" />
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-12" alt="" />
                                         </div>
                                         <div className="">
                                             <Link to='/cart'>
-                                                <img src="./src/assets/images/cart.svg" className="w-12" alt="" />
+                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-12" alt="" />
                                             </Link>
                                         </div>
                                         <div className="cursor-pointer">
@@ -335,7 +335,7 @@ export const Header = () => {
                                                         />
                                                     ) : (
 
-                                                        <img src="./src/assets/images/user.svg" className="w-12" alt="" />
+                                                        <img src="/src/assets/images/user.svg" className="w-12" alt="" />
                                                     )}
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="w-56">
@@ -400,10 +400,10 @@ export const Header = () => {
                                                         <img
                                                             src={user.avatar}
                                                             alt="User Avatar"
-                                                            className="w-20 h-7 rounded-full"
+                                                            className="w-24 h-7 object-cover rounded-full"
                                                         />
                                                     ) : (
-                                                        <img src="./src/assets/images/user.svg" className="w-20" alt="" />
+                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-20" alt="" />
                                                     )}
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent className="w-56">
@@ -449,7 +449,7 @@ export const Header = () => {
                                                 </div>
                                                 <div className="">
                                                     <Link to='/cart'>
-                                                        <img src="./src/assets/images/cart.svg" className="w-20" alt="" />
+                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-24" alt="" />
                                                     </Link>
                                                 </div>
                                                 <div className="flex items-center">
@@ -462,17 +462,17 @@ export const Header = () => {
                                                 <SheetTitle>
                                                     <div className="p-4 flex justify-between items-center border-b-[1px]">
                                                         <div className="logo">
-                                                            <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className=" w-20 h-14 object-cover" />
+                                                            <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className=" w-20 h-14 object-cover" />
                                                         </div>
                                                         <div className="flex gap-3">
                                                             <div className="navbar-language cursor-pointer">
-                                                                <img src="./src/assets/images/language.svg" className="w-7" alt="" />
+                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-7" alt="" />
                                                             </div>
                                                             <div className="">
                                                                 <div className="navbar-noti cursor-pointer ">
                                                                     <DropdownMenu >
                                                                         <DropdownMenuTrigger>
-                                                                            <img src="./src/assets/images/notification.svg" className="w-7" alt="" />
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
                                                                         </DropdownMenuTrigger>
                                                                         <DropdownMenuContent className="rounded-2xl p-3 mr-14 mt-1">
                                                                             <div className=" w-96">
@@ -484,7 +484,7 @@ export const Header = () => {
                                                                                                 Thông báo
                                                                                             </div>
                                                                                             <div className="">
-                                                                                                <img src="./src/assets/images/doublecheck.svg" className="w-4" alt="" />
+                                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/doublecheck.svg" className="w-4" alt="" />
                                                                                             </div>
                                                                                         </div>
                                                                                     </DropdownMenuLabel>
@@ -616,7 +616,7 @@ export const Header = () => {
                                     <div className="navbar-noti cursor-pointer ">
                                         <DropdownMenu >
                                             <DropdownMenuTrigger>
-                                                <img src="./src/assets/images/notification.svg" className="w-16" alt="" />
+                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-16" alt="" />
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent className="rounded-2xl p-3 mr-80 mt-1">
                                                 <div className=" w-96">
@@ -628,7 +628,7 @@ export const Header = () => {
                                                                     Thông báo
                                                                 </div>
                                                                 <div className="">
-                                                                    <img src="./src/assets/images/doublecheck.svg" className="w-4" alt="" />
+                                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/doublecheck.svg" className="w-4" alt="" />
                                                                 </div>
                                                             </div>
                                                         </DropdownMenuLabel>
@@ -656,11 +656,11 @@ export const Header = () => {
                                         </DropdownMenu>
                                     </div>
                                     <div className="navbar-language cursor-pointer">
-                                        <img src="./src/assets/images/language.svg" className="w-16" alt="" />
+                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-16" alt="" />
                                     </div>
                                     <div className="">
                                         <Link to='/cart'>
-                                            <img src="./src/assets/images/cart.svg" className="w-16" alt="" />
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-16" alt="" />
                                         </Link>
                                     </div>
                                 </div>
@@ -692,7 +692,7 @@ export const Header = () => {
                                             <div className="navbar-noti cursor-pointer ">
                                                 <DropdownMenu >
                                                     <DropdownMenuTrigger>
-                                                        <img src="./src/assets/images/notification.svg" className="w-14" alt="" />
+                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-14" alt="" />
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent className="rounded-2xl p-3 mr-20 mt-1">
                                                         <div className=" w-96">
@@ -704,7 +704,7 @@ export const Header = () => {
                                                                             Thông báo
                                                                         </div>
                                                                         <div className="">
-                                                                            <img src="./src/assets/images/doublecheck.svg" className="w-4" alt="" />
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-4" alt="" />
                                                                         </div>
                                                                     </div>
                                                                 </DropdownMenuLabel>
@@ -733,7 +733,7 @@ export const Header = () => {
                                             </div>
                                             <div className="">
                                                 <Link to='/cart'>
-                                                    <img src="./src/assets/images/cart.svg" className="w-16" alt="" />
+                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-16" alt="" />
                                                 </Link>
                                             </div>
                                             <div className="flex items-center">
@@ -747,10 +747,10 @@ export const Header = () => {
                                             <SheetTitle>
                                                 <div className="p-4 flex justify-between items-center border-b-[1px]">
                                                     <div className="logo ">
-                                                        <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
+                                                        <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                                     </div>
                                                     <div className="navbar-language cursor-pointer">
-                                                        <img src="./src/assets/images/language.svg" className="w-7" alt="" />
+                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-7" alt="" />
                                                     </div>
                                                 </div>
                                             </SheetTitle>
