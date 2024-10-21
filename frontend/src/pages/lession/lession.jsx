@@ -5,13 +5,13 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useState, useEffect } from "react";
-import { Clock, CheckCircle, Lock } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
 import ReactPlayer from "react-player";
 import axios from "axios";
-import { Link, useParams } from "react-router-dom";
+import { format } from "date-fns";
+
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
-import { format } from "date-fns";
 
 export const Lesson = () => {
     // Hàm format ngày tháng
@@ -21,7 +21,7 @@ export const Lesson = () => {
         return format(date, "dd/MM/yyyy - HH:mm a");
     };
 
-    const [lesson, setLesson] = useState([]);
+    const [lesson, setLesson] = useState(null);
     const { slug } = useParams();
 
     const fetchLesson = async () => {
@@ -31,7 +31,12 @@ export const Lesson = () => {
                     "x-api-secret": `${API_KEY}`,
                 },
             });
+
             if (res.data && res.data.lesson_id) {
+                if (typeof res.data.content === "string") {
+                    res.data.content = JSON.parse(res.data.content);
+                }
+
                 setLesson(res.data);
             } else {
                 console.error("Dữ liệu không hợp lệ:", res.data);
@@ -50,6 +55,8 @@ export const Lesson = () => {
         }
     }, [slug]);
 
+    const lessonContents = lesson && lesson.content ? lesson.content : [];
+
     return (
         <>
             <body className="bg-gray-100">
@@ -59,7 +66,6 @@ export const Lesson = () => {
                             <box-icon color="white" name="chevron-left" />
                         </button>
                     </Link>
-
                     <div className="text-white font-bold flex items-center">
                         <Link to="/">
                             <div className="w-12 h-12 flex items-center justify-center text-white mr-4">
@@ -70,7 +76,9 @@ export const Lesson = () => {
                                 />
                             </div>
                         </Link>
-                        <h1 className="text-xl">{lesson.name}</h1>
+                        <h1 className="text-xl">
+                            {lesson ? lesson.name : "Loading..."}
+                        </h1>
                     </div>
                     <div className="ml-auto flex items-center space-x-6">
                         <div className="flex items-center space-x-2">
@@ -99,7 +107,7 @@ export const Lesson = () => {
                         <div className="flex-1 bg-white rounded-lg shadow-md p-4">
                             <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden">
                                 <ReactPlayer
-                                    url={lesson.video_link}
+                                    url={lesson ? lesson.video_link : ""}
                                     controls
                                     width="100%"
                                     height="100%"
@@ -108,13 +116,17 @@ export const Lesson = () => {
 
                             <div className="p-6 text-gray-800">
                                 <h2 className="text-2xl font-bold mb-2">
-                                    {lesson.name}
+                                    {lesson ? lesson.name : "Loading..."}
                                 </h2>
                                 <p className="text-sm text-gray-500">
                                     Cập nhật ngày{" "}
-                                    {formatDate(lesson.updated_at)}
+                                    {lesson
+                                        ? formatDate(lesson.updated_at)
+                                        : "Loading..."}
                                 </p>
-                                <p className="mt-4">{lesson.description}</p>
+                                <p className="mt-4">
+                                    {lesson ? lesson.description : "Loading..."}
+                                </p>
                                 <ul className="mt-4 space-y-2">
                                     <li>
                                         <a
@@ -134,65 +146,50 @@ export const Lesson = () => {
 
                         {/* Phần nội dung khóa học */}
                         <div className="w-full md:w-[350px] bg-gray-50 rounded-lg shadow-md mt-8 md:mt-0 md:ml-8 overflow-y-auto">
+                        <h3 className="text-lg font-semibold text-gray-800 p-4 border-b">Nội dung bài học</h3>
+
                             <div className="p-6">
-                                <h3 className="text-lg font-semibold mb-4">
-                                    Nội dung bài học
-                                </h3>
                                 <Accordion type="multiple" className="w-full">
-                                    <AccordionItem value="item-1">
-                                        <AccordionTrigger className="font-medium text-gray-700">
-                                            Giới thiệu về Python
-                                        </AccordionTrigger>
-                                        <AccordionContent className="text-gray-600">
-                                            Python là một ngôn ngữ lập trình
-                                            mạnh mẽ và dễ học, thường được sử
-                                            dụng cho phát triển web, khoa học dữ
-                                            liệu, và AI. Đây là bài học giúp bạn
-                                            nắm bắt các khái niệm cơ bản về
-                                            Python, cú pháp và ứng dụng thực tế.
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                    <AccordionItem value="item-2">
-                                        <AccordionTrigger className="font-medium text-gray-700">
-                                            JavaScript cơ bản
-                                        </AccordionTrigger>
-                                        <AccordionContent className="text-gray-600">
-                                            JavaScript là ngôn ngữ lập trình
-                                            phía front-end phổ biến nhất hiện
-                                            nay. Bài học này sẽ hướng dẫn bạn từ
-                                            những kiến thức cơ bản đến nâng cao
-                                            về JavaScript và cách sử dụng nó để
-                                            tương tác với trang web.
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                    <AccordionItem value="item-3">
-                                        <AccordionTrigger className="font-medium text-gray-700">
-                                            Làm việc với React.js
-                                        </AccordionTrigger>
-                                        <AccordionContent className="text-gray-600">
-                                            React.js là một thư viện JavaScript
-                                            mạnh mẽ giúp phát triển giao diện
-                                            người dùng một cách hiệu quả. Trong
-                                            bài học này, bạn sẽ tìm hiểu về
-                                            component, state, props và cách xây
-                                            dựng ứng dụng web hiện đại với
-                                            React.
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                    <AccordionItem value="item-4">
-                                        <AccordionTrigger className="font-medium text-gray-700">
-                                            Thiết kế giao diện với Tailwind CSS
-                                        </AccordionTrigger>
-                                        <AccordionContent className="text-gray-600">
-                                            Tailwind CSS là một công cụ tiện ích
-                                            mạnh mẽ để tạo ra các giao diện đẹp
-                                            mắt mà không cần viết CSS từ đầu.
-                                            Bài học này sẽ giúp bạn hiểu cách sử
-                                            dụng các lớp tiện ích của Tailwind
-                                            để tạo nên giao diện responsive và
-                                            tùy biến.
-                                        </AccordionContent>
-                                    </AccordionItem>
+                                    {Array.isArray(lessonContents) &&
+                                    lessonContents.length > 0 ? (
+                                        lessonContents.map((content, index) => (
+                                            <AccordionItem
+                                                key={index}
+                                                value={`content-${index}`}
+                                            >
+                                                <AccordionTrigger className="font-medium text-gray-700">
+                                                    {`${index + 1}. ${
+                                                        content.title_content
+                                                    }`}
+                                                </AccordionTrigger>
+                                                <AccordionContent className="text-gray-600 ml-3">
+                                                    {Array.isArray(
+                                                        content.body_content
+                                                    ) ? (
+                                                        content.body_content.map(
+                                                            (body, i) => (
+                                                                <p
+                                                                    key={i}
+                                                                    className="mb-2"
+                                                                >
+                                                                    {i + 1}.{" "}
+                                                                    {body}
+                                                                </p>
+                                                            )
+                                                        )
+                                                    ) : (
+                                                        <p>
+                                                            {
+                                                                content.body_content
+                                                            }
+                                                        </p>
+                                                    )}
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        ))
+                                    ) : (
+                                        <p>Không có nội dung bài học.</p>
+                                    )}
                                 </Accordion>
                             </div>
                         </div>
