@@ -7,7 +7,6 @@ use App\Models\QuizQuestion;
 use Illuminate\Http\Request;
 use App\Exports\QuizQuestionsExport;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 
 class QuizQuestionController extends Controller
@@ -18,11 +17,6 @@ class QuizQuestionController extends Controller
         return response()->json($questions);
     }
 
-    public function exportQuizQuestions()
-    {
-        return Excel::download(new QuizQuestionsExport, 'quiz_questions.xlsx');
-    }
-    
     public function show($quizId, $questionId)
     {
         $question = QuizQuestion::where('quiz_id', $quizId)->find($questionId);

@@ -3,8 +3,8 @@ import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import Swal from 'sweetalert2';
-import { ArrowLeft, Timer, Trophy, AlertCircle } from "lucide-react";
-import {Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card";
+import { ArrowLeft, Trophy, AlertCircle } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle, } from "@/components/ui/alert";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -16,21 +16,7 @@ export const QuizSingleChoice = () => {
     const [answers, setAnswers] = useState({});
     const [lesson, setLesson] = useState([]);
     const [hasStarted, setHasStarted] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(10);
     const { slug } = useParams();
-
-
-    useEffect(() => {
-        let timer;
-        if (hasStarted && timeLeft > 0) {
-            timer = setInterval(() => {
-                setTimeLeft(prev => prev - 1);
-            }, 1000);
-        } else if (timeLeft === 0) {
-            handleSubmit();
-        }
-        return () => clearInterval(timer);
-    }, [hasStarted, timeLeft]);
 
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
@@ -56,6 +42,7 @@ export const QuizSingleChoice = () => {
     };
 
     const fetchAllData = async () => {
+        const token = localStorage.getItem("access_token");
         setLoading(true);
         try {
             const quizzesResponse = await axios.get(`${API_URL}/quizzes`, {
@@ -67,8 +54,17 @@ export const QuizSingleChoice = () => {
                     headers: { "x-api-secret": `${API_KEY}` },
                 })
             );
+            const startQuiz = quizzesResponse.data.map((quiz) =>
+                axios.post(`${API_URL}/quizzes/start/${quiz.quiz_id}/`, {}, {
+                    headers: {
+                        "x-api-secret": `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+            );
+            
 
-            const questionsResponses = await Promise.all(questionsPromises);
+            const questionsResponses = await Promise.all(questionsPromises, startQuiz);
 
             const optionsPromises = questionsResponses.flatMap(
                 (response, index) =>
@@ -88,7 +84,7 @@ export const QuizSingleChoice = () => {
                             }))
                     )
             );
-
+            
             const optionsResponses = await Promise.all(optionsPromises);
 
             const quizzesWithQuestionsAndOptions = quizzesResponse.data.map(
@@ -153,6 +149,7 @@ export const QuizSingleChoice = () => {
             }
         });
     };
+    
     const handleSubmit = async () => {
         const totalQuestions = quizzes.reduce(
             (acc, quiz) => acc + quiz.questions.length,
@@ -171,14 +168,24 @@ export const QuizSingleChoice = () => {
             return;
         }
 
-        const formattedAnswers = Object.keys(answers).map((questionId) => ({
-            question_id: questionId,
-            selected_option: answers[questionId],
-        }));
+        const formattedAnswers = Object.keys(answers).map((questionId) => {
+            const question = quizzes
+                .flatMap((quiz) => quiz.questions)
+                .find((q) => q.question_id === parseInt(questionId));
+            
+            const selectedOption = question.options.find(
+                (option) => option.answer === answers[questionId]
+            );
+    
+            return {
+                question_id: questionId,
+                option_id: selectedOption ? selectedOption.option_id : null,
+            };
+        });
 
         try {
             const token = localStorage.getItem("access_token");
-            console.log("API_URL:", API_URL); // Log API_URL
+            console.log("API_URL:", API_URL);
             const response = await axios.post(
                 `${API_URL}/quizzes/submit`,
                 { answers: formattedAnswers },
@@ -243,21 +250,13 @@ export const QuizSingleChoice = () => {
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
             <div className="flex justify-between items-center mb-6">
-            <Link to={`/lessons/${slug}`} className="text-gray-600 hover:text-gray-800 font-medium flex items-center gap-2" onClick={(e) => {
+                <Link to={`/lessons/${slug}`} className="text-gray-600 hover:text-gray-800 font-medium flex items-center gap-2" onClick={(e) => {
                     e.preventDefault();
                     handleConfirmExit();
                 }}>
-                <ArrowLeft className="w-5 h-5" />
-                Trở về bài học
-            </Link>
-                {hasStarted && (
-                    <div className="flex items-center gap-2 bg-yellow-100 px-4 py-2 rounded-full">
-                        <Timer className="w-5 h-5 text-yellow-600" />
-                        <span className="font-semibold text-yellow-600">
-                            {formatTime(timeLeft)}
-                        </span>
-                    </div>
-                )}
+                    <ArrowLeft className="w-5 h-5" />
+                    Trở về bài học
+                </Link>
             </div>
 
             <Toaster position="top-right" />
@@ -320,18 +319,16 @@ export const QuizSingleChoice = () => {
                                                             {question.options && question.options.length > 0 ? (
                                                                 question.options.map((option, index) => (
                                                                     <button key={option.id}
-                                                                        className={`p-2 rounded-lg text-left transition-all ${
-                                                                            answers[question.question_id] === option.answer
+                                                                        className={`p-2 rounded-lg text-left transition-all ${answers[question.question_id] === option.answer
                                                                                 ? "bg-yellow-400 text-white"
                                                                                 : "bg-white hover:bg-yellow-50 border border-gray-200"
-                                                                        }`}
+                                                                            }`}
                                                                         onClick={() => handleAnswerChange(question.question_id, option.answer)}>
                                                                         <span className="flex items-center gap-3">
-                                                                            <span className={`w-8 h-8 flex items-center justify-center rounded-full ${
-                                                                                answers[question.question_id] === option.answer
+                                                                            <span className={`w-8 h-8 flex items-center justify-center rounded-full ${answers[question.question_id] === option.answer
                                                                                     ? "bg-white text-yellow-500"
                                                                                     : "border-gray-300"
-                                                                            }`}>
+                                                                                }`}>
                                                                                 {String.fromCharCode(65 + index)}
                                                                             </span>
                                                                             {option.answer}

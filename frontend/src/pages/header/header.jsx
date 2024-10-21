@@ -39,64 +39,66 @@ export const Header = () => {
     const [loading, setLoading] = useState(false);
     const isBlogPage = location.pathname === "/blog";
     const isContactPage = location.pathname === "/contact";
-    const categoryImages = {
-        javascript: "./src/assets/images/javascript.svg",
-        python: "./src/assets/images/python.svg",
-        reactjs: "./src/assets/images/reactjs.svg",
-        angular: "./src/assets/images/angular.svg",
-        css: "./src/assets/images/css.svg",
-        html: "./src/assets/images/html.svg",
-        next: "./src/assets/images/next.svg",
-        asp: "./src/assets/images/asp.svg",
-        nodejs: "./src/assets/images/nodejs.svg",
-    };
-    const { user, logined } = useContext(UserContext);
 
+    const categoryImages = {
+        javascript: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/javascript.svg",
+        python: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/python.svg",
+        reactjs: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/reactjs.svg",
+        angular: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/angular.svg",
+        css: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/css.svg",
+        html: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/html.svg",
+        next: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/next.svg",
+        asp: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/asp.svg",
+        nodejs: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/nodejs.svg",
+    };
+    const { user, logined, logout, refreshToken } = useContext(UserContext);
+
+    const handleLogout = () => {
+        setLoadingLogout(true);
+        logout();
+        setLoadingLogout(false);
+    };
+
+    const handleRefreshToken = async () => {
+        const newToken = await refreshToken();
+        if (newToken) {
+            alert('Token has been refreshed successfully!');
+        } else {
+            alert('Failed to refresh token. Please log in again.');
+        }
+    };
 
     const navigate = useNavigate();
+    //     const storedRefreshToken = localStorage.getItem('refresh_token');
+    //     if (!storedRefreshToken) {
+    //         alert('Session expired. Please log in again.');
+    //         navigate('/login');
+    //         return;
+    //     }
+    //     try {
+    //         const res = await fetch(`${API_URL}/auth/refresh`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify({ refresh_token: storedRefreshToken })
+    //         });
 
-    const refreshToken = async () => {
-        const storedRefreshToken = localStorage.getItem('refresh_token');
-        if (!storedRefreshToken) {
-            alert('Session expired. Please log in again.');
-            navigate('/login');
-            return;
-        }
-        try {
-            const res = await fetch(`${API_URL}/auth/refresh`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ refresh_token: storedRefreshToken })
-            });
+    //         if (!res.ok) {
+    //             alert('Session expired. Please log in again.');
+    //             navigate('/login');
+    //             return;
+    //         }
 
-            if (!res.ok) {
-                alert('Session expired. Please log in again.');
-                navigate('/login');
-                return;
-            }
-
-            const data = await res.json();
-            localStorage.setItem('access_token', data.access_token);
-            localStorage.setItem('refresh_token', data.refresh_token);
-            return data.access_token;
-        } catch {
-            alert('Session expired. Please log in again.');
-            navigate('/login');
-        }
-    };
-
-    const logout = () => {
-        setLoadingLogout(true)
-        setTimeout(() => {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            // setLogined(null);
-            setLoadingLogout(false)
-        }, 800)
-
-    }
+    //         const data = await res.json();
+    //         localStorage.setItem('access_token', data.access_token);
+    //         localStorage.setItem('refresh_token', data.refresh_token);
+    //         return data.access_token;
+    //     } catch {
+    //         alert('Session expired. Please log in again.');
+    //         navigate('/login');
+    //     }
+    // };
 
     // const fetchUser = async () => {
     //     const token = localStorage.getItem("access_token");
@@ -167,7 +169,7 @@ export const Header = () => {
             </div>
         ) : Array.isArray(categories) && categories.length > 0 ? (
             categories.map((item) => {
-                const categoryImage = categoryImages[item.slug] || "./src/assets/images/default.svg";
+                const categoryImage = categoryImages[item.slug] || "/src/assets/images/default.svg";
                 return (
                     <div key={item.slug} className="duration-300 cursor-pointer py-1">
                         <DropdownMenuItem>
@@ -186,12 +188,6 @@ export const Header = () => {
     }
 
     useEffect(() => {
-        const userToken = localStorage.getItem('access_token');
-        if (userToken) {
-            console.log("Fetching data...");
-            // setLogined(userToken);
-        };
-
         fetchCategories();
     }, []);
 
@@ -276,7 +272,7 @@ export const Header = () => {
                                         <div className="navbar-noti cursor-pointer ">
                                             <DropdownMenu >
                                                 <DropdownMenuTrigger>
-                                                    <img src="./src/assets/images/notification.svg" className="w-12" alt="" />
+                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-12" alt="" />
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="rounded-2xl p-3 mr-48 mt-1">
                                                     <div className=" w-96">
@@ -288,7 +284,7 @@ export const Header = () => {
                                                                         Thông báo
                                                                     </div>
                                                                     <div className="">
-                                                                        <img src="./src/assets/images/doublecheck.svg" className="w-4" alt="" />
+                                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/doublecheck.svg" className="w-4" alt="" />
                                                                     </div>
                                                                 </div>
                                                             </DropdownMenuLabel>
@@ -316,11 +312,11 @@ export const Header = () => {
                                             </DropdownMenu>
                                         </div>
                                         <div className="navbar-language cursor-pointer">
-                                            <img src="./src/assets/images/language.svg" className="w-12" alt="" />
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-12" alt="" />
                                         </div>
                                         <div className="">
                                             <Link to='/cart'>
-                                                <img src="./src/assets/images/cart.svg" className="w-12" alt="" />
+                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-12" alt="" />
                                             </Link>
                                         </div>
                                         <div className="cursor-pointer">
@@ -335,7 +331,7 @@ export const Header = () => {
                                                         />
                                                     ) : (
 
-                                                        <img src="./src/assets/images/user.svg" className="w-12" alt="" />
+                                                        <img src="/src/assets/images/user.svg" className="w-12" alt="" />
                                                     )}
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="w-56">
@@ -380,7 +376,7 @@ export const Header = () => {
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem>
                                                         <LogOut className="mr-2 h-4 w-4" />
-                                                        <span className="cursor-pointer" onClick={logout}>Đăng xuất</span>
+                                                        <span className="cursor-pointer" onClick={handleLogout}>Đăng xuất</span>
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
@@ -400,10 +396,10 @@ export const Header = () => {
                                                         <img
                                                             src={user.avatar}
                                                             alt="User Avatar"
-                                                            className="w-20 h-7 rounded-full"
+                                                            className="w-24 h-7 object-cover rounded-full"
                                                         />
                                                     ) : (
-                                                        <img src="./src/assets/images/user.svg" className="w-20" alt="" />
+                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-20" alt="" />
                                                     )}
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent className="w-56">
@@ -449,7 +445,7 @@ export const Header = () => {
                                                 </div>
                                                 <div className="">
                                                     <Link to='/cart'>
-                                                        <img src="./src/assets/images/cart.svg" className="w-20" alt="" />
+                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-24" alt="" />
                                                     </Link>
                                                 </div>
                                                 <div className="flex items-center">
@@ -462,17 +458,17 @@ export const Header = () => {
                                                 <SheetTitle>
                                                     <div className="p-4 flex justify-between items-center border-b-[1px]">
                                                         <div className="logo">
-                                                            <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className=" w-20 h-14 object-cover" />
+                                                            <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className=" w-20 h-14 object-cover" />
                                                         </div>
                                                         <div className="flex gap-3">
                                                             <div className="navbar-language cursor-pointer">
-                                                                <img src="./src/assets/images/language.svg" className="w-7" alt="" />
+                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-7" alt="" />
                                                             </div>
                                                             <div className="">
                                                                 <div className="navbar-noti cursor-pointer ">
                                                                     <DropdownMenu >
                                                                         <DropdownMenuTrigger>
-                                                                            <img src="./src/assets/images/notification.svg" className="w-7" alt="" />
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
                                                                         </DropdownMenuTrigger>
                                                                         <DropdownMenuContent className="rounded-2xl p-3 mr-14 mt-1">
                                                                             <div className=" w-96">
@@ -484,7 +480,7 @@ export const Header = () => {
                                                                                                 Thông báo
                                                                                             </div>
                                                                                             <div className="">
-                                                                                                <img src="./src/assets/images/doublecheck.svg" className="w-4" alt="" />
+                                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/doublecheck.svg" className="w-4" alt="" />
                                                                                             </div>
                                                                                         </div>
                                                                                     </DropdownMenuLabel>
@@ -616,7 +612,7 @@ export const Header = () => {
                                     <div className="navbar-noti cursor-pointer ">
                                         <DropdownMenu >
                                             <DropdownMenuTrigger>
-                                                <img src="./src/assets/images/notification.svg" className="w-16" alt="" />
+                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-16" alt="" />
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent className="rounded-2xl p-3 mr-80 mt-1">
                                                 <div className=" w-96">
@@ -628,7 +624,7 @@ export const Header = () => {
                                                                     Thông báo
                                                                 </div>
                                                                 <div className="">
-                                                                    <img src="./src/assets/images/doublecheck.svg" className="w-4" alt="" />
+                                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/doublecheck.svg" className="w-4" alt="" />
                                                                 </div>
                                                             </div>
                                                         </DropdownMenuLabel>
@@ -656,11 +652,11 @@ export const Header = () => {
                                         </DropdownMenu>
                                     </div>
                                     <div className="navbar-language cursor-pointer">
-                                        <img src="./src/assets/images/language.svg" className="w-16" alt="" />
+                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-16" alt="" />
                                     </div>
                                     <div className="">
                                         <Link to='/cart'>
-                                            <img src="./src/assets/images/cart.svg" className="w-16" alt="" />
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-16" alt="" />
                                         </Link>
                                     </div>
                                 </div>
@@ -688,11 +684,11 @@ export const Header = () => {
                                 <Sheet>
                                     <SheetTrigger>
                                         {/* icons*/}
-                                        <div className="navbar-icons flex gap-2 xl:mx-3 my-5">
-                                            <div className="navbar-noti cursor-pointer ">
+                                        <div className="navbar-icons flex items-center justify-center gap-2 xl:mx-3 my-5">
+                                            <div className="navbar-noti cursor-pointer mt-1">
                                                 <DropdownMenu >
                                                     <DropdownMenuTrigger>
-                                                        <img src="./src/assets/images/notification.svg" className="w-14" alt="" />
+                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-14" alt="" />
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent className="rounded-2xl p-3 mr-20 mt-1">
                                                         <div className=" w-96">
@@ -704,7 +700,7 @@ export const Header = () => {
                                                                             Thông báo
                                                                         </div>
                                                                         <div className="">
-                                                                            <img src="./src/assets/images/doublecheck.svg" className="w-4" alt="" />
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-4" alt="" />
                                                                         </div>
                                                                     </div>
                                                                 </DropdownMenuLabel>
@@ -733,7 +729,7 @@ export const Header = () => {
                                             </div>
                                             <div className="">
                                                 <Link to='/cart'>
-                                                    <img src="./src/assets/images/cart.svg" className="w-16" alt="" />
+                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-16" alt="" />
                                                 </Link>
                                             </div>
                                             <div className="flex items-center">
@@ -747,10 +743,10 @@ export const Header = () => {
                                             <SheetTitle>
                                                 <div className="p-4 flex justify-between items-center border-b-[1px]">
                                                     <div className="logo ">
-                                                        <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
+                                                        <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                                     </div>
                                                     <div className="navbar-language cursor-pointer">
-                                                        <img src="./src/assets/images/language.svg" className="w-7" alt="" />
+                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-7" alt="" />
                                                     </div>
                                                 </div>
                                             </SheetTitle>
