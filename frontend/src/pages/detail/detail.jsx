@@ -60,7 +60,6 @@ export const Detail = () => {
     // Format ngày tháng
     const formatDate = (dateString) => {
         const date = new Date(dateString);
-        // Kiểm tra nếu date không hợp lệ
         if (isNaN(date)) return "Ngày không hợp lệ";
 
         return format(date, "dd/MM/yyyy - HH:mm a");
@@ -74,36 +73,7 @@ export const Detail = () => {
     const [items, setItems] = useState([]);
     const [cartItems, setCartItems] = useState([]);
 
-    // const [lessons, setLessons] = useState([]);
 
-    // const fetchLessons = async () => {
-    //     try {
-    //         const res = await axios.get(`${API_URL}/lessons`, {
-    //             headers: {
-    //                 "x-api-secret": `${API_KEY}`,
-    //             },
-    //         });
-
-    //         if (Array.isArray(res.data)) {
-    //             setLessons(res.data);
-    //         } else {
-    //             console.error("Dữ liệu không phải là mảng:", res.data);
-    //         }
-    //     } catch (error) {
-    //         console.error("Lỗi khi lấy danh sách bài học:", error);
-    //         if (error.response) {
-    //             console.error("Chi tiết lỗi:", error.response.data);
-    //         }
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     fetchLessons();
-    // }, []);
-
-    // useEffect(() => {}, [lessons]);
-
-    // User
     const [users, setUsers] = useState([]);
     //fetch thông tin user comment
     const fetchUsers = async () => {
@@ -252,7 +222,7 @@ export const Detail = () => {
     }, [slug]);
 
     const [isPaymentCourse, setPaymentCourse] = useState(false);
-    // Check xem đã mua khóa học chưa
+
     const checkPaymentCourse = async (user_id) => {
         setLoading(true);
         const token = localStorage.getItem("access_token");
@@ -298,7 +268,7 @@ export const Detail = () => {
     }, [user, detail]);
 
     const [isEnrolled, setIsEnrolled] = useState(false);
-    // Gọi API enroll
+
     const handleEnroll = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -344,7 +314,6 @@ export const Detail = () => {
             }
         }
     };
-    // Check xem user enroll chưa
     const checkEnrollment = async (user_id, course_id) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -379,7 +348,7 @@ export const Detail = () => {
     };
     useEffect(() => {
         if (user.user_id && detail.course_id) {
-            checkEnrollment(user.user_id, detail.course_id); // Kiểm tra trạng thái đăng ký
+            checkEnrollment(user.user_id, detail.course_id);
         }
     }, [user, detail]);
     const addToCart = async () => {
@@ -549,17 +518,17 @@ export const Detail = () => {
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editingRating, setEditingRating] = useState(0);
     const [editingContent, setEditingContent] = useState("");
-    // Hàm kích hoạt chế độ chỉnh sửa
+
     const editComment = (comment) => {
-        setEditingCommentId(comment.comment_id); // Lưu ID của bình luận đang chỉnh sửa
-        setEditingRating(comment.rating); // Lưu giá trị rating hiện tại
-        setEditingContent(comment.content); // Lưu nội dung bình luận hiện tại
+        setEditingCommentId(comment.comment_id);
+        setEditingRating(comment.rating);
+        setEditingContent(comment.content);
     };
-    // Hàm hủy chỉnh sửa
+
     const cancelEdit = () => {
-        setEditingCommentId(null); // Thoát chế độ chỉnh sửa
-        setEditingRating(0); // Reset rating
-        setEditingContent(""); // Reset content
+        setEditingCommentId(null);
+        setEditingRating(0);
+        setEditingContent("");
     };
     const updateComment = async (commentId) => {
         try {
