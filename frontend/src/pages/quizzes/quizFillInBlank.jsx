@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { toast, Toaster } from "react-hot-toast";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -19,15 +20,15 @@ export const QuizFillInBlank = () => {
 
                 // Fetch dữ liệu quiz
                 const quizzesResponse = await axios.get(`${API_URL}/quizzes`, {
-                    headers: { "x-api-secret": `${API_KEY}` }
+                    headers: { "x-api-secret": `${API_KEY}` },
                 });
 
                 console.log("Quizzes Response:", quizzesResponse.data); // Kiểm tra phản hồi từ API cho quizzes
 
                 // Lấy câu hỏi cho từng quiz
-                const questionsPromises = quizzesResponse.data.map(quiz =>
+                const questionsPromises = quizzesResponse.data.map((quiz) =>
                     axios.get(`${API_URL}/quizzes/${quiz.quiz_id}/questions`, {
-                        headers: { "x-api-secret": `${API_KEY}` }
+                        headers: { "x-api-secret": `${API_KEY}` },
                     })
                 );
 
@@ -38,7 +39,7 @@ export const QuizFillInBlank = () => {
 
                 // Chỉ lọc các câu hỏi dạng Fill-in-the-Blank
                 const fillInBlankQuestionsResponses = questionsResponses.flatMap((response) =>
-                    response.data.filter(question => question.type === "fill_in_blank")
+                    response.data.filter((question) => question.type === "fill_in_blank")
                 );
 
                 console.log("Filtered Fill-in-the-Blank Questions:", fillInBlankQuestionsResponses); // Kiểm tra câu hỏi dạng Fill-in-the-Blank
@@ -59,20 +60,77 @@ export const QuizFillInBlank = () => {
     const handleAnswerChange = (questionId, answer) => {
         setAnswers((prev) => ({
             ...prev,
-            [questionId]: answer // Lưu câu trả lời của người dùng
+            [questionId]: answer, // Lưu câu trả lời của người dùng
         }));
     };
 
-    const handleSubmit = () => {
-        console.log("Submitted Answers:", answers);
+    const handleSubmit = async () => {
+        const totalQuestions = quizzes.length;
+        const answeredQuestions = Object.keys(answers).length;
+
+        if (answeredQuestions < totalQuestions) {
+            toast.error(`Còn ${totalQuestions - answeredQuestions} câu chưa trả lời!`, {
+                duration: 2000,
+                position: 'top-right',
+            });
+            return;
+        }
+
+        const formattedAnswers = Object.keys(answers).map((questionId) => ({
+            question_id: questionId,
+            answer: answers[questionId],
+        }));
+
+        try {
+            const token = localStorage.getItem("access_token");
+
+            const response = await axios.post(
+                `${API_URL}/quizzes/submit`,
+                {
+                    answers: formattedAnswers,
+                },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "x-api-secret": `${API_KEY}`,
+                    },
+                }
+            );
+
+            toast.success("Nộp bài thành công!", {
+                duration: 2000,
+                position: 'top-right',
+            });
+            console.log("Submission Response:", response.data);
+        } catch (error) {
+            console.error("Error submitting answers:", error);
+            toast.error("Có lỗi khi nộp bài. Vui lòng thử lại!", {
+                duration: 2000,
+                position: 'top-right',
+            });
+        }
     };
 
     if (loading) {
-        return <div>Loading...</div>; // Hiển thị khi đang tải dữ liệu
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="spinner"></div>
+            </div>
+        ); // Hiển thị spinner khi đang tải dữ liệu
     }
 
     return (
         <div className="flex justify-center p-6">
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    style: {
+                        borderRadius: '8px',
+                        padding: '16px',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    },
+                }}
+            />
             <div className="max-w-3xl w-full">
                 <h1 className="text-2xl font-bold mb-4">Danh sách Quiz (Fill in the Blank)</h1>
                 <ul className="space-y-4">
@@ -101,7 +159,8 @@ export const QuizFillInBlank = () => {
                 </ul>
                 <button
                     onClick={handleSubmit}
-                    className="mt-4 bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600">
+                    className="mt-4 bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600"
+                >
                     Nộp bài
                 </button>
             </div>

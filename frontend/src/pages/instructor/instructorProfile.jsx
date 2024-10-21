@@ -17,9 +17,65 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useEffect, useState } from "react";
+import { Link,useNavigate } from "react-router-dom"
+import axios from "axios";
+import toast, { Toaster } from 'react-hot-toast';
 
-import { Link } from "react-router-dom"
+const notify = (message, type ) => {
+    if (type === 'success'){
+        toast.success(message);
+    } else {
+        toast.error(message)
+    }
+}
 export const InstructorProfile = () => {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
+    const [userName, setUserName] = useState('');
+    const [role, setRole] = useState('');
+    const [loadingLogout, setLoadingLogout] = useState(false);
+    const [logined, setLogined] = useState(null);
+    const navigate = useNavigate();
+    const [_success, setSuccess] = useState("");
+
+    const fetchUserProfile = async () =>{
+        const token = localStorage.getItem("access_token");
+        try{
+            const response = await axios.get(`${API_URL}/auth/me`,{
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const userData = response.data;
+            setUserName(userData.name || '');
+            setRole(userData.role || '')
+
+        }catch(error){
+            console.log('Error fetching user profile', error)
+        }
+    }
+
+    const logout = () => {
+        setSuccess("");
+        setLoadingLogout(true)
+        notify('Đăng xuất thành công', 'success');
+        setTimeout(() => {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            setLogined(null);
+            setLoadingLogout(false)
+            navigate('/login')
+        }, 800)
+    }
+
+
+    useEffect(()=>{
+        fetchUserProfile();
+    },[])
+
     return (
         <>
             <section className="instructor-profile">
@@ -33,11 +89,9 @@ export const InstructorProfile = () => {
                                     <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                 </div>
                                 <div className="logout">
-                                    <svg width="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="duration-200 ease-out transition transform">
-                                        <rect width="36" height="36" rx="10" fill="#F9F9FB"></rect><g clipPath="url(#clip0_2285_3955)">
-                                            <path d="M15.5015 13.8337C15.5116 12.0211 15.5919 11.0395 16.2322 10.3992C16.9645 9.66699 18.143 9.66699 20.5 9.66699L21.3334 9.66699C23.6904 9.66699 24.8689 9.66699 25.6011 10.3992C26.3334 11.1315 26.3334 12.31 26.3334 14.667L26.3334 21.3337C26.3334 23.6907 26.3334 24.8692 25.6011 25.6014C24.8689 26.3337 23.6904 26.3337 21.3334 26.3337L20.5 26.3337C18.143 26.3337 16.9645 26.3337 16.2322 25.6014C15.5919 24.9611 15.5116 23.9795 15.5015 22.167" stroke="#B9C0D4" strokeWidth="1.5" strokeLinecap="round"></path><path d="M20.5 18L9.66667 18M9.66667 18L12.5833 15.5M9.66667 18L12.5833 20.5" stroke="#B9C0D4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path></g><defs><clipPath id="clip0_2285_3955"><rect x="8" y="8" width="20" height="20" rx="5" fill="white">
-                                            </rect></clipPath></defs>
-                                    </svg>
+                                    <Link to="/">
+                                        <img src="./src/assets/images/logout.svg" className="w-7" alt="" />
+                                    </Link>
                                 </div>
                             </div>
                             {/* ul list */}
@@ -85,23 +139,17 @@ export const InstructorProfile = () => {
                             <div className="flex items-center justify-between px-4 py-3">
                                 <h1 className="text-xl font-semibold ">
                                     <Link to="/">
-                                        <div className="flex items-center gap-1">
-                                            <box-icon name='home-alt-2' color='#daddf1' ></box-icon>
-                                            <p className="text-slate-600">Trang chủ</p>
+                                        <div className="flex items-center gap-2">
+                                        <img src="./src/assets/images/home.svg" className="w-6" alt="" />
+                                        <p className="text-slate-600">Trang chủ</p>
                                         </div>
                                     </Link>
                                 </h1>
                                 <div className="flex items-center space-x-4">
-                                    <button className="p-1 rounded-full hover:bg-gray-100">
-                                        <svg className="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                        </svg>
+                                <button className="p-1 rounded-full hover:bg-gray-100">
+                                        <img src="./src/assets/images/notification.svg" className="w-7" alt="" />
                                     </button>
-                                    <button className="p-1 rounded-full hover:bg-gray-100">
-                                        <svg className="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </button>
+
                                     <div className="flex items-center gap-3">
                                         {/* avatar */}
                                         <Avatar>
@@ -111,12 +159,12 @@ export const InstructorProfile = () => {
 
                                         {/* user control */}
                                         <div className="text-left">
-                                            <span className="font-medium text-sm">Chấn Toàn</span>
+                                            <span className="font-medium text-sm">{userName}</span>
                                             <br />
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger>
                                                     <div className="flex items-center">
-                                                        <p className="text-gray-600 text-sm">Giảng viên</p>
+                                                        <p className="text-gray-600 text-sm">{role}</p>
                                                         <svg className="w-4 h-4 ml-1 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                                         </svg>
@@ -124,8 +172,9 @@ export const InstructorProfile = () => {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent>
                                                     <div className="p-3">
-                                                        <DropdownMenuItem>Tài khoản của tôi</DropdownMenuItem>
-                                                        <DropdownMenuItem>Đăng xuất</DropdownMenuItem>
+                                                        <DropdownMenuItem>
+                                                            <span className="cursor-pointer" onClick={logout}>Đăng xuất</span>
+                                                        </DropdownMenuItem>
                                                     </div>
                                                 </DropdownMenuContent>
 
@@ -246,20 +295,10 @@ export const InstructorProfile = () => {
                                                         </div>
                                                     </div>
 
-                                                    {/* name - birthday */}
-                                                    <div className="sm:flex my-5 gap-5">
-                                                        <div className="sm:w-[24%] w-[100%]">
-                                                            <Label htmlFor="firstname" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Tên</p></Label>
-                                                            <Input type="firstname" id="firstname" placeholder="Tên" className="p-6 mt-2 rounded-xl font-semibold text-base" />
-                                                        </div>
-                                                        <div className="sm:w-[24%] w-[100%] my-5 sm:my-0">
-                                                            <Label htmlFor="lastname" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Họ</p></Label>
-                                                            <Input type="lastname" id="lastname" placeholder="Họ tên" className="p-6 mt-2 rounded-xl font-semibold text-base" />
-                                                        </div>
-                                                        <div className="sm:w-[24%] w-[100%] ">
-                                                            <Label htmlFor="birthday" className="flex gap-2 text-base"><p>Sinh nhật</p></Label>
-                                                            <Input type="birthday" id="birthday" placeholder="Sinh nhật" className="p-6 mt-2 rounded-xl font-semibold text-base" />
-                                                        </div>
+                                                    {/* name  */}
+                                                    <div className="w-[49%] my-5">
+                                                        <Label htmlFor="firstname" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Tên</p></Label>
+                                                        <Input type="firstname" id="firstname" placeholder="Tên" className="p-6 mt-2 rounded-xl font-semibold text-base" />
                                                     </div>
 
                                                     {/* email - phone */}
@@ -272,12 +311,6 @@ export const InstructorProfile = () => {
                                                             <Label htmlFor="phone" className="flex gap-2 text-base"><p className="text-sm">Số điện thoại</p></Label>
                                                             <Input type="phone" id="phone" placeholder="Số điện thoại" className="p-6 mt-2 rounded-xl font-semibold" />
                                                         </div>
-                                                    </div>
-
-                                                    {/* address */}
-                                                    <div className="w-[100%] my-5">
-                                                        <Label htmlFor="address" className="flex gap-2 text-base"><p className="text-sm">Địa chỉ</p></Label>
-                                                        <Input type="address" id="address" className="p-6 mt-2 rounded-xl font-semibold" />
                                                     </div>
 
                                                     {/* description */}
@@ -347,6 +380,7 @@ export const InstructorProfile = () => {
                     </div>
                 </div>
             </section>
+            <Toaster />
         </>
     )
 }

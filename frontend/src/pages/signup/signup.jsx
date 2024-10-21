@@ -7,8 +7,8 @@ import toast, { Toaster } from 'react-hot-toast';
 
 const notify = (message, type) => {
     if (type === 'success') {
-        toast.success(message,{
-            style:{
+        toast.success(message, {
+            style: {
                 padding: '16px'
             }
         });
@@ -150,11 +150,6 @@ export const Signup = () => {
                             <div className="grid gap-2">
                                 <div className="flex items-center">
                                     <Label htmlFor="password">Mật khẩu</Label>
-                                    <Link
-                                        to="#"
-                                        className="ml-auto inline-block text-sm underline"
-                                    >
-                                    </Link>
                                 </div>
                                 <Input name="password" type="password" className="p-5" placeholder="Nhập mật khẩu" value={formData.password} onChange={handleChange}
                                 />
@@ -162,11 +157,6 @@ export const Signup = () => {
                             <div className="grid gap-2">
                                 <div className="flex items-center">
                                     <Label htmlFor="password">Xác nhận mật khẩu</Label>
-                                    <Link
-                                        to="#"
-                                        className="ml-auto inline-block text-sm underline"
-                                    >
-                                    </Link>
                                 </div>
                                 <Input name="password_confirmation" className="p-5" type="password" placeholder="Xác nhận mật khẩu" value={formData.password_confirmation} onChange={handleChange} />
                             </div>
