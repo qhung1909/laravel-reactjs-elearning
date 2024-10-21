@@ -1,8 +1,8 @@
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@radix-ui/react-dropdown-menu"
-import { Link } from "react-router-dom"
-import { useEffect, useReducer, useState } from "react";
+import { Link,useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react";
 import axios from "axios";
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -22,6 +22,9 @@ const notify = (message, type) => {
     }
 }
 
+
+
+
 export const UserProfile = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
@@ -29,7 +32,8 @@ export const UserProfile = () => {
     const [error, setError] = useState("");
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
-    const [avatar, setAvatar] = useState(null);
+    const [avatar, setAvatar] = useState(null)
+    const navigate = useNavigate();
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -40,8 +44,12 @@ export const UserProfile = () => {
 
     const fetchUserProfile = async () => {
         const token = localStorage.getItem("access_token");
-        try {
-            const response = await axios.get(`${API_URL}/auth/me`, {
+        if (!token) {
+            console.error("Bạn chưa đăng nhập, hãy thử lại");
+            return;
+        }
+        try{
+            const response = await axios.get(`${API_URL}/auth/me`,{
                 headers: {
                     'x-api-secret': `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
@@ -55,8 +63,54 @@ export const UserProfile = () => {
             setAvatar(userData.avatar ? `${API_URL}/${userData.avatar}` : null);
         } catch (error) {
             console.log('Error fetching user profile', error)
+            if (error.response) {
+                if (error.response.status === 401) {
+                    const newToken = await refreshToken();
+                    if (newToken) {
+                        await fetchUserProfile();
+                    }
+                } else {
+                    console.error("Lỗi:", error.response.data);
+                    console.error("Trạng thái lỗi:", error.response.status);
+                }
+            } else {
+                console.error("Không có phản hồi từ server");
+            }
         }
     }
+
+    const refreshToken = async () => {
+        const storedRefreshToken = localStorage.getItem('refresh_token');
+        if (!storedRefreshToken) {
+            alert('Session expired. Please log in again.');
+            navigate('/login');
+            return;
+        }
+        try {
+            const res = await fetch(`${API_URL}/auth/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ refresh_token: storedRefreshToken })
+            });
+
+            if (!res.ok) {
+                alert('Session expired. Please log in again.');
+                navigate('/login');
+                return;
+            }
+
+            const data = await res.json();
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+            return data.access_token;
+        } catch {
+            alert('Session expired. Please log in again.');
+            navigate('/login');
+        }
+    };
+
 
     const updateUserProfile = async (e) => {
         e.preventDefault();
