@@ -221,7 +221,7 @@ class UserController extends Controller
                 'secret' => env('AWS_SECRET_ACCESS_KEY'),
             ],
             'http' => [
-                'verify' => 'C:/laragon/etc/ssl/cacert.pem',
+                'verify' => env('VERIFY_URL'),
             ],
         ]);
 

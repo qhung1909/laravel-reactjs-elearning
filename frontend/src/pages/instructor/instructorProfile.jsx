@@ -133,43 +133,43 @@ export const InstructorProfile = () => {
         }, 800)
     }
 
-    const updateUserProfile = async (e) => {
-        e.preventDefault();
-        const token = localStorage.getItem("access_token");
-        if (!userName.trim()) {
-            notify('Tên tài khoản không được để trống', 'error');
-            setError('Thiết lập thất bại')
-            return;
-        }
-        try {
-            setSuccess("");
-            setError("");
-            const formData = new FormData();
-            formData.append('name', userName);
-            formData.append('email', email);
-            if (avatar) {
-                formData.append('file', avatar);
+        const updateUserProfile = async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem("access_token");
+            if (!userName.trim()) {
+                notify('Tên tài khoản không được để trống', 'error');
+                setError('Thiết lập thất bại')
+                return;
             }
-            const response = await axios.post(`${API_URL}/auth/user/profile`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${token}`,
-                    'x-api-secret': `${API_KEY}`,
-                },
-            });
-            notify('Cập nhật thành công', 'success');
-            setSuccess('Cập nhật thành công');
-            if (response.data.user && response.data.user.avatar) {
-                setCurrentAvatar(response.data.user.avatar);
+            try {
+                setSuccess("");
+                setError("");
+                const formData = new FormData();
+                formData.append('name', userName);
+                formData.append('email', email);
+                if (avatar) {
+                    formData.append('file', avatar);
+                }
+                const response = await axios.post(`${API_URL}/auth/user/profile`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        Authorization: `Bearer ${token}`,
+                        'x-api-secret': `${API_KEY}`,
+                    },
+                });
+                notify('Cập nhật thành công', 'success');
+                setSuccess('Cập nhật thành công');
+                if (response.data.user && response.data.user.avatar) {
+                    setCurrentAvatar(response.data.user.avatar);
+                }
+            } catch (error) {
+                console.log('Error updating profile', error);
             }
-        } catch (error) {
-            console.log('Error updating profile', error);
-        }
-    };
+        };
 
-    useEffect(() => {
-        fetchUserProfile();
-    }, [])
+        useEffect(() => {
+            fetchUserProfile();
+        }, [])
 
     return (
         <>
