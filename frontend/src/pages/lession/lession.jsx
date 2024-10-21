@@ -169,33 +169,8 @@ export const Lesson = () => {
                                         <AccordionTrigger className="font-medium text-gray-700">
                                             Làm việc với React.js
                                         </AccordionTrigger>
-<<<<<<< HEAD
                                         <AccordionContent>
                                         <Link to="/quizSingleChoice">QUIZ</Link>
-=======
-                                        <AccordionContent className="text-gray-600">
-                                            React.js là một thư viện JavaScript
-                                            mạnh mẽ giúp phát triển giao diện
-                                            người dùng một cách hiệu quả. Trong
-                                            bài học này, bạn sẽ tìm hiểu về
-                                            component, state, props và cách xây
-                                            dựng ứng dụng web hiện đại với
-                                            React.
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                    <AccordionItem value="item-4">
-                                        <AccordionTrigger className="font-medium text-gray-700">
-                                            Thiết kế giao diện với Tailwind CSS
-                                        </AccordionTrigger>
-                                        <AccordionContent className="text-gray-600">
-                                            Tailwind CSS là một công cụ tiện ích
-                                            mạnh mẽ để tạo ra các giao diện đẹp
-                                            mắt mà không cần viết CSS từ đầu.
-                                            Bài học này sẽ giúp bạn hiểu cách sử
-                                            dụng các lớp tiện ích của Tailwind
-                                            để tạo nên giao diện responsive và
-                                            tùy biến.
->>>>>>> 0f797a8f41f227b16381ef7c3f829d51fb7db60f
                                         </AccordionContent>
                                     </AccordionItem>
                                 </Accordion>
