@@ -38,7 +38,8 @@ import { QuizTrueFalse } from "./pages/quizzes/quizTrueFalse.jsx";
 import { NewPassword } from "./pages/recoverPassword/newPassword.jsx";
 import { ResetPassword } from "./pages/recoverPassword/resetPassword.jsx";
 import { VerifyEmail } from "./pages/recoverPassword/verifyEmail.jsx";
-
+import { UserProvider } from "./pages/usercontext/userContext.jsx";
+import { UserContext } from "./pages/usercontext/usercontext.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -133,9 +134,12 @@ function AppContent() {
 
 function App() {
     return (
-        <Router>
-            <AppContent />
-        </Router>
+        <UserProvider>
+            <Router>
+                <AppContent />
+            </Router>
+        </UserProvider>
+
     );
 }
 

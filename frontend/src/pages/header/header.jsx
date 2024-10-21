@@ -26,16 +26,15 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 import axios from "axios";
-
 import { Skeleton } from "@/components/ui/skeleton"
+import { useContext } from 'react';
+import { UserContext } from "../usercontext/usercontext";
 
 export const Header = () => {
     const location = useLocation();
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const [categories, setCategories] = useState([]);
-    const [logined, setLogined] = useState(null);
-    const [user, setUser] = useState([]);
     const [loadingLogout, setLoadingLogout] = useState(false);
     const [loading, setLoading] = useState(false);
     const isBlogPage = location.pathname === "/blog";
@@ -50,13 +49,11 @@ export const Header = () => {
         next: "./src/assets/images/next.svg",
         asp: "./src/assets/images/asp.svg",
         nodejs: "./src/assets/images/nodejs.svg",
-
     };
+    const { user, logined } = useContext(UserContext);
 
 
     const navigate = useNavigate();
-
-
 
     const refreshToken = async () => {
         const storedRefreshToken = localStorage.getItem('refresh_token');
@@ -95,53 +92,53 @@ export const Header = () => {
         setTimeout(() => {
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
-            setLogined(null);
+            // setLogined(null);
             setLoadingLogout(false)
         }, 800)
 
     }
 
-    const fetchUser = async () => {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            console.error("Người dùng chưa đăng nhập.");
-            return;
-        }
-        setLoading(true);
-        try {
-            const res = await axios.get(`${API_URL}/auth/me`, {
-                headers: {
-                    "x-api-secret": `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            // Kiểm tra cấu trúc dữ liệu trả về
-            if (res.data && res.data) {
-                setUser(res.data);
-            } else {
-                console.error(
-                    "Không tìm thấy thông tin người dùng trong phản hồi."
-                );
-            }
-        } catch (error) {
-            console.error("Lỗi khi lấy thông tin người dùng:", error);
-            if (error.response) {
-                if (error.response.status === 401) {
-                    const newToken = await refreshToken();
-                    if (newToken) {
-                        await fetchUser();
-                    }
-                } else {
-                    console.error("Chi tiết lỗi:", error.response.data);
-                    console.error("Trạng thái lỗi:", error.response.status);
-                }
-            } else {
-                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
+    // const fetchUser = async () => {
+    //     const token = localStorage.getItem("access_token");
+    //     if (!token) {
+    //         console.error("Người dùng chưa đăng nhập.");
+    //         return;
+    //     }
+    //     setLoading(true);
+    //     try {
+    //         const res = await axios.get(`${API_URL}/auth/me`, {
+    //             headers: {
+    //                 "x-api-secret": `${API_KEY}`,
+    //                 Authorization: `Bearer ${token}`,
+    //             },
+    //         });
+    //         // Kiểm tra cấu trúc dữ liệu trả về
+    //         if (res.data && res.data) {
+    //             setUser(res.data);
+    //         } else {
+    //             console.error(
+    //                 "Không tìm thấy thông tin người dùng trong phản hồi."
+    //             );
+    //         }
+    //     } catch (error) {
+    //         console.error("Lỗi khi lấy thông tin người dùng:", error);
+    //         if (error.response) {
+    //             if (error.response.status === 401) {
+    //                 const newToken = await refreshToken();
+    //                 if (newToken) {
+    //                     await fetchUser();
+    //                 }
+    //             } else {
+    //                 console.error("Chi tiết lỗi:", error.response.data);
+    //                 console.error("Trạng thái lỗi:", error.response.status);
+    //             }
+    //         } else {
+    //             console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
+    //         }
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     const fetchCategories = async () => {
         setLoading(true)
@@ -192,8 +189,7 @@ export const Header = () => {
         const userToken = localStorage.getItem('access_token');
         if (userToken) {
             console.log("Fetching data...");
-            setLogined(userToken);
-            fetchUser();
+            // setLogined(userToken);
         };
 
         fetchCategories();
