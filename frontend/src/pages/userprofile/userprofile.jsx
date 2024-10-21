@@ -2,10 +2,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@radix-ui/react-dropdown-menu"
 import { Link, useNavigate } from "react-router-dom"
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import toast, { Toaster } from 'react-hot-toast';
-import { useContext } from 'react';
 import { UserContext } from "../usercontext/usercontext";
 const notify = (message, type) => {
     if (type === 'success') {
@@ -24,24 +23,24 @@ const notify = (message, type) => {
 }
 
 export const UserProfile = () => {
-    const API_KEY = import.meta.env.VITE_API_KEY;
-    const API_URL = import.meta.env.VITE_API_URL;
+    const { user,fetchUser, loading, updateUserProfile } = useContext(UserContext);
     const [_success, setSuccess] = useState("");
     const [error, setError] = useState("");
-    // const [userName, setUserName] = useState('');
-    // const [email, setEmail] = useState('');
     const [avatar, setAvatar] = useState(null);
     const [currentAvatar, setCurrentAvatar] = useState('');
-    const navigate = useNavigate();
-
-    const { user,fetchUser, loading } = useContext(UserContext);
     const [userName, setUserName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
+    const navigate = useNavigate();
 
-    if (loading) return <p>Đang tải...</p>;
+    useEffect(() => {
+        if (user) {
+            setUserName(user.name);
+            setEmail(user.email);
+            setCurrentAvatar(user.avatar);
+        }
+    }, [user]);
 
-
-
+    // hàm xử lý thay đổi file
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -50,37 +49,10 @@ export const UserProfile = () => {
         }
     };
 
-    const updateUserProfile = async (e) => {
+    // hàm xử lý update user profile
+    const handleUpdateProfile = (e) => {
         e.preventDefault();
-        const token = localStorage.getItem("access_token");
-        if (!userName.trim()) {
-            notify('Tên tài khoản không được để trống', 'error');
-            setError('Thiết lập thất bại')
-            return;
-        }
-        try {
-            setSuccess("");
-            setError("");
-            const formData = new FormData();
-            formData.append('name', userName);
-            formData.append('email', email);
-            if (avatar) {
-                formData.append('file', avatar);
-            }
-            const response = await axios.post(`${API_URL}/auth/user/profile`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${token}`,
-                    'x-api-secret': `${API_KEY}`,
-                },
-            });
-            notify('Cập nhật thành công', 'success');
-            setSuccess('Cập nhật thành công');
-            fetchUser();
-        } catch (error) {
-            console.log('Error updating profile', error);
-            setError("Cập nhật thất bại");
-        }
+        updateUserProfile(userName, email, avatar);
     };
 
 
@@ -119,7 +91,7 @@ export const UserProfile = () => {
                                 <p className="text-sm text-gray-500 ">Người khác sẽ nhìn ra bạn với những thông tin dưới đây</p>
                             </div>
                             <div className="my-5">
-                                <form onSubmit={updateUserProfile}>
+                                <form onSubmit={handleUpdateProfile}>
 
                                     {/* img */}
                                     <div className="image mb-5">

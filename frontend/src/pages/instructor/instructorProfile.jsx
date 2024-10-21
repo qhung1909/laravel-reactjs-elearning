@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,10 +15,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom"
-import axios from "axios";
 import toast, { Toaster } from 'react-hot-toast';
+import { UserContext } from "../usercontext/usercontext";
 
 const notify = (message, type) => {
     if (type === 'success') {
@@ -29,19 +28,27 @@ const notify = (message, type) => {
     }
 }
 export const InstructorProfile = () => {
-    const API_KEY = import.meta.env.VITE_API_KEY;
-    const API_URL = import.meta.env.VITE_API_URL;
+    const { user, fetchUser, loading, updateUserProfile,logout } = useContext(UserContext);
     const [userName, setUserName] = useState('');
     const [role, setRole] = useState('');
     const [email, setEmail] = useState('');
     const [avatar, setAvatar] = useState(null);
     const [currentAvatar, setCurrentAvatar] = useState('');
-    const [loadingLogout, setLoadingLogout] = useState(false);
-    const [logined, setLogined] = useState(null);
     const [_success, setSuccess] = useState("");
     const [error, setError] = useState("");
+    const [loadingLogout, setLoadingLogout] = useState(false);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        if (user) {
+            setUserName(user.name);
+            setEmail(user.email);
+            setCurrentAvatar(user.avatar);
+            setRole(user.role);
+        }
+    }, [user]);
+
+    // hàm xử lý thay đổi file
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -50,126 +57,18 @@ export const InstructorProfile = () => {
         }
     };
 
-    const fetchUserProfile = async () => {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            console.error("Bạn chưa đăng nhập, hãy thử lại");
-            return;
-        }
-        try {
-            const response = await axios.get(`${API_URL}/auth/me`, {
-                headers: {
-                    'x-api-secret': `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            const userData = response.data;
-            setUserName(userData.name || '');
-            setRole(userData.role || '')
-            setEmail(userData.email || '')
-            setCurrentAvatar(userData.avatar || '');
-
-        } catch (error) {
-            console.log('Error fetching user profile', error)
-            if (error.response) {
-                if (error.response.status === 401) {
-                    const newToken = await refreshToken();
-                    if (newToken) {
-                        await fetchUserProfile();
-                    }
-                } else {
-                    console.error("Lỗi:", error.response.data);
-                    console.error("Trạng thái lỗi:", error.response.status);
-                }
-            } else {
-                console.error("Không có phản hồi từ server");
-            }
-        }
-    }
-
-    const refreshToken = async () => {
-        const storedRefreshToken = localStorage.getItem('refresh_token');
-        if (!storedRefreshToken) {
-            alert('Session expired. Please log in again.');
-            navigate('/login');
-            return;
-        }
-        try {
-            const res = await fetch(`${API_URL}/auth/refresh`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ refresh_token: storedRefreshToken })
-            });
-
-            if (!res.ok) {
-                alert('Session expired. Please log in again.');
-                navigate('/login');
-                return;
-            }
-
-            const data = await res.json();
-            localStorage.setItem('access_token', data.access_token);
-            localStorage.setItem('refresh_token', data.refresh_token);
-            return data.access_token;
-        } catch {
-            alert('Session expired. Please log in again.');
-            navigate('/login');
-        }
+    // hàm xử lý update user profile
+    const handleUpdateProfile = (e) => {
+        e.preventDefault();
+        updateUserProfile(userName, email, avatar);
     };
 
-    const logout = () => {
-        setSuccess("");
-        setLoadingLogout(true)
-        notify('Đăng xuất thành công', 'success');
-        setTimeout(() => {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            setLogined(null);
-            setLoadingLogout(false)
-            navigate('/login')
-        }, 800)
-    }
-
-        const updateUserProfile = async (e) => {
-            e.preventDefault();
-            const token = localStorage.getItem("access_token");
-            if (!userName.trim()) {
-                notify('Tên tài khoản không được để trống', 'error');
-                setError('Thiết lập thất bại')
-                return;
-            }
-            try {
-                setSuccess("");
-                setError("");
-                const formData = new FormData();
-                formData.append('name', userName);
-                formData.append('email', email);
-                if (avatar) {
-                    formData.append('file', avatar);
-                }
-                const response = await axios.post(`${API_URL}/auth/user/profile`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        Authorization: `Bearer ${token}`,
-                        'x-api-secret': `${API_KEY}`,
-                    },
-                });
-                notify('Cập nhật thành công', 'success');
-                setSuccess('Cập nhật thành công');
-                if (response.data.user && response.data.user.avatar) {
-                    setCurrentAvatar(response.data.user.avatar);
-                }
-            } catch (error) {
-                console.log('Error updating profile', error);
-            }
-        };
-
-        useEffect(() => {
-            fetchUserProfile();
-        }, [])
+    // hàm xử lý đăng xuất
+    const handleLogout = () => {
+        setLoadingLogout(true);
+        logout();
+        setLoadingLogout(false);
+    };
 
     return (
         <>
@@ -274,7 +173,7 @@ export const InstructorProfile = () => {
                                                 <DropdownMenuContent>
                                                     <div className="p-3">
                                                         <DropdownMenuItem>
-                                                            <span className="cursor-pointer" onClick={logout}>Đăng xuất</span>
+                                                            <span className="cursor-pointer" onClick={handleLogout}>Đăng xuất</span>
                                                         </DropdownMenuItem>
                                                     </div>
                                                 </DropdownMenuContent>
@@ -345,7 +244,7 @@ export const InstructorProfile = () => {
 
                         {/* Profile content */}
                         <div className="md:p-6 ">
-                            <form onSubmit={updateUserProfile}>
+                            <form onSubmit={handleUpdateProfile}>
                                 <Tabs defaultValue="profile" className="w-[100%] py-10 md:py-0">
                                     {/* tabs - header */}
                                     <TabsList>
