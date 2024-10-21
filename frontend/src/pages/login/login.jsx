@@ -230,7 +230,7 @@ export const Login = () => {
                                     placeholder="m@example.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    tabindex="1"
+                                    tabIndex="1"
                                 />
                             </div>
                             <div className="grid gap-2">
@@ -243,7 +243,7 @@ export const Login = () => {
                                         Quên mật khẩu?
                                     </Link>
                                 </div>
-                                <Input id="password" type="password" tabindex="2" value={password} onChange={(e) => setPassword(e.target.value)} />
+                                <Input id="password" type="password" tabIndex="2" value={password} onChange={(e) => setPassword(e.target.value)} />
                             </div>
                             <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600">
                                 Đăng nhập
