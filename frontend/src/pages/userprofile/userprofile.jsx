@@ -29,29 +29,34 @@ export const UserProfile = () => {
     const [error, setError] = useState("");
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
-    const [avatar, setAvatar] = useState(null)
+    const [avatar, setAvatar] = useState(null);
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setAvatar(file);
+        }
+    };
 
-    const fetchUserProfile = async () =>{
+    const fetchUserProfile = async () => {
         const token = localStorage.getItem("access_token");
-        try{
-            const response = await axios.get(`${API_URL}/auth/me`,{
+        try {
+            const response = await axios.get(`${API_URL}/auth/me`, {
                 headers: {
                     'x-api-secret': `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
                 },
             });
 
             const userData = response.data;
             setUserName(userData.name || '');
             setEmail(userData.email || '')
-
-        }catch(error){
+            setAvatar(userData.avatar ? `${API_URL}/${userData.avatar}` : null);
+        } catch (error) {
             console.log('Error fetching user profile', error)
         }
     }
-
-
 
     const updateUserProfile = async (e) => {
         e.preventDefault();
@@ -84,9 +89,9 @@ export const UserProfile = () => {
 
 
 
-    useEffect(()=>{
+    useEffect(() => {
         fetchUserProfile();
-    },[])
+    }, [])
 
 
     return (
@@ -129,12 +134,16 @@ export const UserProfile = () => {
                                     <div className="image mb-5">
                                         <p className="font-bold text-sm my-3">Ảnh hồ sơ</p>
                                         <div className="flex items-center gap-20">
-                                            <div className="rounded-xl px-10 py-14 border-gray-300 border ">
-                                                <p className="font-bold">Ảnh</p>
+                                            <div className="rounded-xl px-10 py-14 border-gray-300 border">
+                                                {avatar ? (
+                                                    <img src={URL.createObjectURL(avatar)} alt="Avatar Preview" className="rounded-xl" width="150" height="150" />
+                                                ) : (
+                                                    <p className="font-bold">Ảnh</p>
+                                                )}
                                             </div>
-                                            <div className="">
+                                            <div>
                                                 <Label className="font-medium text-sm mb-2">Nhập ảnh của bạn vào đây để cập nhật avatar</Label>
-                                                <Input id="picture" type="file" />
+                                                <Input id="picture" type="file" onChange={handleFileChange} />
                                             </div>
                                         </div>
                                     </div>

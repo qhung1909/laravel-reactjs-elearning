@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+
+use Aws\S3\S3Client;
 use App\Models\Order;
 use App\Models\Coupon;
 use App\Mail\WelcomeMail;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Jobs\SendWelcomeEmail;
 use App\Jobs\SendPasswordResetLink;
@@ -84,23 +87,23 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Email không hợp lệ.',
                 'errors' => $validator->errors()
             ], 422);
         }
-    
+
         $user = User::where('email', $request->email)->first();
         if (!$user) {
             return response()->json([
                 'message' => 'Email không tồn tại trong hệ thống.',
             ], 404);
         }
-    
+
         SendPasswordResetLink::dispatch($request->email);
-     
+
         return response()->json(['message' => 'Email reset password đã được gửi!'], 200);
     }
 
@@ -131,13 +134,22 @@ class UserController extends Controller
             : response()->json(['message' => 'Có lỗi xảy ra, vui lòng thử lại.'], 500);
     }
 
+
     public function updateProfile(Request $request)
     {
+        Log::info('Request data:', $request->all());
+
         if (!Auth::check()) {
             return response()->json(['message' => 'Bạn cần đăng nhập để thực hiện hành động này.'], 401);
         }
 
         $user = Auth::user();
+
+        Log::info('Full Request:', [
+            'files' => $request->files,
+            'all' => $request->all(),
+            'has_file' => $request->hasFile('avatar'),
+        ]);
 
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
@@ -156,18 +168,28 @@ class UserController extends Controller
         }
 
         if ($request->hasFile('avatar')) {
+            Log::info('Avatar file received:', ['file' => $request->file('avatar')]);
             if ($user->avatar) {
-                Storage::delete($user->avatar);
+                Storage::disk('r2')->delete($user->avatar);
             }
 
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $user->avatar = $path;
+            $path = $request->file('avatar')->store('avatars', 'r2');
+            $avatarUrl = Storage::disk('r2')->url($path); // Lấy URL công khai cho avatar
+            $user->avatar = $avatarUrl; // Lưu URL vào thuộc tính người dùng
+        } else {
+            Log::info('No avatar file received.');
         }
 
-        $user->save();
+        $user->save(); // Lưu người dùng vào cơ sở dữ liệu
 
-        return response()->json(['message' => 'Cập nhật thông tin tài khoản thành công!'], 200);
+        return response()->json([
+            'message' => 'Cập nhật thông tin tài khoản thành công!',
+            'avatar_url' => $user->avatar, // Gửi URL avatar về cho client
+        ], 200);
     }
+
+
+
 
 
     public function updatePassword(Request $request)
@@ -277,5 +299,41 @@ class UserController extends Controller
         });
 
         return response()->json($orders, 200);
+    }
+
+    public function upload(Request $request)
+    {
+        if (!$request->hasFile('file')) {
+            return response()->json(['error' => 'No file provided'], 400);
+        }
+
+        $s3 = new S3Client([
+            'region'  => env('AWS_DEFAULT_REGION'),
+            'version' => 'latest',
+            'credentials' => [
+                'key'    => env('AWS_ACCESS_KEY_ID'),
+                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            ],
+            'http' => [
+                'verify' => 'C:/laragon/etc/ssl/cacert.pem',
+            ],
+        ]);
+
+        $file = $request->file('file');
+        $filePath = $file->getRealPath();
+        $fileName = Str::random(10) . '_' . $file->getClientOriginalName(); 
+
+        try {
+            $result = $s3->putObject([
+                'Bucket' => env('AWS_BUCKET'), 
+                'Key'    => $fileName,          
+                'SourceFile' => $filePath,     
+            ]);
+
+            return response()->json(['url' => $result['ObjectURL']], 200);
+        } catch (\Exception $e) {
+            Log::error('Error uploading file to S3: ' . $e->getMessage());
+            return response()->json(['error' => 'Could not upload file to S3.', 'details' => $e->getMessage()], 500);
+        }
     }
 }

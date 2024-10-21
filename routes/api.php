@@ -1,8 +1,10 @@
 <?php
 
 use App\Models\QuizAnsw;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\QuizController;
@@ -41,6 +43,8 @@ Route::group([
     Route::get('orders/history', [UserController::class, 'getOrderHistory']);
     Route::get('/orders/searchHistory', [UserController::class, 'searchOrderHistory']);
 });
+Route::post('/s3-buckets', [UserController::class, 'upload']);
+
 
 //Register
 Route::get('/courses/{slug}/related', [CourseController::class, 'relatedCourses']);
