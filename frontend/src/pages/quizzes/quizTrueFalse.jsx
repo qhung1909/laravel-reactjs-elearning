@@ -3,7 +3,7 @@ import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import Swal from 'sweetalert2';
-import { ArrowLeft, Timer, Trophy, AlertCircle } from "lucide-react";
+import { ArrowLeft, Trophy } from "lucide-react";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
