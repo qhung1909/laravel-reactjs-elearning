@@ -38,6 +38,14 @@ export const UserProfile = () => {
     const [userName, setUserName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
 
+    useEffect(() => {
+        if (user) {
+            setUserName(user.name);
+            setEmail(user.email);
+            setCurrentAvatar(user.avatar);
+        }
+    }, [user]);
+
     if (loading) return <p>Đang tải...</p>;
 
 
@@ -82,6 +90,7 @@ export const UserProfile = () => {
             setError("Cập nhật thất bại");
         }
     };
+
 
 
     return (
