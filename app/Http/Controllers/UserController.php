@@ -135,57 +135,79 @@ class UserController extends Controller
     }
 
 
-    public function updateProfile(Request $request)
+    public function updateProf(Request $request)
     {
-        Log::info('Request data:', $request->all());
-
         if (!Auth::check()) {
             return response()->json(['message' => 'Bạn cần đăng nhập để thực hiện hành động này.'], 401);
         }
 
         $user = Auth::user();
 
-        Log::info('Full Request:', [
-            'files' => $request->files,
-            'all' => $request->all(),
-            'has_file' => $request->hasFile('avatar'),
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'file' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'nullable|string|max:255',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        $user->name = $validatedData['name'];
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Cập nhật không thành công.',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        if ($request->has('name')) {
-            $user->name = $request->name;
-        }
-
-        if ($request->hasFile('avatar')) {
-            Log::info('Avatar file received:', ['file' => $request->file('avatar')]);
-            if ($user->avatar) {
-                Storage::disk('r2')->delete($user->avatar);
-            }
-
-            $path = $request->file('avatar')->store('avatars', 'r2');
-            $avatarUrl = Storage::disk('r2')->url($path); // Lấy URL công khai cho avatar
-            $user->avatar = $avatarUrl; // Lưu URL vào thuộc tính người dùng
+        if ($request->hasFile('file')) {
+            $this->handleFileUpload($request->file('file'), $user);
         } else {
-            Log::info('No avatar file received.');
+            Log::info('No file uploaded.');
         }
 
-        $user->save(); // Lưu người dùng vào cơ sở dữ liệu
+        $user->save();
 
-        return response()->json([
-            'message' => 'Cập nhật thông tin tài khoản thành công!',
-            'avatar_url' => $user->avatar, // Gửi URL avatar về cho client
-        ], 200);
+        return response()->json(['message' => 'Cập nhật thông tin thành công.', 'user' => $user], 200);
+    }
+
+    /**
+     * Xử lý upload file lên S3
+     */
+    private function handleFileUpload($file, $user)
+    {
+        $s3 = new S3Client([
+            'region'  => env('AWS_DEFAULT_REGION'),
+            'version' => 'latest',
+            'credentials' => [
+                'key'    => env('AWS_ACCESS_KEY_ID'),
+                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            ],
+            'http' => [
+                'verify' => 'C:/laragon/etc/ssl/cacert.pem',
+            ],
+        ]);
+
+        if ($user->avatar) {
+            $user->avatar = null;
+        }
+
+        $filePath = $file->getRealPath();
+        $userId = $user->user_id;  // Lấy user_id
+        $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME); 
+        $extension = $file->getClientOriginalExtension(); 
+        $newFileName = "{$userId}.{$originalFileName}.{$extension}"; 
+        $key = 'uploads/' . $newFileName; 
+
+        $contentType = match ($extension) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            default => 'application/octet-stream',
+        };
+
+        try {
+            $result = $s3->putObject([
+                'Bucket' => env('AWS_BUCKET'),
+                'Key'    => $key,
+                'SourceFile' => $filePath,
+                'ContentType' => $contentType,
+                'ACL' => 'public-read',
+            ]);
+            $user->avatar = $result['ObjectURL'];
+        } catch (\Exception $e) {
+            throw new \Exception('Could not upload new avatar to S3: ' . $e->getMessage());
+        }
     }
 
 
@@ -301,39 +323,39 @@ class UserController extends Controller
         return response()->json($orders, 200);
     }
 
-    public function upload(Request $request)
-    {
-        if (!$request->hasFile('file')) {
-            return response()->json(['error' => 'No file provided'], 400);
-        }
+    // public function upload(Request $request)
+    // {
+    //     if (!$request->hasFile('file')) {
+    //         return response()->json(['error' => 'No file provided'], 400);
+    //     }
 
-        $s3 = new S3Client([
-            'region'  => env('AWS_DEFAULT_REGION'),
-            'version' => 'latest',
-            'credentials' => [
-                'key'    => env('AWS_ACCESS_KEY_ID'),
-                'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            ],
-            'http' => [
-                'verify' => 'C:/laragon/etc/ssl/cacert.pem',
-            ],
-        ]);
+    //     $s3 = new S3Client([
+    //         'region'  => env('AWS_DEFAULT_REGION'),
+    //         'version' => 'latest',
+    //         'credentials' => [
+    //             'key'    => env('AWS_ACCESS_KEY_ID'),
+    //             'secret' => env('AWS_SECRET_ACCESS_KEY'),
+    //         ],
+    //         'http' => [
+    //             'verify' => 'C:/laragon/etc/ssl/cacert.pem',
+    //         ],
+    //     ]);
 
-        $file = $request->file('file');
-        $filePath = $file->getRealPath();
-        $fileName = Str::random(10) . '_' . $file->getClientOriginalName(); 
+    //     $file = $request->file('file');
+    //     $filePath = $file->getRealPath();
+    //     $fileName = Str::random(10) . '_' . $file->getClientOriginalName();
 
-        try {
-            $result = $s3->putObject([
-                'Bucket' => env('AWS_BUCKET'), 
-                'Key'    => $fileName,          
-                'SourceFile' => $filePath,     
-            ]);
+    //     try {
+    //         $result = $s3->putObject([
+    //             'Bucket' => env('AWS_BUCKET'),
+    //             'Key'    => $fileName,
+    //             'SourceFile' => $filePath,
+    //         ]);
 
-            return response()->json(['url' => $result['ObjectURL']], 200);
-        } catch (\Exception $e) {
-            Log::error('Error uploading file to S3: ' . $e->getMessage());
-            return response()->json(['error' => 'Could not upload file to S3.', 'details' => $e->getMessage()], 500);
-        }
-    }
+    //         return response()->json(['url' => $result['ObjectURL']], 200);
+    //     } catch (\Exception $e) {
+    //         Log::error('Error uploading file to S3: ' . $e->getMessage());
+    //         return response()->json(['error' => 'Could not upload file to S3.', 'details' => $e->getMessage()], 500);
+    //     }
+    // }
 }
