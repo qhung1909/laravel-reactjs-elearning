@@ -181,11 +181,11 @@ export const InstructorProfile = () => {
                             {/* logo */}
                             <div className="p-4 flex justify-between items-center">
                                 <div className="logo ">
-                                    <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
+                                    <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                 </div>
                                 <div className="logout">
                                     <Link to="/">
-                                        <img src="./src/assets/images/logout.svg" className="w-7" alt="" />
+                                        <img src="/src/assets/images/logout.svg" className="w-7" alt="" />
                                     </Link>
                                 </div>
                             </div>
@@ -235,7 +235,7 @@ export const InstructorProfile = () => {
                                 <h1 className="text-xl font-semibold ">
                                     <Link to="/">
                                         <div className="flex items-center gap-2">
-                                            <img src="./src/assets/images/home.svg" className="w-6" alt="" />
+                                            <img src="/src/assets/images/home.svg" className="w-6" alt="" />
                                             <p className="text-slate-600">Trang chủ</p>
                                         </div>
                                     </Link>
