@@ -146,7 +146,9 @@ export const Lesson = () => {
 
                         {/* Phần nội dung khóa học */}
                         <div className="w-full md:w-[350px] bg-gray-50 rounded-lg shadow-md mt-8 md:mt-0 md:ml-8 overflow-y-auto">
-                        <h3 className="text-lg font-semibold text-gray-800 p-4 border-b">Nội dung bài học</h3>
+                            <h3 className="text-lg font-semibold text-gray-800 p-4 border-b">
+                                Nội dung bài học
+                            </h3>
 
                             <div className="p-6">
                                 <Accordion type="multiple" className="w-full">

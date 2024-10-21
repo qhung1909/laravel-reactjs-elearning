@@ -5,7 +5,8 @@ import { Link, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast, { Toaster } from 'react-hot-toast';
-
+import { useContext } from 'react';
+import { UserContext } from "../usercontext/usercontext";
 const notify = (message, type) => {
     if (type === 'success') {
         toast.success(message, {
@@ -33,6 +34,12 @@ export const UserProfile = () => {
     const [currentAvatar, setCurrentAvatar] = useState('');
     const navigate = useNavigate();
 
+    const { user, loading } = useContext(UserContext);
+
+    if (loading) return <p>Đang tải...</p>;
+
+
+
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -41,41 +48,6 @@ export const UserProfile = () => {
         }
     };
 
-    const fetchUserProfile = async () => {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            console.error("Bạn chưa đăng nhập, hãy thử lại");
-            return;
-        }
-        try {
-            const response = await axios.get(`${API_URL}/auth/me`, {
-                headers: {
-                    'x-api-secret': `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            const userData = response.data;
-            setUserName(userData.name || '');
-            setEmail(userData.email || '')
-            setCurrentAvatar(userData.avatar || '');
-        } catch (error) {
-            console.log('Error fetching user profile', error)
-            if (error.response) {
-                if (error.response.status === 401) {
-                    const newToken = await refreshToken();
-                    if (newToken) {
-                        await fetchUserProfile();
-                    }
-                } else {
-                    console.error("Lỗi:", error.response.data);
-                    console.error("Trạng thái lỗi:", error.response.status);
-                }
-            } else {
-                console.error("Không có phản hồi từ server");
-            }
-        }
-    }
 
     const refreshToken = async () => {
         const storedRefreshToken = localStorage.getItem('refresh_token');
@@ -145,14 +117,9 @@ export const UserProfile = () => {
     };
 
 
-
-    useEffect(() => {
-        fetchUserProfile();
-    }, [])
-
-
     return (
         <>
+
             <section className="userprofile my-10 mx-auto  px-4 lg:px-10 xl:px-20">
                 <div className="border border-gray-200 rounded-xl px-10 py-5 shadow-lg">
                     <div className="py-5 border-b">
@@ -192,11 +159,7 @@ export const UserProfile = () => {
                                         <p className="font-bold text-sm my-3">Ảnh hồ sơ</p>
                                         <div className="flex items-center gap-20">
                                             <div className="rounded-xl border-gray-300 border">
-                                                {currentAvatar ? (
-                                                    <img src={currentAvatar} alt="Avatar" className="rounded-xl" width="150" height="150" />
-                                                ) : (
-                                                    <p className="font-bold px-14 py-10">Ảnh</p>
-                                                )}
+                                                <img src={user?.avatar}alt="" />
                                             </div>
                                             <div>
                                                 <Label className="font-medium text-sm mb-2">Nhập ảnh của bạn vào đây để cập nhật avatar</Label>
@@ -213,7 +176,7 @@ export const UserProfile = () => {
 
                                                 placeholder="Nhập tên tài khoản của bạn tại đây..."
                                                 className="text-sm py-7"
-                                                value={userName}
+                                                value={user?.name}
                                                 onChange={(e) => setUserName(e.target.value)}
                                             />
                                             <p className="text-xs text-gray-500">Đây là tên hiển thị công khai của bạn. Nó có thể là tên thật hoặc biệt danh của bạn.</p>
@@ -229,7 +192,7 @@ export const UserProfile = () => {
                                                 placeholder="Nhập email của bạn tại đây..."
                                                 className="text-sm py-7"
                                                 type="email"
-                                                value={email}
+                                                value={user?.email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                             />
                                             <p className="text-xs text-gray-500">Mỗi tài khoản chỉ sử dụng một email.</p>
