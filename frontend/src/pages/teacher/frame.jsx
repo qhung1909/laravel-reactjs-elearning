@@ -110,7 +110,7 @@ export const FrameTeacher = () => {
 
     // course overview
     const [sections, setSections] = useState([
-        { title: '', inputs: [{ type: 'nội dung', value: '', link: '', question: '', answers: ['', '', '', ''], correctAnswerIndices: [] }] }
+        { title: '', inputs: [{ type: 'content', value: '', link: '', question: '', answers: ['', '', '', ''], correctAnswerIndices: [] }] }
     ]);
 
     const handleShowData = () => {
@@ -120,7 +120,7 @@ export const FrameTeacher = () => {
     const addInput = (index) => {
         const newSections = [...sections];
         newSections[index].inputs.push({
-            type: 'nội dung',
+            type: 'content',
             value: '',
             link: '',
             question: '',
@@ -177,7 +177,7 @@ export const FrameTeacher = () => {
     };
 
     const addSection = () => {
-        setSections([...sections, { title: '', inputs: [{ type: 'nội dung', value: '', link: '' }] }]);
+        setSections([...sections, { title: '', inputs: [{ type: 'content', value: '', link: '' }] }]);
     };
 
 
@@ -336,28 +336,38 @@ export const FrameTeacher = () => {
                     <div className="pb-2">
                         {sections.map((section, sectionIndex) => (
                             <div key={sectionIndex} className="section mb-4 p-4 border rounded shadow bg-gray-100">
-                                <input
+                                <Input
                                     type="text"
                                     placeholder="Nhập tên phần..."
                                     value={section.title}
                                     onChange={(event) => handleTitleChange(sectionIndex, event)}
-                                    className="mb-2 p-1 w-1/2 border border-gray-300 rounded"
+                                    className="mb-2 p-1 w-1/2 border border-gray-300 rounded mb-3"
                                 />
                                 {section.inputs.map((input, inputIndex) => (
                                     <div key={inputIndex} className="input-group mb-3 ml-10 flex flex-col">
-                                        <select
-                                            name="type"
-                                            value={input.type}
-                                            onChange={(event) => handleChange(sectionIndex, inputIndex, event)}
-                                            className="w-32 mb-2 p-1 border border-gray-300 rounded"
-                                        >
-                                            <option value="nội dung">Nội dung</option>
-                                            <option value="quiz">Quiz</option>
-                                        </select>
-                                        {input.type === 'nội dung' && (
+                                        <div className="mb-3 w-1/4">
+                                            <Select
+                                                value={input.type}
+                                                onValueChange={(value) => handleChange(sectionIndex, inputIndex, { target: { name: 'type', value } })}
+                                            >
+                                                <SelectTrigger className="p-1 border border-gray-300 rounded">
+                                                    <SelectValue placeholder="Chọn loại..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        <SelectLabel>Loại</SelectLabel>
+                                                        <SelectItem value="content">Nội dung</SelectItem>
+                                                        <SelectItem value="quiz">Quiz</SelectItem>
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+
+                                        {input.type === 'content' && (
                                             <>
                                                 <div className="ml-10 flex gap-1">
-                                                    <input
+                                                    <Input
                                                         type="text"
                                                         name="value"
                                                         placeholder="Nhập nội dung..."
@@ -365,7 +375,7 @@ export const FrameTeacher = () => {
                                                         onChange={(event) => handleChange(sectionIndex, inputIndex, event)}
                                                         className="mb-2 p-1 w-1/2 border border-gray-300 rounded"
                                                     />
-                                                    <input
+                                                    <Input
                                                         type="text"
                                                         name="link"
                                                         placeholder="Nhập link..."
@@ -379,10 +389,11 @@ export const FrameTeacher = () => {
 
                                         )}
 
-                                        <div className="ml-10">
-                                            {input.type === 'quiz' && (
-                                                <>
-                                                    <input
+                                        {input.type === 'quiz' && (
+                                            <>
+                                                <div className="ml-10">
+
+                                                    <Input
                                                         type="text"
                                                         name="question"
                                                         placeholder="Nhập câu hỏi..."
@@ -392,7 +403,7 @@ export const FrameTeacher = () => {
                                                     />
                                                     {input.answers.map((answer, answerIndex) => (
                                                         <div key={answerIndex} className="answer-group mb-2 flex">
-                                                            <input
+                                                            <Input
                                                                 type="text"
                                                                 name={`answer-${answerIndex}`}
                                                                 placeholder={`Câu trả lời ${answerIndex + 1}...`}
@@ -401,7 +412,7 @@ export const FrameTeacher = () => {
                                                                 className="mb-1 p-1 w-1/2 border border-gray-300 rounded"
                                                             />
                                                             <label className="ml-2 flex items-center">
-                                                                <input
+                                                                <Input
                                                                     type="checkbox"
                                                                     checked={input.correctAnswerIndices.includes(answerIndex)}
                                                                     onChange={() => handleCorrectAnswerChange(sectionIndex, inputIndex, answerIndex)}
@@ -410,13 +421,14 @@ export const FrameTeacher = () => {
                                                             </label>
                                                         </div>
                                                     ))}
-                                                </>
-                                            )}
-                                        </div>
+                                                </div>
+
+                                            </>
+                                        )}
                                     </div>
                                 ))}
                                 <div className="text-right">
-                                    <button onClick={() => addInput(sectionIndex)} className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600">Thêm Input</button>
+                                    <button onClick={() => addInput(sectionIndex)} className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600">+ Thêm</button>
                                 </div>
                             </div>
                         ))}
