@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@radix-ui/react-dropdown-menu"
-import { Link,useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast, { Toaster } from 'react-hot-toast';
@@ -22,9 +22,6 @@ const notify = (message, type) => {
     }
 }
 
-
-
-
 export const UserProfile = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
@@ -32,13 +29,15 @@ export const UserProfile = () => {
     const [error, setError] = useState("");
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
-    const [avatar, setAvatar] = useState(null)
+    const [avatar, setAvatar] = useState(null);
+    const [currentAvatar, setCurrentAvatar] = useState('');
     const navigate = useNavigate();
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setAvatar(file);
+            setCurrentAvatar(URL.createObjectURL(file));
         }
     };
 
@@ -48,19 +47,18 @@ export const UserProfile = () => {
             console.error("Bạn chưa đăng nhập, hãy thử lại");
             return;
         }
-        try{
-            const response = await axios.get(`${API_URL}/auth/me`,{
+        try {
+            const response = await axios.get(`${API_URL}/auth/me`, {
                 headers: {
                     'x-api-secret': `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data',
                 },
             });
 
             const userData = response.data;
             setUserName(userData.name || '');
             setEmail(userData.email || '')
-            setAvatar(userData.avatar ? `${API_URL}/${userData.avatar}` : null);
+            setCurrentAvatar(userData.avatar || '');
         } catch (error) {
             console.log('Error fetching user profile', error)
             if (error.response) {
@@ -123,19 +121,24 @@ export const UserProfile = () => {
         try {
             setSuccess("");
             setError("");
-            const response = await axios.put(`${API_URL}/auth/user/profile`, {
-                name: userName,
-                email: email,
-
-            }, {
+            const formData = new FormData();
+            formData.append('name', userName);
+            formData.append('email', email);
+            if (avatar) {
+                formData.append('file', avatar);
+            }
+            const response = await axios.post(`${API_URL}/auth/user/profile`, formData, {
                 headers: {
+                    'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`,
                     'x-api-secret': `${API_KEY}`,
                 },
             });
             notify('Cập nhật thành công', 'success');
             setSuccess('Cập nhật thành công');
-
+            if (response.data.user && response.data.user.avatar) {
+                setCurrentAvatar(response.data.user.avatar);
+            }
         } catch (error) {
             console.log('Error updating profile', error);
         }
@@ -189,8 +192,8 @@ export const UserProfile = () => {
                                         <p className="font-bold text-sm my-3">Ảnh hồ sơ</p>
                                         <div className="flex items-center gap-20">
                                             <div className="rounded-xl px-10 py-14 border-gray-300 border">
-                                                {avatar ? (
-                                                    <img src={URL.createObjectURL(avatar)} alt="Avatar Preview" className="rounded-xl" width="150" height="150" />
+                                                {currentAvatar ? (
+                                                    <img src={currentAvatar} alt="Avatar" className="rounded-xl" width="150" height="150" />
                                                 ) : (
                                                     <p className="font-bold">Ảnh</p>
                                                 )}
