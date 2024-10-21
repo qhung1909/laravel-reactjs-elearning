@@ -28,13 +28,15 @@ export const UserProfile = () => {
     const API_URL = import.meta.env.VITE_API_URL;
     const [_success, setSuccess] = useState("");
     const [error, setError] = useState("");
-    const [userName, setUserName] = useState('');
-    const [email, setEmail] = useState('');
+    // const [userName, setUserName] = useState('');
+    // const [email, setEmail] = useState('');
     const [avatar, setAvatar] = useState(null);
     const [currentAvatar, setCurrentAvatar] = useState('');
     const navigate = useNavigate();
 
-    const { user, loading } = useContext(UserContext);
+    const { user,fetchUser, loading } = useContext(UserContext);
+    const [userName, setUserName] = useState(user?.name || '');
+    const [email, setEmail] = useState(user?.email || '');
 
     if (loading) return <p>Đang tải...</p>;
 
@@ -47,40 +49,6 @@ export const UserProfile = () => {
             setCurrentAvatar(URL.createObjectURL(file));
         }
     };
-
-
-    const refreshToken = async () => {
-        const storedRefreshToken = localStorage.getItem('refresh_token');
-        if (!storedRefreshToken) {
-            alert('Session expired. Please log in again.');
-            navigate('/login');
-            return;
-        }
-        try {
-            const res = await fetch(`${API_URL}/auth/refresh`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ refresh_token: storedRefreshToken })
-            });
-
-            if (!res.ok) {
-                alert('Session expired. Please log in again.');
-                navigate('/login');
-                return;
-            }
-
-            const data = await res.json();
-            localStorage.setItem('access_token', data.access_token);
-            localStorage.setItem('refresh_token', data.refresh_token);
-            return data.access_token;
-        } catch {
-            alert('Session expired. Please log in again.');
-            navigate('/login');
-        }
-    };
-
 
     const updateUserProfile = async (e) => {
         e.preventDefault();
@@ -108,11 +76,10 @@ export const UserProfile = () => {
             });
             notify('Cập nhật thành công', 'success');
             setSuccess('Cập nhật thành công');
-            if (response.data.user && response.data.user.avatar) {
-                setCurrentAvatar(response.data.user.avatar);
-            }
+            fetchUser();
         } catch (error) {
             console.log('Error updating profile', error);
+            setError("Cập nhật thất bại");
         }
     };
 
@@ -158,8 +125,14 @@ export const UserProfile = () => {
                                     <div className="image mb-5">
                                         <p className="font-bold text-sm my-3">Ảnh hồ sơ</p>
                                         <div className="flex items-center gap-20">
-                                            <div className="rounded-xl border-gray-300 border">
-                                                <img src={user?.avatar}alt="" />
+                                            <div className=" border-gray-300 border rounded-2xl">
+                                            <div className="w-52">
+                                                    {currentAvatar ? (
+                                                        <img src={currentAvatar} alt="User Avatar" className="rounded-2xl w-full h-full object-cover" />
+                                                    ) : (
+                                                        <span className="text-gray-500 flex justify-center p-10">Ảnh</span>
+                                                    )}
+                                                </div>
                                             </div>
                                             <div>
                                                 <Label className="font-medium text-sm mb-2">Nhập ảnh của bạn vào đây để cập nhật avatar</Label>
@@ -176,7 +149,7 @@ export const UserProfile = () => {
 
                                                 placeholder="Nhập tên tài khoản của bạn tại đây..."
                                                 className="text-sm py-7"
-                                                value={user?.name}
+                                                value={userName}
                                                 onChange={(e) => setUserName(e.target.value)}
                                             />
                                             <p className="text-xs text-gray-500">Đây là tên hiển thị công khai của bạn. Nó có thể là tên thật hoặc biệt danh của bạn.</p>
@@ -192,7 +165,7 @@ export const UserProfile = () => {
                                                 placeholder="Nhập email của bạn tại đây..."
                                                 className="text-sm py-7"
                                                 type="email"
-                                                value={user?.email}
+                                                value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                             />
                                             <p className="text-xs text-gray-500">Mỗi tài khoản chỉ sử dụng một email.</p>
