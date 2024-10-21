@@ -349,7 +349,7 @@ export const Header = () => {
                                                                 className="cursor-pointer"
                                                                 onClick={() => {
                                                                     if (user.role === 'user') {
-                                                                        navigate('/userprofile');
+                                                                        navigate('/user/profile');
                                                                     } else if (user.role === 'teacher') {
                                                                         navigate('/instructor');
                                                                     }
@@ -406,7 +406,7 @@ export const Header = () => {
                                                                 className="cursor-pointer"
                                                                 onClick={() => {
                                                                     if (user.role === 'user') {
-                                                                        navigate('/userprofile');
+                                                                        navigate('/user/profile');
                                                                     } else if (user.role === 'teacher') {
                                                                         navigate('/instructor');
                                                                     }

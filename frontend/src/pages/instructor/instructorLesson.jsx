@@ -15,12 +15,12 @@ import {
 } from "@/components/ui/sheet"
 import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react";
-import { Link,useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import axios from "axios";
 import toast, { Toaster } from 'react-hot-toast';
 
-const notify = (message, type ) => {
-    if (type === 'success'){
+const notify = (message, type) => {
+    if (type === 'success') {
         toast.success(message);
     } else {
         toast.error(message)
@@ -36,10 +36,10 @@ export const InstructorLesson = () => {
     const navigate = useNavigate();
     const [_success, setSuccess] = useState("");
 
-    const fetchUserProfile = async () =>{
+    const fetchUserProfile = async () => {
         const token = localStorage.getItem("access_token");
-        try{
-            const response = await axios.get(`${API_URL}/auth/me`,{
+        try {
+            const response = await axios.get(`${API_URL}/auth/me`, {
                 headers: {
                     'x-api-secret': `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
@@ -50,7 +50,7 @@ export const InstructorLesson = () => {
             setUserName(userData.name || '');
             setRole(userData.role || '')
 
-        }catch(error){
+        } catch (error) {
             console.log('Error fetching user profile', error)
         }
     }
@@ -69,9 +69,9 @@ export const InstructorLesson = () => {
     }
 
 
-    useEffect(()=>{
+    useEffect(() => {
         fetchUserProfile();
-    },[])
+    }, [])
 
     return (
         <>
@@ -82,7 +82,7 @@ export const InstructorLesson = () => {
                         <div className="p-3">
                             {/* logo */}
                             <div className="p-4 flex justify-between items-center">
-                            <div className="logo ">
+                                <div className="logo">
                                     <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                 </div>
                                 <div className="logout">
@@ -102,7 +102,7 @@ export const InstructorLesson = () => {
                                     </Link>
                                 </li>
                                 <li className="mb-3">
-                                    <Link to="/instructorlessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
+                                    <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
                                         <div className="bg-yellow-400 mr-3 pt-1 px-1 rounded-full">
                                             <box-icon name='book-open' color='#ffffff'></box-icon>
                                         </div>
@@ -110,7 +110,7 @@ export const InstructorLesson = () => {
                                     </Link>
                                 </li>
                                 <li className="mb-3">
-                                    <Link to="/instructorhistory" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                             <box-icon name='credit-card' ></box-icon>
                                         </div>
@@ -118,7 +118,7 @@ export const InstructorLesson = () => {
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link to="/instructorprofile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                             <box-icon type='solid' name='user-circle'></box-icon>
                                         </div>
@@ -136,14 +136,14 @@ export const InstructorLesson = () => {
                                 <h1 className="text-xl font-semibold ">
                                     <Link to="/">
                                         <div className="flex items-center gap-2">
-                                        <img src="./src/assets/images/home.svg" className="w-6" alt="" />
-                                        <p className="text-slate-600">Trang chủ</p>
+                                            <img src="./src/assets/images/home.svg" className="w-6" alt="" />
+                                            <p className="text-slate-600">Trang chủ</p>
                                         </div>
                                     </Link>
                                 </h1>
                                 <div className="flex items-center space-x-4">
                                     <button className="p-1 rounded-full hover:bg-gray-100">
-                                    <img src="./src/assets/images/notification.svg" className="w-7" alt="" />
+                                        <img src="./src/assets/images/notification.svg" className="w-7" alt="" />
 
                                     </button>
 
@@ -191,7 +191,7 @@ export const InstructorLesson = () => {
                                                             <div className="p-4 flex justify-between items-center border-b-[1px]">
                                                                 <div className="logo ">
                                                                     <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
-                                                                 </div>
+                                                                </div>
                                                             </div>
                                                         </SheetTitle>
                                                         <SheetDescription>
@@ -205,7 +205,7 @@ export const InstructorLesson = () => {
                                                                     </Link>
                                                                 </li>
                                                                 <li className="mb-3">
-                                                                    <Link to="/instructorlessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
+                                                                    <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
                                                                         <div className="bg-yellow-400 mr-3 pt-1 px-1 rounded-full">
                                                                             <box-icon name='book-open' color='#ffffff'></box-icon>
                                                                         </div>
@@ -213,7 +213,7 @@ export const InstructorLesson = () => {
                                                                     </Link>
                                                                 </li>
                                                                 <li className="mb-3">
-                                                                    <Link to="/instructorhistory" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                                                             <box-icon name='credit-card' ></box-icon>
                                                                         </div>
@@ -221,7 +221,7 @@ export const InstructorLesson = () => {
                                                                     </Link>
                                                                 </li>
                                                                 <li>
-                                                                    <Link to="/instructorprofile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                    <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                                                             <box-icon type='solid' name='user-circle'></box-icon>
                                                                         </div>
@@ -241,7 +241,7 @@ export const InstructorLesson = () => {
                         {/* Lesson content */}
                         <div className="p-6 max-lg:h-screen">
                             <div className="lg:w-[50%] w-[100%]">
-                                <Input type="email" placeholder="Tìm kiếm..." className="rounded-full p-5"/>
+                                <Input type="email" placeholder="Tìm kiếm..." className="rounded-full p-5" />
                             </div>
                             <div className="my-20">
                                 <svg width="100%" height="231" viewBox="0 0 499 147" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -44,17 +44,17 @@ export const UserAccount = () => {
                         <div className="col-span-1 my-3 lg:my-5 ">
                             <ul className="gap-3 text-sm font-medium max-lg:items-center flex lg:flex-col">
                                 <li className=" py-1 lg:py-2 px-3 rounded-md">
-                                    <Link to="/userprofile" className="hover:underline">
+                                    <Link to="/user/profile" className="hover:underline">
                                         <p>Hồ sơ cá nhân</p>
                                     </Link>
                                 </li>
                                 <li className="bg-gray-100  py-3 lg:py-2 px-3 rounded-md">
-                                    <Link  to="/useraccount">
+                                    <Link  to="/user/account">
                                         <p>Cài đặt</p>
                                     </Link>
                                 </li>
                                 <li className="py-3 lg:py-2 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/usernoti">
+                                    <Link className="hover:underline" to="/user/noti">
                                         <p>Thông báo</p>
                                     </Link>
                                 </li>

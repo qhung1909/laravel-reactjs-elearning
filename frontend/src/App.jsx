@@ -52,9 +52,9 @@ function AppContent() {
             "/payment-result",
             "/payment",
             "/cart",
-            "/userprofile",
-            "/useraccount",
-            "/usernoti",
+            "/user/profile",
+            "/user/account",
+            "/user/noti",
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/");
 
@@ -64,20 +64,20 @@ function AppContent() {
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
                 <Route path="/demo" element={<Demo />}></Route>
-                <Route path="/useraccount" element={<UserAccount />}></Route>
-                <Route path="/userprofile" element={<UserProfile />}></Route>
-                <Route path="/usernoti" element={<UserNoti />}></Route>
+                <Route path="/user/account" element={<UserAccount />}></Route>
+                <Route path="/user/profile" element={<UserProfile />}></Route>
+                <Route path="/user/noti" element={<UserNoti />}></Route>
                 <Route path="/instructor" element={<Instructor />}></Route>
                 <Route
-                    path="/instructorhistory"
+                    path="/instructor/history"
                     element={<InstructorHistory />}
                 ></Route>
                 <Route
-                    path="/instructorlessson"
+                    path="/instructor/lessson"
                     element={<InstructorLesson />}
                 ></Route>
                 <Route
-                    path="/instructorprofile"
+                    path="/instructor/profile"
                     element={<InstructorProfile />}
                 ></Route>
                 <Route path="/blogdetail" element={<Blogdetail />}></Route>
