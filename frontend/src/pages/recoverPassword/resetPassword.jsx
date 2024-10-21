@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useCallback, useState, useEffect } from 'react';
+import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@radix-ui/react-dropdown-menu';
@@ -25,6 +25,8 @@ const notify = (message, type) => {
     }
 }
 
+
+
 export const ResetPassword = () => {
 
     const [email, setEmail] = useState("");
@@ -47,7 +49,7 @@ export const ResetPassword = () => {
             setError("");
             setSuccess("");
 
-            const res = await fetch(`${API_URL}/   `, {
+            const res = await fetch(`${API_URL}/reset-password`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -60,6 +62,7 @@ export const ResetPassword = () => {
                 return;
             }
 
+
             if (!res.ok) {
                 const errorData = await res.json();
                 console.log(errorData);
@@ -69,8 +72,7 @@ export const ResetPassword = () => {
 
             await res.json();
             notify('Đăng nhập thành công', 'success');
-            setSuccess('Đăng nhập thành công');
-            navigate('/');
+            navigate('/verify-email');
             window.location.reload();
         } catch (error) {
             setError('Đã xảy ra lỗi: ' + error.message);
@@ -78,6 +80,8 @@ export const ResetPassword = () => {
             setLoading(false);
         }
     };
+
+
 
     const submit = (e) => {
         e.preventDefault();
@@ -87,6 +91,11 @@ export const ResetPassword = () => {
 
     return (
         <>
+            {loading && (
+                <div className='loading'>
+                    <div className='loading-spin'></div>
+                </div>
+            )}
             <div className="relative m-auto h-screen overflow-hidden items-center shadow-inner lg:grid  lg:grid-cols-2 pt-32 lg:pt-0">
                 <Link className='absolute top-1 left-0 xl:top-8 xl:left-8' to='/'>
                     <div className="flex items-center gap-3">

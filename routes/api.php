@@ -1,8 +1,10 @@
 <?php
 
 use App\Models\QuizAnsw;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\QuizController;
@@ -36,11 +38,13 @@ Route::group([
     Route::get('/cart', [CartController::class, 'getCart']);
     Route::post('/enroll', [EnrollController::class, 'enroll']);
     Route::get('/enrollment/check', [EnrollController::class, 'checkEnrollment']);
-    Route::put('user/profile', [UserController::class, 'updateProfile']);
+    Route::post('user/profile', [UserController::class, 'updateProf']);
     Route::post('/user/updatePassword', [UserController::class, 'updatePassword']);
     Route::get('orders/history', [UserController::class, 'getOrderHistory']);
     Route::get('/orders/searchHistory', [UserController::class, 'searchOrderHistory']);
 });
+Route::post('/s3-buckets', [UserController::class, 'upload']);
+
 
 //Register
 Route::get('/courses/{slug}/related', [CourseController::class, 'relatedCourses']);
@@ -54,8 +58,8 @@ Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
 Route::post('/check-discount', [CouponController::class, 'checkDiscount']);
 
 //Reset Password
-Route::post('reset-password', [UserController::class, 'sendResetLink'])->name('password.update');
-Route::post('reset-password/{token}', [UserController::class, 'resetPassword'])->name('password.reset');
+Route::post('reset-password', [UserController::class, 'sendResetLink']);
+Route::post('reset-password/{token}', [UserController::class, 'resetPassword']);
 
 Route::middleware(['admin'])->group(function () {
 

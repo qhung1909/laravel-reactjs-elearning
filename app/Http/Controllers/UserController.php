@@ -3,13 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+
+use Aws\S3\S3Client;
 use App\Models\Order;
 use App\Models\Coupon;
 use App\Mail\WelcomeMail;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Jobs\SendWelcomeEmail;
+use App\Mail\ResetPasswordMail;
+use App\Models\PasswordResetToken;
+use Illuminate\Support\Facades\DB;
 use App\Jobs\SendPasswordResetLink;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -99,39 +106,83 @@ class UserController extends Controller
             ], 404);
         }
     
-        SendPasswordResetLink::dispatch($request->email);
-     
+        $lastRequest = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->orderBy('created_at', 'desc')
+            ->first();
+    
+        if ($lastRequest && $lastRequest->created_at > now()->subMinutes(5)) {
+            return response()->json(['message' => 'Bạn đã yêu cầu gửi link reset trong vòng 5 phút qua.'], 429);
+        }
+    
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+    
+        $token = Str::random(70) . '-' . uniqid() . '-' . Str::random(70);
+        $expiresAt = now()->addSeconds(300);
+    
+        DB::table('password_reset_tokens')->insert([
+            'email' => $request->email,
+            'token' => $token,
+            'expires_at' => $expiresAt,
+            'created_at' => now(),
+        ]);
+    
+        $link = URL::to('http://localhost:5173/new-password?token=' . $token);
+    
+        SendPasswordResetLink::dispatch($request->email, $link);
+    
         return response()->json(['message' => 'Email reset password đã được gửi!'], 200);
     }
 
     public function resetPassword(Request $request, $token)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
             'password' => 'required|string|min:6|confirmed',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Cập nhật mật khẩu không thành công.',
                 'errors' => $validator->errors()
             ], 422);
         }
-
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation') + ['token' => $token],
-            function ($user, $password) {
-                $user->password = bcrypt($password);
-                $user->save();
-            }
-        );
-
-        return $status === Password::PASSWORD_RESET
-            ? response()->json(['message' => 'Mật khẩu đã được cập nhật thành công!'], 200)
-            : response()->json(['message' => 'Có lỗi xảy ra, vui lòng thử lại.'], 500);
+    
+        $passwordReset = DB::table('password_reset_tokens')->where('token', $token)->first();
+    
+        if (!$passwordReset) {
+            return response()->json([
+                'message' => 'Token không hợp lệ hoặc đã hết hạn.',
+                'error' => 'passwords.token'
+            ], 400);
+        }
+    
+        $user = User::where('email', $passwordReset->email)->first();
+    
+        if (!$user) {
+            return response()->json([
+                'message' => 'Người dùng không tồn tại.',
+                'error' => 'user.not_found'
+            ], 404);
+        }
+    
+        if (Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Mật khẩu mới không được giống mật khẩu cũ.',
+                'error' => 'passwords.same'
+            ], 422);
+        }
+    
+        $user->password = bcrypt($request->password);
+        $user->save();
+    
+        DB::table('password_reset_tokens')->where('token', $token)->delete();
+    
+        return response()->json(['message' => 'Mật khẩu đã được cập nhật thành công!'], 200);
     }
+    
+    
 
-    public function updateProfile(Request $request)
+    public function updateProf(Request $request)
     {
         if (!Auth::check()) {
             return response()->json(['message' => 'Bạn cần đăng nhập để thực hiện hành động này.'], 401);
@@ -139,36 +190,72 @@ class UserController extends Controller
 
         $user = Auth::user();
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'nullable|string|max:255',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'file' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Cập nhật không thành công.',
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        $user->name = $validatedData['name'];
 
-        if ($request->has('name')) {
-            $user->name = $request->name;
-        }
-
-        if ($request->hasFile('avatar')) {
-            if ($user->avatar) {
-                Storage::delete($user->avatar);
-            }
-
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $user->avatar = $path;
+        if ($request->hasFile('file')) {
+            $this->handleFileUpload($request->file('file'), $user);
+        } else {
+            Log::info('No file uploaded.');
         }
 
         $user->save();
 
-        return response()->json(['message' => 'Cập nhật thông tin tài khoản thành công!'], 200);
+        return response()->json(['message' => 'Cập nhật thông tin thành công.', 'user' => $user], 200);
     }
 
+    /**
+     * Xử lý upload file lên S3
+     */
+    private function handleFileUpload($file, $user)
+    {
+        $s3 = new S3Client([
+            'region'  => env('AWS_DEFAULT_REGION'),
+            'version' => 'latest',
+            'credentials' => [
+                'key'    => env('AWS_ACCESS_KEY_ID'),
+                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            ],
+            'http' => [
+                'verify' => 'C:/laragon/etc/ssl/cacert.pem',
+            ],
+        ]);
+
+        if ($user->avatar) {
+            $user->avatar = null;
+        }
+
+        $filePath = $file->getRealPath();
+        $userId = $user->user_id;
+        $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $newFileName = "{$userId}.{$originalFileName}.{$extension}";
+        $key = 'uploads/' . $newFileName;
+
+        $contentType = match ($extension) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            default => 'application/octet-stream',
+        };
+
+        try {
+            $result = $s3->putObject([
+                'Bucket' => env('AWS_BUCKET'),
+                'Key'    => $key,
+                'SourceFile' => $filePath,
+                'ContentType' => $contentType,
+                'ACL' => 'public-read',
+            ]);
+            $user->avatar = $result['ObjectURL'];
+        } catch (\Exception $e) {
+            throw new \Exception('Could not upload new avatar to S3: ' . $e->getMessage());
+        }
+    }
 
     public function updatePassword(Request $request)
     {
@@ -278,4 +365,5 @@ class UserController extends Controller
 
         return response()->json($orders, 200);
     }
+
 }

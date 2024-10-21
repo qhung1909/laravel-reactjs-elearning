@@ -38,7 +38,8 @@ import { QuizTrueFalse } from "./pages/quizzes/quizTrueFalse.jsx";
 import { NewPassword } from "./pages/recoverPassword/newPassword.jsx";
 import { ResetPassword } from "./pages/recoverPassword/resetPassword.jsx";
 import { VerifyEmail } from "./pages/recoverPassword/verifyEmail.jsx";
-
+import { UserProvider } from "./pages/usercontext/userContext.jsx";
+import { UserContext } from "./pages/usercontext/usercontext.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -52,9 +53,9 @@ function AppContent() {
             "/payment-result",
             "/payment",
             "/cart",
-            "/userprofile",
-            "/useraccount",
-            "/usernoti",
+            "/user/profile",
+            "/user/account",
+            "/user/noti",
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/");
 
@@ -64,20 +65,20 @@ function AppContent() {
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
                 <Route path="/demo" element={<Demo />}></Route>
-                <Route path="/useraccount" element={<UserAccount />}></Route>
-                <Route path="/userprofile" element={<UserProfile />}></Route>
-                <Route path="/usernoti" element={<UserNoti />}></Route>
+                <Route path="/user/account" element={<UserAccount />}></Route>
+                <Route path="/user/profile" element={<UserProfile />}></Route>
+                <Route path="/user/noti" element={<UserNoti />}></Route>
                 <Route path="/instructor" element={<Instructor />}></Route>
                 <Route
-                    path="/instructorhistory"
+                    path="/instructor/history"
                     element={<InstructorHistory />}
                 ></Route>
                 <Route
-                    path="/instructorlessson"
+                    path="/instructor/lessson"
                     element={<InstructorLesson />}
                 ></Route>
                 <Route
-                    path="/instructorprofile"
+                    path="/instructor/profile"
                     element={<InstructorProfile />}
                 ></Route>
                 <Route path="/blogdetail" element={<Blogdetail />}></Route>
@@ -90,7 +91,7 @@ function AppContent() {
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/register" element={<Signup />}></Route>
-                <Route path="/forgot-password" element={<ResetPassword />}></Route>
+                <Route path="/reset-password" element={<ResetPassword />}></Route>
                 <Route path="/new-password" element={<NewPassword />}></Route>
                 <Route path="/verify-email" element={<VerifyEmail />}></Route>
                 <Route path="/courses" element={<Courses />}></Route>
@@ -133,9 +134,12 @@ function AppContent() {
 
 function App() {
     return (
-        <Router>
-            <AppContent />
-        </Router>
+        <UserProvider>
+            <Router>
+                <AppContent />
+            </Router>
+        </UserProvider>
+
     );
 }
 

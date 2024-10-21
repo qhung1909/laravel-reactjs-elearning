@@ -39,6 +39,7 @@ export const InstructorHistory = () => {
     const API_URL = import.meta.env.VITE_API_URL;
     const [userName, setUserName] = useState('');
     const [role, setRole] = useState('');
+    const [avatar, setAvatar] = useState(null);
     const [loadingLogout, setLoadingLogout] = useState(false);
     const [logined, setLogined] = useState(null);
     const navigate = useNavigate();
@@ -57,6 +58,7 @@ export const InstructorHistory = () => {
             const userData = response.data;
             setUserName(userData.name || '');
             setRole(userData.role || '')
+            setAvatar(userData.avatar || '');
 
         } catch (error) {
             console.log('Error fetching user profile', error)
@@ -79,6 +81,7 @@ export const InstructorHistory = () => {
     useEffect(() => {
         fetchUserProfile();
     }, [])
+
     return (
         <>
             <section className="instructor-history">
@@ -88,12 +91,12 @@ export const InstructorHistory = () => {
                         <div className="p-3">
                             {/* logo */}
                             <div className="p-4 flex justify-between items-center">
-                                <div className="logo ">
-                                    <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
+                                <div className="logo">
+                                    <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                 </div>
                                 <div className="logout">
                                     <Link to="/">
-                                        <img src="./src/assets/images/logout.svg" className="w-7" alt="" />
+                                        <img src="/src/assets/images/logout.svg" className="w-7" alt="" />
                                     </Link>
                                 </div>
                             </div>
@@ -108,7 +111,7 @@ export const InstructorHistory = () => {
                                     </Link>
                                 </li>
                                 <li className="mb-3">
-                                    <Link to="/instructorlessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                             <box-icon name='book-open' ></box-icon>
                                         </div>
@@ -116,7 +119,7 @@ export const InstructorHistory = () => {
                                     </Link>
                                 </li>
                                 <li className="mb-3">
-                                    <Link to="/instructorhistory" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
+                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
                                         <div className=" bg-yellow-400 mr-3 pt-1 px-1 rounded-full">
                                             <box-icon name='credit-card' color='#ffffff' ></box-icon>
                                         </div>
@@ -124,7 +127,7 @@ export const InstructorHistory = () => {
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link to="/instructorprofile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                             <box-icon type='solid' name='user-circle'></box-icon>
                                         </div>
@@ -142,7 +145,7 @@ export const InstructorHistory = () => {
                                 <h1 className="text-xl font-semibold ">
                                     <Link to="/">
                                         <div className="flex items-center gap-2">
-                                            <img src="./src/assets/images/home.svg" className="w-6" alt="" />
+                                            <img src="/src/assets/images/home.svg" className="w-6" alt="" />
                                             <p className="text-slate-600">Trang chủ</p>
                                         </div>
                                     </Link>
@@ -155,10 +158,16 @@ export const InstructorHistory = () => {
 
                                     <div className="flex items-center gap-3">
                                         {/* avatar */}
-                                        <Avatar>
-                                            <AvatarImage src="./src/assets/images/doremon.jpg" />
-                                            <AvatarFallback>CN</AvatarFallback>
-                                        </Avatar>
+                                        {avatar ? (
+                                            <img
+                                                src={avatar}
+                                                alt="User Avatar"
+                                                className="w-10 h-10 object-cover rounded-full"
+                                            />
+                                        ) : (
+
+                                            <img src="./src/assets/images/user.svg" className="w-8" alt="" />
+                                        )}
 
                                         {/* user control */}
                                         <div className="text-left">
@@ -211,7 +220,7 @@ export const InstructorHistory = () => {
                                                                     </Link>
                                                                 </li>
                                                                 <li className="mb-3">
-                                                                    <Link to="/instructorlessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                    <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                                                             <box-icon name='book-open' ></box-icon>
                                                                         </div>
@@ -219,7 +228,7 @@ export const InstructorHistory = () => {
                                                                     </Link>
                                                                 </li>
                                                                 <li className="mb-3">
-                                                                    <Link to="/instructorhistory" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
+                                                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
                                                                         <div className=" bg-yellow-400 mr-3 pt-1 px-1 rounded-full">
                                                                             <box-icon name='credit-card' color='#ffffff' ></box-icon>
                                                                         </div>
@@ -227,7 +236,7 @@ export const InstructorHistory = () => {
                                                                     </Link>
                                                                 </li>
                                                                 <li>
-                                                                    <Link to="/instructorprofile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                    <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                                                             <box-icon type='solid' name='user-circle'></box-icon>
                                                                         </div>

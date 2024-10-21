@@ -19,17 +19,17 @@ export const UserNoti = () => {
                         <div className="col-span-1 my-3 lg:my-5 ">
                             <ul className="gap-3 text-sm font-medium max-lg:items-center flex lg:flex-col">
                                 <li className=" py-1 lg:py-2 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/userprofile">
+                                    <Link className="hover:underline" to="/user/profile">
                                         <p>Hồ sơ cá nhân</p>
                                     </Link>
                                 </li>
                                 <li className="py-3 lg:py-2 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/useraccount">
+                                    <Link className="hover:underline" to="/user/account">
                                         <p>Cài đặt</p>
                                     </Link>
                                 </li>
                                 <li className=" bg-gray-100 py-3 lg:py-2 px-3 rounded-md">
-                                    <Link to="/usernoti">
+                                    <Link to="/user/noti">
                                         <p>Thông báo</p>
                                     </Link>
                                 </li>

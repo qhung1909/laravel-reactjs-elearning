@@ -21,13 +21,13 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import { useEffect,useState } from "react";
-import { Link,useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom"
 import axios from "axios";
 import toast, { Toaster } from 'react-hot-toast';
 
-const notify = (message, type ) => {
-    if (type === 'success'){
+const notify = (message, type) => {
+    if (type === 'success') {
         toast.success(message);
     } else {
         toast.error(message)
@@ -39,15 +39,16 @@ export const Instructor = () => {
     const API_URL = import.meta.env.VITE_API_URL;
     const [userName, setUserName] = useState('');
     const [role, setRole] = useState('');
+    const [avatar, setAvatar] = useState(null);
     const [loadingLogout, setLoadingLogout] = useState(false);
     const [logined, setLogined] = useState(null);
     const navigate = useNavigate();
     const [_success, setSuccess] = useState("");
 
-    const fetchUserProfile = async () =>{
+    const fetchUserProfile = async () => {
         const token = localStorage.getItem("access_token");
-        try{
-            const response = await axios.get(`${API_URL}/auth/me`,{
+        try {
+            const response = await axios.get(`${API_URL}/auth/me`, {
                 headers: {
                     'x-api-secret': `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
@@ -57,8 +58,9 @@ export const Instructor = () => {
             const userData = response.data;
             setUserName(userData.name || '');
             setRole(userData.role || '')
+            setAvatar(userData.avatar || '');
 
-        }catch(error){
+        } catch (error) {
             console.log('Error fetching user profile', error)
         }
     }
@@ -76,11 +78,9 @@ export const Instructor = () => {
         }, 800)
     }
 
-
-
-    useEffect(()=>{
+    useEffect(() => {
         fetchUserProfile();
-    },[])
+    }, [])
 
     return (
         <>
@@ -113,7 +113,7 @@ export const Instructor = () => {
 
                                 </li>
                                 <li className="mb-3">
-                                    <Link to="/instructorlessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className="mr-3 pt-1 px-1 rounded-full">
                                             <box-icon name='book-open'></box-icon>
                                         </div>
@@ -121,7 +121,7 @@ export const Instructor = () => {
                                     </Link>
                                 </li>
                                 <li className="mb-3">
-                                    <Link to="/instructorhistory" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                             <box-icon name='credit-card' ></box-icon>
                                         </div>
@@ -129,7 +129,7 @@ export const Instructor = () => {
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link to="/instructorprofile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                             <box-icon type='solid' name='user-circle'></box-icon>
                                         </div>
@@ -157,12 +157,19 @@ export const Instructor = () => {
                                     <button className="p-1 rounded-full hover:bg-gray-100">
                                         <img src="./src/assets/images/notification.svg" className="w-7" alt="" />
                                     </button>
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2">
                                         {/* avatar */}
-                                        <Avatar>
-                                            <AvatarImage src="./src/assets/images/doremon.jpg" />
-                                            <AvatarFallback>CN</AvatarFallback>
-                                        </Avatar>
+                                        {avatar ? (
+                                            <img
+                                                src={avatar}
+                                                alt="User Avatar"
+                                                className="w-10 h-10 object-cover rounded-full"
+                                            />
+                                        ) : (
+
+                                            <img src="./src/assets/images/user.svg" className="w-8" alt="" />
+                                        )}
+
 
                                         {/* user control */}
                                         <div className="text-left">
@@ -218,7 +225,7 @@ export const Instructor = () => {
 
                                                                 </li>
                                                                 <li className="mb-3">
-                                                                    <Link to="/instructorlessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                    <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                                                         <div className="mr-3 pt-1 px-1 rounded-full">
                                                                             <box-icon name='book-open'></box-icon>
                                                                         </div>
@@ -226,7 +233,7 @@ export const Instructor = () => {
                                                                     </Link>
                                                                 </li>
                                                                 <li className="mb-3">
-                                                                    <Link to="/instructorhistory" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                                                             <box-icon name='credit-card' ></box-icon>
                                                                         </div>
@@ -234,7 +241,7 @@ export const Instructor = () => {
                                                                     </Link>
                                                                 </li>
                                                                 <li>
-                                                                    <Link to="/instructorprofile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                    <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                                                         <div className=" mr-3 pt-1 px-1 rounded-full">
                                                                             <box-icon type='solid' name='user-circle'></box-icon>
                                                                         </div>
