@@ -1,5 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useCallback, useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -26,19 +26,14 @@ import { Label } from "@/components/ui/label"
 
 export const NewPassword = () => {
     const [password, setPassword] = useState("");
-    const [password_confirmation, setPasswordComfirmation] = useState("");
+    const [password_confirmation, setConfimationPW] = useState("");
     const [error, setError] = useState("");
     const [_success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-
-
-
-
-
-
-
+    const query = new URLSearchParams(useLocation().search);
+    const token = query.get('token');
 
 
     const debouncedLogin = async () => {
@@ -53,7 +48,7 @@ export const NewPassword = () => {
             setError("");
             setSuccess("");
 
-            const res = await fetch(`${API_URL}/auth/login`, {
+            const res = await fetch(`${API_URL}/reset-password/${token}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -61,21 +56,21 @@ export const NewPassword = () => {
                 body: JSON.stringify({ password })
             });
 
-            if (res.status === 401) {
-                setError('Tài khoản hoặc mật khẩu chưa chính xác!');
+            if (res.status === 422) {
+                setError('Câp nhật mật khẩu không thành công!');
                 return;
             }
 
             if (!res.ok) {
                 const errorData = await res.json();
                 console.log(errorData);
-                notify('Vui lòng xác thực email!');
+                notify('Có lỗi xảy ra!');
                 return;
             }
 
             await res.json();
-            notify('Đăng nhập thành công', 'success');
-            navigate('/');
+            notify('Đổi mật khẩu thành công', 'success');
+            navigate('/login');
             window.location.reload();
         } catch (error) {
             setError('Đã xảy ra lỗi: ' + error.message);
@@ -88,6 +83,8 @@ export const NewPassword = () => {
         e.preventDefault();
         debouncedLogin();
     };
+
+
 
 
     return (
@@ -108,7 +105,8 @@ export const NewPassword = () => {
                 <div className=" flex items-center justify-center">
 
                     <form onSubmit={submit} className="relative mx-auto grid w-[350px] gap-6">
-                    <div className="text-center">
+                        <input type="hidden" name="token" value={token} />
+                        <div className="text-center">
                             <box-icon name='key' size='lg'></box-icon>
                         </div>
                         <div className="grid gap-2">
@@ -122,13 +120,13 @@ export const NewPassword = () => {
                                     <Label htmlFor="password">Mật khẩu</Label>
 
                                 </div>
-                                <Input id="password" type="password" placeholder="Nhập mật khẩu  mới"  value={password} onChange={(e) => setPassword(e.target.value)} />
+                                <Input type="password" placeholder="Nhập mật khẩu mới" value={password} onChange={(e) => setPassword(e.target.value)} />
                             </div>
                             <div className="grid gap-2">
                                 <div className="flex items-center">
                                     <Label htmlFor="password">Nhập lại mật khẩu</Label>
                                 </div>
-                                <Input name="password_confirmation" className="p-5" type="password" placeholder="Nhập lại mật khẩu" value={password_confirmation} />
+                                <Input type="password" placeholder="Nhập lại mật khẩu" value={password_confirmation} onChange={(e) => setConfimationPW(e.target.value)} />
                             </div>
                             <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600">
                                 Xác nhận
