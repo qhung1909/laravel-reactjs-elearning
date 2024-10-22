@@ -29,6 +29,8 @@ export const UserProvider = ({ children }) => {
     const [error, setError] = useState("");
     const [_success, setSuccess] = useState("");
     const [password, setPassword] = useState(""); // Trạng thái lưu mật khẩu
+    const [current_password, setCurrentPassword] = useState("");
+    const [password_confirmation, setPassword_Confirmation] = useState("")
 
     const navigate = useNavigate();
 
@@ -60,27 +62,26 @@ export const UserProvider = ({ children }) => {
     };
 
     // hàm thay đổi mật khẩu
-    const updatePassword = async (currentPassword, newPassword) => {
+    const updatePassword = async (current_password, password, password_confirmation) => {
         const token = localStorage.getItem('access_token');
         try {
             const response = await axios.post(`${API_URL}/auth/user/updatePassword`, {
-                currentPassword,
-                newPassword,
+                current_password: current_password,
+                password: password,
+                password_confirmation: password_confirmation,
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "x-api-secret": `${API_KEY}`,
                 },
             });
-
+            console.log(response)
             if (response.status === 200) {
-                // Xử lý khi cập nhật thành công, có thể thông báo cho người dùng
                 console.log('Cập nhật mật khẩu thành công');
                 return true;
             }
         } catch (error) {
             console.error('Lỗi cập nhật mật khẩu', error);
-            // Xử lý lỗi (có thể hiển thị thông báo cho người dùng)
             return false;
         }
         return false;
