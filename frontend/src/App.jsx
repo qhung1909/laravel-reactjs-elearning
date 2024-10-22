@@ -111,6 +111,10 @@ function AppContent() {
                     path="/quizzes"
                     element={<Quizzes />}
                 ></Route>
+                <Route
+                    path="/quizzes/:quizid"
+                    element={<Quizzes />}
+                ></Route>
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}
         </>

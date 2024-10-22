@@ -18,12 +18,6 @@ export const Quizzes = () => {
     const [hasStarted, setHasStarted] = useState(false);
     const { slug } = useParams();
 
-    const formatTime = (seconds) => {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-    };
-
     const fetchLesson = async () => {
         try {
             const res = await axios.get(`${API_URL}/lessons/${slug}`, {
@@ -270,20 +264,10 @@ export const Quizzes = () => {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            <Alert>
-                                <AlertCircle className="h-4 w-4" />
-                                <AlertTitle>Lưu ý quan trọng</AlertTitle>
-                                <AlertDescription>
-                                    - Bạn có 15 phút để hoàn thành bài tập<br />
-                                    - Không được phép thoát khỏi trang khi đang làm bài<br />
-                                    - Hãy chắc chắn rằng bạn đã trả lời tất cả câu hỏi
-                                </AlertDescription>
-                            </Alert>
                             <div className="flex justify-center">
                                 <button
                                     onClick={handleStartQuiz}
-                                    className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2"
-                                >
+                                    className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2">
                                     <Trophy className="w-5 h-5" />
                                     Bắt đầu làm bài
                                 </button>
@@ -301,54 +285,64 @@ export const Quizzes = () => {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-6">
-                                {quizzes.map((quiz, quizIndex) => (
-                                    <div key={quiz.quiz_id} className="space-y-4">
-                                        <h3 className="text-xl font-semibold">{quiz.title}</h3>
-                                        {quiz.questions && quiz.questions.length > 0 ? (
-                                            quiz.questions.map((question, questionIndex) => (
-                                                <Card key={question.question_id} className="border-l-3 border-yellow-400">
-                                                    <CardContent className="pt-6">
-                                                        <p className="font-medium mb-4">
-                                                            <span className="bg-yellow-100 px-2 py-1 rounded-md mr-2">Câu
-                                                                {quizIndex * quiz.questions.length + questionIndex + 1}:
-                                                            </span>
-                                                            {question.question} {question.question} (Loại: {question.question_type})
-                                                        </p>
-                                                        <div className="grid gap-3">
-                                                            {question.options && question.options.length > 0 ? (
-                                                                question.options.map((option, index) => (
-                                                                    <button key={option.id}
-                                                                        className={`p-2 rounded-lg text-left transition-all ${answers[question.question_id] === option.answer
-                                                                                ? "bg-yellow-400 text-white"
-                                                                                : "bg-white hover:bg-yellow-50 border border-gray-200"
-                                                                            }`}
-                                                                        onClick={() => handleAnswerChange(question.question_id, option.answer)}>
-                                                                        <span className="flex items-center gap-3">
-                                                                            <span className={`w-8 h-8 flex items-center justify-center rounded-full ${answers[question.question_id] === option.answer
-                                                                                    ? "bg-white text-yellow-500"
-                                                                                    : "border-gray-300"
-                                                                                }`}>
-                                                                                {String.fromCharCode(65 + index)}
-                                                                            </span>
-                                                                            {option.answer}
-                                                                        </span>
-                                                                    </button>
-                                                                ))
-                                                            ) : (
-                                                                <p className="text-gray-500">Không có tùy chọn nào.</p>
-                                                            )}
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
+    <div className="space-y-6">
+        {quizzes.map((quiz, quizIndex) => (
+            <div key={quiz.quiz_id} className="space-y-4">
+                <h3 className="text-xl font-semibold">{quiz.title}</h3>
+                {quiz.questions && quiz.questions.length > 0 ? (
+                    quiz.questions.map((question, questionIndex) => (
+                        <Card key={question.question_id} className="border-l-3 border-yellow-400">
+                            <CardContent className="pt-6">
+                                <p className="font-medium mb-4">
+                                    <span className="bg-yellow-100 px-2 py-1 rounded-md mr-2">Câu
+                                        {quizIndex * quiz.questions.length + questionIndex + 1}:
+                                    </span>
+                                    {question.question}
+                                </p>
+                                <div className="grid gap-3">
+                                    {question.question_type === 'fill_blank' ? (
+                                        <input
+                                            type="text"
+                                            className="p-2 border rounded-lg"
+                                            onChange={(e) => handleAnswerChange(question.question_id, e.target.value)}
+                                            placeholder="Nhập câu trả lời của bạn"
+                                        />
+                                    ) : (
+                                        question.options && question.options.length > 0 ? (
+                                            question.options.map((option, index) => (
+                                                <button key={option.id}
+                                                    className={`p-2 rounded-lg text-left transition-all ${answers[question.question_id] === option.answer
+                                                            ? "bg-yellow-400 text-white"
+                                                            : "bg-white hover:bg-yellow-50 border border-gray-200"
+                                                        }`}
+                                                    onClick={() => handleAnswerChange(question.question_id, option.answer)}>
+                                                    <span className="flex items-center gap-3">
+                                                        <span className={`w-8 h-8 flex items-center justify-center rounded-full ${answers[question.question_id] === option.answer
+                                                                ? "bg-white text-yellow-500"
+                                                                : "border-gray-300"
+                                                            }`}>
+                                                            {String.fromCharCode(65 + index)}
+                                                        </span>
+                                                        {option.answer}
+                                                    </span>
+                                                </button>
                                             ))
                                         ) : (
-                                            <p className="text-gray-500">Không có câu hỏi nào.</p>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
+                                            <p className="text-gray-500">Không có tùy chọn nào.</p>
+                                        )
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))
+                ) : (
+                    <p className="text-gray-500">Không có câu hỏi nào.</p>
+                )}
+            </div>
+        ))}
+    </div>
+</CardContent>
+
                     </Card>
                     <div className="flex justify-center mt-8">
                         <button
