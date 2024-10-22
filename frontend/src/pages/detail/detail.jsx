@@ -25,7 +25,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
-import { Modal, Box, Button } from "@mui/material";
+
 import {
     SkeletonLoaderBanner,
     SkeletonLoaderProduct,
@@ -888,16 +888,7 @@ export const Detail = () => {
                                                             </p>
                                                             {/* Nút xem video nếu có video_url */}
                                                             {content.video_content && (
-                                                                <Button
-                                                                    onClick={() =>
-                                                                        handleOpen(
-                                                                            "https://www.youtube.com/watch?v=VIDEO_ID"
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    Xem video
-                                                                    demo
-                                                                </Button>
+                                                                <h3>hi</h3>
                                                             )}
                                                         </AccordionContent>
                                                     </AccordionItem>
@@ -909,27 +900,6 @@ export const Detail = () => {
                                     </Accordion>
 
                                     {/* Modal hiển thị video */}
-                                    <Modal
-                                        open={open}
-                                        onClose={handleClose}
-                                        aria-labelledby="modal-video-title"
-                                        aria-describedby="modal-video-description"
-                                    >
-                                        <Box sx={style}>
-                                            <Button onClick={handleClose}>
-                                                Đóng
-                                            </Button>
-                                            <iframe
-                                                width="100%"
-                                                height="315"
-                                                src={currentVideoUrl}
-                                                title="YouTube video player"
-                                                frameBorder="0"
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                allowFullScreen
-                                            ></iframe>
-                                        </Box>
-                                    </Modal>
                                 </div>
                             </div>
                             {/* Yêu cầu */}
