@@ -5,6 +5,7 @@ import { Navigate } from "react-router-dom";
 import { Star } from "lucide-react";
 import { Edit, Trash } from "lucide-react"; // Biểu tượng sửa và xóa
 import { Calendar, Globe } from "lucide-react";
+import { Play } from "lucide-react";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -18,6 +19,8 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
+import { CheckCircle, Lock } from 'lucide-react';
+
 import {
     Dialog,
     DialogTrigger,
@@ -47,11 +50,6 @@ export const Detail = () => {
     const [detail, setDetail] = useState([]);
     const { slug } = useParams();
     const [loading, setLoading] = useState([]);
-    // JS Section 1
-    // const [isSection1Expanded, setIsSection1Expanded] = useState(false);
-    // const toggleSection1 = () => {
-    //     setIsSection1Expanded(!isSection1Expanded);
-    // };
     // JS Section 3
     const [isSection3Expanded, setIsSection3Expanded] = useState(false);
 
@@ -612,124 +610,122 @@ export const Detail = () => {
         <div className="space-y-3">
             {comments.length > 0
                 ? comments.map((comment) => (
-                      <div
-                          key={comment.comment_id}
-                          className="flex items-start"
-                      >
-                          <Avatar>
-                              <AvatarFallback>Avatar</AvatarFallback>
-                              <AvatarImage
-                                  src={
-                                      users[comment.user_id]?.avatar ||
-                                      "default_avatar_url"
-                                  }
-                              />
-                          </Avatar>
-                          <div className="ml-3 w-full">
-                              <div className="flex justify-between items-center">
-                                  <div className="flex items-center">
-                                      <span className="font-semibold">
-                                          {users[comment.user_id]?.name ||
-                                              "Người dùng"}
-                                      </span>
-                                      <span className="text-gray-500 text-sm ml-2">
-                                          {formatDate(comment.updated_at)}
-                                      </span>
-                                  </div>
+                    <div
+                        key={comment.comment_id}
+                        className="flex items-start"
+                    >
+                        <Avatar>
+                            <AvatarFallback>Avatar</AvatarFallback>
+                            <AvatarImage
+                                src={
+                                    users[comment.user_id]?.avatar ||
+                                    "default_avatar_url"
+                                }
+                            />
+                        </Avatar>
+                        <div className="ml-3 w-full">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center">
+                                    <span className="font-semibold">
+                                        {users[comment.user_id]?.name ||
+                                            "Người dùng"}
+                                    </span>
+                                    <span className="text-gray-500 text-sm ml-2">
+                                        {formatDate(comment.updated_at)}
+                                    </span>
+                                </div>
 
-                                  {user && user.user_id === comment.user_id && (
-                                      <div className="flex space-x-2">
-                                          <button
-                                              onClick={() =>
-                                                  editComment(comment)
-                                              }
-                                              className="text-blue-500"
-                                          >
-                                              <Edit className="w-4 h-4" />
-                                          </button>
-                                          <button
-                                              onClick={() =>
-                                                  deleteComment(
-                                                      comment.comment_id
-                                                  )
-                                              }
-                                              className="text-red-500"
-                                          >
-                                              <Trash className="w-4 h-4" />
-                                          </button>
-                                      </div>
-                                  )}
-                              </div>
+                                {user && user.user_id === comment.user_id && (
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() =>
+                                                editComment(comment)
+                                            }
+                                            className="text-blue-500"
+                                        >
+                                            <Edit className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() =>
+                                                deleteComment(
+                                                    comment.comment_id
+                                                )
+                                            }
+                                            className="text-red-500"
+                                        >
+                                            <Trash className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
 
-                              {editingCommentId === comment.comment_id ? (
-                                  <div>
-                                      <div className="flex items-center space-x-1 mt-2">
-                                          {[...Array(5)].map((_, i) => (
-                                              <Star
-                                                  key={i}
-                                                  className={`w-6 h-6 cursor-pointer ${
-                                                      i < editingRating
-                                                          ? "text-yellow-500"
-                                                          : "text-gray-300"
-                                                  }`}
-                                                  fill="currentColor"
-                                                  onClick={() =>
-                                                      setEditingRating(i + 1)
-                                                  }
-                                              />
-                                          ))}
-                                      </div>
+                            {editingCommentId === comment.comment_id ? (
+                                <div>
+                                    <div className="flex items-center space-x-1 mt-2">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star
+                                                key={i}
+                                                className={`w-6 h-6 cursor-pointer ${i < editingRating
+                                                    ? "text-yellow-500"
+                                                    : "text-gray-300"
+                                                    }`}
+                                                fill="currentColor"
+                                                onClick={() =>
+                                                    setEditingRating(i + 1)
+                                                }
+                                            />
+                                        ))}
+                                    </div>
 
-                                      <textarea
-                                          value={editingContent}
-                                          onChange={(e) =>
-                                              setEditingContent(e.target.value)
-                                          }
-                                          className="w-full border rounded p-2 mt-1"
-                                      />
-                                      <div className="mt-2">
-                                          <button
-                                              onClick={() =>
-                                                  updateComment(
-                                                      comment.comment_id
-                                                  )
-                                              }
-                                              className="bg-blue-500 text-white px-3 py-1 rounded"
-                                          >
-                                              Lưu
-                                          </button>
-                                          <button
-                                              onClick={cancelEdit}
-                                              className="bg-gray-500 text-white px-3 py-1 rounded ml-2"
-                                          >
-                                              Hủy
-                                          </button>
-                                      </div>
-                                  </div>
-                              ) : (
-                                  <div>
-                                      <div className="text-yellow-500 flex">
-                                          {[...Array(5)].map((_, i) => (
-                                              <Star
-                                                  key={i}
-                                                  fill="currentColor"
-                                                  className={`w-3 h-3 ${
-                                                      i <
-                                                      parseFloat(comment.rating)
-                                                          ? "text-yellow-500"
-                                                          : "text-gray-300"
-                                                  }`}
-                                              />
-                                          ))}
-                                      </div>
-                                      <p className="mt-1 text-sm">
-                                          {comment.content}
-                                      </p>
-                                  </div>
-                              )}
-                          </div>
-                      </div>
-                  ))
+                                    <textarea
+                                        value={editingContent}
+                                        onChange={(e) =>
+                                            setEditingContent(e.target.value)
+                                        }
+                                        className="w-full border rounded p-2 mt-1"
+                                    />
+                                    <div className="mt-2">
+                                        <button
+                                            onClick={() =>
+                                                updateComment(
+                                                    comment.comment_id
+                                                )
+                                            }
+                                            className="bg-blue-500 text-white px-3 py-1 rounded"
+                                        >
+                                            Lưu
+                                        </button>
+                                        <button
+                                            onClick={cancelEdit}
+                                            className="bg-gray-500 text-white px-3 py-1 rounded ml-2"
+                                        >
+                                            Hủy
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <div className="text-yellow-500 flex">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star
+                                                key={i}
+                                                fill="currentColor"
+                                                className={`w-3 h-3 ${i <
+                                                    parseFloat(comment.rating)
+                                                    ? "text-yellow-500"
+                                                    : "text-gray-300"
+                                                    }`}
+                                            />
+                                        ))}
+                                    </div>
+                                    <p className="mt-1 text-sm">
+                                        {comment.content}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ))
                 : comments.length === 0 && <p>Chưa có bình luận nào.</p>}
             <Toaster />
         </div>
@@ -836,9 +832,7 @@ export const Detail = () => {
         setCurrentVideoUrl(embedUrl);
     };
 
-
-    useEffect(() => {
-    }, [currentVideoUrl]);
+    useEffect(() => { }, [currentVideoUrl]);
 
     return (
         <>
@@ -864,127 +858,114 @@ export const Detail = () => {
                                 <div className="border-b">
                                     <Accordion
                                         type="multiple"
-                                        className="w-full"
+                                        className="w-full space-y-4 bg-white rounded-xl shadow-lg p-6"
                                     >
-                                        {Array.isArray(lessonContents) &&
-                                        lessonContents.length > 0 ? (
-                                            lessonContents.map(
-                                                (content, index) => (
-                                                    <AccordionItem
-                                                        key={index}
-                                                        value={`content-${index}`}
-                                                    >
-                                                        <AccordionTrigger className="font-medium text-gray-700">
-                                                            {`${index + 1}. ${
-                                                                content.title_content
-                                                            }`}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="text-gray-600 ml-3">
-                                                            {/* Chỉ hiển thị nội dung nếu content_id là 1 */}
-                                                            {content.content_id ===
-                                                            1 ? (
-                                                                <>
-                                                                    {Array.isArray(
-                                                                        content.body_content
-                                                                    ) ? (
-                                                                        content.body_content.map(
-                                                                            (
-                                                                                body,
-                                                                                i
-                                                                            ) => (
-                                                                                <p
-                                                                                    key={
-                                                                                        i
-                                                                                    }
-                                                                                    className="mb-2"
-                                                                                >
-                                                                                    {i +
-                                                                                        1}
+                                        {Array.isArray(lessonContents) && lessonContents.length > 0 ? (
+                                            lessonContents.map((content, index) => (
+                                                <AccordionItem
+                                                    key={index}
+                                                    value={`content-${index}`}
+                                                    className="group border border-gray-200 rounded-lg overflow-hidden mb-2
+                     hover:border-yellow-500 hover:shadow-md transition-all duration-300"
+                                                >
+                                                    <AccordionTrigger className="px-6 py-4 bg-gradient-to-r from-yellow-50/50 to-white
+                         hover:bg-gradient-to-r hover:from-yellow-50 hover:to-white
+                         font-medium text-gray-700 text-left">
+                                                        <div className="flex items-center justify-between w-full">
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="flex items-center justify-center w-8 h-8 rounded-full
+                           bg-yellow-100 text-yellow-600 font-semibold text-sm
+                           group-hover:bg-yellow-200 transition-colors">
+                                                                    {index + 1}
+                                                                </span>
+                                                                <span className="text-base group-hover:text-yellow-600 transition-colors">
+                                                                    {content.title_content}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center gap-3">
+                                                                {content.content_id === 1 ? (
+                                                                    <CheckCircle className="text-green-500 mr-3" size={18} />
+                                                                ) : (
+                                                                    <Lock className="text-gray-400 mr-3" size={18} />
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </AccordionTrigger>
 
-                                                                                    .{" "}
-                                                                                    {
-                                                                                        body
-                                                                                    }
-                                                                                </p>
-                                                                            )
-                                                                        )
-                                                                    ) : (
-                                                                        <p>
-                                                                            {
-                                                                                content.body_content
-                                                                            }
-                                                                        </p>
-                                                                    )}
-                                                                    {/* Nút xem video nếu có video_content */}
-                                                                    {content.video_content && (
-                                                                        <Dialog>
-                                                                            <DialogTrigger
-                                                                                asChild
+                                                    <AccordionContent className="border-t border-gray-100">
+                                                        {content.content_id === 1 ? (
+                                                            <div className="space-y-6 p-6">
+                                                                {Array.isArray(content.body_content) ? (
+                                                                    <div className="space-y-4">
+                                                                        {content.body_content.map((body, i) => (
+                                                                            <div key={i}
+                                                                                className="flex gap-3 text-gray-600 leading-relaxed
+                                      hover:bg-yellow-50 rounded-lg p-3 transition-colors">
+                                                                                <span className="font-medium text-yellow-600 min-w-[24px]">
+                                                                                    {i + 1}.
+                                                                                </span>
+                                                                                <p className="flex-1">{body}</p>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                ) : (
+                                                                    <p className="text-gray-600 p-3">{content.body_content}</p>
+                                                                )}
+
+                                                                {content.video_content && (
+                                                                    <Dialog>
+                                                                        <DialogTrigger asChild>
+                                                                            <Button
+                                                                                className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white
+                                   rounded-lg flex items-center gap-2 px-6 py-3
+                                   transition-all duration-300 hover:shadow-lg"
+                                                                                onClick={() => showModal(content.video_content)}
                                                                             >
-                                                                                <Button
-                                                                                    className="bg-blue-600 text-white font-medium py-0.5 px-2 rounded-lg transition-transform transform hover:scale-105 mt-2"
-                                                                                    style={{
-                                                                                        fontSize:
-                                                                                            "0.6rem",
-                                                                                    }}
-                                                                                    onClick={() =>
-                                                                                        showModal(
-                                                                                            content.video_content
-                                                                                        )
-                                                                                    }
+                                                                                <Play size={18} />
+                                                                                Xem video bài học
+                                                                            </Button>
+                                                                        </DialogTrigger>
+                                                                        <DialogContent className="max-w-4xl mx-auto p-6">
+                                                                            <DialogTitle className="text-xl font-semibold mb-4">
+                                                                                {content.title_content}
+                                                                            </DialogTitle>
+                                                                            <DialogDescription>
+                                                                                <div
+                                                                                    className="relative w-full rounded-lg overflow-hidden shadow-lg"
+                                                                                    style={{ paddingTop: "56.25%" }}
                                                                                 >
-                                                                                    Xem
-                                                                                    video
-                                                                                    demo
-                                                                                </Button>
-                                                                            </DialogTrigger>
-                                                                            <DialogContent className="max-w-3xl mx-auto p-4">
-                                                                                <DialogTitle>
-                                                                                    Video
-                                                                                    Demo
-                                                                                </DialogTitle>
-                                                                                <DialogDescription>
-                                                                                    <div
-                                                                                        className="relative w-full"
-                                                                                        style={{
-                                                                                            paddingTop:
-                                                                                                "56.25%",
-                                                                                        }}
-                                                                                    >
-                                                                                        <ReactPlayer
-                                                                                            url={
-                                                                                                currentVideoUrl
-                                                                                            }
-                                                                                            className="absolute top-0 left-0 w-full h-full"
-                                                                                            controls={
-                                                                                                true
-                                                                                            }
-                                                                                            width="100%"
-                                                                                            height="100%"
-                                                                                        />
-                                                                                    </div>
-                                                                                </DialogDescription>
-                                                                            </DialogContent>
-                                                                        </Dialog>
-                                                                    )}
-                                                                </>
-                                                            ) : (
-                                                                <p>
+                                                                                    <ReactPlayer
+                                                                                        url={currentVideoUrl}
+                                                                                        className="absolute top-0 left-0"
+                                                                                        controls={true}
+                                                                                        width="100%"
+                                                                                        height="100%"
+                                                                                    />
+                                                                                </div>
+                                                                            </DialogDescription>
+                                                                        </DialogContent>
+                                                                    </Dialog>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="text-center py-8">
+                                                                <p className="text-gray-500 italic">
                                                                     Vào học để xem thêm nội dung
-
                                                                 </p>
-                                                            )}
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                )
-                                            )
+                                                            </div>
+                                                        )}
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            ))
                                         ) : (
-                                            <p>Không có nội dung bài học.</p>
+                                            <div className="text-center py-8">
+                                                <p className="text-gray-500">Nội dung bài học đang được cập nhật!!</p>
+                                            </div>
                                         )}
                                     </Accordion>
                                 </div>
                             </div>
-                            {/* Yêu cầu */}
+
                             <h2 className="text-2xl font-bold mt-8 mb-4">
                                 Yêu cầu
                             </h2>
@@ -999,9 +980,8 @@ export const Detail = () => {
                             </ul>
                             {/* Mô tả */}
                             <div
-                                className={`section-3-content ${
-                                    isSection3Expanded ? "" : "collapsed"
-                                } mt-4`}
+                                className={`section-3-content ${isSection3Expanded ? "" : "collapsed"
+                                    } mt-4`}
                             >
                                 <h2 className="text-2xl font-bold mb-4">
                                     Mô tả
@@ -1010,7 +990,7 @@ export const Detail = () => {
                                     className="text-black-600 mb-6"
                                     style={{ marginBottom: 10 }}
                                 >
-                                    Hello bạn, {user.name}
+                                    Hello, {user.name}
                                 </p>
                                 <p className="text-black-600 mb-6">
                                     Khóa học <strong>{detail.title}</strong>
@@ -1272,11 +1252,10 @@ export const Detail = () => {
                                         {[...Array(5)].map((_, i) => (
                                             <Star
                                                 key={i}
-                                                className={`w-6 h-6 cursor-pointer ${
-                                                    i < rating
-                                                        ? "text-yellow-500"
-                                                        : "text-gray-300"
-                                                }`}
+                                                className={`w-6 h-6 cursor-pointer ${i < rating
+                                                    ? "text-yellow-500"
+                                                    : "text-gray-300"
+                                                    }`}
                                                 fill="currentColor"
                                                 onClick={() => setRating(i + 1)} // Cập nhật số sao khi click
                                             />
@@ -1479,7 +1458,7 @@ export const Detail = () => {
                                     Giảm {percentDiscount}%
                                 </p>
                                 <p className="text-sm text-gray-600 mb-2">
-                                    6 ngày còn lại với mức giá này!
+                                    Mức giá ưu đãi!
                                 </p>
                                 {/* Nếu người dùng đã mua khóa học và chưa enroll */}
                                 {isPaymentCourse && !isEnrolled && (
@@ -1493,9 +1472,13 @@ export const Detail = () => {
 
                                 {isPaymentCourse && isEnrolled && (
                                     <Link to={`/lessons/${slug}`}>
-                                        <button className="w-full bg-green-500 text-white py-2 rounded-lg mb-2 hover:bg-green-600 transition duration-300">
+                                        <button className="w-full bg-teal-400 text-white py-2 rounded-lg mb-2 hover:bg-teal-500 transition duration-300">
                                             Vào học ngay
                                         </button>
+
+
+
+
                                     </Link>
                                 )}
 
