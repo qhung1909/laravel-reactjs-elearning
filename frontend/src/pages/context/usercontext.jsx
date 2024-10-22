@@ -14,7 +14,9 @@ const notify = (message, type) => {
     } else {
         toast.error(message, {
             style: {
-                padding: '16px'
+                padding: '16px',
+                textAlign:'center',
+                width:'310px'
             }
         })
     }
@@ -99,7 +101,7 @@ export const UserProvider = ({ children }) => {
             setPasswordAttempts(newAttempts);
 
             if (newAttempts >= MAX_PASSWORD_ATTEMPTS) {
-                notify('Bạn đã nhập sai quá nhiều lần. Đang chuyển hướng...', 'error');
+                notify('Bạn đã nhập sai quá nhiều lần. CÚT', 'error');
                 setTimeout(() => {
                     navigate('/login');
                     setError("");

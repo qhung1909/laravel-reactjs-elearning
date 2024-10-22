@@ -1,3 +1,4 @@
+import './courses.css'
 import {
     Carousel,
     CarouselContent,
@@ -20,12 +21,10 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
-
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import './courses.css'
-import { useState, useEffect } from 'react';
-// import React from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { CoursesContext } from "../context/coursescontext";
 import axios from 'axios';
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -34,40 +33,14 @@ console.log(API_KEY);
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Courses = () => {
-
-
-
-
-
-    const [courses, setCourses] = useState([]);
+    const { courses } = useContext(CoursesContext);
     const [coursesPerPage] = useState(4);
     const [loading, setLoading] = useState(false)
-
     const location = useLocation();
     const navigate = useNavigate();
 
     const queryParams = new URLSearchParams(location.search);
     const currentPage = parseInt(queryParams.get("page")) || 1;
-
-    useEffect(() => {
-        const fetchCourses = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${API_URL}/courses`, {
-                    headers: {
-                        'x-api-secret': `${API_KEY}`,
-                    },
-                });
-                setCourses(response.data);
-            } catch (error) {
-                console.error("Có lỗi xảy ra khi fetch dữ liệu: ", error);
-            } finally {
-                setLoading(false); // Kết thúc tải dữ liệu
-            }
-        };
-
-        fetchCourses();
-    }, []);
 
     const indexOfLastCourse = currentPage * coursesPerPage;
     const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
@@ -245,9 +218,6 @@ export const Courses = () => {
             </div>
         ))
     ) : (
-
-
-
         currentCourses.map((item, index) => (
             <div key={index} >
                 <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow flex group my-5">
@@ -262,7 +232,7 @@ export const Courses = () => {
                             {item.description}
                         </p>
                         <p className="text-xs text-gray-500 ">
-                            Le Dan Dat
+                            {item.user_id}
                         </p>
                         <p className="text-yellow-500 text-sm">
                             <strong className="text-black"> 4,7 </strong>{" "}★★★★☆ (297)

@@ -68,9 +68,9 @@ class CourseController extends Controller
     public function index(Request $request)
     {
         $courses = Cache::remember('courses', 120, function () {
-            return $this->course->all();
+            return $this->course->with('user:user_id,name')->get(); 
         });
-
+    
         return response()->json($courses);
     }
 

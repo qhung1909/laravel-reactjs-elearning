@@ -1,12 +1,12 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState,useContext } from "react";
+import { useState, useContext } from "react";
 import {
     CreditCard,
     LogOut,
     Settings,
     User,
 } from "lucide-react"
-
+import './header.css'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -25,20 +25,30 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import axios from "axios";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Skeleton } from "@/components/ui/skeleton"
-import { UserContext } from "../usercontext/usercontext";
+import { UserContext } from "../context/usercontext";
+import { CategoriesContext } from "../context/categoriescontext";
+import { CoursesContext } from "../context/coursescontext";
 
 export const Header = () => {
+    const { courses } = useContext(CoursesContext);
+    const { categories, loading } = useContext(CategoriesContext);
+    const { user, logined, logout, refreshToken } = useContext(UserContext);
     const location = useLocation();
-    const API_KEY = import.meta.env.VITE_API_KEY;
-    const API_URL = import.meta.env.VITE_API_URL;
-    const [categories, setCategories] = useState([]);
     const [loadingLogout, setLoadingLogout] = useState(false);
-    const [loading, setLoading] = useState(false);
     const isBlogPage = location.pathname === "/blog";
     const isContactPage = location.pathname === "/contact";
-
+    const [searchValue, setSearchValue] = useState("");
+    const [isOpen, setIsOpen] = useState(false);
+    const products = [
+        { id: 1, name: "Sản phẩm 1" },
+        { id: 2, name: "Sản phẩm 2" },
+        { id: 3, name: "Sản phẩm 3" },
+    ];
+    const filteredProducts = products.filter(product =>
+        product.name.toLowerCase().includes(searchValue.toLowerCase())
+    );
     const categoryImages = {
         javascript: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/javascript.svg",
         python: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/python.svg",
@@ -50,14 +60,15 @@ export const Header = () => {
         asp: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/asp.svg",
         nodejs: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/nodejs.svg",
     };
-    const { user, logined, logout, refreshToken } = useContext(UserContext);
 
+    // hàm xử lý đăng xuất
     const handleLogout = () => {
         setLoadingLogout(true);
         logout();
         setLoadingLogout(false);
     };
 
+    // hàm xử lý refreshtoken
     const handleRefreshToken = async () => {
         const newToken = await refreshToken();
         if (newToken) {
@@ -67,26 +78,10 @@ export const Header = () => {
         }
     };
 
+    // hàm chuyển trang
     const navigate = useNavigate();
 
-    const fetchCategories = async () => {
-        setLoading(true)
-        try {
-            const response = await axios.get(`${API_URL}/categories`, {
-                headers: {
-                    'x-api-secret': `${API_KEY}`,
-                },
-            });
-            const allCategories = response.data;
-
-            setCategories(allCategories)
-        } catch (error) {
-            console.log('Error fetching categories', error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
+    // hàm xử lý danh mục
     const renderCategories = () => {
         return loading ? (
             <div className="flex flex-wrap justify-center items-center">
@@ -101,24 +96,41 @@ export const Header = () => {
                     <div key={item.slug} className="duration-300 cursor-pointer py-1">
                         <DropdownMenuItem>
                             <Link className="flex gap-3 hover:text-yellow-400 duration-300 py-1 rounded-md">
-                                {/* tạo một mảng hình ảnh */}
                                 <img src={categoryImage} className="w-5" alt={item.name} />
                                 <span className="font-semibold text-base">{item.name}</span>
                             </Link>
                         </DropdownMenuItem>
                     </div>
-                )
+                );
             })
         ) : (
             <p>Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
-        )
-    }
+        );
+    };
 
-    useEffect(() => {
-        fetchCategories();
-    }, []);
-
-
+    // hàm xử lý tất cả courses
+    const renderCourses = () => {
+        return loading ? (
+            <div className="flex flex-wrap justify-center items-center">
+                {Array.from({ length: 3 }).map((_, index) => (
+                    <div className="bg-gray-100 h-10 w-20 rounded-lg animate-pulse mx-2" key={index}></div>
+                ))}
+            </div>
+        ) : Array.isArray(courses) && courses.length > 0 ? (
+            courses.map((item, index) => {
+                return (
+                    <Link key={index} to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow flex group my-5">
+                        <img src={`${item.img}`} alt="" />
+                        <div className="">
+                            {item.title}
+                        </div>
+                    </Link>
+                );
+            })
+        ) : (
+            <p>Không có sản phẩm phù hợp ngay lúc này, thử lại sau</p>
+        );
+    };
 
     return (
         <>
@@ -142,13 +154,44 @@ export const Header = () => {
                     </div>
 
                     {/* header - search */}
-                    <div className="navbar-search xl:w-1/2  xl:px-0 sm:w-3/4 w-2/3 p-2">
-                        <input
-                            type="text"
-                            placeholder="Tìm kiếm..."
-                            className="border rounded-full p-2 w-full hover:duration-300"
-                        />
+                    <div className="navbar-search xl:w-3/5 xl:px-0 sm:w-3/4 w-2/3 p-2">
+                        <div className="w-full relative">
+                            <Command className=" rounded-full shadow-sm border w-full">
+                                <CommandInput
+                                    placeholder="Tìm kiếm..."
+                                    value={searchValue}
+                                    onValueChange={setSearchValue}
+                                    onFocus={() => setIsOpen(true)}
+                                    onBlur={() => {
+                                        setTimeout(() => setIsOpen(false), 200);
+                                    }}
+                                    className="h-10"
+                                />
+                                <div className={`absolute w-full bg-white ${isOpen ? 'block' : 'hidden'}`}>
+                                    <CommandList>
+                                        <CommandEmpty className="p-4 text-sm text-gray-500">
+                                            {searchValue === "" ? "Hãy nhập để tìm" : "Không tìm thấy sản phẩm"}
+                                        </CommandEmpty>
+                                        <CommandGroup heading="Sản phẩm" className="">
+                                            {filteredProducts.map((product) => (
+                                                <CommandItem
+                                                    key={product.id}
+                                                    className="cursor-pointer hover:bg-gray-100"
+                                                    onSelect={() => {
+                                                        console.log('Selected:', product);
+                                                        setIsOpen(false);
+                                                    }}
+                                                >
+                                                    {product.name}
+                                                </CommandItem>
+                                            ))}
+                                        </CommandGroup>
+                                    </CommandList>
+                                </div>
+                            </Command>
+                        </div>
                     </div>
+
                     {logined ? (
                         <>
                             <>
@@ -319,15 +362,15 @@ export const Header = () => {
                                                 <div className="">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                        {user.avatar ? (
-                                                        <img
-                                                            src={user.avatar}
-                                                            alt="User Avatar"
-                                                            className="w-24 h-7 object-cover rounded-full"
-                                                        />
-                                                    ) : (
-                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-20" alt="" />
-                                                    )}
+                                                            {user.avatar ? (
+                                                                <img
+                                                                    src={user.avatar}
+                                                                    alt="User Avatar"
+                                                                    className="w-24 h-7 object-cover rounded-full"
+                                                                />
+                                                            ) : (
+                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-20" alt="" />
+                                                            )}
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent className="w-56">
                                                             {loading ? (
