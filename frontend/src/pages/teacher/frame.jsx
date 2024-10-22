@@ -19,6 +19,26 @@ import {
 import LessonCreator from "./createLesson";
 export const FrameTeacher = () => {
 
+
+    const handleSubmit = () => {
+        const courseData = {
+            courseTitle,
+            courseDescriptionText,
+            selectedLanguage,
+            selectedLevel,
+            selectedCategory,
+            selectedTopic,
+            mainContent,
+            courseImage,
+            currency,
+            price,
+            welcomeText,
+            congratulationsText,
+        };
+
+        console.log(JSON.stringify(courseData, null, 2));
+    };
+
     // active function
     const [activeSection, setActiveSection] = useState("courseOverview");
 
@@ -53,7 +73,7 @@ export const FrameTeacher = () => {
 
 
 
-    
+
     const allInputsCourseFilled = () => {
         return (
             courseTitle.trim() !== "" &&
@@ -298,32 +318,32 @@ export const FrameTeacher = () => {
                     {/* <form> */}
 
 
-                        <div className="flex flex-cols-2 gap-4 pt-6 pb-3">
-                            <div className="">
-                                <p className="pb-1 font-medium">
-                                    Tiền tệ
-                                </p>
-                                <Select value={currency} onValueChange={setCurrency}>
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Chọn" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="vnd">VND</SelectItem>
-                                        <SelectItem value="usd">USD</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="">
-                                <p className="pb-1 font-medium">
-                                    Mức giá
-                                </p>
-                                <div>
-                                    <Input value={price} onChange={(e) => setPrice(e.target.value)} type="number" placeholder="Giá" />
-                                </div>
-                            </div>
-
+                    <div className="flex flex-cols-2 gap-4 pt-6 pb-3">
+                        <div className="">
+                            <p className="pb-1 font-medium">
+                                Tiền tệ
+                            </p>
+                            <Select value={currency} onValueChange={setCurrency}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Chọn" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="vnd">VND</SelectItem>
+                                    <SelectItem value="usd">USD</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
-                        {/* <button className="w-16 h-10 bg-yellow-500 text-white font-bold">Lưu</button> */}
+                        <div className="">
+                            <p className="pb-1 font-medium">
+                                Mức giá
+                            </p>
+                            <div>
+                                <Input value={price} onChange={(e) => setPrice(e.target.value)} type="number" placeholder="Giá" />
+                            </div>
+                        </div>
+
+                    </div>
+                    {/* <button className="w-16 h-10 bg-yellow-500 text-white font-bold">Lưu</button> */}
                     {/* </form> */}
                 </div>
 
@@ -550,7 +570,10 @@ export const FrameTeacher = () => {
                                 </label>
                             </div>
                         </div>
-                        <button className="bg-yellow-400 w-full px-3 py-3">
+                        <button
+                            className="bg-yellow-400 w-full px-3 py-3"
+                            onClick={handleSubmit}
+                        >
                             <h2 className="text-white font-bold">
                                 Gửi đi để xem xét
                             </h2>
