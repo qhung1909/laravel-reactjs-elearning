@@ -25,6 +25,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+import { Modal, Button } from "antd";
 import {
     SkeletonLoaderBanner,
     SkeletonLoaderProduct,
@@ -73,6 +74,40 @@ export const Detail = () => {
     const [items, setItems] = useState([]);
     const [cartItems, setCartItems] = useState([]);
 
+    const [lesson, setLesson] = useState(null);
+    const fetchLesson = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/lessons/${slug}`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                },
+            });
+
+            if (res.data && res.data.lesson_id) {
+                if (typeof res.data.content === "string") {
+                    res.data.content = JSON.parse(res.data.content);
+                }
+                console.log(res.data);
+
+                setLesson(res.data);
+            } else {
+                console.error("Dữ liệu không hợp lệ:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu bài học:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+            }
+        }
+    };
+    useEffect(() => {
+        if (slug) {
+            fetchLesson();
+        }
+    }, [slug]);
+
+    const lessonContents = lesson && lesson.content ? lesson.content : [];
+
     const [users, setUsers] = useState([]);
     //fetch thông tin user comment
     const fetchUsers = async () => {
@@ -106,11 +141,9 @@ export const Detail = () => {
             }
         }
     };
-
     useEffect(() => {
         fetchUsers();
     }, []);
-
     const [user, setUser] = useState({});
     // Fetch thông tin user đang đăng nhập
     const fetchUser = async () => {
@@ -787,6 +820,24 @@ export const Detail = () => {
             );
         }
     };
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [currentVideoUrl, setCurrentVideoUrl] = useState("");
+
+    // Mở modal và set video URL
+    const showModal = (videoUrl) => {
+        const embedUrl = videoUrl.replace("watch?v=", "embed/");
+        setCurrentVideoUrl(embedUrl);
+        setIsModalVisible(true);
+    };
+
+    // Đóng modal
+    const handleOk = () => {
+        setIsModalVisible(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
 
     return (
         <>
@@ -799,182 +850,6 @@ export const Detail = () => {
                 <div className="flex flex-wrap -mx-4">
                     {/* Cột trái (Nội dung bài học) */}
                     <div className="w-full lg:w-2/3 px-4">
-                        {/* Section 1 */}
-                        {/* <div className="bg-white p-6 rounded-lg shadow-md">
-                            <h3 className="text-xl font-semibold mb-4">
-                                Nội dung bài học
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <ul className="space-y-2">
-
-                                    <li className="flex items-start">
-                                        <span>- </span>
-                                        <span className="ml-2">
-                                            Hiểu rõ đặc điểm của ngôn ngữ lập
-                                            trình Python và các ứng dụng có thể
-                                            phát triển bằng ngôn ngữ này
-                                        </span>
-                                    </li>
-                                    <li className="flex items-start">
-                                        <span>- </span>
-                                        <span className="ml-2">
-                                            Nắm rõ cú pháp cơ bản của Python,
-                                            cách khai báo biến
-                                        </span>
-                                    </li>
-                                    <li className="flex items-start">
-                                        <span>- </span>
-                                        <span className="ml-2">
-                                            Nắm được các phép toán số học và
-                                            phép toán logic trong Python
-                                        </span>
-                                    </li>
-                                    {isSection1Expanded && (
-                                        <>
-                                            <li className="flex items-start">
-                                                <span>- </span>
-                                                <span className="ml-2">
-                                                    Nắm được kiểu dữ liệu List,
-                                                    Tuple và Dictionary trong
-                                                    Python và ứng dụng
-                                                </span>
-                                            </li>
-                                            <li className="flex items-start">
-                                                <span>- </span>
-                                                <span className="ml-2">
-                                                    Biết cách lập trình hướng
-                                                    đối tượng với lớp (class),
-                                                    kế thừa, đa hình
-                                                </span>
-                                            </li>
-                                            <li className="flex items-start">
-                                                <span>- </span>
-                                                <span className="ml-2">
-                                                    Hiểu và ứng dụng các thư
-                                                    viện Python (web, khoa học
-                                                    dữ liệu, trí tuệ nhân tạo,
-                                                    v.v.)
-                                                </span>
-                                            </li>
-                                        </>
-                                    )}
-                                </ul>
-                                <ul className="space-y-2">
-
-                                    <li className="flex items-start">
-                                        <span>- </span>
-                                        <span className="ml-2">
-                                            Biết cách cài đặt môi trường phát
-                                            triển PyCharm để lập trình bằng
-                                            Python
-                                        </span>
-                                    </li>
-                                    <li className="flex items-start">
-                                        <span>- </span>
-                                        <span className="ml-2">
-                                            Biết cách xử lý chuỗi (string),
-                                            phương thức về chuỗi
-                                        </span>
-                                    </li>
-                                    <li className="flex items-start">
-                                        <span>- </span>
-                                        <span className="ml-2">
-                                            Nắm được cấu trúc điều khiển và vòng
-                                            lặp
-                                        </span>
-                                    </li>
-                                    {isSection1Expanded && (
-                                        <>
-                                            <li className="flex items-start">
-                                                <span>- </span>
-                                                <span className="ml-2">
-                                                    Biết cách sử dụng hàm
-                                                    (Function) và Module trong
-                                                    Python
-                                                </span>
-                                            </li>
-                                            <li className="flex items-start">
-                                                <span>- </span>
-                                                <span className="ml-2">
-                                                    Cách xử lý lỗi và làm việc
-                                                    với File
-                                                </span>
-                                            </li>
-                                            <li className="flex items-start">
-                                                <span>- </span>
-                                                <span className="ml-2">
-                                                    Sử dụng ChatGPT hỗ trợ lập
-                                                    trình
-                                                </span>
-                                            </li>
-                                        </>
-                                    )}
-                                </ul>
-                            </div>
-                            <button
-                                onClick={toggleSection1}
-                                className="mt-4 text-blue-600 hover:underline focus:outline-none"
-                            >
-                                {isSection1Expanded
-                                    ? "Ẩn bớt ^"
-                                    : "Hiện thêm ^"}
-                            </button>
-                        </div> */}
-                        {/* Kết thúc Section 1 */}
-
-                        {/* Section 2 */}
-                        {/* <div className="bg-white p-6 rounded-lg shadow-md mt-8">
-
-                            <div className="text-gray-700 text-lg font-bold mb-4">
-                                Các công ty hàng đầu cung cấp khóa học này cho
-                                nhân viên
-                            </div>
-                            <p className="text-gray-600 mb-4">
-                                Chúng tôi lựa chọn khóa học này cho tuyển tập
-                                khóa học đầu bảng được các doanh nghiệp toàn cầu
-                                tin dùng.
-                                <a
-                                    href="#"
-                                    className="text-blue-600 hover:underline"
-                                >
-                                    Tìm hiểu thêm
-                                </a>
-                            </p>
-
-
-                            <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-center">
-                                <div className="w-full lg:w-1/2">
-                                    <h3 className="text-2xl font-bold mb-2">
-                                        Bài tập coding
-                                    </h3>
-                                    <p className="text-gray-600 mb-4">
-                                        Khóa học này bao gồm các bài tập coding
-                                        được cập nhật của chúng tôi để bạn có
-                                        thể thực hành các kỹ năng của bạn khi
-                                        học.
-                                    </p>
-                                    <a
-                                        href="#"
-                                        className="text-blue-600 hover:underline"
-                                    >
-                                        Xem bản demo
-                                    </a>
-                                </div>
-                                <div className="w-full lg:w-1/2">
-                                    <img
-                                        src="./src/assets/images/inclusion.jpg"
-                                        alt="Coding Exercise"
-                                        className="rounded-lg shadow-md"
-                                        style={{
-                                            height: 200,
-                                            width: 350,
-                                            margin: "0 auto",
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        </div> */}
-                        {/* Kết thúc Section 2 */}
                         {/* Section 3 */}
                         <div className="container mx-auto px-4 py-8">
                             <h2 className="text-2xl font-bold mb-4">
@@ -989,42 +864,66 @@ export const Detail = () => {
                                     <Accordion
                                         type="multiple"
                                         className="w-full"
-                                        defaultValue="item-1"
                                     >
-                                        {/* Accordion items */}
-                                        <AccordionItem value="item-1">
-                                            <AccordionTrigger>
-                                                Tìm hiểu về python
-                                            </AccordionTrigger>
-                                            <AccordionContent>
-                                                Yes. It adheres to the WAI-ARIA
-                                                design pattern.
-                                            </AccordionContent>
-                                            <AccordionContent>
-                                                <Link to="/"> Hoàng bede</Link>
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                        <AccordionItem value="item-2">
-                                            <AccordionTrigger>
-                                                Is it styled?
-                                            </AccordionTrigger>
-                                            <AccordionContent>
-                                                Yes. It comes with default
-                                                styles that matches the other
-                                                components&apos; aesthetic.
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                        <AccordionItem value="item-3">
-                                            <AccordionTrigger>
-                                                Is it animated?
-                                            </AccordionTrigger>
-                                            <AccordionContent>
-                                                Yes. Its animated by default,
-                                                but you can disable it if you
-                                                prefer.
-                                            </AccordionContent>
-                                        </AccordionItem>
+                                        {Array.isArray(lessonContents) &&
+                                        lessonContents.length > 0 ? (
+                                            lessonContents.map(
+                                                (content, index) => (
+                                                    <AccordionItem
+                                                        key={index}
+                                                        value={`content-${index}`}
+                                                    >
+                                                        <AccordionTrigger className="font-medium text-gray-700">
+                                                            {`${index + 1}. ${
+                                                                content.title_content
+                                                            }`}
+                                                        </AccordionTrigger>
+                                                        <AccordionContent className="text-gray-600 ml-3">
+                                                            <p>
+                                                                {
+                                                                    content.body_content
+                                                                }
+                                                            </p>
+                                                            {/* Nút xem video nếu có video_url */}
+                                                            {content.video_content && (
+                                                                <Button
+                                                                    className="text-blue-500 underline mt-2"
+                                                                    onClick={() =>
+                                                                        showModal(
+                                                                            content.video_content
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Xem video
+                                                                    demo
+                                                                </Button>
+                                                            )}
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                )
+                                            )
+                                        ) : (
+                                            <p>Không có nội dung bài học.</p>
+                                        )}
                                     </Accordion>
+
+                                    {/* Modal hiển thị video */}
+                                    <Modal
+                                        title="Video Demo"
+                                        visible={isModalVisible}
+                                        onOk={handleOk}
+                                        onCancel={handleCancel}
+                                    >
+                                        <iframe
+                                            width="100%"
+                                            height="315"
+                                            src={currentVideoUrl}
+                                            title="YouTube video player"
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                        ></iframe>
+                                    </Modal>
                                 </div>
                             </div>
                             {/* Yêu cầu */}
@@ -1053,108 +952,18 @@ export const Detail = () => {
                                     className="text-black-600 mb-6"
                                     style={{ marginBottom: 10 }}
                                 >
-                                    Hello bạn,
+                                    Hello bạn, {user.name}
                                 </p>
                                 <p className="text-black-600 mb-6">
-                                    Khóa học{" "}
-                                    <strong>
-                                        Lập trình Python từ cơ bản đến nâng cao
-                                        thông qua các dự án
-                                    </strong>{" "}
-                                    được thiết kế để giúp bạn từ bước đầu làm
-                                    quen đến thành thạo trong việc sử dụng
-                                    Python - một trong những ngôn ngữ lập trình
-                                    phổ biến và mạnh mẽ nhất hiện nay. Khóa học
-                                    này cung cấp một lộ trình học tập rõ ràng và
-                                    thực tế, hướng dẫn bạn qua từng bước cụ thể
-                                    từ việc cài đặt môi trường phát triển, khai
-                                    báo biến, làm việc với chuỗi ký tự, đến việc
-                                    xây dựng các dự án phức tạp hơn.
+                                    Khóa học <strong>{detail.title}</strong>
                                 </p>
                                 <p className="text-black-600 mb-6">
-                                    <strong>Mục tiêu của khóa học:</strong>
+                                    <strong>Mô tả của bài học:</strong>
                                 </p>
                                 <ul className="list-disc pl-8 mb-6">
-                                    <li>
-                                        <strong>
-                                            Hiểu biết căn bản về Python:
-                                        </strong>{" "}
-                                        Bạn sẽ bắt đầu bằng việc tìm hiểu về
-                                        ngôn ngữ lập trình Python, cách cài đặt
-                                        và tùy chỉnh môi trường phát triển
-                                        PyCharm, và viết các chương trình Python
-                                        đầu tiên của mình.
-                                    </li>
-                                    <li>
-                                        <strong>
-                                            Thành thạo các khái niệm lập trình
-                                            cơ bản:
-                                        </strong>{" "}
-                                        Khóa học sẽ hướng dẫn bạn về khai báo
-                                        biến, các kiểu dữ liệu, và cách chuyển
-                                        đổi chúng, cũng như cách sử dụng các
-                                        phép toán và cấu trúc điều khiển trong
-                                        Python.
-                                    </li>
-                                    <li>
-                                        <strong>
-                                            Làm việc với các cấu trúc dữ liệu:
-                                        </strong>{" "}
-                                        Bạn sẽ học cách làm việc với các cấu
-                                        trúc dữ liệu quan trọng như chuỗi ký tự,
-                                        danh sách (List), bộ (Tuple), từ điển
-                                        (Dictionary), và tập hợp (Set).
-                                    </li>
-                                </ul>
-                                <p className="text-black-600 mb-6">
-                                    <strong>Lợi ích của khóa học:</strong>
-                                </p>
-                                <ul className="list-disc pl-8 mb-6">
-                                    <li>
-                                        Kiến thức toàn diện: Từ những khái niệm
-                                        cơ bản đến các ứng dụng nâng cao, khóa
-                                        học bao quát mọi khía cạnh cần thiết để
-                                        bạn trở thành một lập trình viên Python
-                                        tự tin.
-                                    </li>
-                                    <li>
-                                        Thực hành liên tục: Các bài tập thực
-                                        hành và dự án cụ thể sẽ giúp bạn áp dụng
-                                        ngay những gì đã học vào thực tế.
-                                    </li>
-                                    <li>
-                                        Dễ dàng theo dõi: Với sự phân chia rõ
-                                        ràng giữa lý thuyết và thực hành, bạn sẽ
-                                        dễ dàng nắm bắt và theo dõi tiến trình
-                                        học tập của mình.
-                                    </li>
-                                    <li>
-                                        Cộng đồng hỗ trợ: Bạn sẽ được tham gia
-                                        vào một cộng đồng học viên năng động,
-                                        nơi bạn có thể trao đổi, thảo luận và
-                                        chia sẻ kinh nghiệm với những người cùng
-                                        học.
-                                    </li>
-                                </ul>
-                                <p className="text-gray-600 mb-6">
-                                    Dù bạn là người mới bắt đầu hay đã có kinh
-                                    nghiệm lập trình và muốn mở rộng kiến thức,
-                                    khóa học này sẽ trang bị cho bạn những kỹ
-                                    năng và hiểu biết cần thiết để tiến xa hơn
-                                    trong sự nghiệp lập trình Python. Hãy tham
-                                    gia cùng chúng tôi và khám phá tiềm năng của
-                                    Python ngay hôm nay!
-                                </p>
-                                {/* Đối tượng khóa học */}
-                                <h2 className="text-2xl font-bold mb-4">
-                                    Đối tượng khóa học
-                                </h2>
-                                <ul className="list-disc pl-8">
-                                    <li>
-                                        Các bạn sinh viên muốn học lập trình
-                                        Python để phát triển các dự án về Web,
-                                        IoT, phân tích dữ liệu, AI
-                                    </li>
+                                    {lesson && lesson.description && (
+                                        <li>{lesson.description}</li>
+                                    )}
                                 </ul>
                             </div>
 

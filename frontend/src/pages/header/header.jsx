@@ -195,8 +195,8 @@ export const Header = () => {
                                             </Link>
                                         </li>
                                     </ul>
-                                    <div className="navbar-icons flex justify-center gap-3 xl:mx-3">
-                                        <div className="navbar-noti cursor-pointer ">
+                                    <div className="navbar-icons flex items-center justify-center gap-3 xl:mx-3">
+                                        <div className="navbar-noti mt-2 cursor-pointer ">
                                             <DropdownMenu >
                                                 <DropdownMenuTrigger>
                                                     <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-12" alt="" />
@@ -535,8 +535,8 @@ export const Header = () => {
                                         </Link>
                                     </li>
                                 </ul>
-                                <div className="navbar-icons flex gap-2 xl:mx-3">
-                                    <div className="navbar-noti cursor-pointer ">
+                                <div className="navbar-icons flex items-center gap-2 xl:mx-3">
+                                    <div className="navbar-noti cursor-pointer mt-2 ">
                                         <DropdownMenu >
                                             <DropdownMenuTrigger>
                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-16" alt="" />
@@ -612,7 +612,7 @@ export const Header = () => {
                                     <SheetTrigger>
                                         {/* icons*/}
                                         <div className="navbar-icons flex items-center justify-center gap-2 xl:mx-3 my-5">
-                                            <div className="navbar-noti cursor-pointer mt-1">
+                                            <div className="navbar-noti cursor-pointer mt-2">
                                                 <DropdownMenu >
                                                     <DropdownMenuTrigger>
                                                         <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-14" alt="" />
