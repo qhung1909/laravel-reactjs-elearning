@@ -186,6 +186,9 @@ export const Lesson = () => {
                                                             }
                                                         </p>
                                                     )}
+                                                    <Link to="/quizSingleChoice">
+                                                        Bài tập
+                                                    </Link>
                                                 </AccordionContent>
                                             </AccordionItem>
                                         ))

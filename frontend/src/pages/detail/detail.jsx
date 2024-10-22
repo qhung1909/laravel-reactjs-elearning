@@ -73,7 +73,6 @@ export const Detail = () => {
     const [items, setItems] = useState([]);
     const [cartItems, setCartItems] = useState([]);
 
-
     const [users, setUsers] = useState([]);
     //fetch thông tin user comment
     const fetchUsers = async () => {
@@ -224,7 +223,6 @@ export const Detail = () => {
     const [isPaymentCourse, setPaymentCourse] = useState(false);
 
     const checkPaymentCourse = async (user_id) => {
-        setLoading(true);
         const token = localStorage.getItem("access_token");
         if (!token) {
             toast.error("Bạn chưa đăng nhập.");
@@ -237,17 +235,15 @@ export const Detail = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-
-            // Kiểm tra dữ liệu trả về
             if (Array.isArray(res.data)) {
                 const isPaymentCourse = res.data;
-                const currentCourseId = detail && detail.course_id; // Lấy course_id từ detail
+                const currentCourseId = detail && detail.course_id;
 
-                // Kiểm tra xem có khóa học nào đã mua
+                // Kiểm tra khóa học nào đã mua
                 const isPaymented = isPaymentCourse.some(
                     (course) => course.course_id === currentCourseId
                 );
-                setPaymentCourse(isPaymented); // Cập nhật trạng thái đã đăng ký
+                setPaymentCourse(isPaymented);
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
@@ -256,8 +252,6 @@ export const Detail = () => {
             if (error.response) {
                 console.error("Chi tiết lỗi:", error.response.data);
             }
-        } finally {
-            setLoading(false); // Kết thúc loading trong cả hai trường hợp
         }
     };
 
