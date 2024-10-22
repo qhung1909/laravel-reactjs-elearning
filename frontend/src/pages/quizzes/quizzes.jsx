@@ -17,7 +17,7 @@ export const Quizzes = () => {
     const [lesson, setLesson] = useState([]);
     const [hasStarted, setHasStarted] = useState(false);
     const { slug } = useParams();
-
+    const { quiz_id } = useParams();
     const fetchLesson = async () => {
         try {
             const res = await axios.get(`${API_URL}/lessons/${slug}`, {
@@ -39,86 +39,63 @@ export const Quizzes = () => {
         const token = localStorage.getItem("access_token");
         setLoading(true);
         try {
-            const quizzesResponse = await axios.get(`${API_URL}/quizzes`, {
+            const quizzesResponse = await axios.get(`${API_URL}/quizzes/${quiz_id}`, {
                 headers: { "x-api-secret": `${API_KEY}` },
             });
-
-            const questionsPromises = quizzesResponse.data.map((quiz) =>
-                axios.get(`${API_URL}/quizzes/${quiz.quiz_id}/questions`, {
+    
+            const quizData = quizzesResponse.data;
+    
+            const questionsResponse = await axios.get(`${API_URL}/quizzes/${quizData.quiz_id}/questions`, {
+                headers: { "x-api-secret": `${API_KEY}` },
+            });
+    
+            await axios.post(`${API_URL}/quizzes/start/${quizData.quiz_id}/`, {}, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+    
+            const optionsPromises = questionsResponse.data.map((question) =>
+                axios.get(`${API_URL}/questions/${question.question_id}/options`, {
                     headers: { "x-api-secret": `${API_KEY}` },
-                })
+                }).then((res) => ({
+                    question,
+                    options: res.data,
+                }))
             );
-            const startQuiz = quizzesResponse.data.map((quiz) =>
-                axios.post(`${API_URL}/quizzes/start/${quiz.quiz_id}/`, {}, {
-                    headers: {
-                        "x-api-secret": `${API_KEY}`,
-                        Authorization: `Bearer ${token}`,
-                    },
-                })
-            );
-
-
-            const questionsResponses = await Promise.all(questionsPromises, startQuiz);
-
-            const optionsPromises = questionsResponses.flatMap(
-                (response, index) =>
-                    response.data.map((question) =>
-                        axios
-                            .get(
-                                `${API_URL}/questions/${question.question_id}/options`,
-                                {
-                                    headers: {
-                                        "x-api-secret": `${API_KEY}`,
-                                    },
-                                }
-                            )
-                            .then((res) => ({
-                                question,
-                                options: res.data,
-                            }))
-                    )
-            );
-
+    
             const optionsResponses = await Promise.all(optionsPromises);
-
-            const quizzesWithQuestionsAndOptions = quizzesResponse.data.map(
-                (quiz, index) => ({
-                    ...quiz,
-                    questions: questionsResponses[index].data.map((question) => {
-                        const optionsData = optionsResponses.filter(
-                            (option) =>
-                                option.question.question_id ===
-                                question.question_id
-                        );
-                        return {
-                            ...question,
-                            options:
-                                optionsData.length > 0
-                                    ? optionsData[0].options
-                                    : [],
-                        };
-                    }),
-                })
-            );
-
-            setQuizzes(quizzesWithQuestionsAndOptions);
+    
+            const quizWithQuestionsAndOptions = {
+                ...quizData,
+                questions: questionsResponse.data.map((question) => {
+                    const optionsData = optionsResponses.find(
+                        (option) => option.question.question_id === question.question_id
+                    );
+                    return {
+                        ...question,
+                        options: optionsData ? optionsData.options : [],
+                    };
+                }),
+            };
+    
+            setQuizzes([quizWithQuestionsAndOptions]);
             toast.success("Đã tải dữ liệu quiz thành công!", {
                 duration: 2000,
                 position: "top-right",
             });
         } catch (error) {
             console.error("Error fetching quizzes:", error);
-            toast.error(
-                "Không thể tải dữ liệu quiz. Vui lòng thử lại sau!",
-                {
-                    duration: 3000,
-                    position: "top-right",
-                }
-            );
+            toast.error("Không thể tải dữ liệu quiz. Vui lòng thử lại sau!", {
+                duration: 3000,
+                position: "top-right",
+            });
         } finally {
             setLoading(false);
         }
     };
+    
 
     useEffect(() => {
         if (slug) {

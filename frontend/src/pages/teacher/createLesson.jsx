@@ -28,6 +28,10 @@ const LessonCreator = () => {
 
     const addSection = () => {
         const currentSection = sections[sections.length - 1];
+
+        console.log('Current Section Title:', currentSection.title); // Ghi lại tiêu đề hiện tại
+
+        
         if (!currentSection.title.trim()) {
             toast.error("Vui lòng nhập tiêu đề bài, trước khi thêm phần mới.");
             return;
@@ -38,15 +42,7 @@ const LessonCreator = () => {
             lessons: [{ id: 1, title: '', contents: [] }]
         }]);
     };
-
     const addLesson = (sectionId) => {
-        const currentLesson = sections[sections.length - 1];
-        console.log(currentLesson.lessons.title)
-
-        if(!currentLesson.title.trim()){
-            toast.error('Vui lòng nhập nội dung bài trước khi thêm nội dung bài mới');
-            return
-        }
         setSections(sections.map(section => {
             if (section.id === sectionId) {
                 return {
