@@ -26,16 +26,31 @@ const LessonCreator = () => {
         { id: 1, title: '', lessons: [{ id: 1, title: '', contents: [] }] }
     ]);
 
+    const handleSectionTitleChange = (sectionId, newTitle) => {
+        setSections(sections.map(section => {
+            if (section.id === sectionId) {
+                return { ...section, title: newTitle };
+            }
+            return section;
+        }));
+    };
+
+    const exportToJsonLog = () => {
+        console.log(JSON.stringify(sections, null, 2));
+        toast.success("Đã xuất dữ liệu ra log!");
+    };
+
     const addSection = () => {
         const currentSection = sections[sections.length - 1];
 
         console.log('Current Section Title:', currentSection.title); // Ghi lại tiêu đề hiện tại
 
-        
+
         if (!currentSection.title.trim()) {
-            toast.error("Vui lòng nhập tiêu đề bài, trước khi thêm phần mới.");
+            toast.error("Vui lòng nhập tiêu đề phần trước khi thêm phần mới.");
             return;
         }
+
         setSections([...sections, {
             id: sections.length + 1,
             title: '',
@@ -43,6 +58,14 @@ const LessonCreator = () => {
         }]);
     };
     const addLesson = (sectionId) => {
+        const section = sections.find(section => section.id === sectionId);
+        const currentLesson = section.lessons[section.lessons.length - 1];
+
+        if (!currentLesson.title.trim()) {
+            toast.error("Vui lòng nhập tiêu đề nội dung trước khi thêm nội dung mới.");
+            return;
+        }
+
         setSections(sections.map(section => {
             if (section.id === sectionId) {
                 return {
@@ -54,11 +77,27 @@ const LessonCreator = () => {
                     }]
                 };
             }
-
             return section;
         }));
-
     };
+
+    const handleLessonTitleChange = (sectionId, lessonId, newTitle) => {
+        setSections(sections.map(section => {
+            if (section.id === sectionId) {
+                return {
+                    ...section,
+                    lessons: section.lessons.map(lesson => {
+                        if (lesson.id === lessonId) {
+                            return { ...lesson, title: newTitle };
+                        }
+                        return lesson;
+                    })
+                };
+            }
+            return section;
+        }));
+    };
+
 
     const addContent = (sectionId, lessonId, type) => {
         setSections(sections.map(section => {
@@ -227,7 +266,7 @@ const LessonCreator = () => {
         switch (type) {
             case 'video':
                 return (
-                    <div className="border-2 border-dashed rounded-md p-6 text-center">
+                    <div className="border-2 border-dashed border-slate-400 rounded-md p-6 text-center">
                         <Video className="w-8 h-8 mx-auto mb-2" />
                         <Input id="picture" type="file" className='w-1/3 mx-auto mb-2' />
                         <div className="flex items-center justify-between text-sm text-gray-500 mt-4">
@@ -238,7 +277,7 @@ const LessonCreator = () => {
                 );
             case 'document':
                 return (
-                    <div className="border-2 border-dashed rounded-md p-6 text-center">
+                    <div className="border-2 border-dashed border-slate-400 rounded-md p-6 text-center">
                         <FileText className="w-8 h-8 mx-auto mb-2" />
                         <textarea
                             className="w-full p-2 border rounded-md h-24 mt-2"
@@ -248,14 +287,14 @@ const LessonCreator = () => {
                 );
             case 'file':
                 return (
-                    <div className="border-2 border-dashed rounded-md p-6 text-center">
+                    <div className="border-2 border-dashed border-slate-400 rounded-md p-6 text-center">
                         <File className="w-8 h-8 mx-auto mb-2" />
                         <Input id="picture" type="file" className='w-1/3 mx-auto mb-2' />
                     </div>
                 );
             case 'quiz':
                 return (
-                    <div className="border-2 border-dashed rounded-md p-6">
+                    <div className="border-2 border-dashed border-slate-400 rounded-md p-6">
                         <div className="text-center mb-4">
                             <ListTodo className="w-8 h-8 mx-auto mb-2" />
                             <p className="text-sm text-gray-600">Tạo câu hỏi trắc nghiệm</p>
@@ -283,20 +322,22 @@ const LessonCreator = () => {
 
                 <Accordion type="single" collapsible className="space-y-4">
                     {sections.map((section, sectionIndex) => (
-                        <AccordionItem value={`section-${section.id}`} key={section.id} className="border-2 rounded-lg border-yellow-700 p-4">
-                            <AccordionTrigger className="hover:no-underline border-2 rounded-lg border-yellow-600 p-3">
-                                <div className="flex items-center gap-4 w-full">
-                                    <div className="flex items-center gap-2">
-                                        <MenuSquare className="w-4 h-4 text-gray-400" />
-                                        <span className="font-medium text-gray-600">Bài {sectionIndex + 1}:</span>
-                                    </div>
-                                    <input
-                                        type="text"
-                                        className="flex-1 p-2 border rounded-md"
-                                        placeholder={`Nhập tiêu đề bài ${sectionIndex + 1}`}
-                                        onClick={(e) => e.stopPropagation()}
-                                    />
+                        <AccordionItem value={`section-${section.id}`} key={section.id} className="border-2 rounded-lg border-yellow-700 p-4 relative">
+                            <div className="flex items-center gap-4 w-9/12 md:w-10/12 absolute ml-12 mt-2">
+                                <div className="flex items-center gap-2">
+                                    <MenuSquare className="w-4 h-4 text-gray-400" />
+                                    <span className="font-medium text-gray-600">Bài {sectionIndex + 1}:</span>
                                 </div>
+                                <input
+                                    type="text"
+                                    className="flex-1 p-2 border rounded-md "
+                                    placeholder={`Nhập tiêu đề bài ${sectionIndex + 1}`}
+                                    onChange={(e) => handleSectionTitleChange(section.id, e.target.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                />
+                            </div>
+                            <AccordionTrigger className="hover:no-underline border-2 rounded-lg border-yellow-600 p-5">
+
                             </AccordionTrigger>
 
                             <AccordionContent>
@@ -313,6 +354,8 @@ const LessonCreator = () => {
                                                         type="text"
                                                         className="flex-1 p-2 border rounded-md"
                                                         placeholder={`Nhập nội dung bài ${sectionIndex + 1}.${lessonIndex + 1}`}
+                                                        value={lesson.title} // Đặt giá trị từ state
+                                                        onChange={(e) => handleLessonTitleChange(section.id, lesson.id, e.target.value)} // Gọi hàm xử lý
                                                     />
                                                 </div>
 
@@ -364,9 +407,9 @@ const LessonCreator = () => {
 
                                     <button
                                         onClick={() => addLesson(section.id)}
-                                        className="w-full p-2 border-2 border-dashed rounded-md text-gray-600 hover:bg-gray-50"
+                                        className="w-full p-2 border-2 ml-6 border-dashed rounded-md text-gray-600 hover:bg-gray-50"
                                     >
-                                        + Thêm bài bài học con mới
+                                        + Thêm nội dung mới
                                     </button>
                                 </div>
                             </AccordionContent>
@@ -379,6 +422,14 @@ const LessonCreator = () => {
                     className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
                 >
                     + Thêm Bài học mới
+                </button>
+
+
+                <button
+                    onClick={exportToJsonLog}
+                    className="w-full p-3 border-2 border-dashed border-green-700 rounded-md text-gray-600 hover:bg-gray-50"
+                >
+                    Xuất dữ liệu ra log
                 </button>
             </div>
             <Toaster />

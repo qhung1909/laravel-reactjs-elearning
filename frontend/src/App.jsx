@@ -37,6 +37,7 @@ import { ResetPassword } from "./pages/recoverPassword/resetPassword.jsx";
 import { VerifyEmail } from "./pages/recoverPassword/verifyEmail.jsx";
 import { UserContext, UserProvider } from "./pages/context/usercontext.jsx";
 import { CategoriesContext, CategoriesProvider } from "./pages/context/categoriescontext.jsx";
+import { CoursesContext, CoursesProvider } from "./pages/context/coursescontext.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -125,9 +126,11 @@ function App() {
     return (
         <Router>
             <UserProvider>
-                <CategoriesProvider>
-                    <AppContent />
-                </CategoriesProvider>
+                <CoursesProvider>
+                    <CategoriesProvider>
+                        <AppContent />
+                    </CategoriesProvider>
+                </CoursesProvider>
             </UserProvider>
         </Router>
 
