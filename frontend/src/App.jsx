@@ -35,8 +35,8 @@ import { Quizzes } from './pages/quizzes/quizzes.jsx';
 import { NewPassword } from "./pages/recoverPassword/newPassword.jsx";
 import { ResetPassword } from "./pages/recoverPassword/resetPassword.jsx";
 import { VerifyEmail } from "./pages/recoverPassword/verifyEmail.jsx";
-import { UserProvider } from "./pages/usercontext/userContext.jsx";
-import { UserContext } from "./pages/usercontext/usercontext.jsx";
+import { UserContext, UserProvider } from "./pages/context/usercontext.jsx";
+import { CategoriesContext, CategoriesProvider } from "./pages/context/categoriescontext.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -111,6 +111,10 @@ function AppContent() {
                     path="/quizzes"
                     element={<Quizzes />}
                 ></Route>
+                <Route
+                    path="/quizzes/:quiz_id"
+                    element={<Quizzes />}
+                ></Route>
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}
         </>
@@ -121,7 +125,9 @@ function App() {
     return (
         <Router>
             <UserProvider>
-                <AppContent />
+                <CategoriesProvider>
+                    <AppContent />
+                </CategoriesProvider>
             </UserProvider>
         </Router>
 

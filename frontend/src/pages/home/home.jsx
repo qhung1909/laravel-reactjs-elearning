@@ -1,43 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState,useContext, useEffect } from "react";
 import axios from 'axios';
 import { Link } from "react-router-dom";
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CategoriesContext } from "../context/categoriescontext";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
-
 export const Home = () => {
-
+    const { categories } = useContext(CategoriesContext);
     const [topPurchasedProduct, setTopPurchasedProduct] = useState([]);
     const [topViewedProduct, setTopViewedProduct] = useState([]);
-    const [categories, setCategories] = useState([]);
     const [productsByCategory, setProductsByCategory] = useState([]);
-    const [firstCategories, setFirstCategories] = useState([]);
-    const [secondCategories, setSecondCategories] = useState([]);
     const [loading, setLoading] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState(null);
-
-    const fetchCategories = async () => {
-        setLoading(true)
-        try {
-            const response = await axios.get(`${API_URL}/categories`, {
-                headers: {
-                    'x-api-secret': `${API_KEY}`,
-                },
-            });
-            const allCategories = response.data;
-
-            setFirstCategories(allCategories.slice(0, 5));
-            setSecondCategories(allCategories.slice(5, 8))
-
-            setCategories(allCategories)
-        } catch (error) {
-            console.log('Error fetching API: ', error)
-        } finally {
-            setLoading(false);
-        }
-    }
 
     const fetchTopPurchasedProduct = async () => {
         setLoading(true);
@@ -229,8 +205,6 @@ export const Home = () => {
             );
     };
 
-
-
     const renderProductsByCategory = () => {
         return loading ? (
             <div className="flex flex-wrap justify-center items-center">
@@ -281,7 +255,6 @@ export const Home = () => {
     useEffect(() => {
         fetchTopPurchasedProduct();
         fetchTopViewedProduct();
-        fetchCategories();
     }, []);
 
     return (
@@ -396,12 +369,12 @@ export const Home = () => {
                     <div className="homecatelog-box-content mt-5 text-center">
                         <div className="homecatelog-box-content-row">
                             <div className="homecatelog-box-content-row-main">
-                                {renderCategories(firstCategories)}
+                                {renderCategories(categories.slice(0,5))}
                             </div>
                         </div>
                         <div className="homecatelog-box-content-row my-3">
                             <div className="homecatelog-box-content-row-main">
-                                {renderCategories(secondCategories)}
+                                {renderCategories(categories.slice(5,9))}
                             </div>
                         </div>
                     </div>
