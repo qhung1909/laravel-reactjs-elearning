@@ -113,7 +113,7 @@ function AppContent() {
                     element={<Quizzes />}
                 ></Route>
                 <Route
-                    path="/quizzes/:quizid"
+                    path="/quizzes/:quiz_id"
                     element={<Quizzes />}
                 ></Route>
             </Routes>
