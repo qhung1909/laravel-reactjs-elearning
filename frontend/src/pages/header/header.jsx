@@ -1,5 +1,6 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
+
 import {
     CreditCard,
     LogOut,
@@ -25,30 +26,50 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Command, CommandInput, CommandList } from "@/components/ui/command"
 import { Skeleton } from "@/components/ui/skeleton"
 import { UserContext } from "../context/usercontext";
 import { CategoriesContext } from "../context/categoriescontext";
 import { CoursesContext } from "../context/coursescontext";
 
 export const Header = () => {
-    const { courses } = useContext(CoursesContext);
-    const { categories, loading } = useContext(CategoriesContext);
+    const {
+        searchValue,
+        setSearchValue,
+        filteredProducts,
+        isOpen,
+        setIsOpen,
+        debouncedFetchSearchResults
+    } = useContext(CoursesContext);
+    const { categories } = useContext(CategoriesContext);
     const { user, logined, logout, refreshToken } = useContext(UserContext);
     const location = useLocation();
     const [loadingLogout, setLoadingLogout] = useState(false);
     const isBlogPage = location.pathname === "/blog";
     const isContactPage = location.pathname === "/contact";
-    const [searchValue, setSearchValue] = useState("");
-    const [isOpen, setIsOpen] = useState(false);
-    const products = [
-        { id: 1, name: "Sản phẩm 1" },
-        { id: 2, name: "Sản phẩm 2" },
-        { id: 3, name: "Sản phẩm 3" },
-    ];
-    const filteredProducts = products.filter(product =>
-        product.name.toLowerCase().includes(searchValue.toLowerCase())
-    );
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+
+
+    const handleInputChange = (value) => {
+        setSearchValue(value);
+        debouncedFetchSearchResults(value, 3);
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === "Enter" && searchValue.trim() !== "") {
+            e.preventDefault();
+            setIsOpen(false);
+            navigate(`/courses?search=${encodeURIComponent(searchValue.trim())}`);
+            setSearchValue("");
+        }
+    };
+
+    useEffect(() => {
+        setSearchValue("");
+        setIsOpen(false);
+    }, [location.search]);
+
     const categoryImages = {
         javascript: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/javascript.svg",
         python: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/python.svg",
@@ -78,9 +99,6 @@ export const Header = () => {
         }
     };
 
-    // hàm chuyển trang
-    const navigate = useNavigate();
-
     // hàm xử lý danh mục
     const renderCategories = () => {
         return loading ? (
@@ -107,31 +125,6 @@ export const Header = () => {
             <p>Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
         );
     };
-
-    // hàm xử lý tất cả courses
-    const renderCourses = () => {
-        return loading ? (
-            <div className="flex flex-wrap justify-center items-center">
-                {Array.from({ length: 3 }).map((_, index) => (
-                    <div className="bg-gray-100 h-10 w-20 rounded-lg animate-pulse mx-2" key={index}></div>
-                ))}
-            </div>
-        ) : Array.isArray(courses) && courses.length > 0 ? (
-            courses.map((item, index) => {
-                return (
-                    <Link key={index} to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow flex group my-5">
-                        <img src={`${item.img}`} alt="" />
-                        <div className="">
-                            {item.title}
-                        </div>
-                    </Link>
-                );
-            })
-        ) : (
-            <p>Không có sản phẩm phù hợp ngay lúc này, thử lại sau</p>
-        );
-    };
-
     return (
         <>
             {loadingLogout && (
@@ -156,42 +149,75 @@ export const Header = () => {
                     {/* header - search */}
                     <div className="navbar-search xl:w-3/5 xl:px-0 sm:w-3/4 w-2/3 p-2">
                         <div className="w-full relative">
-                            <Command className=" rounded-full shadow-sm border w-full">
+                            <Command className="rounded-full shadow-sm border w-full ">
                                 <CommandInput
                                     placeholder="Tìm kiếm..."
                                     value={searchValue}
-                                    onValueChange={setSearchValue}
+                                    onValueChange={handleInputChange}
                                     onFocus={() => setIsOpen(true)}
                                     onBlur={() => {
                                         setTimeout(() => setIsOpen(false), 200);
                                     }}
+                                    onKeyDown={handleKeyPress}  // Đổi từ onKeyPress sang onKeyDown
                                     className="h-10"
                                 />
-                                <div className={`absolute w-full bg-white ${isOpen ? 'block' : 'hidden'}`}>
-                                    <CommandList>
-                                        <CommandEmpty className="p-4 text-sm text-gray-500">
-                                            {searchValue === "" ? "Hãy nhập để tìm" : "Không tìm thấy sản phẩm"}
-                                        </CommandEmpty>
-                                        <CommandGroup heading="Sản phẩm" className="">
-                                            {filteredProducts.map((product) => (
-                                                <CommandItem
-                                                    key={product.id}
-                                                    className="cursor-pointer hover:bg-gray-100"
-                                                    onSelect={() => {
-                                                        console.log('Selected:', product);
-                                                        setIsOpen(false);
-                                                    }}
-                                                >
-                                                    {product.name}
-                                                </CommandItem>
-                                            ))}
-                                        </CommandGroup>
+                                <div className={`absolute w-4/5 bg-white mt-10 ${isOpen ? 'block' : 'hidden'}`}>
+                                    <CommandList className="shadow-lg ">
+                                        {loading ? (
+                                            <div className="rounded-sm border-l border-r border-b shadow-lg p-3 text-gray-400">
+                                                Đang tải...
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {searchValue && filteredProducts.length === 0 ? (
+                                                    <div className="rounded-sm border-l border-r border-b shadow-lg p-3 text-gray-400">
+                                                        Không tìm thấy sản phẩm
+                                                    </div>
+                                                ) : searchValue === '' ? (
+                                                    <div className="rounded-sm border-l border-r border-b shadow-lg p-3 text-gray-400">
+                                                        Hãy nhập để tìm
+                                                    </div>
+                                                ) : (
+                                                    <div className="search-results h-auto">
+                                                        <div className="p-3">
+                                                            <p className="font-semibold text-lg text-yellow-300">Kết quả:</p>
+                                                        </div>
+                                                        {filteredProducts.map((product) => (
+                                                            <div
+                                                                key={product.id}
+                                                                className="search-result-item "
+                                                                onClick={() => {
+                                                                    console.log('Selected:', product);
+                                                                    setIsOpen(false);
+                                                                }}
+                                                            >
+
+                                                                <div className="result">
+                                                                    <Link to={`/detail/${product.slug}`}>
+                                                                        <div className="flex items-center gap-3 px-3">
+                                                                            <div className="">
+                                                                                <img src={`${product.img}`} className="w-32 rounded-md" alt="" />
+                                                                            </div>
+                                                                            <div className="">
+                                                                                <div className="font-semibold">
+                                                                                    {product.title}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </Link>
+
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
                                     </CommandList>
                                 </div>
                             </Command>
                         </div>
                     </div>
-
                     {logined ? (
                         <>
                             <>
