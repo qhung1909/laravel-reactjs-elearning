@@ -27,15 +27,14 @@ import {
 } from "@/components/ui/sheet"
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton"
-import { UserContext } from "../usercontext/usercontext";
-
+import { UserContext } from "../context/usercontext";
+import { CategoriesContext } from "../context/categoriescontext";
 export const Header = () => {
+    const { categories, loading } = useContext(CategoriesContext);
     const location = useLocation();
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
-    const [categories, setCategories] = useState([]);
     const [loadingLogout, setLoadingLogout] = useState(false);
-    const [loading, setLoading] = useState(false);
     const isBlogPage = location.pathname === "/blog";
     const isContactPage = location.pathname === "/contact";
 
@@ -52,12 +51,14 @@ export const Header = () => {
     };
     const { user, logined, logout, refreshToken } = useContext(UserContext);
 
+    // hàm xử lý đăng xuất
     const handleLogout = () => {
         setLoadingLogout(true);
         logout();
         setLoadingLogout(false);
     };
 
+    // hàm xử lý refreshtoken
     const handleRefreshToken = async () => {
         const newToken = await refreshToken();
         if (newToken) {
@@ -67,25 +68,10 @@ export const Header = () => {
         }
     };
 
+    // hàm chuyển trang
     const navigate = useNavigate();
 
-    const fetchCategories = async () => {
-        setLoading(true)
-        try {
-            const response = await axios.get(`${API_URL}/categories`, {
-                headers: {
-                    'x-api-secret': `${API_KEY}`,
-                },
-            });
-            const allCategories = response.data;
-
-            setCategories(allCategories)
-        } catch (error) {
-            console.log('Error fetching categories', error)
-        } finally {
-            setLoading(false)
-        }
-    }
+    // hàm xử lý danh mục
 
     const renderCategories = () => {
         return loading ? (
@@ -101,23 +87,17 @@ export const Header = () => {
                     <div key={item.slug} className="duration-300 cursor-pointer py-1">
                         <DropdownMenuItem>
                             <Link className="flex gap-3 hover:text-yellow-400 duration-300 py-1 rounded-md">
-                                {/* tạo một mảng hình ảnh */}
                                 <img src={categoryImage} className="w-5" alt={item.name} />
                                 <span className="font-semibold text-base">{item.name}</span>
                             </Link>
                         </DropdownMenuItem>
                     </div>
-                )
+                );
             })
         ) : (
             <p>Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
-        )
-    }
-
-    useEffect(() => {
-        fetchCategories();
-    }, []);
-
+        );
+    };
 
 
     return (

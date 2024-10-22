@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label"
 import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom"
 import toast, { Toaster } from 'react-hot-toast';
-import { UserContext } from "../usercontext/usercontext";
+import { UserContext } from "../context/usercontext";
 
 const notify = (message, type) => {
     if (type === 'success') {
@@ -28,7 +28,7 @@ const notify = (message, type) => {
     }
 }
 export const InstructorProfile = () => {
-    const { user, fetchUser, loading, updateUserProfile,logout } = useContext(UserContext);
+    const { user, updateUserProfile, logout, updatePassword } = useContext(UserContext);
     const [userName, setUserName] = useState('');
     const [role, setRole] = useState('');
     const [email, setEmail] = useState('');
@@ -37,6 +37,9 @@ export const InstructorProfile = () => {
     const [_success, setSuccess] = useState("");
     const [error, setError] = useState("");
     const [loadingLogout, setLoadingLogout] = useState(false);
+    const [password, setPassword] = useState("");
+    const [current_password, setCurrentPassword] = useState("");
+    const [password_confirmation, setPassword_Confirmation] = useState("")
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -68,6 +71,18 @@ export const InstructorProfile = () => {
         setLoadingLogout(true);
         logout();
         setLoadingLogout(false);
+    };
+
+    // hàm xử lý validate thay đổi mật khẩu
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
+        const isUpdated = await updatePassword(current_password, password, password_confirmation);
+        if (isUpdated) {
+            setCurrentPassword('');
+            setPassword('');
+            setPassword_Confirmation('');
+            setError('');
+        }
     };
 
     return (
@@ -244,29 +259,31 @@ export const InstructorProfile = () => {
 
                         {/* Profile content */}
                         <div className="md:p-6 ">
-                            <form onSubmit={handleUpdateProfile}>
-                                <Tabs defaultValue="profile" className="w-[100%] py-10 md:py-0">
-                                    {/* tabs - header */}
-                                    <TabsList>
-                                        <div className="bg-gray-200 p-1 rounded-xl">
-                                            {/* header 1 */}
-                                            <TabsTrigger value="profile" className="rounded-xl">
-                                                <div className=" py-2 text-base font-bold text-gray-600">
-                                                    Chỉnh sửa hồ sơ
-                                                </div>
-                                            </TabsTrigger>
-                                            {/* header 2 */}
-                                            <TabsTrigger value="password" className="rounded-xl">
-                                                <div className=" py-2 text-base font-bold text-gray-600">
-                                                    Mật khẩu
-                                                </div>
-                                            </TabsTrigger>
-                                        </div>
-                                    </TabsList>
-                                    {/* tabs - content */}
-                                    <div className="my-5">
-                                        {/* tabs - profile */}
-                                        <TabsContent value="profile" className="">
+                            <Tabs defaultValue="profile" className="w-[100%] py-10 md:py-0">
+                                {/* tabs - header */}
+                                <TabsList>
+                                    <div className="bg-gray-200 p-1 rounded-xl">
+                                        {/* header 1 */}
+                                        <TabsTrigger value="profile" className="rounded-xl">
+                                            <div className=" py-2 text-base font-bold text-gray-600">
+                                                Chỉnh sửa hồ sơ
+                                            </div>
+                                        </TabsTrigger>
+                                        {/* header 2 */}
+                                        <TabsTrigger value="password" className="rounded-xl">
+                                            <div className=" py-2 text-base font-bold text-gray-600">
+                                                Mật khẩu
+                                            </div>
+                                        </TabsTrigger>
+                                    </div>
+                                </TabsList>
+                                {/* tabs - content */}
+                                <div className="my-5">
+
+
+                                    {/* profile */}
+                                    <TabsContent value="profile" className="">
+                                        <form onSubmit={handleUpdateProfile}>
                                             <div className="bg-white rounded-xl py-5  w-full mx-auto">
                                                 <div className="">
                                                     {/* header */}
@@ -324,55 +341,74 @@ export const InstructorProfile = () => {
                                                 </div>
 
                                             </div>
-                                        </TabsContent>
+                                        </form>
 
-                                        {/* tabs - password */}
-                                        <TabsContent value="password">
-                                            <div className="bg-white rounded-xl py-5">
-                                                {/* header */}
-                                                <div className="px-8">
-                                                    <div className="">
-                                                        <span className="text-xl font-bold">Thay đổi mật khẩu</span>
-                                                    </div>
-                                                </div>
-                                                <hr className="my-5" />
-                                                {/* content */}
-                                                <div className="px-8">
+                                    </TabsContent>
 
-                                                    {/* current password */}
-                                                    <div className="my-10 gap-5">
-                                                        <div className="w-[100%]">
-                                                            <Label htmlFor="password" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Mật khẩu hiện tại</p></Label>
-                                                            <Input type="password" id="password" placeholder="Mật khẩu hiện tại" className="p-6 mt-2 rounded-xl font-semibold text-base" />
-                                                        </div>
-                                                    </div>
-
-                                                    {/* new password */}
-                                                    <div className="my-10 gap-5">
-                                                        <div className="w-[100%]">
-                                                            <Label htmlFor="newpassword" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Mật khẩu mới</p></Label>
-                                                            <Input type="newpassword" id="newpassword" placeholder="Mật khẩu mới" className="p-6 mt-2 rounded-xl font-semibold text-base" />
-                                                        </div>
-                                                    </div>
-
-                                                    {/* confirm password */}
-                                                    <div className="my-10 gap-5">
-                                                        <div className="w-[100%]">
-                                                            <Label htmlFor="confirmpassword" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Xác nhận mật khẩu</p></Label>
-                                                            <Input type="confirmpassword" id="confirmpassword" placeholder="Xác nhận mật khẩu" className="p-6 mt-2 rounded-xl font-semibold text-base" />
-                                                        </div>
-                                                    </div>
-
-                                                    {/* save button */}
-                                                    <div className="my-5">
-                                                        <button className="bg-yellow-400 p-3 font-bold rounded-xl">Lưu mật khẩu</button>
-                                                    </div>
+                                    {/* password */}
+                                    <TabsContent value="password">
+                                    <form onSubmit={handleChangePassword}>
+                                        <div className="bg-white rounded-xl py-5">
+                                            {/* header */}
+                                            <div className="px-8">
+                                                <div className="">
+                                                    <span className="text-xl font-bold">Thay đổi mật khẩu</span>
                                                 </div>
                                             </div>
-                                        </TabsContent>
-                                    </div>
-                                </Tabs>
-                            </form>
+                                            <hr className="my-5" />
+                                            {/* content */}
+                                            <div className="px-8">
+
+                                                {/* current password */}
+                                                <div className="my-10 gap-5">
+                                                    <div className="w-[100%]">
+                                                        <Label htmlFor="password" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Mật khẩu hiện tại</p></Label>
+                                                        <Input
+                                                            placeholder="Nhập mật khẩu hiện tại..."
+                                                            className="text-sm py-7"
+                                                            type="password"
+                                                            value={current_password}
+                                                            onChange={(e) => setCurrentPassword(e.target.value)}
+                                                        />                                                    </div>
+                                                </div>
+
+                                                {/* new password */}
+                                                <div className="my-10 gap-5">
+                                                    <div className="w-[100%]">
+                                                        <Label htmlFor="newpassword" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Mật khẩu mới</p></Label>
+                                                        <Input
+                                                            placeholder="Nhập mật khẩu mới..."
+                                                            className="text-sm py-7"
+                                                            type="password"
+                                                            value={password}
+                                                            onChange={(e) => setPassword(e.target.value)}
+                                                        />                                                    </div>
+                                                </div>
+
+                                                {/* confirm password */}
+                                                <div className="my-10 gap-5">
+                                                    <div className="w-[100%]">
+                                                        <Label htmlFor="confirmpassword" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Xác nhận mật khẩu</p></Label>
+                                                        <Input
+                                                            placeholder="Xác nhận mật khẩu mới..."
+                                                            className="text-sm py-7"
+                                                            type="password"
+                                                            value={password_confirmation}
+                                                            onChange={(e) => setPassword_Confirmation(e.target.value)}
+                                                        />                                                    </div>
+                                                </div>
+
+                                                {/* save button */}
+                                                <div className="my-5">
+                                                    <button className="bg-yellow-400 p-3 font-bold rounded-xl">Lưu mật khẩu</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </form>
+
+                                    </TabsContent>
+                                </div>
+                            </Tabs>
 
 
                         </div>

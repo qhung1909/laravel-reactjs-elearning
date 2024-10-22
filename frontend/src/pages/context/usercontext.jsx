@@ -14,7 +14,9 @@ const notify = (message, type) => {
     } else {
         toast.error(message, {
             style: {
-                padding: '16px'
+                padding: '16px',
+                textAlign:'center',
+                width:'310px'
             }
         })
     }
