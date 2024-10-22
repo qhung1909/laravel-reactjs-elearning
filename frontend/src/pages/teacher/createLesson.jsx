@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Video, File, X, GripVertical, PlayCircle, FileText, ListTodo, MenuSquare } from 'lucide-react';
 import {
     Card
@@ -18,8 +18,7 @@ import {
 } from "@/components/ui/select"
 import { Input } from '@/components/ui/input';
 import toast, { Toaster } from 'react-hot-toast';
-
-
+import PropTypes from 'prop-types';
 
 const LessonCreator = () => {
     const [sections, setSections] = useState([
@@ -95,6 +94,39 @@ const LessonCreator = () => {
         }));
     };
 
+    const handleDocumentChange = (sectionId, lessonId, contentId, newText) => {
+        setSections(prevSections => {
+            const updatedSections = prevSections.map(section => {
+                if (section.id === sectionId) {
+                    return {
+                        ...section,
+                        lessons: section.lessons.map(lesson => {
+                            if (lesson.id === lessonId) {
+                                return {
+                                    ...lesson,
+                                    contents: lesson.contents.map(content => {
+                                        if (content.id === contentId) {
+                                            return {
+                                                ...content,
+                                                data: { text: newText } // Cập nhật nội dung tài liệu
+                                            };
+                                        }
+                                        return content;
+                                    })
+                                };
+                            }
+                            return lesson;
+                        })
+                    };
+                }
+                return section;
+            });
+            console.log("Updated sections:", updatedSections); // Ghi lại giá trị mới
+            return updatedSections; // Trả về giá trị cập nhật
+        });
+    };
+
+
 
     const addContent = (sectionId, lessonId, type) => {
         setSections(sections.map(section => {
@@ -108,7 +140,11 @@ const LessonCreator = () => {
                                 contents: [...lesson.contents, {
                                     id: lesson.contents.length + 1,
                                     type,
-                                    data: ''
+                                    data:
+                                        type === 'video' ? { duration: '00:00', size: 0, file: null } :
+                                            type === 'document' ? { text: '' } :
+                                                type === 'file' ? { file: null } :
+                                                    type === 'quiz' ? { question: '', answers: [] } : {}
                                 }]
                             };
                         }
@@ -155,31 +191,50 @@ const LessonCreator = () => {
         </Select>
     );
 
-    const SingleChoiceQuiz = () => (
-        <div className="space-y-4">
-            <input
-                type="text"
-                className="w-full p-2 border rounded-md"
-                placeholder="Nhập câu hỏi..."
-            />
-            <div className="space-y-2">
-                {[1, 2, 3, 4].map((num) => (
-                    <div key={num} className="flex items-center gap-2">
-                        <input
-                            type="radio"
-                            name="answer"
-                            className="w-4 h-4"
-                        />
-                        <input
-                            type="text"
-                            className="flex-1 p-2 border rounded-md"
-                            placeholder={`Đáp án ${num}`}
-                        />
-                    </div>
-                ))}
+    const SingleChoiceQuiz = () => {
+        const [question, setQuestion] = useState('');
+        const [answers, setAnswers] = useState(['', '', '', '']); // Khởi tạo mảng đáp án
+
+        const handleQuestionChange = (e) => {
+            setQuestion(e.target.value); // Cập nhật câu hỏi
+        };
+
+        const handleAnswerChange = (index, e) => {
+            const newAnswers = [...answers]; // Tạo một bản sao mảng hiện tại
+            newAnswers[index] = e.target.value; // Cập nhật đáp án theo chỉ số
+            setAnswers(newAnswers); // Cập nhật lại state
+        };
+
+        return (
+            <div className="space-y-4">
+                <input
+                    type="text"
+                    className="w-full p-2 border rounded-md"
+                    placeholder="Nhập câu hỏi..."
+                    value={question} // Liên kết giá trị với state
+                    onChange={handleQuestionChange} // Cập nhật khi nhập liệu
+                />
+                <div className="space-y-2">
+                    {answers.map((answer, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                            <input
+                                type="radio"
+                                name="answer"
+                                className="w-4 h-4"
+                            />
+                            <input
+                                type="text"
+                                className="flex-1 p-2 border rounded-md"
+                                placeholder={`Đáp án ${index + 1}`}
+                                value={answer} // Liên kết giá trị với state
+                                onChange={(e) => handleAnswerChange(index, e)} // Cập nhật khi nhập liệu
+                            />
+                        </div>
+                    ))}
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     const MultipleChoiceQuiz = () => (
         <div className="space-y-4">
@@ -258,8 +313,8 @@ const LessonCreator = () => {
         }));
     };
 
-    // eslint-disable-next-line react/prop-types
-    const ContentBlock = ({ type, contentId }) => {
+    const ContentBlock = ({ type, contentId, sectionId, lessonId, initialValue, handleDocumentChange }) => {
+
         switch (type) {
             case 'video':
                 return (
@@ -277,6 +332,9 @@ const LessonCreator = () => {
                     <div className="border-2 border-dashed shadow-green-300 shadow-md border-slate-400 rounded-md p-6 text-center">
                         <FileText className="w-8 h-8 mx-auto mb-2" />
                         <textarea
+                            value={initialValue}
+                            onChange={(e) => handleDocumentChange(sectionId, lessonId, contentId, e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
                             className="w-full p-2 border rounded-md h-24 mt-2"
                             placeholder="Nhập nội dung bài học..."
                         />
@@ -308,7 +366,10 @@ const LessonCreator = () => {
             default:
                 return null;
         }
+
     };
+
+
 
     // ... giữ nguyên phần return của component
 
@@ -358,7 +419,14 @@ const LessonCreator = () => {
 
                                                 {lesson.contents.map((content) => (
                                                     <div key={content.id} className="relative">
-                                                        <ContentBlock type={content.type} contentId={content.id} />
+                                                        <ContentBlock
+                                                            type={content.type}
+                                                            contentId={content.id}
+                                                            sectionId={section.id}
+                                                            lessonId={lesson.id}
+                                                            initialValue={content.data.text}
+                                                            handleDocumentChange={handleDocumentChange}
+                                                        />
                                                         <button
                                                             onClick={() => deleteContent(section.id, lesson.id, content.id)}
                                                             className="absolute top-2 right-2 text-red-500 hover:text-red-600"
@@ -430,9 +498,18 @@ const LessonCreator = () => {
                 </button>
             </div>
             <Toaster />
+
         </div>
 
     );
+};
+LessonCreator.propTypes = {
+    type: PropTypes.string.isRequired,  // hoặc PropTypes.oneOf(['type1', 'type2']) nếu bạn biết các giá trị cụ thể
+    contentId: PropTypes.string.isRequired,
+    sectionId: PropTypes.string.isRequired,
+    lessonId: PropTypes.string.isRequired,
+    initialValue: PropTypes.string,  // Nếu là chuỗi có thể null hoặc undefined
+    handleDocumentChange: PropTypes.func.isRequired,
 };
 
 export default LessonCreator;
