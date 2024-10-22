@@ -2,9 +2,8 @@ import "./detail.css";
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import { Star } from "lucide-react";
-import { Edit, Trash } from "lucide-react"; // Biểu tượng sửa và xóa
-import { Calendar, Globe } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
+import { Calendar, Globe, BookOpen, Star } from "lucide-react";
 import { Play } from "lucide-react";
 import {
     Breadcrumb,
@@ -958,8 +957,9 @@ export const Detail = () => {
                                                 </AccordionItem>
                                             ))
                                         ) : (
-                                            <div className="text-center py-8">
-                                                <p className="text-gray-500">Nội dung bài học đang được cập nhật!!</p>
+                                            <div className="text-center py-8 bg-white rounded-xl">
+                                                <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                                                <p className="text-gray-500">Đang cập nhật nội dung...</p>
                                             </div>
                                         )}
                                     </Accordion>

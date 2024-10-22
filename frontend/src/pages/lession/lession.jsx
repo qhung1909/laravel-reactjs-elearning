@@ -164,7 +164,7 @@ export const Lesson = () => {
 
                             </div>
 
-                            <div className="p-6 max-h-[500px] overflow-y-auto">
+                            <div className="p-6 max-h-[650px] overflow-y-auto">
                                 <Accordion type="multiple" className="space-y-3">
                                     {Array.isArray(lessonContents) && lessonContents.length > 0 ? (
                                         lessonContents.map((content, index) => (
@@ -242,7 +242,7 @@ export const Lesson = () => {
                 </div>
 
                 {/* Footer điều hướng cải tiến */}
-                <footer className="fixed left-0 right-0 bottom-0 z-20 flex items-center justify-between px-8 py-4 bg-gradient-to-r from-gray-50 to-gray-100 shadow-lg">
+                {/* <footer className="fixed left-0 right-0 bottom-0 z-20 flex items-center justify-between px-8 py-4 bg-gradient-to-r from-gray-50 to-gray-100 shadow-lg">
                     <button className="flex items-center text-white bg-yellow-900 px-4 py-2 rounded-full shadow-md cursor-pointer transition transform hover:scale-105">
                         <box-icon
                             name="chevron-left"
@@ -260,7 +260,7 @@ export const Lesson = () => {
                         </span>
                         <box-icon name="chevron-right" color="white" />
                     </button>
-                </footer>
+                </footer> */}
             </body>
         </>
     );
