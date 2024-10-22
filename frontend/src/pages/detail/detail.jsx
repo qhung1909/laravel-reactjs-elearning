@@ -25,7 +25,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
-import { Modal, Button } from "antd";
+import { Modal, Box, Button } from "@mui/material";
 import {
     SkeletonLoaderBanner,
     SkeletonLoaderProduct,
@@ -35,6 +35,17 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const Detail = () => {
+    const style = {
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: 400,
+        bgcolor: "background.paper",
+        border: "2px solid #000",
+        boxShadow: 24,
+        p: 4,
+    };
     const [detail, setDetail] = useState([]);
     const { slug } = useParams();
     const [loading, setLoading] = useState([]);
@@ -820,24 +831,15 @@ export const Detail = () => {
             );
         }
     };
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [open, setOpen] = useState(false);
     const [currentVideoUrl, setCurrentVideoUrl] = useState("");
 
-    // Mở modal và set video URL
-    const showModal = (videoUrl) => {
-        const embedUrl = videoUrl.replace("watch?v=", "embed/");
-        setCurrentVideoUrl(embedUrl);
-        setIsModalVisible(true);
+    const handleOpen = (videoUrl) => {
+        setCurrentVideoUrl(videoUrl.replace("watch?v=", "embed/"));
+        setOpen(true);
     };
 
-    // Đóng modal
-    const handleOk = () => {
-        setIsModalVisible(false);
-    };
-
-    const handleCancel = () => {
-        setIsModalVisible(false);
-    };
+    const handleClose = () => setOpen(false);
 
     return (
         <>
@@ -887,10 +889,9 @@ export const Detail = () => {
                                                             {/* Nút xem video nếu có video_url */}
                                                             {content.video_content && (
                                                                 <Button
-                                                                    className="text-blue-500 underline mt-2"
                                                                     onClick={() =>
-                                                                        showModal(
-                                                                            content.video_content
+                                                                        handleOpen(
+                                                                            "https://www.youtube.com/watch?v=VIDEO_ID"
                                                                         )
                                                                     }
                                                                 >
@@ -909,20 +910,25 @@ export const Detail = () => {
 
                                     {/* Modal hiển thị video */}
                                     <Modal
-                                        title="Video Demo"
-                                        visible={isModalVisible}
-                                        onOk={handleOk}
-                                        onCancel={handleCancel}
+                                        open={open}
+                                        onClose={handleClose}
+                                        aria-labelledby="modal-video-title"
+                                        aria-describedby="modal-video-description"
                                     >
-                                        <iframe
-                                            width="100%"
-                                            height="315"
-                                            src={currentVideoUrl}
-                                            title="YouTube video player"
-                                            frameBorder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowFullScreen
-                                        ></iframe>
+                                        <Box sx={style}>
+                                            <Button onClick={handleClose}>
+                                                Đóng
+                                            </Button>
+                                            <iframe
+                                                width="100%"
+                                                height="315"
+                                                src={currentVideoUrl}
+                                                title="YouTube video player"
+                                                frameBorder="0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowFullScreen
+                                            ></iframe>
+                                        </Box>
                                     </Modal>
                                 </div>
                             </div>
