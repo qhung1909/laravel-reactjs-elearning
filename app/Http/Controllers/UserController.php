@@ -266,7 +266,7 @@ class UserController extends Controller
         $user = Auth::user();
 
         $validator = Validator::make($request->all(), [
-            'current_password' => 'required|string|min:6',
+            'current_password' => 'required|string',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
