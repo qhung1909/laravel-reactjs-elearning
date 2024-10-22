@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useEffect, useState, useContext } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import toast, { Toaster } from 'react-hot-toast';
-import { UserContext } from "../usercontext/usercontext";
+import { UserContext } from "../context/usercontext";
 
 
 export const UserProfile = () => {
