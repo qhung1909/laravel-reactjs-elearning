@@ -3,6 +3,7 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from 'react-hot-toast';
+
 const notify = (message, type) => {
     if (type === 'success') {
         toast.success(message, {
@@ -21,6 +22,8 @@ const notify = (message, type) => {
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
+    const [passwordAttempts, setPasswordAttempts] = useState(0);
+    const MAX_PASSWORD_ATTEMPTS = 5;
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const [user, setUser] = useState(null);
@@ -28,8 +31,6 @@ export const UserProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [_success, setSuccess] = useState("");
-    const [password, setPassword] = useState(""); // Trạng thái lưu mật khẩu
-
     const navigate = useNavigate();
 
 
@@ -60,31 +61,64 @@ export const UserProvider = ({ children }) => {
     };
 
     // hàm thay đổi mật khẩu
-    const updatePassword = async (currentPassword, newPassword) => {
+    const updatePassword = async (current_password, password, password_confirmation) => {
+        if (!current_password || !password || !password_confirmation) {
+            notify('Vui lòng điền đầy đủ thông tin', 'error');
+            return false;
+        }
+
+        if (password !== password_confirmation) {
+            notify('Mật khẩu xác nhận không khớp', 'error');
+            return false;
+        }
+
         const token = localStorage.getItem('access_token');
         try {
-            const response = await axios.post(`${API_URL}/auth/user/updatePassword`, {
-                currentPassword,
-                newPassword,
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "x-api-secret": `${API_KEY}`,
+            const response = await axios.post(
+                `${API_URL}/auth/user/updatePassword`,
+                {
+                    current_password,
+                    password,
+                    password_confirmation,
                 },
-            });
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "x-api-secret": API_KEY,
+                    },
+                }
+            );
 
             if (response.status === 200) {
-                // Xử lý khi cập nhật thành công, có thể thông báo cho người dùng
-                console.log('Cập nhật mật khẩu thành công');
+                setPasswordAttempts(0);
+                notify('Cập nhật mật khẩu thành công', 'success');
                 return true;
             }
         } catch (error) {
-            console.error('Lỗi cập nhật mật khẩu', error);
-            // Xử lý lỗi (có thể hiển thị thông báo cho người dùng)
+            const newAttempts = passwordAttempts + 1;
+            setPasswordAttempts(newAttempts);
+
+            if (newAttempts >= MAX_PASSWORD_ATTEMPTS) {
+                notify('Bạn đã nhập sai quá nhiều lần. Đang chuyển hướng...', 'error');
+                setTimeout(() => {
+                    navigate('/login');
+                    setError("");
+                    setSuccess("");
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
+                    setUser(null);
+                    setLogined(null);
+                }, 2000);
+            } else {
+                const remainingAttempts = MAX_PASSWORD_ATTEMPTS - newAttempts;
+                notify(`Mật khẩu hiện tại không đúng! Còn ${remainingAttempts} lần thử`, 'error');
+            }
             return false;
         }
         return false;
     };
+
+    // hàm xử lý thay
 
     // refreshtoken
     const refreshToken = async () => {
@@ -165,9 +199,9 @@ export const UserProvider = ({ children }) => {
     }, []);
 
     return (
-        <UserContext.Provider value={{ user, logined, loading, fetchUser, logout, refreshToken, updateUserProfile,updatePassword }}>
+        <UserContext.Provider value={{ user, logined, loading, fetchUser, logout, refreshToken, updateUserProfile, updatePassword }}>
             {children}
-            <Toaster/>
+            <Toaster />
         </UserContext.Provider>
     );
 };

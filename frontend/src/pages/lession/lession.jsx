@@ -36,6 +36,7 @@ export const Lesson = () => {
                 if (typeof res.data.content === "string") {
                     res.data.content = JSON.parse(res.data.content);
                 }
+                console.log(res.data);
 
                 setLesson(res.data);
             } else {
@@ -186,6 +187,9 @@ export const Lesson = () => {
                                                             }
                                                         </p>
                                                     )}
+                                                    <Link to="/quizzes">
+                                                        Bài tập
+                                                    </Link>
                                                 </AccordionContent>
                                             </AccordionItem>
                                         ))
