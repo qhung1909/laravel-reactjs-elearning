@@ -18,6 +18,14 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+    Dialog,
+    DialogTrigger,
+    DialogContent,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Toaster, toast } from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -31,21 +39,11 @@ import {
     SkeletonLoaderProduct,
 } from "../skeletonEffect/skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
+import ReactPlayer from "react-player";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const Detail = () => {
-    const style = {
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: 400,
-        bgcolor: "background.paper",
-        border: "2px solid #000",
-        boxShadow: 24,
-        p: 4,
-    };
     const [detail, setDetail] = useState([]);
     const { slug } = useParams();
     const [loading, setLoading] = useState([]);
@@ -831,15 +829,16 @@ export const Detail = () => {
             );
         }
     };
-    const [open, setOpen] = useState(false);
     const [currentVideoUrl, setCurrentVideoUrl] = useState("");
 
-    const handleOpen = (videoUrl) => {
-        setCurrentVideoUrl(videoUrl.replace("watch?v=", "embed/"));
-        setOpen(true);
+    const showModal = (video_content) => {
+        const embedUrl = video_content;
+        setCurrentVideoUrl(embedUrl);
     };
 
-    const handleClose = () => setOpen(false);
+
+    useEffect(() => {
+    }, [currentVideoUrl]);
 
     return (
         <>
@@ -881,14 +880,99 @@ export const Detail = () => {
                                                             }`}
                                                         </AccordionTrigger>
                                                         <AccordionContent className="text-gray-600 ml-3">
-                                                            <p>
-                                                                {
-                                                                    content.body_content
-                                                                }
-                                                            </p>
-                                                            {/* Nút xem video nếu có video_url */}
-                                                            {content.video_content && (
-                                                                <h3>hi</h3>
+                                                            {/* Chỉ hiển thị nội dung nếu content_id là 1 */}
+                                                            {content.content_id ===
+                                                            1 ? (
+                                                                <>
+                                                                    {Array.isArray(
+                                                                        content.body_content
+                                                                    ) ? (
+                                                                        content.body_content.map(
+                                                                            (
+                                                                                body,
+                                                                                i
+                                                                            ) => (
+                                                                                <p
+                                                                                    key={
+                                                                                        i
+                                                                                    }
+                                                                                    className="mb-2"
+                                                                                >
+                                                                                    {i +
+                                                                                        1}
+
+                                                                                    .{" "}
+                                                                                    {
+                                                                                        body
+                                                                                    }
+                                                                                </p>
+                                                                            )
+                                                                        )
+                                                                    ) : (
+                                                                        <p>
+                                                                            {
+                                                                                content.body_content
+                                                                            }
+                                                                        </p>
+                                                                    )}
+                                                                    {/* Nút xem video nếu có video_content */}
+                                                                    {content.video_content && (
+                                                                        <Dialog>
+                                                                            <DialogTrigger
+                                                                                asChild
+                                                                            >
+                                                                                <Button
+                                                                                    className="bg-blue-600 text-white font-medium py-0.5 px-2 rounded-lg transition-transform transform hover:scale-105 mt-2"
+                                                                                    style={{
+                                                                                        fontSize:
+                                                                                            "0.6rem",
+                                                                                    }}
+                                                                                    onClick={() =>
+                                                                                        showModal(
+                                                                                            content.video_content
+                                                                                        )
+                                                                                    }
+                                                                                >
+                                                                                    Xem
+                                                                                    video
+                                                                                    demo
+                                                                                </Button>
+                                                                            </DialogTrigger>
+                                                                            <DialogContent className="max-w-3xl mx-auto p-4">
+                                                                                <DialogTitle>
+                                                                                    Video
+                                                                                    Demo
+                                                                                </DialogTitle>
+                                                                                <DialogDescription>
+                                                                                    <div
+                                                                                        className="relative w-full"
+                                                                                        style={{
+                                                                                            paddingTop:
+                                                                                                "56.25%",
+                                                                                        }}
+                                                                                    >
+                                                                                        <ReactPlayer
+                                                                                            url={
+                                                                                                currentVideoUrl
+                                                                                            }
+                                                                                            className="absolute top-0 left-0 w-full h-full"
+                                                                                            controls={
+                                                                                                true
+                                                                                            }
+                                                                                            width="100%"
+                                                                                            height="100%"
+                                                                                        />
+                                                                                    </div>
+                                                                                </DialogDescription>
+                                                                            </DialogContent>
+                                                                        </Dialog>
+                                                                    )}
+                                                                </>
+                                                            ) : (
+                                                                <p>
+                                                                    Vào học để xem thêm nội dung
+
+                                                                </p>
                                                             )}
                                                         </AccordionContent>
                                                     </AccordionItem>
@@ -898,8 +982,6 @@ export const Detail = () => {
                                             <p>Không có nội dung bài học.</p>
                                         )}
                                     </Accordion>
-
-                                    {/* Modal hiển thị video */}
                                 </div>
                             </div>
                             {/* Yêu cầu */}

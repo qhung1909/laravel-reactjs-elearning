@@ -9,7 +9,7 @@ import { Link, useParams } from "react-router-dom";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-
+import { Play } from "lucide-react";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -57,7 +57,11 @@ export const Lesson = () => {
     }, [slug]);
 
     const lessonContents = lesson && lesson.content ? lesson.content : [];
-
+    const [currentVideoUrl, setCurrentVideoUrl] = useState("");
+    const showVideo_content = (video_content) => {
+        const embedUrl = video_content;
+        setCurrentVideoUrl(embedUrl);
+    };
     return (
         <>
             <body className="bg-gray-100">
@@ -107,12 +111,22 @@ export const Lesson = () => {
                         {/* Phần video */}
                         <div className="flex-1 bg-white rounded-lg shadow-md p-4">
                             <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden">
-                                <ReactPlayer
-                                    url={lesson ? lesson.video_link : ""}
-                                    controls
-                                    width="100%"
-                                    height="100%"
-                                />
+                                {currentVideoUrl ? (
+                                    <ReactPlayer
+                                        url={currentVideoUrl}
+                                        className="absolute top-0 left-0 w-full h-full"
+                                        controls={true}
+                                        width="100%"
+                                        height="100%"
+                                    />
+                                ) : (
+                                    <img
+                                        src="/src/assets/images/inclusion.jpg"
+                                        alt="Banner"
+                                        className="absolute top-0 left-0 w-full h-full object-cover"
+                                        style={{ borderRadius: "0.5rem" }} // Tùy chỉnh thêm nếu cần
+                                    />
+                                )}
                             </div>
 
                             <div className="p-6 text-gray-800">
@@ -187,9 +201,35 @@ export const Lesson = () => {
                                                             }
                                                         </p>
                                                     )}
-                                                    <Link to="/quizzes">
-                                                        Bài tập
-                                                    </Link>
+                                                    <div className="flex items-center gap-4">
+                                                        <button
+                                                            className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-lg
+                   shadow-lg hover:shadow-blue-500/50 transition-all duration-300
+                   flex items-center gap-2 font-medium"
+                                                        >
+                                                            <Link
+                                                                to="/quizzes"
+                                                                className="text-white"
+                                                            >
+                                                                Bài tập
+                                                            </Link>
+                                                        </button>
+
+                                                        <button
+                                                            className="p-3 bg-blue-600 text-white rounded-full shadow-lg
+                   hover:bg-blue-700 hover:shadow-blue-500/50
+                   transition-all duration-300
+                   flex items-center justify-center"
+                                                            onClick={() =>
+                                                                showVideo_content(
+                                                                    content.video_content
+                                                                )
+                                                            }
+                                                            aria-label="Play video"
+                                                        >
+                                                            <Play size={20} />
+                                                        </button>
+                                                    </div>
                                                 </AccordionContent>
                                             </AccordionItem>
                                         ))
