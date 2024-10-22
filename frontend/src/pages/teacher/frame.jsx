@@ -1,7 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useEffect , useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Footer } from "../footer/footer";
 import ReactQuill from 'react-quill';
@@ -22,8 +22,8 @@ export const FrameTeacher = () => {
     // start-alert reload
     const handleBeforeUnload = (event) => {
         const message = "Bạn có chắc chắn muốn rời khỏi trang? Tất cả nội dung đã nhập sẽ bị mất!";
-        event.returnValue = message; // Trình duyệt sẽ hiển thị thông báo này
-        return message; // Một số trình duyệt vẫn cần giá trị trả về
+        event.returnValue = message;
+        return message;
     };
 
     useEffect(() => {
@@ -109,6 +109,78 @@ export const FrameTeacher = () => {
     };
 
     // course overview
+    const [sections, setSections] = useState([
+        { title: '', inputs: [{ type: 'content', value: '', link: '', question: '', answers: ['', '', '', ''], correctAnswerIndices: [] }] }
+    ]);
+
+    const handleShowData = () => {
+        console.log(JSON.stringify(sections, null, 2)); // In ra dữ liệu dạng JSON
+    };
+
+    const addInput = (index) => {
+        const newSections = [...sections];
+        newSections[index].inputs.push({
+            type: 'content',
+            value: '',
+            link: '',
+            question: '',
+            answers: ['', '', '', ''],
+            correctAnswerIndices: [] // Sử dụng mảng để lưu nhiều câu trả lời đúng
+        });
+        setSections(newSections);
+    };
+
+    const handleChange = (sectionIndex, inputIndex, event) => {
+        const newSections = [...sections];
+        const input = newSections[sectionIndex].inputs[inputIndex];
+
+        if (event.target.name === 'value') {
+            input.value = event.target.value;
+        } else if (event.target.name === 'link') {
+            input.link = event.target.value; // Cập nhật link
+        } else if (event.target.name === 'type') {
+            input.type = event.target.value;
+            if (event.target.value === 'quiz') {
+                input.question = '';
+                input.answers = ['', '', '', ''];
+                input.correctAnswerIndices = []; // Khởi tạo mảng câu trả lời đúng
+            }
+        } else if (event.target.name === 'question') {
+            input.question = event.target.value;
+        } else if (event.target.name.startsWith('answer')) {
+            const index = Number(event.target.name.split('-')[1]);
+            input.answers[index] = event.target.value;
+        }
+
+        setSections(newSections);
+    };
+
+    const handleCorrectAnswerChange = (sectionIndex, inputIndex, answerIndex) => {
+        const newSections = [...sections];
+        const input = newSections[sectionIndex].inputs[inputIndex];
+
+        // Nếu câu trả lời đã đúng, xóa khỏi danh sách
+        if (input.correctAnswerIndices.includes(answerIndex)) {
+            input.correctAnswerIndices = input.correctAnswerIndices.filter(i => i !== answerIndex);
+        } else {
+            // Nếu không, thêm vào danh sách
+            input.correctAnswerIndices.push(answerIndex);
+        }
+
+        setSections(newSections);
+    };
+
+    const handleTitleChange = (index, event) => {
+        const newSections = [...sections];
+        newSections[index].title = event.target.value;
+        setSections(newSections);
+    };
+
+    const addSection = () => {
+        setSections([...sections, { title: '', inputs: [{ type: 'content', value: '', link: '' }] }]);
+    };
+
+
 
     // const [courseDescriptionText, setCourseDescriptionText] = useState('');
     const [courseTitle, setCourseTitle] = useState("");
@@ -261,14 +333,114 @@ export const FrameTeacher = () => {
                 </div>
 
                 <div className="p-10">
-                    <div>
-                        Thêm nội dung
-                    </div>
+                    <div className="pb-2">
+                        {sections.map((section, sectionIndex) => (
+                            <div key={sectionIndex} className="section mb-4 p-4 border rounded shadow bg-gray-100">
+                                <Input
+                                    type="text"
+                                    placeholder="Nhập tên phần..."
+                                    value={section.title}
+                                    onChange={(event) => handleTitleChange(sectionIndex, event)}
+                                    className="mb-2 p-1 w-1/2 border border-gray-300 rounded mb-3"
+                                />
+                                {section.inputs.map((input, inputIndex) => (
+                                    <div key={inputIndex} className="input-group mb-3 ml-10 flex flex-col">
+                                        <div className="mb-3 w-1/4">
+                                            <Select
+                                                value={input.type}
+                                                onValueChange={(value) => handleChange(sectionIndex, inputIndex, { target: { name: 'type', value } })}
+                                            >
+                                                <SelectTrigger className="p-1 border border-gray-300 rounded">
+                                                    <SelectValue placeholder="Chọn loại..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        <SelectLabel>Loại</SelectLabel>
+                                                        <SelectItem value="content">Nội dung</SelectItem>
+                                                        <SelectItem value="quiz">Quiz</SelectItem>
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
 
+
+                                        {input.type === 'content' && (
+                                            <>
+                                                <div className="ml-10 flex gap-1">
+                                                    <Input
+                                                        type="text"
+                                                        name="value"
+                                                        placeholder="Nhập nội dung..."
+                                                        value={input.value}
+                                                        onChange={(event) => handleChange(sectionIndex, inputIndex, event)}
+                                                        className="mb-2 p-1 w-1/2 border border-gray-300 rounded"
+                                                    />
+                                                    <Input
+                                                        type="text"
+                                                        name="link"
+                                                        placeholder="Nhập link..."
+                                                        value={input.link}
+                                                        onChange={(event) => handleChange(sectionIndex, inputIndex, event)}
+                                                        className="mb-2 p-1 w-1/2 border border-gray-300 rounded"
+                                                    />
+                                                </div>
+
+                                            </>
+
+                                        )}
+
+                                        {input.type === 'quiz' && (
+                                            <>
+                                                <div className="ml-10">
+
+                                                    <Input
+                                                        type="text"
+                                                        name="question"
+                                                        placeholder="Nhập câu hỏi..."
+                                                        value={input.question}
+                                                        onChange={(event) => handleChange(sectionIndex, inputIndex, event)}
+                                                        className="mb-2 p-1 w-full border border-gray-300 rounded"
+                                                    />
+                                                    {input.answers.map((answer, answerIndex) => (
+                                                        <div key={answerIndex} className="answer-group mb-2 flex">
+                                                            <Input
+                                                                type="text"
+                                                                name={`answer-${answerIndex}`}
+                                                                placeholder={`Câu trả lời ${answerIndex + 1}...`}
+                                                                value={answer}
+                                                                onChange={(event) => handleChange(sectionIndex, inputIndex, event)}
+                                                                className="mb-1 p-1 w-1/2 border border-gray-300 rounded"
+                                                            />
+                                                            <label className="ml-2 flex items-center">
+                                                                <Input
+                                                                    type="checkbox"
+                                                                    checked={input.correctAnswerIndices.includes(answerIndex)}
+                                                                    onChange={() => handleCorrectAnswerChange(sectionIndex, inputIndex, answerIndex)}
+                                                                />
+                                                                <p className="ml-3">Đúng</p>
+                                                            </label>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                            </>
+                                        )}
+                                    </div>
+                                ))}
+                                <div className="text-right">
+                                    <button onClick={() => addInput(sectionIndex)} className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600">+ Thêm</button>
+                                </div>
+                            </div>
+                        ))}
+
+                        <button className="p-2 bg-green-500 text-white rounded hover:bg-green-600 mr-4" onClick={addSection}>Thêm Phần</button>
+                        <button className="p-2 bg-rose-500 text-white rounded hover:bg-rose-600" onClick={handleShowData}>Xem Dữ Liệu</button>
+                    </div>
 
 
                     {/* <h2 className="pb-6 font-medium text-lg">đây là chương trình giảng dạy</h2> */}
                 </div>
+
 
             </>
         )

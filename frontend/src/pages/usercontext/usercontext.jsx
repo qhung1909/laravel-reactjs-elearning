@@ -21,13 +21,15 @@ const notify = (message, type) => {
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
     const [user, setUser] = useState(null);
     const [logined, setLogined] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [_success, setSuccess] = useState("");
-    const API_KEY = import.meta.env.VITE_API_KEY;
-    const API_URL = import.meta.env.VITE_API_URL;
+    const [password, setPassword] = useState(""); // Trạng thái lưu mật khẩu
+
     const navigate = useNavigate();
 
 
@@ -55,6 +57,33 @@ export const UserProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
+    };
+
+    // hàm thay đổi mật khẩu
+    const updatePassword = async (currentPassword, newPassword) => {
+        const token = localStorage.getItem('access_token');
+        try {
+            const response = await axios.post(`${API_URL}/auth/user/updatePassword`, {
+                currentPassword,
+                newPassword,
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "x-api-secret": `${API_KEY}`,
+                },
+            });
+
+            if (response.status === 200) {
+                // Xử lý khi cập nhật thành công, có thể thông báo cho người dùng
+                console.log('Cập nhật mật khẩu thành công');
+                return true;
+            }
+        } catch (error) {
+            console.error('Lỗi cập nhật mật khẩu', error);
+            // Xử lý lỗi (có thể hiển thị thông báo cho người dùng)
+            return false;
+        }
+        return false;
     };
 
     // refreshtoken
@@ -99,15 +128,44 @@ export const UserProvider = ({ children }) => {
         setUser(null);
         setLogined(null);
         notify('Đăng xuất thành công', 'success');
+        navigate('login')
     };
 
+    // update thông tin người dùng
+    const updateUserProfile = async (userName, email, avatar) => {
+        const token = localStorage.getItem("access_token");
+        if (!userName.trim()) {
+            notify('Tên tài khoản không được để trống', 'error');
+            return;
+        }
+        try {
+            const formData = new FormData();
+            formData.append('name', userName);
+            formData.append('email', email);
+            if (avatar) {
+                formData.append('file', avatar);
+            }
+            const response = await axios.post(`${API_URL}/auth/user/profile`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${token}`,
+                    'x-api-secret': `${API_KEY}`,
+                },
+            });
+            notify('Cập nhật thành công', 'success');
+            fetchUser(); // Refresh user data
+        } catch (error) {
+            console.log('Error updating profile', error);
+            notify("Cập nhật thất bại", 'error');
+        }
+    };
 
     useEffect(() => {
         fetchUser();
     }, []);
 
     return (
-        <UserContext.Provider value={{ user, logined, loading, fetchUser, logout, refreshToken }}>
+        <UserContext.Provider value={{ user, logined, loading, fetchUser, logout, refreshToken, updateUserProfile,updatePassword }}>
             {children}
             <Toaster/>
         </UserContext.Provider>
