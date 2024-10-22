@@ -22,18 +22,22 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
 import { CoursesContext } from "../context/coursescontext";
+
 import axios from 'axios';
-const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
-console.log(API_KEY);
 
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Courses = () => {
-    const { courses } = useContext(CoursesContext);
+    const {
+        fetchSearchResults
+    } = useContext(CoursesContext);
+    const [searchParams] = useSearchParams();
+    const searchQuery = searchParams.get('search');
+    const { courses, setCourses } = useContext(CoursesContext);
     const [coursesPerPage] = useState(4);
     const [loading, setLoading] = useState(false)
     const location = useLocation();
@@ -277,6 +281,34 @@ export const Courses = () => {
         ))
     )
 
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                if (searchQuery) {
+                    const results = await fetchSearchResults(searchQuery);
+                    setCourses(results.length > 0 ? results : []);
+                } else {
+                    const response = await axios.get(`${API_URL}/courses`);
+                    if (response.status === 200 && Array.isArray(response.data)) {
+                        setCourses(response.data);
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching courses:", error);
+                setCourses([]);
+            }
+        };
+
+        const timeoutId = setTimeout(() => {
+            if (searchQuery) {
+                fetchCourses();
+            }
+        }, 300);
+
+        return () => clearTimeout(timeoutId);
+    }, [searchQuery, API_URL, setCourses]);
+
+    // ...rest of your component
     return (
 
         <div>
@@ -419,24 +451,24 @@ export const Courses = () => {
                     Nhiều học viên thích khóa học được đánh giá cao này vì nội
                     dung hấp dẫn của nó.
                 </p>
-                    <Carousel>
-                        <CarouselContent>
-                            <CarouselItem>
-                                {render_course_hot[0]} {/* Hiển thị item đầu tiên */}
-                            </CarouselItem>
-                            <CarouselItem>
-                                {render_course_hot[1]} {/* Hiển thị item thứ hai */}
-                            </CarouselItem>
-                            <CarouselItem>
-                                {render_course_hot[2]} {/* Hiển thị item thứ ba */}
-                            </CarouselItem>
-                        </CarouselContent>
-                        {/* Đặt nút điều hướng bên ngoài CarouselContent */}
-                        <div className="flex justify-between items-center absolute w-full top-1/2 transform -translate-y-1/2">
-                            <CarouselPrevious className="z-10" />
-                            <CarouselNext className="z-10" />
-                        </div>
-                    </Carousel>
+                <Carousel>
+                    <CarouselContent>
+                        <CarouselItem>
+                            {render_course_hot[0]} {/* Hiển thị item đầu tiên */}
+                        </CarouselItem>
+                        <CarouselItem>
+                            {render_course_hot[1]} {/* Hiển thị item thứ hai */}
+                        </CarouselItem>
+                        <CarouselItem>
+                            {render_course_hot[2]} {/* Hiển thị item thứ ba */}
+                        </CarouselItem>
+                    </CarouselContent>
+                    {/* Đặt nút điều hướng bên ngoài CarouselContent */}
+                    <div className="flex justify-between items-center absolute w-full top-1/2 transform -translate-y-1/2">
+                        <CarouselPrevious className="z-10" />
+                        <CarouselNext className="z-10" />
+                    </div>
+                </Carousel>
 
 
                 {/* Chủ đề phổ biến */}
@@ -1237,10 +1269,25 @@ export const Courses = () => {
                             <hr />
                         </div>
 
-                        {/*Danh sách khóa học */}
-                        <div className=" col-span-9 transition-all ease-in-out duration-500"
-                            id="courseCol">
-                            {render}
+                        {/*Danh sách khóa học nơi hiển thị sản phẩm đã được search */}
+                        <div className="col-span-9 transition-all ease-in-out duration-500" id="courseCol">
+                            {loading ? (
+                                <div className="text-center py-8">
+                                    <p>Đang tải...</p>
+                                </div>
+                            ) : courses.length > 0 ? (
+                                <div className="courses-list">
+                                    {render} {/* Your existing render logic */}
+                                </div>
+                            ) : (
+                                <div className="text-center py-8">
+                                    <p className="text-gray-600">
+                                        {searchQuery
+                                            ? `Không tìm thấy khóa học nào cho "${searchQuery}"`
+                                            : "Không có khóa học nào"}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
