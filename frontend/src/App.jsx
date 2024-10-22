@@ -31,10 +31,7 @@ import { UserProfile } from "./pages/userprofile/userprofile.jsx";
 import { UserAccount } from "./pages/userprofile/useraccount.jsx";
 import { UserNoti } from "./pages/userprofile/usernoti.jsx";
 import ScrollToTop from "./pages/scrollToTop/scrollToTop.jsx";
-import { QuizSingleChoice } from './pages/quizzes/quizSingleChoice';
-import { QuizFillInBlank } from "./pages/quizzes/quizFillInBlank.jsx";
-import { QuizMultipleChoice } from "./pages/quizzes/quizMultipleChoice.jsx";
-import { QuizTrueFalse } from "./pages/quizzes/quizTrueFalse.jsx";
+import { Quizzes } from './pages/quizzes/quizzes.jsx';
 import { NewPassword } from "./pages/recoverPassword/newPassword.jsx";
 import { ResetPassword } from "./pages/recoverPassword/resetPassword.jsx";
 import { VerifyEmail } from "./pages/recoverPassword/verifyEmail.jsx";
@@ -111,20 +108,8 @@ function AppContent() {
                     element={<VerificationEmail />}
                 ></Route>
                 <Route
-                    path="/quizSingleChoice"
-                    element={<QuizSingleChoice />}
-                ></Route>
-                <Route
-                    path="/quizFillInBlank"
-                    element={<QuizFillInBlank />}
-                ></Route>
-                <Route
-                    path="/quizMultipleChoice"
-                    element={<QuizMultipleChoice />}
-                ></Route>
-                <Route
-                    path="/quizTrueFalse"
-                    element={<QuizTrueFalse />}
+                    path="/quizzes"
+                    element={<Quizzes />}
                 ></Route>
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}
