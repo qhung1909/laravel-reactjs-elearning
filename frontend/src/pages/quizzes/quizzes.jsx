@@ -3,13 +3,14 @@ import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import Swal from 'sweetalert2';
-import { ArrowLeft, Trophy } from "lucide-react";
-import {Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card";
+import { ArrowLeft, Trophy, AlertCircle } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle, } from "@/components/ui/alert";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
-export const QuizTrueFalse = () => {
+export const Quizzes = () => {
     const [quizzes, setQuizzes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [answers, setAnswers] = useState({});
@@ -41,6 +42,7 @@ export const QuizTrueFalse = () => {
     };
 
     const fetchAllData = async () => {
+        const token = localStorage.getItem("access_token");
         setLoading(true);
         try {
             const quizzesResponse = await axios.get(`${API_URL}/quizzes`, {
@@ -52,8 +54,17 @@ export const QuizTrueFalse = () => {
                     headers: { "x-api-secret": `${API_KEY}` },
                 })
             );
+            const startQuiz = quizzesResponse.data.map((quiz) =>
+                axios.post(`${API_URL}/quizzes/start/${quiz.quiz_id}/`, {}, {
+                    headers: {
+                        "x-api-secret": `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+            );
 
-            const questionsResponses = await Promise.all(questionsPromises);
+
+            const questionsResponses = await Promise.all(questionsPromises, startQuiz);
 
             const optionsPromises = questionsResponses.flatMap(
                 (response, index) =>
@@ -122,8 +133,21 @@ export const QuizTrueFalse = () => {
     }, [slug]);
 
     const handleStartQuiz = () => {
-        setHasStarted(true);
-        fetchAllData();
+        Swal.fire({
+            title: 'Bắt đầu bài kiểm tra?',
+            text: 'Bạn sẽ có 30 phút để hoàn thành bài kiểm tra',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#EAB308',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Bắt đầu',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setHasStarted(true);
+                fetchAllData();
+            }
+        });
     };
 
     const handleSubmit = async () => {
@@ -144,10 +168,20 @@ export const QuizTrueFalse = () => {
             return;
         }
 
-        const formattedAnswers = Object.keys(answers).map((questionId) => ({
-            question_id: questionId,
-            selected_option: answers[questionId],
-        }));
+        const formattedAnswers = Object.keys(answers).map((questionId) => {
+            const question = quizzes
+                .flatMap((quiz) => quiz.questions)
+                .find((q) => q.question_id === parseInt(questionId));
+
+            const selectedOption = question.options.find(
+                (option) => option.answer === answers[questionId]
+            );
+
+            return {
+                question_id: questionId,
+                option_id: selectedOption ? selectedOption.option_id : null,
+            };
+        });
 
         try {
             const token = localStorage.getItem("access_token");
@@ -215,25 +249,49 @@ export const QuizTrueFalse = () => {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
-            <Link to={`/lessons/${slug}`} className="text-gray-600 hover:text-gray-800 font-medium flex items-center gap-2" onClick={(e) => {
+            <div className="flex justify-between items-center mb-6">
+                <Link to={`/lessons/${slug}`} className="text-gray-600 hover:text-gray-800 font-medium flex items-center gap-2" onClick={(e) => {
                     e.preventDefault();
                     handleConfirmExit();
                 }}>
-                <ArrowLeft className="w-5 h-5" />
-                Trở về bài học
-            </Link>
+                    <ArrowLeft className="w-5 h-5" />
+                    Trở về bài học
+                </Link>
+            </div>
 
             <Toaster position="top-right" />
             {!hasStarted ? (
-                <div className="flex justify-center items-center h-80">
-                    <button
-                        onClick={handleStartQuiz}
-                        className="bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-yellow-600 transition-colors duration-200">
-                        Bắt đầu Quiz
-                    </button>
-                </div>
+                <Card className="mt-8">
+                    <CardHeader>
+                        <CardTitle className="text-2xl">Bài tập</CardTitle>
+                        <CardDescription>
+                            Hãy chuẩn bị sẵn sàng trước khi bắt đầu làm bài
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            <Alert>
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertTitle>Lưu ý quan trọng</AlertTitle>
+                                <AlertDescription>
+                                    - Bạn có 15 phút để hoàn thành bài tập<br />
+                                    - Không được phép thoát khỏi trang khi đang làm bài<br />
+                                    - Hãy chắc chắn rằng bạn đã trả lời tất cả câu hỏi
+                                </AlertDescription>
+                            </Alert>
+                            <div className="flex justify-center">
+                                <button
+                                    onClick={handleStartQuiz}
+                                    className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2"
+                                >
+                                    <Trophy className="w-5 h-5" />
+                                    Bắt đầu làm bài
+                                </button>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
             ) : (
-
                 <div className="space-y-6">
                     <Card>
                         <CardHeader>
@@ -255,24 +313,22 @@ export const QuizTrueFalse = () => {
                                                             <span className="bg-yellow-100 px-2 py-1 rounded-md mr-2">Câu
                                                                 {quizIndex * quiz.questions.length + questionIndex + 1}:
                                                             </span>
-                                                            {question.question}
+                                                            {question.question} {question.question} (Loại: {question.question_type})
                                                         </p>
                                                         <div className="grid gap-3">
                                                             {question.options && question.options.length > 0 ? (
                                                                 question.options.map((option, index) => (
                                                                     <button key={option.id}
-                                                                        className={`p-2 rounded-lg text-left transition-all ${
-                                                                            answers[question.question_id] === option.answer
+                                                                        className={`p-2 rounded-lg text-left transition-all ${answers[question.question_id] === option.answer
                                                                                 ? "bg-yellow-400 text-white"
                                                                                 : "bg-white hover:bg-yellow-50 border border-gray-200"
-                                                                        }`}
+                                                                            }`}
                                                                         onClick={() => handleAnswerChange(question.question_id, option.answer)}>
                                                                         <span className="flex items-center gap-3">
-                                                                            <span className={`w-8 h-8 flex items-center justify-center rounded-full ${
-                                                                                answers[question.question_id] === option.answer
+                                                                            <span className={`w-8 h-8 flex items-center justify-center rounded-full ${answers[question.question_id] === option.answer
                                                                                     ? "bg-white text-yellow-500"
                                                                                     : "border-gray-300"
-                                                                            }`}>
+                                                                                }`}>
                                                                                 {String.fromCharCode(65 + index)}
                                                                             </span>
                                                                             {option.answer}
