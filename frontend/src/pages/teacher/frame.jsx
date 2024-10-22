@@ -16,6 +16,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { Button } from "@/components/ui/button";
+import LessonCreator from "./createLesson";
 export const FrameTeacher = () => {
 
 
@@ -332,7 +334,7 @@ export const FrameTeacher = () => {
                     <div className="border-b-2"></div>
                 </div>
 
-                <div className="p-10">
+                {/* <div className="p-10">
                     <div className="pb-2">
                         {sections.map((section, sectionIndex) => (
                             <div key={sectionIndex} className="section mb-4 p-4 border rounded shadow bg-gray-100">
@@ -428,19 +430,24 @@ export const FrameTeacher = () => {
                                     </div>
                                 ))}
                                 <div className="text-right">
-                                    <button onClick={() => addInput(sectionIndex)} className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600">+ Thêm</button>
+                                    <button onClick={() => addInput(sectionIndex)} className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">
+                                        + Thêm
+                                    </button>
                                 </div>
                             </div>
                         ))}
 
-                        <button className="p-2 bg-green-500 text-white rounded hover:bg-green-600 mr-4" onClick={addSection}>Thêm Phần</button>
-                        <button className="p-2 bg-rose-500 text-white rounded hover:bg-rose-600" onClick={handleShowData}>Xem Dữ Liệu</button>
+                        <button className='text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800' onClick={addSection}>
+                            Thêm Phần
+                        </button>
+                        <button className="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900" onClick={handleShowData}>Xem Dữ Liệu</button>
                     </div>
 
 
-                    {/* <h2 className="pb-6 font-medium text-lg">đây là chương trình giảng dạy</h2> */}
-                </div>
+                </div> */}
 
+
+                <LessonCreator />
 
             </>
         )
@@ -845,21 +852,7 @@ export const FrameTeacher = () => {
 
 
                             <h2 className="font-medium">Tạo nội dung của bạn</h2>
-                            <div className="flex items-center space-x-2 mt-4 mb-8">
-                                <Checkbox
-                                    // checked={allInputsFilled()}
-                                    readOnly
-
-                                />
-                                <label
-                                    className='ursor-pointer'
-                                    onClick={() => setActiveSection("curriculum")}
-                                >
-                                    Chương trình giảng dạy
-                                </label>
-                            </div>
-                            <h2 className="font-medium">Xuất bản khóa học của bạn</h2>
-                            <div className="flex items-center space-x-2 my-4">
+                            <div className="flex items-center space-x-2 my-4 ">
                                 <Checkbox
                                     checked={allInputsCourseFilled()} // Đảm bảo gọi đúng hàm
                                     readOnly
@@ -873,6 +866,22 @@ export const FrameTeacher = () => {
                                     Trang tổng quan khóa học
                                 </label>
                             </div>
+                            <div className="flex items-center space-x-2 mt-4 mb-8 ">
+                                <Checkbox
+                                    // checked={allInputsFilled()}
+                                    readOnly
+
+                                />
+                                <label
+                                    className='ursor-pointer'
+                                    onClick={() => setActiveSection("curriculum")}
+                                >
+                                    Chương trình giảng dạy
+                                </label>
+                            </div>
+
+
+                            <h2 className="font-medium">Xuất bản khóa học của bạn</h2>
                             <div className="flex items-center space-x-2 my-4">
                                 <Checkbox
                                     checked={allInputsValuationFilled()}
