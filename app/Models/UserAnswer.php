@@ -11,8 +11,7 @@ class UserAnswer extends Model
     
     protected $table = 'user_answers';
     protected $primaryKey = 'user_answer_id';
-    protected $fillable = ['user_id', 'question_id', 'option_id','is_correct', 'updated_at'];
-
+    protected $fillable = ['user_id', 'question_id','quiz_session_id' ,'option_id','is_correct', 'updated_at'];
 
 
 }

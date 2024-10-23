@@ -39,5 +39,15 @@ class Course extends Model
     {
         return $this->hasMany(UserCourse::class, 'course_id', 'course_id'); 
     }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'course_id'); // Đảm bảo tên cột ở đây đúng
+    }
+
+    public function averageRating()
+    {
+        return $this->comments()->avg('rating');
+    }
+    
     
 }

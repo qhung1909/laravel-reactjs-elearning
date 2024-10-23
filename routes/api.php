@@ -65,7 +65,7 @@ Route::middleware(['admin'])->group(function () {
 
     // Courses
     Route::get('/instructors/top', [CourseController::class, 'topInstructorsWithCourses']);
-    Route::get('courses', [CourseController::class, 'index'])->name('courses.index');
+    Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
     Route::get('/top-purchased-courses', [CourseController::class, 'topPurchasedCourses']);
     Route::get('/top-viewed-courses', [CourseController::class, 'topViewedCourses']);
     Route::get('course/{slug}', [CourseController::class, 'show'])->name('courses.show');
@@ -118,8 +118,6 @@ Route::middleware(['admin'])->group(function () {
 
     Route::post('/quizzes/start/{quizId}', [QuizOptionController::class, 'startQuiz']);
     Route::post('/quizzes/submit', [QuizOptionController::class, 'submitAnswers']);
-    Route::post('/quizzes/continue', [QuizOptionController::class, 'continueQuiz']);
-
 
     Route::get('questions/{questionId}/options', [QuizOptionController::class, 'index']);
     Route::post('questions/{questionId}/options', [QuizOptionController::class, 'store']);
