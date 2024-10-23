@@ -150,13 +150,36 @@ export const Quizzes = () => {
         }
     };
 
-    const handleAnswerChange = (questionId, selectedOption) => {
-        setAnswers(prev => ({
-            ...prev,
-            [questionId]: selectedOption,
-        }));
+    const handleAnswerChange = (questionId, selectedOption, questionType) => {
+        setAnswers(prev => {
+            if (questionType === 'mutiple_choice') {
+                const currentAnswers = prev[questionId] || [];
+                if (currentAnswers.includes(selectedOption)) {
+                    return {
+                        ...prev,
+                        [questionId]: currentAnswers.filter(ans => ans !== selectedOption)
+                    };
+                } else {
+                    return {
+                        ...prev,
+                        [questionId]: [...currentAnswers, selectedOption]
+                    };
+                }
+            } else {
+                return {
+                    ...prev,
+                    [questionId]: selectedOption,
+                };
+            }
+        });
     };
 
+    const handleRetakeQuiz = () => {
+        setAnswers({});
+        setQuizCompleted(false);
+        startQuiz();
+    };
+    
     const handleConfirmExit = () => {
         Swal.fire({
             title: 'Bạn có chắc chắn muốn thoát?',
@@ -238,48 +261,62 @@ export const Quizzes = () => {
                 </Card>
             ) : (
                 <div className="space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Bài kiểm tra đang diễn ra</CardTitle>
-                            <CardDescription>
-                                Hoàn thành tất cả câu hỏi bên dưới
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-6">
-                                {quizzes.map((quiz) => (
-                                    <div key={quiz.quiz_id} className="space-y-4">
-                                        {quiz.questions?.map((question, index) => (
-                                            <Card key={question.question_id} className="border-l-3 border-yellow-400">
-                                                <CardContent className="pt-6">
-                                                    <p className="font-medium mb-4">
-                                                        <span className="bg-yellow-100 px-2 py-1 rounded-md mr-2">
-                                                            Câu {index + 1}:
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Bài kiểm tra đang diễn ra</CardTitle>
+                        <CardDescription>
+                            Hoàn thành tất cả câu hỏi bên dưới
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-6">
+                            {quizzes.map((quiz) => (
+                                <div key={quiz.quiz_id} className="space-y-4">
+                                    {quiz.questions?.map((question, index) => (
+                                        <Card key={question.question_id} className="border-l-3 border-yellow-400">
+                                            <CardContent className="pt-6">
+                                                <p className="font-medium mb-4">
+                                                    <span className="bg-yellow-100 px-2 py-1 rounded-md mr-2">
+                                                        Câu {index + 1}:
+                                                    </span>
+                                                    {question.question}
+                                                    {question.question_type === 'mutiple_choice' && (
+                                                        <span className="text-sm text-gray-500 ml-2">
+                                                            (Chọn nhiều đáp án)
                                                         </span>
-                                                        {question.question}
-                                                    </p>
-                                                    <div className="grid gap-3">
-                                                        {question.question_type === 'fill_blank' ? (
-                                                            <input
-                                                                type="text"
-                                                                className="p-2 border rounded-lg"
-                                                                onChange={(e) => handleAnswerChange(question.question_id, e.target.value)}
-                                                                placeholder="Nhập câu trả lời của bạn"
-                                                            />
-                                                        ) : (
-                                                            question.options?.map((option, optionIndex) => (
+                                                    )}
+                                                </p>
+                                                <div className="grid gap-3">
+                                                    {question.question_type === 'fill_blank' ? (
+                                                        <input
+                                                            type="text"
+                                                            className="p-2 border rounded-lg"
+                                                            onChange={(e) => handleAnswerChange(question.question_id, e.target.value, question.question_type)}
+                                                            placeholder="Nhập câu trả lời của bạn"
+                                                        />
+                                                    ) : (
+                                                        question.options?.map((option, optionIndex) => {
+                                                            const isSelected = question.question_type === 'mutiple_choice'
+                                                                ? answers[question.question_id]?.includes(option.answer)
+                                                                : answers[question.question_id] === option.answer;
+
+                                                            return (
                                                                 <button
                                                                     key={option.option_id}
                                                                     className={`p-2 rounded-lg text-left transition-all ${
-                                                                        answers[question.question_id] === option.answer
+                                                                        isSelected
                                                                             ? "bg-yellow-400 text-white"
                                                                             : "bg-white hover:bg-yellow-50 border border-gray-200"
                                                                     }`}
-                                                                    onClick={() => handleAnswerChange(question.question_id, option.answer)}
+                                                                    onClick={() => handleAnswerChange(
+                                                                        question.question_id,
+                                                                        option.answer,
+                                                                        question.question_type
+                                                                    )}
                                                                 >
                                                                     <span className="flex items-center gap-3">
                                                                         <span className={`w-8 h-8 flex items-center justify-center rounded-full ${
-                                                                            answers[question.question_id] === option.answer
+                                                                            isSelected
                                                                                 ? "bg-white text-yellow-500"
                                                                                 : "border-gray-300"
                                                                         }`}>
@@ -288,31 +325,32 @@ export const Quizzes = () => {
                                                                         {option.answer}
                                                                     </span>
                                                                 </button>
-                                                            ))
-                                                        )}
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
-                                        ))}
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
+                                                            );
+                                                        })
+                                                    )}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
 
-                    <div className="flex justify-center mt-8">
-                        <button
-                            onClick={handleSubmit}
-                            className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2"
-                            disabled={quizCompleted}
-                        >
-                            <Trophy className="w-5 h-5" />
-                            Nộp bài
-                        </button>
-                    </div>
+                <div className="flex justify-center mt-8">
+                    <button
+                        onClick={handleSubmit}
+                        className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2"
+                        disabled={quizCompleted}
+                    >
+                        <Trophy className="w-5 h-5" />
+                        Nộp bài
+                    </button>
                 </div>
-            )}
-        </div>
+            </div>
+        )}
+    </div>
     );
 };
 
