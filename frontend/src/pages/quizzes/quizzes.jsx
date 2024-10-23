@@ -37,9 +37,9 @@ export const Quizzes = () => {
         const token = localStorage.getItem("access_token");
         try {
             const questionsRes = await axios.get(`${API_URL}/quizzes/${quizId}/questions`, {
-                headers: { 
+                headers: {
                     "Authorization": `Bearer ${token}`,
-                    "x-api-secret": API_KEY 
+                    "x-api-secret": API_KEY
                 },
             });
 
@@ -48,9 +48,9 @@ export const Quizzes = () => {
                     const optionsRes = await axios.get(
                         `${API_URL}/questions/${question.question_id}/options`,
                         {
-                            headers: { 
+                            headers: {
                                 "Authorization": `Bearer ${token}`,
-                                "x-api-secret": API_KEY 
+                                "x-api-secret": API_KEY
                             },
                         }
                     );
@@ -107,7 +107,7 @@ export const Quizzes = () => {
                 const question = quizzes[0].questions.find(
                     q => q.question_id.toString() === questionId
                 );
-            
+
                 if (question.question_type === 'fill_blank') {
                     return {
                         question_id: parseInt(questionId),
@@ -118,17 +118,17 @@ export const Quizzes = () => {
                     const optionIds = selectedOptions.map(opt => opt.option_id);
                     return {
                         question_id: parseInt(questionId),
-                        option_ids: optionIds 
+                        option_ids: optionIds
                     };
                 } else if (['single_choice', 'true_false'].includes(question.question_type)) {
                     const option = question.options.find(opt => opt.answer === answer);
                     return {
                         question_id: parseInt(questionId),
-                        option_id: option ? option.option_id : null 
+                        option_id: option ? option.option_id : null
                     };
                 }
-            
-                return null; 
+
+                return null;
             });
 
             await axios.post(
@@ -177,7 +177,7 @@ export const Quizzes = () => {
     const handleStartQuiz = () => {
         startQuiz();
     };
-    
+
 
     useEffect(() => {
         if (slug) {
@@ -199,8 +199,8 @@ export const Quizzes = () => {
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
             <div className="flex justify-between items-center mb-6">
-                <Link 
-                    to={`/lessons/${slug}`} 
+                <Link
+                    to={`/lessons/${slug}`}
                     className="text-gray-600 hover:text-gray-800 font-medium flex items-center gap-2"
                     onClick={(e) => {
                         e.preventDefault();
@@ -299,7 +299,7 @@ export const Quizzes = () => {
                             </div>
                         </CardContent>
                     </Card>
-                    
+
                     <div className="flex justify-center mt-8">
                         <button
                             onClick={handleSubmit}
