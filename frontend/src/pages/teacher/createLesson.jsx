@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+useRef
 import { Video, File, X, GripVertical, PlayCircle, FileText, ListTodo, MenuSquare } from 'lucide-react';
 import {
     Card
@@ -19,8 +20,11 @@ import {
 import { Input } from '@/components/ui/input';
 import toast, { Toaster } from 'react-hot-toast';
 import PropTypes from 'prop-types';
+import { Textarea } from '@/components/ui/textarea';
 
 const LessonCreator = () => {
+    const debounceTimeout = useRef();
+
     const [sections, setSections] = useState([
         { id: 1, title: '', lessons: [{ id: 1, title: '', contents: [] }] }
     ]);
@@ -314,6 +318,22 @@ const LessonCreator = () => {
     };
 
     const ContentBlock = ({ type, contentId, sectionId, lessonId, initialValue, handleDocumentChange }) => {
+        const [textValue, setTextValue] = useState(initialValue);
+        useEffect(() => {
+            setTextValue(initialValue);
+        }, [initialValue]);
+        const handleTextChange = (e) => {
+            const newValue = e.target.value;
+            setTextValue(newValue);
+
+            if (debounceTimeout.current) {
+                clearTimeout(debounceTimeout.current);
+            }
+
+            debounceTimeout.current = setTimeout(() => {
+                handleDocumentChange(sectionId, lessonId, contentId, newValue);
+            },1500);
+        };
 
         switch (type) {
             case 'video':
@@ -329,11 +349,16 @@ const LessonCreator = () => {
                 );
             case 'document':
                 return (
-                    <div className="border-2 border-dashed shadow-green-300 shadow-md border-slate-400 rounded-md p-6 text-center">
+                    <div
+                        className="border-2 border-dashed shadow-green-300 shadow-md border-slate-400 rounded-md p-6 text-center"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <FileText className="w-8 h-8 mx-auto mb-2" />
-                        <textarea
-                            value={initialValue}
-                            onChange={(e) => handleDocumentChange(sectionId, lessonId, contentId, e.target.value)}
+                        <Textarea
+                            defaultValue={initialValue}
+                            onChange={handleTextChange}
+                            onFocus={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => e.stopPropagation()}
                             onClick={(e) => e.stopPropagation()}
                             className="w-full p-2 border rounded-md h-24 mt-2"
                             placeholder="Nhập nội dung bài học..."
@@ -383,7 +408,7 @@ const LessonCreator = () => {
                         <AccordionItem value={`section-${section.id}`} key={section.id} className="border-2 rounded-lg border-yellow-700 p-4 relative">
                             <div className="flex items-center gap-4 w-9/12 md:w-10/12 absolute ml-12 mt-2">
                                 <div className="flex items-center gap-2">
-                                    <MenuSquare className="w-4 h-4 text-gray-400" />
+                                    <MenuSquare className="w-4 h-4 text-gray-400 text-3xl" />
                                     <span className="font-medium text-gray-600">Bài {sectionIndex + 1}:</span>
                                 </div>
                                 <input
