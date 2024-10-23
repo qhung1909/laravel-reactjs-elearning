@@ -14,259 +14,153 @@ export const Quizzes = () => {
     const [quizzes, setQuizzes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [answers, setAnswers] = useState({});
-    const [lesson, setLesson] = useState([]);
+    const [lesson, setLesson] = useState(null);
     const [hasStarted, setHasStarted] = useState(false);
-    const [quizCompleted, setQuizCompleted] = useState(false); // Thêm trạng thái để theo dõi trạng thái hoàn thành quiz
-    const { slug } = useParams();
-    const { quiz_id } = useParams();
-    
+    const [quizCompleted, setQuizCompleted] = useState(false);
+    const { slug, quiz_id } = useParams();
+
     const fetchLesson = async () => {
         try {
             const res = await axios.get(`${API_URL}/lessons/${slug}`, {
-                headers: {
-                    "x-api-secret": `${API_KEY}`,
-                },
+                headers: { "x-api-secret": API_KEY },
             });
-            if (res.data && res.data.lesson_id) {
+            if (res.data?.lesson_id) {
                 setLesson(res.data);
-            } else {
-                console.error("Dữ liệu không hợp lệ:", res.data);
             }
         } catch (error) {
-            console.error("Lỗi khi lấy dữ liệu bài học:", error);
+            console.error("Error fetching lesson:", error);
+            toast.error("Không thể tải thông tin bài học");
         }
     };
-    
-    const checkSession = async () => {
-        const token = localStorage.getItem("access_token");
-        try {
-            const sessionResponse = await axios.get(`${API_URL}/quizzes/session`, {
-                params: { quiz_id: quiz_id }, // Chỉ sử dụng quiz_id
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "x-api-secret": `${API_KEY}`,
-                },
-            });
-    
-            console.log("Phản hồi từ server:", sessionResponse.data);
-    
-            const sessionData = sessionResponse.data;
-    
-            if (sessionData && sessionData.status) {
-                // Nếu phiên quiz đang diễn ra
-                if (sessionData.status === 'in_progress') {
-                    fetchQuestions(quiz_id);
-                } else if (sessionData.status === 'completed') {
-                    toast.info("Quiz đã hoàn thành.");
-                    setQuizCompleted(true); // Đánh dấu quiz đã hoàn thành
-                }
-            } else {
-                // Không có phiên quiz, gọi hàm bắt đầu quiz mới
-                startQuiz();
-            }
-        } catch (error) {
-            console.error("Lỗi khi kiểm tra session:", error);
-            toast.error("Có lỗi xảy ra khi kiểm tra session.", {
-                duration: 3000,
-                position: "top-right",
-            });
-        }
-    };
-    
-    const startQuiz = async () => {
-        if (quizCompleted) {
-            toast.error("Bạn không thể bắt đầu lại quiz này vì nó đã hoàn thành!", {
-                duration: 3000,
-                position: "top-right",
-            });
-            return;
-        }
-    
-        const token = localStorage.getItem("access_token");
-        try {
-            await axios.post(`${API_URL}/quizzes/start/${quiz_id}`, {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "x-api-secret": `${API_KEY}`,
-                },
-            });
-            setHasStarted(true);
-            fetchQuestions(quiz_id); // Tải câu hỏi ngay sau khi bắt đầu quiz
-        } catch (error) {
-            console.error("Lỗi khi bắt đầu quiz:", error);
-            toast.error("Không thể bắt đầu quiz. Vui lòng thử lại!", {
-                duration: 3000,
-                position: "top-right",
-            });
-        }
-    };
-    
+
     const fetchQuestions = async (quizId) => {
         const token = localStorage.getItem("access_token");
         try {
-            const questionsResponse = await axios.get(`${API_URL}/quizzes/${quizId}/questions`, {
-                headers: { "x-api-secret": `${API_KEY}` },
+            const questionsRes = await axios.get(`${API_URL}/quizzes/${quizId}/questions`, {
+                headers: { 
+                    "Authorization": `Bearer ${token}`,
+                    "x-api-secret": API_KEY 
+                },
             });
-    
-            const optionsPromises = questionsResponse.data.map((question) =>
-                axios.get(`${API_URL}/questions/${question.question_id}/options`, {
-                    headers: { "x-api-secret": `${API_KEY}` },
-                }).then((res) => ({
-                    question,
-                    options: res.data,
-                }))
-            );
-    
-            const optionsResponses = await Promise.all(optionsPromises);
-    
-            const quizWithQuestionsAndOptions = {
-                quiz_id,
-                questions: questionsResponse.data.map((question) => {
-                    const optionsData = optionsResponses.find(
-                        (option) => option.question.question_id === question.question_id
+
+            const questionsWithOptions = await Promise.all(
+                questionsRes.data.map(async (question) => {
+                    const optionsRes = await axios.get(
+                        `${API_URL}/questions/${question.question_id}/options`,
+                        {
+                            headers: { 
+                                "Authorization": `Bearer ${token}`,
+                                "x-api-secret": API_KEY 
+                            },
+                        }
                     );
-                    return {
-                        ...question,
-                        options: optionsData ? optionsData.options : [],
-                    };
-                }),
-            };
-    
-            setQuizzes([quizWithQuestionsAndOptions]);
-            toast.success("Đã tải dữ liệu quiz thành công!", {
-                duration: 2000,
-                position: "top-right",
-            });
+                    return { ...question, options: optionsRes.data };
+                })
+            );
+
+            setQuizzes([{ quiz_id: quizId, questions: questionsWithOptions }]);
+            toast.success("Đã tải dữ liệu quiz thành công");
         } catch (error) {
             console.error("Error fetching questions:", error);
-            toast.error("Không thể tải dữ liệu câu hỏi. Vui lòng thử lại sau!", {
-                duration: 3000,
-                position: "top-right",
-            });
+            toast.error("Không thể tải dữ liệu câu hỏi");
         }
     };
-    
-    const fetchAllData = async () => {
-        setLoading(true);
-        await checkSession(); // Kiểm tra session tại đây
-        setLoading(false);
-    };
-    
-    useEffect(() => {
-        if (slug) {
-            fetchLesson();
-        }
-    }, [slug]);
-    
-    const handleStartQuiz = () => {
+
+    const startQuiz = async () => {
         if (quizCompleted) {
-            toast.error("Bạn không thể bắt đầu lại quiz này vì nó đã hoàn thành!", {
-                duration: 3000,
-                position: "top-right",
-            });
+            toast.error("Quiz này đã hoàn thành!");
             return;
         }
-    
-        Swal.fire({
-            title: 'Bắt đầu bài kiểm tra?',
-            text: 'Bạn sẽ có 30 phút để hoàn thành bài kiểm tra',
-            icon: 'info',
-            showCancelButton: true,
-            confirmButtonColor: '#EAB308',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Bắt đầu',
-            cancelButtonText: 'Hủy'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                startQuiz(); // Gọi startQuiz để bắt đầu quiz
-            }
-        });
-    };
-    
-    const handleSubmit = async () => {
-        const totalQuestions = quizzes.reduce(
-            (acc, quiz) => acc + quiz.questions.length,
-            0
-        );
-        const answeredQuestions = Object.keys(answers).length;
-    
-        if (answeredQuestions < totalQuestions) {
-            toast.error(
-                `Còn ${totalQuestions - answeredQuestions} câu chưa trả lời!`,
-                {
-                    duration: 2000,
-                    position: "top-right",
-                }
-            );
-            return;
-        }
-    
-        const formattedAnswers = Object.keys(answers).map((questionId) => {
-            const question = quizzes
-                .flatMap((quiz) => quiz.questions)
-                .find((q) => q.question_id === parseInt(questionId));
-    
-            const selectedOption = question.options.find(
-                (option) => option.answer === answers[questionId]
-            );
-    
-            return {
-                question_id: questionId,
-                option_id: selectedOption ? selectedOption.option_id : null,
-            };
-        });
-    
-        // Gửi câu trả lời
+
         const token = localStorage.getItem("access_token");
         try {
-            // Gửi câu trả lời
-            const response = await axios.post(
+            await axios.post(
+                `${API_URL}/quizzes/start/${quiz_id}`,
+                {},
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "x-api-secret": API_KEY,
+                    },
+                }
+            );
+            setHasStarted(true);
+            fetchQuestions(quiz_id);
+        } catch (error) {
+            console.error("Error starting quiz:", error);
+            toast.error("Không thể bắt đầu quiz");
+        }
+    };
+
+    const handleSubmit = async () => {
+        const totalQuestions = quizzes[0]?.questions.length || 0;
+        const answeredQuestions = Object.keys(answers).length;
+
+        if (answeredQuestions < totalQuestions) {
+            toast.error(`Còn ${totalQuestions - answeredQuestions} câu chưa trả lời!`);
+            return;
+        }
+
+        const token = localStorage.getItem("access_token");
+        try {
+            const formattedAnswers = Object.entries(answers).map(([questionId, answer]) => {
+                const question = quizzes[0].questions.find(
+                    q => q.question_id.toString() === questionId
+                );
+            
+                if (question.question_type === 'fill_blank') {
+                    return {
+                        question_id: parseInt(questionId),
+                        text_answer: answer
+                    };
+                } else if (question.question_type === 'mutiple_choice') {
+                    const selectedOptions = question.options.filter(opt => answer.includes(opt.answer));
+                    const optionIds = selectedOptions.map(opt => opt.option_id);
+                    return {
+                        question_id: parseInt(questionId),
+                        option_ids: optionIds 
+                    };
+                } else if (['single_choice', 'true_false'].includes(question.question_type)) {
+                    const option = question.options.find(opt => opt.answer === answer);
+                    return {
+                        question_id: parseInt(questionId),
+                        option_id: option ? option.option_id : null 
+                    };
+                }
+            
+                return null; 
+            });
+
+            await axios.post(
                 `${API_URL}/quizzes/submit`,
                 { answers: formattedAnswers },
                 {
                     headers: {
-                        Authorization: `Bearer ${token}`,
-                        "x-api-secret": `${API_KEY}`,
+                        "Authorization": `Bearer ${token}`,
+                        "x-api-secret": API_KEY,
                     },
                 }
             );
-    
-            toast.success("Nộp bài thành công!", {
-                duration: 2000,
-                position: "top-right",
-            });
-            console.log("Submission Response:", response.data);
+
+            setQuizCompleted(true);
+            toast.success("Nộp bài thành công!");
         } catch (error) {
-            console.error("Error submitting answers:", error.response ? error.response.data : error.message);
-            toast.error("Có lỗi xảy ra khi nộp bài!", {
-                duration: 2000,
-                position: "top-right",
-            });
+            console.error("Error submitting answers:", error);
+            toast.error("Có lỗi xảy ra khi nộp bài!");
         }
     };
-    
+
     const handleAnswerChange = (questionId, selectedOption) => {
-        setAnswers((prev) => ({
+        setAnswers(prev => ({
             ...prev,
             [questionId]: selectedOption,
         }));
     };
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
-                    <p className="text-gray-600">Đang tải bài kiểm tra...</p>
-                </div>
-            </div>
-        );
-    }
-
     const handleConfirmExit = () => {
         Swal.fire({
             title: 'Bạn có chắc chắn muốn thoát?',
-            text: "Dữ liệu của bạn có thể bị mất.",
+            text: "Dữ liệu của bạn sẽ mất tất cả?.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -280,19 +174,46 @@ export const Quizzes = () => {
         });
     };
 
+    const handleStartQuiz = () => {
+        startQuiz();
+    };
+    
+
+    useEffect(() => {
+        if (slug) {
+            fetchLesson();
+        }
+    }, [slug]);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
+                    <p className="text-gray-600">Đang tải bài kiểm tra...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
             <div className="flex justify-between items-center mb-6">
-                <Link to={`/lessons/${slug}`} className="text-gray-600 hover:text-gray-800 font-medium flex items-center gap-2" onClick={(e) => {
-                    e.preventDefault();
-                    handleConfirmExit();
-                }}>
+                <Link 
+                    to={`/lessons/${slug}`} 
+                    className="text-gray-600 hover:text-gray-800 font-medium flex items-center gap-2"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        handleConfirmExit();
+                    }}
+                >
                     <ArrowLeft className="w-5 h-5" />
                     Trở về bài học
                 </Link>
             </div>
 
             <Toaster position="top-right" />
+
             {!hasStarted ? (
                 <Card className="mt-8">
                     <CardHeader>
@@ -306,7 +227,8 @@ export const Quizzes = () => {
                             <div className="flex justify-center">
                                 <button
                                     onClick={handleStartQuiz}
-                                    className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2">
+                                    className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2"
+                                >
                                     <Trophy className="w-5 h-5" />
                                     Bắt đầu làm bài
                                 </button>
@@ -325,67 +247,65 @@ export const Quizzes = () => {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-6">
-                                {quizzes.map((quiz, quizIndex) => (
+                                {quizzes.map((quiz) => (
                                     <div key={quiz.quiz_id} className="space-y-4">
-                                        <h3 className="text-xl font-semibold">{quiz.title}</h3>
-                                        {quiz.questions && quiz.questions.length > 0 ? (
-                                            quiz.questions.map((question, questionIndex) => (
-                                                <Card key={question.question_id} className="border-l-3 border-yellow-400">
-                                                    <CardContent className="pt-6">
-                                                        <p className="font-medium mb-4">
-                                                            <span className="bg-yellow-100 px-2 py-1 rounded-md mr-2">Câu
-                                                                {quizIndex * quiz.questions.length + questionIndex + 1}:
-                                                            </span>
-                                                            {question.question}
-                                                        </p>
-                                                        <div className="grid gap-3">
-                                                            {question.question_type === 'fill_blank' ? (
-                                                                <input
-                                                                    type="text"
-                                                                    className="p-2 border rounded-lg"
-                                                                    onChange={(e) => handleAnswerChange(question.question_id, e.target.value)}
-                                                                    placeholder="Nhập câu trả lời của bạn"
-                                                                />
-                                                            ) : (
-                                                                question.options && question.options.length > 0 ? (
-                                                                    question.options.map((option, index) => (
-                                                                        <button key={option.id}
-                                                                            className={`p-2 rounded-lg text-left transition-all ${answers[question.question_id] === option.answer
-                                                                                    ? "bg-yellow-400 text-white"
-                                                                                    : "bg-white hover:bg-yellow-50 border border-gray-200"
-                                                                                }`}
-                                                                            onClick={() => handleAnswerChange(question.question_id, option.answer)}>
-                                                                            <span className="flex items-center gap-3">
-                                                                                <span className={`w-8 h-8 flex items-center justify-center rounded-full ${answers[question.question_id] === option.answer
-                                                                                        ? "bg-white text-yellow-500"
-                                                                                        : "border-gray-300"
-                                                                                    }`}>
-                                                                                    {String.fromCharCode(65 + index)}
-                                                                                </span>
-                                                                                {option.answer}
-                                                                            </span>
-                                                                        </button>
-                                                                    ))
-                                                                ) : (
-                                                                    <p className="text-gray-500">Không có tùy chọn nào.</p>
-                                                                )
-                                                            )}
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            ))
-                                        ) : (
-                                            <p className="text-gray-500">Không có câu hỏi nào.</p>
-                                        )}
+                                        {quiz.questions?.map((question, index) => (
+                                            <Card key={question.question_id} className="border-l-3 border-yellow-400">
+                                                <CardContent className="pt-6">
+                                                    <p className="font-medium mb-4">
+                                                        <span className="bg-yellow-100 px-2 py-1 rounded-md mr-2">
+                                                            Câu {index + 1}:
+                                                        </span>
+                                                        {question.question}
+                                                    </p>
+                                                    <div className="grid gap-3">
+                                                        {question.question_type === 'fill_blank' ? (
+                                                            <input
+                                                                type="text"
+                                                                className="p-2 border rounded-lg"
+                                                                onChange={(e) => handleAnswerChange(question.question_id, e.target.value)}
+                                                                placeholder="Nhập câu trả lời của bạn"
+                                                            />
+                                                        ) : (
+                                                            question.options?.map((option, optionIndex) => (
+                                                                <button
+                                                                    key={option.option_id}
+                                                                    className={`p-2 rounded-lg text-left transition-all ${
+                                                                        answers[question.question_id] === option.answer
+                                                                            ? "bg-yellow-400 text-white"
+                                                                            : "bg-white hover:bg-yellow-50 border border-gray-200"
+                                                                    }`}
+                                                                    onClick={() => handleAnswerChange(question.question_id, option.answer)}
+                                                                >
+                                                                    <span className="flex items-center gap-3">
+                                                                        <span className={`w-8 h-8 flex items-center justify-center rounded-full ${
+                                                                            answers[question.question_id] === option.answer
+                                                                                ? "bg-white text-yellow-500"
+                                                                                : "border-gray-300"
+                                                                        }`}>
+                                                                            {String.fromCharCode(65 + optionIndex)}
+                                                                        </span>
+                                                                        {option.answer}
+                                                                    </span>
+                                                                </button>
+                                                            ))
+                                                        )}
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        ))}
                                     </div>
                                 ))}
                             </div>
                         </CardContent>
                     </Card>
+                    
                     <div className="flex justify-center mt-8">
                         <button
                             onClick={handleSubmit}
-                            className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2">
+                            className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2"
+                            disabled={quizCompleted}
+                        >
                             <Trophy className="w-5 h-5" />
                             Nộp bài
                         </button>
@@ -395,3 +315,5 @@ export const Quizzes = () => {
         </div>
     );
 };
+
+export default Quizzes;
