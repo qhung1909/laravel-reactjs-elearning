@@ -4,11 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Auth\User as Authenticatable; use Illuminate\Notifications\Notifiable; use Laravel\Sanctum\HasApiTokens; use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable;    
+    use HasFactory, Notifiable;
     protected $table = 'users';
     protected $primaryKey = 'user_id';
 
@@ -27,8 +30,8 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
     ];
-    
-    
+
+
     public function getJWTIdentifier()
     {
 
@@ -49,5 +52,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Course::class);
     }
-    
+
+    public function quizSessions()
+    {
+        return $this->hasMany(QuizSession::class);
+    }
 }

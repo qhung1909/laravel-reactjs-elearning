@@ -17,4 +17,10 @@ class Comment extends Model
         'rating',
         'is_update',
     ];
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class, 'course_id', 'course_id');
+    }
+    
 }

@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
@@ -64,15 +65,22 @@ class CourseController extends Controller
         return response()->json($searchResults, 200);
     }
 
-
-    public function index(Request $request)
+    public function index()
     {
+        // Ghi log trước khi truy vấn
+        Log::info('Fetching courses from cache or database.');
+    
         $courses = Cache::remember('courses', 120, function () {
-            return $this->course->with('user:user_id,name')->get(); 
+            Log::info('Querying courses from database.');
+            return $this->course->with(['user:user_id,name', 'comments:course_id,rating'])->get();
         });
+    
+        // Ghi log kết quả
+        Log::info('Courses fetched successfully:', ['courses' => $courses]);
     
         return response()->json($courses);
     }
+    
 
     public function relatedCourses($slug)
     {

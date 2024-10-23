@@ -16,8 +16,10 @@ export const Quizzes = () => {
     const [answers, setAnswers] = useState({});
     const [lesson, setLesson] = useState([]);
     const [hasStarted, setHasStarted] = useState(false);
+    const [quizCompleted, setQuizCompleted] = useState(false); // Thêm trạng thái để theo dõi trạng thái hoàn thành quiz
     const { slug } = useParams();
     const { quiz_id } = useParams();
+    
     const fetchLesson = async () => {
         try {
             const res = await axios.get(`${API_URL}/lessons/${slug}`, {
@@ -34,26 +36,76 @@ export const Quizzes = () => {
             console.error("Lỗi khi lấy dữ liệu bài học:", error);
         }
     };
-
-    const fetchAllData = async () => {
+    
+    const checkSession = async () => {
         const token = localStorage.getItem("access_token");
-        setLoading(true);
         try {
-            const quizzesResponse = await axios.get(`${API_URL}/quizzes/${quiz_id}`, {
-                headers: { "x-api-secret": `${API_KEY}` },
-            });
-    
-            const quizData = quizzesResponse.data;
-    
-            const questionsResponse = await axios.get(`${API_URL}/quizzes/${quizData.quiz_id}/questions`, {
-                headers: { "x-api-secret": `${API_KEY}` },
-            });
-    
-            await axios.post(`${API_URL}/quizzes/start/${quizData.quiz_id}/`, {}, {
+            const sessionResponse = await axios.get(`${API_URL}/quizzes/session`, {
+                params: { quiz_id: quiz_id }, // Chỉ sử dụng quiz_id
                 headers: {
-                    "x-api-secret": `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
+                    "x-api-secret": `${API_KEY}`,
                 },
+            });
+    
+            console.log("Phản hồi từ server:", sessionResponse.data);
+    
+            const sessionData = sessionResponse.data;
+    
+            if (sessionData && sessionData.status) {
+                // Nếu phiên quiz đang diễn ra
+                if (sessionData.status === 'in_progress') {
+                    fetchQuestions(quiz_id);
+                } else if (sessionData.status === 'completed') {
+                    toast.info("Quiz đã hoàn thành.");
+                    setQuizCompleted(true); // Đánh dấu quiz đã hoàn thành
+                }
+            } else {
+                // Không có phiên quiz, gọi hàm bắt đầu quiz mới
+                startQuiz();
+            }
+        } catch (error) {
+            console.error("Lỗi khi kiểm tra session:", error);
+            toast.error("Có lỗi xảy ra khi kiểm tra session.", {
+                duration: 3000,
+                position: "top-right",
+            });
+        }
+    };
+    
+    const startQuiz = async () => {
+        if (quizCompleted) {
+            toast.error("Bạn không thể bắt đầu lại quiz này vì nó đã hoàn thành!", {
+                duration: 3000,
+                position: "top-right",
+            });
+            return;
+        }
+    
+        const token = localStorage.getItem("access_token");
+        try {
+            await axios.post(`${API_URL}/quizzes/start/${quiz_id}`, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "x-api-secret": `${API_KEY}`,
+                },
+            });
+            setHasStarted(true);
+            fetchQuestions(quiz_id); // Tải câu hỏi ngay sau khi bắt đầu quiz
+        } catch (error) {
+            console.error("Lỗi khi bắt đầu quiz:", error);
+            toast.error("Không thể bắt đầu quiz. Vui lòng thử lại!", {
+                duration: 3000,
+                position: "top-right",
+            });
+        }
+    };
+    
+    const fetchQuestions = async (quizId) => {
+        const token = localStorage.getItem("access_token");
+        try {
+            const questionsResponse = await axios.get(`${API_URL}/quizzes/${quizId}/questions`, {
+                headers: { "x-api-secret": `${API_KEY}` },
             });
     
             const optionsPromises = questionsResponse.data.map((question) =>
@@ -68,7 +120,7 @@ export const Quizzes = () => {
             const optionsResponses = await Promise.all(optionsPromises);
     
             const quizWithQuestionsAndOptions = {
-                ...quizData,
+                quiz_id,
                 questions: questionsResponse.data.map((question) => {
                     const optionsData = optionsResponses.find(
                         (option) => option.question.question_id === question.question_id
@@ -86,24 +138,35 @@ export const Quizzes = () => {
                 position: "top-right",
             });
         } catch (error) {
-            console.error("Error fetching quizzes:", error);
-            toast.error("Không thể tải dữ liệu quiz. Vui lòng thử lại sau!", {
+            console.error("Error fetching questions:", error);
+            toast.error("Không thể tải dữ liệu câu hỏi. Vui lòng thử lại sau!", {
                 duration: 3000,
                 position: "top-right",
             });
-        } finally {
-            setLoading(false);
         }
     };
     
-
+    const fetchAllData = async () => {
+        setLoading(true);
+        await checkSession(); // Kiểm tra session tại đây
+        setLoading(false);
+    };
+    
     useEffect(() => {
         if (slug) {
             fetchLesson();
         }
     }, [slug]);
-
+    
     const handleStartQuiz = () => {
+        if (quizCompleted) {
+            toast.error("Bạn không thể bắt đầu lại quiz này vì nó đã hoàn thành!", {
+                duration: 3000,
+                position: "top-right",
+            });
+            return;
+        }
+    
         Swal.fire({
             title: 'Bắt đầu bài kiểm tra?',
             text: 'Bạn sẽ có 30 phút để hoàn thành bài kiểm tra',
@@ -115,19 +178,18 @@ export const Quizzes = () => {
             cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                setHasStarted(true);
-                fetchAllData();
+                startQuiz(); // Gọi startQuiz để bắt đầu quiz
             }
         });
     };
-
+    
     const handleSubmit = async () => {
         const totalQuestions = quizzes.reduce(
             (acc, quiz) => acc + quiz.questions.length,
             0
         );
         const answeredQuestions = Object.keys(answers).length;
-
+    
         if (answeredQuestions < totalQuestions) {
             toast.error(
                 `Còn ${totalQuestions - answeredQuestions} câu chưa trả lời!`,
@@ -138,25 +200,26 @@ export const Quizzes = () => {
             );
             return;
         }
-
+    
         const formattedAnswers = Object.keys(answers).map((questionId) => {
             const question = quizzes
                 .flatMap((quiz) => quiz.questions)
                 .find((q) => q.question_id === parseInt(questionId));
-
+    
             const selectedOption = question.options.find(
                 (option) => option.answer === answers[questionId]
             );
-
+    
             return {
                 question_id: questionId,
                 option_id: selectedOption ? selectedOption.option_id : null,
             };
         });
-
+    
+        // Gửi câu trả lời
+        const token = localStorage.getItem("access_token");
         try {
-            const token = localStorage.getItem("access_token");
-            console.log("API_URL:", API_URL);
+            // Gửi câu trả lời
             const response = await axios.post(
                 `${API_URL}/quizzes/submit`,
                 { answers: formattedAnswers },
@@ -167,7 +230,7 @@ export const Quizzes = () => {
                     },
                 }
             );
-
+    
             toast.success("Nộp bài thành công!", {
                 duration: 2000,
                 position: "top-right",
@@ -181,8 +244,7 @@ export const Quizzes = () => {
             });
         }
     };
-
-
+    
     const handleAnswerChange = (questionId, selectedOption) => {
         setAnswers((prev) => ({
             ...prev,
