@@ -42,20 +42,20 @@ export const Quizzes = () => {
             const quizzesResponse = await axios.get(`${API_URL}/quizzes/${quiz_id}`, {
                 headers: { "x-api-secret": `${API_KEY}` },
             });
-    
+
             const quizData = quizzesResponse.data;
-    
+
             const questionsResponse = await axios.get(`${API_URL}/quizzes/${quizData.quiz_id}/questions`, {
                 headers: { "x-api-secret": `${API_KEY}` },
             });
-    
+
             await axios.post(`${API_URL}/quizzes/start/${quizData.quiz_id}/`, {}, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
                 },
             });
-    
+
             const optionsPromises = questionsResponse.data.map((question) =>
                 axios.get(`${API_URL}/questions/${question.question_id}/options`, {
                     headers: { "x-api-secret": `${API_KEY}` },
@@ -64,9 +64,9 @@ export const Quizzes = () => {
                     options: res.data,
                 }))
             );
-    
+
             const optionsResponses = await Promise.all(optionsPromises);
-    
+
             const quizWithQuestionsAndOptions = {
                 ...quizData,
                 questions: questionsResponse.data.map((question) => {
@@ -79,7 +79,7 @@ export const Quizzes = () => {
                     };
                 }),
             };
-    
+
             setQuizzes([quizWithQuestionsAndOptions]);
             toast.success("Đã tải dữ liệu quiz thành công!", {
                 duration: 2000,
@@ -95,7 +95,6 @@ export const Quizzes = () => {
             setLoading(false);
         }
     };
-    
 
     useEffect(() => {
         if (slug) {
@@ -318,6 +317,7 @@ export const Quizzes = () => {
                                     </div>
                                 ))}
                             </div>
+
                         </CardContent>
                     </Card>
                     <div className="flex justify-center mt-8">
