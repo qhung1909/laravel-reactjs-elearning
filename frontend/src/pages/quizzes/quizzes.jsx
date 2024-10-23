@@ -36,39 +36,23 @@ export const Quizzes = () => {
     const fetchQuestions = async (quizId) => {
         const token = localStorage.getItem("access_token");
         try {
-            const quizzesResponse = await axios.get(`${API_URL}/quizzes/${quiz_id}`, {
-                headers: { "x-api-secret": `${API_KEY}` },
-            });
-
-            const quizData = quizzesResponse.data;
-
-            const questionsResponse = await axios.get(`${API_URL}/quizzes/${quizData.quiz_id}/questions`, {
-                headers: { "x-api-secret": `${API_KEY}` },
-            });
-
-            await axios.post(`${API_URL}/quizzes/start/${quizData.quiz_id}/`, {}, {
+            const questionsRes = await axios.get(`${API_URL}/quizzes/${quizId}/questions`, {
                 headers: {
-                    "x-api-secret": `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
+                    "Authorization": `Bearer ${token}`,
+                    "x-api-secret": API_KEY
                 },
             });
 
-            const optionsPromises = questionsResponse.data.map((question) =>
-                axios.get(`${API_URL}/questions/${question.question_id}/options`, {
-                    headers: { "x-api-secret": `${API_KEY}` },
-                }).then((res) => ({
-                    question,
-                    options: res.data,
-                }))
-            );
-
-            const optionsResponses = await Promise.all(optionsPromises);
-
-            const quizWithQuestionsAndOptions = {
-                ...quizData,
-                questions: questionsResponse.data.map((question) => {
-                    const optionsData = optionsResponses.find(
-                        (option) => option.question.question_id === question.question_id
+            const questionsWithOptions = await Promise.all(
+                questionsRes.data.map(async (question) => {
+                    const optionsRes = await axios.get(
+                        `${API_URL}/questions/${question.question_id}/options`,
+                        {
+                            headers: {
+                                "Authorization": `Bearer ${token}`,
+                                "x-api-secret": API_KEY
+                            },
+                        }
                     );
                     return { ...question, options: optionsRes.data };
                 })
@@ -117,20 +101,35 @@ export const Quizzes = () => {
             return;
         }
 
-        const formattedAnswers = Object.keys(answers).map((questionId) => {
-            const question = quizzes
-                .flatMap((quiz) => quiz.questions)
-                .find((q) => q.question_id === parseInt(questionId));
+        const token = localStorage.getItem("access_token");
+        try {
+            const formattedAnswers = Object.entries(answers).map(([questionId, answer]) => {
+                const question = quizzes[0].questions.find(
+                    q => q.question_id.toString() === questionId
+                );
 
-            const selectedOption = question.options.find(
-                (option) => option.answer === answers[questionId]
-            );
+                if (question.question_type === 'fill_blank') {
+                    return {
+                        question_id: parseInt(questionId),
+                        text_answer: answer
+                    };
+                } else if (question.question_type === 'mutiple_choice') {
+                    const selectedOptions = question.options.filter(opt => answer.includes(opt.answer));
+                    const optionIds = selectedOptions.map(opt => opt.option_id);
+                    return {
+                        question_id: parseInt(questionId),
+                        option_ids: optionIds
+                    };
+                } else if (['single_choice', 'true_false'].includes(question.question_type)) {
+                    const option = question.options.find(opt => opt.answer === answer);
+                    return {
+                        question_id: parseInt(questionId),
+                        option_id: option ? option.option_id : null
+                    };
+                }
 
-            return {
-                question_id: questionId,
-                option_id: selectedOption ? selectedOption.option_id : null,
-            };
-        });
+                return null;
+            });
 
             await axios.post(
                 `${API_URL}/quizzes/submit`,
@@ -175,13 +174,39 @@ export const Quizzes = () => {
         });
     };
 
+    const handleStartQuiz = () => {
+        startQuiz();
+    };
+
+
+    useEffect(() => {
+        if (slug) {
+            fetchLesson();
+        }
+    }, [slug]);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
+                    <p className="text-gray-600">Đang tải bài kiểm tra...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
             <div className="flex justify-between items-center mb-6">
-                <Link to={`/lessons/${slug}`} className="text-gray-600 hover:text-gray-800 font-medium flex items-center gap-2" onClick={(e) => {
-                    e.preventDefault();
-                    handleConfirmExit();
-                }}>
+                <Link
+                    to={`/lessons/${slug}`}
+                    className="text-gray-600 hover:text-gray-800 font-medium flex items-center gap-2"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        handleConfirmExit();
+                    }}
+                >
                     <ArrowLeft className="w-5 h-5" />
                     Trở về bài học
                 </Link>
@@ -274,6 +299,7 @@ export const Quizzes = () => {
                             </div>
                         </CardContent>
                     </Card>
+
                     <div className="flex justify-center mt-8">
                         <button
                             onClick={handleSubmit}
@@ -289,7 +315,5 @@ export const Quizzes = () => {
         </div>
     );
 };
-
-export default Quizzes;
 
 export default Quizzes;
