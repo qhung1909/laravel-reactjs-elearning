@@ -82,9 +82,13 @@ function AppContent() {
                 <Route path="/blogdetail" element={<Blogdetail />}></Route>
                 <Route path="/blog" element={<Blog />}></Route>
                 <Route path="/contact" element={<Contact />}></Route>
-                <Route
+                {/* <Route
                     path="/admin"
                     element={<AdminRole element={<Dashboard />} />}
+                ></Route> */}
+                <Route
+                    path="/admin"
+                    element={<Dashboard />}
                 ></Route>
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/login" element={<Login />}></Route>
