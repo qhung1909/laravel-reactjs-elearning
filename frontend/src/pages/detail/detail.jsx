@@ -2,7 +2,6 @@ import "./detail.css";
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import { formatDate } from "@/components/FormatDay/Formatday";
 import { formatDateNoTime } from "@/components/FormatDay/Formatday";
-// import { CategoriesContext } from "../context/categoriescontext";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { Edit, Trash } from "lucide-react";
@@ -44,11 +43,13 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import ReactPlayer from "react-player";
 import { CoursesContext } from "../context/coursescontext";
+// import { CategoriesContext } from "../context/categoriescontext";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const Detail = () => {
     // const { categories } = useContext(CategoriesContext);
+    const { courses, setCourses } = useContext(CoursesContext);
     const [detail, setDetail] = useState([]);
     const { slug } = useParams();
     const [loading, setLoading] = useState([]);
@@ -75,6 +76,7 @@ export const Detail = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [comments, setComments] = useState([]);
     const [cartItems, setCartItems] = useState([]);
+
     const [lesson, setLesson] = useState(null);
     const fetchLesson = async () => {
         try {
@@ -103,11 +105,10 @@ export const Detail = () => {
             fetchLesson();
         }
     }, [slug]);
-
     const lessonContents = lesson && lesson.content ? lesson.content : [];
 
     const [users, setUsers] = useState([]);
-    //fetch thông tin user comment
+    //fetch thông tin user comment & instructor
     const fetchUsers = async () => {
         const token = localStorage.getItem("access_token");
         try {
@@ -124,6 +125,19 @@ export const Detail = () => {
                     return acc;
                 }, {});
                 setUsers(usersObject);
+
+                const instructorData = res.data.data.filter(user => user.user_id === detail.user_id);
+                const instructorsWithCourseCount = instructorData.map(instructor => {
+                    const totalCourses = courses.filter(
+                        course => course.user_id === instructor.user_id
+                    ).length;
+                    return {
+                        ...instructor,
+                        total_courses: totalCourses
+                    };
+                });
+
+                setInstructor(instructorsWithCourseCount);
             } else {
                 console.error(
                     "Không tìm thấy danh sách người dùng trong phản hồi."
@@ -140,8 +154,10 @@ export const Detail = () => {
         }
     };
     useEffect(() => {
-        fetchUsers();
-    }, []);
+        if (detail) {
+            fetchUsers();
+        }
+    }, [detail]);
     const [user, setUser] = useState({});
     // Fetch thông tin user đang đăng nhập
     const fetchUser = async () => {
@@ -241,7 +257,7 @@ export const Detail = () => {
                 console.error("Trạng thái lỗi:", error.response?.status);
             }
         } finally {
-            setLoading(false); // Kết thúc tải dữ liệu
+            setLoading(false);
         }
     };
 
@@ -281,41 +297,40 @@ export const Detail = () => {
             fetchCourseRelated();
         }
     }, [detail]);
-    const { courses, setCourses } = useContext(CoursesContext);
     const [instructor, setInstructor] = useState([]);
 
-    const fetchInstructor = async () => {
-        try {
-            const res = await axios.get(`${API_URL}/instructors/top`, {
-                headers: {
-                    "x-api-secret": `${API_KEY}`,
-                },
-            });
+    // const fetchInstructor = async () => {
+    //     try {
+    //         const res = await axios.get(`${API_URL}/instructors/top`, {
+    //             headers: {
+    //                 "x-api-secret": `${API_KEY}`,
+    //             },
+    //         });
 
-            if (res.data) {
-                const instructorsWithCourseCount = res.data.map(instructor => {
-                    const totalCourses = courses.filter(
-                        course => course.user_id === instructor.user_id
-                    ).length;
-                    return {
-                        ...instructor,
-                        total_courses: totalCourses
-                    };
-                });
-                setInstructor(instructorsWithCourseCount);
-            } else {
-                console.error("Dữ liệu không hợp lệ:", res.data);
-            }
-        } catch (error) {
-            console.error("Lỗi khi lấy dữ liệu giảng viên:", error);
-            if (error.response) {
-                console.error("Chi tiết lỗi:", error.response.data);
-            }
-        }
-    };
-    useEffect(() => {
-        fetchInstructor();
-    }, []);
+    //         if (res.data) {
+    //             const instructorsWithCourseCount = res.data.map(instructor => {
+    //                 const totalCourses = courses.filter(
+    //                     course => course.user_id === instructor.user_id
+    //                 ).length;
+    //                 return {
+    //                     ...instructor,
+    //                     total_courses: totalCourses
+    //                 };
+    //             });
+    //             setInstructor(instructorsWithCourseCount);
+    //         } else {
+    //             console.error("Dữ liệu không hợp lệ:", res.data);
+    //         }
+    //     } catch (error) {
+    //         console.error("Lỗi khi lấy dữ liệu giảng viên:", error);
+    //         if (error.response) {
+    //             console.error("Chi tiết lỗi:", error.response.data);
+    //         }
+    //     }
+    // };
+    // useEffect(() => {
+    //     fetchInstructor();
+    // }, []);
 
     const [isPaymentCourse, setPaymentCourse] = useState(false);
 
@@ -1054,7 +1069,6 @@ export const Detail = () => {
                             </button>
                         </div>
                         {/* Kết thúc Section 3 */}
-
                         {/* Section 4 */}
                         <div className="bg-gray-50 py-8 sm:py-12">
                             <div className="container mx-auto px-4">
@@ -1213,7 +1227,6 @@ export const Detail = () => {
                                                 src={teacher.avatar || "https://github.com/shadcn.png"}
                                                 alt={teacher.name}
                                             />
-                                            <AvatarFallback>{teacher.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
                                         </Avatar>
                                         <div className="ml-6">
                                             <h3 className="text-2xl font-semibold mb-2" style={{ color: "#5022c3" }}>
