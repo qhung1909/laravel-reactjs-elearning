@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { Edit, Trash } from "lucide-react";
 import { Calendar, Globe, BookOpen, Star } from "lucide-react";
-import { Play, User, Book } from "lucide-react";
+import { Play, Users, Book, Clock, Eye } from "lucide-react";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -43,6 +43,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import ReactPlayer from "react-player";
 import { CoursesContext } from "../context/coursescontext";
+import { Instructor } from "../instructor/instructor";
 // import { CategoriesContext } from "../context/categoriescontext";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -107,8 +108,9 @@ export const Detail = () => {
     }, [slug]);
     const lessonContents = lesson && lesson.content ? lesson.content : [];
 
+    const [instructor, setInstructor] = useState([]);
     const [users, setUsers] = useState([]);
-    //fetch thông tin user comment & instructor
+    //fetch thông tin user comment & instructor & CourseRelated
     const fetchUsers = async () => {
         const token = localStorage.getItem("access_token");
         try {
@@ -297,40 +299,33 @@ export const Detail = () => {
             fetchCourseRelated();
         }
     }, [detail]);
-    const [instructor, setInstructor] = useState([]);
 
-    // const fetchInstructor = async () => {
-    //     try {
-    //         const res = await axios.get(`${API_URL}/instructors/top`, {
-    //             headers: {
-    //                 "x-api-secret": `${API_KEY}`,
-    //             },
-    //         });
+    const [courseRelatedInstructor, setCourseRelatedInstructor] = useState([]);
+    const fetchCourseRelatedInstructors = async () => {
+        const user_id = detail.user_id
+        try {
+            const res = await axios.get(`${API_URL}/courses/user/${user_id}`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                },
+            });
 
-    //         if (res.data) {
-    //             const instructorsWithCourseCount = res.data.map(instructor => {
-    //                 const totalCourses = courses.filter(
-    //                     course => course.user_id === instructor.user_id
-    //                 ).length;
-    //                 return {
-    //                     ...instructor,
-    //                     total_courses: totalCourses
-    //                 };
-    //             });
-    //             setInstructor(instructorsWithCourseCount);
-    //         } else {
-    //             console.error("Dữ liệu không hợp lệ:", res.data);
-    //         }
-    //     } catch (error) {
-    //         console.error("Lỗi khi lấy dữ liệu giảng viên:", error);
-    //         if (error.response) {
-    //             console.error("Chi tiết lỗi:", error.response.data);
-    //         }
-    //     }
-    // };
-    // useEffect(() => {
-    //     fetchInstructor();
-    // }, []);
+            if (res.data) {
+                const limitedCourses = res.data.slice(0, 3);
+                setCourseRelatedInstructor(limitedCourses);
+            } else {
+                console.error("Dữ liệu không hợp lệ:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu khóa học:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+            }
+        }
+    }
+    useEffect(() => {
+        fetchCourseRelatedInstructors();
+    }, [detail])
 
     const [isPaymentCourse, setPaymentCourse] = useState(false);
 
@@ -606,16 +601,13 @@ export const Detail = () => {
                     </div>
 
                     <div className="flex items-center text-sm text-gray-300 mb-2">
-                        <Calendar className="mr-2" size={18} />
+                        <Clock className="mr-2" />
                         <span className="shadow-text">
                             Ngày cập nhật gần nhất{" "}
                             {formatDate(detail.updated_at)}
                         </span>
                     </div>
-                    <div className="flex items-center text-sm text-gray-300">
-                        <Globe className="mr-2" size={18} />
-                        <span className="shadow-text">Vietnamese</span>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -798,7 +790,13 @@ export const Detail = () => {
                         </div>
                     </div>
                 ))
-                : comments.length === 0 && <p>Chưa có bình luận nào.</p>}
+                : (
+                    <div className="flex flex-col items-center p-6 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+                        <p className="text-gray-600 text-center">
+                            Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nhận của bạn!
+                        </p>
+                    </div>
+                )}
             <Toaster />
         </div>
     );
@@ -1102,84 +1100,88 @@ export const Detail = () => {
                                             </div>
                                         ))
                                     ) : (
-                                        courseRelated && courseRelated.length > 0 ? (
-                                            courseRelated.map((course) => (
-                                                <div
-                                                    key={course.course_id}
-                                                    className="flex flex-col sm:flex-row items-start sm:items-center bg-white p-6 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg"
-                                                >
-                                                    <Link to={`/detail/${course.slug}`} className="flex-shrink-0 sm:mr-8">
-                                                        <img
-                                                            src={course.img}
-                                                            alt={course.title}
-                                                            className="w-full sm:w-40 h-48 sm:h-40 object-cover rounded-lg mb-4 sm:mb-0"
-                                                        />
-                                                    </Link>
+                                        <div className="space-y-4">
+                                            {courseRelated && courseRelated.length > 0 ? (
+                                                courseRelated.map((course) => (
+                                                    <div
+                                                        key={course.course_id}
+                                                        className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl"
+                                                    >
+                                                        <div className="flex flex-col sm:flex-row">
+                                                            <Link
+                                                                to={`/detail/${course.slug}`}
+                                                                className="relative group flex-shrink-0 sm:w-64"
+                                                            >
+                                                                <img
+                                                                    src={course.img}
+                                                                    alt={course.title}
+                                                                    className="w-full h-48 sm:h-full object-cover "
+                                                                />
+                                                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
+                                                            </Link>
 
-
-                                                    <div className="flex-grow">
-                                                        <div className="sm:flex sm:justify-between sm:items-center">
-                                                            <div className="mb-4 sm:mb-0 sm:mr-8">
-                                                                <h3 className="text-base font-semibold text-gray-800 mb-2">
+                                                            <div className="flex-grow p-5">
+                                                                <div className="h-full flex flex-col">
                                                                     <Link to={`/detail/${course.slug}`}>
-                                                                        {course.title}
+                                                                        <h3 className="font-bold text-lg mb-3  line-clamp-2">
+                                                                            {course.title}
+                                                                        </h3>
                                                                     </Link>
-                                                                </h3>
-                                                                <p className="text-gray-600 text-sm">
-                                                                    Cập nhật {formatDateNoTime(course.updated_at)}
-                                                                </p>
-                                                                <span className="text-gray-600 flex items-center whitespace-nowrap py-0.5 pt-2 text-xs">
-                                                                    <svg
-                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                        className="h-4 w-4 mr-1"
-                                                                        fill="none"
-                                                                        viewBox="0 0 24 24"
-                                                                        stroke="currentColor"
-                                                                        strokeWidth={2}
-                                                                    >
-                                                                        <path
-                                                                            strokeLinecap="round"
-                                                                            strokeLinejoin="round"
-                                                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                        />
-                                                                        <path
-                                                                            strokeLinecap="round"
-                                                                            strokeLinejoin="round"
-                                                                            d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-.046.134-.094.266-.145.397C20.268 16.057 16.478 19 12 19c-4.478 0-8.268-2.943-9.542-7 .05-.131.099-.263.145-.397z"
-                                                                        />
-                                                                    </svg>
-                                                                    {course.views} lượt xem
-                                                                </span>
 
-                                                            </div>
+                                                                    <div className="flex items-center space-x-4 mb-3">
+                                                                        <div className="flex items-center">
+                                                                            <Users className="w-4 h-4 text-gray-400 mr-1" />
+                                                                            <p className="text-sm text-gray-600 font-medium">
+                                                                                {users[course.user_id]?.name || "Tên giảng viên"}
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
 
-                                                            <div className="flex flex-col sm:items-end">
-                                                                <div className="flex items-center mb-3">
+                                                                    <div className="flex flex-wrap gap-4 text-xs text-gray-500 mb-4">
+                                                                        <div className="flex items-center">
+                                                                            <Clock className="w-4 h-4 mr-1" />
+                                                                            <span>Cập nhật {formatDateNoTime(course.updated_at)}</span>
+                                                                        </div>
+                                                                        <div className="flex items-center">
+                                                                            <Eye className="w-4 h-4 mr-1" />
+                                                                            <span>{course.views} lượt xem</span>
+                                                                        </div>
+                                                                    </div>
 
-                                                                </div>
-                                                                <div className="flex flex-col sm:items-end">
-                                                                    <p className="text-lg sm:text-xl font-bold text-black-600">
-                                                                        {formatCurrency(course.price_discount)}
-                                                                    </p>
-                                                                    <span className="line-through text-gray-400 text-sm">
-                                                                        {formatCurrency(course.price)}
-                                                                    </span>
+                                                                    <div className="mt-auto pt-3 border-t border-gray-100">
+                                                                        <div className="flex items-center justify-between">
+                                                                            <div className="flex flex-col">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <p className="font-bold text-xl text-black-700">
+                                                                                        {formatCurrency(course.price_discount)}
+                                                                                    </p>
+                                                                                    <span className="inline-flex items-center justify-center bg-purple-50 px-2 py-1 rounded-full text-xs font-medium text-yellow-500 whitespace-nowrap">
+                                                                                        -{Math.round((course.price - course.price_discount) / course.price * 100)}%
+                                                                                    </span>
+                                                                                </div>
+                                                                                <p className="text-sm line-through text-gray-400">
+                                                                                    {formatCurrency(course.price)}
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                ))
+                                            ) : (
+                                                <div className="text-center py-8 bg-white rounded-xl">
+                                                    <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                                                    <p className="text-gray-500">Đang cập nhật nội dung...</p>
                                                 </div>
-                                            ))
-                                        ) : (
-                                            <div className="text-center py-8 bg-white rounded-xl">
-                                                <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                                                <p className="text-gray-500">Đang cập nhật nội dung...</p>
-                                            </div>
-                                        )
+                                            )}
+                                        </div>
                                     )}
                                 </div>
                             </div>
                         </div>
+
                         {/* Kết thúc Section 4 */}
                         {/* Section 5 */}
                         <div className="container mx-auto px-4 py-8">
@@ -1226,10 +1228,11 @@ export const Detail = () => {
                                             <AvatarImage
                                                 src={teacher.avatar || "https://github.com/shadcn.png"}
                                                 alt={teacher.name}
+                                                className="rounded-full border border-gray-200"
                                             />
                                         </Avatar>
-                                        <div className="ml-6">
-                                            <h3 className="text-2xl font-semibold mb-2" style={{ color: "#5022c3" }}>
+                                        <div className="ml-6 flex-grow">
+                                            <h3 className="text-2xl font-semibold mb-2 text-purple-700">
                                                 {teacher.name}
                                             </h3>
                                             <p className="text-gray-600 mb-4 text-lg">
@@ -1252,7 +1255,7 @@ export const Detail = () => {
                                             </ul>
                                             <Accordion type="single" collapsible className="w-full">
                                                 <AccordionItem value="instructor-description">
-                                                    <AccordionTrigger className="hover:no-underline">Xem thêm</AccordionTrigger>
+                                                    <AccordionTrigger className="text-black-600 hover:no-underline">Xem thêm</AccordionTrigger>
                                                     <AccordionContent>
                                                         <p className="text-gray-700 leading-relaxed">
                                                             {teacher.description || 'Chưa có thông tin mô tả.'}
@@ -1265,6 +1268,7 @@ export const Detail = () => {
                                 ))
                             )}
                         </div>
+
                         {/* Kết thúc Section 5 */}
 
                         {/* Section 6 */}
@@ -1282,189 +1286,157 @@ export const Detail = () => {
                                     )}
                                 </h3>
                                 <div className="space-y-3 mb-3">
-                                    {/*phần chọn sao */}
-                                    <div className="flex items-center space-x-1">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                className={`w-6 h-6 cursor-pointer ${i < rating
-                                                    ? "text-yellow-500"
-                                                    : "text-gray-300"
-                                                    }`}
-                                                fill="currentColor"
-                                                onClick={() => setRating(i + 1)} // Cập nhật số sao khi click
-                                            />
-                                        ))}
-                                    </div>
+                                    {loading ? (
+                                        <>
+                                            <div className="flex items-center space-x-1">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <div key={i} className="w-6 h-6 bg-gray-200 rounded-full" />
+                                                ))}
+                                            </div>
+                                            <div className="h-16 bg-gray-200 rounded-md" />
+                                            <div className="w-32 h-10 bg-gray-200 rounded-md" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            {/* Phần chọn sao */}
+                                            <div className="flex items-center space-x-1">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star
+                                                        key={i}
+                                                        className={`w-6 h-6 cursor-pointer ${i < rating
+                                                            ? "text-yellow-500"
+                                                            : "text-gray-300"
+                                                            }`}
+                                                        fill="currentColor"
+                                                        onClick={() => setRating(i + 1)} // Cập nhật số sao khi click
+                                                    />
+                                                ))}
+                                            </div>
 
-                                    {/* Nhập nội dung bình luận */}
-                                    <textarea
-                                        placeholder="Nhập nội dung bình luận"
-                                        className="w-full border rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        rows="3"
-                                        value={comment}
-                                        onChange={(e) =>
-                                            setComment(e.target.value)
-                                        }
-                                    />
-                                    {/* Thông báo lỗi */}
-                                    {errorMessage && (
-                                        <p className="text-red-500 mt-2">
-                                            {errorMessage}
-                                        </p>
+                                            {/* Nhập nội dung bình luận */}
+                                            <textarea
+                                                placeholder="Nhập nội dung bình luận"
+                                                className="w-full border rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                rows="3"
+                                                value={comment}
+                                                onChange={(e) => setComment(e.target.value)}
+                                            />
+                                            {/* Thông báo lỗi */}
+                                            {errorMessage && (
+                                                <p className="text-red-500 mt-2">
+                                                    {errorMessage}
+                                                </p>
+                                            )}
+                                            <button
+                                                className="bg-black text-white px-3 py-1 rounded-md hover:bg-gray-800"
+                                                onClick={addComment}
+                                            >
+                                                Gửi bình luận
+                                            </button>
+                                        </>
                                     )}
-                                    <button
-                                        className="bg-black text-white px-3 py-1 rounded-md hover:bg-gray-800"
-                                        onClick={addComment}
-                                    >
-                                        Gửi bình luận
-                                    </button>
                                 </div>
-                                {/* Hiển thị bình luận */}
                                 {renderComments}
                             </div>
                         </div>
+
                         {/* Kết thúc Section 6 */}
                         {/* Section 7 */}
                         <div className="container mx-auto px-4 py-8">
-                            <h2 className="text-2xl font-bold mb-6">
-                                Các khóa học khác của{" "}
-                                <span style={{ color: "#5022c3" }}>
-                                    Toan Bill
-                                </span>
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                {/* Course 1 */}
-                                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                                    <img
-                                        src="../img/inclusion.jpg"
-                                        alt="Cisco Network Security"
-                                        className="w-full h-48 object-cover"
-                                    />
-                                    <div className="p-4">
-                                        {/* Tên khóa học */}
-                                        <h3 className="font-bold text-md mb-2">
-                                            Cisco Network Security Packet Tracer
-                                            Activities...
-                                        </h3>
-                                        {/* Tên giảng viên */}
-                                        <p className="text-xs text-gray-600">
-                                            Toan Bill
-                                        </p>
-                                        {/* Đánh giá */}
-                                        <div className="flex items-center mb-2">
-                                            <span className="text-yellow-500 font-bold mr-1 text-sm">
-                                                4,7
-                                            </span>
-                                            <span className="text-yellow-500 text-sm">
-                                                ★★★★☆
-                                            </span>
-                                            <span className="text-gray-600 text-xs ml-1">
-                                                (31)
-                                            </span>
-                                        </div>
-                                        {/* Thông tin khóa học */}
-                                        <p className="text-xs text-gray-600 mb-2">
-                                            Tổng số 7 giờ • 69 bài giảng • Trung
-                                            cấp
-                                        </p>
-                                        {/* Giá */}
-                                        <p className="font-bold text-lg">
-                                            229.000 ₫
-                                        </p>
-                                        <p className="text-sm line-through text-gray-500">
-                                            399.000 ₫
-                                        </p>
+                            {loading ? (
+                                <>
+                                    <h2 className="text-2xl font-bold mb-6">
+                                        Các khóa học khác của{" "}
+                                        <span className="text-purple-700">Giảng viên</span>
+                                    </h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        {Array.from({ length: 3 }).map((_, index) => (
+                                            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+                                                <div className="w-full h-48 bg-gray-200" />
+                                                <div className="p-4">
+                                                    <div className="h-4 bg-gray-200 rounded mb-2 w-3/4" />
+                                                    <div className="h-3 bg-gray-200 rounded mb-2 w-1/2" />
+                                                    <div className="h-6 bg-gray-200 rounded mb-2 w-1/4" />
+                                                    <div className="h-3 bg-gray-200 rounded w-1/2" />
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                </div>
-                                {/* Course 2 */}
-                                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                                    <img
-                                        src="../img/inclusion.jpg"
-                                        alt="Cisco Network Security"
-                                        className="w-full h-48 object-cover"
-                                    />
-                                    <div className="p-4">
-                                        {/* Tên khóa học */}
-                                        <h3 className="font-bold text-md mb-2">
-                                            Cisco Network Security Packet Tracer
-                                            Activities...
-                                        </h3>
-                                        {/* Tên giảng viên */}
-                                        <p className="text-xs text-gray-600">
-                                            Toan Bill
-                                        </p>
-                                        {/* Đánh giá */}
-                                        <div className="flex items-center mb-2">
-                                            <span className="text-yellow-500 font-bold mr-1 text-sm">
-                                                4,7
+                                </>
+                            ) : (
+                                courseRelatedInstructor.length > 0 ? (
+                                    <>
+                                        <h2 className="text-2xl font-bold mb-6">
+                                            Các khóa học của{" "}
+                                            <span className="text-purple-700">
+                                                {users[courseRelatedInstructor[0].user_id]?.name || "Giảng viên"}
                                             </span>
-                                            <span className="text-yellow-500 text-sm">
-                                                ★★★★☆
-                                            </span>
-                                            <span className="text-gray-600 text-xs ml-1">
-                                                (31)
-                                            </span>
+                                        </h2>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            {courseRelatedInstructor.map((course, index) => (
+                                                <div key={index}
+                                                    className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+                                                    <Link to={`/detail/${course.slug}`} className="relative group">
+                                                        <img
+                                                            src={course.img || "../img/inclusion.jpg"}
+                                                            alt={course.title || "Course Image"}
+                                                            className="w-full h-48 object-cover "
+                                                        />
+                                                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
+                                                    </Link>
+
+                                                    <div className="p-5 flex flex-col flex-grow">
+                                                        <Link to={`/detail/${course.slug}`}>
+                                                            <h3 className="font-bold text-lg mb-3 line-clamp-2 ">
+                                                                {course.title || "Tên khóa học"}
+                                                            </h3>
+                                                        </Link>
+
+                                                        <div className="flex items-center space-x-4 mb-3">
+                                                            <div className="flex items-center">
+                                                                <Users className="w-4 h-4 text-gray-400 mr-1" />
+                                                                <p className="text-sm text-gray-600 font-medium">
+                                                                    {users[course.user_id]?.name || "Tên giảng viên"}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex items-center text-xs text-gray-500 mb-4">
+                                                            <Clock className="w-4 h-4 mr-1" />
+                                                            <span>Cập nhật {formatDateNoTime(course.updated_at)}</span>
+                                                        </div>
+
+                                                        <div className="mt-auto pt-3 border-t border-gray-100">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex flex-col">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <p className="font-bold text-xl text-black-700">
+                                                                            {formatCurrency(course.price_discount)}
+                                                                        </p>
+                                                                        <span className="inline-flex items-center justify-center bg-purple-50 px-2 py-1 rounded-full text-xs font-medium text-yellow-300 whitespace-nowrap">
+                                                                            -{Math.round((course.price - course.price_discount) / course.price * 100)}%
+                                                                        </span>
+                                                                    </div>
+                                                                    <p className="text-sm line-through text-gray-400">
+                                                                        {formatCurrency(course.price)}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
-                                        {/* Thông tin khóa học */}
-                                        <p className="text-xs text-gray-600 mb-2">
-                                            Tổng số 7 giờ • 69 bài giảng • Trung
-                                            cấp
-                                        </p>
-                                        {/* Giá */}
-                                        <p className="font-bold text-lg">
-                                            229.000 ₫
-                                        </p>
-                                        <p className="text-sm line-through text-gray-500">
-                                            399.000 ₫
-                                        </p>
+                                    </>
+                                ) : (
+                                    <div className="text-center py-8 bg-white rounded-xl">
+                                        <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                                        <p className="text-gray-500">Đang cập nhật nội dung...</p>
                                     </div>
-                                </div>
-                                {/* Course 3 */}
-                                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                                    <img
-                                        src="../img/inclusion.jpg"
-                                        alt="Cisco Network Security"
-                                        className="w-full h-48 object-cover"
-                                    />
-                                    <div className="p-4">
-                                        {/* Tên khóa học */}
-                                        <h3 className="font-bold text-md mb-2">
-                                            Cisco Network Security Packet Tracer
-                                            Activities...
-                                        </h3>
-                                        {/* Tên giảng viên */}
-                                        <p className="text-xs text-gray-600">
-                                            Toan Bill
-                                        </p>
-                                        {/* Đánh giá */}
-                                        <div className="flex items-center mb-2">
-                                            <span className="text-yellow-500 font-bold mr-1 text-sm">
-                                                4,7
-                                            </span>
-                                            <span className="text-yellow-500 text-sm">
-                                                ★★★★☆
-                                            </span>
-                                            <span className="text-gray-600 text-xs ml-1">
-                                                (31)
-                                            </span>
-                                        </div>
-                                        {/* Thông tin khóa học */}
-                                        <p className="text-xs text-gray-600 mb-2">
-                                            Tổng số 7 giờ • 69 bài giảng • Trung
-                                            cấp
-                                        </p>
-                                        {/* Giá */}
-                                        <p className="font-bold text-lg">
-                                            229.000 ₫
-                                        </p>
-                                        <p className="text-sm line-through text-gray-500">
-                                            399.000 ₫
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+                                )
+                            )}
                         </div>
+
                         {/* Kết thúc Section 7 */}
                     </div>
                     {/* Cột phải (thông tin mua hàng) */}
