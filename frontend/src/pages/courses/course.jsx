@@ -36,11 +36,11 @@ export const Courses = () => {
     const searchQuery = searchParams.get('search');
     const { courses, setCourses } = useContext(CoursesContext);
     const [coursesPerPage] = useState(4);
-    const [loading,setLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
     const location = useLocation();
     const navigate = useNavigate();
     const { categories } = useContext(CategoriesContext);
-    const [ hotInstructor, setHotInstructor ] = useState([]);
+    const [hotInstructor, setHotInstructor] = useState([]);
     const API_URL = import.meta.env.VITE_API_URL;
     const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -63,10 +63,10 @@ export const Courses = () => {
                 },
             });
             const hotInstructor = response.data
-            setHotInstructor(hotInstructor.slice(0,4));
+            setHotInstructor(hotInstructor.slice(0, 4));
         } catch (error) {
             console.log('Error fetching hot instructor', error)
-        }finally {
+        } finally {
             setLoading(false);
         }
     }

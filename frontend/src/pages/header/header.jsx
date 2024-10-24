@@ -33,14 +33,7 @@ import { CategoriesContext } from "../context/categoriescontext";
 import { CoursesContext } from "../context/coursescontext";
 
 export const Header = () => {
-    const {
-        searchValue,
-        setSearchValue,
-        filteredProducts,
-        isOpen,
-        setIsOpen,
-        debouncedFetchSearchResults
-    } = useContext(CoursesContext);
+    const {searchValue,setSearchValue,filteredProducts,isOpen,setIsOpen,debouncedFetchSearchResults} = useContext(CoursesContext);
     const { categories } = useContext(CategoriesContext);
     const { user, logined, logout, refreshToken } = useContext(UserContext);
     const location = useLocation();
