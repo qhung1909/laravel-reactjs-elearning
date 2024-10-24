@@ -502,7 +502,7 @@ export const Courses = () => {
                                                                 {" "}
                                                                 Từ 4.5 trở lên
                                                                 <span className="text-gray-600">
-                                                                    (10.000)
+                                                                    {courses.length}
                                                                 </span>
                                                             </span>
                                                             <br />
@@ -679,7 +679,7 @@ export const Courses = () => {
                         <div className="lg:block hidden">
                             <div className="ml-auto">
                                 <p className=" text-gray-500  font-bold">
-                                    10.000 kết quả
+                                {courses.length} kết quả
                                 </p>
                             </div>
                         </div>
