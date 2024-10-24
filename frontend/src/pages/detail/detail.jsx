@@ -1,6 +1,8 @@
 import "./detail.css";
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
-import { CategoriesContext } from "../context/categoriescontext";
+import { formatDate } from "@/components/FormatDay/Formatday";
+import { formatDateNoTime } from "@/components/FormatDay/Formatday";
+// import { CategoriesContext } from "../context/categoriescontext";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { Edit, Trash } from "lucide-react";
@@ -35,8 +37,6 @@ import Swal from "sweetalert2";
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { format } from "date-fns";
-
 import {
     SkeletonLoaderBanner,
     SkeletonLoaderProduct,
@@ -67,13 +67,7 @@ export const Detail = () => {
             ? Math.round(((price - price_discount) / price) * 100)
             : 0; // Tránh chia cho 0
 
-    // Format ngày tháng
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        if (isNaN(date)) return "Ngày không hợp lệ";
 
-        return format(date, "dd/MM/yyyy - HH:mm a");
-    };
 
     // Rating & comment
     const [rating, setRating] = useState(0);
@@ -1118,7 +1112,7 @@ export const Detail = () => {
                                                                     </Link>
                                                                 </h3>
                                                                 <p className="text-gray-600 text-sm">
-                                                                    Cập nhật {formatDate(course.updated_at)}
+                                                                    Cập nhật {formatDateNoTime(course.updated_at)}
                                                                 </p>
                                                                 <span className="text-gray-600 flex items-center whitespace-nowrap py-0.5 pt-2 text-xs">
                                                                     <svg
