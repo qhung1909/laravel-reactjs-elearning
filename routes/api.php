@@ -75,6 +75,7 @@ Route::middleware(['admin'])->group(function () {
     Route::get('courses/featured', [CourseController::class, 'featureCouse']);
     Route::get('/userCourses/{userId}', [UserCourseController::class, 'show']);
     Route::get('/courses/related/{categoryId}/{slug}', [CourseController::class, 'relatedCoursesByCategory']);
+    Route::get('/courses/user/{userId}', [CourseController::class, 'coursesByUserId']);
 
     //Comment
     Route::get('/comments/{course_id}', [CommentController::class, 'index']);

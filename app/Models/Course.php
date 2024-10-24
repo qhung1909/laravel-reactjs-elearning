@@ -33,7 +33,7 @@ class Course extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
     public function userCourses()
     {
@@ -41,7 +41,7 @@ class Course extends Model
     }
     public function comments()
     {
-        return $this->hasMany(Comment::class, 'course_id'); // Đảm bảo tên cột ở đây đúng
+        return $this->hasMany(Comment::class, 'course_id'); 
     }
 
     public function averageRating()
