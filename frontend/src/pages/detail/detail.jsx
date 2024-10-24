@@ -1,5 +1,6 @@
 import "./detail.css";
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
+import { CategoriesContext } from "../context/categoriescontext";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { Edit, Trash } from "lucide-react";
@@ -31,7 +32,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Toaster, toast } from "react-hot-toast";
 import Swal from "sweetalert2";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
@@ -46,6 +47,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const Detail = () => {
+    // const { categories } = useContext(CategoriesContext);
     const [detail, setDetail] = useState([]);
     const { slug } = useParams();
     const [loading, setLoading] = useState([]);
@@ -219,6 +221,7 @@ export const Detail = () => {
             setLoading(false);
         }
     };
+
     const fetchDetail = async () => {
         setLoading(true);
         try {
@@ -230,8 +233,7 @@ export const Detail = () => {
 
             if (res.data && res.data.course_id) {
                 setDetail(res.data);
-                fetchComments(res.data.course_id); // Truyền course_id vào hàm fetchComments
-                // Gọi checkPaymentCourse sau khi đã có detail
+                fetchComments(res.data.course_id);
                 if (user.user_id) {
                     checkPaymentCourse(user.user_id);
                 }
@@ -258,6 +260,37 @@ export const Detail = () => {
             fetchDetail();
         }
     }, [slug]);
+
+    const [courseRelated, setCourseRelated] = useState([]);
+    const fetchCourseRelated = async () => {
+        const categoryId = detail.course_category_id;
+        const slug = detail.slug;
+        try {
+            const res = await axios.get(`${API_URL}/courses/related/${categoryId}/${slug}`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                },
+            });
+
+            if (res.data) {
+                const limitedCourses = res.data.slice(0, 2);
+                setCourseRelated(limitedCourses);
+            } else {
+                console.error("Dữ liệu không hợp lệ:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu khóa học:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (detail) {
+            fetchCourseRelated();
+        }
+    }, [detail]);
 
     const [isPaymentCourse, setPaymentCourse] = useState(false);
 
@@ -846,158 +879,144 @@ export const Detail = () => {
                     <div className="w-full lg:w-2/3 px-4">
                         {/* Section 3 */}
                         <div className="container mx-auto px-4 py-8">
-                            <h2 className="text-2xl font-bold mb-4">
-                                Nội dung khóa học
-                            </h2>
-                            <p className="text-gray-600 mb-6">
-                                19 phần - 121 bài giảng - 8 giờ 42 phút tổng
-                                thời lượng
-                            </p>
+                            <h2 className="text-2xl font-bold mb-4">Nội dung khóa học</h2>
+                            <p className="text-gray-600 mb-6">19 phần - 121 bài giảng - 8 giờ 42 phút tổng thời lượng</p>
+
                             <div className="bg-white rounded-lg overflow-hidden">
                                 <div className="border-b">
-                                    <Accordion
-                                        type="multiple"
-                                        className="w-full space-y-4 bg-white rounded-xl shadow-lg p-6"
-                                    >
-                                        {Array.isArray(lessonContents) && lessonContents.length > 0 ? (
-                                            lessonContents.map((content, index) => (
-                                                <AccordionItem
-                                                    key={index}
-                                                    value={`content-${index}`}
-                                                    className="group border border-gray-200 rounded-lg overflow-hidden mb-2
-                     hover:border-yellow-500 hover:shadow-md transition-all duration-300"
-                                                >
-                                                    <AccordionTrigger className="px-6 py-4 bg-gradient-to-r from-yellow-50/50 to-white
-                         hover:bg-gradient-to-r hover:from-yellow-50 hover:to-white
-                         font-medium text-gray-700 text-left">
+                                    <Accordion type="multiple" className="w-full space-y-4 bg-white rounded-xl shadow-lg p-6">
+                                        {loading ? (
+                                            // Render skeleton loaders while loading
+                                            Array.from({ length: 2 }).map((_, index) => (
+                                                <div key={index} className="group border border-gray-200 rounded-lg overflow-hidden mb-2 animate-pulse">
+                                                    <div className="px-6 py-4 bg-gray-200">
                                                         <div className="flex items-center justify-between w-full">
                                                             <div className="flex items-center gap-4">
-                                                                <span className="flex items-center justify-center w-8 h-8 rounded-full
-                           bg-yellow-100 text-yellow-600 font-semibold text-sm
-                           group-hover:bg-yellow-200 transition-colors">
+                                                                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-300 text-gray-600 font-semibold text-sm">
                                                                     {index + 1}
                                                                 </span>
-                                                                <span className="text-base group-hover:text-yellow-600 transition-colors">
-                                                                    {content.title_content}
-                                                                </span>
+                                                                <div className="h-4 bg-gray-300 rounded w-3/4" />
                                                             </div>
                                                             <div className="flex items-center gap-3">
-                                                                {content.content_id === 1 ? (
-                                                                    <CheckCircle className="text-green-500 mr-3" size={18} />
-                                                                ) : (
-                                                                    <Lock className="text-gray-400 mr-3" size={18} />
-                                                                )}
+                                                                <div className="h-4 bg-gray-300 rounded w-8" />
                                                             </div>
                                                         </div>
-                                                    </AccordionTrigger>
-
-                                                    <AccordionContent className="border-t border-gray-100">
-                                                        {content.content_id === 1 ? (
-                                                            <div className="space-y-6 p-6">
-                                                                {Array.isArray(content.body_content) ? (
-                                                                    <div className="space-y-4">
-                                                                        {content.body_content.map((body, i) => (
-                                                                            <div key={i}
-                                                                                className="flex gap-3 text-gray-600 leading-relaxed
-                                      hover:bg-yellow-50 rounded-lg p-3 transition-colors">
-                                                                                <span className="font-medium text-yellow-600 min-w-[24px]">
-                                                                                    {i + 1}.
-                                                                                </span>
-                                                                                <p className="flex-1">{body}</p>
-                                                                            </div>
-                                                                        ))}
-                                                                    </div>
-                                                                ) : (
-                                                                    <p className="text-gray-600 p-3">{content.body_content}</p>
-                                                                )}
-
-                                                                {content.video_content && (
-                                                                    <Dialog>
-                                                                        <DialogTrigger asChild>
-                                                                            <Button
-                                                                                className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white
-                                   rounded-lg flex items-center gap-2 px-6 py-3
-                                   transition-all duration-300 hover:shadow-lg"
-                                                                                onClick={() => showModal(content.video_content)}
-                                                                            >
-                                                                                <Play size={18} />
-                                                                                Xem video bài học
-                                                                            </Button>
-                                                                        </DialogTrigger>
-                                                                        <DialogContent className="max-w-4xl mx-auto p-6">
-                                                                            <DialogTitle className="text-xl font-semibold mb-4">
-                                                                                {content.title_content}
-                                                                            </DialogTitle>
-                                                                            <DialogDescription>
-                                                                                <div
-                                                                                    className="relative w-full rounded-lg overflow-hidden shadow-lg"
-                                                                                    style={{ paddingTop: "56.25%" }}
-                                                                                >
-                                                                                    <ReactPlayer
-                                                                                        url={currentVideoUrl}
-                                                                                        className="absolute top-0 left-0"
-                                                                                        controls={true}
-                                                                                        width="100%"
-                                                                                        height="100%"
-                                                                                    />
-                                                                                </div>
-                                                                            </DialogDescription>
-                                                                        </DialogContent>
-                                                                    </Dialog>
-                                                                )}
-                                                            </div>
-                                                        ) : (
-                                                            <div className="text-center py-8">
-                                                                <p className="text-gray-500 italic">
-                                                                    Vào học để xem thêm nội dung
-                                                                </p>
-                                                            </div>
-                                                        )}
-                                                    </AccordionContent>
-                                                </AccordionItem>
+                                                    </div>
+                                                    <div className="border-t border-gray-100">
+                                                        <div className="p-6 space-y-4">
+                                                            <div className="h-3 bg-gray-300 rounded w-full" />
+                                                            <div className="h-3 bg-gray-300 rounded w-full" />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             ))
                                         ) : (
-                                            <div className="text-center py-8 bg-white rounded-xl">
-                                                <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                                                <p className="text-gray-500">Đang cập nhật nội dung...</p>
-                                            </div>
+                                            Array.isArray(lessonContents) && lessonContents.length > 0 ? (
+                                                lessonContents.map((content, index) => (
+                                                    <AccordionItem
+                                                        key={index}
+                                                        value={`content-${index}`}
+                                                        className="group border border-gray-200 rounded-lg overflow-hidden mb-2 hover:border-yellow-500 hover:shadow-md transition-all duration-300"
+                                                    >
+                                                        <AccordionTrigger className="px-6 py-4 bg-gradient-to-r from-yellow-50/50 to-white hover:bg-gradient-to-r hover:from-yellow-50 hover:to-white font-medium text-gray-700 text-left">
+                                                            <div className="flex items-center justify-between w-full">
+                                                                <div className="flex items-center gap-4">
+                                                                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 font-semibold text-sm group-hover:bg-yellow-200 transition-colors">
+                                                                        {index + 1}
+                                                                    </span>
+                                                                    <span className="text-base group-hover:text-yellow-600 transition-colors">
+                                                                        {content.title_content}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex items-center gap-3">
+                                                                    {content.content_id === 1 ? (
+                                                                        <CheckCircle className="text-green-500 mr-3" size={18} />
+                                                                    ) : (
+                                                                        <Lock className="text-gray-400 mr-3" size={18} />
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </AccordionTrigger>
+
+                                                        <AccordionContent className="border-t border-gray-100">
+                                                            {content.content_id === 1 ? (
+                                                                <div className="space-y-6 p-6">
+                                                                    {Array.isArray(content.body_content) ? (
+                                                                        <div className="space-y-4">
+                                                                            {content.body_content.map((body, i) => (
+                                                                                <div key={i} className="flex gap-3 text-gray-600 leading-relaxed hover:bg-yellow-50 rounded-lg p-3 transition-colors">
+                                                                                    <span className="font-medium text-yellow-600 min-w-[24px]">
+                                                                                        {i + 1}.
+                                                                                    </span>
+                                                                                    <p className="flex-1">{body}</p>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <p className="text-gray-600 p-3">{content.body_content}</p>
+                                                                    )}
+
+                                                                    {content.video_content && (
+                                                                        <Dialog>
+                                                                            <DialogTrigger asChild>
+                                                                                <Button
+                                                                                    className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg flex items-center gap-2 px-6 py-3 transition-all duration-300 hover:shadow-lg"
+                                                                                    onClick={() => showModal(content.video_content)}
+                                                                                >
+                                                                                    <Play size={18} />
+                                                                                    Xem video bài học
+                                                                                </Button>
+                                                                            </DialogTrigger>
+                                                                            <DialogContent className="max-w-4xl mx-auto p-6">
+                                                                                <DialogTitle className="text-xl font-semibold mb-4">
+                                                                                    {content.title_content}
+                                                                                </DialogTitle>
+                                                                                <DialogDescription>
+                                                                                    <div className="relative w-full rounded-lg overflow-hidden shadow-lg" style={{ paddingTop: "56.25%" }}>
+                                                                                        <ReactPlayer
+                                                                                            url={currentVideoUrl}
+                                                                                            className="absolute top-0 left-0"
+                                                                                            controls={true}
+                                                                                            width="100%"
+                                                                                            height="100%"
+                                                                                        />
+                                                                                    </div>
+                                                                                </DialogDescription>
+                                                                            </DialogContent>
+                                                                        </Dialog>
+                                                                    )}
+                                                                </div>
+                                                            ) : (
+                                                                <div className="text-center py-8">
+                                                                    <p className="text-gray-500 italic">Vào học để xem thêm nội dung</p>
+                                                                </div>
+                                                            )}
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                ))
+                                            ) : (
+                                                <div className="text-center py-8 bg-white rounded-xl">
+                                                    <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                                                    <p className="text-gray-500">Đang cập nhật nội dung...</p>
+                                                </div>
+                                            )
                                         )}
                                     </Accordion>
                                 </div>
                             </div>
 
-                            <h2 className="text-2xl font-bold mt-8 mb-4">
-                                Yêu cầu
-                            </h2>
+                            <h2 className="text-2xl font-bold mt-8 mb-4">Yêu cầu</h2>
                             <ul className="list-disc pl-8">
-                                <li>
-                                    Có kiến thức cơ bản về kiến trúc máy tính
-                                </li>
-                                <li>
-                                    Có máy tính nối mạng Internet để thực hành
-                                    các bài tập
-                                </li>
+                                <li>Có kiến thức cơ bản về kiến trúc máy tính</li>
+                                <li>Có máy tính nối mạng Internet để thực hành các bài tập</li>
                             </ul>
+
                             {/* Mô tả */}
-                            <div
-                                className={`section-3-content ${isSection3Expanded ? "" : "collapsed"
-                                    } mt-4`}
-                            >
-                                <h2 className="text-2xl font-bold mb-4">
-                                    Mô tả
-                                </h2>
-                                <p
-                                    className="text-black-600 mb-6"
-                                    style={{ marginBottom: 10 }}
-                                >
-                                    Hello, {user.name}
-                                </p>
-                                <p className="text-black-600 mb-6">
-                                    Khóa học <strong>{detail.title}</strong>
-                                </p>
-                                <p className="text-black-600 mb-6">
-                                    <strong>Mô tả của bài học:</strong>
-                                </p>
+                            <div className={`section-3-content ${isSection3Expanded ? "" : "collapsed"} mt-4`}>
+                                <h2 className="text-2xl font-bold mb-4">Mô tả</h2>
+                                <p className="text-black-600 mb-6" style={{ marginBottom: 10 }}>Hello, {user.name}</p>
+                                <p className="text-black-600 mb-6">Khóa học <strong>{detail.title}</strong></p>
+                                <p className="text-black-600 mb-6"><strong>Mô tả của bài học:</strong></p>
                                 <ul className="list-disc pl-8 mb-6">
                                     {lesson && lesson.description && (
                                         <li>{lesson.description}</li>
@@ -1005,13 +1024,8 @@ export const Detail = () => {
                                 </ul>
                             </div>
 
-                            <button
-                                onClick={toggleSection3}
-                                className="mt-4 text-blue-600 hover:underline focus:outline-none"
-                            >
-                                {isSection3Expanded
-                                    ? "Ẩn bớt ^"
-                                    : "Hiện thêm ^"}
+                            <button onClick={toggleSection3} className="mt-4 text-blue-600 hover:underline focus:outline-none">
+                                {isSection3Expanded ? "Ẩn bớt ^" : "Hiện thêm ^"}
                             </button>
                         </div>
                         {/* Kết thúc Section 3 */}
@@ -1020,95 +1034,100 @@ export const Detail = () => {
                         <div className="bg-white-50 py-8 sm:py-12">
                             <div className="container mx-auto px-4">
                                 <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">
-                                    Học viên cũng mua
+                                    Khóa học liên quan
                                 </h2>
                                 <div className="space-y-6">
-                                    {/* Khóa học 1 */}
-                                    <div className="flex flex-col sm:flex-row items-start sm:items-center bg-white p-4 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg">
-                                        <img
-                                            src="/src/assets/images/inclusion2.jpg"
-                                            alt="Khóa học 1"
-                                            className="w-full sm:w-32 h-48 sm:h-32 object-cover rounded-lg mb-4 sm:mb-0 sm:mr-6"
-                                        />
-                                        <div className="flex-grow">
-                                            <div className="sm:flex sm:justify-between">
-                                                <div className="mb-4 sm:mb-0 sm:mr-6">
-                                                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                                                        Machine Learning: Build
-                                                        neural networks in 77
-                                                        lines of code
-                                                    </h3>
-                                                    <p className="text-gray-600 text-sm">
-                                                        Tổng số 1 giờ • Đã cập
-                                                        nhật 1/2019
-                                                    </p>
-                                                </div>
-                                                <div className="flex flex-col sm:items-end">
-                                                    <div className="flex items-center mb-2">
-                                                        <span className="text-yellow-500 font-bold">
-                                                            4,7
-                                                        </span>
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            className="h-5 w-5 text-yellow-500 ml-1"
-                                                            viewBox="0 0 20 20"
-                                                            fill="currentColor"
-                                                        >
-                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                        </svg>
-                                                        <span className="text-gray-600 ml-2 flex items-center">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-5 w-5 mr-1"
-                                                                viewBox="0 0 20 20"
-                                                                fill="currentColor"
-                                                            >
-                                                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                                                            </svg>
-                                                            1.865
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex items-center justify-between sm:flex-col sm:items-end">
-                                                        <div className="flex flex-col sm:items-end">
-                                                            <p className="text-lg sm:text-xl font-bold text-black-600">
-                                                                ₫ 229.000
-                                                            </p>
-                                                            <span className="line-through text-gray-400 text-sm">
-                                                                ₫ 399.000
-                                                            </span>
+                                    {loading ? (
+                                        Array.from({ length: 2 }).map((_, index) => (
+                                            <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center bg-white p-4 rounded-lg shadow-md animate-pulse">
+                                                <div className="w-full sm:w-32 h-48 sm:h-32 bg-gray-200 rounded-lg mb-4 sm:mb-0 sm:mr-6" />
+                                                <div className="flex-grow">
+                                                    <div className="sm:flex sm:justify-between">
+                                                        <div className="mb-4 sm:mb-0 sm:mr-6">
+                                                            <div className="h-4 bg-gray-200 rounded mb-2 w-3/4" />
+                                                            <div className="h-3 bg-gray-200 rounded w-1/2" />
                                                         </div>
-                                                        <button className="ml-4 sm:ml-0 sm:mt-2 p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-300">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-6 w-6 text-gray-600"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth={
-                                                                        2
-                                                                    }
-                                                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                                                                />
-                                                            </svg>
-                                                        </button>
+                                                        <div className="flex flex-col sm:items-end">
+                                                            <div className="flex items-center mb-2">
+                                                                <span className="h-4 bg-gray-200 rounded w-16" />
+                                                            </div>
+                                                            <div className="flex items-center justify-between sm:flex-col sm:items-end">
+                                                                <div className="flex flex-col sm:items-end">
+                                                                    <div className="h-4 bg-gray-200 rounded mb-1 w-20" />
+                                                                    <span className="h-3 bg-gray-200 rounded w-16" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {/* Nút Hiện thêm */}
-                                <div className="text-center mt-6">
-                                    <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-100">
-                                        Hiện thêm
-                                    </button>
+                                        ))
+                                    ) : (
+                                        courseRelated && courseRelated.length > 0 ? (
+                                            courseRelated.map((course) => (
+                                                <div
+                                                    key={course.course_id}
+                                                    className="flex flex-col sm:flex-row items-start sm:items-center bg-white p-4 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg"
+                                                >
+                                                    <Link to={`/detail/${course.slug}`} ><img
+                                                        src={course.img}
+                                                        alt={course.title}
+                                                        className="w-full sm:w-32 h-48 sm:h-32 object-cover rounded-lg mb-4 sm:mb-0 sm:mr-6"
+                                                    /></Link>
+
+                                                    <div className="flex-grow">
+                                                        <div className="sm:flex sm:justify-between">
+                                                            <div className="mb-4 sm:mb-0 sm:mr-6">
+                                                                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                                                                    <Link to={`/detail/${course.slug}`} >
+                                                                        {course.title}
+                                                                    </Link>
+                                                                </h3>
+
+                                                                <p className="text-gray-600 text-sm">
+                                                                    Cập nhật {formatDate(course.updated_at)}
+                                                                </p>
+                                                            </div>
+                                                            <div className="flex flex-col sm:items-end">
+                                                                <div className="flex items-center mb-2">
+                                                                    <span className="text-gray-600 ml-2 flex items-center">
+                                                                        <svg
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            className="h-5 w-5 mr-1"
+                                                                            viewBox="0 0 20 20"
+                                                                            fill="currentColor"
+                                                                        >
+                                                                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                                                        </svg>
+                                                                        {course.views} lượt xem
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex items-center justify-between sm:flex-col sm:items-end">
+                                                                    <div className="flex flex-col sm:items-end">
+                                                                        <p className="text-lg sm:text-xl font-bold text-black-600">
+                                                                            {formatCurrency(course.price_discount)}
+                                                                        </p>
+                                                                        <span className="line-through text-gray-400 text-sm">
+                                                                            {formatCurrency(course.price)}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-8 bg-white rounded-xl">
+                                                <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                                                <p className="text-gray-500">Đang cập nhật nội dung...</p>
+                                            </div>
+                                        )
+                                    )}
                                 </div>
                             </div>
                         </div>
+
                         {/* Kết thúc Section 4 */}
                         {/* Section 5 */}
                         <div className="container mx-auto px-4 py-8">
@@ -1572,7 +1591,7 @@ export const Detail = () => {
 
                     {/* Kết thúc cột phải */}
                 </div>
-            </div>
+            </div >
             {/* Kết thúc nội dung chính */}
         </>
     );

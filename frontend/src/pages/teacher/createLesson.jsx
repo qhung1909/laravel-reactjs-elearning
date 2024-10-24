@@ -112,7 +112,7 @@ const LessonCreator = () => {
                                         if (content.id === contentId) {
                                             return {
                                                 ...content,
-                                                data: { text: newText } // Cập nhật nội dung tài liệu
+                                                data: { text: newText }
                                             };
                                         }
                                         return content;
@@ -125,10 +125,11 @@ const LessonCreator = () => {
                 }
                 return section;
             });
-            console.log("Updated sections:", updatedSections); // Ghi lại giá trị mới
-            return updatedSections; // Trả về giá trị cập nhật
+            console.log("Updated sections:", updatedSections);
+            return updatedSections;
         });
     };
+
 
 
 
@@ -139,17 +140,24 @@ const LessonCreator = () => {
                     ...section,
                     lessons: section.lessons.map(lesson => {
                         if (lesson.id === lessonId) {
+                            const newContentId = lesson.contents.length > 0
+                                ? Math.max(...lesson.contents.map(content => content.id)) + 1
+                                : 1; // Nếu không có nội dung nào thì bắt đầu từ 1
+
                             return {
                                 ...lesson,
-                                contents: [...lesson.contents, {
-                                    id: lesson.contents.length + 1,
-                                    type,
-                                    data:
-                                        type === 'video' ? { duration: '00:00', size: 0, file: null } :
+                                contents: [
+                                    ...lesson.contents,
+                                    {
+                                        id: newContentId,
+                                        type,
+                                        data:
+                                            type === 'video' ? { duration: '00:00', size: 0, file: null } :
                                             type === 'document' ? { text: '' } :
-                                                type === 'file' ? { file: null } :
-                                                    type === 'quiz' ? { question: '', answers: [] } : {}
-                                }]
+                                            type === 'file' ? { file: null } :
+                                            type === 'quiz' ? { typequiz: '', question: '', answers: [] } : {}
+                                    }
+                                ]
                             };
                         }
                         return lesson;
@@ -159,6 +167,7 @@ const LessonCreator = () => {
             return section;
         }));
     };
+
 
     const deleteContent = (sectionId, lessonId, contentId) => {
         setSections(sections.map(section => {
@@ -180,7 +189,6 @@ const LessonCreator = () => {
         }));
     };
 
-    // eslint-disable-next-line react/prop-types
     const QuizTypeSelector = ({ onChange }) => (
         <Select onValueChange={onChange}>
             <SelectTrigger className="w-full mb-4">
@@ -195,119 +203,6 @@ const LessonCreator = () => {
         </Select>
     );
 
-    const SingleChoiceQuiz = () => {
-        const [question, setQuestion] = useState('');
-        const [answers, setAnswers] = useState(['', '', '', '']); // Khởi tạo mảng đáp án
-
-        const handleQuestionChange = (e) => {
-            setQuestion(e.target.value); // Cập nhật câu hỏi
-        };
-
-        const handleAnswerChange = (index, e) => {
-            const newAnswers = [...answers]; // Tạo một bản sao mảng hiện tại
-            newAnswers[index] = e.target.value; // Cập nhật đáp án theo chỉ số
-            setAnswers(newAnswers); // Cập nhật lại state
-        };
-
-        return (
-            <div className="space-y-4">
-                <input
-                    type="text"
-                    className="w-full p-2 border rounded-md"
-                    placeholder="Nhập câu hỏi..."
-                    value={question} // Liên kết giá trị với state
-                    onChange={handleQuestionChange} // Cập nhật khi nhập liệu
-                />
-                <div className="space-y-2">
-                    {answers.map((answer, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                            <input
-                                type="radio"
-                                name="answer"
-                                className="w-4 h-4"
-                            />
-                            <input
-                                type="text"
-                                className="flex-1 p-2 border rounded-md"
-                                placeholder={`Đáp án ${index + 1}`}
-                                value={answer} // Liên kết giá trị với state
-                                onChange={(e) => handleAnswerChange(index, e)} // Cập nhật khi nhập liệu
-                            />
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    };
-
-    const MultipleChoiceQuiz = () => (
-        <div className="space-y-4">
-            <input
-                type="text"
-                className="w-full p-2 border rounded-md"
-                placeholder="Nhập câu hỏi..."
-            />
-            <div className="space-y-2">
-                {[1, 2, 3, 4].map((num) => (
-                    <div key={num} className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            className="w-4 h-4"
-                        />
-                        <input
-                            type="text"
-                            className="flex-1 p-2 border rounded-md"
-                            placeholder={`Đáp án ${num}`}
-                        />
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-
-    const TrueFalseQuiz = () => (
-        <div className="space-y-4">
-            <input
-                type="text"
-                className="w-full p-2 border rounded-md"
-                placeholder="Nhập câu hỏi..."
-            />
-            <div className="space-y-2">
-                {['Đúng', 'Sai'].map((option) => (
-                    <div key={option} className="flex items-center gap-2">
-                        <input
-                            type="radio"
-                            name="answer"
-                            className="w-4 h-4"
-                        />
-                        <span className="text-gray-700">{option}</span>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-
-    const FillBlankQuiz = () => (
-        <div className="space-y-4">
-            <div className="space-y-2">
-                <label className="block text-sm text-gray-600">Câu hỏi (sử dụng [...] để đánh dấu chỗ trống)</label>
-                <input
-                    type="text"
-                    className="w-full p-2 border rounded-md"
-                    placeholder="Ví dụ: Thủ đô của Việt Nam là [...]"
-                />
-            </div>
-            <div className="space-y-2">
-                <label className="block text-sm text-gray-600">Đáp án đúng</label>
-                <input
-                    type="text"
-                    className="w-full p-2 border rounded-md"
-                    placeholder="Nhập đáp án..."
-                />
-            </div>
-        </div>
-    );
-
     const [quizTypes, setQuizTypes] = useState({});
 
     const handleQuizTypeChange = (contentId, type) => {
@@ -317,8 +212,298 @@ const LessonCreator = () => {
         }));
     };
 
+    const SingleChoiceQuiz = ({ onChange, initialData }) => {
+        const [quizData, setQuizData] = useState({
+            typequiz: 'single',
+            question: '',
+            answers: ['', '', '', ''],
+            correctAnswer: null,
+        });
+
+        useEffect(() => {
+            if (initialData && Object.keys(initialData).length > 0) {
+                // Kiểm tra và sử dụng các giá trị từ initialData
+                setQuizData((prevData) => ({
+                    ...prevData,
+                    ...initialData,
+                    answers: initialData.answers || ['', '', '', ''], // Đảm bảo answers luôn là một mảng
+                }));
+            }
+        }, [initialData]);
+
+        const handleQuestionChange = (e) => {
+            const newData = {
+                ...quizData,
+                question: e.target.value,
+            };
+            setQuizData(newData);
+            onChange(newData);
+        };
+
+        const handleAnswerChange = (index, e) => {
+            const newAnswers = [...quizData.answers];
+            newAnswers[index] = e.target.value;
+            const newData = {
+                ...quizData,
+                answers: newAnswers,
+            };
+            setQuizData(newData);
+            onChange(newData);
+        };
+
+        const handleCorrectAnswerChange = (index) => {
+            const newData = {
+                ...quizData,
+                correctAnswer: index,
+            };
+            setQuizData(newData);
+            onChange(newData);
+        };
+
+        return (
+            <div className="space-y-4">
+                <input
+                    type="text"
+                    className="w-full p-2 border rounded-md"
+                    placeholder="Nhập câu hỏi..."
+                    value={quizData.question}
+                    onChange={handleQuestionChange}
+                />
+                <div className="space-y-2">
+                    {quizData.answers.map((answer, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                            <input
+                                type="radio"
+                                name="answer"
+                                className="w-4 h-4"
+                                checked={quizData.correctAnswer === index}
+                                onChange={() => handleCorrectAnswerChange(index)}
+                            />
+                            <input
+                                type="text"
+                                className="flex-1 p-2 border rounded-md"
+                                placeholder={`Đáp án ${index + 1}`}
+                                value={answer}
+                                onChange={(e) => handleAnswerChange(index, e)}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
+
+
+    const MultipleChoiceQuiz = ({ onChange, initialData }) => {
+        const [quizData, setQuizData] = useState({
+            typequiz: 'multiple',
+            question: '',
+            answers: ['', '', '', ''],
+            correctAnswers: []
+        });
+
+        useEffect(() => {
+            if (initialData) {
+                setQuizData(initialData);
+            }
+        }, [initialData]);
+
+        const handleQuestionChange = (e) => {
+            const newData = {
+                ...quizData,
+                question: e.target.value
+            };
+            setQuizData(newData);
+            onChange(newData);
+        };
+
+        const handleAnswerChange = (index, e) => {
+            const newAnswers = [...quizData.answers];
+            newAnswers[index] = e.target.value;
+            const newData = {
+                ...quizData,
+                answers: newAnswers
+            };
+            setQuizData(newData);
+            onChange(newData);
+        };
+
+        const handleCorrectAnswerChange = (index) => {
+            const newCorrectAnswers = Array.isArray(quizData.correctAnswers) ? [...quizData.correctAnswers] : [];
+            const answerIndex = newCorrectAnswers.indexOf(index);
+            if (answerIndex === -1) {
+                newCorrectAnswers.push(index);
+            } else {
+                newCorrectAnswers.splice(answerIndex, 1);
+            }
+            const newData = {
+                ...quizData,
+                correctAnswers: newCorrectAnswers
+            };
+            setQuizData(newData);
+            onChange(newData);
+        };
+
+        return (
+            <div className="space-y-4">
+                <input
+                    type="text"
+                    className="w-full p-2 border rounded-md"
+                    placeholder="Nhập câu hỏi..."
+                    value={quizData.question}
+                    onChange={handleQuestionChange}
+                />
+                <div className="space-y-2">
+                    {quizData.answers.map((answer, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                className="w-4 h-4"
+                                checked={Array.isArray(quizData.correctAnswers) && quizData.correctAnswers.includes(index)}
+                                onChange={() => handleCorrectAnswerChange(index)}
+                            />
+                            <input
+                                type="text"
+                                className="flex-1 p-2 border rounded-md"
+                                placeholder={`Đáp án ${index + 1}`}
+                                value={answer}
+                                onChange={(e) => handleAnswerChange(index, e)}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
+
+    const TrueFalseQuiz = ({ onChange, initialData }) => {
+        const [quizData, setQuizData] = useState({
+            typequiz: 'trueFalse',
+            question: '',
+            correctAnswer: null
+        });
+
+        useEffect(() => {
+            if (initialData) {
+                setQuizData(initialData);
+            }
+        }, [initialData]);
+
+        const handleQuestionChange = (e) => {
+            const newData = {
+                ...quizData,
+                question: e.target.value
+            };
+            setQuizData(newData);
+            onChange(newData);
+        };
+
+        const handleAnswerChange = (value) => {
+            const newData = {
+                ...quizData,
+                correctAnswer: value
+            };
+            setQuizData(newData);
+            onChange(newData);
+        };
+
+        return (
+            <div className="space-y-4">
+                <input
+                    type="text"
+                    className="w-full p-2 border rounded-md"
+                    placeholder="Nhập câu hỏi..."
+                    value={quizData.question}
+                    onChange={handleQuestionChange}
+                />
+                <div className="space-y-2">
+                    {['true', 'false'].map((option) => (
+                        <div key={option} className="flex items-center gap-2">
+                            <input
+                                type="radio"
+                                name="answer"
+                                className="w-4 h-4"
+                                checked={quizData.correctAnswer === option}
+                                onChange={() => handleAnswerChange(option)}
+                            />
+                            <span className="text-gray-700">
+                                {option === 'true' ? 'Đúng' : 'Sai'}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
+    const FillBlankQuiz = ({ onChange, initialData }) => {
+        const [quizData, setQuizData] = useState({
+            typequiz: 'fillBlank',
+            question: '',
+            correctAnswer: ''
+        });
+
+        useEffect(() => {
+            if (initialData) {
+                setQuizData(initialData);
+            }
+        }, [initialData]);
+
+        const handleQuestionChange = (e) => {
+            const newData = {
+                ...quizData,
+                question: e.target.value
+            };
+            setQuizData(newData);
+            onChange(newData);
+        };
+
+        const handleAnswerChange = (e) => {
+            const newData = {
+                ...quizData,
+                correctAnswer: e.target.value
+            };
+            setQuizData(newData);
+            onChange(newData);
+        };
+
+        return (
+            <div className="space-y-4">
+                <div className="space-y-2">
+                    <label className="block text-sm text-gray-600">
+                        Câu hỏi (sử dụng [...] để đánh dấu chỗ trống)
+                    </label>
+                    <input
+                        type="text"
+                        className="w-full p-2 border rounded-md"
+                        placeholder="Ví dụ: Thủ đô của Việt Nam là [...]"
+                        value={quizData.question}
+                        onChange={handleQuestionChange}
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label className="block text-sm text-gray-600">Đáp án đúng</label>
+                    <input
+                        type="text"
+                        className="w-full p-2 border rounded-md"
+                        placeholder="Nhập đáp án..."
+                        value={quizData.correctAnswer}
+                        onChange={handleAnswerChange}
+                    />
+                </div>
+            </div>
+        );
+    };
+
+
+
+
     const ContentBlock = ({ type, contentId, sectionId, lessonId, initialValue, handleDocumentChange }) => {
         const [textValue, setTextValue] = useState(initialValue);
+        const [quizData, setQuizData] = useState(null);
+
         useEffect(() => {
             setTextValue(initialValue);
         }, [initialValue]);
@@ -332,7 +517,21 @@ const LessonCreator = () => {
 
             debounceTimeout.current = setTimeout(() => {
                 handleDocumentChange(sectionId, lessonId, contentId, newValue);
-            },1500);
+            }, 1500);
+        };
+
+        const handleQuizTypeChange = (contentId, type) => {
+            setQuizTypes(prev => ({
+                ...prev,
+                [contentId]: type
+            }));
+            // Reset quizData khi thay đổi loại quiz
+            setQuizData(null);
+        };
+
+        const handleQuizDataChange = (quizData) => {
+            handleDocumentChange(sectionId, lessonId, contentId, quizData);
+            setQuizData(quizData); // Cập nhật quizData
         };
 
         switch (type) {
@@ -382,10 +581,30 @@ const LessonCreator = () => {
                         <QuizTypeSelector
                             onChange={(type) => handleQuizTypeChange(contentId, type)}
                         />
-                        {quizTypes[contentId] === 'single' && <SingleChoiceQuiz />}
-                        {quizTypes[contentId] === 'multiple' && <MultipleChoiceQuiz />}
-                        {quizTypes[contentId] === 'trueFalse' && <TrueFalseQuiz />}
-                        {quizTypes[contentId] === 'fillBlank' && <FillBlankQuiz />}
+                        {quizTypes[contentId] === 'single' && (
+                            <SingleChoiceQuiz
+                                onChange={handleQuizDataChange}
+                                initialData={initialValue}
+                            />
+                        )}
+                        {quizTypes[contentId] === 'multiple' && (
+                            <MultipleChoiceQuiz
+                                onChange={handleQuizDataChange}
+                                initialData={initialValue}
+                            />
+                        )}
+                        {quizTypes[contentId] === 'trueFalse' && (
+                            <TrueFalseQuiz
+                                onChange={handleQuizDataChange}
+                                initialData={initialValue}
+                            />
+                        )}
+                        {quizTypes[contentId] === 'fillBlank' && (
+                            <FillBlankQuiz
+                                onChange={handleQuizDataChange}
+                                initialData={initialValue}
+                            />
+                        )}
                     </div>
                 );
             default:
@@ -393,10 +612,6 @@ const LessonCreator = () => {
         }
 
     };
-
-
-
-    // ... giữ nguyên phần return của component
 
     return (
         <div className="max-w-4xl mx-auto p-6">
@@ -529,12 +744,14 @@ const LessonCreator = () => {
     );
 };
 LessonCreator.propTypes = {
-    type: PropTypes.string.isRequired,  // hoặc PropTypes.oneOf(['type1', 'type2']) nếu bạn biết các giá trị cụ thể
+    initialData: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
     contentId: PropTypes.string.isRequired,
     sectionId: PropTypes.string.isRequired,
     lessonId: PropTypes.string.isRequired,
-    initialValue: PropTypes.string,  // Nếu là chuỗi có thể null hoặc undefined
+    initialValue: PropTypes.string,
     handleDocumentChange: PropTypes.func.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 export default LessonCreator;
