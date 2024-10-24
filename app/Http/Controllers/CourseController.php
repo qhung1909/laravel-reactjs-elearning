@@ -337,6 +337,7 @@ class CourseController extends Controller
     {
         $courses = $this->course->with('user:user_id,name')
             ->where('user_id', $userId)
+            ->limit(3)
             ->get();
 
         if ($courses->isEmpty()) {
