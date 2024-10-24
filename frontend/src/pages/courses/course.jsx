@@ -19,6 +19,21 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
@@ -318,15 +333,15 @@ export const Courses = () => {
     ) : (
         currentCourses.map((item, index) => (
             <div key={index} >
-                <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow flex group my-5">
+                <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow flex items-center group my-5">
                     <img alt={item.title} className="w-30 h-20 md:w-50 md:h-40 object-cover mr-4" src={`${item.img}`} />
                     <div className="flex-1">
-                        <h3 className="text-md md:text-lg font-semibold text-gray-800">
+                        <h3 className="text-md md:text-lg font-semibold text-gray-800 line-clamp-2">
                             <a className="hover:underline" href="#">
                                 {item.title}
                             </a>
                         </h3>
-                        <p className="text-sm text-black pr-5">
+                        <p className="text-sm text-black pr-5 line-clamp-2">
                             {item.description}
                         </p>
                         <p className="text-xs text-gray-500 mt-2 ">
@@ -444,7 +459,8 @@ export const Courses = () => {
 
                 {/* Tất cả các khóa học Phát triển web */}
                 <div className="">
-                    <div className="mb-4 pt-8">
+                    {/* header */}
+                    <div className="my-3 pt-8">
                         <h1 className="text-2xl font-bold">
                             Tất cả các khóa học Phát triển web
                         </h1>
@@ -454,30 +470,223 @@ export const Courses = () => {
                             trong 30 ngày
                         </p>
                     </div>
-                    <div className="flex">
-                        <button
-                            className="flex items-center bg-white text-gray-800 border-2 px-4 py-4 rounded mr-3"
-                            id="openButton">
-                            <i className="bx bx-slider" /> Bộ lọc
-                        </button>
-                        <div className="relative inline-block text-left mr-3">
-                            <select className="block w-full bg-white border border-gray-300 rounded-lg py-4 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option defaultValue={0}>Sắp xếp theo</option>
-                                <option value="1">Phổ biến nhất</option>
-                                <option value="2">Thứ hạn cao nhất</option>
-                                <option value="3">Mới nhất</option>
-                            </select>
+                    {/* filter */}
+                    <div className="flex justify-between items-center my-3 border-b pb-3">
+                        <div className="flex items-center">
+                            <div className="lg:hidden block">
+                                <Sheet>
+                                    <SheetTrigger>
+                                        <button
+                                            className="flex items-center bg-white text-gray-800 border-2 px-4 py-2 rounded mr-3"
+                                            id="openButton">
+                                            <i className="bx bx-slider" /> Bộ lọc
+                                        </button>
+                                    </SheetTrigger>
+                                    <SheetContent>
+                                        <SheetHeader>
+                                            <SheetTitle>Bộ lọc</SheetTitle>
+                                            <SheetDescription>
+                                                <Accordion type="single" collapsible defaultValue="item-1">
+                                                    <AccordionItem value="item-1">
+                                                        <AccordionTrigger className="text-xl font-bold">Xếp hạng</AccordionTrigger>
+                                                        <AccordionContent>
+                                                            <input className="mr-2" name="rating" type="radio" />
+                                                            <span className="text-yellow-500 ">
+                                                                <i className="bx bxs-star " />
+                                                                <i className="bx bxs-star" />
+                                                                <i className="bx bxs-star" />
+                                                                <i className="bx bxs-star" />
+                                                                <i className="bx bxs-star-half" />
+                                                            </span>
+                                                            <span className="text-sm text-gray-800">
+                                                                {" "}
+                                                                Từ 4.5 trở lên
+                                                                <span className="text-gray-600">
+                                                                    {courses.length}
+                                                                </span>
+                                                            </span>
+                                                            <br />
+                                                            <input
+                                                                className="mr-2"
+                                                                name="rating"
+                                                                type="radio" />
+                                                            <span className="text-yellow-500 ">
+                                                                <i className="bx bxs-star " />
+                                                                <i className="bx bxs-star" />
+                                                                <i className="bx bxs-star" />
+                                                                <i className="bx bxs-star" />
+                                                                <i className="bx bx-star" />
+                                                            </span>
+                                                            <span className="text-sm text-gray-800">
+                                                                {" "}
+                                                                Từ 4.0 trở lên
+                                                                <span className="text-gray-600">
+                                                                    (10.000)
+                                                                </span>
+                                                            </span>
+                                                            <br />
+                                                            <input
+                                                                className="mr-2"
+                                                                name="rating"
+                                                                type="radio" />
+                                                            <span className="text-yellow-500">
+                                                                <i className="bx bxs-star " />
+                                                                <i className="bx bxs-star" />
+                                                                <i className="bx bxs-star" />
+                                                                <i className="bx bxs-star-half" />
+                                                                <i className="bx bx-star" />
+                                                            </span>
+                                                            <span className="text-sm text-gray-800">
+                                                                {" "}
+                                                                Từ 3.5 trở lên
+                                                                <span className="text-gray-600">
+                                                                    (10.000)
+                                                                </span>
+                                                            </span>
+                                                            <br />
+                                                            <input
+                                                                className="mr-2"
+                                                                name="rating"
+                                                                type="radio" />
+                                                            <span className="text-yellow-500">
+                                                                <i className="bx bxs-star " />
+                                                                <i className="bx bxs-star" />
+                                                                <i className="bx bxs-star" />
+                                                                <i className="bx bx-star" />
+                                                                <i className="bx bx-star" />
+                                                            </span>
+                                                            <span className="text-sm text-gray-800">
+                                                                {" "}
+                                                                Từ 3.0 trở lên
+                                                                <span className="text-gray-600">
+                                                                    (10.000)
+                                                                </span>
+                                                            </span>
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                </Accordion>
+                                                <hr />
+                                                <Accordion type="single" collapsible>
+                                                    <AccordionItem value="item-1">
+                                                        <AccordionTrigger className="text-xl font-bold">Chủ đề</AccordionTrigger>
+                                                        <AccordionContent>
+                                                            <input
+                                                                className="mr-2"
+                                                                name="duration"
+                                                                type="checkbox" />
+                                                            <span className="text-sm text-black">
+                                                                Python{" "}
+                                                                <span className="text-gray-600">
+                                                                    (2.433)
+                                                                </span>
+                                                            </span>
+                                                            <br />
+                                                            <input
+                                                                className="mr-2"
+                                                                name="duration"
+                                                                type="checkbox" />
+                                                            <span className="text-sm text-black">
+                                                                JavaScript{" "}
+                                                                <span className="text-gray-600">
+                                                                    (1.105)
+                                                                </span>
+                                                            </span>
+                                                            <br />
+                                                            <input
+                                                                className="mr-2"
+                                                                name="duration"
+                                                                type="checkbox" />
+                                                            <span className="text-sm text-black">
+                                                                Java{" "}
+                                                                <span className="text-gray-600">
+                                                                    (1.088)
+                                                                </span>
+                                                            </span>
+                                                            <br />
+                                                            <input
+                                                                className="mr-2"
+                                                                name="duration"
+                                                                type="checkbox" />
+                                                            <span className="text-sm text-black">
+                                                                Unity{" "}
+                                                                <span className="text-gray-600">
+                                                                    (960)
+                                                                </span>
+                                                            </span>
+                                                            <br />
+                                                            <input
+                                                                className="mr-2"
+                                                                name="duration"
+                                                                type="checkbox" />
+                                                            <span className="text-sm text-black">
+                                                                Phát triển web{" "}
+                                                                <span className="text-gray-600">
+                                                                    (933)
+                                                                </span>
+                                                            </span>
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                </Accordion>
+                                                <hr />
+                                                <Accordion type="single" collapsible>
+                                                    <AccordionItem value="item-1">
+                                                        <AccordionTrigger className="text-xl font-bold">Giá</AccordionTrigger>
+                                                        <AccordionContent>
+                                                            <input
+                                                                className="mr-2"
+                                                                name="duration"
+                                                                type="checkbox" />
+                                                            <span className="text-sm text-black">
+                                                                Có trả phí{" "}
+                                                                <span className="text-gray-600">
+                                                                    (68)
+                                                                </span>
+                                                            </span>
+                                                            <br />
+                                                            <input
+                                                                className="mr-2"
+                                                                name="duration"
+                                                                type="checkbox" />
+                                                            <span className="text-sm text-black">
+                                                                Miễn phí{" "}
+                                                                <span className="text-gray-600">
+                                                                    (23)
+                                                                </span>
+                                                            </span>
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                </Accordion>
+                                            </SheetDescription>
+                                        </SheetHeader>
+                                    </SheetContent>
+                                </Sheet>
+                            </div>
+                            <div className="">
+                                <div className="">
+                                    <Select >
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue placeholder="Sắp xếp theo" className="py-3" />
+                                        </SelectTrigger>
+                                        <SelectContent >
+                                            <SelectItem value="Hot" className="cursor-pointer">Phổ biến nhất</SelectItem>
+                                            <SelectItem value="TopRank" className="cursor-pointer">Thứ hạng cao nhất</SelectItem>
+                                            <SelectItem value="New" className="cursor-pointer">Mới nhất</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
                         </div>
-                        <div className="ml-auto">
-                            <p className=" text-gray-500  font-bold">
-                                Tất cả: {courses.length} khóa học
-                            </p>
+                        <div className="lg:block hidden">
+                            <div className="ml-auto">
+                                <p className=" text-gray-500  font-bold">
+                                {courses.length} kết quả
+                                </p>
+                            </div>
                         </div>
                     </div>
-                    <hr />
-                    <div className="grid grid-cols-12 gap-10 pt-3 ">
+                    <div className="lg:grid lg:grid-cols-12 gap-10 pt-3 ">
                         {/* Bộ lọc */}
-                        <div className="col-span-3 transition-all ease-in-out duration-500 " id="filterContent">
+                        <div className="lg:block hidden col-span-3 transition-all ease-in-out duration-500 " id="filterContent">
                             <Accordion type="single" collapsible defaultValue="item-1">
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger className="text-xl font-bold">Xếp hạng</AccordionTrigger>
@@ -558,68 +767,6 @@ export const Courses = () => {
                                 </AccordionItem>
                             </Accordion>
                             <hr />
-                            <Accordion type="single" collapsible defaultValue="item-1">
-                                <AccordionItem value="item-1">
-                                    <AccordionTrigger className="text-xl font-bold">Thời lượng video</AccordionTrigger>
-                                    <AccordionContent>
-                                        <input
-                                            className="mr-2 text-black"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            0-1 giờ{" "}
-                                            <span className="text-gray-600">
-                                                (3.217)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2 text-black"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            1-3 giờ{" "}
-                                            <span className="text-gray-600">
-                                                (10.000)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2 text-black"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            3-6 giờ{" "}
-                                            <span className="text-gray-600">
-                                                (8.691)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2 text-black"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            6-17 giờ{" "}
-                                            <span className="text-gray-600">
-                                                (10.000)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2 text-black"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Hơn 17 giờ{" "}
-                                            <span className="text-gray-600">
-                                                (4.518)
-                                            </span>
-                                        </span>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                            <hr />
                             <Accordion type="single" collapsible>
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger className="text-xl font-bold">Chủ đề</AccordionTrigger>
@@ -684,170 +831,6 @@ export const Courses = () => {
                             <hr />
                             <Accordion type="single" collapsible>
                                 <AccordionItem value="item-1">
-                                    <AccordionTrigger className="text-xl font-bold">Thể loại con</AccordionTrigger>
-                                    <AccordionContent>
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Phát triển web{" "}
-                                            <span className="text-gray-600">
-                                                (2.433)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Ngôn ngữ lập trình{" "}
-                                            <span className="text-gray-600">
-                                                (1.105)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Khoa học dữ liệu{" "}
-                                            <span className="text-gray-600">
-                                                (1.088)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Phát triển ứng dụng di động{" "}
-                                            <span className="text-gray-600">
-                                                (960)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Thiết kế cơ sở dữ liệu{" "}
-                                            <span className="text-gray-600">
-                                                (960)
-                                            </span>
-                                        </span>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                            <hr />
-                            <Accordion type="single" collapsible>
-                                <AccordionItem value="item-1">
-                                    <AccordionTrigger className="text-xl font-bold">Cấp độ</AccordionTrigger>
-                                    <AccordionContent>
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Tất cả trình độ{" "}
-                                            <span className="text-gray-600">
-                                                (10.000)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Sơ cấp{" "}
-                                            <span className="text-gray-600">
-                                                (10.000)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Trung cấp{" "}
-                                            <span className="text-gray-600">
-                                                (5.665)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Chuyên gia{" "}
-                                            <span className="text-gray-600">
-                                                (621)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Phát triển web{" "}
-                                            <span className="text-gray-600">
-                                                (933)
-                                            </span>
-                                        </span>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                            <hr />
-                            <Accordion type="single" collapsible>
-                                <AccordionItem value="item-1">
-                                    <AccordionTrigger className="text-xl font-bold">Ngôn ngữ</AccordionTrigger>
-                                    <AccordionContent>
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            English{" "}
-                                            <span className="text-gray-600">
-                                                (1)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            中国人{" "}
-                                            <span className="text-gray-600">
-                                                (1)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            日本語
-                                            <span className="text-gray-600">
-                                                (1)
-                                            </span>
-                                        </span>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                            <hr />
-                            <Accordion type="single" collapsible>
-                                <AccordionItem value="item-1">
                                     <AccordionTrigger className="text-xl font-bold">Giá</AccordionTrigger>
                                     <AccordionContent>
                                         <input
@@ -869,75 +852,6 @@ export const Courses = () => {
                                             Miễn phí{" "}
                                             <span className="text-gray-600">
                                                 (23)
-                                            </span>
-                                        </span>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                            <hr />
-                            <Accordion type="single" collapsible>
-                                <AccordionItem value="item-1">
-                                    <AccordionTrigger className="text-xl font-bold">Đặc điểm</AccordionTrigger>
-                                    <AccordionContent>
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Phụ đề{" "}
-                                            <span className="text-gray-600">
-                                                (1)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Trắc nghiệm{" "}
-                                            <span className="text-gray-600">
-                                                (16)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Bài tập Coding{" "}
-                                            <span className="text-gray-600">
-                                                (8)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Bài kiểm tra thực hành{" "}
-                                            <span className="text-gray-600">
-                                                (4)
-                                            </span>
-                                        </span>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                            <hr />
-                            <Accordion type="single" collapsible>
-                                <AccordionItem value="item-1">
-                                    <AccordionTrigger className="text-xl font-bold">Phụ đề</AccordionTrigger>
-                                    <AccordionContent>
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Tiếng Việt{" "}
-                                            <span className="text-gray-600">
-                                                (1)
                                             </span>
                                         </span>
                                     </AccordionContent>
