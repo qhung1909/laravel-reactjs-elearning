@@ -24,12 +24,18 @@ class CourseController extends Controller
 
     public function topInstructorsWithCourses()
     {
-        $instructors = User::select('users.*', DB::raw('MAX(courses.is_buy) as max_is_buy'))
+        $instructors = User::select(
+            'users.*',
+            DB::raw('MAX(courses.is_buy) as max_is_buy'),
+            DB::raw('AVG(comments.rating) as average_rating')
+        )
             ->join('courses', 'users.user_id', '=', 'courses.user_id')
+            ->leftJoin('comments', 'courses.course_id', '=', 'comments.course_id') 
             ->where('users.role', 'teacher')
             ->groupBy('users.user_id')
             ->orderBy('max_is_buy', 'desc')
             ->get();
+
 
         if ($instructors->isEmpty()) {
             return response()->json(['message' => 'Không tìm thấy giảng viên nổi tiếng nào.'], 404);
@@ -69,18 +75,18 @@ class CourseController extends Controller
     {
         // Ghi log trước khi truy vấn
         Log::info('Fetching courses from cache or database.');
-    
+
         $courses = Cache::remember('courses', 120, function () {
             Log::info('Querying courses from database.');
             return $this->course->with(['user:user_id,name', 'comments:course_id,rating'])->get();
         });
-    
+
         // Ghi log kết quả
         Log::info('Courses fetched successfully:', ['courses' => $courses]);
-    
+
         return response()->json($courses);
     }
-    
+
 
     public function relatedCourses($slug)
     {
@@ -111,7 +117,7 @@ class CourseController extends Controller
         }
 
         $relatedCourses = Course::where('course_category_id', $categoryId)
-            ->where('slug', '!=', $slug) 
+            ->where('slug', '!=', $slug)
             ->get();
 
         if ($relatedCourses->isEmpty()) {
