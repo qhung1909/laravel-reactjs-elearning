@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { Edit, Trash } from "lucide-react";
 import { Calendar, Globe, BookOpen, Star } from "lucide-react";
-import { Play } from "lucide-react";
+import { Play, User, Book } from "lucide-react";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -43,6 +43,7 @@ import {
 } from "../skeletonEffect/skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import ReactPlayer from "react-player";
+import { CoursesContext } from "../context/coursescontext";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -79,9 +80,7 @@ export const Detail = () => {
     const [comment, setComment] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [comments, setComments] = useState([]);
-    const [items, setItems] = useState([]);
     const [cartItems, setCartItems] = useState([]);
-
     const [lesson, setLesson] = useState(null);
     const fetchLesson = async () => {
         try {
@@ -95,14 +94,11 @@ export const Detail = () => {
                 if (typeof res.data.content === "string") {
                     res.data.content = JSON.parse(res.data.content);
                 }
-                console.log(res.data);
-
                 setLesson(res.data);
             } else {
                 console.error("Dữ liệu không hợp lệ:", res.data);
             }
         } catch (error) {
-            console.error("Lỗi khi lấy dữ liệu bài học:", error);
             if (error.response) {
                 console.error("Chi tiết lỗi:", error.response.data);
             }
@@ -291,6 +287,41 @@ export const Detail = () => {
             fetchCourseRelated();
         }
     }, [detail]);
+    const { courses, setCourses } = useContext(CoursesContext);
+    const [instructor, setInstructor] = useState([]);
+
+    const fetchInstructor = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/instructors/top`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                },
+            });
+
+            if (res.data) {
+                const instructorsWithCourseCount = res.data.map(instructor => {
+                    const totalCourses = courses.filter(
+                        course => course.user_id === instructor.user_id
+                    ).length;
+                    return {
+                        ...instructor,
+                        total_courses: totalCourses
+                    };
+                });
+                setInstructor(instructorsWithCourseCount);
+            } else {
+                console.error("Dữ liệu không hợp lệ:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu giảng viên:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+            }
+        }
+    };
+    useEffect(() => {
+        fetchInstructor();
+    }, []);
 
     const [isPaymentCourse, setPaymentCourse] = useState(false);
 
@@ -1031,30 +1062,30 @@ export const Detail = () => {
                         {/* Kết thúc Section 3 */}
 
                         {/* Section 4 */}
-                        <div className="bg-white-50 py-8 sm:py-12">
+                        <div className="bg-gray-50 py-8 sm:py-12">
                             <div className="container mx-auto px-4">
-                                <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">
+                                <h2 className="text-2xl sm:text-3xl font-bold mb-8 text-gray-800">
                                     Khóa học liên quan
                                 </h2>
                                 <div className="space-y-6">
                                     {loading ? (
                                         Array.from({ length: 2 }).map((_, index) => (
-                                            <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center bg-white p-4 rounded-lg shadow-md animate-pulse">
-                                                <div className="w-full sm:w-32 h-48 sm:h-32 bg-gray-200 rounded-lg mb-4 sm:mb-0 sm:mr-6" />
+                                            <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center bg-white p-6 rounded-lg shadow-md animate-pulse">
+                                                <div className="w-full sm:w-48 h-48 sm:h-32 bg-gray-200 rounded-lg mb-4 sm:mb-0 sm:mr-8" />
                                                 <div className="flex-grow">
-                                                    <div className="sm:flex sm:justify-between">
-                                                        <div className="mb-4 sm:mb-0 sm:mr-6">
+                                                    <div className="sm:flex sm:justify-between sm:items-center">
+                                                        <div className="mb-4 sm:mb-0 sm:mr-8">
                                                             <div className="h-4 bg-gray-200 rounded mb-2 w-3/4" />
                                                             <div className="h-3 bg-gray-200 rounded w-1/2" />
                                                         </div>
                                                         <div className="flex flex-col sm:items-end">
                                                             <div className="flex items-center mb-2">
-                                                                <span className="h-4 bg-gray-200 rounded w-16" />
+                                                                <span className="h-4 bg-gray-200 rounded w-24" />
                                                             </div>
                                                             <div className="flex items-center justify-between sm:flex-col sm:items-end">
                                                                 <div className="flex flex-col sm:items-end">
-                                                                    <div className="h-4 bg-gray-200 rounded mb-1 w-20" />
-                                                                    <span className="h-3 bg-gray-200 rounded w-16" />
+                                                                    <div className="h-4 bg-gray-200 rounded mb-1 w-24" />
+                                                                    <span className="h-3 bg-gray-200 rounded w-20" />
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1067,50 +1098,64 @@ export const Detail = () => {
                                             courseRelated.map((course) => (
                                                 <div
                                                     key={course.course_id}
-                                                    className="flex flex-col sm:flex-row items-start sm:items-center bg-white p-4 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg"
+                                                    className="flex flex-col sm:flex-row items-start sm:items-center bg-white p-6 rounded-lg shadow-md transition duration-300 ease-in-out hover:shadow-lg"
                                                 >
-                                                    <Link to={`/detail/${course.slug}`} ><img
-                                                        src={course.img}
-                                                        alt={course.title}
-                                                        className="w-full sm:w-32 h-48 sm:h-32 object-cover rounded-lg mb-4 sm:mb-0 sm:mr-6"
-                                                    /></Link>
+                                                    <Link to={`/detail/${course.slug}`} className="flex-shrink-0 sm:mr-8">
+                                                        <img
+                                                            src={course.img}
+                                                            alt={course.title}
+                                                            className="w-full sm:w-40 h-48 sm:h-40 object-cover rounded-lg mb-4 sm:mb-0"
+                                                        />
+                                                    </Link>
+
 
                                                     <div className="flex-grow">
-                                                        <div className="sm:flex sm:justify-between">
-                                                            <div className="mb-4 sm:mb-0 sm:mr-6">
-                                                                <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                                                                    <Link to={`/detail/${course.slug}`} >
+                                                        <div className="sm:flex sm:justify-between sm:items-center">
+                                                            <div className="mb-4 sm:mb-0 sm:mr-8">
+                                                                <h3 className="text-base font-semibold text-gray-800 mb-2">
+                                                                    <Link to={`/detail/${course.slug}`}>
                                                                         {course.title}
                                                                     </Link>
                                                                 </h3>
-
                                                                 <p className="text-gray-600 text-sm">
                                                                     Cập nhật {formatDate(course.updated_at)}
                                                                 </p>
+                                                                <span className="text-gray-600 flex items-center whitespace-nowrap py-0.5 pt-2 text-xs">
+                                                                    <svg
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        className="h-4 w-4 mr-1"
+                                                                        fill="none"
+                                                                        viewBox="0 0 24 24"
+                                                                        stroke="currentColor"
+                                                                        strokeWidth={2}
+                                                                    >
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                                        />
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-.046.134-.094.266-.145.397C20.268 16.057 16.478 19 12 19c-4.478 0-8.268-2.943-9.542-7 .05-.131.099-.263.145-.397z"
+                                                                        />
+                                                                    </svg>
+                                                                    {course.views} lượt xem
+                                                                </span>
+
                                                             </div>
+
                                                             <div className="flex flex-col sm:items-end">
-                                                                <div className="flex items-center mb-2">
-                                                                    <span className="text-gray-600 ml-2 flex items-center">
-                                                                        <svg
-                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                            className="h-5 w-5 mr-1"
-                                                                            viewBox="0 0 20 20"
-                                                                            fill="currentColor"
-                                                                        >
-                                                                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                                                                        </svg>
-                                                                        {course.views} lượt xem
-                                                                    </span>
+                                                                <div className="flex items-center mb-3">
+
                                                                 </div>
-                                                                <div className="flex items-center justify-between sm:flex-col sm:items-end">
-                                                                    <div className="flex flex-col sm:items-end">
-                                                                        <p className="text-lg sm:text-xl font-bold text-black-600">
-                                                                            {formatCurrency(course.price_discount)}
-                                                                        </p>
-                                                                        <span className="line-through text-gray-400 text-sm">
-                                                                            {formatCurrency(course.price)}
-                                                                        </span>
-                                                                    </div>
+                                                                <div className="flex flex-col sm:items-end">
+                                                                    <p className="text-lg sm:text-xl font-bold text-black-600">
+                                                                        {formatCurrency(course.price_discount)}
+                                                                    </p>
+                                                                    <span className="line-through text-gray-400 text-sm">
+                                                                        {formatCurrency(course.price)}
+                                                                    </span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1127,127 +1172,91 @@ export const Detail = () => {
                                 </div>
                             </div>
                         </div>
-
                         {/* Kết thúc Section 4 */}
                         {/* Section 5 */}
                         <div className="container mx-auto px-4 py-8">
-                            <h2 className="text-2xl font-bold mb-6 text-gray-800">
-                                Giảng viên
-                            </h2>
-                            <div className="flex items-start bg-white p-6 rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300">
-                                {/* Hình ảnh giảng viên */}
-                                <Avatar>
-                                    <AvatarImage
-                                        src="https://github.com/shadcn.png"
-                                        alt="@shadcn"
-                                    />
-                                    <AvatarFallback>CN</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    {/* Thông tin giảng viên */}
-                                    <h3
-                                        className="text-2xl font-semibold mb-2"
-                                        style={{ color: "#5022c3" }}
-                                    >
-                                        Toan Bill
-                                    </h3>
-                                    <p className="text-gray-600 mb-4 text-lg">
-                                        Cisco Instructor
-                                    </p>
-                                    <div className="flex items-center mb-4">
-                                        <span className="text-yellow-500 text-2xl font-bold">
-                                            4.5
-                                        </span>
-                                        <box-icon
-                                            name="star"
-                                            type="solid"
-                                            color="#ECC94B"
-                                            className="ml-1 text-2xl"
-                                        />
-                                        <span className="text-gray-600 ml-2 text-lg font-medium">
-                                            Xếp hạng giảng viên
-                                        </span>
+                            <h2 className="text-2xl font-bold mb-6 text-gray-800">Giảng viên</h2>
+                            {loading ? (
+                                Array.from({ length: 1 }).map((_, index) => (
+                                    <div key={index} className="flex items-start bg-white p-6 rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 animate-pulse">
+                                        <div className="w-16 h-16 rounded-full bg-gray-200" />
+                                        <div className="ml-6 flex-grow">
+                                            <div className="h-6 bg-gray-200 rounded mb-2 w-3/4" />
+                                            <div className="h-4 bg-gray-200 rounded mb-2 w-1/2" />
+                                            <div className="flex items-center mb-4">
+                                                <span className="h-4 bg-gray-200 rounded w-16" />
+                                                <div className="ml-1 w-6 h-6 bg-gray-200 rounded" />
+                                                <span className="h-4 bg-gray-200 rounded ml-2 w-24" />
+                                            </div>
+                                            <ul className="text-gray-600 mb-6 space-y-2">
+                                                <li className="flex items-center">
+                                                    <div className="w-5 h-5 bg-gray-200 rounded mr-2" />
+                                                    <div className="h-4 bg-gray-200 rounded w-1/2" />
+                                                </li>
+                                                <li className="flex items-center">
+                                                    <div className="w-5 h-5 bg-gray-200 rounded mr-2" />
+                                                    <div className="h-4 bg-gray-200 rounded w-1/2" />
+                                                </li>
+                                            </ul>
+                                            <Accordion type="single" collapsible className="w-full">
+                                                <AccordionItem value="instructor-description">
+                                                    <AccordionTrigger className="hover:no-underline">
+                                                        <div className="h-4 bg-gray-200 rounded w-1/4" />
+                                                    </AccordionTrigger>
+                                                    <AccordionContent>
+                                                        <div className="h-4 bg-gray-200 rounded w-full" />
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            </Accordion>
+                                        </div>
                                     </div>
-                                    <ul className="text-gray-600 mb-6 space-y-2">
-                                        <li className="flex items-center">
-                                            <box-icon
-                                                name="star"
-                                                type="solid"
-                                                color="#718096"
-                                                className="w-5 h-5 mr-2"
+                                ))
+                            ) : (
+                                instructor.map((teacher) => (
+                                    <div key={teacher.user_id} className="flex items-start bg-white p-6 rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+                                        <Avatar>
+                                            <AvatarImage
+                                                src={teacher.avatar || "https://github.com/shadcn.png"}
+                                                alt={teacher.name}
                                             />
-                                            345 đánh giá
-                                        </li>
-                                        <li className="flex items-center">
-                                            <box-icon
-                                                name="user"
-                                                color="#718096"
-                                                className="w-5 h-5 mr-2"
-                                            />
-                                            1,895 học viên
-                                        </li>
-                                        <li className="flex items-center">
-                                            <box-icon
-                                                name="book"
-                                                color="#718096"
-                                                className="w-5 h-5 mr-2"
-                                            />
-                                            26 khóa học
-                                        </li>
-                                    </ul>
-                                    {/* Mô tả giảng viên */}
-                                    <Accordion
-                                        type="single"
-                                        collapsible
-                                        className="w-full"
-                                    >
-                                        <AccordionItem value="instructor-description">
-                                            <AccordionTrigger
-                                                style={{
-                                                    textDecoration: "none",
-                                                }}
-                                            >
-                                                Xem thêm
-                                            </AccordionTrigger>
-                                            <AccordionContent>
-                                                <p className="text-gray-700 leading-relaxed">
-                                                    Hello there! I am Bill Toan.
-                                                    I have a masters degree in
-                                                    computer system information.
-                                                    I have been a Cisco
-                                                    instructor since 2010. I
-                                                    hold CCNA, CCNP Security,
-                                                    and Security+ certification.
-                                                    My favorite teaching courses
-                                                    are CCNA and CCNP Security.
-                                                    I come from a background of
-                                                    network security
-                                                    engineering, and now I am
-                                                    focusing on IoT and OT
-                                                    security and applied machine
-                                                    learning techniques on
-                                                    network security. I have
-                                                    worked for over 14+ years on
-                                                    building enterprise security
-                                                    solutions using Cisco
-                                                    products. I have been a
-                                                    super-moderator of a network
-                                                    security forum named
-                                                    Whitehat for more than 10
-                                                    years. I love sharing my
-                                                    experience with students and
-                                                    inspiring them to the
-                                                    cybersecurity world.
-                                                    <strong>
-                                                        {" "}
-                                                        Happy Learning!
-                                                    </strong>
-                                                </p>
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                    </Accordion>
-                                </div>
-                            </div>
+                                            <AvatarFallback>{teacher.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="ml-6">
+                                            <h3 className="text-2xl font-semibold mb-2" style={{ color: "#5022c3" }}>
+                                                {teacher.name}
+                                            </h3>
+                                            <p className="text-gray-600 mb-4 text-lg">
+                                                {teacher.role === 'teacher' ? 'Giảng viên' : teacher.role}
+                                            </p>
+                                            <div className="flex items-center mb-4">
+                                                <span className="text-yellow-500 text-2xl font-bold">...</span>
+                                                <Star className="ml-1 w-6 h-6 text-yellow-500" />
+                                                <span className="text-gray-600 ml-2 text-lg font-medium">Đang cập nhật dữ liệu</span>
+                                            </div>
+                                            <ul className="text-gray-600 mb-6 space-y-2">
+                                                <li className="flex items-center">
+                                                    <Book className="w-5 h-5 mr-2 text-gray-500" />
+                                                    {teacher.total_courses || "Đang cập nhật dữ liệu"} Khóa học
+                                                </li>
+                                                <li className="flex items-center">
+                                                    <Star className="w-5 h-5 mr-2 text-gray-500" />
+                                                    {teacher.max_is_buy || "Đang cập nhật dữ liệu"} Học viên
+                                                </li>
+                                            </ul>
+                                            <Accordion type="single" collapsible className="w-full">
+                                                <AccordionItem value="instructor-description">
+                                                    <AccordionTrigger className="hover:no-underline">Xem thêm</AccordionTrigger>
+                                                    <AccordionContent>
+                                                        <p className="text-gray-700 leading-relaxed">
+                                                            {teacher.description || 'Chưa có thông tin mô tả.'}
+                                                        </p>
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            </Accordion>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                         {/* Kết thúc Section 5 */}
 
