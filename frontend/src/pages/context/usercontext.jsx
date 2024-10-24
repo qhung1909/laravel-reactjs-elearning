@@ -15,8 +15,8 @@ const notify = (message, type) => {
         toast.error(message, {
             style: {
                 padding: '16px',
-                textAlign:'center',
-                width:'310px'
+                textAlign: 'center',
+                width: '310px'
             }
         })
     }
@@ -29,6 +29,7 @@ export const UserProvider = ({ children }) => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const [user, setUser] = useState(null);
+    const [instructor, setInstructor] = useState(null)
     const [logined, setLogined] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -37,7 +38,7 @@ export const UserProvider = ({ children }) => {
 
 
     // API thông tin người dùng
-    const fetchUser = async () => {
+    const fetchUserData = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
             console.error("Người dùng chưa đăng nhập.");
@@ -51,9 +52,16 @@ export const UserProvider = ({ children }) => {
                     Authorization: `Bearer ${token}`,
                 },
             });
+
             if (res.data) {
+                // Cập nhật state cho cả user và instructor
                 setUser(res.data);
                 setLogined(token);
+
+                // Nếu vai trò là instructor, cập nhật instructor
+                if (res.data.role === "teacher") {
+                    setInstructor(res.data);
+                }
             }
         } catch (error) {
             console.error("Lỗi khi lấy thông tin người dùng:", error);
@@ -61,6 +69,7 @@ export const UserProvider = ({ children }) => {
             setLoading(false);
         }
     };
+
 
     // hàm thay đổi mật khẩu
     const updatePassword = async (current_password, password, password_confirmation) => {
@@ -120,8 +129,34 @@ export const UserProvider = ({ children }) => {
         return false;
     };
 
-    // hàm xử lý thay
-
+    // update thông tin người dùng
+    const updateUserProfile = async (userName, email, avatar) => {
+        const token = localStorage.getItem("access_token");
+        if (!userName.trim()) {
+            notify('Tên tài khoản không được để trống', 'error');
+            return;
+        }
+        try {
+            const formData = new FormData();
+            formData.append('name', userName);
+            formData.append('email', email);
+            if (avatar) {
+                formData.append('file', avatar);
+            }
+            const response = await axios.post(`${API_URL}/auth/user/profile`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${token}`,
+                    'x-api-secret': `${API_KEY}`,
+                },
+            });
+            notify('Cập nhật thành công', 'success');
+            fetchUserData(); // Refresh user data
+        } catch (error) {
+            console.log('Error updating profile', error);
+            notify("Cập nhật thất bại", 'error');
+        }
+    };
     // refreshtoken
     const refreshToken = async () => {
         const storedRefreshToken = localStorage.getItem('refresh_token');
@@ -167,41 +202,14 @@ export const UserProvider = ({ children }) => {
         navigate('login')
     };
 
-    // update thông tin người dùng
-    const updateUserProfile = async (userName, email, avatar) => {
-        const token = localStorage.getItem("access_token");
-        if (!userName.trim()) {
-            notify('Tên tài khoản không được để trống', 'error');
-            return;
-        }
-        try {
-            const formData = new FormData();
-            formData.append('name', userName);
-            formData.append('email', email);
-            if (avatar) {
-                formData.append('file', avatar);
-            }
-            const response = await axios.post(`${API_URL}/auth/user/profile`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${token}`,
-                    'x-api-secret': `${API_KEY}`,
-                },
-            });
-            notify('Cập nhật thành công', 'success');
-            fetchUser(); // Refresh user data
-        } catch (error) {
-            console.log('Error updating profile', error);
-            notify("Cập nhật thất bại", 'error');
-        }
-    };
+
 
     useEffect(() => {
-        fetchUser();
+        fetchUserData();
     }, []);
 
     return (
-        <UserContext.Provider value={{ user, logined, loading, fetchUser, logout, refreshToken, updateUserProfile, updatePassword }}>
+        <UserContext.Provider value={{ user, logined, loading, instructor, fetchUserData, logout, refreshToken, updateUserProfile, updatePassword }}>
             {children}
             <Toaster />
         </UserContext.Provider>

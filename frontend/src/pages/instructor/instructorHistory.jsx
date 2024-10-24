@@ -22,7 +22,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Link,useNavigate } from "react-router-dom"
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 
 import toast, { Toaster } from 'react-hot-toast';
@@ -34,7 +34,9 @@ const notify = (message, type ) => {
         toast.error(message)
     }
 }
+import { UserContext } from "../context/usercontext";
 export const InstructorHistory = () => {
+    const { instructor, logout, refreshToken } = useContext(UserContext);
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const [userName, setUserName] = useState('');
@@ -45,42 +47,22 @@ export const InstructorHistory = () => {
     const navigate = useNavigate();
     const [_success, setSuccess] = useState("");
 
-    const fetchUserProfile = async () => {
-        const token = localStorage.getItem("access_token");
-        try {
-            const response = await axios.get(`${API_URL}/auth/me`, {
-                headers: {
-                    'x-api-secret': `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+   // hàm xử lý đăng xuất
+   const handleLogout = () => {
+    setLoadingLogout(true);
+    logout();
+    setLoadingLogout(false);
+};
 
-            const userData = response.data;
-            setUserName(userData.name || '');
-            setRole(userData.role || '')
-            setAvatar(userData.avatar || '');
-
-        } catch (error) {
-            console.log('Error fetching user profile', error)
-        }
+// hàm xử lý refreshtoken
+const handleRefreshToken = async () => {
+    const newToken = await refreshToken();
+    if (newToken) {
+        alert('Token has been refreshed successfully!');
+    } else {
+        alert('Failed to refresh token. Please log in again.');
     }
-
-    const logout = () => {
-        setSuccess("");
-        setLoadingLogout(true)
-        notify('Đăng xuất thành công', 'success');
-        setTimeout(() => {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            setLogined(null);
-            setLoadingLogout(false)
-            navigate('/login')
-        }, 800)
-    }
-
-    useEffect(() => {
-        fetchUserProfile();
-    }, [])
+};
 
     return (
         <>
@@ -158,9 +140,9 @@ export const InstructorHistory = () => {
 
                                     <div className="flex items-center gap-3">
                                         {/* avatar */}
-                                        {avatar ? (
+                                        {instructor?.avatar ? (
                                             <img
-                                                src={avatar}
+                                                src={instructor.avatar}
                                                 alt="User Avatar"
                                                 className="w-10 h-10 object-cover rounded-full"
                                             />
@@ -171,12 +153,12 @@ export const InstructorHistory = () => {
 
                                         {/* user control */}
                                         <div className="text-left">
-                                            <span className="font-medium text-sm">{userName}</span>
+                                            <span className="font-medium text-sm">{instructor?.name}</span>
                                             <br />
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger>
                                                     <div className="flex items-center">
-                                                        <p className="text-gray-600 text-sm">{role}</p>
+                                                        <p className="text-gray-600 text-sm">{instructor?.role}</p>
                                                         <svg className="w-4 h-4 ml-1 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                                         </svg>
@@ -185,7 +167,7 @@ export const InstructorHistory = () => {
                                                 <DropdownMenuContent >
                                                     <div className="p-3">
                                                         <DropdownMenuItem>
-                                                            <span className="cursor-pointer" onClick={logout}>Đăng xuất</span>
+                                                            <span className="cursor-pointer" onClick={handleLogout}>Đăng xuất</span>
                                                         </DropdownMenuItem>
                                                     </div>
                                                 </DropdownMenuContent>
