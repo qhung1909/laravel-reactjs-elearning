@@ -30,6 +30,7 @@ export const UserProvider = ({ children }) => {
     const API_URL = import.meta.env.VITE_API_URL;
     const [user, setUser] = useState(null);
     const [instructor, setInstructor] = useState(null)
+    const [admin, setAdmin] = useState(null)
     const [logined, setLogined] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -61,6 +62,9 @@ export const UserProvider = ({ children }) => {
                 // Nếu vai trò là instructor, cập nhật instructor
                 if (res.data.role === "teacher") {
                     setInstructor(res.data);
+                }
+                if (res.data.role === "admin"){
+                    setAdmin(res.data);
                 }
             }
         } catch (error) {
@@ -209,7 +213,7 @@ export const UserProvider = ({ children }) => {
     }, []);
 
     return (
-        <UserContext.Provider value={{ user, logined, loading, instructor, fetchUserData, logout, refreshToken, updateUserProfile, updatePassword }}>
+        <UserContext.Provider value={{ user, logined, loading, instructor, admin, fetchUserData, logout, refreshToken, updateUserProfile, updatePassword }}>
             {children}
             <Toaster />
         </UserContext.Provider>

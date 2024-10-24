@@ -1,18 +1,20 @@
 import { Navigate } from "react-router-dom";
+import { useContext } from "react";
+import { UserContext } from "../context/usercontext";
 
 // eslint-disable-next-line react/prop-types
-const AdminRole = ({ element }) => {
-    const user = localStorage.getItem('user');
-    const getRole = user ? JSON.parse(user) : null;
+const AdminRole = () => {
+    const { admin, user } = useContext(UserContext)
 
-    const isAdmin = getRole && getRole.role === 'admin';
+    const isAdmin = admin?.role === "admin";
+    console.log(user?.name);
+
+    console.log(admin?.role, 'xem role');
 
     if (!isAdmin) {
         console.log('Not admin');
         return <Navigate to='/' />;
     }
-
-    return element;
 };
 
 export default AdminRole;
