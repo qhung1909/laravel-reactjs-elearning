@@ -17,6 +17,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import LessonCreator from "./createLesson";
+import LessonCreatorNoJson from "./createLesson copy";
 export const FrameTeacher = () => {
 
 
@@ -295,6 +296,7 @@ export const FrameTeacher = () => {
                 </div>
 
                 <LessonCreator />
+                {/* <LessonCreatorNoJson /> */}
 
             </>
         )

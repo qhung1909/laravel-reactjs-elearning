@@ -22,7 +22,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import PropTypes from 'prop-types';
 import { Textarea } from '@/components/ui/textarea';
 
-const LessonCreator = () => {
+const LessonCreatorNoJson = () => {
     const debounceTimeout = useRef();
 
     const [sections, setSections] = useState([
@@ -150,8 +150,12 @@ const LessonCreator = () => {
                                     ...lesson.contents,
                                     {
                                         id: newContentId,
-                                    type,
-                                    data: getDefaultContentData(type)
+                                        type,
+                                        data:
+                                            type === 'video' ? { duration: '00:00', size: 0, file: null } :
+                                                type === 'document' ? { text: '' } :
+                                                    type === 'file' ? { file: null } :
+                                                        type === 'quiz' ? { typequiz: '', question: '', answers: [] } : {}
                                     }
                                 ]
                             };
@@ -162,26 +166,6 @@ const LessonCreator = () => {
             }
             return section;
         }));
-    };
-
-    const getDefaultContentData = (type) => {
-        switch (type) {
-            case 'video':
-                return { duration: '00:00', size: 0, file: null };
-            case 'document':
-                return { text: '' };
-            case 'file':
-                return { file: null };
-            case 'quiz':
-                return {
-                    typequiz: '',
-                    question: '',
-                    answers: ['', '', '', ''],
-                    correctAnswer: null,
-                };
-            default:
-                return {};
-        }
     };
 
 
@@ -221,7 +205,12 @@ const LessonCreator = () => {
 
     const [quizTypes, setQuizTypes] = useState({});
 
-
+    const handleQuizTypeChange = (contentId, type) => {
+        setQuizTypes(prev => ({
+            ...prev,
+            [contentId]: type
+        }));
+    };
 
     const SingleChoiceQuiz = ({ onChange, initialData }) => {
         const [quizData, setQuizData] = useState({
@@ -401,7 +390,7 @@ const LessonCreator = () => {
     };
 
 
-    const TrueFalseQuiz = ({ onChange, initialData, sectionId, lessonId, contentId }) => {
+    const TrueFalseQuiz = ({ onChange, initialData }) => {
         const [quizData, setQuizData] = useState({
             typequiz: 'trueFalse',
             question: '',
@@ -423,8 +412,7 @@ const LessonCreator = () => {
             onChange(newData);
         };
 
-        const handleAnswerChange = (e) => {
-            const value = e.target.value;
+        const handleAnswerChange = (value) => {
             const newData = {
                 ...quizData,
                 correctAnswer: value
@@ -443,24 +431,24 @@ const LessonCreator = () => {
                     onChange={handleQuestionChange}
                 />
                 <div className="space-y-2">
-                    <label className="text-gray-700" htmlFor={`answer-select-${contentId}`}>
-                        Chọn đáp án:
-                    </label>
-                    <select
-                        id={`answer-select-${contentId}`} // ID duy nhất cho mỗi quiz
-                        className="p-2 border rounded-md"
-                        value={quizData.correctAnswer || ''}
-                        onChange={handleAnswerChange}
-                    >
-                        <option value="" disabled>Chọn đáp án</option>
-                        <option value="true">Đúng</option>
-                        <option value="false">Sai</option>
-                    </select>
+                    {['true', 'false'].map((option) => (
+                        <div key={option} className="flex items-center gap-2">
+                            <input
+                                type="radio"
+                                name="answer"
+                                className="w-4 h-4"
+                                checked={quizData.correctAnswer === option}
+                                onChange={() => handleAnswerChange(option)}
+                            />
+                            <span className="text-gray-700">
+                                {option === 'true' ? 'Đúng' : 'Sai'}
+                            </span>
+                        </div>
+                    ))}
                 </div>
             </div>
         );
     };
-
 
     const FillBlankQuiz = ({ onChange, initialData }) => {
         const [quizData, setQuizData] = useState({
@@ -525,15 +513,12 @@ const LessonCreator = () => {
 
 
     const ContentBlock = ({ type, contentId, sectionId, lessonId, initialValue, handleDocumentChange }) => {
-        const [quizData, setQuizData] = useState(initialValue || getDefaultContentData(type));
-        const [textValue, setTextValue] = useState(initialValue || '');
-        const textAreaRef = useRef(null);
-        const debounceTimeout = useRef(null);
+        const [quizData, setQuizData] = useState(null);
+        const [textValue, setTextValue] = useState();
 
         useEffect(() => {
-            setTextValue(initialValue || '');
+            setTextValue(initialValue);
         }, [initialValue]);
-
         const handleTextChange = (e) => {
             const newValue = e.target.value;
             setTextValue(newValue);
@@ -547,24 +532,18 @@ const LessonCreator = () => {
             }, 1500);
         };
 
-        useEffect(() => {
-            // Thiết lập lại focus mỗi khi textValue thay đổi
-            if (textAreaRef.current) {
-                textAreaRef.current.focus();
-            }
-        }, [textValue]);
-
         const handleQuizTypeChange = (contentId, type) => {
             setQuizTypes(prev => ({
                 ...prev,
                 [contentId]: type
             }));
-            setQuizData(getDefaultContentData(type)); // Reset dữ liệu quiz
+            // Reset quizData khi thay đổi loại quiz
+            setQuizData(null);
         };
 
-        const handleQuizDataChange = (newData) => {
-            setQuizData(newData);
-            handleDocumentChange(sectionId, lessonId, contentId, newData);
+        const handleQuizDataChange = (quizData) => {
+            handleDocumentChange(sectionId, lessonId, contentId, quizData);
+            setQuizData(quizData); // Cập nhật quizData
         };
 
         switch (type) {
@@ -579,19 +558,20 @@ const LessonCreator = () => {
                         </div>
                     </div>
                 );
-                case 'document':
-                    return (
-                        <div className="border-2 border-dashed shadow-green-300 shadow-md border-slate-400 rounded-md p-6 text-center">
-                            <FileText className="w-8 h-8 mx-auto mb-2" />
-                            <Textarea
-                                ref={textAreaRef} // Gán ref cho Textarea
-                                value={textValue}
-                                onChange={handleTextChange}
-                                className="w-full p-2 border rounded-md h-24 mt-2"
-                                placeholder="Nhập nội dung bài học..."
-                            />
-                        </div>
-                    );
+            case 'document':
+                return (
+                    <div
+                        className="border-2 border-dashed shadow-green-300 shadow-md border-slate-400 rounded-md p-6 text-center"
+                    >
+                        <FileText className="w-8 h-8 mx-auto mb-2" />
+                        <Textarea
+                            value={textValue}
+                            onChange={handleTextChange}
+                            className="w-full p-2 border rounded-md h-24 mt-2"
+                            placeholder="Nhập nội dung bài học..."
+                        />
+                    </div>
+                );
             case 'file':
                 return (
                     <div className="border-2 border-dashed shadow-red-300 shadow-md border-slate-400 rounded-md p-6 text-center">
@@ -771,7 +751,7 @@ const LessonCreator = () => {
 
     );
 };
-LessonCreator.propTypes = {
+LessonCreatorNoJson.propTypes = {
     initialData: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
     contentId: PropTypes.string.isRequired,
@@ -782,4 +762,4 @@ LessonCreator.propTypes = {
     onChange: PropTypes.func.isRequired,
 };
 
-export default LessonCreator;
+export default LessonCreatorNoJson;
