@@ -410,6 +410,8 @@ export const Header = () => {
                                                                                 navigate('/user/profile');
                                                                             } else if (user.role === 'teacher') {
                                                                                 navigate('/instructor');
+                                                                            }else if (user.role === 'admin') {
+                                                                                navigate('/admin');
                                                                             }
                                                                         }}
                                                                     >
