@@ -8,85 +8,112 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useEffect, useState } from "react";
 import axios from "axios";
 
 export const Blog = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
-    const [blogs,setBlogs] = useState([]);
+    const [blogs, setBlogs] = useState([]);
     const [randomBlog, setRandomBlog] = useState([]);
+    const [loading, setLoading] = useState(false)
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        lastPage: 1,
+        total: 0
+    })
+    const fetchBlogs = async (page = 1) => {
+        try {
 
-    const fetchBlogs = async() =>{
-        try{
-            const response = await axios.get(`${API_URL}/blog`,{
+            setLoading(true)
+            const response = await axios.get(`${API_URL}/blogs?page=${page}`, {
                 headers: {
-                    'x-api-secret': `${API_KEY}`
+                    'x-api-secret': API_KEY
                 }
-            });
-            const fetchedBlogs = response.data;
-            setBlogs(fetchedBlogs);
+            })
+            const { data } = response.data
 
-            if (Array.isArray(fetchedBlogs) && fetchedBlogs.length > 0) {
-                const randomIndex = Math.floor(Math.random() * fetchedBlogs.length);
-                setRandomBlog(fetchedBlogs[randomIndex]);
+            if (data && data.data) {
+                setBlogs(data.data)
+                setPagination({
+                    currentPage: data.current_page,
+                    lastPage: data.last_page,
+                    total: data.total
+                })
             }
-
-        }catch(error){
-            console.log('Error fetching blogs', error)
+        } catch (error) {
+            console.error('Error fetching blogs:', error)
+        } finally {
+            setLoading(false)
         }
     }
 
+    useEffect(() => {
+        fetchBlogs()
+    }, [])
 
-    const renderBlogs = () =>{
-        Array.isArray(blogs) && blogs.length >0 ? (
-            blogs.map((item,index)=>{
-                <div className="blog-list-content mb-5">
-                    <div className="blog-img">
-                        <Link to="/blogdetail">
-                        <img
-                            src={`${item.img}`}
-                            className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px] object-cover w-full"                        />
-                        </Link>
+    const handlePageChange = (page) => {
+        fetchBlogs(page)
+    }
 
+    const renderBlogs = () => {
+        if (loading) {
+            return <p>Đang tải...</p>
+        }
+
+        if (!blogs.length) {
+            return <p>Không có bài viết nào.</p>
+        }
+
+        return (
+            <div className="grid grid-cols-3 gap-5">
+                {blogs.map((blog) => (
+                    <div key={blog.blog_id} className="blog-list-content mb-5">
+                        <div className="blog-img">
+                            <Link to={`/blogdetail/${blog.slug}`}>
+                                <img
+                                    src={blog.image || './src/assets/images/blog-1.png'} // Fallback image if none provided
+                                    className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px] object-cover w-full"
+                                    alt={blog.title}
+                                />
+                            </Link>
+                        </div>
+                        <div className="blog-title">
+                            <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
+                                {blog.title}
+                            </p>
+                        </div>
                     </div>
-                    <div className="blog-title">
-                        <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
-                            {item.name}
-                        </p>
-                    </div>
-                </div>
-            })
-        ) : (
-            <p> Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
+                ))}
+            </div>
         )
     }
 
     return (
         <>
-            <>
-                {/* banner */}
-                <section
-                    className="blog-banner flex items-center justify-center xl:h-[340px] lg:h-[295px] md:h-[250px] sm:h-[170px] h-[150px] w-full"
-                    style={{
-                        backgroundImage: "url(./src/assets/images/bannerblog.png)",
-                        objectFit: "cover"
-                    }}
-                >
-                    <div className="blog-banner-title">
-                        <h1 className="lg:text-5xl md:text-4xl text-3xl font-title">
-                            <span className="italic font-title text-yellow-500">Bài viết </span>của
-                            chúng tôi
-                        </h1>
-                    </div>
-                </section>
-                {/* blog content */}
+            {/* banner */}
+            <section
+                className="blog-banner flex items-center justify-center xl:h-[340px] lg:h-[295px] md:h-[250px] sm:h-[170px] h-[150px] w-full"
+                style={{
+                    backgroundImage: "url(./src/assets/images/bannerblog.png)",
+                    objectFit: "cover"
+                }}
+            >
+                <div className="blog-banner-title">
+                    <h1 className="lg:text-5xl md:text-4xl text-3xl font-title">
+                        <span className="italic font-title text-yellow-500">Bài viết </span>của
+                        chúng tôi
+                    </h1>
+                </div>
+            </section>
+            {/* blog content */}
 
-                <section className="blog-content xl:max-w-screen-xl lg:max-w-screen-lg lg:px-5 md:px-5 sm:px-3 px-3 md:max-w-screen-md max-w-screen-sm  mx-auto">
-                    {/* blog - main */}
 
-                    <div className="blog-main  md:my-10 my-10">
+            <section className="blog-content xl:max-w-screen-xl lg:max-w-screen-lg lg:px-5 md:px-5 sm:px-3 px-3 md:max-w-screen-md max-w-screen-sm mx-auto">
+                {/* blog - main */}
+
+                <div className="blog-main  md:my-10 my-10">
                         <div className="grid grid-cols-2 xl:gap-20 lg:gap-10 md:gap-8 sm:gap-7 gap-6">
                             {/* blog - main -left */}
 
@@ -123,139 +150,82 @@ export const Blog = () => {
                             </div>
                         </div>
                     </div>
+                <div className="blog-list xl:max-w-screen-xl mx-auto xl:my-20 md:my-5 my-5">
+                    {renderBlogs()}
+                </div>
 
-                    {/* blog - list */}
-                    <div className="blog-list xl:max-w-screen-xl mx-auto xl:my-20 md:my-5 my-5">
-                        <div className="grid grid-cols-3 gap-5">
-
-                            {/* blog - list - content */}
-                            <div className="blog-list-content mb-5">
-                                <div className="blog-img">
-                                    <Link to="/blogdetail">
-                                    <img
-                                        src="./src/assets/images/blog-1.png"
-                                        className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px] object-cover w-full"
-                                        alt=""
-                                    />
-                                    </Link>
-
-                                </div>
-                                <div className="blog-title">
-                                    <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
-                                        Hướng dẫn cài đặt lại mật khẩu trên Antlearn
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="blog-list-content mb-5">
-                                <div className="blog-img">
-                                    <Link to="/blogdetail">
-                                        <img
-                                            src="./src/assets/images/blog-2.png"
-                                            className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px] object-cover w-full"
-                                            alt=""
-                                        />
-                                    </Link>
-
-                                </div>
-                                <div className="blog-title">
-                                    <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
-                                        Hướng dẫn tách ngày tháng năm trong Excel nhanh chóng
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="blog-list-content mb-5">
-                                <div className="blog-img">
-                                    <img
-                                        src="./src/assets/images/blog-3.jpg"
-                                        className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px]  object-cover w-full"
-                                        alt=""
-                                    />
-                                </div>
-                                <div className="blog-title">
-                                    <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
-                                        Các ký hiệu điện trong bản vẽ autocad bạn cần biết{" "}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="blog-list-content mb-5">
-                                <div className="blog-img">
-                                    <Link to="/blogdetail">
-                                    <img
-                                        src="./src/assets/images/blog-1.png"
-                                        className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px] object-cover w-full"
-                                        alt=""
-                                    />
-                                    </Link>
-
-                                </div>
-                                <div className="blog-title">
-                                    <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
-                                        Hướng dẫn cài đặt lại mật khẩu trên Antlearn
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="blog-list-content mb-5">
-                                <div className="blog-img">
-                                    <Link to="/blogdetail">
-                                        <img
-                                            src="./src/assets/images/blog-2.png"
-                                            className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px] object-cover w-full"
-                                            alt=""
-                                        />
-                                    </Link>
-
-                                </div>
-                                <div className="blog-title">
-                                    <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
-                                        Hướng dẫn tách ngày tháng năm trong Excel nhanh chóng
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="blog-list-content mb-5">
-                                <div className="blog-img">
-                                    <img
-                                        src="./src/assets/images/blog-3.jpg"
-                                        className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px]  object-cover w-full"
-                                        alt=""
-                                    />
-                                </div>
-                                <div className="blog-title">
-                                    <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
-                                        Các ký hiệu điện trong bản vẽ autocad bạn cần biết{" "}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* blog - pagination */}
-                    <div className="blog-pagination my-10">
+                <div className="blog-pagination my-10">
                     <Pagination>
                         <PaginationContent>
                             <PaginationItem>
-                                <PaginationPrevious href="#" />
+                                <PaginationPrevious
+                                    onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                    disabled={pagination.currentPage === 1}
+                                />
                             </PaginationItem>
+
+                            {pagination.lastPage <= 3 ? (
+                                // If there are 3 or fewer pages, show all
+                                [...Array(pagination.lastPage)].map((_, index) => (
+                                    <PaginationItem key={index + 1}>
+                                        <PaginationLink
+                                            onClick={() => handlePageChange(index + 1)}
+                                            isActive={pagination.currentPage === index + 1}
+                                        >
+                                            {index + 1}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                ))
+                            ) : (
+                                // If more than 3 pages, show current page and neighbors
+                                <>
+                                    <PaginationItem>
+                                        <PaginationLink
+                                            onClick={() => handlePageChange(1)}
+                                            isActive={pagination.currentPage === 1}
+                                        >
+                                            1
+                                        </PaginationLink>
+                                    </PaginationItem>
+
+                                    {pagination.currentPage > 2 && <PaginationEllipsis />}
+
+                                    {pagination.currentPage !== 1 && pagination.currentPage !== pagination.lastPage && (
+                                        <PaginationItem>
+                                            <PaginationLink
+                                                onClick={() => handlePageChange(pagination.currentPage)}
+                                                isActive
+                                            >
+                                                {pagination.currentPage}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    )}
+
+                                    {pagination.currentPage < pagination.lastPage - 1 && <PaginationEllipsis />}
+
+                                    <PaginationItem>
+                                        <PaginationLink
+                                            onClick={() => handlePageChange(pagination.lastPage)}
+                                            isActive={pagination.currentPage === pagination.lastPage}
+                                        >
+                                            {pagination.lastPage}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                </>
+                            )}
+
                             <PaginationItem>
-                                <PaginationLink href="#">1</PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationLink href="#">2</PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationEllipsis />
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationNext href="#" />
+                                <PaginationNext
+                                    onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                    disabled={pagination.currentPage === pagination.lastPage}
+                                />
                             </PaginationItem>
                         </PaginationContent>
                     </Pagination>
-                    </div>
-
-
-                </section>
-            </>
-
+                </div>
+            </section>
         </>
+
     )
 }
 
