@@ -8,7 +8,7 @@ import { Login } from "./pages/login/login.jsx";
 import { Signup } from "./pages/signup/signup.jsx";
 import { Lesson } from "./pages/lession/lession.jsx";
 import { Detail } from "./pages/detail/detail.jsx";
-import { Dashboard } from "./pages/admin/admin.jsx";
+import Dashboard from "./pages/admin/admin.jsx";
 import { Courses } from "./pages/courses/course.jsx";
 import { Blog } from "./pages/blog/blog.jsx";
 import { Blogdetail } from "./pages/blogdetail/blogdetail.jsx";
@@ -90,6 +90,7 @@ function AppContent() {
                     path="/admin"
                     element={<Dashboard />}
                 ></Route>
+
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/register" element={<Signup />}></Route>
