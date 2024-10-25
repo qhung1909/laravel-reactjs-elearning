@@ -38,6 +38,7 @@ Route::group([
     Route::get('/cart', [CartController::class, 'getCart']);
     Route::post('/enroll', [EnrollController::class, 'enroll']);
     Route::get('/enrolls/{id}', [EnrollController::class, 'show']);
+    Route::get('/enrolls', [EnrollController::class, 'index']);
     Route::get('/enrollment/check', [EnrollController::class, 'checkEnrollment']);
     Route::post('user/profile', [UserController::class, 'updateProf']);
     Route::post('/user/updatePassword', [UserController::class, 'updatePassword']);
