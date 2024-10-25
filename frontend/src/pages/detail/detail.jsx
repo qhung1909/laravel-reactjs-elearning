@@ -301,16 +301,17 @@ export const Detail = () => {
 
     const [courseRelatedInstructor, setCourseRelatedInstructor] = useState([]);
     const fetchCourseRelatedInstructors = async () => {
-        const user_id = detail.user_id
+        const user_id = detail.user_id;
+        const currentCourseId = detail.course_id;
         try {
             const res = await axios.get(`${API_URL}/courses/user/${user_id}`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
                 },
             });
-
             if (res.data) {
-                const limitedCourses = res.data.slice(0, 3);
+                const filteredCourses = res.data.filter(course => course.course_id !== currentCourseId);
+                const limitedCourses = filteredCourses.slice(0, 3);
                 setCourseRelatedInstructor(limitedCourses);
             } else {
                 console.error("Dữ liệu không hợp lệ:", res.data);
@@ -321,7 +322,8 @@ export const Detail = () => {
                 console.error("Chi tiết lỗi:", error.response.data);
             }
         }
-    }
+    };
+
     useEffect(() => {
         fetchCourseRelatedInstructors();
     }, [detail])
@@ -1366,7 +1368,7 @@ export const Detail = () => {
                                 courseRelatedInstructor.length > 0 ? (
                                     <>
                                         <h2 className="text-2xl font-bold mb-6">
-                                            Các khóa học của{" "}
+                                            Các khóa học khác của{" "}
                                             <span className="text-purple-700">
                                                 {users[courseRelatedInstructor[0].user_id]?.name || "Giảng viên"}
                                             </span>
