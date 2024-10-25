@@ -130,9 +130,10 @@ class CourseController extends Controller
     public function topPurchasedCourses()
     {
         $topCourses = Cache::remember('top_purchased_courses', 180, function () {
-            return Course::orderBy('is_buy', 'desc')
-                ->limit(4)
-                ->get();
+            return Course::with('user:user_id,name')
+            ->orderBy('is_buy', 'desc')
+            ->limit(4)
+            ->get();
         });
 
         if ($topCourses->isEmpty()) {
@@ -145,17 +146,19 @@ class CourseController extends Controller
     public function topViewedCourses()
     {
         $topCourses = Cache::remember('top_viewed_courses', 180, function () {
-            return Course::orderBy('views', 'desc')
+            return Course::with('user:user_id,name') 
+                ->orderBy('views', 'desc')
                 ->limit(4)
                 ->get();
         });
-
+    
         if ($topCourses->isEmpty()) {
             return response()->json(['message' => 'Không tìm thấy khóa học'], 404);
         }
-
+    
         return response()->json($topCourses, 200);
     }
+    
 
     public function show(Request $request, $slug)
     {
@@ -337,7 +340,6 @@ class CourseController extends Controller
     {
         $courses = $this->course->with('user:user_id,name')
             ->where('user_id', $userId)
-            ->limit(3)
             ->get();
 
         if ($courses->isEmpty()) {
