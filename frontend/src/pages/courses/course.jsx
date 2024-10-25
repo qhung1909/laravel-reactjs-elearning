@@ -34,6 +34,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from '@/components/ui/label'
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
@@ -44,18 +46,17 @@ import { CategoriesContext } from '../context/categoriescontext';
 import { formatDateNoTime } from '@/components/FormatDay/Formatday';
 
 export const Courses = () => {
-    const {
-        fetchSearchResults
-    } = useContext(CoursesContext);
+    const {fetchSearchResults} = useContext(CoursesContext);
+    const { courses, setCourses } = useContext(CoursesContext);
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search');
-    const { courses, setCourses } = useContext(CoursesContext);
     const [coursesPerPage] = useState(4);
     const [loading, setLoading] = useState(false)
     const location = useLocation();
     const navigate = useNavigate();
     const { categories } = useContext(CategoriesContext);
     const [hotInstructor, setHotInstructor] = useState([]);
+    const [users, setUsers] = useState({});
     const API_URL = import.meta.env.VITE_API_URL;
     const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -67,37 +68,6 @@ export const Courses = () => {
     const indexOfLastCourse = currentPage * coursesPerPage;
     const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
     const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
-
-    const [users, setUsers] = useState({});
-    //Fetch all users
-    const fetchUsers = async () => {
-        const token = localStorage.getItem("access_token");
-        try {
-            const res = await axios.get(`${API_URL}/users`, {
-                headers: {
-                    "x-api-secret": `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (res.data && Array.isArray(res.data.data)) {
-                const map = res.data.data.reduce((acc, user) => {
-                    acc[user.user_id] = user.name; // Tạo map từ user_id đến tên giảng viên
-                    return acc;
-                }, {});
-                setUsers(map);
-            } else {
-                console.error("Không tìm thấy danh sách người dùng trong phản hồi.");
-            }
-        } catch (error) {
-            console.error("Lỗi khi lấy danh sách người dùng:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-    useEffect(() => {
-        fetchUsers();
-    }, []);
 
     // giảng viên hot
     const fetchHotInstructor = async () => {
@@ -333,8 +303,8 @@ export const Courses = () => {
     ) : (
         currentCourses.map((item, index) => (
             <div key={index} >
-                <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg shadow flex items-center group my-5">
-                    <img alt={item.title} className="w-30 h-20 md:w-50 md:h-40 object-cover mr-4" src={`${item.img}`} />
+                <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg flex items-center group my-5">
+                    <img alt={item.title} className="w-44 h-28 sm:w-64 sm:h-40 md:w-72 md:h-40 sm:object-cover mr-4 " src={`${item.img}`} />
                     <div className="flex-1">
                         <h3 className="text-md md:text-lg font-semibold text-gray-800 line-clamp-2">
                             <a className="hover:underline" href="#">
@@ -344,19 +314,19 @@ export const Courses = () => {
                         <p className="text-sm text-black pr-5 line-clamp-2">
                             {item.description}
                         </p>
-                        <p className="text-xs text-gray-500 mt-2 ">
-                            Đăng bởi: {users[item.user_id] || "Không thấy tên giảng viên"}
+                        <p className="text-xs text-gray-500 my-1 line-clamp-1">
+                            <span className='font-semibold text-xs sm:text-base'>Đăng bởi: </span>{item.user?.name || "Không thấy tên giảng viên"}
                         </p>
 
-                        <p className="text-xs text-gray-500 mt-2">
-                            Lượt xem: {item.views}
+                        <p className="text-xs text-gray-500 my-1">
+                            <span className='font-semibold text-xs sm:text-base'>Lượt xem:</span> {item.views}
                         </p>
                     </div>
                     <div className="ml-auto">
-                        <p className="text-md md:text-lg font-bold text-black">
+                        <p className="text-sm sm:text-lg font-bold text-black">
                             {formatCurrency(item.price_discount)}
                         </p>
-                        <p className="text-md md:text-lg text-gray-500 line-through">
+                        <p className="text-sm sm:text-lg text-gray-500 line-through">
                             {formatCurrency(item.price)}
                         </p>
                     </div>
@@ -474,6 +444,8 @@ export const Courses = () => {
                     <div className="flex justify-between items-center my-3 border-b pb-3">
                         <div className="flex items-center">
                             <div className="lg:hidden block">
+
+                                {/* bộ lộc */}
                                 <Sheet>
                                     <SheetTrigger>
                                         <button
@@ -679,7 +651,7 @@ export const Courses = () => {
                         <div className="lg:block hidden">
                             <div className="ml-auto">
                                 <p className=" text-gray-500  font-bold">
-                                {courses.length} kết quả
+                                    {courses.length} kết quả
                                 </p>
                             </div>
                         </div>
@@ -691,78 +663,42 @@ export const Courses = () => {
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger className="text-xl font-bold">Xếp hạng</AccordionTrigger>
                                     <AccordionContent>
-                                        <input className="mr-2" name="rating" type="radio" />
-                                        <span className="text-yellow-500 ">
-                                            <i className="bx bxs-star " />
-                                            <i className="bx bxs-star" />
-                                            <i className="bx bxs-star" />
-                                            <i className="bx bxs-star" />
-                                            <i className="bx bxs-star-half" />
-                                        </span>
-                                        <span className="text-sm text-gray-800">
-                                            {" "}
-                                            Từ 4.5 trở lên
-                                            <span className="text-gray-600">
-                                                (10.000)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="rating"
-                                            type="radio" />
-                                        <span className="text-yellow-500 ">
-                                            <i className="bx bxs-star " />
-                                            <i className="bx bxs-star" />
-                                            <i className="bx bxs-star" />
-                                            <i className="bx bxs-star" />
-                                            <i className="bx bx-star" />
-                                        </span>
-                                        <span className="text-sm text-gray-800">
-                                            {" "}
-                                            Từ 4.0 trở lên
-                                            <span className="text-gray-600">
-                                                (10.000)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="rating"
-                                            type="radio" />
-                                        <span className="text-yellow-500">
-                                            <i className="bx bxs-star " />
-                                            <i className="bx bxs-star" />
-                                            <i className="bx bxs-star" />
-                                            <i className="bx bxs-star-half" />
-                                            <i className="bx bx-star" />
-                                        </span>
-                                        <span className="text-sm text-gray-800">
-                                            {" "}
-                                            Từ 3.5 trở lên
-                                            <span className="text-gray-600">
-                                                (10.000)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="rating"
-                                            type="radio" />
-                                        <span className="text-yellow-500">
-                                            <i className="bx bxs-star " />
-                                            <i className="bx bxs-star" />
-                                            <i className="bx bxs-star" />
-                                            <i className="bx bx-star" />
-                                            <i className="bx bx-star" />
-                                        </span>
-                                        <span className="text-sm text-gray-800">
-                                            {" "}
-                                            Từ 3.0 trở lên
-                                            <span className="text-gray-600">
-                                                (10.000)
-                                            </span>
-                                        </span>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Từ 4.5 trở lên
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Từ 4.0 trở lên
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Từ 3.5 trở lên
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Từ 3.0 trở lên
+                                                </span>
+                                            </Label>
+                                        </div>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -771,60 +707,87 @@ export const Courses = () => {
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger className="text-xl font-bold">Chủ đề</AccordionTrigger>
                                     <AccordionContent>
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Python{" "}
-                                            <span className="text-gray-600">
-                                                (2.433)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            JavaScript{" "}
-                                            <span className="text-gray-600">
-                                                (1.105)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Java{" "}
-                                            <span className="text-gray-600">
-                                                (1.088)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Unity{" "}
-                                            <span className="text-gray-600">
-                                                (960)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Phát triển web{" "}
-                                            <span className="text-gray-600">
-                                                (933)
-                                            </span>
-                                        </span>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Python
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Javascript
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Reactjs
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Angular
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Css
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Nextjs
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Html
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    ASP.NET
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    NodeJs
+                                                </span>
+                                            </Label>
+                                        </div>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -833,27 +796,24 @@ export const Courses = () => {
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger className="text-xl font-bold">Giá</AccordionTrigger>
                                     <AccordionContent>
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Có trả phí{" "}
-                                            <span className="text-gray-600">
-                                                (68)
-                                            </span>
-                                        </span>
-                                        <br />
-                                        <input
-                                            className="mr-2"
-                                            name="duration"
-                                            type="checkbox" />
-                                        <span className="text-sm text-black">
-                                            Miễn phí{" "}
-                                            <span className="text-gray-600">
-                                                (23)
-                                            </span>
-                                        </span>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Tăng dần
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox></Checkbox>
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Giảm dần
+                                                </span>
+                                            </Label>
+                                        </div>
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
@@ -861,15 +821,22 @@ export const Courses = () => {
                         </div>
 
                         {/*Danh sách khóa học nơi hiển thị sản phẩm đã được search */}
-                        <div className="col-span-9 transition-all ease-in-out duration-500" id="courseCol">
+                        <div className="col-span-9 transition-all ease-in-out duration-500 mb-5" id="courseCol">
                             {loading ? (
                                 <div className="text-center py-8">
                                     <p>Đang tải...</p>
                                 </div>
                             ) : courses.length > 0 ? (
-                                <div className="courses-list">
-                                    {render} {/* Your existing render logic */}
+                                <div className="courses-list  shadow">
+                                    {render}
+                                    {/* Chuyển trang */}
+                                    <Pagination>
+                                        <PaginationContent>
+                                            {renderPageNumbers()}
+                                        </PaginationContent>
+                                    </Pagination>
                                 </div>
+
                             ) : (
                                 <div className="text-center py-8">
                                     <p className="text-gray-600">
@@ -884,12 +851,7 @@ export const Courses = () => {
                 </div>
             </div>
 
-            {/* Chuyển trang */}
-            <Pagination>
-                <PaginationContent>
-                    {renderPageNumbers()}
-                </PaginationContent>
-            </Pagination>
+
         </section>
     );
 };
