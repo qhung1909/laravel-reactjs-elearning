@@ -102,13 +102,23 @@ class EnrollController extends Controller
 
 
     public function show($id)
-    {
+    {   
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         $enroll = Enroll::find($id);
         if (!$enroll) {
             return response()->json(['message' => 'Enroll not found'], 404);
         }
+
+        if (Auth::id() !== $enroll->user_id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        
         return response()->json($enroll, 200);
     }
+
 
     public function destroy($id)
     {
