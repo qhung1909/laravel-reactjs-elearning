@@ -40,7 +40,7 @@ export const Header = () => {
     const { searchValue, setSearchValue, filteredProducts, isOpen, setIsOpen, debouncedFetchSearchResults } = useContext(CoursesContext);
     const { categories } = useContext(CategoriesContext);
     const { user, logined, logout, refreshToken } = useContext(UserContext);
-    const { courses } = useContext(CoursesContext);
+    const { courses, fetchCourses } = useContext(CoursesContext);
     const location = useLocation();
     const [loadingLogout, setLoadingLogout] = useState(false);
     const isBlogPage = location.pathname === "/blog";
@@ -100,16 +100,17 @@ export const Header = () => {
                 return (
                     <div className="" key={index}>
                         <div className="flex items-center gap-3">
-
                             {/* ảnh */}
                             <div className="">
-                                <img src={`${item.img}`} className="h-20 w-36 rounded-xl" alt="" />
+                                <img src={courses.find(c => c.course_id === item.course_id)?.img} className="h-20 w-36 rounded-xl" alt="" />
                             </div>
-
                             {/* tên khóa học */}
                             <div className="">
                                 <div className="">
-                                    <span className="text-base font-semibold line-clamp-2">{item.course?.name}</span>
+                                    <span className="text-base font-semibold line-clamp-2">
+                                        {courses.find(c => c.course_id === item.course_id)?.title}
+                                    </span>
+
                                 </div>
                                 <div className="">
                                     <Link>
@@ -194,6 +195,9 @@ export const Header = () => {
             <p>Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
         );
     };
+    useEffect(() => {
+        fetchCourses();
+    }, []);
     return (
         <>
             {loadingLogout && (
