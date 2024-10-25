@@ -80,6 +80,12 @@ export const Header = () => {
         nodejs: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/nodejs.svg",
     };
 
+    // Hàm xử lý danh mục
+    const handleCategoryClick = (slug) => {
+        // Chuyển hướng đến trang khóa học với tham số danh mục
+        navigate(`/courses?category=${slug}`);
+    };
+
     // hàm xử lý đăng xuất
     const handleLogout = () => {
         setLoadingLogout(true);
@@ -109,12 +115,12 @@ export const Header = () => {
             categories.map((item) => {
                 const categoryImage = categoryImages[item.slug] || "/src/assets/images/default.svg";
                 return (
-                    <div key={item.slug} className="duration-300 cursor-pointer py-1">
+                    <div key={item.slug} className="duration-300 cursor-pointer py-1" onClick={() => handleCategoryClick(item.slug)}>
                         <DropdownMenuItem>
-                            <Link className="flex gap-3 hover:text-yellow-400 duration-300 py-1 rounded-md">
+                            <a className="cursor-pointer flex gap-3 hover:text-yellow-400 duration-300 py-1 rounded-md">
                                 <img src={categoryImage} className="w-5" alt={item.name} />
                                 <span className="font-semibold text-base">{item.name}</span>
-                            </Link>
+                            </a>
                         </DropdownMenuItem>
                     </div>
                 );
