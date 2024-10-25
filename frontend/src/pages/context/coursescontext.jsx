@@ -107,9 +107,6 @@ export const CoursesProvider = ({ children }) => {
         []
     );
 
-    useEffect(() => {
-        fetchCourses();
-    }, []);
     return (
         <CoursesContext.Provider value={{
             courses, setCourses, searchValue,
@@ -119,7 +116,8 @@ export const CoursesProvider = ({ children }) => {
             setIsOpen,
             debouncedFetchSearchResults,
             fetchSearchResults,
-            fetchCoursesByCategory
+            fetchCoursesByCategory,
+            fetchCourses
         }}>
             {children}
         </CoursesContext.Provider>

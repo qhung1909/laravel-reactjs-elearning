@@ -46,13 +46,13 @@ import { CategoriesContext } from '../context/categoriescontext';
 import { formatDateNoTime } from '@/components/FormatDay/Formatday';
 
 export const Courses = () => {
-    const { courses, setCourses, fetchSearchResults, fetchCoursesByCategory } = useContext(CoursesContext);
+    const { courses, setCourses, fetchSearchResults, fetchCoursesByCategory,fetchCourses } = useContext(CoursesContext);
+    const { categories } = useContext(CategoriesContext);
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search');
     const [coursesPerPage] = useState(4);
     const [loading, setLoading] = useState(false)
     const location = useLocation();
-    const { categories } = useContext(CategoriesContext);
     const [hotInstructor, setHotInstructor] = useState([]);
     const [users, setUsers] = useState({});
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -66,6 +66,21 @@ export const Courses = () => {
     const indexOfLastCourse = currentPage * coursesPerPage;
     const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
     const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
+
+    useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        const categorySlug = queryParams.get('category');
+
+        if (categorySlug) {
+            // Nếu có category trong URL, gọi API lọc theo category
+            fetchCoursesByCategory(categorySlug);
+            setSelectedCategory(categorySlug);
+        } else {
+            // Nếu không có category, lấy tất cả courses
+            fetchCourses();
+        }
+    }, [location.search]); // Thêm location.search vào dependencies
+
 
     const handleCategoryClick = (slug) => {
         fetchCoursesByCategory(slug);
@@ -193,24 +208,6 @@ export const Courses = () => {
         return pageNumbers;
     };
 
-    // danh mục / chủ đề phổ biến
-    const renderCategories = (categoryGroup) => {
-        return loading ? (
-            <div className="flex flex-wrap justify-center items-center">
-                {Array.from({ length: 3 }).map((_, index) => (
-                    <div className="bg-gray-100 h-10 w-20 rounded-lg animate-pulse mx-2" key={index}></div>
-                ))}
-            </div>
-        ) : Array.isArray(categoryGroup) && categoryGroup.length > 0 ? (
-            categoryGroup.map((item) => (
-                <div className="lg:px-12 md:px-10 sm:px-5 px-3 cursor-pointer font-bold border rounded-md py-5 hover:bg-yellow-300 duration-300 hover:text-black " key={item}>
-                    <a className="block text-center md:text-base sm:text-sm text-xs" href="">{item.name}</a>
-                </div>
-            ))
-        ) : (
-            <p>Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
-        );
-    };
 
     // Khóa học nổi bật
     const render_course_hot = loading ? (
