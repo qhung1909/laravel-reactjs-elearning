@@ -1,4 +1,3 @@
-"use client"
 
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer } from "recharts"
 import { ArrowDown, ArrowUp, BookOpen, DollarSign, GraduationCap, Users } from "lucide-react"
@@ -30,7 +29,9 @@ const studentData = [
 export default function Dashboard() {
   return (
     <div className="flex h-screen overflow-hidden">
-      <SidebarDashboard />
+      <div className="w-36">
+        <SidebarDashboard />
+      </div>
       <div className="flex-1 overflow-auto">
         <main className="flex-1">
           <div className="flex-1 space-y-4 p-8 pt-6">
