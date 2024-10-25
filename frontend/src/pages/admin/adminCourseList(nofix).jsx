@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -15,7 +14,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
 } from "@/components/ui/sidebar"; // Import các thành phần cần thiết
 
 const courses = [
@@ -26,7 +24,7 @@ const courses = [
   // Thêm nhiều khóa học nếu cần
 ];
 
-const AdminCourseList = () => {
+const AdminCourseListt = () => {
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
@@ -118,4 +116,4 @@ const AdminCourseList = () => {
   );
 };
 
-export default AdminCourseList;
+export default AdminCourseListt;

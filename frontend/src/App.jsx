@@ -16,7 +16,7 @@ import { Contact } from "./pages/contact/contact.jsx";
 import { Home } from "./pages/home/home.jsx";
 import { Header } from "./pages/header/header.jsx";
 import { Footer } from "./pages/footer/footer.jsx";
-import AdminRole from "./pages/role/adminRole.jsx";
+// import AdminRole from "./pages/role/adminRole.jsx";
 import { PageNotFound } from "./pages/pageNotFound/pageNotFound.jsx";
 import { Payment } from "./pages/payment/payment.jsx";
 import { Cart } from "./pages/cart/cart.jsx";
@@ -38,6 +38,8 @@ import { VerifyEmail } from "./pages/recoverPassword/verifyEmail.jsx";
 import { UserContext, UserProvider } from "./pages/context/usercontext.jsx";
 import { CategoriesContext, CategoriesProvider } from "./pages/context/categoriescontext.jsx";
 import { CoursesContext, CoursesProvider } from "./pages/context/coursescontext.jsx";
+import { Example } from "./pages/admin/example.jsx";
+// import { AdminCourseList } from "./pages/admin/adminCourseList.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -90,7 +92,8 @@ function AppContent() {
                     path="/admin"
                     element={<Dashboard />}
                 ></Route>
-                {/* <Route path="/" element={<AdminCourseList />}></Route> */}
+                {/* <Route path="/admin/course-list" element={<AdminCourseList />}></Route> */}
+                <Route path="/admin/example" element={<Example />}></Route>
 
 
 
