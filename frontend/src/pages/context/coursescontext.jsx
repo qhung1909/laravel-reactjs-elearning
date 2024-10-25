@@ -55,6 +55,22 @@ export const CoursesProvider = ({ children }) => {
         }
     }
 
+    const fetchCoursesByCategory = async (slug) => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${API_URL}/categories/${slug}`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                },
+            });
+            const categoryCourses = response.data.courses;
+            setCourses(categoryCourses);
+        } catch (error) {
+            console.log('Error fetching courses by category', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchSearchResults = async (query, limit = null) => {
         setLoading(true);
@@ -102,7 +118,8 @@ export const CoursesProvider = ({ children }) => {
             isOpen,
             setIsOpen,
             debouncedFetchSearchResults,
-            fetchSearchResults
+            fetchSearchResults,
+            fetchCoursesByCategory
         }}>
             {children}
         </CoursesContext.Provider>

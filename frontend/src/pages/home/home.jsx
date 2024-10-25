@@ -8,7 +8,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const Home = () => {
-    const { categories } = useContext(CategoriesContext);
+    const { categories,setSel } = useContext(CategoriesContext);
     const [topPurchasedProduct, setTopPurchasedProduct] = useState([]);
     const [topViewedProduct, setTopViewedProduct] = useState([]);
     const [productsByCategory, setProductsByCategory] = useState([]);
