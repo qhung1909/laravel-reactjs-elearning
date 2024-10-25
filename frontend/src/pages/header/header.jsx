@@ -36,12 +36,17 @@ export const Header = () => {
     const {searchValue,setSearchValue,filteredProducts,isOpen,setIsOpen,debouncedFetchSearchResults} = useContext(CoursesContext);
     const { categories } = useContext(CategoriesContext);
     const { user, logined, logout, refreshToken } = useContext(UserContext);
+
     const location = useLocation();
     const [loadingLogout, setLoadingLogout] = useState(false);
     const isBlogPage = location.pathname === "/blog";
     const isContactPage = location.pathname === "/contact";
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    const handleLoginRedirect = () => {
+        sessionStorage.setItem('previousPage', location.pathname);
+    };
 
 
     const handleInputChange = (value) => {
@@ -151,7 +156,7 @@ export const Header = () => {
                                     onBlur={() => {
                                         setTimeout(() => setIsOpen(false), 200);
                                     }}
-                                    onKeyDown={handleKeyPress}  // Đổi từ onKeyPress sang onKeyDown
+                                    onKeyDown={handleKeyPress}
                                     className="h-10"
                                 />
                                 <div className={`absolute w-4/5 bg-white mt-10 ${isOpen ? 'block' : 'hidden'}`}>
@@ -168,7 +173,7 @@ export const Header = () => {
                                                     </div>
                                                 ) : searchValue === '' ? (
                                                     <div className="rounded-sm border-l border-r border-b shadow-lg p-3 text-gray-400">
-                                                        Hãy nhập để tìm
+                                                        Hãy nhập để tìm khóa học phù hợp
                                                     </div>
                                                 ) : (
                                                     <div className="search-results h-auto">
@@ -656,14 +661,14 @@ export const Header = () => {
                                 <div className="xl:flex max-xl:flex-col items-center gap-1">
                                     <div className="navbar-login max-xl:mb-2">
                                         <Link to="/login">
-                                            <button className="w-28 py-2  border rounded-3xl font-semibold border-gray-400 p-1 hover:border-1 hover:border-white hover:bg-black hover:text-white duration-300">
+                                            <button onClick={handleLoginRedirect} className="w-28 py-2  border rounded-3xl font-semibold border-gray-400 p-1 hover:border-1 hover:border-white hover:bg-black hover:text-white duration-300">
                                                 Đăng nhập
                                             </button>
                                         </Link>
                                     </div>
                                     <div className="navbar-register">
                                         <Link to="/register">
-                                            <button className="w-24 py-2 border rounded-3xl font-semibold p-1 bg-yellow-500 hover:border-1 hover:border-black hover:bg-black hover:text-white duration-300">
+                                            <button onClick={handleLoginRedirect} className="w-24 py-2 border rounded-3xl font-semibold p-1 bg-yellow-500 hover:border-1 hover:border-black hover:bg-black hover:text-white duration-300">
                                                 Đăng ký
                                             </button>
                                         </Link>

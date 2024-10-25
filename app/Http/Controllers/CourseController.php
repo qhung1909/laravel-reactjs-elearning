@@ -30,7 +30,7 @@ class CourseController extends Controller
             DB::raw('AVG(comments.rating) as average_rating')
         )
             ->join('courses', 'users.user_id', '=', 'courses.user_id')
-            ->leftJoin('comments', 'courses.course_id', '=', 'comments.course_id') 
+            ->leftJoin('comments', 'courses.course_id', '=', 'comments.course_id')
             ->where('users.role', 'teacher')
             ->groupBy('users.user_id')
             ->orderBy('max_is_buy', 'desc')
@@ -331,5 +331,19 @@ class CourseController extends Controller
             );
         }
         return response()->json($featuredCourse, 200);
+    }
+
+    public function coursesByUserId($userId)
+    {
+        $courses = $this->course->with('user:user_id,name')
+            ->where('user_id', $userId)
+            ->limit(3)
+            ->get();
+
+        if ($courses->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy khóa học nào cho giảng viên này.'], 404);
+        }
+
+        return response()->json($courses, 200);
     }
 }
