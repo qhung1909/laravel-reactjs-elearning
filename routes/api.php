@@ -37,6 +37,7 @@ Route::group([
     Route::delete('/cart/remove-item', [CartController::class, 'removeItem']);
     Route::get('/cart', [CartController::class, 'getCart']);
     Route::post('/enroll', [EnrollController::class, 'enroll']);
+    Route::get('/enrolls/{id}', [EnrollController::class, 'show']);
     Route::get('/enrollment/check', [EnrollController::class, 'checkEnrollment']);
     Route::post('user/profile', [UserController::class, 'updateProf']);
     Route::post('/user/updatePassword', [UserController::class, 'updatePassword']);
