@@ -43,7 +43,7 @@ function AppContent() {
     const isAdminPage = location.pathname === "/admin";
     const isPageNotFound =
         ![
-            "/blogdetail",
+            "/blogs/:slug",
             "/blog",
             "/contact",
             "/",
@@ -55,7 +55,8 @@ function AppContent() {
             "/user/account",
             "/user/noti",
         ].includes(location.pathname) &&
-        !location.pathname.startsWith("/detail/");
+        !location.pathname.startsWith("/detail/") &&
+        !location.pathname.startsWith("/blogs/");
 
     return (
         <>
@@ -79,8 +80,7 @@ function AppContent() {
                     path="/instructor/profile"
                     element={<InstructorProfile />}
                 ></Route>
-                <Route path="/blogdetail" element={<Blogdetail />}></Route>
-                <Route path="/blog" element={<Blog />}></Route>
+
                 <Route path="/contact" element={<Contact />}></Route>
                 {/* <Route
                     path="/admin"
@@ -99,6 +99,8 @@ function AppContent() {
                 <Route path="/verify-email" element={<VerifyEmail />}></Route>
                 <Route path="/courses" element={<Courses />}></Route>
                 <Route path="/lessons/:slug" element={<Lesson />}></Route>
+                <Route path="/blogs/:slug" element={<Blogdetail />}></Route>
+                <Route path="/blog" element={<Blog />}></Route>
                 <Route path="/detail" element={<Detail />}></Route>
                 <Route path="*" element={<PageNotFound />}></Route>
                 <Route path="/404" element={<PageNotFound />}></Route>

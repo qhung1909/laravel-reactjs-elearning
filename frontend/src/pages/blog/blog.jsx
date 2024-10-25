@@ -71,9 +71,9 @@ export const Blog = () => {
                 {blogs.map((blog) => (
                     <div key={blog.blog_id} className="blog-list-content mb-5">
                         <div className="blog-img">
-                            <Link to={`/blogdetail/${blog.slug}`}>
+                            <Link to={`/blogs/${blog.slug}`}>
                                 <img
-                                    src={blog.image || './src/assets/images/blog-1.png'} // Fallback image if none provided
+                                    src={blog.image || './src/assets/images/blog-1.png'}
                                     className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px] object-cover w-full"
                                     alt={blog.title}
                                 />
