@@ -15,7 +15,7 @@ import axios from 'axios'
 export const Blogdetail = () => {
     const API_KEY = import.meta.env.VITE_API_KEY
     const API_URL = import.meta.env.VITE_API_URL
-    const { slug } = useParams()  // Lấy slug từ URL
+    const { slug } = useParams();
     const [blog, setBlog] = useState(null)
     const [relatedBlogs, setRelatedBlogs] = useState([])
     const [loading, setLoading] = useState(true)
@@ -28,9 +28,8 @@ export const Blogdetail = () => {
                     'x-api-secret': API_KEY
                 }
             })
-
             if (response.data.status) {
-                setBlog(response.data.data)
+                setBlog(response.data.data.blog) // Thay vì response.data.data
             }
         } catch (error) {
             console.error('Error fetching blog detail:', error)
@@ -80,13 +79,14 @@ export const Blogdetail = () => {
                             <div className="blogdetail-title ">
                                 <span className="xl:text-5xl lg:text-4xl md:text-3xl sm:text-2xl text-xl font-bold">
                                     {blog.title}
+
                                 </span>
                             </div>
                             {/* date - author - mini img */}
                             <div className="blogdetail-date flex items-center gap-2 md:my-5 my-3">
                                 <div className="rounded-full">
                                     <img
-                                        src="./src/assets/images/blog-miniimg.webp"
+                                        src="/src/assets/images/blog-miniimg.webp"
                                         className="rounded-full xl:w-12 xl:h-11 lg:w-11 lg:h-10 md:w-10 md:h-9 sm:w-9 sm:h-8 w-30 h-7 object-cover"
                                         alt=""
                                     />
@@ -101,9 +101,8 @@ export const Blogdetail = () => {
                             {/* main img */}
                             <div className="blogdetail-img">
                                 <img
-                                    src={blog.image || "./src/assets/images/blog-1.png"}
+                                    src={blog.image}
                                     className="rounded-3xl xl:h-[480px] lg:h-[430px] md:h-[380px] sm:h-[330px] h-[280px] w-full object-cover"
-                                    alt={blog.title}
                                 />
                             </div>
                             {/* content */}
@@ -125,7 +124,7 @@ export const Blogdetail = () => {
                                         <div className="blog-img">
                                             <Link to={`/blogdetail/${relatedBlog.slug}`}>
                                                 <img
-                                                    src={relatedBlog.image || "./src/assets/images/blog-2.png"}
+                                                    src={relatedBlog.image || "/src/assets/images/blog-2.png"}
                                                     className="rounded-xl xl:w-[350px] lg:w-[400px] md:w-[450px] w-full xl:h-20 lg:h-20 md:h-16 object-cover"
                                                     alt={relatedBlog.title}
                                                 />
