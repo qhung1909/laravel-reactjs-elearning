@@ -98,29 +98,34 @@ export const Header = () => {
         ) : Array.isArray(myCourse) && myCourse.length > 0 ? (
             myCourse.map((item, index) => {
                 return (
-                    <DropdownMenuItem key={index}>
-
-                        <div className="grid grid-cols-5 gap-3">
-                            {/* ảnh */}
-                            <div className="col-span-2">
-                                <img src={courses.find(c => c.course_id === item.course_id)?.img} className="h-20 w-36 rounded-xl" alt="" />
-                            </div>
-                            {/* tên khóa học */}
-                            <div className="col-span-3">
-                                <div className="">
-                                    <span className="text-base font-semibold line-clamp-2">
-                                        {courses.find(c => c.course_id === item.course_id)?.title}
-                                    </span>
-
+                    <DropdownMenuItem key={index}  >
+                        <div className=" ">
+                            <div className="grid grid-cols-5 gap-3 mb-2">
+                                {/* ảnh */}
+                                <div className="col-span-2">
+                                    <img
+                                        src={courses.find(c => c.course_id === item.course_id)?.img}
+                                        className="h-20 w-36 rounded-xl"
+                                        alt=""
+                                    />
                                 </div>
-                                <div className="">
-                                    <Link to={`/lesson/${courses.find(c => c.course_id === item.course_id)?.slug}`}>
-                                        <p className="text-yellow-500 font-semibold">Bắt đầu học</p>
-                                    </Link>
+                                {/* tên khóa học */}
+                                <div className="col-span-3">
+                                    <div>
+                                        <span className="text-base font-semibold line-clamp-2">
+                                            {courses.find(c => c.course_id === item.course_id)?.title}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <Link to={`/lesson/${courses.find(c => c.course_id === item.course_id)?.slug}`}>
+                                            <p className="text-yellow-500 font-semibold">Bắt đầu học</p>
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </DropdownMenuItem>
+
 
                 );
             })
@@ -458,7 +463,10 @@ export const Header = () => {
 
 
                                                                             {/* Render khóa học */}
+                                                                            <div className="max-h-72 overflow-y-auto">
                                                                             {renderMyCourses()}
+
+                                                                            </div>
 
                                                                             {/* Nếu không có khóa học */}
                                                                             {!loading && (!Array.isArray(myCourse) || myCourse.length === 0) && (
