@@ -46,7 +46,7 @@ import { CategoriesContext } from '../context/categoriescontext';
 import { formatDateNoTime } from '@/components/FormatDay/Formatday';
 
 export const Courses = () => {
-    const { courses, setCourses, fetchSearchResults, fetchCoursesByCategory,fetchCourses } = useContext(CoursesContext);
+    const { courses, setCourses, fetchSearchResults, fetchCoursesByCategory,fetchCourses,fetchTopPurchasedProduct,hotProducts } = useContext(CoursesContext);
     const { categories } = useContext(CategoriesContext);
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search');
@@ -54,7 +54,6 @@ export const Courses = () => {
     const [loading, setLoading] = useState(false)
     const location = useLocation();
     const [hotInstructor, setHotInstructor] = useState([]);
-    const [users, setUsers] = useState({});
     const [selectedCategory, setSelectedCategory] = useState(null);
     const API_URL = import.meta.env.VITE_API_URL;
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -72,14 +71,13 @@ export const Courses = () => {
         const categorySlug = queryParams.get('category');
 
         if (categorySlug) {
-            // Nếu có category trong URL, gọi API lọc theo category
             fetchCoursesByCategory(categorySlug);
             setSelectedCategory(categorySlug);
         } else {
-            // Nếu không có category, lấy tất cả courses
             fetchCourses();
         }
-    }, [location.search]); // Thêm location.search vào dependencies
+        fetchTopPurchasedProduct();
+    }, [location.search]);
 
 
     const handleCategoryClick = (slug) => {
@@ -218,50 +216,46 @@ export const Courses = () => {
                     <Skeleton className="w-full custom-img-height md:h-82 lg:h-60 lg:w-96 object-cover mb-4 lg:mb-0 lg:mr-4 border" />
                     <div className="bg-white p-6 flex flex-col justify-between w-full">
                         <div className="flex-1">
-                            <Skeleton className="h-8 w-full mb-2" /> {/* Title */}
-                            <Skeleton className="h-6 w-full mb-2" /> {/* Description */}
-                            <Skeleton className="h-4 w-1/4 mb-1" /> {/* Author */}
-                            <Skeleton className="h-4 w-2/3 mb-4" /> {/* Updated info */}
-                            <Skeleton className="h-6 w-1/3 mb-2" /> {/* Rating */}
+                            <Skeleton className="h-8 w-full mb-2" />
+                            <Skeleton className="h-6 w-full mb-2" />
+                            <Skeleton className="h-4 w-1/4 mb-1" />
+                            <Skeleton className="h-4 w-2/3 mb-4" />
+                            <Skeleton className="h-6 w-1/3 mb-2" />
                         </div>
-                        <Skeleton className="h-8 w-1/3 mb-2" /> {/* Price */}
+                        <Skeleton className="h-8 w-1/3 mb-2" />
                     </div>
                 </Link>
             </div>
         ))
     ) : (
-
-        courses
-            .filter(item => item.is_buy)
-            .sort((a, b) => b.is_buy - a.is_buy) // Lọc chỉ những sản phẩm nổi bật
-            .map((item, index) => (
+        hotProducts.map((item, index) => (
                 <div key={index}>
                     <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg flex flex-col lg:flex-row group lg:my-5 md:my-3 my-0">
                         <img alt="Best-selling course" className="w-full custom-img-height md:h-82 lg:h-60 lg:w-96 object-cover mb-4 lg:mb-0 lg:mr-4 border" src={`${item.img}`} />
                         <div className="bg-white p-6 flex flex-col justify-between">
                             <div className="flex-1">
-                                <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
+                                <h3 className="text-xl md:text-2xl font-bold text-gray-800 my-1">
                                     {item.title}
                                 </h3>
-                                <p className="text-gray-700 mb-2">
+                                <p className="text-gray-700 my-1">
                                     {item.description}
                                 </p>
-                                <p className="text-gray-500 text-xs mb-1">
+                                <p className="text-gray-500 text-xs my-1">
                                     {item.user?.name || "Không thấy tên giảng viên"}
                                 </p>
-                                <p className="font-thin text-xs text-green-600 mb-2">
+                                <p className="font-thin text-xs text-green-600 my-1">
                                     Cập nhật ngày {" "}
                                     <span className="text-green-800 font-bold">
                                         {formatDateNoTime(item.updated_at)}
                                     </span>
                                 </p>
-                                <p className="text-lg text-gray-800 font-semibold mb-1">
+                                <p className="text-lg text-gray-800 font-semibold">
                                     <span className="bg-yellow-200 text-gray-700 text-sm px-2 py-1">
                                         {item.is_buy} Lượt bán
                                     </span>
                                 </p>
                             </div>
-                            <p className="pt-4 text-lg font-bold text-black">
+                            <p className="text-lg font-bold text-black my-1">
                                 {formatCurrency(item.price_discount)}
                             </p>
                         </div>
