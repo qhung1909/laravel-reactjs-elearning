@@ -73,42 +73,39 @@ class EnrollController extends Controller
         return response()->json(['enrolled' => $isEnrolled], 200);
     }
 
-    public function index(Request $request)
+    public function index()
     {
         if (!Auth::check()) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-
-        $perPage = $request->input('per_page', 10);
-
-        $query = Enroll::where('user_id', Auth::id());
-
-        if ($request->filled('course_id')) {
-            $query->where('course_id', $request->course_id);
-        }
-
-        if ($request->filled('start_date')) {
-            $query->where('created_at', '>=', $request->start_date);
-        }
-
-        if ($request->filled('end_date')) {
-            $query->where('created_at', '<=', $request->end_date);
-        }
-
-        $enrolls = $query->paginate($perPage);
-
+    
+        $userId = Auth::id();
+    
+        $enrolls = Enroll::where('user_id', $userId)->get();
+    
         return response()->json($enrolls, 200);
     }
+    
 
 
     public function show($id)
-    {
+    {   
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         $enroll = Enroll::find($id);
         if (!$enroll) {
             return response()->json(['message' => 'Enroll not found'], 404);
         }
+
+        if (Auth::id() !== $enroll->user_id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
         return response()->json($enroll, 200);
     }
+
 
     public function destroy($id)
     {

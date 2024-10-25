@@ -32,7 +32,8 @@ export const CoursesProvider = ({ children }) => {
     const [courses, setCourses] = useState([]);
     const [error, setError] = useState("");
     const [_success, setSuccess] = useState("");
-    const [hotProducts,setHotProducts] = useState("");
+    const [hotProducts, setHotProducts] = useState([]);
+
     const [searchValue, setSearchValue] = useState("");
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
