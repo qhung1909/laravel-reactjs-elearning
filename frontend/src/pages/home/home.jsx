@@ -9,7 +9,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const Home = () => {
-    const { courses, hotProducts } = useContext(CoursesContext)
+    const { courses, hotProducts,fetchTopPurchasedProduct } = useContext(CoursesContext)
     const { categories } = useContext(CategoriesContext);
     const [topPurchasedProduct, setTopPurchasedProduct] = useState([]);
     const [topViewedProduct, setTopViewedProduct] = useState([]);
@@ -240,6 +240,7 @@ export const Home = () => {
     };
 
     useEffect(() => {
+        fetchTopPurchasedProduct();
         fetchTopViewedProduct();
     }, []);
 

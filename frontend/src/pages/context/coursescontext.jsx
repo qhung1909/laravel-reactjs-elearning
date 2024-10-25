@@ -128,11 +128,6 @@ export const CoursesProvider = ({ children }) => {
         }, 300),
         []
     );
-
-    useEffect(() => {
-        fetchTopPurchasedProduct();
-    }, []);
-
     return (
         <CoursesContext.Provider value={{
             courses, setCourses, searchValue,
@@ -144,6 +139,7 @@ export const CoursesProvider = ({ children }) => {
             fetchSearchResults,
             fetchCoursesByCategory,
             fetchCourses,
+            fetchTopPurchasedProduct,
             hotProducts
         }}>
             {children}
