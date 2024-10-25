@@ -1,9 +1,11 @@
-import { FrameTeacher } from "./frame";
+import LessonCreator from "./createLesson";
+// import { FrameTeacher } from "./frame";
 
 const Demo =()=>{
     return (
         <>
-            <FrameTeacher />
+            {/* <FrameTeacher /> */}
+            <LessonCreator />
         </>
     );
 }

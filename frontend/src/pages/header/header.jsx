@@ -43,6 +43,10 @@ export const Header = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+    const handleSaveCurrentPath = () => {
+        sessionStorage.setItem('previousPage', location.pathname);
+    };
+
 
     const handleInputChange = (value) => {
         setSearchValue(value);
@@ -656,7 +660,7 @@ export const Header = () => {
                                 <div className="xl:flex max-xl:flex-col items-center gap-1">
                                     <div className="navbar-login max-xl:mb-2">
                                         <Link to="/login">
-                                            <button className="w-28 py-2  border rounded-3xl font-semibold border-gray-400 p-1 hover:border-1 hover:border-white hover:bg-black hover:text-white duration-300">
+                                            <button onClick={handleSaveCurrentPath('/login')} className="w-28 py-2  border rounded-3xl font-semibold border-gray-400 p-1 hover:border-1 hover:border-white hover:bg-black hover:text-white duration-300">
                                                 Đăng nhập
                                             </button>
                                         </Link>
