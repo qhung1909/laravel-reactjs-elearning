@@ -1,35 +1,22 @@
-import { useState,useContext, useEffect } from "react";
+import { useState, useContext, useEffect } from "react";
 import axios from 'axios';
 import { Link } from "react-router-dom";
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CategoriesContext } from "../context/categoriescontext";
+import { CoursesContext } from "../context/coursescontext";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const Home = () => {
-    const { categories,setSel } = useContext(CategoriesContext);
+    const { courses, hotProducts } = useContext(CoursesContext)
+    const { categories } = useContext(CategoriesContext);
     const [topPurchasedProduct, setTopPurchasedProduct] = useState([]);
     const [topViewedProduct, setTopViewedProduct] = useState([]);
     const [productsByCategory, setProductsByCategory] = useState([]);
     const [loading, setLoading] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState(null);
 
-    const fetchTopPurchasedProduct = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get(`${API_URL}/top-purchased-courses`, {
-                headers: {
-                    'x-api-secret': `${API_KEY}`,
-                },
-            });
-            setTopPurchasedProduct(response.data);
-        } catch (error) {
-            console.log('Error fetching API:', error);
-        } finally {
-            setLoading(false);
-        }
-    }
 
     const fetchTopViewedProduct = async () => {
         setLoading(true);
@@ -85,8 +72,8 @@ export const Home = () => {
             ))}
         </>
     ) :
-        Array.isArray(topPurchasedProduct) && topPurchasedProduct.length > 0 ? (
-            topPurchasedProduct.map((item, index) => (
+        Array.isArray(hotProducts) && hotProducts.length > 0 ? (
+            hotProducts.map((item, index) => (
                 <div className="product md:mb-10 xl:mb-0 text-center md:text-left" key={index}>
                     <div className="product-box">
                         <Link to={`/detail/${item.slug}`}>
@@ -123,7 +110,7 @@ export const Home = () => {
             ))
         ) : (
             <p>Không có sản phẩm phù hợp ngay lúc này, thử lại sau</p>
-    );
+        );
 
     const viewedProduct = loading ? (
         <>
@@ -177,7 +164,7 @@ export const Home = () => {
             ))
         ) : (
             <p>Không có sản phẩm phù hợp ngay lúc này, thử lại sau</p>
-    )
+        )
 
     const renderCategories = (categoryGroup) => {
         return loading ? (
@@ -192,8 +179,8 @@ export const Home = () => {
                     <button
                         onClick={() => fetchProductByCategory(item.slug)}
                         className={`p-3 rounded-lg duration-300 me-2 ${selectedCategory === item.slug
-                                ? 'bg-yellow-400 text-white'
-                                : 'bg-gray-100 hover:bg-white hover:border-yellow-400 border'
+                            ? 'bg-yellow-400 text-white'
+                            : 'bg-gray-100 hover:bg-white hover:border-yellow-400 border'
                             }`}
                         key={item.slug}
                     >
@@ -253,7 +240,6 @@ export const Home = () => {
     };
 
     useEffect(() => {
-        fetchTopPurchasedProduct();
         fetchTopViewedProduct();
     }, []);
 
@@ -369,12 +355,12 @@ export const Home = () => {
                     <div className="homecatelog-box-content mt-5 text-center">
                         <div className="homecatelog-box-content-row">
                             <div className="homecatelog-box-content-row-main">
-                                {renderCategories(categories.slice(0,5))}
+                                {renderCategories(categories.slice(0, 5))}
                             </div>
                         </div>
                         <div className="homecatelog-box-content-row my-3">
                             <div className="homecatelog-box-content-row-main">
-                                {renderCategories(categories.slice(5,9))}
+                                {renderCategories(categories.slice(5, 9))}
                             </div>
                         </div>
                     </div>
@@ -462,9 +448,9 @@ export const Home = () => {
                         </div>
                         <div className="homeblog-box-content-button xl:ps-40 lg:ps-32 sm:flex sm:justify-center lg:justify-start lg:py-5 px-4 md:text-[10px] lg:text-[12px] xl:text-[16px] text-[12px]">
                             <Link to="/blog">
-                            <button className="bg-yellow-400 font-semibold lg:py-3 lg:px-5 md:py-2 md:px-4 px-5 py-2 rounded-full hover:bg-yellow-300 duration-300 ">
-                                Khám phá thêm
-                            </button>
+                                <button className="bg-yellow-400 font-semibold lg:py-3 lg:px-5 md:py-2 md:px-4 px-5 py-2 rounded-full hover:bg-yellow-300 duration-300 ">
+                                    Khám phá thêm
+                                </button>
                             </Link>
 
                         </div>

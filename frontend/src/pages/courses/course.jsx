@@ -230,7 +230,6 @@ export const Courses = () => {
             </div>
         ))
     ) : (
-
         courses
             .filter(item => item.is_buy)
             .sort((a, b) => b.is_buy - a.is_buy) // Lọc chỉ những sản phẩm nổi bật
