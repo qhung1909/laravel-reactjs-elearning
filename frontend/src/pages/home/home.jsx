@@ -63,7 +63,7 @@ export const Home = () => {
                                     className="rounded-xl h-full sm:w-full md:h-full w-80"
                                 />
                             </div>
-                            <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-lg font-semibold my-2  line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
+                            <div className="product-box-title xl:text-xl lg:text-xl md:text-base sm:text-lg text-base font-semibold my-2  line-clamp-2 xl:h-[55px] lg:h-[54px] md:h-[45px]">
                                 <span className="lg:pe-5 pe-3">
                                     {`${item.title}`}
                                 </span>
@@ -75,10 +75,7 @@ export const Home = () => {
                         </div>
                         <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
                             <div className="product-box-time">
-                                <p>35 bài học</p>
-                            </div>
-                            <div className="product-box-lesson hidden sm:block">
-                                <p>7 giờ kém 10</p>
+                                <p className="text-base">Số lượt mua: <span className="font-semibold text-lg text-yellow-600">{`${item.is_buy}`}</span> </p>
                             </div>
                         </div>
                         <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
@@ -128,11 +125,8 @@ export const Home = () => {
                             <p>Bởi: Huy Hoàng</p>
                         </div>
                         <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
-                            <div className="product-box-time">
-                                <p>35 bài học</p>
-                            </div>
-                            <div className="product-box-lesson hidden sm:block">
-                                <p>7 giờ kém 10</p>
+                        <div className="product-box-time">
+                                <p className="text-base">Số lượt xem: <span className="font-semibold text-lg text-yellow-600">{`${item.views}`}</span> </p>
                             </div>
                         </div>
                         <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
@@ -173,9 +167,8 @@ export const Home = () => {
 
     const renderProductsByCategory = () => {
         if (!selectedCategory) {
-            return null; // Không render gì nếu chưa bấm vào danh mục nào
+            return null;
         }
-
         return loading ? (
             <div className="flex flex-wrap justify-center items-center">
                 {Array.from({ length: 4 }).map((_, index) => (
@@ -201,7 +194,7 @@ export const Home = () => {
                             </div>
                         </Link>
                         <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
-                            <p>Bởi: Huy Hoàng</p>
+                            <p>Đăng bởi: {item.user?.name || "Không thấy tên giảng viên"}</p>
                         </div>
                         <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
                             <div className="product-box-time">
@@ -308,7 +301,7 @@ export const Home = () => {
                         <h4>
                             Các khóa học{" "}
                             <span className="italic font-semibold text-yellow-400">
-                                chất lượng cao
+                                xem nhiều nhất
                             </span>
                         </h4>
                     </div>
