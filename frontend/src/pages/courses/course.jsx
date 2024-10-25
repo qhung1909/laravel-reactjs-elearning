@@ -250,7 +250,7 @@ export const Courses = () => {
                                     {item.description}
                                 </p>
                                 <p className="text-gray-500 text-xs mb-1">
-                                    {users[item.user_id] || "Không thấy tên giảng viên"}
+                                    {item.user?.name || "Không thấy tên giảng viên"}
                                 </p>
                                 <p className="font-thin text-xs text-green-600 mb-2">
                                     Cập nhật ngày {" "}

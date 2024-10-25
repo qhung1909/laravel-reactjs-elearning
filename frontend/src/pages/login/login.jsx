@@ -1,7 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCallback, useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import './login.css'
 
 const API_URL = import.meta.env.VITE_API_URL;
 // const notify = (message) => toast.error(message);
@@ -176,7 +175,12 @@ export const Login = () => {
             notify('Đăng nhập thành công', 'success');
             setSuccess('Đăng nhập thành công');
             await getUserInfo();
-            navigate('/');
+            const previousPage = sessionStorage.getItem('previousPage');
+            if (previousPage) {
+                navigate(previousPage);
+            } else {
+                navigate('/'); // Điều hướng về trang chính nếu không có trang trước
+            }
             window.location.reload();
         } catch (error) {
             setError('Đã xảy ra lỗi: ' + error.message);
@@ -245,7 +249,7 @@ export const Login = () => {
                                 </div>
                                 <Input id="password" type="password" tabIndex="2" value={password} onChange={(e) => setPassword(e.target.value)} />
                             </div>
-                            <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600">
+                            <Button  type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600">
                                 Đăng nhập
                             </Button>
                             {error && <p className="text-red-500 text-sm pt-2">{error}</p>}

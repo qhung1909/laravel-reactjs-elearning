@@ -4,7 +4,7 @@ import { formatDate } from "@/components/FormatDay/Formatday";
 import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, User } from "lucide-react";
 import { Calendar, Globe, BookOpen, Star } from "lucide-react";
 import { Play, Users, Book, Clock, Eye } from "lucide-react";
 import {
@@ -43,7 +43,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import ReactPlayer from "react-player";
 import { CoursesContext } from "../context/coursescontext";
-import { Instructor } from "../instructor/instructor";
 // import { CategoriesContext } from "../context/categoriescontext";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -302,16 +301,17 @@ export const Detail = () => {
 
     const [courseRelatedInstructor, setCourseRelatedInstructor] = useState([]);
     const fetchCourseRelatedInstructors = async () => {
-        const user_id = detail.user_id
+        const user_id = detail.user_id;
+        const currentCourseId = detail.course_id;
         try {
             const res = await axios.get(`${API_URL}/courses/user/${user_id}`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
                 },
             });
-
             if (res.data) {
-                const limitedCourses = res.data.slice(0, 3);
+                const filteredCourses = res.data.filter(course => course.course_id !== currentCourseId);
+                const limitedCourses = filteredCourses.slice(0, 3);
                 setCourseRelatedInstructor(limitedCourses);
             } else {
                 console.error("Dữ liệu không hợp lệ:", res.data);
@@ -322,7 +322,8 @@ export const Detail = () => {
                 console.error("Chi tiết lỗi:", error.response.data);
             }
         }
-    }
+    };
+
     useEffect(() => {
         fetchCourseRelatedInstructors();
     }, [detail])
@@ -918,7 +919,7 @@ export const Detail = () => {
                         {/* Section 3 */}
                         <div className="container mx-auto px-4 py-8">
                             <h2 className="text-2xl font-bold mb-4">Nội dung khóa học</h2>
-                            <p className="text-gray-600 mb-6">19 phần - 121 bài giảng - 8 giờ 42 phút tổng thời lượng</p>
+                            {/* <p className="text-gray-600 mb-6">19 phần - 121 bài giảng - 8 giờ 42 phút tổng thời lượng</p> */}
 
                             <div className="bg-white rounded-lg overflow-hidden">
                                 <div className="border-b">
@@ -1249,8 +1250,8 @@ export const Detail = () => {
                                                     {teacher.total_courses || "Đang cập nhật dữ liệu"} Khóa học
                                                 </li>
                                                 <li className="flex items-center">
-                                                    <Star className="w-5 h-5 mr-2 text-gray-500" />
-                                                    {teacher.max_is_buy || "Đang cập nhật dữ liệu"} Học viên
+                                                    <User className="w-5 h-5 mr-2 text-gray-500" />
+                                                    {teacher.course?.is_buy || "Đang cập nhật dữ liệu"} Học viên
                                                 </li>
                                             </ul>
                                             <Accordion type="single" collapsible className="w-full">
@@ -1367,7 +1368,7 @@ export const Detail = () => {
                                 courseRelatedInstructor.length > 0 ? (
                                     <>
                                         <h2 className="text-2xl font-bold mb-6">
-                                            Các khóa học của{" "}
+                                            Các khóa học khác của{" "}
                                             <span className="text-purple-700">
                                                 {users[courseRelatedInstructor[0].user_id]?.name || "Giảng viên"}
                                             </span>

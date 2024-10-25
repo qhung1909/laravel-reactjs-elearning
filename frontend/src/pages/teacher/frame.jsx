@@ -295,7 +295,7 @@ export const FrameTeacher = () => {
                     <div className="border-b-2"></div>
                 </div>
 
-                <LessonCreator />
+                {/* <LessonCreator /> */}
                 {/* <LessonCreatorNoJson /> */}
 
             </>
