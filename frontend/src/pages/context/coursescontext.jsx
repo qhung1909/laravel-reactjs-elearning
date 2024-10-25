@@ -32,12 +32,14 @@ export const CoursesProvider = ({ children }) => {
     const [courses, setCourses] = useState([]);
     const [error, setError] = useState("");
     const [_success, setSuccess] = useState("");
+    const [hotProducts,setHotProducts] = useState("");
     const [searchValue, setSearchValue] = useState("");
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
 
     const navigate = useNavigate();
 
+    // tất cả khóa học
     const fetchCourses = async () => {
         setLoading(true)
         try {
@@ -55,6 +57,7 @@ export const CoursesProvider = ({ children }) => {
         }
     }
 
+    // khóa học theo danh mục
     const fetchCoursesByCategory = async (slug) => {
         setLoading(true);
         try {
@@ -72,6 +75,7 @@ export const CoursesProvider = ({ children }) => {
         }
     };
 
+    // search khóa học
     const fetchSearchResults = async (query, limit = null) => {
         setLoading(true);
         try {
@@ -94,6 +98,24 @@ export const CoursesProvider = ({ children }) => {
         }
     };
 
+    // khóa học nổi bật
+    const fetchTopPurchasedProduct = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${API_URL}/top-purchased-courses`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                },
+            });
+            setHotProducts(response.data);
+        } catch (error) {
+            console.log('Error fetching API:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+
     const debouncedFetchSearchResults = useCallback(
         debounce((value, limit) => {
             if (value.trim() !== '') {
@@ -106,7 +128,6 @@ export const CoursesProvider = ({ children }) => {
         }, 300),
         []
     );
-
     return (
         <CoursesContext.Provider value={{
             courses, setCourses, searchValue,
@@ -117,7 +138,9 @@ export const CoursesProvider = ({ children }) => {
             debouncedFetchSearchResults,
             fetchSearchResults,
             fetchCoursesByCategory,
-            fetchCourses
+            fetchCourses,
+            fetchTopPurchasedProduct,
+            hotProducts
         }}>
             {children}
         </CoursesContext.Provider>

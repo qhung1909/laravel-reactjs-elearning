@@ -286,16 +286,16 @@ export const Detail = () => {
                 console.error("Dữ liệu không hợp lệ:", res.data);
             }
         } catch (error) {
-            console.error("Lỗi khi lấy dữ liệu khóa học:", error);
-            if (error.response) {
-                console.error("Chi tiết lỗi:", error.response.data);
-            }
+            console.error("Lỗi khi lấy dữ liệu khóa học liên quan");
         }
     };
-
     useEffect(() => {
         if (detail) {
-            fetchCourseRelated();
+            const timeout = setTimeout(() => {
+                fetchCourseRelated();
+            }, 3000);
+
+            return () => clearTimeout(timeout);
         }
     }, [detail]);
 
@@ -317,19 +317,20 @@ export const Detail = () => {
                 console.error("Dữ liệu không hợp lệ:", res.data);
             }
         } catch (error) {
-            console.error("Lỗi khi lấy dữ liệu khóa học:", error);
-            if (error.response) {
-                console.error("Chi tiết lỗi:", error.response.data);
-            }
+            console.error("Lỗi khi lấy dữ liệu khóa học liên quan giảng viên");
         }
     };
-
     useEffect(() => {
-        fetchCourseRelatedInstructors();
-    }, [detail])
+        if (detail) {
+            const timeout = setTimeout(() => {
+                fetchCourseRelatedInstructors();
+            }, 3000);
+
+            return () => clearTimeout(timeout);
+        }
+    }, [detail]);
 
     const [isPaymentCourse, setPaymentCourse] = useState(false);
-
     const checkPaymentCourse = async (user_id) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -356,7 +357,6 @@ export const Detail = () => {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
         } catch (error) {
-            console.error("Lỗi khi kiểm tra khóa học đã mua:", error);
             if (error.response) {
                 console.error("Chi tiết lỗi:", error.response.data);
             }
@@ -370,7 +370,6 @@ export const Detail = () => {
     }, [user, detail]);
 
     const [isEnrolled, setIsEnrolled] = useState(false);
-
     const handleEnroll = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
