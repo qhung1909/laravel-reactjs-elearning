@@ -22,7 +22,7 @@ use Symfony\Component\Mime\MessageConverter;
 use App\Http\Controllers\QuizOptionController;
 use App\Http\Controllers\UserCourseController;
 use App\Http\Controllers\QuizQuestionController;
-
+use App\Http\Controllers\BlogController;
 // Authentication
 Route::group([
     'middleware' => 'api',
@@ -127,6 +127,11 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/users', [UserController::class, 'getAllUsers']);
 
+    Route::get('blogs', [BlogController::class, 'index']); 
+    Route::post('blogs', [BlogController::class, 'store']); 
+    Route::get('blogs/{slug}', [BlogController::class, 'show']); 
+    Route::put('blogs/{slug}', [BlogController::class, 'update']); 
+    Route::delete('blogs/{slug}', [BlogController::class, 'destroy']); 
+
+
 });
-
-
