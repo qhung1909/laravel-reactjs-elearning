@@ -107,7 +107,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 
-// This is sample data.
 const data = {
   user: {
     name: "admin",
@@ -278,10 +277,10 @@ export default function Dashboard() {
                     </div>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">
-                        {activeTeam.name}
+                        abc
                       </span>
                       <span className="truncate text-xs">
-                        {activeTeam.plan}
+                        abcdddđ
                       </span>
                     </div>
                     <ChevronsUpDown className="ml-auto" />
@@ -574,7 +573,7 @@ export default function Dashboard() {
                 </div>
             </div>
         </div>
-        <Card>
+        <Card className="max-w-lg">
         <CardHeader>
             <CardTitle>Biểu đồ</CardTitle>
             <CardDescription>Tháng 1 - Tháng 10 2024</CardDescription>
