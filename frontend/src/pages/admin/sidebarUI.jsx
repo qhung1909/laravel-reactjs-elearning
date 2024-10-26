@@ -109,7 +109,7 @@ const data = {
                 },
                 {
                     title: "Xem, xóa thông tin khóa học",
-                    url: "#",
+                    url: "/admin/information-course",
                 },
                 {
                     title: "Duyệt khóa học mới từ giảng viên",
