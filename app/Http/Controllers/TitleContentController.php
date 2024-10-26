@@ -62,7 +62,7 @@ class TitleContentController extends Controller
                 return TitleContent::with('content')
                     ->select('title_content_id', 'content_id', 'body_content', 'video_link', 'document_link', 'description', 'created_at', 'updated_at')
                     ->where('content_id', $content_id)
-                    ->first();
+                    ->get();
             });
     
             if (!$titleContent) {
