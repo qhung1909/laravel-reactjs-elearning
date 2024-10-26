@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -47,14 +49,12 @@ class CategoryController extends Controller
             'courses' => $category->courses,
         ]);
     }
-    
 
     public function store(Request $request)
     {
         $rules = [
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'slug' => 'required|string|unique:categories,slug'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -63,17 +63,38 @@ class CategoryController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $category = Category::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'slug' => $request->slug,
-        ]);
+        try {
+            $category = DB::transaction(function () use ($request) {
+                $baseSlug = Str::slug($request->name);
+                $slug = $baseSlug;
+                $counter = 1;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Danh mục được thêm thành công.',
-            'category' => $category
-        ], 201);
+                while (Category::where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . '-' . $counter;
+                    $counter++;
+                }
+
+                return Category::create([
+                    'name' => $request->name,
+                    'description' => $request->description,
+                    'slug' => $slug,
+                ]);
+            });
+
+            Cache::forget('categories');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Danh mục được thêm thành công.',
+                'category' => $category
+            ], 201);
+
+        } catch (\Exception $e) {
+            Log::error('Error creating category: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Có lỗi xảy ra khi tạo danh mục'
+            ], 500);
+        }
     }
 
     public function update(Request $request, $slug)
@@ -81,7 +102,6 @@ class CategoryController extends Controller
         $rules = [
             'name' => 'sometimes|required|string',
             'description' => 'sometimes|nullable|string',
-            'slug' => 'sometimes|required|string|unique:categories,slug,' . $slug . ',slug'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -90,37 +110,70 @@ class CategoryController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $category = $this->category->where('slug', $slug)->first();
-        if (!$category) {
-            return response()->json(['error' => 'Danh mục không tìm thấy'], 404);
+        try {
+            $category = DB::transaction(function () use ($request, $slug) {
+                $category = $this->category->where('slug', $slug)->firstOrFail();
+                
+                if ($request->has('name') && $request->name !== $category->name) {
+                    $baseSlug = Str::slug($request->name);
+                    $newSlug = $baseSlug;
+                    $counter = 1;
+
+                    while (Category::where('slug', $newSlug)
+                            ->where('id', '!=', $category->id)
+                            ->exists()) {
+                        $newSlug = $baseSlug . '-' . $counter;
+                        $counter++;
+                    }
+
+                    $category->slug = $newSlug;
+                }
+
+                $category->name = $request->input('name', $category->name);
+                $category->description = $request->input('description', $category->description);
+                $category->save();
+
+                return $category;
+            });
+
+            Cache::forget('categories');
+            Cache::forget("category_{$slug}");
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Danh mục được cập nhật thành công.',
+                'category' => $category
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error updating category: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Có lỗi xảy ra khi cập nhật danh mục'
+            ], 500);
         }
-
-        $category->update([
-            'name' => $request->input('name', $category->name),
-            'description' => $request->input('description', $category->description),
-            'slug' => $request->input('slug', $category->slug),
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Danh mục được cập nhật thành công.',
-            'category' => $category
-        ], 200);
     }
 
     public function delete($slug)
     {
-        $category = $this->category->where('slug', $slug)->first();
+        try {
+            DB::transaction(function () use ($slug) {
+                $category = $this->category->where('slug', $slug)->firstOrFail();
+                $category->delete();
+            });
 
-        if (!$category) {
-            return response()->json(['error' => 'Danh mục không tìm thấy'], 404);
+            Cache::forget('categories');
+            Cache::forget("category_{$slug}");
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Danh mục đã được xóa thành công.'
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error deleting category: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Có lỗi xảy ra khi xóa danh mục'
+            ], 500);
         }
-
-        $category->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Danh mục đã được xóa thành công.'
-        ], 200);
     }
 }

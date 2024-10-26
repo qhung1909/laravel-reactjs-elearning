@@ -24,6 +24,7 @@ use App\Http\Controllers\UserCourseController;
 use App\Http\Controllers\QuizQuestionController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContentController;
+use App\Http\Controllers\OrderController;
 // Authentication
 Route::group([
     'middleware' => 'api',
@@ -88,7 +89,7 @@ Route::middleware(['admin'])->group(function () {
 
     //Categories
     Route::prefix('categories')->group(function () {
-        Route::get('/', [CategoryController::class, 'index']);  
+        Route::get('/', [CategoryController::class, 'index']);
         Route::get('{slug}', [CategoryController::class, 'show']);
         Route::post('/', [CategoryController::class, 'store']);
         Route::put('{slug}', [CategoryController::class, 'update']);
@@ -142,4 +143,13 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/contents', [ContentController::class, 'store']);
     Route::put('/contents/{content_id}', [ContentController::class, 'update']);
     Route::delete('/contents/{content_id}', [ContentController::class, 'destroy']);
+
+    // Route để lấy danh sách tất cả các đơn hàng
+    Route::get('/orders', [OrderController::class, 'index']);
+
+    // Route để lấy tất cả đơn hàng của một user cụ thể
+    Route::get('/orders/user/{user_id}', [OrderController::class, 'getAllOrdersByUserId']);
+
+    // Route để lấy chi tiết một đơn hàng dựa vào user_id và order_id 
+    Route::get('/orders/{user_id}/{order_id}', [OrderController::class, 'show']);
 });
