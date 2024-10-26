@@ -88,7 +88,7 @@ Route::middleware(['admin'])->group(function () {
 
     //Categories
     Route::prefix('categories')->group(function () {
-        Route::get('/', [CategoryController::class, 'index']);
+        Route::get('/', [CategoryController::class, 'index']);  
         Route::get('{slug}', [CategoryController::class, 'show']);
         Route::post('/', [CategoryController::class, 'store']);
         Route::put('{slug}', [CategoryController::class, 'update']);

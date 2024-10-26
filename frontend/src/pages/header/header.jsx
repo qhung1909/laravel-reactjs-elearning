@@ -298,12 +298,16 @@ export const Header = () => {
                         <>
                             <>
                                 {/* header - content */}
+
                                 <div className="navbar-content  bg-white xl:flex xl:items-center px-10 max-xl:w-full xl:block hidden">
+
+                                    {/* content-left */}
                                     <ul className="max-xl:pt-3 gap-4 font-semibold flex text-base xl:text-base w-full items-center justify-center">
+                                        {/* courses */}
                                         <li className="max-xl:mb-4 ">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger>
-                                                    <Link to="/courses" className="hover:text-gray-500 border-none p-3">
+                                                    <Link to="/courses" className="hover:text-gray-500 border-none p-3 ">
                                                         Khóa học
                                                     </Link>
                                                 </DropdownMenuTrigger>
@@ -322,29 +326,37 @@ export const Header = () => {
                                                             </div>
                                                         </div>
                                                         <div className="grid-2 px-5">
-                                                            <DropdownMenuLabel className=" text-base text-blue-900 uppercase font-bold">Danh mục</DropdownMenuLabel>
+                                                            <DropdownMenuLabel className=" text-blue-900 uppercase font-bold">Danh mục</DropdownMenuLabel>
                                                             {renderCategories()}
                                                         </div>
                                                     </div>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </li>
+
+                                        {/* contact */}
                                         <li>
-                                            <Link to="/contact" className={`p-3 rounded ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
+                                            <Link to="/contact" className={`p-3 rounded  ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
                                                 Liên hệ
                                             </Link>
                                         </li>
+
+                                        {/* blog */}
                                         <li>
-                                            <Link to="/blog" className={` p-3 rounded ${isBlogPage ? "bg-yellow-100" : "hover:bg-gray-100"}`}>
-                                                Blog
+                                            <Link to="/blog" className={` p-3 rounded  ${isBlogPage ? "bg-yellow-100" : "hover:bg-gray-100"}`}>
+                                                Bài viết
                                             </Link>
                                         </li>
                                     </ul>
+
+                                    {/* content - right */}
                                     <div className="navbar-icons flex items-center justify-center gap-3 xl:mx-3">
-                                        <div className="navbar-noti mt-2 cursor-pointer ">
+
+                                        {/* Notification */}
+                                        <div className="navbar-noti cursor-pointer ">
                                             <DropdownMenu >
-                                                <DropdownMenuTrigger>
-                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-12" alt="" />
+                                                <DropdownMenuTrigger className="flex">
+                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-10" alt="" />
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="rounded-2xl p-3 mr-48 mt-1">
                                                     <div className=" w-96">
@@ -387,14 +399,20 @@ export const Header = () => {
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </div>
-                                        <div className="navbar-language cursor-pointer">
+
+                                        {/* language */}
+                                        {/* <div className="navbar-language cursor-pointer">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-12" alt="" />
-                                        </div>
+                                        </div> */}
+
+                                        {/* cart */}
                                         <div className="">
                                             <Link to='/cart'>
-                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-12" alt="" />
+                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-10" alt="" />
                                             </Link>
                                         </div>
+
+                                        {/* user - avataruser - avatar */}
                                         <div className="cursor-pointer">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -403,7 +421,7 @@ export const Header = () => {
                                                         <img
                                                             src={user.avatar}
                                                             alt="User Avatar"
-                                                            className="w-14 h-8 rounded-full"
+                                                            className="w-10 rounded-full object-cover"
                                                         />
                                                     ) : (
 
@@ -517,15 +535,20 @@ export const Header = () => {
                                         </div>
                                     </div>
                                 </div>
+
                                 {/* // toggle */}
-                                <div className="w-[92px] xl:hidden  mx-auto flex items-center justify-center">
+                                <div className="w-[92px] xl:hidden flex items-center justify-center">
                                     <Sheet>
+
+                                        {/* outside*/}
                                         <SheetTrigger>
-                                            {/* icons*/}
                                             <div className="navbar-icons flex items-center gap-2 xl:mx-3 my-5">
+
+                                                {/* avatar */}
                                                 <div className="">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
+
                                                             {user.avatar ? (
                                                                 <img
                                                                     src={user.avatar}
@@ -640,37 +663,54 @@ export const Header = () => {
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
                                                 </div>
+
+                                                {/* cart */}
                                                 <div className="">
                                                     <Link to='/cart'>
                                                         <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-24" alt="" />
                                                     </Link>
                                                 </div>
+
+                                                {/* menu - toogle - toogle login */}
                                                 <div className="flex items-center">
-                                                    <box-icon name='menu'></box-icon>
+                                                    <img src="./src/assets/images/toggle.svg" className="w-24" alt="" />
                                                 </div>
                                             </div>
                                         </SheetTrigger>
+
+                                        {/* inside */}
                                         <SheetContent>
                                             <SheetHeader>
+
+                                                {/* toggle header */}
                                                 <SheetTitle>
                                                     <div className="p-4 flex justify-between items-center border-b-[1px]">
+
+                                                        {/* logo  */}
                                                         <div className="logo">
                                                             <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className=" w-20 h-14 object-cover" />
                                                         </div>
                                                         <div className="flex gap-3">
-                                                            <div className="navbar-language cursor-pointer">
+                                                            {/* language */}
+                                                            {/* <div className="navbar-language cursor-pointer">
                                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-7" alt="" />
-                                                            </div>
+                                                            </div> */}
+
+                                                            {/* notification */}
                                                             <div className="">
                                                                 <div className="navbar-noti cursor-pointer ">
                                                                     <DropdownMenu >
+
                                                                         <DropdownMenuTrigger>
                                                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
                                                                         </DropdownMenuTrigger>
+
+                                                                        {/* notification - language */}
                                                                         <DropdownMenuContent className="rounded-2xl p-3 mr-14 mt-1">
                                                                             <div className=" w-96">
-                                                                                {/* header */}
                                                                                 <div className="header">
+
+                                                                                    {/* notification */}
                                                                                     <DropdownMenuLabel className="text-base text-blue-900 font-bold">
                                                                                         <div className="flex justify-between items-center">
                                                                                             <div className="">
@@ -682,7 +722,6 @@ export const Header = () => {
                                                                                         </div>
                                                                                     </DropdownMenuLabel>
 
-                                                                                    {/* content */}
                                                                                     <DropdownMenuItem>
                                                                                         <div className="border-yellow-400 border-b-4 pb-2 cursor-pointer flex items-center gap-3 font-semibold text-yellow-400">
                                                                                             <p className="text-lg ">Hệ thống</p>
@@ -714,15 +753,19 @@ export const Header = () => {
                                                 </SheetTitle>
                                                 <SheetDescription>
 
-                                                    {/* nav list */}
+                                                    {/* toggle list - toggle nav list  */}
                                                     <ul className="max-xl:pt-3 gap-3 text-base xl:text-base text-left">
+
+                                                        {/* courses */}
                                                         <li className="max-xl:mb-4">
                                                             <DropdownMenu>
+
                                                                 <DropdownMenuTrigger>
                                                                     <Link className="hover:text-gray-500 border-none">
                                                                         Khóa học
                                                                     </Link>
                                                                 </DropdownMenuTrigger>
+
                                                                 <DropdownMenuContent>
                                                                     <div className="px-5">
                                                                         <div className="top">
@@ -745,6 +788,8 @@ export const Header = () => {
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>
                                                         </li>
+
+                                                        {/* contact - blog */}
                                                         <li className="max-xl:mb-4">
                                                             <Link to="/contact" className="hover:text-gray-500">
                                                                 Liên hệ
@@ -766,9 +811,14 @@ export const Header = () => {
                         </>
                     ) : (
                         <>
+
+                            {/* không đăng nhập - no login */}
+
                             {/* header - content */}
                             <div className="navbar-content  bg-white xl:flex xl:items-center px-5 max-xl:w-full xl:block hidden">
                                 <ul className="max-xl:pt-3 gap-4 font-semibold flex text-base xl:text-base w-full items-center justify-center">
+
+                                    {/* courses */}
                                     <li className="max-xl:mb-4">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger>
@@ -798,21 +848,27 @@ export const Header = () => {
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </li>
+
+                                    {/* contact */}
                                     <li>
-                                        <Link to="/contact" className={`p-3 rounded ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
+                                        <Link to="/contact" className={`p-3 rounded  ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
                                             Liên hệ
                                         </Link>
                                     </li>
+
+                                    {/* blog */}
                                     <li>
-                                        <Link to="/blog" className={` p-3 rounded ${isBlogPage ? "bg-yellow-100" : "hover:bg-gray-100"}`}>
+                                        <Link to="/blog" className={` p-3 rounded  ${isBlogPage ? "bg-yellow-100" : "hover:bg-gray-100"}`}>
                                             Blog
                                         </Link>
                                     </li>
                                 </ul>
                                 <div className="navbar-icons flex items-center gap-2 xl:mx-3">
-                                    <div className="navbar-noti cursor-pointer mt-2 ">
+
+                                    {/* notification */}
+                                    <div className="navbar-noti cursor-pointer">
                                         <DropdownMenu >
-                                            <DropdownMenuTrigger>
+                                            <DropdownMenuTrigger className="flex">
                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-16" alt="" />
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent className="rounded-2xl p-3 mr-80 mt-1">
@@ -857,15 +913,21 @@ export const Header = () => {
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
-                                    <div className="navbar-language cursor-pointer">
+
+                                    {/* language */}
+                                    {/* <div className="navbar-language cursor-pointer">
                                         <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-16" alt="" />
-                                    </div>
+                                    </div> */}
+
+                                    {/* cart */}
                                     <div className="">
                                         <Link to='/cart'>
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-16" alt="" />
                                         </Link>
                                     </div>
                                 </div>
+
+                                {/* login - signup */}
                                 <div className="xl:flex max-xl:flex-col items-center gap-1">
                                     <div className="navbar-login max-xl:mb-2">
                                         <Link to="/login">
@@ -886,11 +948,13 @@ export const Header = () => {
 
                             </div>
                             {/* // toggle */}
-                            <div className="w-[92px] xl:hidden  mx-auto flex items-center justify-center">
+                            <div className="w-24 xl:hidden flex items-center justify-between">
                                 <Sheet>
                                     <SheetTrigger>
                                         {/* icons*/}
                                         <div className="navbar-icons flex items-center justify-center gap-2 xl:mx-3 my-5">
+
+                                            {/* notification */}
                                             <div className="navbar-noti cursor-pointer mt-2">
                                                 <DropdownMenu >
                                                     <DropdownMenuTrigger>
@@ -938,13 +1002,15 @@ export const Header = () => {
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </div>
+
+                                            {/* cart */}
                                             <div className="">
                                                 <Link to='/cart'>
                                                     <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-16" alt="" />
                                                 </Link>
                                             </div>
                                             <div className="flex items-center">
-                                                <box-icon name='menu'></box-icon>
+                                                <img src="./src/assets/images/toggle.svg" className="w-16 mt-1" alt="" />
                                             </div>
                                         </div>
 
