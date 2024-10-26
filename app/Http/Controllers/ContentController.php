@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Content;
-
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +26,7 @@ class ContentController extends Controller
 
             $contents = Cache::remember($cacheKey, 3600, function () use ($perPage) {
                 return Content::with('lesson')
-                    ->select('content_id', 'lesson_id', 'title_content', 'body_content', 'video_content', 'document_link')
+                    ->select('content_id', 'lesson_id', 'name_content', 'created_at', 'updated_at')
                     ->latest()
                     ->paginate($perPage);
             });
@@ -39,10 +38,7 @@ class ContentController extends Controller
                         'content_id' => $content->content_id,
                         'lesson_id' => $content->lesson_id,
                         'lesson' => $content->lesson,
-                        'title' => $content->title_content,
-                        'body' => $content->body_content,
-                        'video' => $content->video_content,
-                        'document' => $content->document_link,
+                        'name_content' => $content->name_content,
                         'created_at' => $content->created_at,
                         'updated_at' => $content->updated_at,
                     ];
@@ -65,40 +61,48 @@ class ContentController extends Controller
     /**
      * Xem chi tiết content
      */
-    public function show($content_id)
+    public function show($lesson_id)
     {
         if (!Auth::check()) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-
+    
         try {
-            $cacheKey = 'content_' . $content_id;
-
-            $content = Cache::remember($cacheKey, 3600, function () use ($content_id) {
+            $cacheKey = 'content_by_lesson_' . $lesson_id;
+    
+            $contents = Cache::remember($cacheKey, 3600, function () use ($lesson_id) {
                 return Content::with('lesson')
-                    ->select('content_id', 'lesson_id', 'title_content', 'body_content', 'video_content', 'document_link')
-                    ->findOrFail($content_id);
+                    ->select('content_id', 'lesson_id', 'name_content', 'created_at', 'updated_at')
+                    ->where('lesson_id', $lesson_id)
+                    ->orderBy('created_at', 'desc') 
+                    ->get();
             });
-
+    
+            if ($contents->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy nội dung cho lesson_id này.',
+                ], 404);
+            }
+    
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'content_id' => $content->content_id,
-                    'lesson_id' => $content->lesson_id,
-                    'lesson' => $content->lesson,
-                    'title' => $content->title_content,
-                    'body' => $content->body_content,
-                    'video' => $content->video_content,
-                    'document' => $content->document_link,
-                    'created_at' => $content->created_at,
-                    'updated_at' => $content->updated_at,
-                ]
+                'data' => $contents->map(function ($content) {
+                    return [
+                        'content_id' => $content->content_id,
+                        'lesson_id' => $content->lesson_id,
+                        'lesson' => $content->lesson,
+                        'name_content' => $content->name_content,
+                        'created_at' => $content->created_at,
+                        'updated_at' => $content->updated_at,
+                    ];
+                }),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Không tìm thấy content hoặc có lỗi xảy ra: ' . $e->getMessage()
-            ], 404);
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -113,18 +117,12 @@ class ContentController extends Controller
 
         $validator = Validator::make($request->all(), [
             'lesson_id' => 'required|exists:lessons,id',
-            'title_content' => 'required|string|max:255',
-            'body_content' => 'required|string',
-            'video_content' => 'nullable|string|url',
-            'document_link' => 'nullable|string|url',
+            'name_content' => 'required|string|max:255',
         ], [
             'lesson_id.required' => 'Lesson ID là bắt buộc',
             'lesson_id.exists' => 'Lesson không tồn tại',
-            'title_content.required' => 'Tiêu đề là bắt buộc',
-            'title_content.max' => 'Tiêu đề không được vượt quá 255 ký tự',
-            'body_content.required' => 'Nội dung là bắt buộc',
-            'video_content.url' => 'Link video không hợp lệ',
-            'document_link.url' => 'Link tài liệu không hợp lệ',
+            'name_content.required' => 'Nội dung là bắt buộc',
+            'name_content.max' => 'Nội dung không được vượt quá 255 ký tự',
         ]);
 
         if ($validator->fails()) {
@@ -137,23 +135,13 @@ class ContentController extends Controller
         DB::beginTransaction();
         try {
             $content = Content::create($validator->validated());
-            
+
             Cache::tags(['contents'])->flush();
-            
+
             DB::commit();
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'content_id' => $content->content_id,
-                    'lesson_id' => $content->lesson_id,
-                    'lesson' => $content->lesson,
-                    'title' => $content->title_content,
-                    'body' => $content->body_content,
-                    'video' => $content->video_content,
-                    'document' => $content->document_link,
-                    'created_at' => $content->created_at,
-                    'updated_at' => $content->updated_at,
-                ],
+                'data' => $content,
                 'message' => 'Tạo content thành công'
             ], 201);
         } catch (\Exception $e) {
@@ -176,18 +164,12 @@ class ContentController extends Controller
 
         $validator = Validator::make($request->all(), [
             'lesson_id' => 'required|exists:lessons,id',
-            'title_content' => 'required|string|max:255',
-            'body_content' => 'required|string',
-            'video_content' => 'nullable|string|url',
-            'document_link' => 'nullable|string|url',
+            'name_content' => 'required|string|max:255',
         ], [
             'lesson_id.required' => 'Lesson ID là bắt buộc',
             'lesson_id.exists' => 'Lesson không tồn tại',
-            'title_content.required' => 'Tiêu đề là bắt buộc',
-            'title_content.max' => 'Tiêu đề không được vượt quá 255 ký tự',
-            'body_content.required' => 'Nội dung là bắt buộc',
-            'video_content.url' => 'Link video không hợp lệ',
-            'document_link.url' => 'Link tài liệu không hợp lệ',
+            'name_content.required' => 'Nội dung là bắt buộc',
+            'name_content.max' => 'Nội dung không được vượt quá 255 ký tự',
         ]);
 
         if ($validator->fails()) {
@@ -201,24 +183,14 @@ class ContentController extends Controller
         try {
             $content = Content::findOrFail($content_id);
             $content->update($validator->validated());
-            
+
             Cache::forget('content_' . $content_id);
             Cache::tags(['contents'])->flush();
-            
+
             DB::commit();
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'content_id' => $content->content_id,
-                    'lesson_id' => $content->lesson_id,
-                    'lesson' => $content->lesson,
-                    'title' => $content->title_content,
-                    'body' => $content->body_content,
-                    'video' => $content->video_content,
-                    'document' => $content->document_link,
-                    'created_at' => $content->created_at,
-                    'updated_at' => $content->updated_at,
-                ],
+                'data' => $content,
                 'message' => 'Cập nhật content thành công'
             ]);
         } catch (\Exception $e) {
@@ -238,15 +210,15 @@ class ContentController extends Controller
         if (!Auth::check()) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-        
+
         DB::beginTransaction();
         try {
             $content = Content::findOrFail($content_id);
             $content->delete();
-            
+
             Cache::forget('content_' . $content_id);
             Cache::tags(['contents'])->flush();
-            
+
             DB::commit();
             return response()->json([
                 'success' => true,
