@@ -223,7 +223,7 @@ export const Header = () => {
                     </div>
 
                     {/* header - search */}
-                    <div className="navbar-search xl:w-3/5 xl:px-0 sm:w-3/4 w-2/3 p-2">
+                    <div className="navbar-search xl:w-2/4 xl:px-0 sm:w-3/4 w-2/3 p-2">
                         <div className="w-full relative">
                             <Command className="rounded-full shadow-sm border w-full ">
                                 <CommandInput
@@ -336,7 +336,7 @@ export const Header = () => {
 
                                         {/* contact */}
                                         <li>
-                                            <Link to="/contact" className={`p-3 rounded  ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
+                                            <Link to="/contact" className={`p-3 rounded   ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
                                                 Liên hệ
                                             </Link>
                                         </li>
@@ -815,7 +815,7 @@ export const Header = () => {
                             {/* không đăng nhập - no login */}
 
                             {/* header - content */}
-                            <div className="navbar-content  bg-white xl:flex xl:items-center px-5 max-xl:w-full xl:block hidden">
+                            <div className="navbar-content  bg-white xl:flex xl:items-center px-5 xl:px-1 max-xl:w-full xl:block hidden">
                                 <ul className="max-xl:pt-3 gap-4 font-semibold flex text-base xl:text-base w-full items-center justify-center">
 
                                     {/* courses */}
