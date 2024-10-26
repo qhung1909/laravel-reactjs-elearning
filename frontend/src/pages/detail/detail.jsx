@@ -123,7 +123,7 @@ export const Detail = () => {
             });
             // Kiểm tra dữ liệu trả về và đảm bảo nó là một mảng
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
-                setContentLesson(res.data.data);  // Lấy mảng từ res.data.data
+                setContentLesson(res.data.data);
                 console.log("Đây là dữ liệu nội dung bài học:", res.data.data);
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
@@ -146,8 +146,8 @@ export const Detail = () => {
         fetchContentLesson();
     }, []);
 
-    const [titleContent, setTitleContent] = useState([]);
 
+    const [titleContent, setTitleContent] = useState([]);
     const fetchTitleContent = async () => {
 
         setLoading(true);
@@ -163,7 +163,7 @@ export const Detail = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            if (res.data && res.data ) {
+            if (res.data && res.data) {
                 setTitleContent(res.data);
                 console.log("Dữ liệu chi tiết title_content:", res.data);
             } else {
@@ -177,12 +177,10 @@ export const Detail = () => {
             } else {
                 console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
             }
-            // Không cần gán null, giữ titleContent là một mảng rỗng
         } finally {
             setLoading(false);
         }
     };
-
     useEffect(() => {
         fetchTitleContent();
     }, []);
@@ -1057,24 +1055,52 @@ export const Detail = () => {
                                                             </AccordionTrigger>
 
                                                             <AccordionContent className="border-t border-gray-100">
-                                                                <div className="space-y-6 p-6">
-                                                                    {titleContent.length > 0 ? (
-                                                                        titleContent.map((title, i) => (
-                                                                            <div key={i} className="text-gray-600 p-3">
-                                                                                <p>{title.body_content}</p>
-
-
-                                                                                {title.video_link && (
-                                                                                    <a href={title.video_link} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
-                                                                                        Xem video
-                                                                                    </a>
-                                                                                )}
+                                                                {Array.isArray(titleContent) && titleContent.length > 0 ? (
+                                                                    <div className="space-y-6 p-6">
+                                                                        {titleContent.map((content, i) => (
+                                                                            <div key={i} className="flex gap-3 text-gray-600 leading-relaxed hover:bg-yellow-50 rounded-lg p-3 transition-colors">
+                                                                                <span className="font-medium text-yellow-600 min-w-[24px]">
+                                                                                    {i + 1}.
+                                                                                </span>
+                                                                                <div className="flex-1">
+                                                                                    <p>{content.body}</p>
+                                                                                    {content.video && (
+                                                                                        <Dialog>
+                                                                                            <DialogTrigger asChild>
+                                                                                                <Button
+                                                                                                    className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg flex items-center gap-2 px-6 py-3 transition-all duration-300 hover:shadow-lg"
+                                                                                                    onClick={() => showModal(content.video)}
+                                                                                                >
+                                                                                                    <Play size={18} />
+                                                                                                    Xem video bài học
+                                                                                                </Button>
+                                                                                            </DialogTrigger>
+                                                                                            <DialogContent className="max-w-4xl mx-auto p-6">
+                                                                                                <DialogTitle className="text-xl font-semibold mb-4">
+                                                                                                    {content.title}
+                                                                                                </DialogTitle>
+                                                                                                <DialogDescription>
+                                                                                                    <div className="relative w-full rounded-lg overflow-hidden shadow-lg" style={{ paddingTop: "56.25%" }}>
+                                                                                                        <ReactPlayer
+                                                                                                            url={currentVideoUrl}
+                                                                                                            className="absolute top-0 left-0"
+                                                                                                            controls={true}
+                                                                                                            width="100%"
+                                                                                                            height="100%"
+                                                                                                        />
+                                                                                                    </div>
+                                                                                                </DialogDescription>
+                                                                                            </DialogContent>
+                                                                                        </Dialog>
+                                                                                    )}
+                                                                                </div>
                                                                             </div>
-                                                                        ))
-                                                                    ) : (
-                                                                        <p className="text-gray-600">Chưa có nội dung cho phần này.</p>
-                                                                    )}
-                                                                </div>
+                                                                        ))}
+                                                                    </div>
+                                                                ) : (
+                                                                    <p>Không có nội dung nào.</p>
+                                                                )}
+
                                                             </AccordionContent>
                                                         </AccordionItem>
                                                     );
