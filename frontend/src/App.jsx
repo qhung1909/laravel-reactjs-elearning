@@ -8,7 +8,7 @@ import { Login } from "./pages/login/login.jsx";
 import { Signup } from "./pages/signup/signup.jsx";
 import { Lesson } from "./pages/lession/lession.jsx";
 import { Detail } from "./pages/detail/detail.jsx";
-import Dashboard from "./pages/admin/admin.jsx";
+import Dashboard from "./pages/admin/Dashboard/admin.jsx";
 import { Courses } from "./pages/courses/course.jsx";
 import { Blog } from "./pages/blog/blog.jsx";
 import { Blogdetail } from "./pages/blogdetail/blogdetail.jsx";
@@ -28,7 +28,7 @@ import { PaymentResult } from "./pages/payment/payment-result.jsx";
 import { VerificationEmail } from "./pages/verification/verification-email.jsx";
 import Demo from "./pages/teacher/demo.jsx";
 import { UserProfile } from "./pages/userprofile/userprofile.jsx";
-import { UserAccount } from "./pages/userprofile/useraccount.jsx";
+import { UserOrderHistory } from "./pages/userprofile/userorderhistory.jsx";
 import { UserNoti } from "./pages/userprofile/usernoti.jsx";
 import ScrollToTop from "./pages/scrollToTop/scrollToTop.jsx";
 import { Quizzes } from './pages/quizzes/quizzes.jsx';
@@ -39,7 +39,13 @@ import { UserContext, UserProvider } from "./pages/context/usercontext.jsx";
 import { CategoriesContext, CategoriesProvider } from "./pages/context/categoriescontext.jsx";
 import { CoursesContext, CoursesProvider } from "./pages/context/coursescontext.jsx";
 import { Example } from "./pages/admin/example.jsx";
-import CourseList from "./pages/admin/courseList.jsx";
+import CourseList from "./pages/admin/ManageCourses/courseList.jsx";
+import { BrowseNewCourses } from "./pages/admin/ManageCourses/browseNewCourses.jsx";
+import InformationCourse from "./pages/admin/ManageCourses/informationCourse.jsx";
+import { CategoriesList } from "./pages/admin/ManageCategories/CategoriesList.jsx";
+import { EditCategory } from "./pages/admin/ManageCategories/EditCategory.jsx";
+import { CourseStatus } from "./pages/admin/ManageCourses/courseStatus.jsx";
+import { ClassifyCourse } from "./pages/admin/ManageCourses/classifyCourses.jsx";
 
 
 function AppContent() {
@@ -56,7 +62,7 @@ function AppContent() {
             "/payment",
             "/cart",
             "/user/profile",
-            "/user/account",
+            "/user/orderhistory",
             "/user/noti",
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/") &&
@@ -68,7 +74,7 @@ function AppContent() {
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
                 <Route path="/demo" element={<Demo />}></Route>
-                <Route path="/user/account" element={<UserAccount />}></Route>
+                <Route path="/user/orderhistory" element={<UserOrderHistory />}></Route>
                 <Route path="/user/profile" element={<UserProfile />}></Route>
                 <Route path="/user/noti" element={<UserNoti />}></Route>
                 <Route path="/instructor" element={<Instructor />}></Route>
@@ -97,7 +103,13 @@ function AppContent() {
                 {/* <Route path="/admin/course-list" element={<AdminCourseList />}></Route> */}
                 <Route path="/admin/example" element={<Example />}></Route>
                 <Route path="/admin/course-list" element={<CourseList />}></Route>
+                <Route path="/admin/information-course" element={<InformationCourse />}></Route>
+                <Route path="/admin/browse-new-courses" element={<BrowseNewCourses />}></Route>
+                <Route path="/admin/course-status" element={<CourseStatus />}></Route>
+                <Route path="/admin/classify-course" element={<ClassifyCourse />}></Route>
 
+                <Route path="/admin/categories-list" element={<CategoriesList />}></Route>
+                <Route path="/admin/edit-category" element={<EditCategory />}></Route>
 
 
                 <Route path="/" element={<Home />}></Route>

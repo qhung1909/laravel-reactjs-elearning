@@ -24,6 +24,7 @@ import {
     Sparkles,
     SquareTerminal,
     Trash2,
+    Layout
 } from "lucide-react"
 
 import {
@@ -63,6 +64,7 @@ import {
     SidebarMenuSubItem,
     SidebarRail,
 } from "@/components/ui/sidebar"
+import { Link } from "react-router-dom"
 
 
 const data = {
@@ -90,6 +92,12 @@ const data = {
     ],
     navMain: [
         {
+            title: "Tổng quan",
+            url: "/admin",
+            icon: Layout
+
+        },
+        {
             title: "Quản lý Khóa học",
             url: "#",
             icon: SquareTerminal,
@@ -97,23 +105,23 @@ const data = {
             items: [
                 {
                     title: "Danh sách tất cả khóa học",
-                    url: "#",
+                    url: "/admin/course-list",
                 },
                 {
                     title: "Xem, xóa thông tin khóa học",
-                    url: "#",
+                    url: "/admin/information-course",
                 },
                 {
                     title: "Duyệt khóa học mới từ giảng viên",
-                    url: "#",
+                    url: "/admin/browse-new-courses",
                 },
                 {
                     title: "Quản lý trạng thái khóa học (Draft/Published/Hidden)",
-                    url: "#",
+                    url: "/admin/course-status",
                 },
                 {
                     title: "Phân loại khóa học theo category",
-                    url: "#",
+                    url: "/admin/classify-course",
                 },
                 {
                     title: "Điều chỉnh giá và khuyến mãi",
@@ -126,12 +134,18 @@ const data = {
             ],
         },
         {
-            title: "Quản lý Category",
+            title: "Quản lý Danh mục",
             url: "#",
             icon: Bot,
             items: [
+
+
                 {
-                    title: "Thêm/Sửa/Xóa category",
+                    title: "Danh sách tất cả Danh mục",
+                    url: "/admin/categories-list",
+                },
+                {
+                    title: "Thêm/Sửa/Xóa Danh mục",
                     url: "#",
                 },
                 {
@@ -139,15 +153,15 @@ const data = {
                     url: "#",
                 },
                 {
-                    title: "Bật/Tắt category",
+                    title: "Bật/Tắt Danh mục",
                     url: "#",
                 },
                 {
-                    title: "Gán khóa học vào category",
+                    title: "Gán khóa học vào Danh mục",
                     url: "#",
                 },
                 {
-                    title: "Quản lý ảnh đại diện category",
+                    title: "Quản lý ảnh đại diện Danh mục",
                     url: "#",
                 },
             ],
@@ -282,37 +296,54 @@ export const SideBarUI = () => {
                     <SidebarGroup>
                         <SidebarGroupLabel>Platform</SidebarGroupLabel>
                         <SidebarMenu>
-                            {data.navMain.map((item) => (
-                                <Collapsible
-                                    key={item.title}
-                                    asChild
-                                    defaultOpen={item.isActive}
-                                    className="group/collapsible"
-                                >
-                                    <SidebarMenuItem>
-                                        <CollapsibleTrigger asChild>
-                                            <SidebarMenuButton tooltip={item.title}>
-                                                {item.icon && <item.icon />}
-                                                <span>{item.title}</span>
-                                                <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            {data.navMain.map((item) => {
+                                if (item.title === "Tổng quan") {
+                                    return (
+                                        <SidebarMenuItem key={item.title}>
+                                            <SidebarMenuButton tooltip={item.title} asChild>
+                                                <Link to={item.url} className="flex items-center">
+                                                    {item.icon && <item.icon />}
+                                                    <span>{item.title}</span>
+                                                </Link>
                                             </SidebarMenuButton>
-                                        </CollapsibleTrigger>
-                                        <CollapsibleContent>
-                                            <SidebarMenuSub>
-                                                {item.items?.map((subItem) => (
-                                                    <SidebarMenuSubItem key={subItem.title}>
-                                                        <SidebarMenuSubButton asChild>
-                                                            <a href={subItem.url}>
-                                                                <span>{subItem.title}</span>
-                                                            </a>
-                                                        </SidebarMenuSubButton>
-                                                    </SidebarMenuSubItem>
-                                                ))}
-                                            </SidebarMenuSub>
-                                        </CollapsibleContent>
-                                    </SidebarMenuItem>
-                                </Collapsible>
-                            ))}
+                                        </SidebarMenuItem>
+                                    );
+                                } else {
+                                    return (
+                                        <Collapsible
+                                            key={item.title}
+                                            asChild
+                                            defaultOpen={item.isActive}
+                                            className="group/collapsible"
+                                        >
+                                            <SidebarMenuItem>
+                                                <CollapsibleTrigger asChild>
+                                                    <SidebarMenuButton tooltip={item.title}>
+                                                        {item.icon && <item.icon />}
+                                                        <span>{item.title}</span>
+                                                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                                                    </SidebarMenuButton>
+                                                </CollapsibleTrigger>
+                                                <CollapsibleContent>
+                                                    <SidebarMenuSub>
+                                                        {item.items.map((subItem) => (
+                                                            <SidebarMenuSubItem key={subItem.title}>
+                                                                <SidebarMenuSubButton asChild>
+                                                                    <Link to={subItem.url}>
+                                                                        {/* <a href={subItem.url}> */}
+                                                                        <span>{subItem.title}</span>
+                                                                    </Link>
+                                                                    {/* </a> */}
+                                                                </SidebarMenuSubButton>
+                                                            </SidebarMenuSubItem>
+                                                        ))}
+                                                    </SidebarMenuSub>
+                                                </CollapsibleContent>
+                                            </SidebarMenuItem>
+                                        </Collapsible>
+                                    );
+                                }
+                            })}
                         </SidebarMenu>
                     </SidebarGroup>
                     {/* <SidebarGroup className="group-data-[collapsible=icon]:hidden">
