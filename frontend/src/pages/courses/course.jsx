@@ -675,7 +675,7 @@ export const Courses = () => {
                     <div className="lg:grid lg:grid-cols-12 gap-10 pt-3">
                         {/* Bộ lọc */}
                         <div className="lg:block hidden col-span-3 transition-all ease-in-out duration-500 " id="filterContent">
-                            <Accordion type="single" collapsible defaultValue="item-1">
+                            <Accordion type="single" collapsible>
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger className="text-xl font-bold">Xếp hạng</AccordionTrigger>
                                     <AccordionContent>

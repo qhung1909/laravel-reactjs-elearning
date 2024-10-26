@@ -15,9 +15,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Download, FileDown, Clock, Users, BookOpen, CheckCircle, XCircle } from "lucide-react";
+import { Search, Filter, Download, FileDown, Clock, Users, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
+import { Link } from 'react-router-dom';
 export const BrowseNewCourses = () => {
     return (
         <SidebarProvider>
@@ -70,11 +70,11 @@ export const BrowseNewCourses = () => {
                                     </div>
                                     <Button variant="outline" className="flex items-center gap-2">
                                         <Filter size={16} />
-                                        Lọc theo trạng thái
+                                        Lọc
                                     </Button>
                                     <Button variant="outline" className="flex items-center gap-2">
                                         <FileDown size={16} />
-                                        Xuất báo cáo
+                                        Xuất
                                     </Button>
                                 </div>
                             </div>
@@ -109,16 +109,8 @@ export const BrowseNewCourses = () => {
                                             <span className="text-sm text-gray-600">Trình độ: Cơ bản</span>
                                         </div>
                                     </div>
-                                    <div className="flex gap-3 mt-4">
-                                        <Button className="flex-1">Xem chi tiết</Button>
-                                        <Button variant="outline" className="flex items-center gap-2 flex-1">
-                                            <CheckCircle className="h-4 w-4" />
-                                            Phê duyệt
-                                        </Button>
-                                        <Button variant="destructive" className="flex items-center gap-2 flex-1">
-                                            <XCircle className="h-4 w-4" />
-                                            Từ chối
-                                        </Button>
+                                    <div className="flex justify-center mt-4">
+                                        <Button className="w-full md:w-1/2"><Link to="NewExample">Xem chi tiết</Link></Button>
                                     </div>
                                 </div>
 
@@ -150,16 +142,8 @@ export const BrowseNewCourses = () => {
                                             <span className="text-sm text-gray-600">Trình độ: Nâng cao</span>
                                         </div>
                                     </div>
-                                    <div className="flex gap-3 mt-4">
-                                        <Button className="flex-1">Xem chi tiết</Button>
-                                        <Button variant="outline" className="flex items-center gap-2 flex-1">
-                                            <CheckCircle className="h-4 w-4" />
-                                            Phê duyệt
-                                        </Button>
-                                        <Button variant="destructive" className="flex items-center gap-2 flex-1">
-                                            <XCircle className="h-4 w-4" />
-                                            Từ chối
-                                        </Button>
+                                    <div className="flex justify-center mt-4">
+                                        <Button className="w-full md:w-1/2">Xem chi tiết</Button>
                                     </div>
                                 </div>
 
@@ -167,40 +151,32 @@ export const BrowseNewCourses = () => {
                                 <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
-                                            <h3 className="text-xl font-bold text-gray-900">UI/UX Design Masterclass</h3>
-                                            <p className="text-sm text-gray-500 mt-1">Submitted by: Trần Thị B</p>
+                                            <h3 className="text-xl font-bold text-gray-900">JavaScript Advanced</h3>
+                                            <p className="text-sm text-gray-500 mt-1">Submitted by: Phạm Văn C</p>
                                         </div>
                                         <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
                                             Chờ duyệt
                                         </Badge>
                                     </div>
                                     <p className="text-gray-600 mb-4">
-                                        Khóa học chuyên sâu về thiết kế giao diện người dùng và trải nghiệm người dùng.
+                                        Khóa học nâng cao về JavaScript, bao gồm các khái niệm và kỹ thuật hiện đại.
                                     </p>
                                     <div className="grid grid-cols-3 gap-4 mb-4">
                                         <div className="flex items-center gap-2">
                                             <Clock className="h-4 w-4 text-gray-400" />
-                                            <span className="text-sm text-gray-600">12 tuần</span>
+                                            <span className="text-sm text-gray-600">10 tuần</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <BookOpen className="h-4 w-4 text-gray-400" />
-                                            <span className="text-sm text-gray-600">36 bài học</span>
+                                            <span className="text-sm text-gray-600">30 bài học</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Users className="h-4 w-4 text-gray-400" />
                                             <span className="text-sm text-gray-600">Trình độ: Nâng cao</span>
                                         </div>
                                     </div>
-                                    <div className="flex gap-3 mt-4">
-                                        <Button className="flex-1">Xem chi tiết</Button>
-                                        <Button variant="outline" className="flex items-center gap-2 flex-1">
-                                            <CheckCircle className="h-4 w-4" />
-                                            Phê duyệt
-                                        </Button>
-                                        <Button variant="destructive" className="flex items-center gap-2 flex-1">
-                                            <XCircle className="h-4 w-4" />
-                                            Từ chối
-                                        </Button>
+                                    <div className="flex justify-center mt-4">
+                                        <Button className="w-full md:w-1/2">Xem chi tiết</Button>
                                     </div>
                                 </div>
 
@@ -208,40 +184,32 @@ export const BrowseNewCourses = () => {
                                 <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
-                                            <h3 className="text-xl font-bold text-gray-900">UI/UX Design Masterclass</h3>
-                                            <p className="text-sm text-gray-500 mt-1">Submitted by: Trần Thị B</p>
+                                            <h3 className="text-xl font-bold text-gray-900">Data Science Fundamentals</h3>
+                                            <p className="text-sm text-gray-500 mt-1">Submitted by: Lê Thị D</p>
                                         </div>
                                         <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
                                             Chờ duyệt
                                         </Badge>
                                     </div>
                                     <p className="text-gray-600 mb-4">
-                                        Khóa học chuyên sâu về thiết kế giao diện người dùng và trải nghiệm người dùng.
+                                        Khóa học cơ bản về khoa học dữ liệu, phân tích và visualize dữ liệu.
                                     </p>
                                     <div className="grid grid-cols-3 gap-4 mb-4">
                                         <div className="flex items-center gap-2">
                                             <Clock className="h-4 w-4 text-gray-400" />
-                                            <span className="text-sm text-gray-600">12 tuần</span>
+                                            <span className="text-sm text-gray-600">16 tuần</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <BookOpen className="h-4 w-4 text-gray-400" />
-                                            <span className="text-sm text-gray-600">36 bài học</span>
+                                            <span className="text-sm text-gray-600">48 bài học</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Users className="h-4 w-4 text-gray-400" />
-                                            <span className="text-sm text-gray-600">Trình độ: Nâng cao</span>
+                                            <span className="text-sm text-gray-600">Trình độ: Cơ bản</span>
                                         </div>
                                     </div>
-                                    <div className="flex gap-3 mt-4">
-                                        <Button className="flex-1">Xem chi tiết</Button>
-                                        <Button variant="outline" className="flex items-center gap-2 flex-1">
-                                            <CheckCircle className="h-4 w-4" />
-                                            Phê duyệt
-                                        </Button>
-                                        <Button variant="destructive" className="flex items-center gap-2 flex-1">
-                                            <XCircle className="h-4 w-4" />
-                                            Từ chối
-                                        </Button>
+                                    <div className="flex justify-center mt-4">
+                                        <Button className="w-full md:w-1/2">Xem chi tiết</Button>
                                     </div>
                                 </div>
                             </div>

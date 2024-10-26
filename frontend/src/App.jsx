@@ -42,11 +42,12 @@ import { Example } from "./pages/admin/example.jsx";
 import CourseList from "./pages/admin/ManageCourses/courseList.jsx";
 import { BrowseNewCourses } from "./pages/admin/ManageCourses/browseNewCourses.jsx";
 import InformationCourse from "./pages/admin/ManageCourses/informationCourse.jsx";
-import { CourseStatus } from "./pages/admin/ManageCourses/courseStatus.jsx";
 import { ClassifyCourse } from "./pages/admin/ManageCourses/classifyCourses.jsx";
 import { CategoryCrud } from "./pages/admin/ManageCategories/categoryCrud.jsx";
 import { CategoryList } from "./pages/admin/ManageCategories/CategoryList.jsx";
 import { PriorityCategory } from "./pages/admin/ManageCategories/PriorityCategory.jsx";
+import CourseStatus from "./pages/admin/ManageCourses/courseStatus.jsx";
+import NewExample from "./pages/admin/ManageCourses/newExample.jsx";
 
 
 function AppContent() {
@@ -101,13 +102,16 @@ function AppContent() {
                     path="/admin"
                     element={<Dashboard />}
                 ></Route>
-                {/* <Route path="/admin/course-list" element={<AdminCourseList />}></Route> */}
+
                 <Route path="/admin/example" element={<Example />}></Route>
                 <Route path="/admin/course-list" element={<CourseList />}></Route>
                 <Route path="/admin/information-course" element={<InformationCourse />}></Route>
                 <Route path="/admin/browse-new-courses" element={<BrowseNewCourses />}></Route>
-                <Route path="/admin/course-status" element={<CourseStatus />}></Route>
-                <Route path="/admin/classify-course" element={<ClassifyCourse />}></Route>
+                <Route path="/admin/browse-new-courses" element={<CourseStatus />}></Route>
+                <Route path="/admin/course-status" element={<ClassifyCourse />}></Route>
+                <Route path="/admin/new-example" element={<NewExample />}></Route>
+
+
 
                 <Route path="/admin/category-list" element={<CategoryList />}></Route>
                 <Route path="/admin/category-crud" element={<CategoryCrud />}></Route>

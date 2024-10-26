@@ -1,12 +1,12 @@
-
+import React, { useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import {
     Pagination,
     PaginationContent,
     PaginationEllipsis,
     PaginationItem,
     PaginationLink,
-} from "@/components/ui/pagination"
-
+} from "@/components/ui/pagination";
 import {
     SidebarInset,
     SidebarProvider,
@@ -22,12 +22,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
-import { useState } from 'react';
 
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-
-export const PriorityCategory= () => {
+export const PriorityCategory = () => {
     const [sortConfig, setSortConfig] = useState({
         key: null,
         direction: 'asc'
@@ -35,14 +31,14 @@ export const PriorityCategory= () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const initialCategories = [
-        { id: 1, name: "Danh mục a", courseCount: 5, isActive: true },
-        { id: 2, name: "Danh mục c", courseCount: 3, isActive: false },
-        { id: 3, name: "Danh mục b", courseCount: 8, isActive: true },
-        { id: 4, name: "Danh mục d", courseCount: 2, isActive: true },
-        { id: 5, name: "Danh mục e", courseCount: 5, isActive: true },
-        { id: 6, name: "Danh mục f", courseCount: 3, isActive: false },
-        { id: 7, name: "Danh mục g", courseCount: 8, isActive: true },
-        { id: 8, name: "Danh mục h", courseCount: 2, isActive: true },
+        { id: 1, name: "Danh mục a", courseCount: 5, lastUpdated: new Date() },
+        { id: 2, name: "Danh mục c", courseCount: 3, lastUpdated: new Date() },
+        { id: 3, name: "Danh mục b", courseCount: 8, lastUpdated: new Date() },
+        { id: 4, name: "Danh mục d", courseCount: 2, lastUpdated: new Date() },
+        { id: 5, name: "Danh mục e", courseCount: 5, lastUpdated: new Date() },
+        { id: 6, name: "Danh mục f", courseCount: 3, lastUpdated: new Date() },
+        { id: 7, name: "Danh mục g", courseCount: 8, lastUpdated: new Date() },
+        { id: 8, name: "Danh mục h", courseCount: 2, lastUpdated: new Date() },
     ];
 
     const [categories, setCategories] = useState(initialCategories);
@@ -75,7 +71,15 @@ export const PriorityCategory= () => {
         return <ChevronUp className="h-4 w-4 opacity-0 group-hover:opacity-50" />;
     };
 
+    const onDragEnd = (result) => {
+        if (!result.destination) return;
 
+        const reorderedCategories = Array.from(categories);
+        const [removed] = reorderedCategories.splice(result.source.index, 1);
+        reorderedCategories.splice(result.destination.index, 0, removed);
+
+        setCategories(reorderedCategories);
+    };
 
     return (
         <SidebarProvider>
@@ -117,60 +121,79 @@ export const PriorityCategory= () => {
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="bg-yellow-400">
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-white-600">STT</th>
-                                    <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
-                                        onClick={() => handleSort('name')}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            Tên danh mục
-                                            {getSortIcon('name')}
-                                        </div>
-                                    </th>
-                                    <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
-                                        onClick={() => handleSort('courseCount')}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            Số lượng khóa học
-                                            {getSortIcon('courseCount')}
-                                        </div>
-                                    </th>
-                                    <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
-                                        onClick={() => handleSort('lastUpdated')}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            Cập nhật lần cuối
-                                            {getSortIcon('lastUpdated')}
-                                        </div>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {sortedCategories.map((category) => (
-                                    <tr key={category.id} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
-                                        <td className="py-4 px-6 text-sm text-gray-600">#{category.id}</td>
-                                        <td className="py-4 px-6">
-                                            <div className="font-medium text-gray-900">{category.name}</div>
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <span className="text-sm text-gray-600">{category.courseCount} khóa học</span>
-                                        </td>
-                                        <td className="py-4 px-6 text-sm text-gray-600">
-                                            {new Date(category.lastUpdated).toLocaleDateString('vi-VN')}
-                                        </td>
+                    <DragDropContext onDragEnd={onDragEnd}>
+                        <Droppable droppableId="categories">
+                            {(provided) => (
+                                <div
+                                    className="overflow-x-auto rounded-lg border border-gray-200 bg-white"
+                                    {...provided.droppableProps}
+                                    ref={provided.innerRef}
+                                >
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="bg-yellow-400">
+                                                <th className="text-left py-4 px-6 font-medium text-sm text-white-600">STT</th>
+                                                <th
+                                                    className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
+                                                    onClick={() => handleSort('name')}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        Tên danh mục
+                                                        {getSortIcon('name')}
+                                                    </div>
+                                                </th>
+                                                <th
+                                                    className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
+                                                    onClick={() => handleSort('courseCount')}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        Số lượng khóa học
+                                                        {getSortIcon('courseCount')}
+                                                    </div>
+                                                </th>
+                                                <th
+                                                    className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
+                                                    onClick={() => handleSort('lastUpdated')}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        Cập nhật lần cuối
+                                                        {getSortIcon('lastUpdated')}
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {sortedCategories.map((category, index) => (
+                                                <Draggable key={category.id} draggableId={String(category.id)} index={index}>
+                                                    {(provided) => (
+                                                        <tr
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                            className="border-t border-gray-100 hover:bg-gray-50 transition-colors"
+                                                        >
+                                                            <td className="py-4 px-6 text-sm text-gray-600">#{category.id}</td>
+                                                            <td className="py-4 px-6">
+                                                                <div className="font-medium text-gray-900">{category.name}</div>
+                                                            </td>
+                                                            <td className="py-4 px-6">
+                                                                <span className="text-sm text-gray-600">{category.courseCount} khóa học</span>
+                                                            </td>
+                                                            <td className="py-4 px-6 text-sm text-gray-600">
+                                                                {new Date(category.lastUpdated).toLocaleDateString('vi-VN')}
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </Draggable>
+                                            ))}
+                                            {provided.placeholder}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </Droppable>
+                    </DragDropContext>
 
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-
-                    </div>
                     <div className="mt-3">
                         <Pagination>
                             <PaginationContent>
@@ -180,7 +203,7 @@ export const PriorityCategory= () => {
                                     </PaginationLink>
                                 </PaginationItem>
                                 <PaginationItem>
-                                    <PaginationLink href="#" >
+                                    <PaginationLink href="#">
                                         2
                                     </PaginationLink>
                                 </PaginationItem>
@@ -193,10 +216,7 @@ export const PriorityCategory= () => {
                             </PaginationContent>
                         </Pagination>
                     </div>
-
                 </div>
-
-
             </SidebarInset>
         </SidebarProvider>
     );
