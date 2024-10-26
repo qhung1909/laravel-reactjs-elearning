@@ -385,7 +385,7 @@ export const CategoryCrud = () => {
                                             {getSortIcon('lastUpdated')}
                                         </div>
                                     </th>
-                                    <th className="text-right py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
+                                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -408,7 +408,7 @@ export const CategoryCrud = () => {
                                             {new Date(category.updated_at).toLocaleDateString('vi-VN')}
                                         </td>
                                         <td className="py-4 px-6">
-                                            <div className="flex justify-end gap-2">
+                                            <div className="flex justify-start gap-2">
                                                 <Dialog>
                                                     <DialogTrigger asChild>
                                                         <Button
