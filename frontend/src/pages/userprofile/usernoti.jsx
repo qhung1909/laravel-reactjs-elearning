@@ -25,7 +25,7 @@ export const UserNoti = () => {
                                 </li>
                                 <li className="py-3 lg:py-2 px-3 rounded-md">
                                     <Link className="hover:underline" to="/user/account">
-                                        <p>Cài đặt</p>
+                                        <p>Lịch sử mua hàng</p>
                                     </Link>
                                 </li>
                                 <li className=" bg-gray-100 py-3 lg:py-2 px-3 rounded-md">
