@@ -307,7 +307,7 @@ export const Header = () => {
                                         <li className="max-xl:mb-4 ">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger>
-                                                    <Link to="/courses" className="hover:text-gray-500 border-none p-3 text-lg">
+                                                    <Link to="/courses" className="hover:text-gray-500 border-none p-3 ">
                                                         Khóa học
                                                     </Link>
                                                 </DropdownMenuTrigger>
@@ -336,14 +336,14 @@ export const Header = () => {
 
                                         {/* contact */}
                                         <li>
-                                            <Link to="/contact" className={`p-3 rounded text-lg ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
+                                            <Link to="/contact" className={`p-3 rounded  ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
                                                 Liên hệ
                                             </Link>
                                         </li>
 
                                         {/* blog */}
                                         <li>
-                                            <Link to="/blog" className={` p-3 rounded text-lg ${isBlogPage ? "bg-yellow-100" : "hover:bg-gray-100"}`}>
+                                            <Link to="/blog" className={` p-3 rounded  ${isBlogPage ? "bg-yellow-100" : "hover:bg-gray-100"}`}>
                                                 Bài viết
                                             </Link>
                                         </li>
@@ -537,7 +537,7 @@ export const Header = () => {
                                 </div>
 
                                 {/* // toggle */}
-                                <div className="w-[92px] xl:hidden  mx-auto flex items-center justify-center">
+                                <div className="w-[92px] xl:hidden flex items-center justify-center">
                                     <Sheet>
 
                                         {/* outside*/}
@@ -673,7 +673,7 @@ export const Header = () => {
 
                                                 {/* menu - toogle - toogle login */}
                                                 <div className="flex items-center">
-                                                    <box-icon name='menu'></box-icon>
+                                                    <img src="./src/assets/images/toggle.svg" className="w-24" alt="" />
                                                 </div>
                                             </div>
                                         </SheetTrigger>
@@ -851,14 +851,14 @@ export const Header = () => {
 
                                     {/* contact */}
                                     <li>
-                                        <Link to="/contact" className={`p-3 rounded ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
+                                        <Link to="/contact" className={`p-3 rounded  ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
                                             Liên hệ
                                         </Link>
                                     </li>
 
                                     {/* blog */}
                                     <li>
-                                        <Link to="/blog" className={` p-3 rounded ${isBlogPage ? "bg-yellow-100" : "hover:bg-gray-100"}`}>
+                                        <Link to="/blog" className={` p-3 rounded  ${isBlogPage ? "bg-yellow-100" : "hover:bg-gray-100"}`}>
                                             Blog
                                         </Link>
                                     </li>
@@ -866,9 +866,9 @@ export const Header = () => {
                                 <div className="navbar-icons flex items-center gap-2 xl:mx-3">
 
                                     {/* notification */}
-                                    <div className="navbar-noti cursor-pointer mt-2 ">
+                                    <div className="navbar-noti cursor-pointer">
                                         <DropdownMenu >
-                                            <DropdownMenuTrigger>
+                                            <DropdownMenuTrigger className="flex">
                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-16" alt="" />
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent className="rounded-2xl p-3 mr-80 mt-1">
@@ -948,7 +948,7 @@ export const Header = () => {
 
                             </div>
                             {/* // toggle */}
-                            <div className="w-[92px] xl:hidden  mx-auto flex items-center justify-center">
+                            <div className="w-24 xl:hidden flex items-center justify-between">
                                 <Sheet>
                                     <SheetTrigger>
                                         {/* icons*/}
@@ -1010,7 +1010,7 @@ export const Header = () => {
                                                 </Link>
                                             </div>
                                             <div className="flex items-center">
-                                                <img src="./src/assets/images/toggle.svg" className="w-16" alt="" />
+                                                <img src="./src/assets/images/toggle.svg" className="w-16 mt-1" alt="" />
                                             </div>
                                         </div>
 
