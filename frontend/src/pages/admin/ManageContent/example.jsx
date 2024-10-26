@@ -19,9 +19,9 @@ export const Example = () => {
             <SidebarProvider>
                 <SideBarUI />
                 <SidebarInset>
-                    <header className="absolute left-1 top-3">
+                    <div className="absolute left-1 top-3 px-4">
                         {/* <header className="flex top-0 h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12"> */}
-                        <div className="flex items-center gap-2 px-4">
+                        <div className="flex items-center gap-2 pb-6">
                             <SidebarTrigger className="-ml-1" />
                             <Separator orientation="vertical" className="mr-2 h-4" />
                             <Breadcrumb>
@@ -35,11 +35,14 @@ export const Example = () => {
                                 </BreadcrumbList>
                             </Breadcrumb>
                         </div>
-                    </header>
 
-                    {/* them noi dung vao day */}
-                    <div>Example</div>
-                    {/*=======================*/}
+                        <div>
+                            Thêm nội dung
+
+                        </div>
+
+                    </div>
+
 
                 </SidebarInset>
             </SidebarProvider>
