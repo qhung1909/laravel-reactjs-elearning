@@ -25,6 +25,7 @@ use App\Http\Controllers\QuizQuestionController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\TitleContentController;
 // Authentication
 Route::group([
     'middleware' => 'api',
@@ -152,4 +153,12 @@ Route::middleware(['admin'])->group(function () {
 
     // Route để lấy chi tiết một đơn hàng dựa vào user_id và order_id 
     Route::get('/orders/{user_id}/{order_id}', [OrderController::class, 'show']);
+
+
+    Route::get('/title-contents', [TitleContentController::class, 'index']); // Lấy danh sách title_contents
+    Route::get('/title-contents/{title_content_id}', [TitleContentController::class, 'show']); // Xem chi tiết title_content
+    Route::post('/title-contents', [TitleContentController::class, 'store']); // Tạo mới title_content
+    Route::put('/title-contents/{title_content_id}', [TitleContentController::class, 'update']); // Cập nhật title_content
+    Route::delete('/title-contents/{title_content_id}', [TitleContentController::class, 'destroy']); // Xóa title_content
+
 });
