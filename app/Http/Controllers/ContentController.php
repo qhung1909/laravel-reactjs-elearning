@@ -77,6 +77,7 @@ class ContentController extends Controller
             $content = Cache::remember($cacheKey, 3600, function () use ($content_id) {
                 return Content::with('lesson')
                     ->select('content_id', 'lesson_id', 'title_content', 'body_content', 'video_content', 'document_link')
+                    ->orderBy('created_at', 'desc') 
                     ->findOrFail($content_id);
             });
 
