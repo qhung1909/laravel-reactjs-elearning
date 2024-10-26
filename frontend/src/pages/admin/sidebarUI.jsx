@@ -113,7 +113,7 @@ const data = {
                 },
                 {
                     title: "Duyệt khóa học mới từ giảng viên",
-                    url: "#",
+                    url: "/admin/browse-new-courses",
                 },
                 {
                     title: "Quản lý trạng thái khóa học (Draft/Published/Hidden)",

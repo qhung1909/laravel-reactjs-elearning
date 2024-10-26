@@ -40,7 +40,8 @@ import { CategoriesContext, CategoriesProvider } from "./pages/context/categorie
 import { CoursesContext, CoursesProvider } from "./pages/context/coursescontext.jsx";
 import { Example } from "./pages/admin/example.jsx";
 import CourseList from "./pages/admin/ManageCourses/courseList.jsx";
-import { InformationCourse } from "./pages/admin/ManageCourses/informationCourse.jsx";
+import { BrowseNewCourses } from "./pages/admin/ManageCourses/browseNewCourses.jsx";
+import InformationCourse from "./pages/admin/ManageCourses/informationCourse.jsx";
 
 
 function AppContent() {
@@ -99,6 +100,7 @@ function AppContent() {
                 <Route path="/admin/example" element={<Example />}></Route>
                 <Route path="/admin/course-list" element={<CourseList />}></Route>
                 <Route path="/admin/information-course" element={<InformationCourse />}></Route>
+                <Route path="/admin/browse-new-courses" element={<BrowseNewCourses />}></Route>
 
 
 
