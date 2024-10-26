@@ -38,7 +38,7 @@ export const EditCategory = () => {
                     </header>
 
                     {/* them noi dung vao day */}
-                    Thêm danh mục
+                    Sửa danh mục
                     {/*=======================*/}
 
                 </SidebarInset>

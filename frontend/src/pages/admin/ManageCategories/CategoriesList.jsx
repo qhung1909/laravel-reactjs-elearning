@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 import { useState } from 'react';
+import { Link } from "react-router-dom";
 
 export const CategoriesList = () => {
     const [sortConfig, setSortConfig] = useState({
@@ -38,10 +39,10 @@ export const CategoriesList = () => {
     const [newCategoryIconUrl, setNewCategoryIconUrl] = useState('');
 
     const categories = [
-        { id: 1, name: "Danh mục a", courseCount: 5, lastUpdated: "2024-03-15" },
-        { id: 2, name: "Danh mục c", courseCount: 3, lastUpdated: "2024-03-14" },
-        { id: 3, name: "Danh mục b", courseCount: 8, lastUpdated: "2024-03-13" },
-        { id: 4, name: "Danh mục d", courseCount: 2, lastUpdated: "2024-03-12" },
+        { id: 1, name: "Danh mục a", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/nodejs.svg", courseCount: 5, lastUpdated: "2024-03-15" },
+        { id: 2, name: "Danh mục c", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/reactjs.svg", courseCount: 3, lastUpdated: "2024-03-14" },
+        { id: 3, name: "Danh mục b", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/angular.svg", courseCount: 8, lastUpdated: "2024-03-13" },
+        { id: 4, name: "Danh mục d", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/css.svg", courseCount: 2, lastUpdated: "2024-03-12" },
     ];
 
     const handleSort = (key) => {
@@ -114,8 +115,7 @@ export const CategoriesList = () => {
                 </header>
 
                 <div className="absolute top-12 w-full p-4">
-                    </div>
-                    <div className="mb-4 flex items-center justify-between gap-4">
+                    <div className="mb-4 flex items-center justify-between">
                         <div className="relative flex-1 max-w-md">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                             <input
@@ -126,21 +126,21 @@ export const CategoriesList = () => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <Button variant="outline" className="flex items-center gap-2">
-                            <Filter size={16} />
-                            Lọc theo trạng thái
-                        </Button>
-                        <Button variant="outline" className="flex items-center gap-2">
-                            <FileDown size={16} />
-                            Xuất báo cáo
-                        </Button>
-                        <Button onClick={() => setShowAddCategory(!showAddCategory)} className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
-                            {showAddCategory ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                            {showAddCategory ? 'Hủy' : 'Thêm danh mục mới'}
-                        </Button>
-
+                        <div className="flex gap-3">
+                            <Button onClick={() => setShowAddCategory(!showAddCategory)} className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
+                                {showAddCategory ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                                {showAddCategory ? 'Hủy' : 'Thêm danh mục mới'}
+                            </Button>
+                            <Button variant="outline" className="flex items-center">
+                                <Filter size={16} />
+                                Lọc
+                            </Button>
+                            <Button variant="outline" className="flex items-center">
+                                <FileDown size={16} />
+                                Xuất
+                            </Button>
+                        </div>
                     </div>
-
 
                     {showAddCategory && (
                         <form onSubmit={handleAddCategory} className="mb-4 flex items-center gap-4">
@@ -171,6 +171,7 @@ export const CategoriesList = () => {
                             <thead>
                                 <tr className="bg-gray-50">
                                     <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">STT</th>
+                                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Icon</th> {/* Cột icon */}
                                     <th
                                         className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
                                         onClick={() => handleSort('name')}
@@ -208,6 +209,9 @@ export const CategoriesList = () => {
                                         className="border-t border-gray-100 hover:bg-gray-50 transition-colors"
                                     >
                                         <td className="py-4 px-6 text-sm text-gray-600">#{category.id}</td>
+                                        <td className="py-4 px-6 text-sm text-gray-600">
+                                            <img src={category.icon} alt={`${category.name} icon`} className="h-6 w-6" /> {/* Hiển thị icon */}
+                                        </td>
                                         <td className="py-4 px-6">
                                             <div className="font-medium text-gray-900">{category.name}</div>
                                         </td>
@@ -222,14 +226,17 @@ export const CategoriesList = () => {
                                         </td>
                                         <td className="py-4 px-6">
                                             <div className="flex justify-end gap-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="text-blue-600 border-blue-600 hover:bg-blue-50"
-                                                >
-                                                    <PenLine className="h-4 w-4 mr-1" />
-                                                    Sửa
-                                                </Button>
+                                                <Link to='/admin/edit-category'>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                                                    >
+                                                        <PenLine className="h-4 w-4 mr-1" />
+                                                        Sửa
+                                                    </Button>
+                                                </Link>
+
                                                 <Button
                                                     variant="destructive"
                                                     size="sm"
@@ -245,6 +252,7 @@ export const CategoriesList = () => {
                             </tbody>
                         </table>
                     </div>
+                </div>
             </SidebarInset>
         </SidebarProvider>
     );
