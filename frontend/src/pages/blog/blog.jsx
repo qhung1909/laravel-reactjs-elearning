@@ -30,8 +30,10 @@ export const Blog = () => {
             const response = await axios.get(`${API_URL}/blogs?page=${page}`, {
                 headers: {
                     'x-api-secret': API_KEY
-                }
+                },
+
             })
+
             const { data } = response.data
 
             if (data && data.data) {
@@ -161,13 +163,13 @@ export const Blog = () => {
                                 <PaginationPrevious
                                     onClick={() => handlePageChange(pagination.currentPage - 1)}
                                     disabled={pagination.currentPage === 1}
+                                    className="cursor-pointer"
                                 />
                             </PaginationItem>
 
                             {pagination.lastPage <= 3 ? (
-                                // If there are 3 or fewer pages, show all
                                 [...Array(pagination.lastPage)].map((_, index) => (
-                                    <PaginationItem key={index + 1}>
+                                    <PaginationItem key={index + 1} className="cursor-pointer">
                                         <PaginationLink
                                             onClick={() => handlePageChange(index + 1)}
                                             isActive={pagination.currentPage === index + 1}
@@ -177,7 +179,6 @@ export const Blog = () => {
                                     </PaginationItem>
                                 ))
                             ) : (
-                                // If more than 3 pages, show current page and neighbors
                                 <>
                                     <PaginationItem>
                                         <PaginationLink
@@ -218,6 +219,8 @@ export const Blog = () => {
                                 <PaginationNext
                                     onClick={() => handlePageChange(pagination.currentPage + 1)}
                                     disabled={pagination.currentPage === pagination.lastPage}
+                                    className="cursor-pointer"
+
                                 />
                             </PaginationItem>
                         </PaginationContent>
