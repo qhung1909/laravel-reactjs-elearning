@@ -65,41 +65,51 @@ class ContentController extends Controller
     /**
      * Xem chi tiết content
      */
-    public function show($content_id)
+    public function show($lesson_id)
     {
         if (!Auth::check()) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-
+    
         try {
-            $cacheKey = 'content_' . $content_id;
-
-            $content = Cache::remember($cacheKey, 3600, function () use ($content_id) {
+            $cacheKey = 'content_by_lesson_' . $lesson_id;
+    
+            $contents = Cache::remember($cacheKey, 3600, function () use ($lesson_id) {
                 return Content::with('lesson')
-                    ->select('content_id', 'lesson_id', 'title_content', 'body_content', 'video_content', 'document_link')
+                    ->select('content_id', 'lesson_id', 'title_content', 'body_content', 'video_content', 'document_link', 'created_at', 'updated_at')
+                    ->where('lesson_id', $lesson_id)
                     ->orderBy('created_at', 'desc') 
-                    ->findOrFail($content_id);
+                    ->get();
             });
-
+    
+            if ($contents->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy nội dung cho lesson_id này.',
+                ], 404);
+            }
+    
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'content_id' => $content->content_id,
-                    'lesson_id' => $content->lesson_id,
-                    'lesson' => $content->lesson,
-                    'title' => $content->title_content,
-                    'body' => $content->body_content,
-                    'video' => $content->video_content,
-                    'document' => $content->document_link,
-                    'created_at' => $content->created_at,
-                    'updated_at' => $content->updated_at,
-                ]
+                'data' => $contents->map(function ($content) {
+                    return [
+                        'content_id' => $content->content_id,
+                        'lesson_id' => $content->lesson_id,
+                        'lesson' => $content->lesson,
+                        'title' => $content->title_content,
+                        'body' => $content->body_content,
+                        'video' => $content->video_content,
+                        'document' => $content->document_link,
+                        'created_at' => $content->created_at,
+                        'updated_at' => $content->updated_at,
+                    ];
+                }),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Không tìm thấy content hoặc có lỗi xảy ra: ' . $e->getMessage()
-            ], 404);
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage(),
+            ], 500);
         }
     }
 

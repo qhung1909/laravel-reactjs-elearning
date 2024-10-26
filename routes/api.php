@@ -139,7 +139,7 @@ Route::middleware(['admin'])->group(function () {
 
 
     Route::get('/contents', [ContentController::class, 'index']);
-    Route::get('/contents/{content_id}', [ContentController::class, 'show']);
+    Route::get('/contents/{lesson_id}', [ContentController::class, 'show']);
     Route::post('/contents', [ContentController::class, 'store']);
     Route::put('/contents/{content_id}', [ContentController::class, 'update']);
     Route::delete('/contents/{content_id}', [ContentController::class, 'destroy']);
