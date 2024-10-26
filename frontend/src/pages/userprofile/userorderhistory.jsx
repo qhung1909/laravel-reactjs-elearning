@@ -46,7 +46,7 @@ export const UserOrderHistory = () => {
                     'x-api-secret': `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
                 },
-                params: { query: searchQuery }
+                params: { keyword: searchQuery }
             });
             setOrderHistory(response.data);
         } catch (error) {
@@ -133,18 +133,18 @@ export const UserOrderHistory = () => {
                                 <p className="text-sm text-gray-500 ">Xem lại những giao dịch bạn đã hoàn thành.</p>
                             </div>
                             <div className="my-5">
-                                <form action="">
-                                    <div className="mb-4">
-                                        <input
+                                <form onSubmit={searchOrderHistory}>
+                                    <div className="mb-4 flex items-center gap-2">
+                                        <Input
                                             type="text"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            placeholder="Nhập từ khóa tìm kiếm..."
-                                            className="border p-2 rounded w-full"
+                                            placeholder="Nhập để tìm kiếm khóa học của bạn..."
+                                            className="border p-5 rounded-lg w-1/2"
                                         />
-                                        <button type="submit" className="bg-blue-500 text-white p-2 rounded mt-2">
+                                        <Button type="submit" className="bg-blue-500 text-white p-5 rounded">
                                             Tìm kiếm
-                                        </button>
+                                        </Button>
                                     </div>
                                     <div className="mb-5">
                                         <Table>
