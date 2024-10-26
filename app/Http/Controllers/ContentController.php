@@ -27,7 +27,7 @@ class ContentController extends Controller
 
             $contents = Cache::remember($cacheKey, 3600, function () use ($perPage) {
                 return Content::with('lesson')
-                    ->select('content_id', 'lesson_id', 'title_content', 'body_content', 'video_content', 'document_link')
+                    ->select('content_id', 'lesson_id', 'title_content', 'body_content', 'video_content', 'document_link', 'created_at', 'updated_at')
                     ->latest()
                     ->paginate($perPage);
             });
@@ -137,9 +137,9 @@ class ContentController extends Controller
         DB::beginTransaction();
         try {
             $content = Content::create($validator->validated());
-            
+
             Cache::tags(['contents'])->flush();
-            
+
             DB::commit();
             return response()->json([
                 'success' => true,
@@ -201,10 +201,10 @@ class ContentController extends Controller
         try {
             $content = Content::findOrFail($content_id);
             $content->update($validator->validated());
-            
+
             Cache::forget('content_' . $content_id);
             Cache::tags(['contents'])->flush();
-            
+
             DB::commit();
             return response()->json([
                 'success' => true,
@@ -238,15 +238,15 @@ class ContentController extends Controller
         if (!Auth::check()) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-        
+
         DB::beginTransaction();
         try {
             $content = Content::findOrFail($content_id);
             $content->delete();
-            
+
             Cache::forget('content_' . $content_id);
             Cache::tags(['contents'])->flush();
-            
+
             DB::commit();
             return response()->json([
                 'success' => true,
