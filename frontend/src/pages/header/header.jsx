@@ -347,7 +347,7 @@ export const Header = () => {
                                                 Bài viết
                                             </Link>
                                         </li>
-                                    </ul>
+                                    </ul>xêp
 
                                     {/* content - right */}
                                     <div className="navbar-icons flex items-center justify-center gap-3 xl:mx-3">

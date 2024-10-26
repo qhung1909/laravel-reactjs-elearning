@@ -106,8 +106,7 @@ const data = {
             items: [
                 { title: "Danh sách tất cả Danh mục", url: "/admin/category-list" },
                 { title: "Thêm/Sửa/Xóa Danh mục", url: "/admin/category-crud" },
-                { title: "Sắp xếp thứ tự hiển thị", url: "#" },
-                { title: "Bật/Tắt Danh mục", url: "#" },
+                { title: "Sắp xếp thứ tự hiển thị", url: "/admin/priority-category" },
                 { title: "Gán khóa học vào Danh mục", url: "#" }
             ],
         },

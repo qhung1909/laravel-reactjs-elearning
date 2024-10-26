@@ -35,7 +35,7 @@ import {
     FileDown
 } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -47,6 +47,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import axios from 'axios'
+
 
 export const CategoryCrud = () => {
     const [sortConfig, setSortConfig] = useState({
@@ -63,16 +65,65 @@ export const CategoryCrud = () => {
     const [editCategoryIconUrl, setEditCategoryIconUrl] = useState('');
     const [showEditDialog, setShowEditDialog] = useState(false);
 
-    const categories = [
-        { id: 1, name: "Danh mục a", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/nodejs.svg", courseCount: 5, lastUpdated: "2024-03-15" },
-        { id: 2, name: "Danh mục c", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/reactjs.svg", courseCount: 3, lastUpdated: "2024-03-14" },
-        { id: 3, name: "Danh mục b", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/angular.svg", courseCount: 8, lastUpdated: "2024-03-13" },
-        { id: 4, name: "Danh mục d", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/css.svg", courseCount: 2, lastUpdated: "2024-03-12" },
-        { id: 5, name: "Danh mục a", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/nodejs.svg", courseCount: 5, lastUpdated: "2024-03-15" },
-        { id: 6, name: "Danh mục c", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/reactjs.svg", courseCount: 3, lastUpdated: "2024-03-14" },
-        { id: 7, name: "Danh mục b", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/angular.svg", courseCount: 8, lastUpdated: "2024-03-13" },
-        { id: 8, name: "Danh mục d", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/css.svg", courseCount: 2, lastUpdated: "2024-03-12" },
-    ];
+
+
+    const API_KEY = import.meta.env.VITE_API_KEY
+    const API_URL = import.meta.env.VITE_API_URL
+    const [loading, setLoading] = useState(false);
+
+
+    const [categories, setCategory] = useState([]);
+    const fetchCategory = async () => {
+        try {
+            setLoading(true)
+            const res = await axios.get(`${API_URL}/categories`, {
+                headers: {
+                    'x-api-secret': API_KEY
+                }
+            })
+            const data = res.data;
+
+            setCategory(data)
+        } catch (error) {
+            console.error('Error fetching Categories:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+    const token = localStorage.getItem('access_token');
+
+    const deleteCategory = async (slug) => {
+        try {
+            setLoading(true)
+            const res = await axios.delete(`${API_URL}/categories/${slug}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            window.location.reload()
+        } catch (error) {
+            console.error('Error delete category:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchCategory()
+    }, [])
+
+
+
+    // const categories = [
+    //     { id: 1, name: "Danh mục a", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/nodejs.svg", courseCount: 5, lastUpdated: "2024-03-15" },
+    //     { id: 2, name: "Danh mục c", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/reactjs.svg", courseCount: 3, lastUpdated: "2024-03-14" },
+    //     { id: 3, name: "Danh mục b", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/angular.svg", courseCount: 8, lastUpdated: "2024-03-13" },
+    //     { id: 4, name: "Danh mục d", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/css.svg", courseCount: 2, lastUpdated: "2024-03-12" },
+    //     { id: 5, name: "Danh mục a", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/nodejs.svg", courseCount: 5, lastUpdated: "2024-03-15" },
+    //     { id: 6, name: "Danh mục c", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/reactjs.svg", courseCount: 3, lastUpdated: "2024-03-14" },
+    //     { id: 7, name: "Danh mục b", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/angular.svg", courseCount: 8, lastUpdated: "2024-03-13" },
+    //     { id: 8, name: "Danh mục d", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/css.svg", courseCount: 2, lastUpdated: "2024-03-12" },
+    // ];
 
     const handleSort = (key) => {
         let direction = 'asc';
@@ -82,22 +133,22 @@ export const CategoryCrud = () => {
         setSortConfig({ key, direction });
     };
 
-    const filteredCategories = categories.filter(category =>
-        category.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // const filteredCategories = categories.filter(category =>
+    //     category.name.toLowerCase().includes(searchTerm.toLowerCase())
+    // );
 
-    const sortedCategories = [...filteredCategories].sort((a, b) => {
-        if (!sortConfig.key) return 0;
+    // const sortedCategories = [...filteredCategories].sort((a, b) => {
+    //     if (!sortConfig.key) return 0;
 
-        const aValue = a[sortConfig.key];
-        const bValue = b[sortConfig.key];
+    //     const aValue = a[sortConfig.key];
+    //     const bValue = b[sortConfig.key];
 
-        if (sortConfig.direction === 'asc') {
-            return aValue > bValue ? 1 : -1;
-        } else {
-            return aValue < bValue ? 1 : -1;
-        }
-    });
+    //     if (sortConfig.direction === 'asc') {
+    //         return aValue > bValue ? 1 : -1;
+    //     } else {
+    //         return aValue < bValue ? 1 : -1;
+    //     }
+    // });
 
     const getSortIcon = (key) => {
         if (sortConfig.key === key) {
@@ -229,7 +280,7 @@ export const CategoryCrud = () => {
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-gray-50">
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">STT</th>
+                                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">ID</th>
                                     <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Icon</th>
                                     <th
                                         className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
@@ -262,9 +313,9 @@ export const CategoryCrud = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {sortedCategories.map((category) => (
-                                    <tr key={category.id} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
-                                        <td className="py-4 px-6 text-sm text-gray-600">#{category.id}</td>
+                                {categories.map((category ,index) => (
+                                    <tr key={index} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
+                                        <td className="py-4 px-6 text-sm text-gray-600">#{category.course_category_id}</td>
                                         <td className="py-4 px-6 text-sm text-gray-600">
                                             <img src={category.icon} alt={`${category.name} icon`} className="h-6 w-6" />
                                         </td>
@@ -274,11 +325,11 @@ export const CategoryCrud = () => {
                                         <td className="py-4 px-6">
                                             <div className="flex items-center gap-2">
                                                 <BookOpen className="h-4 w-4 text-gray-400" />
-                                                <span className="text-sm text-gray-600">{category.courseCount} khóa học</span>
+                                                {/* <span className="text-sm text-gray-600">{category.courseCount} khóa học</span> */}
                                             </div>
                                         </td>
                                         <td className="py-4 px-6 text-sm text-gray-600">
-                                            {new Date(category.lastUpdated).toLocaleDateString('vi-VN')}
+                                            {new Date(category.updated_at).toLocaleDateString('vi-VN')}
                                         </td>
                                         <td className="py-4 px-6">
                                             <div className="flex justify-end gap-2">
@@ -335,6 +386,7 @@ export const CategoryCrud = () => {
                                                     </DialogContent>
                                                 </Dialog>
                                                 <Button
+                                                    onClick={()=> deleteCategory(category.slug) }
                                                     variant="destructive"
                                                     size="sm"
                                                     className="bg-red-500 hover:bg-red-600"
