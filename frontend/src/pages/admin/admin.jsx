@@ -59,8 +59,6 @@ export default function Dashboard() {
 
     return (
         <SidebarProvider>
-
-
             <SideBarUI />
             <SidebarInset>
                 <header className="absolute left-1 top-3">
@@ -198,6 +196,5 @@ export default function Dashboard() {
                 </Card>
             </SidebarInset>
         </SidebarProvider>
-
     )
 }

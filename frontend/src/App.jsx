@@ -39,7 +39,9 @@ import { UserContext, UserProvider } from "./pages/context/usercontext.jsx";
 import { CategoriesContext, CategoriesProvider } from "./pages/context/categoriescontext.jsx";
 import { CoursesContext, CoursesProvider } from "./pages/context/coursescontext.jsx";
 import { Example } from "./pages/admin/example.jsx";
-// import { AdminCourseList } from "./pages/admin/adminCourseList.jsx";
+import CourseList from "./pages/admin/courseList.jsx";
+
+
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -94,6 +96,7 @@ function AppContent() {
                 ></Route>
                 {/* <Route path="/admin/course-list" element={<AdminCourseList />}></Route> */}
                 <Route path="/admin/example" element={<Example />}></Route>
+                <Route path="/admin/course-list" element={<CourseList />}></Route>
 
 
 
