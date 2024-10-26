@@ -15,8 +15,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Filter, Download, FileDown } from "lucide-react";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function InformationCourse() {
     const [courses] = useState([
@@ -49,7 +50,6 @@ export default function InformationCourse() {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50">
             <SidebarProvider>
                 <SideBarUI />
                 <SidebarInset>
@@ -112,7 +112,6 @@ export default function InformationCourse() {
                                     </Button>
                                 </div>
                             </div>
-
                             </CardHeader>
 
                             <CardContent>
@@ -163,6 +162,5 @@ export default function InformationCourse() {
                         </div>
                 </SidebarInset>
             </SidebarProvider>
-        </div>
     );
 };

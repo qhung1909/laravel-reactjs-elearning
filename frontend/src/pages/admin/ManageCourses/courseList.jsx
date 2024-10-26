@@ -30,11 +30,11 @@ import { SideBarUI } from '../sidebarUI';
 
 const courses = [
     { id: 1, title: "Khóa học React", instructor: "Nguyễn Văn A", status: "Đang diễn ra", price: "500,000 VNĐ", students: 45 },
-    { id: 2, title: "Khóa học JavaScript", instructor: "Trần Thị B", status: "Hoàn thành", price: "400,000 VNĐ", students: 32 },
+    { id: 2, title: "Khóa học JavaScript", instructor: "Trần Thị B", status: "Đang diễn ra", price: "400,000 VNĐ", students: 32 },
     { id: 3, title: "Khóa học CSS", instructor: "Lê Văn C", status: "Đang chờ", price: "300,000 VNĐ", students: 28 },
     { id: 4, title: "Khóa học HTML", instructor: "Nguyễn Thị D", status: "Đang diễn ra", price: "200,000 VNĐ", students: 50 },
     { id: 1, title: "Khóa học React", instructor: "Nguyễn Văn A", status: "Đang diễn ra", price: "500,000 VNĐ", students: 45 },
-    { id: 2, title: "Khóa học JavaScript", instructor: "Trần Thị B", status: "Hoàn thành", price: "400,000 VNĐ", students: 32 },
+    { id: 2, title: "Khóa học JavaScript", instructor: "Trần Thị B", status: "Đang diễn ra", price: "400,000 VNĐ", students: 32 },
     { id: 3, title: "Khóa học CSS", instructor: "Lê Văn C", status: "Đang chờ", price: "300,000 VNĐ", students: 28 },
     { id: 4, title: "Khóa học HTML", instructor: "Nguyễn Thị D", status: "Đang diễn ra", price: "200,000 VNĐ", students: 50 },
 
