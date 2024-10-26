@@ -1,12 +1,10 @@
-
 import {
     Pagination,
     PaginationContent,
     PaginationEllipsis,
     PaginationItem,
     PaginationLink,
-} from "@/components/ui/pagination"
-
+} from "@/components/ui/pagination";
 import {
     SidebarInset,
     SidebarProvider,
@@ -22,30 +20,43 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
-import { useState } from 'react';
-
+import { useEffect, useState } from 'react';
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import axios from "axios";
 
 export const CategoryList = () => {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    const [categories, setCategory] = useState([]);
+    const [isLoading, setIsLoading] = useState(true); 
+
+    const fetchCategory = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/categories`, {
+                headers: {
+                    'x-api-secret': API_KEY
+                }
+            });
+            const data = res.data;
+            setCategory(data);
+        } catch (error) {
+            console.error('Error fetching Categories:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCategory();
+    }, []);
+
     const [sortConfig, setSortConfig] = useState({
         key: null,
         direction: 'asc'
     });
     const [searchTerm, setSearchTerm] = useState('');
-
-    const initialCategories = [
-        { id: 1, name: "Danh mục a", courseCount: 5, isActive: true },
-        { id: 2, name: "Danh mục c", courseCount: 3, isActive: false },
-        { id: 3, name: "Danh mục b", courseCount: 8, isActive: true },
-        { id: 4, name: "Danh mục d", courseCount: 2, isActive: true },
-        { id: 5, name: "Danh mục e", courseCount: 5, isActive: true },
-        { id: 6, name: "Danh mục f", courseCount: 3, isActive: false },
-        { id: 7, name: "Danh mục g", courseCount: 8, isActive: true },
-        { id: 8, name: "Danh mục h", courseCount: 2, isActive: true },
-    ];
-
-    const [categories, setCategories] = useState(initialCategories);
 
     const handleSort = (key) => {
         let direction = 'asc';
@@ -73,13 +84,6 @@ export const CategoryList = () => {
             return sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />;
         }
         return <ChevronUp className="h-4 w-4 opacity-0 group-hover:opacity-50" />;
-    };
-
-    const handleCategoryStatusChange = (categoryId, isActive) => {
-        const updatedCategories = categories.map(category =>
-            category.id === categoryId ? { ...category, isActive: isActive } : category
-        );
-        setCategories(updatedCategories);
     };
 
     return (
@@ -126,7 +130,7 @@ export const CategoryList = () => {
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-yellow-400">
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-white-600">STT</th>
+                                    <th className="text-left py-4 px-6 font-medium text-sm text-white-600">ID</th>
                                     <th
                                         className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
                                         onClick={() => handleSort('name')}
@@ -158,36 +162,56 @@ export const CategoryList = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {sortedCategories.map((category) => (
-                                    <tr key={category.id} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
-                                        <td className="py-4 px-6 text-sm text-gray-600">#{category.id}</td>
-                                        <td className="py-4 px-6">
-                                            <div className="font-medium text-gray-900">{category.name}</div>
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <span className="text-sm text-gray-600">{category.courseCount} khóa học</span>
-                                        </td>
-                                        <td className="py-4 px-6 text-sm text-gray-600">
-                                            {new Date(category.lastUpdated).toLocaleDateString('vi-VN')}
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <div className="flex items-center">
-                                                <Switch
-                                                    variant="outline"
-                                                    id={`category-status-${category.id}`}
-                                                    checked={category.isActive}
-                                                    onCheckedChange={(isActive) => handleCategoryStatusChange(category.id, isActive)}
-                                                />
-                                                <Label htmlFor={`category-status-${category.id}`} className="ml-2">
-                                                    {category.isActive ? 'Bật' : 'Tắt'}
-                                                </Label>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {isLoading ? (
+                                    <>
+                                    {[...Array(5)].map((_, rowIndex) => (
+                                        <tr key={rowIndex} className="border-t border-gray-100">
+                                            <td className="py-4 px-6">
+                                                <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="bg-gray-300 rounded animate-pulse" style={{ width: '150px', height: '20px' }} />
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="bg-gray-300 rounded animate-pulse" style={{ width: '120px', height: '20px' }} />
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="bg-gray-300 rounded animate-pulse" style={{ width: '80px', height: '20px' }} />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </>
+                                ) : (
+                                    sortedCategories.map((category) => (
+                                        <tr key={category.id} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
+                                            <td className="py-4 px-6 text-sm text-gray-600">#{category.course_category_id}</td>
+                                            <td className="py-4 px-6">
+                                                <div className="font-medium text-gray-900">{category.name}</div>
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <span className="text-sm text-gray-600">{category.courseCount} update soon</span>
+                                            </td>
+                                            <td className="py-4 px-6 text-sm text-gray-600">
+                                                {new Date(category.updated_at).toLocaleDateString('vi-VN')}
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="flex items-center">
+                                                    <Switch
+                                                        variant="outline"
+                                                        id={`category-status-${category.id}`}
+                                                        checked={category.isActive}
+                                                    />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
-                        </table>
 
+                        </table>
                     </div>
                     <div className="mt-3">
                         <Pagination>
@@ -198,7 +222,7 @@ export const CategoryList = () => {
                                     </PaginationLink>
                                 </PaginationItem>
                                 <PaginationItem>
-                                    <PaginationLink href="#" >
+                                    <PaginationLink href="#">
                                         2
                                     </PaginationLink>
                                 </PaginationItem>
@@ -211,10 +235,7 @@ export const CategoryList = () => {
                             </PaginationContent>
                         </Pagination>
                     </div>
-
                 </div>
-
-
             </SidebarInset>
         </SidebarProvider>
     );
