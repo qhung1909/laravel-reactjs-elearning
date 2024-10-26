@@ -39,7 +39,8 @@ import { UserContext, UserProvider } from "./pages/context/usercontext.jsx";
 import { CategoriesContext, CategoriesProvider } from "./pages/context/categoriescontext.jsx";
 import { CoursesContext, CoursesProvider } from "./pages/context/coursescontext.jsx";
 import { Example } from "./pages/admin/example.jsx";
-import CourseList from "./pages/admin/courseList.jsx";
+import CourseList from "./pages/admin/ManageCourses/courseList.jsx";
+import { InformationCourse } from "./pages/admin/ManageCourses/informationCourse.jsx";
 
 
 function AppContent() {
@@ -97,6 +98,7 @@ function AppContent() {
                 {/* <Route path="/admin/course-list" element={<AdminCourseList />}></Route> */}
                 <Route path="/admin/example" element={<Example />}></Route>
                 <Route path="/admin/course-list" element={<CourseList />}></Route>
+                <Route path="/admin/information-course" element={<InformationCourse />}></Route>
 
 
 
