@@ -48,6 +48,7 @@ import { CategoryList } from "./pages/admin/ManageCategories/CategoryList.jsx";
 import { PriorityCategory } from "./pages/admin/ManageCategories/PriorityCategory.jsx";
 import CourseStatus from "./pages/admin/ManageCourses/courseStatus.jsx";
 import NewExample from "./pages/admin/ManageCourses/newExample.jsx";
+import { CoursesOfCategory } from "./pages/admin/ManageCategories/CoursesOfCategory.jsx";
 
 
 function AppContent() {
@@ -116,6 +117,7 @@ function AppContent() {
                 <Route path="/admin/category-list" element={<CategoryList />}></Route>
                 <Route path="/admin/category-crud" element={<CategoryCrud />}></Route>
                 <Route path="/admin/priority-category" element={<PriorityCategory />}></Route>
+                <Route path="/admin/courses-of-category" element={<CoursesOfCategory />}></Route>
 
 
                 <Route path="/" element={<Home />}></Route>

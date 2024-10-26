@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use GuzzleHttp\Client;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Aws\S3\S3Client;
 
 class CategoryController extends Controller
 {
@@ -36,14 +37,14 @@ class CategoryController extends Controller
     {
         $category = Cache::remember("category_{$slug}", 90, function () use ($slug) {
             return $this->category->where('slug', $slug)
-                ->with(['courses.user:user_id,name']) 
+                ->with(['courses.user:user_id,name'])
                 ->first();
         });
-    
+
         if (!$category) {
             return response()->json(['error' => 'Danh mục không tìm thấy'], 404);
         }
-    
+
         return response()->json([
             'category' => $category,
             'courses' => $category->courses,
@@ -55,6 +56,7 @@ class CategoryController extends Controller
         $rules = [
             'name' => 'required|string',
             'description' => 'nullable|string',
+            'image' => 'required|image|mimes:jpg,jpeg,png,gif,svg|max:2048', 
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -74,10 +76,13 @@ class CategoryController extends Controller
                     $counter++;
                 }
 
+                $imageUrl = $this->handleFileUpload($request->file('image'));
+
                 return Category::create([
                     'name' => $request->name,
                     'description' => $request->description,
                     'slug' => $slug,
+                    'image' => $imageUrl,
                 ]);
             });
 
@@ -88,14 +93,58 @@ class CategoryController extends Controller
                 'message' => 'Danh mục được thêm thành công.',
                 'category' => $category
             ], 201);
-
         } catch (\Exception $e) {
-            Log::error('Error creating category: ' . $e->getMessage());
+            Log::error('Error creating category: ' . $e->getMessage() . ' Trace: ' . $e->getTraceAsString());
             return response()->json([
                 'error' => 'Có lỗi xảy ra khi tạo danh mục'
             ], 500);
         }
+        
     }
+
+
+    private function handleFileUpload($file)
+    {
+        $s3 = new S3Client([
+            'region'  => env('AWS_DEFAULT_REGION'),
+            'version' => 'latest',
+            'credentials' => [
+                'key'    => env('AWS_ACCESS_KEY_ID'),
+                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            ],
+            'http' => [
+                'verify' => env('VERIFY_URL'),
+            ],
+        ]);
+
+        $filePath = $file->getRealPath();
+        $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $newFileName = uniqid() . ".{$originalFileName}.{$extension}"; 
+        $key = 'icons/new_folder/' . $newFileName;
+
+        $contentType = match ($extension) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'svg' => 'image/svg+xml',
+            default => 'application/octet-stream',
+        };
+
+        try {
+            $result = $s3->putObject([
+                'Bucket' => env('AWS_BUCKET'),
+                'Key'    => $key,
+                'SourceFile' => $filePath,
+                'ContentType' => $contentType,
+                'ACL' => 'public-read',
+            ]);
+            return $result['ObjectURL']; 
+        } catch (\Exception $e) {
+            throw new \Exception('Could not upload new image to S3: ' . $e->getMessage());
+        }
+    }
+
 
     public function update(Request $request, $slug)
     {
@@ -113,15 +162,16 @@ class CategoryController extends Controller
         try {
             $category = DB::transaction(function () use ($request, $slug) {
                 $category = $this->category->where('slug', $slug)->firstOrFail();
-                
+
                 if ($request->has('name') && $request->name !== $category->name) {
                     $baseSlug = Str::slug($request->name);
                     $newSlug = $baseSlug;
                     $counter = 1;
 
                     while (Category::where('slug', $newSlug)
-                            ->where('id', '!=', $category->id)
-                            ->exists()) {
+                        ->where('id', '!=', $category->id)
+                        ->exists()
+                    ) {
                         $newSlug = $baseSlug . '-' . $counter;
                         $counter++;
                     }
@@ -144,7 +194,6 @@ class CategoryController extends Controller
                 'message' => 'Danh mục được cập nhật thành công.',
                 'category' => $category
             ], 200);
-
         } catch (\Exception $e) {
             Log::error('Error updating category: ' . $e->getMessage());
             return response()->json([
@@ -168,7 +217,6 @@ class CategoryController extends Controller
                 'success' => true,
                 'message' => 'Danh mục đã được xóa thành công.'
             ], 200);
-
         } catch (\Exception $e) {
             Log::error('Error deleting category: ' . $e->getMessage());
             return response()->json([

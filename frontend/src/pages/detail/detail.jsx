@@ -147,7 +147,9 @@ export const Detail = () => {
     }, []);
 
     const [titleContent, setTitleContent] = useState([]);
-    const fetchTitleContent = async (content_id) => {
+
+    const fetchTitleContent = async () => {
+
         setLoading(true);
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -155,18 +157,17 @@ export const Detail = () => {
             return;
         }
         try {
-            const res = await axios.get(`${API_URL}/title-contents/${content_id}`, {
+            const res = await axios.get(`${API_URL}/title-contents`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
                 },
             });
-            if (res.data && res.data.success && res.data.data) {
-                setTitleContent(res.data.data);
-                console.log("Dữ liệu chi tiết title_content:", res.data.data);
+            if (res.data && res.data ) {
+                setTitleContent(res.data);
+                console.log("Dữ liệu chi tiết title_content:", res.data);
             } else {
                 console.error("Dữ liệu không hợp lệ:", res.data);
-                setTitleContent(null);
             }
         } catch (error) {
             console.error("Lỗi khi lấy chi tiết title_content:", error);
@@ -176,7 +177,7 @@ export const Detail = () => {
             } else {
                 console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
             }
-            setTitleContent(null);
+            // Không cần gán null, giữ titleContent là một mảng rỗng
         } finally {
             setLoading(false);
         }
@@ -185,6 +186,7 @@ export const Detail = () => {
     useEffect(() => {
         fetchTitleContent();
     }, []);
+
 
     // Sắp xếp content theo content_id
     const sortedContent = contentLesson.sort(
@@ -1009,7 +1011,6 @@ export const Detail = () => {
                                 <div className="border-b">
                                     <Accordion type="multiple" className="w-full space-y-4 bg-white rounded-xl shadow-lg p-6">
                                         {loading ? (
-                                            // Render skeleton loaders while loading
                                             Array.from({ length: 2 }).map((_, index) => (
                                                 <div key={index} className="group border border-gray-200 rounded-lg overflow-hidden mb-2 animate-pulse">
                                                     <div className="px-6 py-4 bg-gray-200">
@@ -1035,46 +1036,49 @@ export const Detail = () => {
                                             ))
                                         ) : (
                                             Array.isArray(contentLesson) && contentLesson.length > 0 ? (
-                                                contentLesson.map((content, index) => (
-                                                    <AccordionItem
-                                                        key={index}
-                                                        value={`content-${index}`}
-                                                        className="group border border-gray-200 rounded-lg overflow-hidden mb-2 hover:border-yellow-500 hover:shadow-md transition-all duration-300"
-                                                    >
-                                                        <AccordionTrigger className="px-6 py-4 bg-gradient-to-r from-yellow-50/50 to-white hover:bg-gradient-to-r hover:from-yellow-50 hover:to-white font-medium text-gray-700 text-left">
-                                                            <div className="flex items-center justify-between w-full">
-                                                                <div className="flex items-center gap-4">
-                                                                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 font-semibold text-sm group-hover:bg-yellow-200 transition-colors">
-                                                                        {index + 1}
-                                                                    </span>
-                                                                    <span className="text-base group-hover:text-yellow-600 transition-colors">
-                                                                        {content.name_content}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </AccordionTrigger>
-
-                                                        {/* AccordionContent sẽ chứa titleContent */}
-                                                        <AccordionContent className="border-t border-gray-100">
-                                                            <div className="space-y-6 p-6">
-                                                                {titleContent ? (
-                                                                    // Render nội dung từ titleContent
-                                                                    <div className="text-gray-600">
-                                                                        {Array.isArray(titleContent) ? (
-                                                                            titleContent.map((title, i) => (
-                                                                                <div key={i} className="p-3">{title}</div>
-                                                                            ))
-                                                                        ) : (
-                                                                            <p className="text-gray-600">{titleContent}</p>
-                                                                        )}
+                                                contentLesson.map((content, index) => {
+                                                    return (
+                                                        <AccordionItem
+                                                            key={index}
+                                                            value={`content-${index}`}
+                                                            className="group border border-gray-200 rounded-lg overflow-hidden mb-2 hover:border-yellow-500 hover:shadow-md transition-all duration-300"
+                                                        >
+                                                            <AccordionTrigger className="px-6 py-4 bg-gradient-to-r from-yellow-50/50 to-white hover:bg-gradient-to-r hover:from-yellow-50 hover:to-white font-medium text-gray-700 text-left">
+                                                                <div className="flex items-center justify-between w-full">
+                                                                    <div className="flex items-center gap-4">
+                                                                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 font-semibold text-sm group-hover:bg-yellow-200 transition-colors">
+                                                                            {index + 1}
+                                                                        </span>
+                                                                        <span className="text-base group-hover:text-yellow-600 transition-colors">
+                                                                            {content.name_content}
+                                                                        </span>
                                                                     </div>
-                                                                ) : (
-                                                                    <p className="text-gray-600">Chưa có nội dung cho phần này.</p>
-                                                                )}
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                ))
+                                                                </div>
+                                                            </AccordionTrigger>
+
+                                                            <AccordionContent className="border-t border-gray-100">
+                                                                <div className="space-y-6 p-6">
+                                                                    {titleContent.length > 0 ? (
+                                                                        titleContent.map((title, i) => (
+                                                                            <div key={i} className="text-gray-600 p-3">
+                                                                                <p>{title.body_content}</p>
+
+
+                                                                                {title.video_link && (
+                                                                                    <a href={title.video_link} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
+                                                                                        Xem video
+                                                                                    </a>
+                                                                                )}
+                                                                            </div>
+                                                                        ))
+                                                                    ) : (
+                                                                        <p className="text-gray-600">Chưa có nội dung cho phần này.</p>
+                                                                    )}
+                                                                </div>
+                                                            </AccordionContent>
+                                                        </AccordionItem>
+                                                    );
+                                                })
                                             ) : (
                                                 <div className="text-center py-8 bg-white rounded-xl">
                                                     <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
@@ -1083,6 +1087,7 @@ export const Detail = () => {
                                             )
                                         )}
                                     </Accordion>
+
 
                                 </div>
                             </div>
