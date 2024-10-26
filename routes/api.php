@@ -23,6 +23,7 @@ use App\Http\Controllers\QuizOptionController;
 use App\Http\Controllers\UserCourseController;
 use App\Http\Controllers\QuizQuestionController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\ContentController;
 // Authentication
 Route::group([
     'middleware' => 'api',
@@ -129,11 +130,16 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/users', [UserController::class, 'getAllUsers']);
 
-    Route::get('blogs', [BlogController::class, 'index']); 
-    Route::post('blogs', [BlogController::class, 'store']); 
-    Route::get('blogs/{slug}', [BlogController::class, 'show']); 
-    Route::put('blogs/{slug}', [BlogController::class, 'update']); 
-    Route::delete('blogs/{slug}', [BlogController::class, 'destroy']); 
+    Route::get('blogs', [BlogController::class, 'index']);
+    Route::post('blogs', [BlogController::class, 'store']);
+    Route::get('blogs/{slug}', [BlogController::class, 'show']);
+    Route::put('blogs/{slug}', [BlogController::class, 'update']);
+    Route::delete('blogs/{slug}', [BlogController::class, 'destroy']);
 
 
+    Route::get('/contents', [ContentController::class, 'index']);
+    Route::get('/contents/{content_id}', [ContentController::class, 'show']);
+    Route::post('/contents', [ContentController::class, 'store']);
+    Route::put('/contents/{content_id}', [ContentController::class, 'update']);
+    Route::delete('/contents/{content_id}', [ContentController::class, 'destroy']);
 });
