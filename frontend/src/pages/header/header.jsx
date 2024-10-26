@@ -131,6 +131,7 @@ export const Header = () => {
     };
 
 
+
     useEffect(() => {
         setSearchValue("");
         fetchMyCourse();

@@ -15,7 +15,7 @@ class BlogController extends Controller
         try {
             $blogs = Blog::where('status', 'success')
                 ->orderBy('created_at', 'desc')
-                ->paginate(10);
+                ->paginate(6);
 
             return response()->json([
                 'status' => true,

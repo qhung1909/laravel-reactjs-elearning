@@ -29,7 +29,7 @@ export const Blogdetail = () => {
                 }
             })
             if (response.data.status) {
-                setBlog(response.data.data.blog) // Thay vì response.data.data
+                setBlog(response.data.data.blog)
             }
         } catch (error) {
             console.error('Error fetching blog detail:', error)
@@ -57,7 +57,7 @@ export const Blogdetail = () => {
     }
     return (
         <>
-           <section className="blogdetail xl:max-w-screen-xl lg:max-w-screen-lg md:max-w-screen-md max-w-screen-sm mx-auto sm:px-10 px-4">
+           <section className="my-5 blogdetail xl:max-w-screen-xl lg:max-w-screen-lg md:max-w-screen-md max-w-screen-sm mx-auto sm:px-10 px-4">
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
@@ -79,7 +79,6 @@ export const Blogdetail = () => {
                             <div className="blogdetail-title ">
                                 <span className="xl:text-5xl lg:text-4xl md:text-3xl sm:text-2xl text-xl font-bold">
                                     {blog.title}
-
                                 </span>
                             </div>
                             {/* date - author - mini img */}
@@ -92,7 +91,9 @@ export const Blogdetail = () => {
                                     />
                                 </div>
                                 <div className="">
-                                    <strong className='xl:text-base lg:text-sm md:text-xs sm:text-[14px] text-[12px]'>Antlearn</strong>
+                                    <strong className='xl:text-base lg:text-sm md:text-xs sm:text-[14px] text-[12px]'>
+                                        Antlearn
+                                    </strong>
                                     <p className='xl:text-base lg:text-sm md:text-xs sm:text-[10px] text-[8px]'>
                                         {new Date(blog.created_at).toLocaleDateString('vi-VN')}
                                     </p>
