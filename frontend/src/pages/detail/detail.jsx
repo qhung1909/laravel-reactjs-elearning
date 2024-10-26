@@ -1056,54 +1056,7 @@ export const Detail = () => {
 
 
 
-                                                        <AccordionContent className="border-t border-gray-100">
-                                                            <div className="space-y-6 p-6">
-                                                                {Array.isArray(content.body) ? (
-                                                                    <div className="space-y-4">
-                                                                        {content.body.map((bodyText, i) => (
-                                                                            <div key={i} className="flex gap-3 text-gray-600 leading-relaxed hover:bg-yellow-50 rounded-lg p-3 transition-colors">
-                                                                                <span className="font-medium text-yellow-600 min-w-[24px]">
-                                                                                    {i + 1}.
-                                                                                </span>
-                                                                                <p className="flex-1">{bodyText}</p>
-                                                                            </div>
-                                                                        ))}
-                                                                    </div>
-                                                                ) : (
-                                                                    <p className="text-gray-600 p-3">{content.body}</p>
-                                                                )}
 
-                                                                {content.video && (
-                                                                    <Dialog>
-                                                                        <DialogTrigger asChild>
-                                                                            <Button
-                                                                                className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg flex items-center gap-2 px-6 py-3 transition-all duration-300 hover:shadow-lg"
-                                                                                onClick={() => showModal(content.video)}
-                                                                            >
-                                                                                <Play size={18} />
-                                                                                Xem video bài học
-                                                                            </Button>
-                                                                        </DialogTrigger>
-                                                                        <DialogContent className="max-w-4xl mx-auto p-6">
-                                                                            <DialogTitle className="text-xl font-semibold mb-4">
-                                                                                {content.title}
-                                                                            </DialogTitle>
-                                                                            <DialogDescription>
-                                                                                <div className="relative w-full rounded-lg overflow-hidden shadow-lg" style={{ paddingTop: "56.25%" }}>
-                                                                                    <ReactPlayer
-                                                                                        url={currentVideoUrl}
-                                                                                        className="absolute top-0 left-0"
-                                                                                        controls={true}
-                                                                                        width="100%"
-                                                                                        height="100%"
-                                                                                    />
-                                                                                </div>
-                                                                            </DialogDescription>
-                                                                        </DialogContent>
-                                                                    </Dialog>
-                                                                )}
-                                                            </div>
-                                                        </AccordionContent>
                                                     </AccordionItem>
                                                 ))
                                             ) : (
@@ -1113,6 +1066,84 @@ export const Detail = () => {
                                                 </div>
                                             )
                                         )}
+
+
+                                        {loading ? (
+                                            // Render skeleton loaders while loading
+                                            Array.from({ length: 2 }).map((_, index) => (
+                                                <div key={index} className="group border border-gray-200 rounded-lg overflow-hidden mb-2 animate-pulse">
+                                                    <div className="px-6 py-4 bg-gray-200">
+                                                        <div className="flex items-center justify-between w-full">
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-300 text-gray-600 font-semibold text-sm">
+                                                                    {index + 1}
+                                                                </span>
+                                                                <div className="h-4 bg-gray-300 rounded w-3/4" />
+                                                            </div>
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="h-4 bg-gray-300 rounded w-8" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="border-t border-gray-100">
+                                                        <div className="p-6 space-y-4">
+                                                            <div className="h-3 bg-gray-300 rounded w-full" />
+                                                            <div className="h-3 bg-gray-300 rounded w-full" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <AccordionContent className="border-t border-gray-100">
+                                                <div className="space-y-6 p-6">
+                                                    {Array.isArray(content.body) ? (
+                                                        <div className="space-y-4">
+                                                            {content.body.map((bodyText, i) => (
+                                                                <div key={i} className="flex gap-3 text-gray-600 leading-relaxed hover:bg-yellow-50 rounded-lg p-3 transition-colors">
+                                                                    <span className="font-medium text-yellow-600 min-w-[24px]">
+                                                                        {i + 1}.
+                                                                    </span>
+                                                                    <p className="flex-1">{bodyText}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-gray-600 p-3">{content.body}</p>
+                                                    )}
+
+                                                    {content.video && (
+                                                        <Dialog>
+                                                            <DialogTrigger asChild>
+                                                                <Button
+                                                                    className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg flex items-center gap-2 px-6 py-3 transition-all duration-300 hover:shadow-lg"
+                                                                    onClick={() => showModal(content.video)}
+                                                                >
+                                                                    <Play size={18} />
+                                                                    Xem video bài học
+                                                                </Button>
+                                                            </DialogTrigger>
+                                                            <DialogContent className="max-w-4xl mx-auto p-6">
+                                                                <DialogTitle className="text-xl font-semibold mb-4">
+                                                                    {content.title}
+                                                                </DialogTitle>
+                                                                <DialogDescription>
+                                                                    <div className="relative w-full rounded-lg overflow-hidden shadow-lg" style={{ paddingTop: "56.25%" }}>
+                                                                        <ReactPlayer
+                                                                            url={currentVideoUrl}
+                                                                            className="absolute top-0 left-0"
+                                                                            controls={true}
+                                                                            width="100%"
+                                                                            height="100%"
+                                                                        />
+                                                                    </div>
+                                                                </DialogDescription>
+                                                            </DialogContent>
+                                                        </Dialog>
+                                                    )}
+                                                </div>
+                                            </AccordionContent>
+                                        )}
+
                                     </Accordion>
 
                                 </div>
