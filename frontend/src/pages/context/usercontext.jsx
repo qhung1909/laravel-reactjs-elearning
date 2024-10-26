@@ -209,7 +209,9 @@ export const UserProvider = ({ children }) => {
 
 
     useEffect(() => {
-        fetchUserData();
+        if(logined){
+            fetchUserData();
+        }
     }, []);
 
     return (

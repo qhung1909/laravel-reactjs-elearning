@@ -49,11 +49,9 @@ export const Header = () => {
     const [myCourse, setMyCourse] = useState([]);
     const navigate = useNavigate();
 
-
     const handleLoginRedirect = () => {
         sessionStorage.setItem('previousPage', location.pathname);
     };
-
 
     const handleInputChange = (value) => {
         setSearchValue(value);
@@ -72,6 +70,10 @@ export const Header = () => {
     // hàm xử lý khóa học của users
     const fetchMyCourse = async () => {
         const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.log("Chưa đăng nhập. Không thể lấy danh sách khóa học.");
+            return;  // Dừng hàm nếu chưa đăng nhập
+        }
         try {
             const res = await axios.get(`${API_URL}/auth/enrolls`, {
                 headers: {
@@ -123,20 +125,19 @@ export const Header = () => {
                             </div>
                         </div>
                     </DropdownMenuItem>
-
-
                 );
             })
         ) : null
     };
 
-
-
     useEffect(() => {
         setSearchValue("");
-        fetchMyCourse();
+        if (logined) {
+            fetchMyCourse();
+        }
         setIsOpen(false);
-    }, [location.search]);
+    }, [location.search, logined]);
+
 
     const categoryImages = {
         javascript: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/javascript.svg",
