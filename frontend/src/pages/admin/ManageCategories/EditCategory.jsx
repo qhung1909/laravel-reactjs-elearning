@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 
-export const Example = () => {
+export const EditCategory = () => {
     return (
         <>
             <SidebarProvider>
@@ -38,7 +38,7 @@ export const Example = () => {
                     </header>
 
                     {/* them noi dung vao day */}
-                    <div>Example</div>
+                    Sửa danh mục
                     {/*=======================*/}
 
                 </SidebarInset>

@@ -3,7 +3,7 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { SideBarUI } from "./sidebarUI"
+import { SideBarUI } from "../sidebarUI"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -38,7 +38,7 @@ export const Example = () => {
                     </header>
 
                     {/* them noi dung vao day */}
-                    <div>Example</div>
+                    Thêm danh mục
                     {/*=======================*/}
 
                 </SidebarInset>

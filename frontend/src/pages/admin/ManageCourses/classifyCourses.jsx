@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 
-export const Example = () => {
+export const ClassifyCourse = () => {
     return (
         <>
             <SidebarProvider>

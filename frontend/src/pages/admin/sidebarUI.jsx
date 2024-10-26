@@ -117,11 +117,11 @@ const data = {
                 },
                 {
                     title: "Quản lý trạng thái khóa học (Draft/Published/Hidden)",
-                    url: "#",
+                    url: "/admin/course-status",
                 },
                 {
                     title: "Phân loại khóa học theo category",
-                    url: "#",
+                    url: "/admin/classify-course",
                 },
                 {
                     title: "Điều chỉnh giá và khuyến mãi",
