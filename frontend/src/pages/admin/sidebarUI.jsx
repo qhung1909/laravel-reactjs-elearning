@@ -58,9 +58,9 @@ import { Link } from "react-router-dom";
 
 const data = {
     user: {
-        name: "admin",
+        name: "Tôi tên là Hoàng",
         email: "admin@gmail.com",
-        avatar: "/avatars/shadcn.jpg",
+        avatar: "/src/assets/images/doremon.jpg",
     },
     teams: [
         {
@@ -145,6 +145,8 @@ export const SideBarUI = () => {
 
     return (
         <Sidebar collapsible="icon">
+
+            {/* header - teams */}
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -155,8 +157,8 @@ export const SideBarUI = () => {
                                         <activeTeam.logo className="size-4" />
                                     </div>
                                     <div className="grid flex-1 text-left text-sm leading-tight">
-                                        <span className="truncate font-semibold">abc</span>
-                                        <span className="truncate text-xs">abcdddđ</span>
+                                        <span className="truncate font-semibold">Teams</span>
+                                        <span className="truncate text-xs">Admin</span>
                                     </div>
                                     <ChevronsUpDown className="ml-auto" />
                                 </SidebarMenuButton>
@@ -184,19 +186,29 @@ export const SideBarUI = () => {
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
+
+            {/* Content - nav list */}
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Platform</SidebarGroupLabel>
-                    <SidebarMenu>
+                    <SidebarGroupLabel>
+                        <p className="sm:text-lg text-xl">
+                            Platform
+                        </p>
+                    </SidebarGroupLabel>
+                    <SidebarMenu className="space-y-2">
                         {data.navMain.map((item) => {
                             const isOpen = openSection === item.title; // Kiểm tra xem phần này có đang mở không
                             if (item.title === "Tổng quan") {
                                 return (
+
+                                    // Tổng quan
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton tooltip={item.title} asChild>
-                                            <Link to={item.url} className="flex items-center">
-                                                {item.icon && <item.icon />}
-                                                <span>{item.title}</span>
+                                            <Link to={item.url} className="flex items-center gap-4 justify-start my-2">
+                                                <div className="">
+                                                    {item.icon && <item.icon />}
+                                                </div>
+                                                <span className="text-lg font-medium">{item.title}</span>
                                             </Link>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
@@ -211,9 +223,12 @@ export const SideBarUI = () => {
                                         <SidebarMenuItem>
                                             <CollapsibleTrigger asChild>
                                                 <SidebarMenuButton tooltip={item.title} onClick={() => toggleSection(item.title)}>
-                                                    {item.icon && <item.icon />}
-                                                    <span>{item.title}</span>
-                                                    <ChevronRight className="ml-auto transition-transform duration-200" style={{ transform: isOpen ? "rotate(90deg)" : "rotate(0deg)" }} />
+                                                    <div className="flex items-center gap-5">
+                                                        {item.icon && <item.icon />}
+                                                        <span>{item.title}</span>
+                                                    </div>
+
+                                                    <ChevronRight className="ml-auto transition-transform duration-400" style={{ transform: isOpen ? "rotate(90deg)" : "rotate(0deg)" }} />
                                                 </SidebarMenuButton>
                                             </CollapsibleTrigger>
                                             <CollapsibleContent>
@@ -237,6 +252,9 @@ export const SideBarUI = () => {
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarContent>
+
+
+            {/* footer - user */}
             <SidebarFooter>
                 <SidebarMenu>
                     <SidebarMenuItem>
