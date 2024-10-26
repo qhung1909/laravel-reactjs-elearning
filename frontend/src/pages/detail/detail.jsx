@@ -86,11 +86,11 @@ export const Detail = () => {
                 },
             });
 
-            if (res.data && res.data.lesson_id) {
-                if (typeof res.data.content === "string") {
-                    res.data.content = JSON.parse(res.data.content);
-                }
+            if (res.data) {
                 setLesson(res.data);
+                console.log("đây là dữ liệu bài học :", res.data);
+                fetchContentLesson(res.data.lesson_id);
+
             } else {
                 console.error("Dữ liệu không hợp lệ:", res.data);
             }
@@ -105,7 +105,92 @@ export const Detail = () => {
             fetchLesson();
         }
     }, [slug]);
-    const lessonContents = lesson && lesson.content ? lesson.content : [];
+
+    const [contentLesson, setContentLesson] = useState([]);
+    const fetchContentLesson = async () => {
+        setLoading(true);
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/contents`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            // Kiểm tra dữ liệu trả về và đảm bảo nó là một mảng
+            if (res.data && res.data.success && Array.isArray(res.data.data)) {
+                setContentLesson(res.data.data);  // Lấy mảng từ res.data.data
+                console.log("Đây là dữ liệu nội dung bài học:", res.data.data);
+            } else {
+                console.error("Dữ liệu không phải là mảng:", res.data);
+                setContentLesson([]);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy nội dung bài học:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+                console.error("Trạng thái lỗi:", error.response.status);
+            } else {
+                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
+            }
+            setContentLesson([]); // Set empty array on error
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
+        fetchContentLesson();
+    }, []);
+
+    const [titleContent, setTitleContent] = useState([]);
+    const fetchTitleContent = async () => {
+        setLoading(true);
+        const content_id = contentLesson.content_id;
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/title-contents/${content_id}`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            if (res.data && res.data.success && res.data.data) {
+                setTitleContent(res.data.data);
+                console.log("Dữ liệu chi tiết title_content:", res.data.data);
+            } else {
+                console.error("Dữ liệu không hợp lệ:", res.data);
+                setTitleContent(null);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy chi tiết title_content:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+                console.error("Trạng thái lỗi:", error.response.status);
+            } else {
+                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
+            }
+            setTitleContent(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
+        fetchTitleContent();
+    }, []);
+
+    // Sắp xếp content theo content_id
+    const sortedContent = contentLesson.sort(
+        (a, b) => a.content_id - b.content_id
+    );
+
 
     const [instructor, setInstructor] = useState([]);
     const [users, setUsers] = useState([]);
@@ -949,8 +1034,8 @@ export const Detail = () => {
                                                 </div>
                                             ))
                                         ) : (
-                                            Array.isArray(lessonContents) && lessonContents.length > 0 ? (
-                                                lessonContents.map((content, index) => (
+                                            Array.isArray(sortedContent) && sortedContent.length > 0 ? (
+                                                sortedContent.map((content, index) => (
                                                     <AccordionItem
                                                         key={index}
                                                         value={`content-${index}`}
@@ -963,72 +1048,61 @@ export const Detail = () => {
                                                                         {index + 1}
                                                                     </span>
                                                                     <span className="text-base group-hover:text-yellow-600 transition-colors">
-                                                                        {content.title_content}
+                                                                        {content.name_content}
                                                                     </span>
-                                                                </div>
-                                                                <div className="flex items-center gap-3">
-                                                                    {content.content_id === 1 ? (
-                                                                        <CheckCircle className="text-green-500 mr-3" size={18} />
-                                                                    ) : (
-                                                                        <Lock className="text-gray-400 mr-3" size={18} />
-                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </AccordionTrigger>
 
-                                                        <AccordionContent className="border-t border-gray-100">
-                                                            {content.content_id === 1 ? (
-                                                                <div className="space-y-6 p-6">
-                                                                    {Array.isArray(content.body_content) ? (
-                                                                        <div className="space-y-4">
-                                                                            {content.body_content.map((body, i) => (
-                                                                                <div key={i} className="flex gap-3 text-gray-600 leading-relaxed hover:bg-yellow-50 rounded-lg p-3 transition-colors">
-                                                                                    <span className="font-medium text-yellow-600 min-w-[24px]">
-                                                                                        {i + 1}.
-                                                                                    </span>
-                                                                                    <p className="flex-1">{body}</p>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    ) : (
-                                                                        <p className="text-gray-600 p-3">{content.body_content}</p>
-                                                                    )}
 
-                                                                    {content.video_content && (
-                                                                        <Dialog>
-                                                                            <DialogTrigger asChild>
-                                                                                <Button
-                                                                                    className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg flex items-center gap-2 px-6 py-3 transition-all duration-300 hover:shadow-lg"
-                                                                                    onClick={() => showModal(content.video_content)}
-                                                                                >
-                                                                                    <Play size={18} />
-                                                                                    Xem video bài học
-                                                                                </Button>
-                                                                            </DialogTrigger>
-                                                                            <DialogContent className="max-w-4xl mx-auto p-6">
-                                                                                <DialogTitle className="text-xl font-semibold mb-4">
-                                                                                    {content.title_content}
-                                                                                </DialogTitle>
-                                                                                <DialogDescription>
-                                                                                    <div className="relative w-full rounded-lg overflow-hidden shadow-lg" style={{ paddingTop: "56.25%" }}>
-                                                                                        <ReactPlayer
-                                                                                            url={currentVideoUrl}
-                                                                                            className="absolute top-0 left-0"
-                                                                                            controls={true}
-                                                                                            width="100%"
-                                                                                            height="100%"
-                                                                                        />
-                                                                                    </div>
-                                                                                </DialogDescription>
-                                                                            </DialogContent>
-                                                                        </Dialog>
-                                                                    )}
-                                                                </div>
-                                                            ) : (
-                                                                <div className="text-center py-8">
-                                                                    <p className="text-gray-500 italic">Vào học để xem thêm nội dung</p>
-                                                                </div>
-                                                            )}
+
+                                                        <AccordionContent className="border-t border-gray-100">
+                                                            <div className="space-y-6 p-6">
+                                                                {Array.isArray(content.body) ? (
+                                                                    <div className="space-y-4">
+                                                                        {content.body.map((bodyText, i) => (
+                                                                            <div key={i} className="flex gap-3 text-gray-600 leading-relaxed hover:bg-yellow-50 rounded-lg p-3 transition-colors">
+                                                                                <span className="font-medium text-yellow-600 min-w-[24px]">
+                                                                                    {i + 1}.
+                                                                                </span>
+                                                                                <p className="flex-1">{bodyText}</p>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                ) : (
+                                                                    <p className="text-gray-600 p-3">{content.body}</p>
+                                                                )}
+
+                                                                {content.video && (
+                                                                    <Dialog>
+                                                                        <DialogTrigger asChild>
+                                                                            <Button
+                                                                                className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg flex items-center gap-2 px-6 py-3 transition-all duration-300 hover:shadow-lg"
+                                                                                onClick={() => showModal(content.video)}
+                                                                            >
+                                                                                <Play size={18} />
+                                                                                Xem video bài học
+                                                                            </Button>
+                                                                        </DialogTrigger>
+                                                                        <DialogContent className="max-w-4xl mx-auto p-6">
+                                                                            <DialogTitle className="text-xl font-semibold mb-4">
+                                                                                {content.title}
+                                                                            </DialogTitle>
+                                                                            <DialogDescription>
+                                                                                <div className="relative w-full rounded-lg overflow-hidden shadow-lg" style={{ paddingTop: "56.25%" }}>
+                                                                                    <ReactPlayer
+                                                                                        url={currentVideoUrl}
+                                                                                        className="absolute top-0 left-0"
+                                                                                        controls={true}
+                                                                                        width="100%"
+                                                                                        height="100%"
+                                                                                    />
+                                                                                </div>
+                                                                            </DialogDescription>
+                                                                        </DialogContent>
+                                                                    </Dialog>
+                                                                )}
+                                                            </div>
                                                         </AccordionContent>
                                                     </AccordionItem>
                                                 ))
@@ -1040,6 +1114,7 @@ export const Detail = () => {
                                             )
                                         )}
                                     </Accordion>
+
                                 </div>
                             </div>
 
