@@ -49,29 +49,29 @@ class TitleContentController extends Controller
     /**
      * Xem chi tiết title_content kèm thông tin content liên quan
      */
-    public function show($title_content_id)
+    public function show($content_id)
     {
         if (!Auth::check()) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-
+    
         try {
-            $cacheKey = 'title_content_' . $title_content_id;
-
-            $titleContent = Cache::remember($cacheKey, 3600, function () use ($title_content_id) {
+            $cacheKey = 'title_content_by_content_' . $content_id;
+    
+            $titleContent = Cache::remember($cacheKey, 3600, function () use ($content_id) {
                 return TitleContent::with('content')
                     ->select('title_content_id', 'content_id', 'body_content', 'video_link', 'document_link', 'description', 'created_at', 'updated_at')
-                    ->where('title_content_id', $title_content_id)
+                    ->where('content_id', $content_id)
                     ->first();
             });
-
+    
             if (!$titleContent) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Không tìm thấy title_content với ID này.',
+                    'message' => 'Không tìm thấy title_content với content_id này.',
                 ], 404);
             }
-
+    
             return response()->json([
                 'success' => true,
                 'data' => $titleContent,
@@ -83,6 +83,7 @@ class TitleContentController extends Controller
             ], 500);
         }
     }
+    
 
     public function store(Request $request)
     {

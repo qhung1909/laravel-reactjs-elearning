@@ -156,7 +156,7 @@ Route::middleware(['admin'])->group(function () {
 
 
     Route::get('/title-contents', [TitleContentController::class, 'index']); // Lấy danh sách title_contents
-    Route::get('/title-contents/{title_content_id}', [TitleContentController::class, 'show']); // Xem chi tiết title_content
+    Route::get('/title-contents/{content_id}', [TitleContentController::class, 'show']); // Xem chi tiết title_content
     Route::post('/title-contents', [TitleContentController::class, 'store']); // Tạo mới title_content
     Route::put('/title-contents/{title_content_id}', [TitleContentController::class, 'update']); // Cập nhật title_content
     Route::delete('/title-contents/{title_content_id}', [TitleContentController::class, 'destroy']); // Xóa title_content
