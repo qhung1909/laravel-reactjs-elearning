@@ -224,7 +224,7 @@ export default function Dashboard() {
                                 </div>
                             </CardFooter>
                         </Card>
-                        <div className="w-2/5">
+                        <div className="xl:w-2/5 flex items-center justify-center xl:mt-0 mt-5">
                             <>Nơi đổ dữ liệu </>
                             {/* <DataTableDemo /> */}
                         </div>
