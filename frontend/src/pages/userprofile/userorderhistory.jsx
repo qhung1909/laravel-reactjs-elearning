@@ -13,7 +13,7 @@ import {
 
 import { useState, useEffect } from "react"
 import axios from "axios"
-export const UserAccount = () => {
+export const UserOrderHistory = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const [orderHistory, setOrderHistory] = useState([]);
@@ -97,7 +97,7 @@ export const UserAccount = () => {
                                     </Link>
                                 </li>
                                 <li className="bg-gray-100  py-3 lg:py-2 px-3 rounded-md">
-                                    <Link to="/user/account">
+                                    <Link to="/user/orderhistory">
                                         <p>Lịch sử mua hàng</p>
                                     </Link>
                                 </li>

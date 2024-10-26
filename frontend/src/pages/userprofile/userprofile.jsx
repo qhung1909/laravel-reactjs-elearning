@@ -74,7 +74,7 @@ export const UserProfile = () => {
                                     </Link>
                                 </li>
                                 <li className="py-3 lg:py-2 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/user/account">
+                                    <Link className="hover:underline" to="/user/orderhistory">
                                         <p>Lịch sử mua hàng</p>
                                     </Link>
                                 </li>

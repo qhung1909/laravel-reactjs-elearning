@@ -28,7 +28,7 @@ import { PaymentResult } from "./pages/payment/payment-result.jsx";
 import { VerificationEmail } from "./pages/verification/verification-email.jsx";
 import Demo from "./pages/teacher/demo.jsx";
 import { UserProfile } from "./pages/userprofile/userprofile.jsx";
-import { UserAccount } from "./pages/userprofile/useraccount.jsx";
+import { UserOrderHistory } from "./pages/userprofile/userorderhistory.jsx";
 import { UserNoti } from "./pages/userprofile/usernoti.jsx";
 import ScrollToTop from "./pages/scrollToTop/scrollToTop.jsx";
 import { Quizzes } from './pages/quizzes/quizzes.jsx';
@@ -59,7 +59,7 @@ function AppContent() {
             "/payment",
             "/cart",
             "/user/profile",
-            "/user/account",
+            "/user/orderhistory",
             "/user/noti",
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/") &&
@@ -71,7 +71,7 @@ function AppContent() {
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
                 <Route path="/demo" element={<Demo />}></Route>
-                <Route path="/user/account" element={<UserAccount />}></Route>
+                <Route path="/user/orderhistory" element={<UserOrderHistory />}></Route>
                 <Route path="/user/profile" element={<UserProfile />}></Route>
                 <Route path="/user/noti" element={<UserNoti />}></Route>
                 <Route path="/instructor" element={<Instructor />}></Route>
