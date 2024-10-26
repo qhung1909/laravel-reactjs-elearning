@@ -112,7 +112,7 @@ export const Blogdetail = () => {
                             />
                         </div>
                     </div>
-                    <div className="blog-right my-5">
+                    {/* <div className="blog-right my-5">
                         <div className="blog-right-title">
                             <span className="xl:text-2xl lg:text-xl md:text-base sm:text-sm text-xl font-semibold">
                                 Bài viết khác
@@ -147,7 +147,7 @@ export const Blogdetail = () => {
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </section>
 
