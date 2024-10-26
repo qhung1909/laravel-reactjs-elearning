@@ -8,7 +8,7 @@ import { Login } from "./pages/login/login.jsx";
 import { Signup } from "./pages/signup/signup.jsx";
 import { Lesson } from "./pages/lession/lession.jsx";
 import { Detail } from "./pages/detail/detail.jsx";
-import Dashboard from "./pages/admin/admin.jsx";
+import Dashboard from "./pages/admin/Dashboard/admin.jsx";
 import { Courses } from "./pages/courses/course.jsx";
 import { Blog } from "./pages/blog/blog.jsx";
 import { Blogdetail } from "./pages/blogdetail/blogdetail.jsx";
@@ -42,6 +42,7 @@ import { Example } from "./pages/admin/example.jsx";
 import CourseList from "./pages/admin/ManageCourses/courseList.jsx";
 import { BrowseNewCourses } from "./pages/admin/ManageCourses/browseNewCourses.jsx";
 import InformationCourse from "./pages/admin/ManageCourses/informationCourse.jsx";
+import { CategoriesList } from "./pages/admin/ManageCategories/CategoriesList.jsx";
 
 
 function AppContent() {
@@ -102,6 +103,7 @@ function AppContent() {
                 <Route path="/admin/information-course" element={<InformationCourse />}></Route>
                 <Route path="/admin/browse-new-courses" element={<BrowseNewCourses />}></Route>
 
+                <Route path="/admin/categories-list" element={<CategoriesList />}></Route>
 
 
                 <Route path="/" element={<Home />}></Route>
