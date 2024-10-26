@@ -134,12 +134,18 @@ const data = {
             ],
         },
         {
-            title: "Quản lý Category",
+            title: "Quản lý Danh mục",
             url: "#",
             icon: Bot,
             items: [
+
+
                 {
-                    title: "Thêm/Sửa/Xóa category",
+                    title: "Danh sách tất cả Danh mục",
+                    url: "/admin/categories-list",
+                },
+                {
+                    title: "Thêm/Sửa/Xóa Danh mục",
                     url: "#",
                 },
                 {
@@ -147,15 +153,15 @@ const data = {
                     url: "#",
                 },
                 {
-                    title: "Bật/Tắt category",
+                    title: "Bật/Tắt Danh mục",
                     url: "#",
                 },
                 {
-                    title: "Gán khóa học vào category",
+                    title: "Gán khóa học vào Danh mục",
                     url: "#",
                 },
                 {
-                    title: "Quản lý ảnh đại diện category",
+                    title: "Quản lý ảnh đại diện Danh mục",
                     url: "#",
                 },
             ],
