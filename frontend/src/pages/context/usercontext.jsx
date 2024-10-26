@@ -31,13 +31,18 @@ export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [instructor, setInstructor] = useState(null)
     const [admin, setAdmin] = useState(null)
-    const [logined, setLogined] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [_success, setSuccess] = useState("");
+    const [logined, setLogined] = useState(() => {
+        const token = localStorage.getItem("access_token");
+        return token || null;
+    });
+
+
+
+
     const navigate = useNavigate();
-
-
     // API thông tin người dùng
     const fetchUserData = async () => {
         const token = localStorage.getItem("access_token");
@@ -49,7 +54,7 @@ export const UserProvider = ({ children }) => {
         try {
             const res = await axios.get(`${API_URL}/auth/me`, {
                 headers: {
-                    "x-api-secret": `${API_KEY}`,
+                    'x-api-secret': `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
                 },
             });
@@ -69,7 +74,10 @@ export const UserProvider = ({ children }) => {
             }
         } catch (error) {
             console.error("Lỗi khi lấy thông tin người dùng:", error);
-        } finally {
+            if (error.response) {
+                console.error("Thông tin phản hồi lỗi:", error.response.data);
+            }
+        }  finally {
             setLoading(false);
         }
     };
@@ -206,10 +214,9 @@ export const UserProvider = ({ children }) => {
         navigate('login')
     };
 
-
-
     useEffect(() => {
-        if(logined){
+        const token = localStorage.getItem("access_token");
+        if (token && !user) {
             fetchUserData();
         }
     }, []);

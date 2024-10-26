@@ -348,7 +348,7 @@ export const Header = () => {
                                                 Bài viết
                                             </Link>
                                         </li>
-                                    </ul>xêp
+                                    </ul>
 
                                     {/* content - right */}
                                     <div className="navbar-icons flex items-center justify-center gap-3 xl:mx-3">
@@ -418,22 +418,32 @@ export const Header = () => {
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     {/* avatar */}
-                                                    {user.avatar ? (
-                                                        <img
-                                                            src={user.avatar}
-                                                            alt="User Avatar"
-                                                            className="w-10 rounded-full object-cover"
-                                                        />
-                                                    ) : (
-
-                                                        <img src="/src/assets/images/user.svg" className="w-12" alt="" />
-                                                    )}
+                                                    {loading ? (
+                                                        // Loading state
+                                                        <Skeleton className="h-4 w-[250px]" />
+                                                    ) : user ? (
+                                                        // User exists
+                                                            <img
+                                                                src={user.avatar}
+                                                                alt="User Avatar"
+                                                                className="w-11 object-cover rounded-full"
+                                                            />
+                                                        ) : (
+                                                            <img
+                                                                src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg"
+                                                                className="w-11"
+                                                                alt="Default Avatar"
+                                                            />
+                                                        )
+                                                    }
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="w-56">
                                                     {loading ? (
                                                         <Skeleton className="h-4 w-[250px]" />
-                                                    ) : (
+                                                    ) : user ? (
                                                         <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
+                                                    ) : (
+                                                        <p>Chưa có thông tin người dùng</p>
                                                     )}
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuGroup>
@@ -550,21 +560,40 @@ export const Header = () => {
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
 
-                                                            {user.avatar ? (
-                                                                <img
-                                                                    src={user.avatar}
-                                                                    alt="User Avatar"
-                                                                    className="w-24 h-7 object-cover rounded-full"
-                                                                />
+                                                            {loading ? (
+                                                                // Loading state
+                                                                <div className="w-7 h-7 rounded-full bg-gray-200 animate-pulse"></div>
+                                                            ) : user ? (
+                                                                // User exists
+                                                                user.avatar ? (
+                                                                    <img
+                                                                        src={user.avatar}
+                                                                        alt="User Avatar"
+                                                                        className="w-24 h-7 object-cover rounded-full"
+                                                                    />
+                                                                ) : (
+                                                                    <img
+                                                                        src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg"
+                                                                        className="w-20"
+                                                                        alt="Default Avatar"
+                                                                    />
+                                                                )
                                                             ) : (
-                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-20" alt="" />
+                                                                // User data not yet loaded
+                                                                <img
+                                                                    src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/3s/New+folder/user.svg"
+                                                                    className="w-20"
+                                                                    alt="Default Avatar"
+                                                                />
                                                             )}
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent className="w-56">
                                                             {loading ? (
-                                                                <Skeleton className="mr-2 h-4 w-4" />
-                                                            ) : (
+                                                                <Skeleton className="h-4 w-[250px]" />
+                                                            ) : user ? (
                                                                 <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
+                                                            ) : (
+                                                                <p>Chưa có thông tin người dùng</p>
                                                             )}
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuGroup>
@@ -774,8 +803,8 @@ export const Header = () => {
                                                                             <div className=" duration-300 cursor-pointer">
                                                                                 <DropdownMenuItem>
                                                                                     <Link to="/courses" className="flex gap-3 hover:text-yellow-400 duration-300  py-1 rounded-md">
-                                                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courses.svg" className="w-5" alt="" />
-                                                                                    <span className="font-semibold text-base">Tất cả khóa học</span>
+                                                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courses.svg" className="w-5" alt="" />
+                                                                                        <span className="font-semibold text-base">Tất cả khóa học</span>
                                                                                     </Link>
                                                                                 </DropdownMenuItem>
 
@@ -834,8 +863,8 @@ export const Header = () => {
                                                         <div className=" duration-300 cursor-pointer">
                                                             <DropdownMenuItem>
                                                                 <Link to="/courses" className="flex gap-3 hover:text-yellow-400 duration-300 py-1 rounded-md">
-                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courses.svg" className="w-5" alt="" />
-                                                                <span className="font-semibold text-base">Tất cả khóa học</span>
+                                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courses.svg" className="w-5" alt="" />
+                                                                    <span className="font-semibold text-base">Tất cả khóa học</span>
                                                                 </Link>
                                                             </DropdownMenuItem>
 
@@ -1046,8 +1075,8 @@ export const Header = () => {
                                                                         <div className=" duration-300 cursor-pointer">
                                                                             <DropdownMenuItem>
                                                                                 <Link to="/courses" className="flex gap-3 hover:text-yellow-400 duration-300  py-1 rounded-md">
-                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courses.svg" className="w-5" alt="" />
-                                                                                <span className="font-semibold text-base">Tất cả khóa học</span>
+                                                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courses.svg" className="w-5" alt="" />
+                                                                                    <span className="font-semibold text-base">Tất cả khóa học</span>
                                                                                 </Link>
                                                                             </DropdownMenuItem>
 
