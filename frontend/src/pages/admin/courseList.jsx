@@ -53,7 +53,7 @@ export default function CourseList() {
         <SidebarProvider>
             <SideBarUI />
             <SidebarInset>
-                <header className="absolute left-1 top-3">
+                <header className="z-10 absolute left-1 top-3">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -84,7 +84,7 @@ export default function CourseList() {
                     </div>
                 </header>
 
-                <div className="pt-16 px-6 bg-gray-50 w-full">
+                <div className="px-6 bg-gray-50 w-full">
                     {/* Summary Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                         <Card>

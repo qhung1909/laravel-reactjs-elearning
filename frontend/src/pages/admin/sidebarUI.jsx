@@ -199,23 +199,23 @@ const data = {
             ],
         },
     ],
-    projects: [
-        {
-            name: "Design Engineering",
-            url: "#",
-            icon: Frame,
-        },
-        {
-            name: "Sales & Marketing",
-            url: "#",
-            icon: PieChart,
-        },
-        {
-            name: "Travel",
-            url: "#",
-            icon: Map,
-        },
-    ],
+    // projects: [
+    //     {
+    //         name: "Design Engineering",
+    //         url: "#",
+    //         icon: Frame,
+    //     },
+    //     {
+    //         name: "Sales & Marketing",
+    //         url: "#",
+    //         icon: PieChart,
+    //     },
+    //     {
+    //         name: "Travel",
+    //         url: "#",
+    //         icon: Map,
+    //     },
+    // ],
 }
 export const SideBarUI = () => {
     const [activeTeam, setActiveTeam] = React.useState(data.teams[0])
@@ -315,7 +315,7 @@ export const SideBarUI = () => {
                             ))}
                         </SidebarMenu>
                     </SidebarGroup>
-                    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+                    {/* <SidebarGroup className="group-data-[collapsible=icon]:hidden">
                         <SidebarGroupLabel>Projects</SidebarGroupLabel>
                         <SidebarMenu>
                             {data.projects.map((item) => (
@@ -362,7 +362,7 @@ export const SideBarUI = () => {
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>
-                    </SidebarGroup>
+                    </SidebarGroup> */}
                 </SidebarContent>
                 <SidebarFooter>
                     <SidebarMenu>
