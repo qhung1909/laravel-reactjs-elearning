@@ -12,10 +12,9 @@ class Content extends Model
     protected $primaryKey = 'content_id';
     protected $fillable = [
         'lesson_id',
-        'title_content',
-        'body_content',
-        'video_content',
-        'document_link',
+        'name_content',
+        'created_at',
+        'updated_at'
     ];
     public function lesson()
     {
