@@ -87,7 +87,7 @@ Route::middleware(['admin'])->group(function () {
 
     //Categories
     Route::prefix('categories')->group(function () {
-        Route::get('/', [CategoryController::class, 'index']);
+        Route::get('/', [CategoryController::class, 'index']);  
         Route::get('{slug}', [CategoryController::class, 'show']);
         Route::post('/', [CategoryController::class, 'store']);
         Route::put('{slug}', [CategoryController::class, 'update']);
@@ -129,11 +129,11 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/users', [UserController::class, 'getAllUsers']);
 
-    Route::get('blogs', [BlogController::class, 'index']); 
-    Route::post('blogs', [BlogController::class, 'store']); 
-    Route::get('blogs/{slug}', [BlogController::class, 'show']); 
-    Route::put('blogs/{slug}', [BlogController::class, 'update']); 
-    Route::delete('blogs/{slug}', [BlogController::class, 'destroy']); 
+    Route::get('blogs', [BlogController::class, 'index']);
+    Route::post('blogs', [BlogController::class, 'store']);
+    Route::get('blogs/{slug}', [BlogController::class, 'show']);
+    Route::put('blogs/{slug}', [BlogController::class, 'update']);
+    Route::delete('blogs/{slug}', [BlogController::class, 'destroy']);
 
 
 });

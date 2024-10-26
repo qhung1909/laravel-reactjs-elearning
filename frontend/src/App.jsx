@@ -42,10 +42,10 @@ import { Example } from "./pages/admin/example.jsx";
 import CourseList from "./pages/admin/ManageCourses/courseList.jsx";
 import { BrowseNewCourses } from "./pages/admin/ManageCourses/browseNewCourses.jsx";
 import InformationCourse from "./pages/admin/ManageCourses/informationCourse.jsx";
-import { CategoriesList } from "./pages/admin/ManageCategories/CategoriesList.jsx";
-import { EditCategory } from "./pages/admin/ManageCategories/EditCategory.jsx";
 import { CourseStatus } from "./pages/admin/ManageCourses/courseStatus.jsx";
 import { ClassifyCourse } from "./pages/admin/ManageCourses/classifyCourses.jsx";
+import { CategoryCrud } from "./pages/admin/ManageCategories/categoryCrud.jsx";
+import { CategoryList } from "./pages/admin/ManageCategories/CategoryList.jsx";
 
 
 function AppContent() {
@@ -108,8 +108,8 @@ function AppContent() {
                 <Route path="/admin/course-status" element={<CourseStatus />}></Route>
                 <Route path="/admin/classify-course" element={<ClassifyCourse />}></Route>
 
-                <Route path="/admin/categories-list" element={<CategoriesList />}></Route>
-                <Route path="/admin/edit-category" element={<EditCategory />}></Route>
+                <Route path="/admin/category-list" element={<CategoryList />}></Route>
+                <Route path="/admin/category-crud" element={<CategoryCrud />}></Route>
 
 
                 <Route path="/" element={<Home />}></Route>
