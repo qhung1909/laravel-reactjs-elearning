@@ -43,6 +43,7 @@ import CourseList from "./pages/admin/ManageCourses/courseList.jsx";
 import { BrowseNewCourses } from "./pages/admin/ManageCourses/browseNewCourses.jsx";
 import InformationCourse from "./pages/admin/ManageCourses/informationCourse.jsx";
 import { CategoriesList } from "./pages/admin/ManageCategories/CategoriesList.jsx";
+import { EditCategory } from "./pages/admin/ManageCategories/EditCategory.jsx";
 
 
 function AppContent() {
@@ -104,6 +105,7 @@ function AppContent() {
                 <Route path="/admin/browse-new-courses" element={<BrowseNewCourses />}></Route>
 
                 <Route path="/admin/categories-list" element={<CategoriesList />}></Route>
+                <Route path="/admin/edit-category" element={<EditCategory />}></Route>
 
 
                 <Route path="/" element={<Home />}></Route>
