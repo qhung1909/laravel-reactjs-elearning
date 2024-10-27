@@ -329,9 +329,7 @@ export const CourseList = () => {
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center">
-                                                            <div className="w-8 h-8 rounded-full bg-gray-100 mr-2 flex items-center justify-center">
-                                                                <Users2 className="h-4 w-4 text-gray-500" />
-                                                            </div>
+
                                                             <span className="text-sm text-gray-900">{course.user?.name}</span>
                                                         </div>
                                                     </td>
