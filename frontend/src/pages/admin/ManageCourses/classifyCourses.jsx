@@ -38,14 +38,14 @@ export default function ClassifyCourse() {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get(`${API_URL}/courses`, {
-        headers: { 'x-api-secret': API_KEY }
-      });
-      setCourses(res.data);
+        const res = await axios.get(`${API_URL}/admin/courses`, {
+            headers: { 'x-api-secret': API_KEY }
+        });
+        setCourses(res.data);
     } catch (error) {
-      console.error('Error fetching courses:', error);
+        console.error('Error fetching courses:', error);
     }
-  }
+}
 
   const fetchCategories = async () => {
     try {

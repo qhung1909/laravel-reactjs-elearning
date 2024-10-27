@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     SidebarInset,
     SidebarProvider,
@@ -47,49 +47,34 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Download,  Clock, Users, BookOpen, CheckCircle, XCircle } from "lucide-react";
+import { Search, Download, Clock, Users, BookOpen, CheckCircle, XCircle } from "lucide-react";
 
-export default function CourseStatus  () {
+export default function CourseStatus() {
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
     const [statusNote, setStatusNote] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
+    const [courses, setCourses] = useState([]);
+    const [statusOptions, setStatusOptions] = useState([]); // Thêm trạng thái options vào state
 
-    const [courses, setCourses] = useState([
-        {
-            id: 1,
-            title: "Lập trình React JS cơ bản",
-            instructor: "Nguyễn Văn A",
-            category: "Lập trình Web",
-            students: 156,
-            status: "Draft",
-            lastUpdated: "2024-03-15"
-        },
-        {
-            id: 2,
-            title: "Python cho người mới bắt đầu",
-            instructor: "Trần Thị B",
-            category: "Lập trình",
-            students: 243,
-            status: "Published",
-            lastUpdated: "2024-03-14"
-        },
-        {
-            id: 3,
-            title: "KHóa học abc",
-            instructor: "Lê Thị C",
-            category: "Reactjs",
-            students: 243,
-            status: "Hidden",
-            lastUpdated: "2024-03-14"
+    // Fetch courses and status from API
+    const fetchCourses = async () => {
+        try {
+            const response = await fetch('YOUR_API_URL_HERE'); // Thay YOUR_API_URL_HERE bằng URL API của bạn
+            if (!response.ok) {
+                throw new Error('Failed to fetch courses');
+            }
+            const data = await response.json();
+            setCourses(data.courses); // Giả sử response có trường 'courses'
+            setStatusOptions(data.statusOptions); // Giả sử response có trường 'statusOptions'
+        } catch (error) {
+            console.error("Error fetching courses:", error);
         }
-    ]);
+    };
 
-    const statusOptions = [
-        { value: "Draft", label: "Bản nháp", color: "bg-gray-500" },
-        { value: "Published", label: "Đã xuất bản", color: "bg-green-500" },
-        { value: "Hidden", label: "Ẩn", color: "bg-yellow-500" }
-    ];
+    useEffect(() => {
+        fetchCourses(); // Gọi hàm fetchCourses khi component mount
+    }, []);
 
     const getStatusColor = (status) => {
         const statusOption = statusOptions.find(opt => opt.value === status);
@@ -197,7 +182,7 @@ export default function CourseStatus  () {
                                 <div className="flex justify-between items-center mb-4">
                                     <Select
                                         value={filterStatus}
-                                        onValueChange={setFilterStatus} >
+                                        onValueChange={setFilterStatus}>
                                         <SelectTrigger className="w-[180px]">
                                             <SelectValue placeholder="Lọc theo trạng thái" />
                                         </SelectTrigger>
@@ -211,23 +196,23 @@ export default function CourseStatus  () {
                                         </SelectContent>
                                     </Select>
                                     <div className="flex flex-wrap gap-4 w-full md:w-auto">
-                                    <div className="relative flex-1 md:flex-initial">
-                                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                                        <input
-                                            type="text"
-                                            placeholder="Tìm kiếm khóa học..."
-                                            className="pl-9 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        />
+                                        <div className="relative flex-1 md:flex-initial">
+                                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                                            <input
+                                                type="text"
+                                                placeholder="Tìm kiếm khóa học..."
+                                                className="pl-9 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <Button variant="outline" className="flex items-center gap-2">
+                                            <Filter size={16} />
+                                            Lọc
+                                        </Button>
+                                        <Button variant="outline" className="flex items-center gap-2">
+                                            <FileDown size={16} />
+                                            Xuất
+                                        </Button>
                                     </div>
-                                    <Button variant="outline" className="flex items-center gap-2">
-                                        <Filter size={16} />
-                                        Lọc
-                                    </Button>
-                                    <Button variant="outline" className="flex items-center gap-2">
-                                        <FileDown size={16} />
-                                        Xuất
-                                    </Button>
-                                </div>
                                 </div>
 
                                 <div className="border rounded-lg">
@@ -262,11 +247,11 @@ export default function CourseStatus  () {
                                                                 size="sm"
                                                                 onClick={() => openStatusDialog(course)}
                                                             >
-                                                                Đổi trạng thái
+                                                                Thay đổi trạng thái
                                                             </Button>
                                                         </TableCell>
                                                     </TableRow>
-                                            ))}
+                                                ))}
                                         </TableBody>
                                     </Table>
                                 </div>
@@ -278,6 +263,4 @@ export default function CourseStatus  () {
             <StatusChangeDialog />
         </SidebarProvider>
     );
-};
-
-
+}
