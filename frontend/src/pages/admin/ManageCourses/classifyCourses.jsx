@@ -1,7 +1,8 @@
 'use client'
 
 import * as React from 'react'
-import { Book, ChevronDown, Search, Users, Clock, Star } from 'lucide-react'
+import axios from 'axios'
+import { Book, ChevronDown, Search } from 'lucide-react'
 import {
   SidebarInset,
   SidebarProvider,
@@ -19,47 +20,80 @@ import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-
-// Mock data for categories and courses
-const categories = [
-  "Tất cả",
-  "Công nghệ thông tin",
-  "Kinh doanh",
-  "Thiết kế",
-  "Marketing",
-  "Ngoại ngữ",
-]
-
-const courses = [
-  { id: 1, title: "Lập trình React", category: "Công nghệ thông tin", instructor: "Nguyễn Văn A", price: "599.000 VND", students: 1234, duration: "20 giờ", rating: 4.7 },
-  { id: 2, title: "Quản lý dự án", category: "Kinh doanh", instructor: "Trần Thị B", price: "799.000 VND", students: 987, duration: "30 giờ", rating: 4.5 },
-  { id: 3, title: "UI/UX Design", category: "Thiết kế", instructor: "Lê Văn C", price: "699.000 VND", students: 2345, duration: "25 giờ", rating: 4.8 },
-  { id: 4, title: "Digital Marketing", category: "Marketing", instructor: "Phạm Thị D", price: "549.000 VND", students: 1567, duration: "15 giờ", rating: 4.6 },
-  { id: 5, title: "Tiếng Anh giao tiếp", category: "Ngoại ngữ", instructor: "Hoàng Văn E", price: "499.000 VND", students: 3456, duration: "40 giờ", rating: 4.9 },
-]
 
 export default function ClassifyCourse() {
-  const [selectedCategory, setSelectedCategory] = React.useState("Tất cả")
-  const [searchTerm, setSearchTerm] = React.useState("")
+  const [courses, setCourses] = React.useState([]);
+  const [categories, setCategories] = React.useState([]);
+  const [selectedCategory, setSelectedCategory] = React.useState("Tất cả");
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [loading, setLoading] = React.useState(true);
+
+  const API_KEY = import.meta.env.VITE_API_KEY;
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  const fetchCourses = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/courses`, {
+        headers: { 'x-api-secret': API_KEY }
+      });
+      setCourses(res.data);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
+  }
+
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/categories`, {
+        headers: { 'x-api-secret': API_KEY }
+      });
+      setCategories([{ course_category_id: 'all', name: 'Tất cả' }, ...res.data]);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  }
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      await Promise.all([fetchCourses(), fetchCategories()]);
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  const handleCategoryChange = async (courseId, categoryId) => {
+    if (!courseId) {
+      console.error('Course ID is undefined');
+      return;
+    }
+
+    setCourses(prevCourses =>
+      prevCourses.map(course =>
+        course.id === courseId ? { ...course, course_category_id: categoryId } : course
+      )
+    );
+
+    try {
+      await axios.put(`${API_URL}/courses/${courseId}`, {
+        course_category_id: categoryId
+      }, {
+        headers: { 'x-api-secret': API_KEY }
+      });
+    } catch (error) {
+      console.error('Error updating course category:', error);
+    }
+  }
 
   const filteredCourses = courses.filter(course =>
-    (selectedCategory === "Tất cả" || course.category === selectedCategory) &&
+    (selectedCategory === "Tất cả" || course.course_category_id === selectedCategory) &&
     course.title.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  );
 
   return (
     <SidebarProvider>
@@ -67,7 +101,7 @@ export default function ClassifyCourse() {
       <SidebarInset>
         <header className="z-10 absolute left-1 top-3">
           <div className="flex items-center gap-2 px-4 py-3">
-            <SidebarTrigger className="-ml-1" />
+            <SidebarTrigger className="ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb>
               <BreadcrumbList>
@@ -83,20 +117,19 @@ export default function ClassifyCourse() {
           </div>
         </header>
 
-        <main className="px-6 py-8 bg-gray-50 min-h-screen w-full">
-          <div className="max-w-7xl mx-auto">
+        <div className="absolute top-16 px-6 bg-gray-50 w-full">
             <h1 className="text-3xl font-bold mb-8 text-gray-800">Phân loại khóa học</h1>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-white p-4 rounded-lg shadow-sm">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="w-full sm:w-auto">
-                    {selectedCategory} <ChevronDown className="ml-2 h-4 w-4" />
+                    {selectedCategory === "Tất cả" ? "Tất cả" : categories.find(c => c.course_category_id === selectedCategory)?.name || "Tất cả"} <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   {categories.map((category) => (
-                    <DropdownMenuItem key={category} onSelect={() => setSelectedCategory(category)}>
-                      {category}
+                    <DropdownMenuItem key={category.course_category_id} onSelect={() => setSelectedCategory(category.course_category_id)}>
+                      {category.name}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
@@ -113,43 +146,50 @@ export default function ClassifyCourse() {
               </div>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredCourses.map((course) => (
-                <Card key={course.id} className="flex flex-col hover:shadow-md transition-shadow duration-200">
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold text-gray-800">{course.title}</CardTitle>
-                    <CardDescription className="flex items-center gap-1">
-                      <Badge variant="secondary" className="text-xs font-normal">
-                        {course.category}
-                      </Badge>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <p className="text-sm text-gray-600 mb-2">Giảng viên: {course.instructor}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {course.students}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        {course.duration}
-                      </span>
-                    </div>
-                  </CardContent>
-                  <CardFooter className="flex justify-between items-center border-t pt-4">
-                    <p className="text-lg font-semibold text-blue-600">{course.price}</p>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="font-medium">{course.rating}</span>
-                    </div>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+            {loading ? (
+              <p>Đang tải...</p>
+            ) : (
+              <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Tên khóa học</th>
+                      <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Giá</th>
+                      <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Danh mục</th>
+                      <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredCourses.map((course) => (
+                      <tr key={course.id} className="border-t border-gray-100">
+                        <td className="py-4 px-6">{course.title}</td>
+                        <td className="py-4 px-6">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}</td>
+                        <td className="py-4 px-6">
+                          <select
+                            value={course.course_category_id || ''}
+                            onChange={(e) => handleCategoryChange(course.id, e.target.value)}
+                            className="border border-gray-300 rounded-lg p-2"
+                          >
+                            {categories.filter(c => c.course_category_id !== 'all').map(category => (
+                              <option key={category.course_category_id} value={category.course_category_id}>
+                                {category.name}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="py-4 px-6">
+                          <Button variant="outline" size="sm">
+                            Xem chi tiết
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        </main>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

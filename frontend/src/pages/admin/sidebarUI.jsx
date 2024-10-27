@@ -91,7 +91,6 @@ const data = {
             icon: SquareTerminal,
             items: [
                 { title: "Danh sách tất cả khóa học", url: "/admin/course-list" },
-                { title: "Xem, xóa thông tin khóa học", url: "/admin/information-course" },
                 { title: "Duyệt khóa học mới từ giảng viên", url: "/admin/browse-new-courses" },
                 { title: "Quản lý trạng thái khóa học (Draft/Published/Hidden)", url: "/admin/course-status" },
                 { title: "Phân loại khóa học theo category", url: "/admin/classify-course" },
