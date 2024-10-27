@@ -51,7 +51,7 @@ export const BrowseNewCourses = () => {
                     </div>
                 </header>
 
-                <div className="absolute top-14 px-6 bg-gray-50 w-full min-h-screen pb-8">
+                <div className="absolute top-14 w-full mx-auto px-6">
                     <Card>
                         <CardHeader>
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -110,7 +110,9 @@ export const BrowseNewCourses = () => {
                                         </div>
                                     </div>
                                     <div className="flex justify-center mt-4">
-                                        <Button className="w-full md:w-1/2"><Link to="NewExample">Xem chi tiết</Link></Button>
+                                        <Link to="new-example" className="w-full md:w-1/2">
+                                            <Button className="w-full">Xem chi tiết</Button>
+                                        </Link>
                                     </div>
                                 </div>
 
