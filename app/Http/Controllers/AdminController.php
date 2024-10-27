@@ -20,14 +20,17 @@ class AdminController extends Controller
 
     public function getAllCourses()
     {
-        $courses = Cache::remember('courses', 120, function () {
+        $cacheKey = 'admin_courses_all';
+    
+        $courses = Cache::remember($cacheKey, 120, function () {
             return $this->course
                 ->with(['user:user_id,name', 'comments:course_id,rating'])
                 ->get();
         });
-
+    
         return response()->json($courses);
     }
+    
 
     public function showCourses($slug)
     {
