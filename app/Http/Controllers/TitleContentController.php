@@ -16,26 +16,22 @@ class TitleContentController extends Controller
         if (!Auth::check()) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-
+    
         try {
-            $perPage = $request->input('per_page', 10);
-            $cacheKey = 'title_contents_page_' . $request->input('page', 1) . '_' . $perPage;
-
-            $titleContents = Cache::remember($cacheKey, 3600, function () use ($perPage) {
+            $cacheKey = 'title_contents_all';
+    
+            $titleContents = Cache::remember($cacheKey, 3600, function () {
                 return TitleContent::with('content')
                     ->select('title_content_id', 'content_id', 'body_content', 'video_link', 'document_link', 'description', 'created_at', 'updated_at')
                     ->latest()
-                    ->paginate($perPage);
+                    ->get();
             });
-
+    
             return response()->json([
                 'success' => true,
                 'data' => $titleContents,
                 'meta' => [
-                    'total' => $titleContents->total(),
-                    'per_page' => $titleContents->perPage(),
-                    'current_page' => $titleContents->currentPage(),
-                    'last_page' => $titleContents->lastPage(),
+                    'total' => $titleContents->count(),
                 ]
             ]);
         } catch (\Exception $e) {
@@ -45,6 +41,7 @@ class TitleContentController extends Controller
             ], 500);
         }
     }
+    
 
     /**
      * Xem chi tiết title_content kèm thông tin content liên quan
@@ -56,11 +53,10 @@ class TitleContentController extends Controller
         }
 
         try {
-            // Không sử dụng cache để đảm bảo rằng bạn nhận được dữ liệu mới nhất
             $titleContents = TitleContent::with('content')
                 ->select('title_content_id', 'content_id', 'body_content', 'video_link', 'document_link', 'description', 'created_at', 'updated_at')
                 ->where('content_id', $content_id)
-                ->get(); // Lấy tất cả các bản ghi
+                ->get(); 
 
             if ($titleContents->isEmpty()) {
                 return response()->json([
@@ -71,7 +67,7 @@ class TitleContentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $titleContents, // Trả về danh sách titleContents
+                'data' => $titleContents, 
             ]);
         } catch (\Exception $e) {
             return response()->json([
