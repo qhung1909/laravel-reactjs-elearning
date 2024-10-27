@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use GuzzleHttp\Client;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -56,7 +57,7 @@ class CategoryController extends Controller
         $rules = [
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'image' => 'required|image|mimes:jpg,jpeg,png,gif,svg|max:2048', 
+            'image' => 'required|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -76,7 +77,7 @@ class CategoryController extends Controller
                     $counter++;
                 }
 
-                $imageUrl = $this->handleFileUpload($request->file('image'));
+                $imageUrl = $this->handleImageUpload($request->file('image'));
 
                 return Category::create([
                     'name' => $request->name,
@@ -99,11 +100,10 @@ class CategoryController extends Controller
                 'error' => 'Có lỗi xảy ra khi tạo danh mục'
             ], 500);
         }
-        
     }
 
 
-    private function handleFileUpload($file)
+    private function handleImageUpload($file)
     {
         $s3 = new S3Client([
             'region'  => env('AWS_DEFAULT_REGION'),
@@ -113,14 +113,14 @@ class CategoryController extends Controller
                 'secret' => env('AWS_SECRET_ACCESS_KEY'),
             ],
             'http' => [
-                'verify' => env('VERIFY_URL'),
-            ],
+                'verify' => env('VERIFY_URL')
+            ]
         ]);
 
         $filePath = $file->getRealPath();
         $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $extension = $file->getClientOriginalExtension();
-        $newFileName = uniqid() . ".{$originalFileName}.{$extension}"; 
+        $newFileName = uniqid() . ".{$originalFileName}.{$extension}";
         $key = 'icons/new_folder/' . $newFileName;
 
         $contentType = match ($extension) {
@@ -139,7 +139,7 @@ class CategoryController extends Controller
                 'ContentType' => $contentType,
                 'ACL' => 'public-read',
             ]);
-            return $result['ObjectURL']; 
+            return $result['ObjectURL'];
         } catch (\Exception $e) {
             throw new \Exception('Could not upload new image to S3: ' . $e->getMessage());
         }
