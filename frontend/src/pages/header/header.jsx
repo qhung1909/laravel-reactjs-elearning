@@ -471,12 +471,12 @@ export const Header = () => {
 
 
                                                         {/* Billing */}
-                                                        <DropdownMenuItem>
+                                                        {/* <DropdownMenuItem>
                                                             <CreditCard className="mr-2 h-4 w-4" />
                                                             <Link>
                                                                 <span>Billing</span>
                                                             </Link>
-                                                        </DropdownMenuItem>
+                                                        </DropdownMenuItem> */}
 
                                                         {/* khóa học của tôi */}
                                                         <DropdownMenuItem>
@@ -620,10 +620,10 @@ export const Header = () => {
                                                                 </DropdownMenuItem>
 
                                                                 {/* Billing */}
-                                                                <DropdownMenuItem>
+                                                                {/* <DropdownMenuItem>
                                                                     <CreditCard className="mr-2 h-4 w-4" />
                                                                     <span className="cursor-pointer">Billing</span>
-                                                                </DropdownMenuItem>
+                                                                </DropdownMenuItem> */}
 
                                                                 {/* Khóa học của tôi */}
 
