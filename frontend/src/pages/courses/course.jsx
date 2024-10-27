@@ -84,6 +84,10 @@ export const Courses = () => {
         fetchCoursesByCategory(slug);
         setSelectedCategory(slug);
         navigate(`/courses?category=${slug}`);
+        window.scrollBy({
+            top:600,
+            behavior: 'smooth'
+        })
     };
 
     // giảng viên hot
@@ -400,8 +404,8 @@ export const Courses = () => {
                             <button
                                 key={category.slug}
                                 onClick={() => handleCategoryClick(category.slug)}
-                                className={`p-3 rounded-lg duration-300 ${selectedCategory === category.slug
-                                    ? 'bg-yellow-400 text-white'
+                                className={`lg:w-52 md:w-40 w-28 py-4 rounded-lg duration-300 sm:text-base text-sm ${selectedCategory === category.slug
+                                    ? 'bg-yellow-400 text-black font-bold'
                                     : 'bg-gray-100 hover:bg-white hover:border-yellow-400 border'
                                     }`}
                             >
@@ -415,7 +419,7 @@ export const Courses = () => {
                             <button
                                 key={category.slug}
                                 onClick={() => handleCategoryClick(category.slug)}
-                                className={`p-3 rounded-lg duration-300 ${selectedCategory === category.slug
+                                className={`lg:w-52 md:w-40 w-28 py-4 rounded-lg duration-300 sm:text-base text-sm ${selectedCategory === category.slug
                                     ? 'bg-yellow-400 text-white'
                                     : 'bg-gray-100 hover:bg-white hover:border-yellow-400 border'
                                     }`}
