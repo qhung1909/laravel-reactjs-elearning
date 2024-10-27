@@ -135,8 +135,8 @@ export const CourseList = () => {
                 return "Hoàn thành";
             case "pending":
                 return "Đang chờ";
-                case "fail":
-                    return "Thất bại";
+            case "fail":
+                return "Thất bại";
             default:
                 return "Không xác định";
         }
