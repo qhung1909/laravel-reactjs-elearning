@@ -30,7 +30,7 @@ export const CategoryList = () => {
     const API_URL = import.meta.env.VITE_API_URL;
 
     const [categories, setCategory] = useState([]);
-    const [isLoading, setIsLoading] = useState(true); 
+    const [isLoading, setIsLoading] = useState(true);
 
     const fetchCategory = async () => {
         try {
