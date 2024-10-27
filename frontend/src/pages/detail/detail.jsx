@@ -88,8 +88,9 @@ export const Detail = () => {
 
             if (res.data) {
                 setLesson(res.data);
-                console.log("đây là dữ liệu bài học :", res.data);
-                fetchContentLesson(res.data.lesson_id);
+                if (res.data.lesson_id) {
+                    fetchContentLesson(res.data.lesson_id);
+                }
 
             } else {
                 console.error("Dữ liệu không hợp lệ:", res.data);
@@ -108,32 +109,38 @@ export const Detail = () => {
 
     const [contentLesson, setContentLesson] = useState([]);
     const [titleContent, setTitleContent] = useState([]);
-    const fetchContentLesson = async () => {
-        setLoading(true);
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            console.error("Người dùng chưa đăng nhập.");
-            return;
-        }
-        try {
-            const res = await axios.get(`${API_URL}/contents`, {
-                headers: {
-                    "x-api-secret": `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            if (res.data && res.data.success && Array.isArray(res.data.data)) {
-                setContentLesson(res.data.data);
-                console.log("Dữ liệu nội dung bài học:", res.data.data);
-            } else {
-                console.error("Dữ liệu không phải là mảng:", res.data);
+    const fetchContentLesson = async (lessonId) => {
+    setLoading(true);
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+        console.error("Người dùng chưa đăng nhập.");
+        return;
+    }
+    try {
+        const res = await axios.get(`${API_URL}/contents`, {
+            headers: {
+                "x-api-secret": `${API_KEY}`,
+                Authorization: `Bearer ${token}`,
+            },
+            params: {
+                lesson_id: lessonId
             }
-        } catch (error) {
-            console.error("Lỗi khi lấy nội dung bài học:", error);
-        } finally {
-            setLoading(false);
+        });
+
+        if (res.data && res.data.success && Array.isArray(res.data.data)) {
+            // Chỉ cập nhật state nếu lessonId phù hợp
+            setContentLesson(res.data.data.filter(content => content.lesson_id === lessonId));
+            console.log("Dữ liệu nội dung bài học:", res.data.data);
+        } else {
+            console.error("Dữ liệu không phải là mảng:", res.data);
         }
-    };
+    } catch (error) {
+        console.error("Lỗi khi lấy nội dung bài học:", error);
+    } finally {
+        setLoading(false);
+    }
+};
+
 
     const fetchTitleContent = async (contentId) => {
         const token = localStorage.getItem("access_token");
@@ -150,7 +157,6 @@ export const Detail = () => {
             });
             if (res.data && res.data.success) {
                 setTitleContent(prev => ({ ...prev, [contentId]: res.data.data }));
-                console.log(`Dữ liệu chi tiết title_content cho content_id ${contentId}:`, res.data.data);
             } else {
                 console.error("Dữ liệu không hợp lệ:", res.data);
             }
@@ -158,11 +164,6 @@ export const Detail = () => {
             console.error("Lỗi khi lấy chi tiết title_content:", error);
         }
     };
-
-    useEffect(() => {
-        fetchContentLesson();
-    }, []);
-
 
     // Sắp xếp content theo content_id
     const sortedContent = contentLesson.sort(
@@ -1028,10 +1029,9 @@ export const Detail = () => {
                                                                     <span className="text-base group-hover:text-yellow-600 transition-colors">
                                                                         {content.name_content}
                                                                     </span>
-
                                                                 </div>
                                                                 <div className="mr-3">
-                                                                    {content.content_id === 1 ? (
+                                                                    {content.lesson_id === lesson.lesson_id ? (
                                                                         <CheckCircle className="text-green-600 w-4 h-4" />
                                                                     ) : (
                                                                         <Lock className="text-gray-400 w-4 h-4" />
@@ -1040,7 +1040,7 @@ export const Detail = () => {
                                                             </div>
                                                         </AccordionTrigger>
                                                         <AccordionContent className="border-t border-gray-100">
-                                                            {content.content_id === 1 && Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
+                                                            {content.lesson_id === lesson.lesson_id && Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
                                                                 <div className="space-y-6 p-6">
                                                                     {titleContent[content.content_id].map((item, i) => (
                                                                         <div key={i} className="flex gap-3 text-gray-600 leading-relaxed hover:bg-yellow-50 rounded-lg p-3 transition-colors">
@@ -1083,18 +1083,20 @@ export const Detail = () => {
                                                                     ))}
                                                                 </div>
                                                             ) : (
-                                                                <p className="p-6 text-gray-500 text-center italic">Vào học để xem thêm nội dung !</p>
+                                                                <p className="p-6 text-gray-500 text-center italic">Vào học để xem thêm nội dung!</p>
                                                             )}
                                                         </AccordionContent>
                                                     </AccordionItem>
                                                 ))
                                             ) : (
                                                 <div className="text-center py-8 bg-white rounded-xl">
+                                                    <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
                                                     <p className="text-gray-500">Đang cập nhật nội dung...</p>
                                                 </div>
                                             )
                                         )}
                                     </Accordion>
+
 
                                 </div>
                             </div>
