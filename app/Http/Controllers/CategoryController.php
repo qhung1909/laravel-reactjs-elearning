@@ -55,7 +55,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'required|string',
+            'name' => 'required|string|unique:categories,name',
             'description' => 'nullable|string',
             'image' => 'required|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
         ];
