@@ -104,7 +104,9 @@ export const InstructorLesson = () => {
     //     ) : (
     //         <p> chưa có dữ liệu</p>
     //     )
-
+    //     useEffect(()=>{
+    //         fetchUserCourses();
+    //     },[])
     // hàm xử lý đăng xuất
     const handleLogout = () => {
         setLoadingLogout(true);
@@ -121,6 +123,7 @@ export const InstructorLesson = () => {
             alert('Failed to refresh token. Please log in again.');
         }
     };
+
     return (
         <>
             <section className="instructor-home">
