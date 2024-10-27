@@ -1,4 +1,10 @@
-import React from 'react';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+} from "@/components/ui/pagination";
 import {
     SidebarInset,
     SidebarProvider,
@@ -15,6 +21,8 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
     CheckCircle,
     Trash2,
@@ -24,39 +32,119 @@ import {
     GraduationCap,
     Users2,
     FileDown,
-    Filter
+    Filter,
+    ChevronDown,
+    ChevronUp
 } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
+import { useEffect, useState } from 'react';
+import axios from "axios";
 
-const courses = [
-    { id: 1, title: "Khóa học React", instructor: "Nguyễn Văn A", status: "Đang diễn ra", price: "500,000 VNĐ", students: 45 },
-    { id: 2, title: "Khóa học JavaScript", instructor: "Trần Thị B", status: "Đang diễn ra", price: "400,000 VNĐ", students: 32 },
-    { id: 3, title: "Khóa học CSS", instructor: "Lê Văn C", status: "Đang chờ", price: "300,000 VNĐ", students: 28 },
-    { id: 4, title: "Khóa học HTML", instructor: "Nguyễn Thị D", status: "Đang diễn ra", price: "200,000 VNĐ", students: 50 },
-    { id: 1, title: "Khóa học React", instructor: "Nguyễn Văn A", status: "Đang diễn ra", price: "500,000 VNĐ", students: 45 },
-    { id: 2, title: "Khóa học JavaScript", instructor: "Trần Thị B", status: "Đang diễn ra", price: "400,000 VNĐ", students: 32 },
-    { id: 3, title: "Khóa học CSS", instructor: "Lê Văn C", status: "Đang chờ", price: "300,000 VNĐ", students: 28 },
-    { id: 4, title: "Khóa học HTML", instructor: "Nguyễn Thị D", status: "Đang diễn ra", price: "200,000 VNĐ", students: 50 },
+export const CourseList = () => {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
 
-];
+    const [courses, setCourses] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [stats, setStats] = useState({
+        totalCourses: 0,
+        totalStudents: 0,
+        activeCourses: 0
+    });
 
-const getStatusColor = (status) => {
-    switch (status) {
-        case "Đang diễn ra":
-            return "bg-green-100 text-green-800";
-        case "Hoàn thành":
-            return "bg-blue-100 text-blue-800";
-        case "Đang chờ":
-            return "bg-yellow-100 text-yellow-800";
-        default:
-            return "bg-gray-100 text-gray-800";
-    }
-};
+    const fetchCourses = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/courses`, {
+                headers: {
+                    'x-api-secret': API_KEY
+                }
+            });
+            const data = res.data;
+            setCourses(data);
 
-export default function CourseList() {
+            // Calculate stats
+            setStats({
+                totalCourses: data.length,
+                totalStudents: data.reduce((sum, course) => sum + (course.enrolled_count || 0), 0),
+                activeCourses: data.filter(course => course.status === "active").length
+            });
+        } catch (error) {
+            console.error('Error fetching Courses:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCourses();
+    }, []);
+
+    const [sortConfig, setSortConfig] = useState({
+        key: null,
+        direction: 'asc'
+    });
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const handleSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const filteredCourses = courses.filter(course =>
+        course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course.user.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const sortedCourses = [...filteredCourses].sort((a, b) => {
+        if (!sortConfig.key) return 0;
+
+        const aValue = sortConfig.key === 'updated_at' ? new Date(a[sortConfig.key]) : a[sortConfig.key];
+        const bValue = sortConfig.key === 'updated_at' ? new Date(b[sortConfig.key]) : b[sortConfig.key];
+
+        return sortConfig.direction === 'asc' ? (aValue > bValue ? 1 : -1) : (aValue < bValue ? 1 : -1);
+    });
+
+    const getSortIcon = (key) => {
+        if (sortConfig.key === key) {
+            return sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />;
+        }
+        return <ChevronUp className="h-4 w-4 opacity-0 group-hover:opacity-50" />;
+    };
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case "active":
+                return "bg-green-100 text-green-800";
+            case "completed":
+                return "bg-blue-100 text-blue-800";
+            case "pending":
+                return "bg-yellow-100 text-yellow-800";
+            default:
+                return "bg-gray-100 text-gray-800";
+        }
+    };
+
+    const getStatusText = (status) => {
+        switch (status) {
+            case "draft":
+                return "Nháp";
+            case "success":
+                return "Hoàn thành";
+            case "pending":
+                return "Đang chờ";
+                case "fail":
+                    return "Thất bại";
+            default:
+                return "Không xác định";
+        }
+    };
+
     return (
         <SidebarProvider>
-            <SideBarUI/>
+            <SideBarUI />
             <SidebarInset>
                 <header className="z-10 absolute left-1 top-3">
                     <div className="flex items-center gap-2 px-4">
@@ -77,13 +165,6 @@ export default function CourseList() {
                                         Quản lý khóa học
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
-                                <BreadcrumbSeparator className="hidden md:block" />
-                                <BreadcrumbItem>
-                                    <BreadcrumbLink href="/admin/courses" className="flex items-center gap-1 text-blue-600">
-                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/angular.svg" className='h-5 w-5'/>
-                                        Danh sách tất cả khóa học
-                                    </BreadcrumbLink>
-                                </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
                     </div>
@@ -99,7 +180,7 @@ export default function CourseList() {
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-600">Tổng khóa học</p>
-                                    <p className="text-2xl font-bold text-gray-900">{courses.length}</p>
+                                    <p className="text-2xl font-bold text-gray-900">{stats.totalCourses}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -110,9 +191,7 @@ export default function CourseList() {
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-600">Tổng học viên</p>
-                                    <p className="text-2xl font-bold text-gray-900">
-                                        {courses.reduce((sum, course) => sum + course.students, 0)}
-                                    </p>
+                                    <p className="text-2xl font-bold text-gray-900">{stats.totalStudents}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -123,9 +202,7 @@ export default function CourseList() {
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-600">Khóa học đang diễn ra</p>
-                                    <p className="text-2xl font-bold text-gray-900">
-                                        {courses.filter(course => course.status === "Đang diễn ra").length}
-                                    </p>
+                                    <p className="text-2xl font-bold text-gray-900">{stats.activeCourses}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -145,6 +222,8 @@ export default function CourseList() {
                                             type="text"
                                             placeholder="Tìm kiếm khóa học..."
                                             className="pl-9 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
                                         />
                                     </div>
                                     <Button variant="outline" className="flex items-center gap-2">
@@ -163,48 +242,169 @@ export default function CourseList() {
                                     <thead>
                                         <tr className="bg-gray-50">
                                             <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">ID</th>
-                                            <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Tiêu đề</th>
-                                            <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Giảng viên</th>
-                                            <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Trạng thái</th>
-                                            <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Học viên</th>
-                                            <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Giá</th>
-                                            <th className="text-right py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
+                                            <th
+                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                onClick={() => handleSort('title')}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    Tiêu đề
+                                                    {getSortIcon('title')}
+                                                </div>
+                                            </th>
+                                            <th
+                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                onClick={() => handleSort('user?.name')}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    Giảng viên
+                                                    {getSortIcon('user?.name')}
+                                                </div>
+                                            </th>
+                                            <th
+                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                onClick={() => handleSort('status')}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    Trạng thái
+                                                    {getSortIcon('status')}
+                                                </div>
+                                            </th>
+                                            <th
+                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                onClick={() => handleSort('user.name')}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    Học viên
+                                                    {getSortIcon('user.name')}
+                                                </div>
+                                            </th>
+                                            <th
+                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                onClick={() => handleSort('price')}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    Giá
+                                                    {getSortIcon('price')}
+                                                </div>
+                                            </th>
+                                            {/* <th className="text-right py-4 px-6 font-medium text-sm text-gray-600">Hành động</th> */}
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {courses.map((course) => (
-                                            <tr
-                                                key={course.id}
-                                                className="border-t border-gray-100 hover:bg-gray-50 transition-colors"
-                                            >
-                                                <td className="py-4 px-6 text-sm text-gray-600">#{course.id}</td>
-                                                <td className="py-4 px-6">
-                                                    <div className="font-medium text-gray-900">{course.title}</div>
-                                                </td>
-                                                <td className="py-4 px-6 text-sm text-gray-600">{course.instructor}</td>
-                                                <td className="py-4 px-6">
-                                                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(course.status)}`}>
-                                                        {course.status}
-                                                    </span>
-                                                </td>
-                                                <td className="py-4 px-6 text-sm text-gray-900">{course.students}</td>
-                                                <td className="py-4 px-6 text-sm text-gray-900 font-medium">{course.price}</td>
-                                                <td className="py-4 px-6">
-                                                    <div className="flex justify-end gap-2">
-                                                        <Button variant="outline" size="sm" className="flex items-center gap-1">
-                                                            <CheckCircle size={14} className="text-green-600" />
-                                                            Duyệt
-                                                        </Button>
-                                                        <Button variant="destructive" size="sm" className="flex items-center gap-1">
-                                                            <Trash2 size={14} />
-                                                            Xóa
-                                                        </Button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        {isLoading ? (
+                                            <>
+                                                {[...Array(5)].map((_, rowIndex) => (
+                                                    <tr key={rowIndex} className="border-t border-gray-100">
+                                                        <td className="py-4 px-6">
+                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
+                                                        </td>
+                                                        <td className="py-4 px-6">
+                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '150px', height: '20px' }} />
+                                                        </td>
+                                                        <td className="py-4 px-6">
+                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
+                                                        </td>
+                                                        <td className="py-4 px-6">
+                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '80px', height: '20px' }} />
+                                                        </td>
+                                                        <td className="py-4 px-6">
+                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '60px', height: '20px' }} />
+                                                        </td>
+                                                        <td className="py-4 px-6">
+                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
+                                                        </td>
+                                                        <td className="py-4 px-6">
+                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '120px', height: '20px' }} />
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </>
+
+                                        ) : (
+                                            sortedCourses.map((course) => (
+                                                <tr key={course.id} className="border-t border-gray-100 hover:bg-gray-50">
+                                                    <td className="py-4 px-6 text-sm text-gray-600">{course.course_id}</td>
+                                                    <td className="py-4 px-6">
+                                                        <div className="flex items-center">
+                                                            {/* <div className="w-10 h-10 rounded-lg bg-gray-100 mr-3 flex items-center justify-center">
+                        <GraduationCap className="h-5 w-5 text-gray-500" />
+                    </div> */}
+                                                            <div>
+                                                                <p className="text-sm font-medium text-gray-900">{course.title}</p>
+                                                                {/* <p className="text-sm text-gray-500">{course.description}</p> */}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 px-6">
+                                                        <div className="flex items-center">
+                                                            {/* <div className="w-8 h-8 rounded-full bg-gray-100 mr-2 flex items-center justify-center">
+                                                                <Users2 className="h-4 w-4 text-gray-500" />
+                                                            </div> */}
+                                                            <span className="text-sm text-gray-900">{course.user?.name}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 px-6">
+                                                        <Badge className={`${getStatusColor(course.status)}`}>
+                                                            {getStatusText(course.status)}
+                                                        </Badge>
+                                                    </td>
+                                                    <td className="py-4 px-6">
+                                                        <div className="flex items-center">
+                                                            {/* <Users2 className="h-4 w-4 text-gray-400 mr-1" /> */}
+                                                            <span className="text-sm text-gray-600">{course.user.name}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 px-6">
+                                                        <span className="text-sm text-gray-900">
+                                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}
+                                                        </span>
+                                                    </td>
+                                                    {/* <td className="py-4 px-6">
+                                                        <div className="flex justify-end gap-2">
+                                                            <Button variant="outline" size="sm">
+                                                                Duyệt
+                                                            </Button>
+                                                            <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </td> */}
+                                                </tr>
+                                            ))
+                                        )}
                                     </tbody>
                                 </table>
+                            </div>
+
+                            <div className="mt-6 flex items-center justify-between">
+                                <p className="text-sm text-gray-500">
+                                    Hiển thị {sortedCourses.length} trên tổng số {courses.length} khóa học
+                                </p>
+                                <Pagination>
+                                    <PaginationContent>
+                                        {/* <PaginationItem>
+                                            <PaginationLink href="#">Previous</PaginationLink>
+                                        </PaginationItem> */}
+                                        <PaginationItem>
+                                            <PaginationLink href="#" isActive>1</PaginationLink>
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <PaginationLink href="#">2</PaginationLink>
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <PaginationLink href="#">3</PaginationLink>
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <PaginationEllipsis />
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <PaginationLink href="#">10</PaginationLink>
+                                        </PaginationItem>
+                                        {/* <PaginationItem>
+                                            <PaginationLink href="#">Next</PaginationLink>
+                                        </PaginationItem> */}
+                                    </PaginationContent>
+                                </Pagination>
                             </div>
                         </CardContent>
                     </Card>
@@ -212,4 +412,6 @@ export default function CourseList() {
             </SidebarInset>
         </SidebarProvider>
     );
-}
+};
+
+export default CourseList;

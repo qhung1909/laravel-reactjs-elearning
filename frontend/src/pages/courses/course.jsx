@@ -46,7 +46,7 @@ import { CategoriesContext } from '../context/categoriescontext';
 import { formatDateNoTime } from '@/components/FormatDay/Formatday';
 
 export const Courses = () => {
-    const { courses, setCourses, fetchSearchResults, fetchCoursesByCategory,fetchCourses,fetchTopPurchasedProduct,hotProducts } = useContext(CoursesContext);
+    const { courses, setCourses, fetchSearchResults, fetchCoursesByCategory, fetchCourses, fetchTopPurchasedProduct, hotProducts } = useContext(CoursesContext);
     const { categories } = useContext(CategoriesContext);
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search');
@@ -84,6 +84,10 @@ export const Courses = () => {
         fetchCoursesByCategory(slug);
         setSelectedCategory(slug);
         navigate(`/courses?category=${slug}`);
+        window.scrollBy({
+            top: 600,
+            behavior: 'smooth'
+        })
     };
 
     // giảng viên hot
@@ -229,40 +233,40 @@ export const Courses = () => {
         ))
     ) : (
         hotProducts.map((item, index) => (
-                <div key={index}>
-                    <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg flex flex-col lg:flex-row group lg:my-5 md:my-3 my-0">
-                        <img alt="Best-selling course" className="w-full custom-img-height md:h-82 lg:h-60 lg:w-96 object-cover mb-4 lg:mb-0 lg:mr-4 border" src={`${item.img}`} />
-                        <div className="bg-white p-6 flex flex-col justify-between">
-                            <div className="flex-1">
-                                <h3 className="text-xl md:text-2xl font-bold text-gray-800 my-1">
-                                    {item.title}
-                                </h3>
-                                <p className="text-gray-700 my-1">
-                                    {item.description}
-                                </p>
-                                <p className="text-gray-500 text-xs my-1">
-                                    {item.user?.name || "Không thấy tên giảng viên"}
-                                </p>
-                                <p className="font-thin text-xs text-green-600 my-1">
-                                    Cập nhật ngày {" "}
-                                    <span className="text-green-800 font-bold">
-                                        {formatDateNoTime(item.updated_at)}
-                                    </span>
-                                </p>
-                                <p className="text-lg text-gray-800 font-semibold">
-                                    <span className="bg-yellow-200 text-gray-700 text-sm px-2 py-1">
-                                        {item.is_buy} Lượt bán
-                                    </span>
-                                </p>
-                            </div>
-                            <p className="text-lg font-bold text-black my-1">
-                                {formatCurrency(item.price_discount)}
+            <div key={index}>
+                <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg flex flex-col lg:flex-row group lg:my-5 md:my-3 my-0">
+                    <img alt="Best-selling course" className="w-full custom-img-height md:h-82 lg:h-60 lg:w-96 object-cover mb-4 lg:mb-0 lg:mr-4 border" src={`${item.img}`} />
+                    <div className="bg-white p-6 flex flex-col justify-between">
+                        <div className="flex-1">
+                            <h3 className="text-xl md:text-2xl font-bold text-gray-800 my-1">
+                                {item.title}
+                            </h3>
+                            <p className="text-gray-700 my-1">
+                                {item.description}
+                            </p>
+                            <p className="text-gray-500 text-xs my-1">
+                                {item.user?.name || "Không thấy tên giảng viên"}
+                            </p>
+                            <p className="font-thin text-xs text-green-600 my-1">
+                                Cập nhật ngày {" "}
+                                <span className="text-green-800 font-bold">
+                                    {formatDateNoTime(item.updated_at)}
+                                </span>
+                            </p>
+                            <p className="text-lg text-gray-800 font-semibold">
+                                <span className="bg-yellow-200 text-gray-700 text-sm px-2 py-1">
+                                    {item.is_buy} Lượt bán
+                                </span>
                             </p>
                         </div>
-                    </Link>
-                </div>
+                        <p className="text-lg font-bold text-black my-1">
+                            {formatCurrency(item.price_discount)}
+                        </p>
+                    </div>
+                </Link>
+            </div>
 
-            ))
+        ))
     );
     // Danh sách khóa học
     const render = loading ? (
@@ -400,8 +404,8 @@ export const Courses = () => {
                             <button
                                 key={category.slug}
                                 onClick={() => handleCategoryClick(category.slug)}
-                                className={`p-3 rounded-lg duration-300 ${selectedCategory === category.slug
-                                    ? 'bg-yellow-400 text-white'
+                                className={`lg:w-52 md:w-40 w-28 py-4 rounded-lg duration-300 sm:text-base text-sm ${selectedCategory === category.slug
+                                    ? 'bg-yellow-400 text-black font-bold'
                                     : 'bg-gray-100 hover:bg-white hover:border-yellow-400 border'
                                     }`}
                             >
@@ -415,7 +419,7 @@ export const Courses = () => {
                             <button
                                 key={category.slug}
                                 onClick={() => handleCategoryClick(category.slug)}
-                                className={`p-3 rounded-lg duration-300 ${selectedCategory === category.slug
+                                className={`lg:w-52 md:w-40 w-28 py-4 rounded-lg duration-300 sm:text-base text-sm ${selectedCategory === category.slug
                                     ? 'bg-yellow-400 text-white'
                                     : 'bg-gray-100 hover:bg-white hover:border-yellow-400 border'
                                     }`}
@@ -447,17 +451,18 @@ export const Courses = () => {
                 <div className="mb-10">
                     {/* header */}
                     <div className="my-3 pt-8">
-                        <h1 className="text-2xl font-bold">
+                        <h1 className="text-2xl font-bold text-center lg:text-start">
                             Tất cả các khóa học Phát triển web
                         </h1>
                         <p className="text-gray-500 mt-2">
-                            <i className="bx bx-error-alt" /> Bạn không biết
-                            chắc? Tất cả các khóa học đều được đảm bảo hoàn tiền
-                            trong 30 ngày
+                            <i className="bx bx-error-alt" />
+                            <p className='text-center lg:text-start'>
+                                Bạn không biết ? Tất cả các khóa học đều được đảm bảo về chất lượng kiểm duyệt.
+                            </p>
                         </p>
                     </div>
                     {/* filter */}
-                    <div className="flex justify-between items-center my-3 border-b pb-3">
+                    <div className="flex justify-center lg:justify-between items-center my-3 border-b pb-3">
                         <div className="flex items-center">
                             <div className="lg:hidden block">
 
@@ -467,155 +472,58 @@ export const Courses = () => {
                                         <button
                                             className="flex items-center bg-white text-gray-800 border-2 px-4 py-2 rounded mr-3"
                                             id="openButton">
-                                            <i className="bx bx-slider" /> Bộ lọc
+                                            <i className="bx bx-slider " /> Bộ lọc
                                         </button>
                                     </SheetTrigger>
-                                    <SheetContent>
+                                    <SheetContent className="w-72">
                                         <SheetHeader>
-                                            <SheetTitle>Bộ lọc</SheetTitle>
+                                            <SheetTitle className="text-xl">Bộ lọc</SheetTitle>
                                             <SheetDescription>
                                                 <Accordion type="single" collapsible defaultValue="item-1">
                                                     <AccordionItem value="item-1">
                                                         <AccordionTrigger className="text-xl font-bold">Xếp hạng</AccordionTrigger>
                                                         <AccordionContent>
-                                                            <input className="mr-2" name="rating" type="radio" />
-                                                            <span className="text-yellow-500 ">
-                                                                <i className="bx bxs-star " />
-                                                                <i className="bx bxs-star" />
-                                                                <i className="bx bxs-star" />
-                                                                <i className="bx bxs-star" />
-                                                                <i className="bx bxs-star-half" />
-                                                            </span>
-                                                            <span className="text-sm text-gray-800">
-                                                                {" "}
-                                                                Từ 4.5 trở lên
-                                                                <span className="text-gray-600">
-                                                                    {courses.length}
-                                                                </span>
-                                                            </span>
-                                                            <br />
-                                                            <input
-                                                                className="mr-2"
-                                                                name="rating"
-                                                                type="radio" />
-                                                            <span className="text-yellow-500 ">
-                                                                <i className="bx bxs-star " />
-                                                                <i className="bx bxs-star" />
-                                                                <i className="bx bxs-star" />
-                                                                <i className="bx bxs-star" />
-                                                                <i className="bx bx-star" />
-                                                            </span>
-                                                            <span className="text-sm text-gray-800">
-                                                                {" "}
-                                                                Từ 4.0 trở lên
-                                                                <span className="text-gray-600">
-                                                                    (10.000)
-                                                                </span>
-                                                            </span>
-                                                            <br />
-                                                            <input
-                                                                className="mr-2"
-                                                                name="rating"
-                                                                type="radio" />
-                                                            <span className="text-yellow-500">
-                                                                <i className="bx bxs-star " />
-                                                                <i className="bx bxs-star" />
-                                                                <i className="bx bxs-star" />
-                                                                <i className="bx bxs-star-half" />
-                                                                <i className="bx bx-star" />
-                                                            </span>
-                                                            <span className="text-sm text-gray-800">
-                                                                {" "}
-                                                                Từ 3.5 trở lên
-                                                                <span className="text-gray-600">
-                                                                    (10.000)
-                                                                </span>
-                                                            </span>
-                                                            <br />
-                                                            <input
-                                                                className="mr-2"
-                                                                name="rating"
-                                                                type="radio" />
-                                                            <span className="text-yellow-500">
-                                                                <i className="bx bxs-star " />
-                                                                <i className="bx bxs-star" />
-                                                                <i className="bx bxs-star" />
-                                                                <i className="bx bx-star" />
-                                                                <i className="bx bx-star" />
-                                                            </span>
-                                                            <span className="text-sm text-gray-800">
-                                                                {" "}
-                                                                Từ 3.0 trở lên
-                                                                <span className="text-gray-600">
-                                                                    (10.000)
-                                                                </span>
-                                                            </span>
+                                                            <div className="flex gap-2 items-center my-1">
+                                                                <Checkbox></Checkbox>
+                                                                <Label>
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                                        {" "}
+                                                                        Từ 4.5 trở lên
+                                                                    </span>
+                                                                </Label>
+                                                            </div>
+                                                            <div className="flex gap-2 items-center my-1">
+                                                                <Checkbox></Checkbox>
+                                                                <Label>
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                                        {" "}
+                                                                        Từ 4.0 trở lên
+                                                                    </span>
+                                                                </Label>
+                                                            </div>
+                                                            <div className="flex gap-2 items-center my-1">
+                                                                <Checkbox></Checkbox>
+                                                                <Label>
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                                        {" "}
+                                                                        Từ 3.5 trở lên
+                                                                    </span>
+                                                                </Label>
+                                                            </div>
+                                                            <div className="flex gap-2 items-center my-1">
+                                                                <Checkbox></Checkbox>
+                                                                <Label>
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                                        {" "}
+                                                                        Từ 3.0 trở lên
+                                                                    </span>
+                                                                </Label>
+                                                            </div>
                                                         </AccordionContent>
                                                     </AccordionItem>
                                                 </Accordion>
                                                 <hr />
-                                                <Accordion type="single" collapsible>
-                                                    <AccordionItem value="item-1">
-                                                        <AccordionTrigger className="text-xl font-bold">Chủ đề</AccordionTrigger>
-                                                        <AccordionContent>
-                                                            <input
-                                                                className="mr-2"
-                                                                name="duration"
-                                                                type="checkbox" />
-                                                            <span className="text-sm text-black">
-                                                                Python{" "}
-                                                                <span className="text-gray-600">
-                                                                    (2.433)
-                                                                </span>
-                                                            </span>
-                                                            <br />
-                                                            <input
-                                                                className="mr-2"
-                                                                name="duration"
-                                                                type="checkbox" />
-                                                            <span className="text-sm text-black">
-                                                                JavaScript{" "}
-                                                                <span className="text-gray-600">
-                                                                    (1.105)
-                                                                </span>
-                                                            </span>
-                                                            <br />
-                                                            <input
-                                                                className="mr-2"
-                                                                name="duration"
-                                                                type="checkbox" />
-                                                            <span className="text-sm text-black">
-                                                                Java{" "}
-                                                                <span className="text-gray-600">
-                                                                    (1.088)
-                                                                </span>
-                                                            </span>
-                                                            <br />
-                                                            <input
-                                                                className="mr-2"
-                                                                name="duration"
-                                                                type="checkbox" />
-                                                            <span className="text-sm text-black">
-                                                                Unity{" "}
-                                                                <span className="text-gray-600">
-                                                                    (960)
-                                                                </span>
-                                                            </span>
-                                                            <br />
-                                                            <input
-                                                                className="mr-2"
-                                                                name="duration"
-                                                                type="checkbox" />
-                                                            <span className="text-sm text-black">
-                                                                Phát triển web{" "}
-                                                                <span className="text-gray-600">
-                                                                    (933)
-                                                                </span>
-                                                            </span>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                </Accordion>
-                                                <hr />
+
                                                 <Accordion type="single" collapsible>
                                                     <AccordionItem value="item-1">
                                                         <AccordionTrigger className="text-xl font-bold">Giá</AccordionTrigger>
