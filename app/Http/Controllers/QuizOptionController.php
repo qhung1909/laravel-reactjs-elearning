@@ -158,24 +158,20 @@ class QuizOptionController extends Controller
     
         $totalQuestions = $questions->count();
         
-        Log::info("Total Questions: {$totalQuestions}");
-        Log::info("Answered Questions: {$answeredQuestions}");
-        Log::info("Response Data:", $response);
-        
         if ($answeredQuestions == $totalQuestions) {
             try {
                 $quizSession->update([
                     'status' => 'completed',
                     'token' => null,
                 ]);
-                Log::info('Quiz session completed for user: ' . $userId);
             } catch (\Exception $e) {
                 Log::error('Error updating quiz session for user ' . $userId . ': ' . $e->getMessage());
             }
         } else {
             Log::info('Not all questions answered yet for user: ' . $userId);
         }
-        
+        $response['score'] = $quizSession->score;
+
         return response()->json($response);
     }        
     
