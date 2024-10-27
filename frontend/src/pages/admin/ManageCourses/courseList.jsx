@@ -262,24 +262,6 @@ export const CourseList = () => {
                                             </th>
                                             <th
                                                 className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
-                                                onClick={() => handleSort('status')}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    Trạng thái
-                                                    {getSortIcon('status')}
-                                                </div>
-                                            </th>
-                                            <th
-                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
-                                                onClick={() => handleSort('user.name')}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    Học viên
-                                                    {getSortIcon('user.name')}
-                                                </div>
-                                            </th>
-                                            <th
-                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('price')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -287,7 +269,17 @@ export const CourseList = () => {
                                                     {getSortIcon('price')}
                                                 </div>
                                             </th>
-                                            {/* <th className="text-right py-4 px-6 font-medium text-sm text-gray-600">Hành động</th> */}
+                                            <th
+                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                onClick={() => handleSort('status')}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    Trạng thái
+                                                    {getSortIcon('status')}
+                                                </div>
+                                            </th>
+
+                                            <th className="text-right py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -337,9 +329,9 @@ export const CourseList = () => {
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center">
-                                                            {/* <div className="w-8 h-8 rounded-full bg-gray-100 mr-2 flex items-center justify-center">
+                                                            <div className="w-8 h-8 rounded-full bg-gray-100 mr-2 flex items-center justify-center">
                                                                 <Users2 className="h-4 w-4 text-gray-500" />
-                                                            </div> */}
+                                                            </div>
                                                             <span className="text-sm text-gray-900">{course.user?.name}</span>
                                                         </div>
                                                     </td>
@@ -349,26 +341,17 @@ export const CourseList = () => {
                                                         </Badge>
                                                     </td>
                                                     <td className="py-4 px-6">
-                                                        <div className="flex items-center">
-                                                            {/* <Users2 className="h-4 w-4 text-gray-400 mr-1" /> */}
-                                                            <span className="text-sm text-gray-600">{course.user.name}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-4 px-6">
                                                         <span className="text-sm text-gray-900">
                                                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}
                                                         </span>
                                                     </td>
-                                                    {/* <td className="py-4 px-6">
+                                                    <td className="py-4 px-6">
                                                         <div className="flex justify-end gap-2">
-                                                            <Button variant="outline" size="sm">
-                                                                Duyệt
-                                                            </Button>
-                                                            <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                                                                <Trash2 className="h-4 w-4" />
+                                                            <Button variant="outline" size="sm" className="text-bold text-yellow-400 hover:text-orange-500">
+                                                                Xem chi tiết
                                                             </Button>
                                                         </div>
-                                                    </td> */}
+                                                    </td>
                                                 </tr>
                                             ))
                                         )}
