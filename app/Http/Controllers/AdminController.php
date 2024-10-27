@@ -73,5 +73,22 @@ class AdminController extends Controller
             'total_lessons' => $totalLessons,
         ]);
     }
+
+    public function getMonthlyRevenue() {
+        $monthlyRevenue = [];
+
+        for ($month = 1; $month <= 12; $month++) {
+            $revenue = DB::table('orders')
+                ->where('status', 'success') 
+                ->whereYear('created_at', 2024) 
+                ->whereMonth('created_at', $month) 
+                ->sum('total_price');
+
+            $monthlyRevenue[$month] = $revenue;
+        }
+
+        return response()->json($monthlyRevenue);
+    }
+
     
 }
