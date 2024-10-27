@@ -32,12 +32,12 @@ export const Lesson = () => {
                 },
             });
 
-            if (res.data && res.data.lesson_id) {
-                if (typeof res.data.content === "string") {
-                    res.data.content = JSON.parse(res.data.content);
+            if (res.data) {
+                setLesson(res.data);
+                if (res.data.lesson_id) {
+                    fetchContentLesson(res.data.lesson_id);
                 }
 
-                setLesson(res.data);
             } else {
                 console.error("Dữ liệu không hợp lệ:", res.data);
             }
@@ -57,7 +57,7 @@ export const Lesson = () => {
 
     const [contentLesson, setContentLesson] = useState([]);
     const [titleContent, setTitleContent] = useState([]);
-    const fetchContentLesson = async () => {
+    const fetchContentLesson = async (lessonId) => {
 
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -69,11 +69,15 @@ export const Lesson = () => {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
-                },
+                },params: {
+                    lesson_id: lessonId
+                }
             });
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
-                setContentLesson(res.data.data);
-            } else {
+                // Chỉ cập nhật state nếu lessonId phù hợp
+                setContentLesson(res.data.data.filter(content => content.lesson_id === lessonId));
+                console.log("Dữ liệu nội dung bài học:", res.data.data);
+            }  else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
         } catch (error) {
