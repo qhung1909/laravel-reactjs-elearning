@@ -33,10 +33,10 @@ class CourseController extends Controller
             ->join('courses', 'users.user_id', '=', 'courses.user_id')
             ->leftJoin('comments', 'courses.course_id', '=', 'comments.course_id')
             ->where('users.role', 'teacher')
+            ->where('courses.status', 'published') // Chỉ lấy các khóa học đã xuất bản
             ->groupBy('users.user_id')
             ->orderBy('max_is_buy', 'desc')
             ->get();
-
 
         if ($instructors->isEmpty()) {
             return response()->json(['message' => 'Không tìm thấy giảng viên nổi tiếng nào.'], 404);
@@ -44,6 +44,7 @@ class CourseController extends Controller
 
         return response()->json($instructors, 200);
     }
+
 
 
     public function search(Request $request)
@@ -60,8 +61,11 @@ class CourseController extends Controller
         $query = $request->input('query');
 
         $searchResults = Cache::remember("search_courses_{$query}", 180, function () use ($query) {
-            return $this->course->where('title', 'like', "%{$query}%")
-                ->orWhere('description', 'like', "%{$query}%")
+            return $this->course->where('status', 'published') // Chỉ lấy các khóa học đã xuất bản
+                ->where(function ($q) use ($query) {
+                    $q->where('title', 'like', "%{$query}%")
+                        ->orWhere('description', 'like', "%{$query}%");
+                })
                 ->get();
         });
 
@@ -172,24 +176,26 @@ class CourseController extends Controller
     public function show(Request $request, $slug)
     {
         $course = Cache::remember("course_{$slug}", 90, function () use ($slug) {
-            return $this->course->where('slug', $slug)->first();
+            return $this->course->where('slug', $slug)
+                               ->where('status', 'published') 
+                               ->first();
         });
-
+    
         if (!$course) {
-            return response()->json(['error' => 'Khóa học không tìm thấy'], 404);
+            return response()->json(['error' => 'Khóa học không tìm thấy hoặc chưa được xuất bản'], 404);
         }
-
+    
         $ipAddress = $request->ip();
         $cacheKey = "course_view_{$slug}_{$ipAddress}";
-
+    
         if (Cache::has($cacheKey)) {
             return response()->json($course);
         }
-
+    
         $course->increment('views');
-
-        Cache::put($cacheKey, true, 86400);
-
+    
+        Cache::put($cacheKey, true, 86400); 
+    
         return response()->json($course);
     }
 
