@@ -95,7 +95,7 @@ export const CourseList = () => {
 
     const filteredCourses = courses.filter(course =>
         course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.instructor_name.toLowerCase().includes(searchTerm.toLowerCase())
+        course.user.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const sortedCourses = [...filteredCourses].sort((a, b) => {
@@ -129,12 +129,14 @@ export const CourseList = () => {
 
     const getStatusText = (status) => {
         switch (status) {
-            case "active":
-                return "Đang diễn ra";
-            case "completed":
+            case "draft":
+                return "Nháp";
+            case "success":
                 return "Hoàn thành";
             case "pending":
                 return "Đang chờ";
+                case "fail":
+                    return "Thất bại";
             default:
                 return "Không xác định";
         }
@@ -251,11 +253,11 @@ export const CourseList = () => {
                                             </th>
                                             <th
                                                 className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
-                                                onClick={() => handleSort('instructor_name')}
+                                                onClick={() => handleSort('user?.name')}
                                             >
                                                 <div className="flex items-center gap-2">
                                                     Giảng viên
-                                                    {getSortIcon('instructor_name')}
+                                                    {getSortIcon('user?.name')}
                                                 </div>
                                             </th>
                                             <th
@@ -269,11 +271,11 @@ export const CourseList = () => {
                                             </th>
                                             <th
                                                 className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
-                                                onClick={() => handleSort('enrolled_count')}
+                                                onClick={() => handleSort('user.name')}
                                             >
                                                 <div className="flex items-center gap-2">
                                                     Học viên
-                                                    {getSortIcon('enrolled_count')}
+                                                    {getSortIcon('user.name')}
                                                 </div>
                                             </th>
                                             <th
@@ -285,7 +287,7 @@ export const CourseList = () => {
                                                     {getSortIcon('price')}
                                                 </div>
                                             </th>
-                                            <th className="text-right py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
+                                            {/* <th className="text-right py-4 px-6 font-medium text-sm text-gray-600">Hành động</th> */}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -335,10 +337,10 @@ export const CourseList = () => {
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center">
-                                                            <div className="w-8 h-8 rounded-full bg-gray-100 mr-2 flex items-center justify-center">
+                                                            {/* <div className="w-8 h-8 rounded-full bg-gray-100 mr-2 flex items-center justify-center">
                                                                 <Users2 className="h-4 w-4 text-gray-500" />
-                                                            </div>
-                                                            <span className="text-sm text-gray-900">{course.instructor_name}</span>
+                                                            </div> */}
+                                                            <span className="text-sm text-gray-900">{course.user?.name}</span>
                                                         </div>
                                                     </td>
                                                     <td className="py-4 px-6">
@@ -348,8 +350,8 @@ export const CourseList = () => {
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center">
-                                                            <Users2 className="h-4 w-4 text-gray-400 mr-1" />
-                                                            <span className="text-sm text-gray-600">{course.enrolled_count}</span>
+                                                            {/* <Users2 className="h-4 w-4 text-gray-400 mr-1" /> */}
+                                                            <span className="text-sm text-gray-600">{course.user.name}</span>
                                                         </div>
                                                     </td>
                                                     <td className="py-4 px-6">
@@ -357,7 +359,7 @@ export const CourseList = () => {
                                                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}
                                                         </span>
                                                     </td>
-                                                    <td className="py-4 px-6">
+                                                    {/* <td className="py-4 px-6">
                                                         <div className="flex justify-end gap-2">
                                                             <Button variant="outline" size="sm">
                                                                 Duyệt
@@ -366,7 +368,7 @@ export const CourseList = () => {
                                                                 <Trash2 className="h-4 w-4" />
                                                             </Button>
                                                         </div>
-                                                    </td>
+                                                    </td> */}
                                                 </tr>
                                             ))
                                         )}
