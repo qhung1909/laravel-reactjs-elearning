@@ -262,15 +262,6 @@ export const CourseList = () => {
                                             </th>
                                             <th
                                                 className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
-                                                onClick={() => handleSort('price')}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    Giá
-                                                    {getSortIcon('price')}
-                                                </div>
-                                            </th>
-                                            <th
-                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('status')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -278,6 +269,16 @@ export const CourseList = () => {
                                                     {getSortIcon('status')}
                                                 </div>
                                             </th>
+                                            <th
+                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                onClick={() => handleSort('price')}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    Giá
+                                                    {getSortIcon('price')}
+                                                </div>
+                                            </th>
+
 
                                             <th className="text-right py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
                                         </tr>
