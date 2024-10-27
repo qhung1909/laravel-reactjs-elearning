@@ -168,4 +168,5 @@ Route::middleware(['admin'])->group(function () {
 Route::prefix('admin')->middleware('admin')->group(function () {
     Route::get('/courses', [AdminController::class, 'getAllCourses']);
     Route::get('/courses/{slug}', [AdminController::class, 'showCourses']);
+    Route::get('/summary', [AdminController::class, 'getSummary']);
 });

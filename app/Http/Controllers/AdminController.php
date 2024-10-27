@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Course;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -20,7 +21,7 @@ class AdminController extends Controller
     public function getAllCourses()
     {
         $courses = Cache::remember('courses', 120, function () {
-            return $this->course->where('status', 'published')
+            return $this->course
                 ->with(['user:user_id,name', 'comments:course_id,rating'])
                 ->get();
         });
@@ -54,4 +55,23 @@ class AdminController extends Controller
             'data' => $course
         ]);
     }
+
+    public function getSummary() {
+        $totalRevenue = DB::table('orders')
+                          ->where('status', 'success')
+                          ->sum('total_price');
+
+        $totalCoursesSold = DB::table('user_courses')
+                              ->count('course_id');
+
+        $totalLessons = DB::table('lessons')
+                          ->count();
+
+        return response()->json([
+            'total_revenue' => $totalRevenue,
+            'total_courses_sold' => $totalCoursesSold,
+            'total_lessons' => $totalLessons,
+        ]);
+    }
+    
 }
