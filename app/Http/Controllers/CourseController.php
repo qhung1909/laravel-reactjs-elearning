@@ -74,15 +74,15 @@ class CourseController extends Controller
 
     public function index()
     {
-        // Ghi log trước khi truy vấn
         Log::info('Fetching courses from cache or database.');
 
         $courses = Cache::remember('courses', 120, function () {
             Log::info('Querying courses from database.');
-            return $this->course->with(['user:user_id,name', 'comments:course_id,rating'])->get();
+            return $this->course->where('status', 'published')
+                ->with(['user:user_id,name', 'comments:course_id,rating'])
+                ->get();
         });
 
-        // Ghi log kết quả
         Log::info('Courses fetched successfully:', ['courses' => $courses]);
 
         return response()->json($courses);
@@ -91,7 +91,9 @@ class CourseController extends Controller
 
     public function relatedCourses($slug)
     {
-        $course = Course::where('slug', $slug)->first();
+        $course = Course::where('slug', $slug)
+            ->where('status', 'published')
+            ->first();
 
         if (!$course) {
             return response()->json(['message' => 'Khóa học không tìm thấy'], 404);
@@ -100,6 +102,7 @@ class CourseController extends Controller
         $relatedCourses = Course::where('course_category_id', $course->course_category_id)
             ->where('user_id', $course->user_id)
             ->where('slug', '!=', $slug)
+            ->where('status', 'published')
             ->get();
 
         if ($relatedCourses->isEmpty()) {
@@ -111,7 +114,9 @@ class CourseController extends Controller
 
     public function relatedCoursesByCategory($categoryId, $slug)
     {
-        $course = Course::where('slug', $slug)->first();
+        $course = Course::where('slug', $slug)
+            ->where('status', 'published')
+            ->first();
 
         if (!$course) {
             return response()->json(['message' => 'Khóa học không tìm thấy.'], 404);
@@ -119,6 +124,7 @@ class CourseController extends Controller
 
         $relatedCourses = Course::where('course_category_id', $categoryId)
             ->where('slug', '!=', $slug)
+            ->where('status', 'published')
             ->get();
 
         if ($relatedCourses->isEmpty()) {
@@ -131,10 +137,11 @@ class CourseController extends Controller
     public function topPurchasedCourses()
     {
         $topCourses = Cache::remember('top_purchased_courses', 180, function () {
-            return Course::with('user:user_id,name')
-            ->orderBy('is_buy', 'desc')
-            ->limit(4)
-            ->get();
+            return Course::where('status', 'published')
+                ->with('user:user_id,name')
+                ->orderBy('is_buy', 'desc')
+                ->limit(4)
+                ->get();
         });
 
         if ($topCourses->isEmpty()) {
@@ -147,19 +154,20 @@ class CourseController extends Controller
     public function topViewedCourses()
     {
         $topCourses = Cache::remember('top_viewed_courses', 180, function () {
-            return Course::with('user:user_id,name') 
+            return Course::where('status', 'published')
+                ->with('user:user_id,name')
                 ->orderBy('views', 'desc')
                 ->limit(4)
                 ->get();
         });
-    
+
         if ($topCourses->isEmpty()) {
             return response()->json(['message' => 'Không tìm thấy khóa học'], 404);
         }
-    
+
         return response()->json($topCourses, 200);
     }
-    
+
 
     public function show(Request $request, $slug)
     {
@@ -209,7 +217,7 @@ class CourseController extends Controller
         try {
             $course = DB::transaction(function () use ($request) {
                 $userId = auth()->id();
-                
+
                 // Tạo slug từ title
                 $baseSlug = Str::slug($request->title);
                 $slug = $baseSlug;
@@ -253,7 +261,6 @@ class CourseController extends Controller
                 'message' => 'Khóa học được thêm thành công.',
                 'course' => $course
             ], 201);
-
         } catch (\Exception $e) {
             Log::error('Error creating course: ' . $e->getMessage());
             return response()->json([
@@ -298,8 +305,9 @@ class CourseController extends Controller
                     $counter = 1;
 
                     while (Course::where('slug', $newSlug)
-                            ->where('course_id', '!=', $course->course_id)
-                            ->exists()) {
+                        ->where('course_id', '!=', $course->course_id)
+                        ->exists()
+                    ) {
                         $newSlug = $baseSlug . '-' . $counter;
                         $counter++;
                     }
@@ -342,7 +350,6 @@ class CourseController extends Controller
                 'message' => 'Khóa học được cập nhật thành công.',
                 'course' => $course
             ], 200);
-
         } catch (\Exception $e) {
             Log::error('Error updating course: ' . $e->getMessage());
             return response()->json([
@@ -380,7 +387,6 @@ class CourseController extends Controller
                 'success' => true,
                 'message' => 'Khóa học đã được xóa thành công.'
             ], 200);
-
         } catch (\Exception $e) {
             Log::error('Error deleting course: ' . $e->getMessage());
             return response()->json([
@@ -388,16 +394,16 @@ class CourseController extends Controller
             ], $e->getMessage() === 'Bạn không có quyền xóa khóa học này.' ? 403 : 500);
         }
     }
-    
+
     public function featureCouse()
     {
-
         if (Cache::has('featured_course')) {
             return response()->json(Cache::get('featured_course'), 200);
         }
 
         $featuredCourse = Cache::remember('featured_course', 180, function () {
-            return Course::orderBy('is_buy', 'desc')
+            return Course::where('status', 'published')
+                ->orderBy('is_buy', 'desc')
                 ->first();
         });
 
@@ -412,7 +418,8 @@ class CourseController extends Controller
 
     public function coursesByUserId($userId)
     {
-        $courses = $this->course->with('user:user_id,name')
+        $courses = $this->course->where('status', 'published')
+            ->with('user:user_id,name')
             ->where('user_id', $userId)
             ->get();
 
