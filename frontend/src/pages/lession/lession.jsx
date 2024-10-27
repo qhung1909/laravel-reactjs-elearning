@@ -20,6 +20,32 @@ export const Lesson = () => {
         if (isNaN(date)) return "Ngày không hợp lệ";
         return format(date, "dd/MM/yyyy - HH:mm a");
     };
+    const [quizzes, setQuizzes] = useState();
+    const fetchQuizzes = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/quizzes`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+            if (res.data) {
+                setQuizzes(res.data);
+            } else {
+                console.error(res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy quizzes:", error);
+        }
+    }
+    useEffect(() => {
+        fetchQuizzes();
+    }, [])
 
     const [lesson, setLesson] = useState(null);
     const { slug } = useParams();
@@ -69,7 +95,7 @@ export const Lesson = () => {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
-                },params: {
+                }, params: {
                     lesson_id: lessonId
                 }
             });
@@ -77,7 +103,7 @@ export const Lesson = () => {
                 // Chỉ cập nhật state nếu lessonId phù hợp
                 setContentLesson(res.data.data.filter(content => content.lesson_id === lessonId));
                 console.log("Dữ liệu nội dung bài học:", res.data.data);
-            }  else {
+            } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
         } catch (error) {
@@ -285,7 +311,7 @@ export const Lesson = () => {
                                                                     <span>Xem bài giảng</span>
                                                                 </button>
                                                                 <Link
-                                                                    to="/quizzes"
+                                                                    to={`/quizzes/${quizzes.find(quiz => quiz.content_id === content.content_id)?.quiz_id || ''}`}
                                                                     className="inline-flex items-center gap-1 px-3 py-1.5 border border-purple-200 text-purple-600 text-sm rounded-lg hover:bg-purple-50 transition-colors"
                                                                 >
                                                                     <span>Bài tập</span>

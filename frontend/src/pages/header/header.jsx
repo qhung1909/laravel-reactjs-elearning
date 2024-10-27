@@ -112,12 +112,14 @@ export const Header = () => {
                                 {/* tên khóa học */}
                                 <div className="col-span-3">
                                     <div>
-                                        <span className="text-base font-semibold line-clamp-2">
-                                            {courses.find(c => c.course_id === item.course_id)?.title}
-                                        </span>
+                                        <Link to={`/detail/${courses.find(c => c.course_id === item.course_id)?.slug}`}>
+                                            <span className="text-base font-semibold line-clamp-2">
+                                                {courses.find(c => c.course_id === item.course_id)?.title}
+                                            </span>
+                                        </Link>
                                     </div>
                                     <div>
-                                        <Link to={`/lesson/${courses.find(c => c.course_id === item.course_id)?.slug}`}>
+                                        <Link to={`/lessons/${courses.find(c => c.course_id === item.course_id)?.slug}`}>
                                             <p className="text-yellow-500 font-semibold">Bắt đầu học</p>
                                         </Link>
                                     </div>
@@ -423,18 +425,18 @@ export const Header = () => {
                                                         <Skeleton className="h-4 w-[250px]" />
                                                     ) : user ? (
                                                         // User exists
-                                                            <img
-                                                                src={user.avatar}
-                                                                alt="User Avatar"
-                                                                className="w-11 object-cover rounded-full"
-                                                            />
-                                                        ) : (
-                                                            <img
-                                                                src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg"
-                                                                className="w-11"
-                                                                alt="Default Avatar"
-                                                            />
-                                                        )
+                                                        <img
+                                                            src={user.avatar}
+                                                            alt="User Avatar"
+                                                            className="w-11 object-cover rounded-full"
+                                                        />
+                                                    ) : (
+                                                        <img
+                                                            src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg"
+                                                            className="w-11"
+                                                            alt="Default Avatar"
+                                                        />
+                                                    )
                                                     }
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="w-56">
