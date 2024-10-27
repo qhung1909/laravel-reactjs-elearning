@@ -54,7 +54,7 @@ export const CourseList = () => {
 
     const fetchCourses = async () => {
         try {
-            const res = await axios.get(`${API_URL}/courses`, {
+            const res = await axios.get(`${API_URL}/admin/courses`, {
                 headers: {
                     'x-api-secret': API_KEY
                 }
@@ -95,7 +95,7 @@ export const CourseList = () => {
 
     const filteredCourses = courses.filter(course =>
         course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.instructor_name.toLowerCase().includes(searchTerm.toLowerCase())
+        course.user.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const sortedCourses = [...filteredCourses].sort((a, b) => {
@@ -116,27 +116,27 @@ export const CourseList = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case "active":
+            case "published":
                 return "bg-green-100 text-green-800";
-            case "completed":
+            case "drafl":
                 return "bg-blue-100 text-blue-800";
             case "pending":
                 return "bg-yellow-100 text-yellow-800";
-            default:
-                return "bg-gray-100 text-gray-800";
+            case "unpublished":
+                return "bg-yellow-100 text-yellow-800";
         }
     };
 
     const getStatusText = (status) => {
         switch (status) {
-            case "active":
-                return "Đang diễn ra";
-            case "completed":
+            case "draft":
+                return "Nháp";
+            case "published":
                 return "Hoàn thành";
             case "pending":
                 return "Đang chờ";
-            default:
-                return "Không xác định";
+            case "unpublished":
+                return "Thất bại";
         }
     };
 
@@ -251,11 +251,11 @@ export const CourseList = () => {
                                             </th>
                                             <th
                                                 className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
-                                                onClick={() => handleSort('instructor_name')}
+                                                onClick={() => handleSort('user?.name')}
                                             >
                                                 <div className="flex items-center gap-2">
                                                     Giảng viên
-                                                    {getSortIcon('instructor_name')}
+                                                    {getSortIcon('user?.name')}
                                                 </div>
                                             </th>
                                             <th
@@ -269,15 +269,6 @@ export const CourseList = () => {
                                             </th>
                                             <th
                                                 className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
-                                                onClick={() => handleSort('enrolled_count')}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    Học viên
-                                                    {getSortIcon('enrolled_count')}
-                                                </div>
-                                            </th>
-                                            <th
-                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('price')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -285,6 +276,8 @@ export const CourseList = () => {
                                                     {getSortIcon('price')}
                                                 </div>
                                             </th>
+
+
                                             <th className="text-right py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
                                         </tr>
                                     </thead>
@@ -335,10 +328,8 @@ export const CourseList = () => {
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center">
-                                                            <div className="w-8 h-8 rounded-full bg-gray-100 mr-2 flex items-center justify-center">
-                                                                <Users2 className="h-4 w-4 text-gray-500" />
-                                                            </div>
-                                                            <span className="text-sm text-gray-900">{course.instructor_name}</span>
+
+                                                            <span className="text-sm text-gray-900">{course.user?.name}</span>
                                                         </div>
                                                     </td>
                                                     <td className="py-4 px-6">
@@ -347,23 +338,14 @@ export const CourseList = () => {
                                                         </Badge>
                                                     </td>
                                                     <td className="py-4 px-6">
-                                                        <div className="flex items-center">
-                                                            <Users2 className="h-4 w-4 text-gray-400 mr-1" />
-                                                            <span className="text-sm text-gray-600">{course.enrolled_count}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-4 px-6">
                                                         <span className="text-sm text-gray-900">
                                                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}
                                                         </span>
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         <div className="flex justify-end gap-2">
-                                                            <Button variant="outline" size="sm">
-                                                                Duyệt
-                                                            </Button>
-                                                            <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                                                                <Trash2 className="h-4 w-4" />
+                                                            <Button variant="outline" size="sm" className="text-bold text-yellow-400 hover:text-orange-500">
+                                                                Xem chi tiết
                                                             </Button>
                                                         </div>
                                                     </td>

@@ -41,7 +41,6 @@ import { CoursesContext, CoursesProvider } from "./pages/context/coursescontext.
 import { Example } from "./pages/admin/example.jsx";
 import CourseList from "./pages/admin/ManageCourses/courseList.jsx";
 import { BrowseNewCourses } from "./pages/admin/ManageCourses/browseNewCourses.jsx";
-import InformationCourse from "./pages/admin/ManageCourses/informationCourse.jsx";
 import { CategoryCrud } from "./pages/admin/ManageCategories/categoryCrud.jsx";
 import { CategoryList } from "./pages/admin/ManageCategories/CategoryList.jsx";
 import { PriorityCategory } from "./pages/admin/ManageCategories/PriorityCategory.jsx";
@@ -106,7 +105,6 @@ function AppContent() {
 
                 <Route path="/admin/example" element={<Example />}></Route>
                 <Route path="/admin/course-list" element={<CourseList />}></Route>
-                <Route path="/admin/information-course" element={<InformationCourse />}></Route>
                 <Route path="/admin/browse-new-courses" element={<BrowseNewCourses />}></Route>
                 <Route path="/admin/course-status" element={<CourseStatus />}></Route>
                 <Route path="/admin/browse-new-courses/new-example" element={<NewExample />}></Route>
