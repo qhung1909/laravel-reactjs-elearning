@@ -13,11 +13,6 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import {
-    Filter,
-    FileDown,
-    History
-} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +42,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Download, Clock, Users, BookOpen, CheckCircle, XCircle } from "lucide-react";
+import { Search } from "lucide-react";
 
 export default function CourseStatus() {
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -55,7 +50,7 @@ export default function CourseStatus() {
     const [statusNote, setStatusNote] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
     const [courses, setCourses] = useState([]);
-    const [statusOptions, setStatusOptions] = useState([]); // Thêm trạng thái options vào state
+    const [statusOptions, setStatusOptions] = useState([]);
 
     // Fetch courses and status from API
     const fetchCourses = async () => {
@@ -65,8 +60,8 @@ export default function CourseStatus() {
                 throw new Error('Failed to fetch courses');
             }
             const data = await response.json();
-            setCourses(data.courses); // Giả sử response có trường 'courses'
-            setStatusOptions(data.statusOptions); // Giả sử response có trường 'statusOptions'
+            setCourses(data.courses); // Dữ liệu khóa học
+            setStatusOptions(data.statusOptions); // Dữ liệu trạng thái
         } catch (error) {
             console.error("Error fetching courses:", error);
         }
@@ -204,63 +199,46 @@ export default function CourseStatus() {
                                                 className="pl-9 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             />
                                         </div>
-                                        <Button variant="outline" className="flex items-center gap-2">
-                                            <Filter size={16} />
-                                            Lọc
-                                        </Button>
-                                        <Button variant="outline" className="flex items-center gap-2">
-                                            <FileDown size={16} />
-                                            Xuất
-                                        </Button>
+                                        <DialogTrigger asChild>
+                                            <Button variant="default">Thêm khóa học mới</Button>
+                                        </DialogTrigger>
                                     </div>
                                 </div>
 
-                                <div className="border rounded-lg">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Tên khóa học</TableHead>
-                                                <TableHead>Giảng viên</TableHead>
-                                                <TableHead>Trạng thái</TableHead>
-                                                <TableHead>Cập nhật</TableHead>
-                                                <TableHead className="text-right">Thao tác</TableHead>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Khóa học</TableHead>
+                                            <TableHead>Giảng viên</TableHead>
+                                            <TableHead>Trạng thái</TableHead>
+                                            <TableHead>Cập nhật lần cuối</TableHead>
+                                            <TableHead className="text-right">Hành động</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {courses.filter(course => filterStatus === "all" || course.status === filterStatus).map((course) => (
+                                            <TableRow key={course.id}>
+                                                <TableCell>{course.title}</TableCell>
+                                                <TableCell>{course.instructor}</TableCell>
+                                                <TableCell>
+                                                    <Badge className={getStatusColor(course.status)}>
+                                                        {course.status}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>{course.lastUpdated}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button onClick={() => openStatusDialog(course)}>Thay đổi trạng thái</Button>
+                                                </TableCell>
                                             </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {courses
-                                                .filter(course => filterStatus === "all" || course.status === filterStatus)
-                                                .map((course) => (
-                                                    <TableRow key={course.id}>
-                                                        <TableCell className="font-medium">{course.title}</TableCell>
-                                                        <TableCell>{course.instructor}</TableCell>
-                                                        <TableCell>
-                                                            <Badge
-                                                                className={`${getStatusColor(course.status)} text-white`}
-                                                            >
-                                                                {statusOptions.find(opt => opt.value === course.status)?.label || 'Không có'}
-                                                            </Badge>
-                                                        </TableCell>
-                                                        <TableCell>{course.lastUpdated}</TableCell>
-                                                        <TableCell className="text-right">
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() => openStatusDialog(course)}
-                                                            >
-                                                                Thay đổi trạng thái
-                                                            </Button>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
+                                        ))}
+                                    </TableBody>
+                                </Table>
                             </CardContent>
                         </Card>
                     </div>
                 </div>
+                <StatusChangeDialog />
             </SidebarInset>
-            <StatusChangeDialog />
         </SidebarProvider>
     );
 }

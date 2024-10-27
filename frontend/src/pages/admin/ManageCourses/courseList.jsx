@@ -54,7 +54,7 @@ export const CourseList = () => {
 
     const fetchCourses = async () => {
         try {
-            const res = await axios.get(`${API_URL}/courses`, {
+            const res = await axios.get(`${API_URL}/admin/courses`, {
                 headers: {
                     'x-api-secret': API_KEY
                 }
