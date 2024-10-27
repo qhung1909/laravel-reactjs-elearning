@@ -360,7 +360,7 @@ export const CourseList = () => {
                                                     <td className="py-4 px-6">
                                                         <div className="flex justify-end gap-2">
                                                             <Button variant="outline" size="sm">
-                                                                Chi tiết
+                                                                Duyệt
                                                             </Button>
                                                             <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
                                                                 <Trash2 className="h-4 w-4" />
