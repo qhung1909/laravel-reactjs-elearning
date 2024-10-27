@@ -110,36 +110,36 @@ export const Detail = () => {
     const [contentLesson, setContentLesson] = useState([]);
     const [titleContent, setTitleContent] = useState([]);
     const fetchContentLesson = async (lessonId) => {
-    setLoading(true);
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-        console.error("Người dùng chưa đăng nhập.");
-        return;
-    }
-    try {
-        const res = await axios.get(`${API_URL}/contents`, {
-            headers: {
-                "x-api-secret": `${API_KEY}`,
-                Authorization: `Bearer ${token}`,
-            },
-            params: {
-                lesson_id: lessonId
-            }
-        });
-
-        if (res.data && res.data.success && Array.isArray(res.data.data)) {
-            // Chỉ cập nhật state nếu lessonId phù hợp
-            setContentLesson(res.data.data.filter(content => content.lesson_id === lessonId));
-            console.log("Dữ liệu nội dung bài học:", res.data.data);
-        } else {
-            console.error("Dữ liệu không phải là mảng:", res.data);
+        setLoading(true);
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
         }
-    } catch (error) {
-        console.error("Lỗi khi lấy nội dung bài học:", error);
-    } finally {
-        setLoading(false);
-    }
-};
+        try {
+            const res = await axios.get(`${API_URL}/contents`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+                params: {
+                    lesson_id: lessonId
+                }
+            });
+
+            if (res.data && res.data.success && Array.isArray(res.data.data)) {
+                // Chỉ cập nhật state nếu lessonId phù hợp
+                setContentLesson(res.data.data.filter(content => content.lesson_id === lessonId));
+                console.log("Dữ liệu nội dung bài học:", res.data.data);
+            } else {
+                console.error("Dữ liệu không phải là mảng:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy nội dung bài học:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     const fetchTitleContent = async (contentId) => {
@@ -1018,7 +1018,7 @@ export const Detail = () => {
                                                         key={content.content_id}
                                                         value={`content-${content.content_id}`}
                                                         className="group border border-gray-200 rounded-lg overflow-hidden mb-2 hover:border-yellow-500 hover:shadow-md transition-all duration-300"
-                                                        onClick={() => !titleContent[content.content_id] && fetchTitleContent(content.content_id)}
+                                                        onClick={() => index === 0 && !titleContent[content.content_id] && fetchTitleContent(content.content_id)} // Chỉ fetch cho phần đầu tiên
                                                     >
                                                         <AccordionTrigger className="px-6 py-4 bg-gradient-to-r from-yellow-50/50 to-white hover:bg-gradient-to-r hover:from-yellow-50 hover:to-white font-medium text-gray-700 text-left hover:no-underline">
                                                             <div className="flex items-center justify-between w-full">
@@ -1031,16 +1031,16 @@ export const Detail = () => {
                                                                     </span>
                                                                 </div>
                                                                 <div className="mr-3">
-                                                                    {content.lesson_id === lesson.lesson_id ? (
+                                                                    {index === 0 ? ( // Chỉ hiển thị biểu tượng CheckCircle cho phần đầu tiên
                                                                         <CheckCircle className="text-green-600 w-4 h-4" />
                                                                     ) : (
-                                                                        <Lock className="text-gray-400 w-4 h-4" />
+                                                                        <Lock className="text-gray-400 w-4 h-4" /> // Hiển thị biểu tượng khóa cho phần còn lại
                                                                     )}
                                                                 </div>
                                                             </div>
                                                         </AccordionTrigger>
                                                         <AccordionContent className="border-t border-gray-100">
-                                                            {content.lesson_id === lesson.lesson_id && Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
+                                                            {index === 0 && content.lesson_id === lesson.lesson_id && Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? ( // Chỉ hiển thị nội dung cho phần đầu tiên
                                                                 <div className="space-y-6 p-6">
                                                                     {titleContent[content.content_id].map((item, i) => (
                                                                         <div key={i} className="flex gap-3 text-gray-600 leading-relaxed hover:bg-yellow-50 rounded-lg p-3 transition-colors">
@@ -1083,7 +1083,9 @@ export const Detail = () => {
                                                                     ))}
                                                                 </div>
                                                             ) : (
-                                                                <p className="p-6 text-gray-500 text-center italic">Vào học để xem thêm nội dung!</p>
+                                                                index !== 0 && (
+                                                                    <p className="p-6 text-gray-500 text-center italic">Vào học để xem thêm nội dung!</p>
+                                                                )
                                                             )}
                                                         </AccordionContent>
                                                     </AccordionItem>
