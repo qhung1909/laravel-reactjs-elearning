@@ -55,16 +55,45 @@ export const Courses = () => {
     const location = useLocation();
     const [hotInstructor, setHotInstructor] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [sortCriteria, setSortCriteria] = useState(''); // Thêm state cho tiêu chí sắp xếp
     const API_URL = import.meta.env.VITE_API_URL;
     const API_KEY = import.meta.env.VITE_API_KEY;
     const navigate = useNavigate();
+
+    const getSortedCourses = () => {
+        if (!sortCriteria || !courses) return courses;
+
+        const sortedCourses = [...courses];
+        switch (sortCriteria) {
+            case 'New':
+                return sortedCourses.sort((a, b) => {
+                    const dateA = new Date(a.created_at || 0);
+                    const dateB = new Date(b.created_at || 0);
+                    return dateB - dateA;
+                });
+            case 'Hot':
+                return sortedCourses.sort((a, b) => (b.views || 0) - (a.views || 0));
+            case 'TopRank':
+                return sortedCourses.sort((a, b) => (b.is_buy || 0) - (a.is_buy || 0));
+            default:
+                return sortedCourses;
+        }
+    };
+
+    const sortedCourses = getSortedCourses();
 
     // phân trang
     const queryParams = new URLSearchParams(location.search);
     const currentPage = parseInt(queryParams.get("page")) || 1;
     const indexOfLastCourse = currentPage * coursesPerPage;
     const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
-    const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
+    const currentCourses = sortedCourses.slice(indexOfFirstCourse, indexOfLastCourse);
+
+    const handleSortChange = (value) => {
+        setSortCriteria(value);
+    };
+
+
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -77,8 +106,20 @@ export const Courses = () => {
             fetchCourses();
         }
         fetchTopPurchasedProduct();
-    }, [location.search]);
+    }, [location.search, sortCriteria]);
 
+    const renderSortSelect = () => (
+        <Select onValueChange={handleSortChange} value={sortCriteria}>
+            <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sắp xếp theo" className="py-3" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="Hot" className="cursor-pointer">Phổ biến nhất</SelectItem>
+                <SelectItem value="TopRank" className="cursor-pointer">Thứ hạng cao nhất</SelectItem>
+                <SelectItem value="New" className="cursor-pointer">Mới nhất</SelectItem>
+            </SelectContent>
+        </Select>
+    );
 
     const handleCategoryClick = (slug) => {
         fetchCoursesByCategory(slug);
@@ -559,7 +600,7 @@ export const Courses = () => {
                             </div>
                             <div className="">
                                 <div className="">
-                                    <Select >
+                                    {/* <Select >
                                         <SelectTrigger className="w-[180px]">
                                             <SelectValue placeholder="Sắp xếp theo" className="py-3" />
                                         </SelectTrigger>
@@ -568,7 +609,8 @@ export const Courses = () => {
                                             <SelectItem value="TopRank" className="cursor-pointer">Thứ hạng cao nhất</SelectItem>
                                             <SelectItem value="New" className="cursor-pointer">Mới nhất</SelectItem>
                                         </SelectContent>
-                                    </Select>
+                                    </Select> */}
+                                    {renderSortSelect()}
                                 </div>
                             </div>
                         </div>
@@ -620,95 +662,6 @@ export const Courses = () => {
                                                 <span className="text-sm lg:text-base font-normal text-gray-800">
                                                     {" "}
                                                     Từ 3.0 trở lên
-                                                </span>
-                                            </Label>
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                            <hr />
-                            <Accordion type="single" collapsible>
-                                <AccordionItem value="item-1">
-                                    <AccordionTrigger className="text-xl font-bold">Chủ đề</AccordionTrigger>
-                                    <AccordionContent>
-                                        <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
-                                            <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
-                                                    Python
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
-                                            <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
-                                                    Javascript
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
-                                            <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
-                                                    Reactjs
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
-                                            <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
-                                                    Angular
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
-                                            <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
-                                                    Css
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
-                                            <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
-                                                    Nextjs
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
-                                            <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
-                                                    Html
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
-                                            <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
-                                                    ASP.NET
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
-                                            <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
-                                                    NodeJs
                                                 </span>
                                             </Label>
                                         </div>

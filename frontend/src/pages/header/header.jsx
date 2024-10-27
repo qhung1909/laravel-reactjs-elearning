@@ -527,12 +527,12 @@ export const Header = () => {
                                                         </DropdownMenuItem>
 
                                                         {/* setting */}
-                                                        <DropdownMenuItem>
+                                                        {/* <DropdownMenuItem>
                                                             <Settings className="mr-2 h-4 w-4" />
                                                             <Link>
                                                                 <span>Cài đặt</span>
                                                             </Link>
-                                                        </DropdownMenuItem>
+                                                        </DropdownMenuItem> */}
                                                     </DropdownMenuGroup>
                                                     <DropdownMenuSeparator />
 
@@ -675,12 +675,12 @@ export const Header = () => {
                                                                 </DropdownMenuItem>
 
                                                                 {/* setting */}
-                                                                <DropdownMenuItem>
+                                                                {/* <DropdownMenuItem>
                                                                     <Settings className="mr-2 h-4 w-4" />
                                                                     <Link>
                                                                         <span>Cài đặt</span>
                                                                     </Link>
-                                                                </DropdownMenuItem>
+                                                                </DropdownMenuItem> */}
                                                             </DropdownMenuGroup>
 
                                                             <DropdownMenuSeparator />
