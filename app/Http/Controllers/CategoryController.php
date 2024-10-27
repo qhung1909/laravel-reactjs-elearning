@@ -38,14 +38,17 @@ class CategoryController extends Controller
     {
         $category = Cache::remember("category_{$slug}", 90, function () use ($slug) {
             return $this->category->where('slug', $slug)
-                ->with(['courses.user:user_id,name'])
+                ->with(['courses' => function ($query) {
+                    $query->where('status', 'published')
+                          ->with('user:user_id,name');
+                }])
                 ->first();
         });
-
+    
         if (!$category) {
             return response()->json(['error' => 'Danh mục không tìm thấy'], 404);
         }
-
+    
         return response()->json([
             'category' => $category,
             'courses' => $category->courses,

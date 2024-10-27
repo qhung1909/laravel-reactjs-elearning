@@ -61,7 +61,7 @@ class CourseController extends Controller
         $query = $request->input('query');
 
         $searchResults = Cache::remember("search_courses_{$query}", 180, function () use ($query) {
-            return $this->course->where('status', 'published') // Chỉ lấy các khóa học đã xuất bản
+            return $this->course->where('status', 'published')
                 ->where(function ($q) use ($query) {
                     $q->where('title', 'like', "%{$query}%")
                         ->orWhere('description', 'like', "%{$query}%");

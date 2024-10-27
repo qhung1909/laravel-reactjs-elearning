@@ -26,6 +26,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TitleContentController;
+use App\Http\Controllers\AdminController;
 // Authentication
 Route::group([
     'middleware' => 'api',
@@ -161,4 +162,10 @@ Route::middleware(['admin'])->group(function () {
     Route::put('/title-contents/{title_content_id}', [TitleContentController::class, 'update']); // Cập nhật title_content
     Route::delete('/title-contents/{title_content_id}', [TitleContentController::class, 'destroy']); // Xóa title_content
 
+});
+
+
+Route::prefix('admin')->middleware('admin')->group(function () {
+    Route::get('/courses', [AdminController::class, 'getAllCourses']);
+    Route::get('/courses/{slug}', [AdminController::class, 'showCourses']);
 });
