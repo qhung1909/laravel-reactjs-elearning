@@ -49,11 +49,9 @@ export const Header = () => {
     const [myCourse, setMyCourse] = useState([]);
     const navigate = useNavigate();
 
-
     const handleLoginRedirect = () => {
         sessionStorage.setItem('previousPage', location.pathname);
     };
-
 
     const handleInputChange = (value) => {
         setSearchValue(value);
@@ -72,6 +70,10 @@ export const Header = () => {
     // hàm xử lý khóa học của users
     const fetchMyCourse = async () => {
         const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.log("Chưa đăng nhập. Không thể lấy danh sách khóa học.");
+            return;  // Dừng hàm nếu chưa đăng nhập
+        }
         try {
             const res = await axios.get(`${API_URL}/auth/enrolls`, {
                 headers: {
@@ -123,20 +125,19 @@ export const Header = () => {
                             </div>
                         </div>
                     </DropdownMenuItem>
-
-
                 );
             })
         ) : null
     };
 
-
-
     useEffect(() => {
         setSearchValue("");
-        fetchMyCourse();
+        if (logined) {
+            fetchMyCourse();
+        }
         setIsOpen(false);
-    }, [location.search]);
+    }, [location.search, logined]);
+
 
     const categoryImages = {
         javascript: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/javascript.svg",
@@ -223,7 +224,7 @@ export const Header = () => {
                     </div>
 
                     {/* header - search */}
-                    <div className="navbar-search xl:w-3/5 xl:px-0 sm:w-3/4 w-2/3 p-2">
+                    <div className="navbar-search xl:w-2/4 xl:px-0 sm:w-3/4 w-2/3 p-2">
                         <div className="w-full relative">
                             <Command className="rounded-full shadow-sm border w-full ">
                                 <CommandInput
@@ -336,7 +337,7 @@ export const Header = () => {
 
                                         {/* contact */}
                                         <li>
-                                            <Link to="/contact" className={`p-3 rounded  ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
+                                            <Link to="/contact" className={`p-3 rounded   ${isContactPage ? "bg-yellow-100 " : "hover:bg-gray-100"}`}>
                                                 Liên hệ
                                             </Link>
                                         </li>
@@ -347,7 +348,7 @@ export const Header = () => {
                                                 Bài viết
                                             </Link>
                                         </li>
-                                    </ul>xêp
+                                    </ul>
 
                                     {/* content - right */}
                                     <div className="navbar-icons flex items-center justify-center gap-3 xl:mx-3">
@@ -417,22 +418,32 @@ export const Header = () => {
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     {/* avatar */}
-                                                    {user.avatar ? (
-                                                        <img
-                                                            src={user.avatar}
-                                                            alt="User Avatar"
-                                                            className="w-10 rounded-full object-cover"
-                                                        />
-                                                    ) : (
-
-                                                        <img src="/src/assets/images/user.svg" className="w-12" alt="" />
-                                                    )}
+                                                    {loading ? (
+                                                        // Loading state
+                                                        <Skeleton className="h-4 w-[250px]" />
+                                                    ) : user ? (
+                                                        // User exists
+                                                            <img
+                                                                src={user.avatar}
+                                                                alt="User Avatar"
+                                                                className="w-11 object-cover rounded-full"
+                                                            />
+                                                        ) : (
+                                                            <img
+                                                                src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg"
+                                                                className="w-11"
+                                                                alt="Default Avatar"
+                                                            />
+                                                        )
+                                                    }
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="w-56">
                                                     {loading ? (
                                                         <Skeleton className="h-4 w-[250px]" />
-                                                    ) : (
+                                                    ) : user ? (
                                                         <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
+                                                    ) : (
+                                                        <p>Chưa có thông tin người dùng</p>
                                                     )}
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuGroup>
@@ -549,21 +560,40 @@ export const Header = () => {
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
 
-                                                            {user.avatar ? (
-                                                                <img
-                                                                    src={user.avatar}
-                                                                    alt="User Avatar"
-                                                                    className="w-24 h-7 object-cover rounded-full"
-                                                                />
+                                                            {loading ? (
+                                                                // Loading state
+                                                                <div className="w-7 h-7 rounded-full bg-gray-200 animate-pulse"></div>
+                                                            ) : user ? (
+                                                                // User exists
+                                                                user.avatar ? (
+                                                                    <img
+                                                                        src={user.avatar}
+                                                                        alt="User Avatar"
+                                                                        className="w-24 h-7 object-cover rounded-full"
+                                                                    />
+                                                                ) : (
+                                                                    <img
+                                                                        src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg"
+                                                                        className="w-20"
+                                                                        alt="Default Avatar"
+                                                                    />
+                                                                )
                                                             ) : (
-                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-20" alt="" />
+                                                                // User data not yet loaded
+                                                                <img
+                                                                    src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/3s/New+folder/user.svg"
+                                                                    className="w-20"
+                                                                    alt="Default Avatar"
+                                                                />
                                                             )}
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent className="w-56">
                                                             {loading ? (
-                                                                <Skeleton className="mr-2 h-4 w-4" />
-                                                            ) : (
+                                                                <Skeleton className="h-4 w-[250px]" />
+                                                            ) : user ? (
                                                                 <DropdownMenuLabel>Xin chào, {user.name}</DropdownMenuLabel>
+                                                            ) : (
+                                                                <p>Chưa có thông tin người dùng</p>
                                                             )}
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuGroup>
@@ -773,8 +803,8 @@ export const Header = () => {
                                                                             <div className=" duration-300 cursor-pointer">
                                                                                 <DropdownMenuItem>
                                                                                     <Link to="/courses" className="flex gap-3 hover:text-yellow-400 duration-300  py-1 rounded-md">
-                                                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courses.svg" className="w-5" alt="" />
-                                                                                    <span className="font-semibold text-base">Tất cả khóa học</span>
+                                                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courses.svg" className="w-5" alt="" />
+                                                                                        <span className="font-semibold text-base">Tất cả khóa học</span>
                                                                                     </Link>
                                                                                 </DropdownMenuItem>
 
@@ -815,7 +845,7 @@ export const Header = () => {
                             {/* không đăng nhập - no login */}
 
                             {/* header - content */}
-                            <div className="navbar-content  bg-white xl:flex xl:items-center px-5 max-xl:w-full xl:block hidden">
+                            <div className="navbar-content  bg-white xl:flex xl:items-center px-5 xl:px-1 max-xl:w-full xl:block hidden">
                                 <ul className="max-xl:pt-3 gap-4 font-semibold flex text-base xl:text-base w-full items-center justify-center">
 
                                     {/* courses */}
@@ -833,8 +863,8 @@ export const Header = () => {
                                                         <div className=" duration-300 cursor-pointer">
                                                             <DropdownMenuItem>
                                                                 <Link to="/courses" className="flex gap-3 hover:text-yellow-400 duration-300 py-1 rounded-md">
-                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courses.svg" className="w-5" alt="" />
-                                                                <span className="font-semibold text-base">Tất cả khóa học</span>
+                                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courses.svg" className="w-5" alt="" />
+                                                                    <span className="font-semibold text-base">Tất cả khóa học</span>
                                                                 </Link>
                                                             </DropdownMenuItem>
 
@@ -1045,8 +1075,8 @@ export const Header = () => {
                                                                         <div className=" duration-300 cursor-pointer">
                                                                             <DropdownMenuItem>
                                                                                 <Link to="/courses" className="flex gap-3 hover:text-yellow-400 duration-300  py-1 rounded-md">
-                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courses.svg" className="w-5" alt="" />
-                                                                                <span className="font-semibold text-base">Tất cả khóa học</span>
+                                                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courses.svg" className="w-5" alt="" />
+                                                                                    <span className="font-semibold text-base">Tất cả khóa học</span>
                                                                                 </Link>
                                                                             </DropdownMenuItem>
 

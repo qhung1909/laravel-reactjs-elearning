@@ -1,53 +1,42 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-} from "@/components/ui/pagination";
-import {
-    SidebarInset,
-    SidebarProvider,
-    SidebarTrigger,
-} from "@/components/ui/sidebar";
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import axios from 'axios';
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink } from "@/components/ui/pagination";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 
 export const PriorityCategory = () => {
-    const [sortConfig, setSortConfig] = useState({
-        key: null,
-        direction: 'asc'
-    });
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [searchTerm, setSearchTerm] = useState('');
+    const [categories, setCategory] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const initialCategories = [
-        { id: 1, name: "Danh mục a", courseCount: 5, lastUpdated: new Date() },
-        { id: 2, name: "Danh mục c", courseCount: 3, lastUpdated: new Date() },
-        { id: 3, name: "Danh mục b", courseCount: 8, lastUpdated: new Date() },
-        { id: 4, name: "Danh mục d", courseCount: 2, lastUpdated: new Date() },
-        { id: 5, name: "Danh mục e", courseCount: 5, lastUpdated: new Date() },
-        { id: 6, name: "Danh mục f", courseCount: 3, lastUpdated: new Date() },
-        { id: 7, name: "Danh mục g", courseCount: 8, lastUpdated: new Date() },
-        { id: 8, name: "Danh mục h", courseCount: 2, lastUpdated: new Date() },
-    ];
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
 
-    const [categories, setCategories] = useState(initialCategories);
+    const fetchCategory = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/categories`, {
+                headers: { 'x-api-secret': API_KEY }
+            });
+            console.log("Fetched categories:", res.data);
+            setCategory(res.data);
+        } catch (error) {
+            console.error('Error fetching Categories:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCategory();
+    }, []);
 
     const handleSort = (key) => {
-        let direction = 'asc';
-        if (sortConfig.key === key && sortConfig.direction === 'asc') {
-            direction = 'desc';
-        }
+        const direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
         setSortConfig({ key, direction });
     };
 
@@ -77,8 +66,7 @@ export const PriorityCategory = () => {
         const reorderedCategories = Array.from(categories);
         const [removed] = reorderedCategories.splice(result.source.index, 1);
         reorderedCategories.splice(result.destination.index, 0, removed);
-
-        setCategories(reorderedCategories);
+        setCategory(reorderedCategories);
     };
 
     return (
@@ -92,15 +80,11 @@ export const PriorityCategory = () => {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    <BreadcrumbLink href="/admin" className="text-blue-600 hover:text-blue-800">
-                                        Dashboard
-                                    </BreadcrumbLink>
+                                    <BreadcrumbLink href="/admin" className="text-blue-600 hover:text-blue-800">Dashboard</BreadcrumbLink>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem className="hidden md:block">
-                                    <BreadcrumbLink className="font-semibold">
-                                        Danh sách Danh mục
-                                    </BreadcrumbLink>
+                                    <BreadcrumbLink className="font-semibold">Danh sách Danh mục</BreadcrumbLink>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
@@ -132,39 +116,21 @@ export const PriorityCategory = () => {
                                     <table className="w-full">
                                         <thead>
                                             <tr className="bg-yellow-400">
-                                                <th className="text-left py-4 px-6 font-medium text-sm text-white-600">STT</th>
-                                                <th
-                                                    className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
-                                                    onClick={() => handleSort('name')}
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        Tên danh mục
-                                                        {getSortIcon('name')}
-                                                    </div>
+                                                <th className="text-left py-4 px-6 font-medium text-sm text-white-600">ID</th>
+                                                <th className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group" onClick={() => handleSort('name')}>
+                                                    <div className="flex items-center gap-2">Tên danh mục {getSortIcon('name')}</div>
                                                 </th>
-                                                <th
-                                                    className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
-                                                    onClick={() => handleSort('courseCount')}
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        Số lượng khóa học
-                                                        {getSortIcon('courseCount')}
-                                                    </div>
+                                                <th className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group" onClick={() => handleSort('courseCount')}>
+                                                    <div className="flex items-center gap-2">Số lượng khóa học {getSortIcon('courseCount')}</div>
                                                 </th>
-                                                <th
-                                                    className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
-                                                    onClick={() => handleSort('lastUpdated')}
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        Cập nhật lần cuối
-                                                        {getSortIcon('lastUpdated')}
-                                                    </div>
+                                                <th className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group" onClick={() => handleSort('lastUpdated')}>
+                                                    <div className="flex items-center gap-2">Cập nhật lần cuối {getSortIcon('lastUpdated')}</div>
                                                 </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {sortedCategories.map((category, index) => (
-                                                <Draggable key={category.id} draggableId={String(category.id)} index={index}>
+                                                <Draggable key={category.course_category_id} draggableId={String(category.course_category_id)} index={index}>
                                                     {(provided) => (
                                                         <tr
                                                             ref={provided.innerRef}
@@ -172,15 +138,15 @@ export const PriorityCategory = () => {
                                                             {...provided.dragHandleProps}
                                                             className="border-t border-gray-100 hover:bg-gray-50 transition-colors"
                                                         >
-                                                            <td className="py-4 px-6 text-sm text-gray-600">#{category.id}</td>
+                                                            <td className="py-4 px-6 text-sm text-gray-600">#{category.course_category_id}</td>
                                                             <td className="py-4 px-6">
                                                                 <div className="font-medium text-gray-900">{category.name}</div>
                                                             </td>
                                                             <td className="py-4 px-6">
-                                                                <span className="text-sm text-gray-600">{category.courseCount} khóa học</span>
+                                                                <span className="text-sm text-gray-600">{category.courseCount} update soon</span>
                                                             </td>
                                                             <td className="py-4 px-6 text-sm text-gray-600">
-                                                                {new Date(category.lastUpdated).toLocaleDateString('vi-VN')}
+                                                                {new Date(category.updated_at).toLocaleDateString('vi-VN')}
                                                             </td>
                                                         </tr>
                                                     )}
@@ -198,14 +164,10 @@ export const PriorityCategory = () => {
                         <Pagination>
                             <PaginationContent>
                                 <PaginationItem>
-                                    <PaginationLink href="#" isActive>
-                                        1
-                                    </PaginationLink>
+                                    <PaginationLink href="#" isActive>1</PaginationLink>
                                 </PaginationItem>
                                 <PaginationItem>
-                                    <PaginationLink href="#">
-                                        2
-                                    </PaginationLink>
+                                    <PaginationLink href="#">2</PaginationLink>
                                 </PaginationItem>
                                 <PaginationItem>
                                     <PaginationLink href="#">3</PaginationLink>

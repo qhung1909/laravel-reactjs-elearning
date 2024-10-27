@@ -77,15 +77,14 @@ export const PaymentResult = () => {
                                 </AlertTitle>
                                 <AlertDescription className="text-green-700">
                                     Cảm ơn bạn đã tin tưởng và chọn khóa học của
-                                    chúng tôi. Chúc bạn học tập hiệu quả và
-                                    thành công!
+                                    chúng tôi. Hãy vào đăng kí và học thôi !
                                 </AlertDescription>
                                 <div className="mt-4 text-center">
                                     <a
-                                        href="/"
+                                        href="/courses"
                                         className="text-black-600  hover:text-indigo-800 transition duration-150 ease-in-out"
                                     >
-                                        Quay về trang chủ
+                                        Quay về trang khóa học
                                     </a>
                                 </div>
                             </Alert>

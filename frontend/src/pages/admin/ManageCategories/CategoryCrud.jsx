@@ -48,7 +48,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from 'axios'
+import toast, { Toaster } from 'react-hot-toast';
 
+
+const notify = (message, type) => {
+    if (type === 'success') {
+        toast.success(message, {
+            style: {
+                padding: '16px'
+            }
+        });
+    } else {
+        toast.error(message, {
+            style: {
+                padding: '16px'
+            }
+        })
+    }
+}
 
 export const CategoryCrud = () => {
     const [sortConfig, setSortConfig] = useState({
@@ -64,18 +81,24 @@ export const CategoryCrud = () => {
     const [editCategoryName, setEditCategoryName] = useState('');
     const [editCategoryIconUrl, setEditCategoryIconUrl] = useState('');
     const [showEditDialog, setShowEditDialog] = useState(false);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+    const [loadingCategory, setLoadingCategory] = useState(false)
 
+    const openDialog = () => {
+        setIsDialogOpen(true);
+    };
 
     const API_KEY = import.meta.env.VITE_API_KEY
     const API_URL = import.meta.env.VITE_API_URL
     const [loading, setLoading] = useState(false);
 
-
     const [categories, setCategory] = useState([]);
+    const token = localStorage.getItem('access_token');
+
     const fetchCategory = async () => {
         try {
-            setLoading(true)
+            setLoadingCategory(true)
             const res = await axios.get(`${API_URL}/categories`, {
                 headers: {
                     'x-api-secret': API_KEY
@@ -87,10 +110,65 @@ export const CategoryCrud = () => {
         } catch (error) {
             console.error('Error fetching Categories:', error)
         } finally {
-            setLoading(false)
+            setLoadingCategory(false)
         }
     }
-    const token = localStorage.getItem('access_token');
+
+    const addCategory = async (e) => {
+        e.preventDefault(); // Ngăn chặn hành vi mặc định của form
+
+        const newCategory = {
+            name: newCategoryName,
+            // iconUrl: newCategoryIconUrl // Đảm bảo đúng tên trường mà API yêu cầu
+        };
+
+        try {
+            setLoading(true);
+            const res = await axios.post(`${API_URL}/categories`, newCategory, {
+                headers: {
+                    'x-api-secret': API_KEY // Nếu cần gửi khóa API
+                }
+            });
+            const data = res.data; // Xử lý dữ liệu phản hồi nếu cần
+            console.log('Category added:', data); // Xem phản hồi từ server
+            // window.location.reload()
+            setIsDialogOpen(false);
+            notify('Thêm danh mục thành công', 'success');
+        } catch (error) {
+            console.error('Error adding category:', error);
+        } finally {
+            setLoading(false);
+
+
+        }
+    };
+
+
+    const editCategory = async (categoryId) => {
+        const updatedCategory = {
+            name: editCategoryName,
+            iconUrl: editCategoryIconUrl, // Đảm bảo đúng tên trường mà API yêu cầu
+        };
+
+        try {
+            setLoading(true);
+            const res = await axios.put(`${API_URL}/categories/${categoryId}`, updatedCategory, {
+                headers: {
+                    'x-api-secret': API_KEY // Nếu cần gửi khóa API
+                }
+            });
+            const data = res.data; // Xử lý dữ liệu phản hồi nếu cần
+            console.log('Category updated:', data); // Xem phản hồi từ server
+            // Reset các trường input sau khi sửa
+            setEditCategoryName('');
+            setEditCategoryIconUrl('');
+        } catch (error) {
+            console.error('Error updating category:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     const deleteCategory = async (slug) => {
         try {
@@ -104,7 +182,7 @@ export const CategoryCrud = () => {
         } catch (error) {
             console.error('Error delete category:', error)
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }
 
@@ -133,22 +211,22 @@ export const CategoryCrud = () => {
         setSortConfig({ key, direction });
     };
 
-    // const filteredCategories = categories.filter(category =>
-    //     category.name.toLowerCase().includes(searchTerm.toLowerCase())
-    // );
+    const filteredCategories = categories.filter(category =>
+        category.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-    // const sortedCategories = [...filteredCategories].sort((a, b) => {
-    //     if (!sortConfig.key) return 0;
+    const sortedCategories = [...filteredCategories].sort((a, b) => {
+        if (!sortConfig.key) return 0;
 
-    //     const aValue = a[sortConfig.key];
-    //     const bValue = b[sortConfig.key];
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
 
-    //     if (sortConfig.direction === 'asc') {
-    //         return aValue > bValue ? 1 : -1;
-    //     } else {
-    //         return aValue < bValue ? 1 : -1;
-    //     }
-    // });
+        if (sortConfig.direction === 'asc') {
+            return aValue > bValue ? 1 : -1;
+        } else {
+            return aValue < bValue ? 1 : -1;
+        }
+    });
 
     const getSortIcon = (key) => {
         if (sortConfig.key === key) {
@@ -157,13 +235,7 @@ export const CategoryCrud = () => {
         return <ChevronUp className="h-4 w-4 opacity-0 group-hover:opacity-50" />;
     };
 
-    const handleAddCategory = (e) => {
-        e.preventDefault();
-        console.log('Adding category:', { name: newCategoryName, iconUrl: newCategoryIconUrl });
-        setNewCategoryName('');
-        setNewCategoryIconUrl('');
-        setShowAddCategory(false);
-    };
+
 
     const openEditDialog = (category) => {
         setEditCategoryId(category.id);
@@ -172,11 +244,6 @@ export const CategoryCrud = () => {
         setShowEditDialog(true);
     };
 
-    const handleEditCategory = (e) => {
-        e.preventDefault();
-        console.log('Editing category:', { id: editCategoryId, name: editCategoryName, iconUrl: editCategoryIconUrl });
-        setShowEditDialog(false);
-    };
 
     return (
         <SidebarProvider>
@@ -203,7 +270,11 @@ export const CategoryCrud = () => {
                         </Breadcrumb>
                     </div>
                 </header>
-
+                {loading && (
+                    <div className='loading'>
+                        <div className='loading-spin'></div>
+                    </div>
+                )}
                 <div className="absolute top-12 w-full p-4">
                     <div className="mb-4 flex items-center justify-between">
                         <div className="relative flex-1 max-w-md">
@@ -217,7 +288,7 @@ export const CategoryCrud = () => {
                             />
                         </div>
                         <div className="flex gap-3">
-                            <Dialog>
+                            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                 <DialogTrigger asChild>
                                     <Button className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
                                         <Plus className="h-4 w-4" />
@@ -237,7 +308,7 @@ export const CategoryCrud = () => {
                                                 Tên
                                             </Label>
                                             <Input
-                                                id="newCategoryName"
+                                                // id="newCategoryName"
                                                 value={newCategoryName}
                                                 onChange={(e) => setNewCategoryName(e.target.value)}
                                                 className="col-span-3"
@@ -249,7 +320,7 @@ export const CategoryCrud = () => {
                                                 URL icon
                                             </Label>
                                             <Input
-                                                id="newCategoryIconUrl"
+                                                // id="newCategoryIconUrl"
                                                 value={newCategoryIconUrl}
                                                 onChange={(e) => setNewCategoryIconUrl(e.target.value)}
                                                 className="col-span-3"
@@ -258,16 +329,13 @@ export const CategoryCrud = () => {
                                         </div>
                                     </div>
                                     <DialogFooter>
-                                        <Button type="submit" onClick={handleAddCategory}>
+                                        <Button type="submit" onClick={addCategory}>
                                             Thêm
                                         </Button>
                                     </DialogFooter>
                                 </DialogContent>
                             </Dialog>
-                            <Button variant="outline" className="flex items-center">
-                                <Filter size={16} />
-                                Lọc
-                            </Button>
+
                             <Button variant="outline" className="flex items-center">
                                 <FileDown size={16} />
                                 Xuất
@@ -279,11 +347,11 @@ export const CategoryCrud = () => {
                     <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-gray-50">
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">ID</th>
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Icon</th>
+                                <tr className="bg-yellow-400">
+                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">ID</th>
+                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Icon</th>
                                     <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
                                         onClick={() => handleSort('name')}
                                     >
                                         <div className="flex items-center gap-2">
@@ -292,7 +360,7 @@ export const CategoryCrud = () => {
                                         </div>
                                     </th>
                                     <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
                                         onClick={() => handleSort('courseCount')}
                                     >
                                         <div className="flex items-center gap-2">
@@ -301,7 +369,7 @@ export const CategoryCrud = () => {
                                         </div>
                                     </th>
                                     <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
                                         onClick={() => handleSort('lastUpdated')}
                                     >
                                         <div className="flex items-center gap-2">
@@ -309,95 +377,122 @@ export const CategoryCrud = () => {
                                             {getSortIcon('lastUpdated')}
                                         </div>
                                     </th>
-                                    <th className="text-right py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
+                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {categories.map((category ,index) => (
-                                    <tr key={index} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
-                                        <td className="py-4 px-6 text-sm text-gray-600">#{category.course_category_id}</td>
-                                        <td className="py-4 px-6 text-sm text-gray-600">
-                                            <img src={category.icon} alt={`${category.name} icon`} className="h-6 w-6" />
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <div className="font-medium text-gray-900">{category.name}</div>
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <div className="flex items-center gap-2">
-                                                <BookOpen className="h-4 w-4 text-gray-400" />
-                                                {/* <span className="text-sm text-gray-600">{category.courseCount} khóa học</span> */}
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-6 text-sm text-gray-600">
-                                            {new Date(category.updated_at).toLocaleDateString('vi-VN')}
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <div className="flex justify-end gap-2">
-                                                <Dialog>
-                                                    <DialogTrigger asChild>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="text-blue-600 border-blue-600 hover:bg-blue-50"
-                                                            onClick={() => openEditDialog(category)} // Mở dialog sửa
-                                                        >
-                                                            <PenLine className="h-4 w-4 mr-1" />
-                                                            Sửa
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent className="sm:max-w-[425px]">
-                                                        <DialogHeader>
-                                                            <DialogTitle>Sửa danh mục</DialogTitle>
-                                                            <DialogDescription>
-                                                                Thay đổi thông tin danh mục ở đây. Nhấn lưu khi bạn hoàn tất.
-                                                            </DialogDescription>
-                                                        </DialogHeader>
-                                                        <div className="grid gap-4 py-4">
-                                                            <div className="grid grid-cols-4 items-center gap-4">
-                                                                <Label htmlFor="editCategoryName" className="text-right">
-                                                                    Tên
-                                                                </Label>
-                                                                <Input
-                                                                    id="editCategoryName"
-                                                                    value={editCategoryName}
-                                                                    onChange={(e) => setEditCategoryName(e.target.value)}
-                                                                    className="col-span-3"
-                                                                    required
-                                                                />
-                                                            </div>
-                                                            <div className="grid grid-cols-4 items-center gap-4">
-                                                                <Label htmlFor="editCategoryIconUrl" className="text-right">
-                                                                    URL icon
-                                                                </Label>
-                                                                <Input
-                                                                    id="editCategoryIconUrl"
-                                                                    value={editCategoryIconUrl}
-                                                                    onChange={(e) => setEditCategoryIconUrl(e.target.value)}
-                                                                    className="col-span-3"
-                                                                    required
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        <DialogFooter>
-                                                            <Button type="submit" onClick={handleEditCategory}>
-                                                                Cập nhật
+                                {loadingCategory ? (
+                                    <>
+                                        {[...Array(5)].map((_, rowIndex) => (
+                                            <tr key={rowIndex} className="border-t border-gray-100">
+                                                <td className="py-4 px-6">
+                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
+                                                </td>
+                                                <td className="py-4 px-6">
+                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '150px', height: '20px' }} />
+                                                </td>
+                                                <td className="py-4 px-6">
+                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
+                                                </td>
+                                                <td className="py-4 px-6">
+                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '120px', height: '20px' }} />
+                                                </td>
+                                                <td className="py-4 px-6">
+                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '80px', height: '20px' }} />
+                                                </td>
+                                                <td className="py-4 px-6">
+                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '80px', height: '20px' }} />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </>
+                                ) : (
+                                    sortedCategories.map((category, index) => (
+                                        <tr key={index} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
+                                            <td className="py-4 px-6 text-sm text-gray-600">#{category.course_category_id}</td>
+                                            <td className="py-4 px-6 text-sm text-gray-600">
+                                                <img src={category.icon} alt={`${category.name} icon`} className="h-6 w-6" />
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="font-medium text-gray-900">{category.name}</div>
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="flex items-center gap-2">
+                                                    {/* <BookOpen className="h-4 w-4 text-gray-400" /> */}
+                                                    <span className="text-sm text-gray-600">{category.courseCount}  update soon</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-6 text-sm text-gray-600">
+                                                {new Date(category.updated_at).toLocaleDateString('vi-VN')}
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="flex justify-start gap-2">
+                                                    <Dialog>
+                                                        <DialogTrigger asChild>
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                                                                onClick={() => openEditDialog(category)} // Mở dialog sửa
+                                                            >
+                                                                <PenLine className="h-4 w-4 mr-1" />
+                                                                Sửa
                                                             </Button>
-                                                        </DialogFooter>
-                                                    </DialogContent>
-                                                </Dialog>
-                                                <Button
-                                                    onClick={()=> deleteCategory(category.slug) }
-                                                    variant="destructive"
-                                                    size="sm"
-                                                    className="bg-red-500 hover:bg-red-600"
-                                                >
-                                                    <Trash2 className="h-4 w-4 mr-1" />
-                                                    Xóa
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                                        </DialogTrigger>
+                                                        <DialogContent className="sm:max-w-[425px]">
+                                                            <DialogHeader>
+                                                                <DialogTitle>Sửa danh mục</DialogTitle>
+                                                                <DialogDescription>
+                                                                    Thay đổi thông tin danh mục ở đây. Nhấn lưu khi bạn hoàn tất.
+                                                                </DialogDescription>
+                                                            </DialogHeader>
+                                                            <div className="grid gap-4 py-4">
+                                                                <div className="grid grid-cols-4 items-center gap-4">
+                                                                    <Label htmlFor="editCategoryName" className="text-right">
+                                                                        Tên
+                                                                    </Label>
+                                                                    <Input
+                                                                        id="editCategoryName"
+                                                                        value={editCategoryName}
+                                                                        onChange={(e) => setEditCategoryName(e.target.value)}
+                                                                        className="col-span-3"
+                                                                        required
+                                                                    />
+                                                                </div>
+                                                                <div className="grid grid-cols-4 items-center gap-4">
+                                                                    <Label htmlFor="editCategoryIconUrl" className="text-right">
+                                                                        URL icon
+                                                                    </Label>
+                                                                    <Input
+                                                                        id="editCategoryIconUrl"
+                                                                        value={editCategoryIconUrl}
+                                                                        onChange={(e) => setEditCategoryIconUrl(e.target.value)}
+                                                                        className="col-span-3"
+                                                                        required
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <DialogFooter>
+                                                                <Button type="submit" onClick={editCategory}>
+                                                                    Cập nhật
+                                                                </Button>
+                                                            </DialogFooter>
+                                                        </DialogContent>
+                                                    </Dialog>
+                                                    <Button
+                                                        onClick={() => deleteCategory(category.slug)}
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        className="bg-red-500 hover:bg-red-600"
+                                                    >
+                                                        <Trash2 className="h-4 w-4 mr-1" />
+                                                        Xóa
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -427,6 +522,7 @@ export const CategoryCrud = () => {
                     </div>
                 </div>
             </SidebarInset>
+            <Toaster />
         </SidebarProvider>
     );
 };

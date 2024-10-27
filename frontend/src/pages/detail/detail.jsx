@@ -107,6 +107,7 @@ export const Detail = () => {
     }, [slug]);
 
     const [contentLesson, setContentLesson] = useState([]);
+    const [titleContent, setTitleContent] = useState([]);
     const fetchContentLesson = async () => {
         setLoading(true);
         const token = localStorage.getItem("access_token");
@@ -121,70 +122,47 @@ export const Detail = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            // Kiểm tra dữ liệu trả về và đảm bảo nó là một mảng
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
-                setContentLesson(res.data.data);  // Lấy mảng từ res.data.data
-                console.log("Đây là dữ liệu nội dung bài học:", res.data.data);
+                setContentLesson(res.data.data);
+                console.log("Dữ liệu nội dung bài học:", res.data.data);
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
-                setContentLesson([]);
             }
         } catch (error) {
             console.error("Lỗi khi lấy nội dung bài học:", error);
-            if (error.response) {
-                console.error("Chi tiết lỗi:", error.response.data);
-                console.error("Trạng thái lỗi:", error.response.status);
-            } else {
-                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
-            }
-            setContentLesson([]); // Set empty array on error
         } finally {
             setLoading(false);
         }
     };
-    useEffect(() => {
-        fetchContentLesson();
-    }, []);
 
-    const [titleContent, setTitleContent] = useState([]);
-    const fetchTitleContent = async (content_id) => {
-        setLoading(true);
+    const fetchTitleContent = async (contentId) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
             console.error("Người dùng chưa đăng nhập.");
             return;
         }
         try {
-            const res = await axios.get(`${API_URL}/title-contents/${content_id}`, {
+            const res = await axios.get(`${API_URL}/title-contents/${contentId}`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
                 },
             });
-            if (res.data && res.data.success && res.data.data) {
-                setTitleContent(res.data.data);
-                console.log("Dữ liệu chi tiết title_content:", res.data.data);
+            if (res.data && res.data.success) {
+                setTitleContent(prev => ({ ...prev, [contentId]: res.data.data }));
+                console.log(`Dữ liệu chi tiết title_content cho content_id ${contentId}:`, res.data.data);
             } else {
                 console.error("Dữ liệu không hợp lệ:", res.data);
-                setTitleContent(null);
             }
         } catch (error) {
             console.error("Lỗi khi lấy chi tiết title_content:", error);
-            if (error.response) {
-                console.error("Chi tiết lỗi:", error.response.data);
-                console.error("Trạng thái lỗi:", error.response.status);
-            } else {
-                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
-            }
-            setTitleContent(null);
-        } finally {
-            setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchTitleContent();
+        fetchContentLesson();
     }, []);
+
 
     // Sắp xếp content theo content_id
     const sortedContent = contentLesson.sort(
@@ -1009,7 +987,6 @@ export const Detail = () => {
                                 <div className="border-b">
                                     <Accordion type="multiple" className="w-full space-y-4 bg-white rounded-xl shadow-lg p-6">
                                         {loading ? (
-                                            // Render skeleton loaders while loading
                                             Array.from({ length: 2 }).map((_, index) => (
                                                 <div key={index} className="group border border-gray-200 rounded-lg overflow-hidden mb-2 animate-pulse">
                                                     <div className="px-6 py-4 bg-gray-200">
@@ -1034,14 +1011,15 @@ export const Detail = () => {
                                                 </div>
                                             ))
                                         ) : (
-                                            Array.isArray(contentLesson) && contentLesson.length > 0 ? (
+                                            contentLesson.length > 0 ? (
                                                 contentLesson.map((content, index) => (
                                                     <AccordionItem
-                                                        key={index}
-                                                        value={`content-${index}`}
+                                                        key={content.content_id}
+                                                        value={`content-${content.content_id}`}
                                                         className="group border border-gray-200 rounded-lg overflow-hidden mb-2 hover:border-yellow-500 hover:shadow-md transition-all duration-300"
+                                                        onClick={() => !titleContent[content.content_id] && fetchTitleContent(content.content_id)}
                                                     >
-                                                        <AccordionTrigger className="px-6 py-4 bg-gradient-to-r from-yellow-50/50 to-white hover:bg-gradient-to-r hover:from-yellow-50 hover:to-white font-medium text-gray-700 text-left">
+                                                        <AccordionTrigger className="px-6 py-4 bg-gradient-to-r from-yellow-50/50 to-white hover:bg-gradient-to-r hover:from-yellow-50 hover:to-white font-medium text-gray-700 text-left hover:no-underline">
                                                             <div className="flex items-center justify-between w-full">
                                                                 <div className="flex items-center gap-4">
                                                                     <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 font-semibold text-sm group-hover:bg-yellow-200 transition-colors">
@@ -1050,34 +1028,68 @@ export const Detail = () => {
                                                                     <span className="text-base group-hover:text-yellow-600 transition-colors">
                                                                         {content.name_content}
                                                                     </span>
+
+                                                                </div>
+                                                                <div className="mr-3">
+                                                                    {content.content_id === 1 ? (
+                                                                        <CheckCircle className="text-green-600 w-4 h-4" />
+                                                                    ) : (
+                                                                        <Lock className="text-gray-400 w-4 h-4" />
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </AccordionTrigger>
-
-                                                        {/* AccordionContent sẽ chứa titleContent */}
                                                         <AccordionContent className="border-t border-gray-100">
-                                                            <div className="space-y-6 p-6">
-                                                                {titleContent ? (
-                                                                    // Render nội dung từ titleContent
-                                                                    <div className="text-gray-600">
-                                                                        {Array.isArray(titleContent) ? (
-                                                                            titleContent.map((title, i) => (
-                                                                                <div key={i} className="p-3">{title}</div>
-                                                                            ))
-                                                                        ) : (
-                                                                            <p className="text-gray-600">{titleContent}</p>
-                                                                        )}
-                                                                    </div>
-                                                                ) : (
-                                                                    <p className="text-gray-600">Chưa có nội dung cho phần này.</p>
-                                                                )}
-                                                            </div>
+                                                            {content.content_id === 1 && Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
+                                                                <div className="space-y-6 p-6">
+                                                                    {titleContent[content.content_id].map((item, i) => (
+                                                                        <div key={i} className="flex gap-3 text-gray-600 leading-relaxed hover:bg-yellow-50 rounded-lg p-3 transition-colors">
+                                                                            <span className="font-medium text-yellow-600 min-w-[24px]">
+                                                                                {i + 1}.
+                                                                            </span>
+                                                                            <div className="flex-1">
+                                                                                <p>{item.body_content}</p>
+                                                                                {item.video_link && (
+                                                                                    <Dialog>
+                                                                                        <DialogTrigger asChild>
+                                                                                            <Button
+                                                                                                className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg flex items-center gap-2 px-6 py-3 transition-all duration-300 hover:shadow-lg"
+                                                                                                onClick={() => showModal(item.video_link)}
+                                                                                            >
+                                                                                                <Play size={18} />
+                                                                                                Xem video bài học
+                                                                                            </Button>
+                                                                                        </DialogTrigger>
+                                                                                        <DialogContent className="max-w-4xl mx-auto p-6 bg-gray-300">
+                                                                                            <DialogTitle className="text-xl font-semibold mb-4">
+                                                                                                {item.content.name_content || "Video Bài Học"}
+                                                                                            </DialogTitle>
+                                                                                            <DialogDescription>
+                                                                                                <div className="relative w-full rounded-lg overflow-hidden shadow-lg" style={{ paddingTop: "56.25%" }}>
+                                                                                                    <ReactPlayer
+                                                                                                        url={currentVideoUrl}
+                                                                                                        className="absolute top-0 left-0"
+                                                                                                        controls={true}
+                                                                                                        width="100%"
+                                                                                                        height="100%"
+                                                                                                    />
+                                                                                                </div>
+                                                                                            </DialogDescription>
+                                                                                        </DialogContent>
+                                                                                    </Dialog>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            ) : (
+                                                                <p className="p-6 text-gray-500 text-center italic">Vào học để xem thêm nội dung !</p>
+                                                            )}
                                                         </AccordionContent>
                                                     </AccordionItem>
                                                 ))
                                             ) : (
                                                 <div className="text-center py-8 bg-white rounded-xl">
-                                                    <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
                                                     <p className="text-gray-500">Đang cập nhật nội dung...</p>
                                                 </div>
                                             )
