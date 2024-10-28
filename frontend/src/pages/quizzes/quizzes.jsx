@@ -10,14 +10,14 @@ import { Alert, AlertDescription, AlertTitle, } from "@/components/ui/alert";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
-export const Quizzes = (slug, quiz_id) => {
+export const Quizzes = ({ quiz_id }) => {
     const [quizzes, setQuizzes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [answers, setAnswers] = useState({});
     const [lesson, setLesson] = useState(null);
     const [hasStarted, setHasStarted] = useState(false);
     const [quizCompleted, setQuizCompleted] = useState(false);
-    // const { slug, quiz_id } = useParams();
+    const { slug } = useParams();
 
     const fetchLesson = async () => {
         try {
@@ -59,7 +59,7 @@ export const Quizzes = (slug, quiz_id) => {
             );
 
             setQuizzes([{ quiz_id: quizId, questions: questionsWithOptions }]);
-            toast.success("Đã tải dữ liệu quiz thành công");
+            toast.success("Hãy bắt đầu hành trình khám phá kiến thức của bạn nào! 📚");
         } catch (error) {
             console.error("Error fetching questions:", error);
             toast.error("Không thể tải dữ liệu câu hỏi");
@@ -144,6 +144,7 @@ export const Quizzes = (slug, quiz_id) => {
 
             setQuizCompleted(true);
             toast.success("Nộp bài thành công!");
+
         } catch (error) {
             console.error("Error submitting answers:", error);
             toast.error("Có lỗi xảy ra khi nộp bài!");
@@ -202,11 +203,36 @@ export const Quizzes = (slug, quiz_id) => {
     };
 
 
+    const [score, setScore] = useState(null);
+    const fetchScore = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/quiz/score`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+                },
+            });
+            setScore(response.data.score);
+
+        } catch (error) {
+            console.error("Error fetching score:", error);
+            toast.error("Không thể lấy điểm số!");
+        }
+    };
+
+    useEffect(() => {
+        fetchScore();
+    }, []);
+
+
+
     useEffect(() => {
         if (slug) {
             fetchLesson();
         }
     }, [slug]);
+
+
 
     if (loading) {
         return (
@@ -221,22 +247,6 @@ export const Quizzes = (slug, quiz_id) => {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
-            <div className="flex justify-between items-center mb-6">
-                <Link
-                    to={`/lessons/${slug}`}
-                    className="text-gray-600 hover:text-gray-800 font-medium flex items-center gap-2"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        handleConfirmExit();
-                    }}
-                >
-                    <ArrowLeft className="w-5 h-5" />
-                    Trở về bài học
-                </Link>
-            </div>
-
-            <Toaster position="top-right" />
-
             {!hasStarted ? (
                 <Card className="mt-8">
                     <CardHeader>
@@ -261,96 +271,100 @@ export const Quizzes = (slug, quiz_id) => {
                 </Card>
             ) : (
                 <div className="space-y-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Bài kiểm tra đang diễn ra</CardTitle>
-                        <CardDescription>
-                            Hoàn thành tất cả câu hỏi bên dưới
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-6">
-                            {quizzes.map((quiz) => (
-                                <div key={quiz.quiz_id} className="space-y-4">
-                                    {quiz.questions?.map((question, index) => (
-                                        <Card key={question.question_id} className="border-l-3 border-yellow-400">
-                                            <CardContent className="pt-6">
-                                                <p className="font-medium mb-4">
-                                                    <span className="bg-yellow-100 px-2 py-1 rounded-md mr-2">
-                                                        Câu {index + 1}:
-                                                    </span>
-                                                    {question.question}
-                                                    {question.question_type === 'mutiple_choice' && (
-                                                        <span className="text-sm text-gray-500 ml-2">
-                                                            (Chọn nhiều đáp án)
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Bài kiểm tra đang diễn ra</CardTitle>
+                            <CardDescription>
+                                Hoàn thành tất cả câu hỏi bên dưới
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-6">
+                                {quizzes.map((quiz) => (
+                                    <div key={quiz.quiz_id} className="space-y-4">
+                                        {quiz.questions?.map((question, index) => (
+                                            <Card key={question.question_id} className="border-l-3 border-yellow-400">
+                                                <CardContent className="pt-6">
+                                                    <p className="font-medium mb-4">
+                                                        <span className="bg-yellow-100 px-2 py-1 rounded-md mr-2">
+                                                            Câu {index + 1}:
                                                         </span>
-                                                    )}
-                                                </p>
-                                                <div className="grid gap-3">
-                                                    {question.question_type === 'fill_blank' ? (
-                                                        <input
-                                                            type="text"
-                                                            className="p-2 border rounded-lg"
-                                                            onChange={(e) => handleAnswerChange(question.question_id, e.target.value, question.question_type)}
-                                                            placeholder="Nhập câu trả lời của bạn"
-                                                        />
-                                                    ) : (
-                                                        question.options?.map((option, optionIndex) => {
-                                                            const isSelected = question.question_type === 'mutiple_choice'
-                                                                ? answers[question.question_id]?.includes(option.answer)
-                                                                : answers[question.question_id] === option.answer;
+                                                        {question.question}
+                                                        {question.question_type === 'mutiple_choice' && (
+                                                            <span className="text-sm text-gray-500 ml-2">
+                                                                (Chọn nhiều đáp án)
+                                                            </span>
+                                                        )}
+                                                    </p>
+                                                    <div className="grid gap-3">
+                                                        {question.question_type === 'fill_blank' ? (
+                                                            <input
+                                                                type="text"
+                                                                className="p-2 border rounded-lg"
+                                                                onChange={(e) => handleAnswerChange(question.question_id, e.target.value, question.question_type)}
+                                                                placeholder="Nhập câu trả lời của bạn"
+                                                            />
+                                                        ) : (
+                                                            question.options?.map((option, optionIndex) => {
+                                                                const isSelected = question.question_type === 'mutiple_choice'
+                                                                    ? answers[question.question_id]?.includes(option.answer)
+                                                                    : answers[question.question_id] === option.answer;
 
-                                                            return (
-                                                                <button
-                                                                    key={option.option_id}
-                                                                    className={`p-2 rounded-lg text-left transition-all ${
-                                                                        isSelected
+                                                                return (
+                                                                    <button
+                                                                        key={option.option_id}
+                                                                        className={`p-2 rounded-lg text-left transition-all ${isSelected
                                                                             ? "bg-yellow-400 text-white"
                                                                             : "bg-white hover:bg-yellow-50 border border-gray-200"
-                                                                    }`}
-                                                                    onClick={() => handleAnswerChange(
-                                                                        question.question_id,
-                                                                        option.answer,
-                                                                        question.question_type
-                                                                    )}
-                                                                >
-                                                                    <span className="flex items-center gap-3">
-                                                                        <span className={`w-8 h-8 flex items-center justify-center rounded-full ${
-                                                                            isSelected
+                                                                            }`}
+                                                                        onClick={() => handleAnswerChange(
+                                                                            question.question_id,
+                                                                            option.answer,
+                                                                            question.question_type
+                                                                        )}
+                                                                    >
+                                                                        <span className="flex items-center gap-3">
+                                                                            <span className={`w-8 h-8 flex items-center justify-center rounded-full ${isSelected
                                                                                 ? "bg-white text-yellow-500"
                                                                                 : "border-gray-300"
-                                                                        }`}>
-                                                                            {String.fromCharCode(65 + optionIndex)}
+                                                                                }`}>
+                                                                                {String.fromCharCode(65 + optionIndex)}
+                                                                            </span>
+                                                                            {option.answer}
                                                                         </span>
-                                                                        {option.answer}
-                                                                    </span>
-                                                                </button>
-                                                            );
-                                                        })
-                                                    )}
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    ))}
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
+                                                                    </button>
+                                                                );
+                                                            })
+                                                        )}
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                <div className="flex justify-center mt-8">
-                    <button
-                        onClick={handleSubmit}
-                        className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2"
-                        disabled={quizCompleted}
-                    >
-                        <Trophy className="w-5 h-5" />
-                        Nộp bài
-                    </button>
+                    <div className="flex justify-center mt-8">
+                        <button
+                            onClick={handleSubmit}
+                            className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2"
+                            disabled={quizCompleted}
+                        >
+                            <Trophy className="w-5 h-5" />
+                            Nộp bài
+                        </button>
+                    </div>
+                    {/* Hiển thị điểm số sau khi nộp bài */}
+                    {quizCompleted && (
+                        <div className="mt-6">
+                            <h2 className="text-lg font-bold">Điểm số của bạn: {score !== null ? score : 'Đang tải...'}/{quizzes[0]?.questions.length}</h2>
+                        </div>
+                    )}
                 </div>
-            </div>
-        )}
-    </div>
+            )}
+        </div>
     );
 };
 
