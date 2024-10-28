@@ -43,32 +43,41 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Search } from "lucide-react";
+import axios from "axios";
 
 export default function CourseStatus() {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
+
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+    const [isNewCourseDialogOpen, setIsNewCourseDialogOpen] = useState(false);
     const [statusNote, setStatusNote] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
     const [courses, setCourses] = useState([]);
     const [statusOptions, setStatusOptions] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Fetch courses and status from API
     const fetchCourses = async () => {
         try {
-            const response = await fetch('YOUR_API_URL_HERE'); // Thay YOUR_API_URL_HERE bằng URL API của bạn
-            if (!response.ok) {
-                throw new Error('Failed to fetch courses');
-            }
-            const data = await response.json();
-            setCourses(data.courses); // Dữ liệu khóa học
-            setStatusOptions(data.statusOptions); // Dữ liệu trạng thái
+            const res = await axios.get(`${API_URL}/admin/courses`, {
+                headers: {
+                    'x-api-secret': API_KEY
+                }
+            });
+            const data = res.data;
+            setCourses(data);
+
         } catch (error) {
-            console.error("Error fetching courses:", error);
+            console.error('Error fetching Courses:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchCourses(); // Gọi hàm fetchCourses khi component mount
+        fetchCourses();
     }, []);
 
     const getStatusColor = (status) => {
@@ -95,52 +104,6 @@ export default function CourseStatus() {
         setSelectedCourse(course);
         setIsStatusDialogOpen(true);
     };
-
-    const StatusChangeDialog = () => (
-        <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Thay đổi trạng thái khóa học</DialogTitle>
-                    <DialogDescription>
-                        Cập nhật trạng thái cho khóa học: {selectedCourse?.title}
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                        <Label>Trạng thái mới</Label>
-                        <Select
-                            onValueChange={(value) => handleStatusChange(selectedCourse?.id, value)}
-                            defaultValue={selectedCourse?.status}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Chọn trạng thái" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {statusOptions.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                        {option.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="grid gap-2">
-                        <Label>Ghi chú</Label>
-                        <Textarea
-                            placeholder="Nhập ghi chú về việc thay đổi trạng thái..."
-                            value={statusNote}
-                            onChange={(e) => setStatusNote(e.target.value)}
-                        />
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsStatusDialogOpen(false)}>
-                        Hủy
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    );
 
     return (
         <SidebarProvider>
@@ -199,9 +162,7 @@ export default function CourseStatus() {
                                                 className="pl-9 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             />
                                         </div>
-                                        <DialogTrigger asChild>
-                                            <Button variant="default">Thêm khóa học mới</Button>
-                                        </DialogTrigger>
+
                                     </div>
                                 </div>
 
@@ -211,7 +172,6 @@ export default function CourseStatus() {
                                             <TableHead>Khóa học</TableHead>
                                             <TableHead>Giảng viên</TableHead>
                                             <TableHead>Trạng thái</TableHead>
-                                            <TableHead>Cập nhật lần cuối</TableHead>
                                             <TableHead className="text-right">Hành động</TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -219,15 +179,16 @@ export default function CourseStatus() {
                                         {courses.filter(course => filterStatus === "all" || course.status === filterStatus).map((course) => (
                                             <TableRow key={course.id}>
                                                 <TableCell>{course.title}</TableCell>
-                                                <TableCell>{course.instructor}</TableCell>
+                                                <TableCell>{course.user.name}</TableCell>
                                                 <TableCell>
                                                     <Badge className={getStatusColor(course.status)}>
                                                         {course.status}
                                                     </Badge>
                                                 </TableCell>
-                                                <TableCell>{course.lastUpdated}</TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button onClick={() => openStatusDialog(course)}>Thay đổi trạng thái</Button>
+                                                    <Button onClick={() => openStatusDialog(course)}>
+                                                        Thay đổi trạng thái
+                                                    </Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -237,7 +198,48 @@ export default function CourseStatus() {
                         </Card>
                     </div>
                 </div>
-                <StatusChangeDialog />
+
+                {/* Dialog for status change */}
+                <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Thay đổi trạng thái khóa học</DialogTitle>
+                            <DialogDescription>
+                                Cập nhật trạng thái cho khóa học: {selectedCourse?.title}
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid gap-2">
+                                <Label>Trạng thái mới</Label>
+                                <Select
+                                    onValueChange={(value) => handleStatusChange(selectedCourse?.id, value)}
+                                    defaultValue={selectedCourse?.status}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Chọn trạng thái" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {statusOptions.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setIsStatusDialogOpen(false)}>
+                                Hủy
+                            </Button>
+                            <Button onClick={() => {
+                                setIsStatusDialogOpen(false);
+                            }}>
+                                Lưu
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </SidebarInset>
         </SidebarProvider>
     );

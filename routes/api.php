@@ -152,7 +152,7 @@ Route::middleware(['admin'])->group(function () {
     // Route để lấy tất cả đơn hàng của một user cụ thể
     Route::get('/orders/user/{user_id}', [OrderController::class, 'getAllOrdersByUserId']);
 
-    // Route để lấy chi tiết một đơn hàng dựa vào user_id và order_id 
+    // Route để lấy chi tiết một đơn hàng dựa vào user_id và order_id
     Route::get('/orders/{user_id}/{order_id}', [OrderController::class, 'show']);
 
 
