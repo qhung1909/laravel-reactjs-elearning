@@ -38,14 +38,14 @@ export default function ClassifyCourse() {
 
   const fetchCourses = async () => {
     try {
-        const res = await axios.get(`${API_URL}/admin/courses`, {
-            headers: { 'x-api-secret': API_KEY }
-        });
-        setCourses(res.data);
+      const res = await axios.get(`${API_URL}/admin/courses`, {
+        headers: { 'x-api-secret': API_KEY }
+      });
+      setCourses(res.data);
     } catch (error) {
-        console.error('Error fetching courses:', error);
+      console.error('Error fetching courses:', error);
     }
-}
+  }
 
   const fetchCategories = async () => {
     try {
@@ -75,12 +75,12 @@ export default function ClassifyCourse() {
 
     setCourses(prevCourses =>
       prevCourses.map(course =>
-        course.id === courseId ? { ...course, course_category_id: categoryId } : course
+        course.course_id === courseId ? { ...course, course_category_id: categoryId } : course
       )
     );
 
     try {
-      await axios.put(`${API_URL}/courses/${courseId}`, {
+      await axios.put(`${API_URL}/admin/courses/${courseId}`, {
         course_category_id: categoryId
       }, {
         headers: { 'x-api-secret': API_KEY }
@@ -90,10 +90,13 @@ export default function ClassifyCourse() {
     }
   }
 
-  const filteredCourses = courses.filter(course =>
-    (selectedCategory === "Tất cả" || course.course_category_id === selectedCategory) &&
-    course.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCourses = courses.filter(course => {
+    const isInSelectedCategory = selectedCategory === "Tất cả" || selectedCategory === "all" || course.course_category_id === selectedCategory;
+    const isInSearchTerm = course.title.toLowerCase().includes(searchTerm.toLowerCase());
+    return isInSelectedCategory && isInSearchTerm;
+  });
+
+
 
   return (
     <SidebarProvider>
@@ -118,77 +121,77 @@ export default function ClassifyCourse() {
         </header>
 
         <div className="absolute top-16 px-6 bg-gray-50 w-full">
-            <h1 className="text-3xl font-bold mb-8 text-gray-800">Phân loại khóa học</h1>
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-white p-4 rounded-lg shadow-sm">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-full sm:w-auto">
-                    {selectedCategory === "Tất cả" ? "Tất cả" : categories.find(c => c.course_category_id === selectedCategory)?.name || "Tất cả"} <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {categories.map((category) => (
-                    <DropdownMenuItem key={category.course_category_id} onSelect={() => setSelectedCategory(category.course_category_id)}>
-                      {category.name}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+          <h1 className="text-3xl font-bold mb-8 text-gray-800">Phân loại khóa học</h1>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-white p-4 rounded-lg shadow-sm">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full sm:w-auto">
+                  {selectedCategory === "Tất cả" ? "Tất cả" : categories.find(c => c.course_category_id === selectedCategory)?.name || "Tất cả"} <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {categories.map((category) => (
+                  <DropdownMenuItem key={category.course_category_id} onSelect={() => setSelectedCategory(category.course_category_id)}>
+                    {category.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Tìm kiếm khóa học"
-                  className="pl-8 w-full"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Tìm kiếm khóa học"
+                className="pl-8 w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-
-            {loading ? (
-              <p>Đang tải...</p>
-            ) : (
-              <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Tên khóa học</th>
-                      <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Giá</th>
-                      <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Danh mục</th>
-                      <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredCourses.map((course) => (
-                      <tr key={course.id} className="border-t border-gray-100">
-                        <td className="py-4 px-6">{course.title}</td>
-                        <td className="py-4 px-6">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}</td>
-                        <td className="py-4 px-6">
-                          <select
-                            value={course.course_category_id || ''}
-                            onChange={(e) => handleCategoryChange(course.id, e.target.value)}
-                            className="border border-gray-300 rounded-lg p-2"
-                          >
-                            {categories.filter(c => c.course_category_id !== 'all').map(category => (
-                              <option key={category.course_category_id} value={category.course_category_id}>
-                                {category.name}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="py-4 px-6">
-                          <Button variant="outline" size="sm">
-                            Xem chi tiết
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
           </div>
+
+          {loading ? (
+            <p>Đang tải...</p>
+          ) : (
+            <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Tên khóa học</th>
+                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Giá</th>
+                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Danh mục</th>
+                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCourses.map((course) => (
+                    <tr key={course.course_id} className="border-t border-gray-100">
+                      <td className="py-4 px-6">{course.title}</td>
+                      <td className="py-4 px-6">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}</td>
+                      <td className="py-4 px-6">
+                        <select
+                          value={course.course_category_id || ''}
+                          onChange={(e) => handleCategoryChange(course.course_id, e.target.value)}
+                          className="border border-gray-300 rounded-lg p-2"
+                        >
+                          {categories.filter(c => c.course_category_id !== 'all').map(category => (
+                            <option key={category.course_category_id} value={category.course_category_id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="py-4 px-6">
+                        <Button variant="outline" size="sm">
+                          Xem chi tiết
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );
