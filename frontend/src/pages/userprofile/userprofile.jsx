@@ -18,6 +18,8 @@ export const UserProfile = () => {
     const [password, setPassword] = useState("");
     const [current_password, setCurrentPassword] = useState("");
     const [password_confirmation, setPassword_Confirmation] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -47,14 +49,19 @@ export const UserProfile = () => {
     // hàm xử lý validate thay đổi mật khẩu
     const handleChangePassword = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+
+        setIsSubmitting(true); // Vô hiệu hóa nút khi xử lý
         const isUpdated = await updatePassword(current_password, password, password_confirmation);
+        setIsSubmitting(false); // Kích hoạt lại nút sau khi xử lý
+
         if (isUpdated) {
             setCurrentPassword('');
             setPassword('');
             setPassword_Confirmation('');
-            setError('');
         }
     };
+
 
     return (
         <>
