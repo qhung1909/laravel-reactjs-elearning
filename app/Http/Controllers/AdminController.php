@@ -281,4 +281,52 @@ class AdminController extends Controller
 
         return response()->json($coupon);
     }
+
+    public function storeCoupon(Request $request)
+    {
+        $request->validate([
+            'name_coupon' => 'required|string|max:255',
+            'discount_price' => 'required|numeric|min:0',
+            'start_discount' => 'required|date',
+            'end_discount' => 'required|date|after:start_discount',
+        ]);
+
+        $coupon = Coupon::create([
+            'name_coupon' => $request->name_coupon,
+            'discount_price' => $request->discount_price,
+            'start_discount' => $request->start_discount,
+            'end_discount' => $request->end_discount,
+        ]);
+
+        return response()->json($coupon, 201);
+    }
+
+    public function updateCoupon(Request $request, $coupon_id)
+    {
+        $coupon = Coupon::findOrFail($coupon_id);
+
+        $request->validate([
+            'name_coupon' => 'sometimes|required|string|max:255',
+            'discount_price' => 'sometimes|required|numeric|min:0',
+            'start_discount' => 'sometimes|required|date',
+            'end_discount' => 'sometimes|required|date|after:start_discount',
+        ]);
+
+        $coupon->update($request->only([
+            'name_coupon',
+            'discount_price',
+            'start_discount',
+            'end_discount',
+        ]));
+
+        return response()->json($coupon);
+    }
+
+    public function destroyCoupon($coupon_id)
+    {
+        $coupon = Coupon::findOrFail($coupon_id);
+        $coupon->delete();
+
+        return response()->json(['message' => 'Coupon deleted successfully']);
+    }
 }
