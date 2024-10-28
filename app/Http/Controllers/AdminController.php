@@ -207,7 +207,6 @@ class AdminController extends Controller
 
     public function updateCategoryImage(Request $request, $course_category_id)
     {
-
         $rules = [
             'name' => 'nullable|string',
             'description' => 'nullable|string',
@@ -225,74 +224,73 @@ class AdminController extends Controller
             $category = Category::where('course_category_id', $course_category_id)->firstOrFail();
             Log::info('Original category data:', $category->toArray());
     
-            DB::transaction(function () use ($request, $category) {
-                $changes = []; 
-                if ($request->filled('name')) {
-                    Log::info('Processing name update:', [
-                        'current' => $category->name,
-                        'new' => $request->name
-                    ]);
-                    
-                    if ($request->name !== $category->name) {
-                        $oldName = $category->name;
-                        $category->name = $request->name;
-                        
-                        $baseSlug = Str::slug($request->name);
-                        $newSlug = $baseSlug;
-                        $counter = 1;
-                        
-                        while (Category::where('slug', $newSlug)
-                               ->where('course_category_id', '!=', $category->course_category_id)
-                               ->exists()) {
-                            $newSlug = $baseSlug . '-' . $counter;
-                            $counter++;
-                        }
-                        
-                        $category->slug = $newSlug;
-                        $changes['name'] = ['old' => $oldName, 'new' => $request->name];
-                        $changes['slug'] = ['old' => $category->getOriginal('slug'), 'new' => $newSlug];
-                    }
-                }
+            $changes = []; 
     
-                if ($request->filled('description')) {
-                    Log::info('Processing description update:', [
-                        'current' => $category->description,
+            if ($request->filled('name')) {
+                Log::info('Processing name update:', [
+                    'current' => $category->name,
+                    'new' => $request->name
+                ]);
+                
+                if ($request->name !== $category->name) {
+                    $oldName = $category->name;
+                    $category->name = $request->name;
+                    
+                    $baseSlug = Str::slug($request->name);
+                    $newSlug = $baseSlug;
+                    $counter = 1;
+                    
+                    while (Category::where('slug', $newSlug)
+                           ->where('course_category_id', '!=', $category->course_category_id)
+                           ->exists()) {
+                        $newSlug = $baseSlug . '-' . $counter;
+                        $counter++;
+                    }
+                    
+                    $category->slug = $newSlug;
+                    $changes['name'] = ['old' => $oldName, 'new' => $request->name];
+                    $changes['slug'] = ['old' => $category->getOriginal('slug'), 'new' => $newSlug];
+                }
+            }
+    
+            if ($request->filled('description')) {
+                Log::info('Processing description update:', [
+                    'current' => $category->description,
+                    'new' => $request->description
+                ]);
+                
+                if ($request->description !== $category->description) {
+                    $changes['description'] = [
+                        'old' => $category->description,
                         'new' => $request->description
-                    ]);
-                    
-                    if ($request->description !== $category->description) {
-                        $changes['description'] = [
-                            'old' => $category->description,
-                            'new' => $request->description
-                        ];
-                        $category->description = $request->description;
-                    }
+                    ];
+                    $category->description = $request->description;
                 }
+            }
     
-                if ($request->hasFile('image')) {
-                    Log::info('Processing image upload');
-                    try {
-                        $imageUrl = $this->handleImageUpload($request->file('image'));
-                        $changes['image'] = [
-                            'old' => $category->image,
-                            'new' => $imageUrl
-                        ];
-                        $category->image = $imageUrl;
-                    } catch (\Exception $e) {
-                        Log::error('Image upload failed:', ['error' => $e->getMessage()]);
-                        throw $e;
-                    }
+            if ($request->hasFile('image')) {
+                Log::info('Processing image upload');
+                try {
+                    $imageUrl = $this->handleImageUpload($request->file('image'));
+                    $changes['image'] = [
+                        'old' => $category->image,
+                        'new' => $imageUrl
+                    ];
+                    $category->image = $imageUrl;
+                } catch (\Exception $e) {
+                    Log::error('Image upload failed:', ['error' => $e->getMessage()]);
+                    throw $e;
                 }
+            }
     
-                if (!empty($changes)) {
-                    Log::info('Changes detected:', $changes);
-                    $category->updated_at = now();
-                    $category->save();
-                    Log::info('Category saved with changes');
-                } else {
-                    Log::info('No changes detected');
-                }
-            });
+            if (!empty($changes)) {
+                Log::info('Changes detected:', $changes);
+                $category->updated_at = now();
+                $category->save();
+                Log::info('Category saved with changes');
+            } else {
+                Log::info('No changes detected');
+            }
     
             $category->refresh();
             Log::info('Final category data:', $category->toArray());
