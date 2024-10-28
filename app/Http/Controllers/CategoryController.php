@@ -23,14 +23,12 @@ class CategoryController extends Controller
 
     public function index()
     {
-        $categories = Cache::remember('categories', 180, function () {
-            return $this->category::all();
-        });
-
+        $categories = $this->category::all();
+    
         if ($categories->isEmpty()) {
             Log::info('No categories found in the database.');
         }
-
+    
         return response()->json($categories);
     }
 
