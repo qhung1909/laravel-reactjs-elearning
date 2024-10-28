@@ -205,29 +205,29 @@ class AdminController extends Controller
         }
     }
 
-    public function updateCategoryImage(Request $request, $slug)
+    public function updateCategoryImage(Request $request, $course_id)
     {
         $rules = [
             'name' => 'sometimes|required|string',
             'description' => 'sometimes|nullable|string',
             'image' => 'sometimes|nullable|image|max:2048',
         ];
-
+    
         $validator = Validator::make($request->all(), $rules);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
+    
         try {
-            $category = DB::transaction(function () use ($request, $slug) {
-                $category = $this->category->where('slug', $slug)->firstOrFail();
-
+            $category = DB::transaction(function () use ($request, $course_id) {
+                $category = $this->category->where('course_id', $course_id)->firstOrFail();
+    
                 if ($request->has('name') && $request->name !== $category->name) {
                     $baseSlug = Str::slug($request->name);
                     $newSlug = $baseSlug;
                     $counter = 1;
-
+    
                     while (Category::where('slug', $newSlug)
                         ->where('id', '!=', $category->id)
                         ->exists()
@@ -235,26 +235,26 @@ class AdminController extends Controller
                         $newSlug = $baseSlug . '-' . $counter;
                         $counter++;
                     }
-
+    
                     $category->slug = $newSlug;
                 }
-
+    
                 $category->name = $request->input('name', $category->name);
                 $category->description = $request->input('description', $category->description);
-
+    
                 if ($request->hasFile('image')) {
                     $imageUrl = $this->handleImageUpload($request->file('image'));
                     $category->image_url = $imageUrl; 
                 }
-
+    
                 $category->save();
-
+    
                 return $category;
             });
-
+    
             Cache::forget('categories');
-            Cache::forget("category_{$slug}");
-
+            Cache::forget("category_{$category->slug}"); 
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Danh mục được cập nhật thành công.',
