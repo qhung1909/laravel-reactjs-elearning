@@ -78,8 +78,30 @@ export const CategoryCrud = () => {
     const [newCategoryImage, setNewCategoryImage] = useState('');
 
     const [editCategoryId, setEditCategoryId] = useState(null);
+    const [error, setError] = useState('')
     const [editCategoryName, setEditCategoryName] = useState('');
-    const [editCategoryImage, setEditCategoryImage] = useState('');
+    const [editCategoryImage, setEditCategoryImage] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);
+
+
+    // useEffect(() => {
+    //     setEditCategoryName(category.name); // Giả định category là đối tượng chứa dữ liệu
+    //     setEditCategoryImage(null); // Đặt lại hình ảnh
+    //     setSelectedImage(null); // Đặt lại hình ảnh đã chọn
+    // }, [category]);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setEditCategoryImage(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setSelectedImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -124,7 +146,7 @@ export const CategoryCrud = () => {
 
         const formData = new FormData();
         formData.append('name', newCategoryName);
-        formData.append('image', newCategoryImage); // newCategoryImage phải là một đối tượng File
+        formData.append('image', newCategoryImage);
 
         try {
             setLoading(true);
@@ -140,39 +162,39 @@ export const CategoryCrud = () => {
             notify('Thêm danh mục thành công', 'success');
         } catch (error) {
             if (error.response) {
-                // Lỗi trả về từ server
                 console.error('Server error:', error.response.data.errors);
             } else {
-                // Lỗi không phải từ server
                 console.error('Error adding category:', error.message);
             }
         } finally {
             setLoading(false);
         }
     };
-    console.log(newCategoryImage); // Kiểm tra xem có phải là đối tượng File không
 
 
 
     const editCategory = async (categoryId) => {
-        const updatedCategory = {
-            name: editCategoryName,
-            image: editCategoryImage, // Đảm bảo đúng tên trường mà API yêu cầu
-        };
+        const formData = new FormData();
+        formData.append('name', editCategoryName);
+        formData.append('image', editCategoryImage);
+
+        if (!editCategoryName || !editCategoryImage) {
+            setError('Vui lòng nhập đầy đủ thông tin');
+        }
 
         try {
             setLoading(true);
-            const res = await axios.put(`${API_URL}/categories/${categoryId}`, updatedCategory, {
+            const res = await axios.put(`${API_URL}/categories/${categoryId}`, formData, {
                 headers: {
-                    'x-api-secret': API_KEY // Nếu cần gửi khóa API
+                    'x-api-secret': API_KEY
                 }
             });
-            const data = res.data; // Xử lý dữ liệu phản hồi nếu cần
-            console.log('Category updated:', data); // Xem phản hồi từ server
-            // Reset các trường input sau khi sửa
+            const data = res.data;
+            console.log('Category updated:', data);
             setEditCategoryName('');
             setEditCategoryImage('');
         } catch (error) {
+            setError('Lỗi khi sửa', error)
             console.error('Error updating category:', error);
         } finally {
             setLoading(false);
@@ -200,16 +222,6 @@ export const CategoryCrud = () => {
 
 
 
-    // const categories = [
-    //     { id: 1, name: "Danh mục a", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/nodejs.svg", courseCount: 5, lastUpdated: "2024-03-15" },
-    //     { id: 2, name: "Danh mục c", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/reactjs.svg", courseCount: 3, lastUpdated: "2024-03-14" },
-    //     { id: 3, name: "Danh mục b", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/angular.svg", courseCount: 8, lastUpdated: "2024-03-13" },
-    //     { id: 4, name: "Danh mục d", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/css.svg", courseCount: 2, lastUpdated: "2024-03-12" },
-    //     { id: 5, name: "Danh mục a", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/nodejs.svg", courseCount: 5, lastUpdated: "2024-03-15" },
-    //     { id: 6, name: "Danh mục c", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/reactjs.svg", courseCount: 3, lastUpdated: "2024-03-14" },
-    //     { id: 7, name: "Danh mục b", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/angular.svg", courseCount: 8, lastUpdated: "2024-03-13" },
-    //     { id: 8, name: "Danh mục d", icon: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/css.svg", courseCount: 2, lastUpdated: "2024-03-12" },
-    // ];
 
     const handleSort = (key) => {
         let direction = 'asc';
@@ -248,7 +260,8 @@ export const CategoryCrud = () => {
     const openEditDialog = (category) => {
         setEditCategoryId(category.slug);
         setEditCategoryName(category.name);
-        setEditCategoryImage(category.icon);
+        setEditCategoryImage(null);
+        setSelectedImage(null);
         setShowEditDialog(true);
     };
 
@@ -338,7 +351,7 @@ export const CategoryCrud = () => {
                                         </div>
                                     </div>
                                     <DialogFooter>
-                                        <Button type="submit" onClick={addCategory}>
+                                        <Button className='bg-yellow-500 hover:bg-yellow-600' type="submit" onClick={addCategory}>
                                             Thêm
                                         </Button>
                                     </DialogFooter>
@@ -398,10 +411,10 @@ export const CategoryCrud = () => {
                                                     <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
                                                 </td>
                                                 <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '150px', height: '20px' }} />
+                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
                                                 </td>
                                                 <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
+                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '120px', height: '20px' }} />
                                                 </td>
                                                 <td className="py-4 px-6">
                                                     <div className="bg-gray-300 rounded animate-pulse" style={{ width: '120px', height: '20px' }} />
@@ -420,14 +433,17 @@ export const CategoryCrud = () => {
                                         <tr key={index} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
                                             <td className="py-4 px-6 text-sm text-gray-600">#{category.course_category_id}</td>
                                             <td className="py-4 px-6 text-sm text-gray-600">
-                                                <img src={category.image} alt={`${category.name} icon`} className="h-6 w-6" />
+                                                {category.image ? (
+                                                    <img src={category.image} alt={`${category.name} icon`} className="h-6 w-6" />
+                                                ) : (
+                                                    <>null</>
+                                                )}
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="font-medium text-gray-900">{category.name}</div>
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="flex items-center gap-2">
-                                                    {/* <BookOpen className="h-4 w-4 text-gray-400" /> */}
                                                     <span className="text-sm text-gray-600">{category.courseCount}  update soon</span>
                                                 </div>
                                             </td>
@@ -442,7 +458,7 @@ export const CategoryCrud = () => {
                                                                 variant="outline"
                                                                 size="sm"
                                                                 className="text-blue-600 border-blue-600 hover:bg-blue-50"
-                                                                onClick={() => openEditDialog(category)} // Mở dialog sửa
+                                                                onClick={() => openEditDialog(category)}
                                                             >
                                                                 <PenLine className="h-4 w-4 mr-1" />
                                                                 Sửa
@@ -468,21 +484,43 @@ export const CategoryCrud = () => {
                                                                         required
                                                                     />
                                                                 </div>
+
+
+                                                                {category.image ? (
+                                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                                        <Label>Icon hiện tại</Label>
+                                                                        <img src={category.image} alt="Current Icon" />
+                                                                    </div>
+                                                                ) : (
+                                                                    <></>
+                                                                )
+
+                                                                }
+
+
                                                                 <div className="grid grid-cols-4 items-center gap-4">
                                                                     <Label htmlFor="editCategoryImage" className="text-right">
-                                                                        URL icon
+                                                                        Tạo icon mới
                                                                     </Label>
                                                                     <Input
+                                                                        type='file'
                                                                         id="editCategoryImage"
-                                                                        value={editCategoryImage}
-                                                                        onChange={(e) => setEditCategoryImage(e.target.value)}
+                                                                        onChange={handleImageChange}
                                                                         className="col-span-3"
                                                                         required
                                                                     />
                                                                 </div>
+
+                                                                {selectedImage && (
+                                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                                        <Label>Hình ảnh đã chọn:</Label>
+                                                                        <img src={selectedImage} onChange={((e) => setEditCategoryImage(e.target.value))} alt="Selected" className="col-span-3" />
+                                                                    </div>
+                                                                )}
                                                             </div>
+                                                            {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
                                                             <DialogFooter>
-                                                                <Button type="submit" onClick={editCategory}>
+                                                                <Button className='bg-yellow-500 hover:bg-yellow-600' type="submit" onClick={editCategory}>
                                                                     Cập nhật
                                                                 </Button>
                                                             </DialogFooter>
