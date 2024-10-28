@@ -118,6 +118,14 @@ export const Courses = () => {
         }
     };
 
+    // Hàm clear tất cả các filter
+    const clearFilters = () => {
+        setSortCriteria('');
+        setRatingFilter('');
+        setSelectedCategory(null);
+        fetchCourses(); // Lấy lại tất cả sản phẩm
+    };
+
     // thao tác xử lý lọc giá
     const handlePriceSort = (checked, value) => {
         if (checked) {
@@ -674,8 +682,8 @@ export const Courses = () => {
                                     </SheetContent>
                                 </Sheet>
                             </div>
-
                         </div>
+
                         <div className="lg:block hidden">
                             <div className="ml-auto">
                                 <p className=" text-gray-500  font-bold">
@@ -807,7 +815,11 @@ export const Courses = () => {
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
-
+                            <div className="bg-gray-300 py-2 px-4 rounded-full font-semibold mt-5 w-28">
+                                <button onClick={clearFilters} className='flex items-center'>
+                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/remove.svg" className='w-7' alt="" />
+                                    <p>Bỏ lọc</p></button>
+                            </div>
                         </div>
 
                         {/*Danh sách khóa học nơi hiển thị sản phẩm đã được search */}
