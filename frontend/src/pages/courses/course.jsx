@@ -55,13 +55,28 @@ export const Courses = () => {
     const location = useLocation();
     const [hotInstructor, setHotInstructor] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [sortCriteria, setSortCriteria] = useState(''); // Thêm state cho tiêu chí sắp xếp
+    const [sortCriteria, setSortCriteria] = useState('');
+    const [ratingFilter, setRatingFilter] = useState('');
+
     const API_URL = import.meta.env.VITE_API_URL;
     const API_KEY = import.meta.env.VITE_API_KEY;
     const navigate = useNavigate();
 
+
+    // hàm lọc sản phẩm
     const getSortedCourses = () => {
-        if (!sortCriteria || !courses) return courses;
+        if (!courses) return [];
+        let filteredCourses = [...courses];
+
+        if (ratingFilter) {
+            filteredCourses = filteredCourses.filter(course => {
+                const rating = course.comments && course.comments.length > 0
+                    ? parseFloat(course.comments[0].rating)
+                    : 'Chưa có dữ liệu';
+                return rating >= parseFloat(ratingFilter);
+            });
+        }
+        if (!sortCriteria) return filteredCourses;
 
         const sortedCourses = [...courses];
         switch (sortCriteria) {
@@ -73,8 +88,12 @@ export const Courses = () => {
                 });
             case 'Hot':
                 return sortedCourses.sort((a, b) => (b.views || 0) - (a.views || 0));
-            case 'TopRank':
+            case 'Buy':
                 return sortedCourses.sort((a, b) => (b.is_buy || 0) - (a.is_buy || 0));
+            case 'priceAsc':
+                return sortedCourses.sort((a, b) => (a.price_discount || 0) - (b.price_discount || 0));
+            case 'priceDesc':
+                return sortedCourses.sort((a, b) => (b.price_discount || 0) - (a.price_discount || 0));
             default:
                 return sortedCourses;
         }
@@ -89,11 +108,33 @@ export const Courses = () => {
     const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
     const currentCourses = sortedCourses.slice(indexOfFirstCourse, indexOfLastCourse);
 
-    const handleSortChange = (value) => {
-        setSortCriteria(value);
+
+    // thao tác xử lý lọc mới/hot/new
+    const handleSortChange = (checked, value) => {
+        if (checked) {
+            setSortCriteria(value);
+        } else {
+            setSortCriteria('');
+        }
     };
 
+    // thao tác xử lý lọc giá
+    const handlePriceSort = (checked, value) => {
+        if (checked) {
+            setSortCriteria(value);
+        } else {
+            setSortCriteria('');
+        }
+    };
 
+    // thao tác xử lý lọc rating
+    const handleRatingFilter = (checked, value) => {
+        if (checked) {
+            setRatingFilter(value);
+        } else {
+            setRatingFilter('');
+        }
+    };
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -107,19 +148,6 @@ export const Courses = () => {
         }
         fetchTopPurchasedProduct();
     }, [location.search, sortCriteria]);
-
-    const renderSortSelect = () => (
-        <Select onValueChange={handleSortChange} value={sortCriteria}>
-            <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sắp xếp theo" className="py-3" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="Hot" className="cursor-pointer">Phổ biến nhất</SelectItem>
-                <SelectItem value="TopRank" className="cursor-pointer">Thứ hạng cao nhất</SelectItem>
-                <SelectItem value="New" className="cursor-pointer">Mới nhất</SelectItem>
-            </SelectContent>
-        </Select>
-    );
 
     const handleCategoryClick = (slug) => {
         fetchCoursesByCategory(slug);
@@ -188,6 +216,8 @@ export const Courses = () => {
         )
 
 
+
+    // xử lý phân trang và render
     const paginate = (pageNumber) => {
         navigate(`?page=${pageNumber}`);
     };
@@ -507,7 +537,7 @@ export const Courses = () => {
                         <div className="flex items-center">
                             <div className="lg:hidden block">
 
-                                {/* bộ lộc */}
+                                {/* bộ lộc reponsive */}
                                 <Sheet>
                                     <SheetTrigger>
                                         <button
@@ -520,21 +550,64 @@ export const Courses = () => {
                                         <SheetHeader>
                                             <SheetTitle className="text-xl">Bộ lọc</SheetTitle>
                                             <SheetDescription>
-                                                <Accordion type="single" collapsible defaultValue="item-1">
+                                                {/* mua,xem nhiều */}
+                                                <Accordion type="single" collapsible>
                                                     <AccordionItem value="item-1">
-                                                        <AccordionTrigger className="text-xl font-bold">Xếp hạng</AccordionTrigger>
+                                                        <AccordionTrigger className="text-xl font-bold">Sắp xếp theo</AccordionTrigger>
                                                         <AccordionContent>
                                                             <div className="flex gap-2 items-center my-1">
-                                                                <Checkbox></Checkbox>
+                                                                <Checkbox
+                                                                    id="new"
+                                                                    checked={sortCriteria === 'New'}
+                                                                    onCheckedChange={(checked) => handleSortChange(checked, 'New')}
+                                                                />
                                                                 <Label>
                                                                     <span className="text-sm lg:text-base font-normal text-gray-800">
                                                                         {" "}
-                                                                        Từ 4.5 trở lên
+                                                                        Mới nhất
                                                                     </span>
                                                                 </Label>
                                                             </div>
                                                             <div className="flex gap-2 items-center my-1">
-                                                                <Checkbox></Checkbox>
+                                                                <Checkbox
+                                                                    id="Buy"
+                                                                    checked={sortCriteria === 'Buy'}
+                                                                    onCheckedChange={(checked) => handleSortChange(checked, 'Buy')}
+                                                                />
+                                                                <Label>
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                                        {" "}
+                                                                        Mua nhiều
+                                                                    </span>
+                                                                </Label>
+                                                            </div>
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                </Accordion>
+                                                {/* xếp hạng */}
+                                                <Accordion type="single" collapsible>
+                                                    <AccordionItem value="item-2">
+                                                        <AccordionTrigger className="text-xl font-bold">Xếp hạng</AccordionTrigger>
+                                                        <AccordionContent>
+                                                            <div className="flex gap-2 items-center my-1">
+                                                                <Checkbox
+                                                                    id="rating5"
+                                                                    checked={ratingFilter === '5.00'}
+                                                                    onCheckedChange={(checked) => handleRatingFilter(checked, '5.00')}
+                                                                />
+                                                                <Label>
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                                        {" "}
+                                                                        Từ 5.0
+                                                                    </span>
+                                                                </Label>
+                                                            </div>
+                                                            <div className="flex gap-2 items-center my-1">
+                                                                <Checkbox
+                                                                    id="rating4.00"
+                                                                    checked={ratingFilter === '4.00'}
+                                                                    onCheckedChange={(checked) => handleRatingFilter(checked, '4.00')}
+                                                                />
                                                                 <Label>
                                                                     <span className="text-sm lg:text-base font-normal text-gray-800">
                                                                         {" "}
@@ -543,16 +616,11 @@ export const Courses = () => {
                                                                 </Label>
                                                             </div>
                                                             <div className="flex gap-2 items-center my-1">
-                                                                <Checkbox></Checkbox>
-                                                                <Label>
-                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                                        {" "}
-                                                                        Từ 3.5 trở lên
-                                                                    </span>
-                                                                </Label>
-                                                            </div>
-                                                            <div className="flex gap-2 items-center my-1">
-                                                                <Checkbox></Checkbox>
+                                                                <Checkbox
+                                                                    id="rating3.0"
+                                                                    checked={ratingFilter === '3.0'}
+                                                                    onCheckedChange={(checked) => handleRatingFilter(checked, '3.0')}
+                                                                />
                                                                 <Label>
                                                                     <span className="text-sm lg:text-base font-normal text-gray-800">
                                                                         {" "}
@@ -564,82 +632,121 @@ export const Courses = () => {
                                                     </AccordionItem>
                                                 </Accordion>
                                                 <hr />
-
+                                                {/* giá */}
                                                 <Accordion type="single" collapsible>
-                                                    <AccordionItem value="item-1">
+                                                    <AccordionItem value="item-3">
                                                         <AccordionTrigger className="text-xl font-bold">Giá</AccordionTrigger>
                                                         <AccordionContent>
-                                                            <input
-                                                                className="mr-2"
-                                                                name="duration"
-                                                                type="checkbox" />
-                                                            <span className="text-sm text-black">
-                                                                Có trả phí{" "}
-                                                                <span className="text-gray-600">
-                                                                    (68)
-                                                                </span>
-                                                            </span>
-                                                            <br />
-                                                            <input
-                                                                className="mr-2"
-                                                                name="duration"
-                                                                type="checkbox" />
-                                                            <span className="text-sm text-black">
-                                                                Miễn phí{" "}
-                                                                <span className="text-gray-600">
-                                                                    (23)
-                                                                </span>
-                                                            </span>
+                                                            <div className="flex gap-2 items-center my-1">
+                                                                <Checkbox
+                                                                    id="priceAsc"
+                                                                    checked={sortCriteria === 'priceAsc'}
+                                                                    onCheckedChange={(checked) => handlePriceSort(checked, 'priceAsc')}
+
+                                                                />
+                                                                <Label>
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                                        {" "}
+                                                                        Tăng dần
+                                                                    </span>
+                                                                </Label>
+                                                            </div>
+                                                            <div className="flex gap-2 items-center my-1">
+                                                                <Checkbox
+                                                                    id="priceDesc"
+                                                                    checked={sortCriteria === 'priceDesc'}
+                                                                    onCheckedChange={(checked) => handlePriceSort(checked, 'priceDesc')}
+
+                                                                />
+                                                                <Label>
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                                        {" "}
+                                                                        Giảm dần
+                                                                    </span>
+                                                                </Label>
+                                                            </div>
                                                         </AccordionContent>
                                                     </AccordionItem>
                                                 </Accordion>
+                                                <hr />
                                             </SheetDescription>
                                         </SheetHeader>
                                     </SheetContent>
                                 </Sheet>
                             </div>
-                            <div className="">
-                                <div className="">
-                                    {/* <Select >
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Sắp xếp theo" className="py-3" />
-                                        </SelectTrigger>
-                                        <SelectContent >
-                                            <SelectItem value="Hot" className="cursor-pointer">Phổ biến nhất</SelectItem>
-                                            <SelectItem value="TopRank" className="cursor-pointer">Thứ hạng cao nhất</SelectItem>
-                                            <SelectItem value="New" className="cursor-pointer">Mới nhất</SelectItem>
-                                        </SelectContent>
-                                    </Select> */}
-                                    {renderSortSelect()}
-                                </div>
-                            </div>
+
                         </div>
                         <div className="lg:block hidden">
                             <div className="ml-auto">
                                 <p className=" text-gray-500  font-bold">
-                                    {courses.length} kết quả
+                                    {sortedCourses.length} kết quả
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div className="lg:grid lg:grid-cols-12 gap-10 pt-3">
-                        {/* Bộ lọc */}
+                        {/* Bộ lọc desktop */}
                         <div className="lg:block hidden col-span-3 transition-all ease-in-out duration-500 " id="filterContent">
+
+                            {/* mua,xem nhiều */}
                             <Accordion type="single" collapsible>
                                 <AccordionItem value="item-1">
-                                    <AccordionTrigger className="text-xl font-bold">Xếp hạng</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">Sắp xếp theo</AccordionTrigger>
                                     <AccordionContent>
                                         <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
+                                            <Checkbox
+                                                id="new"
+                                                checked={sortCriteria === 'New'}
+                                                onCheckedChange={(checked) => handleSortChange(checked, 'New')}
+                                            />
                                             <Label>
                                                 <span className="text-sm lg:text-base font-normal text-gray-800">
                                                     {" "}
-                                                    Từ 4.5 trở lên
+                                                    Mới nhất
                                                 </span>
                                             </Label>
                                         </div>
                                         <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
+                                            <Checkbox
+                                                id="Buy"
+                                                checked={sortCriteria === 'Buy'}
+                                                onCheckedChange={(checked) => handleSortChange(checked, 'Buy')}
+                                            />
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Mua nhiều
+                                                </span>
+                                            </Label>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+
+                            {/* xếp hạng */}
+                            <Accordion type="single" collapsible>
+                                <AccordionItem value="item-2">
+                                    <AccordionTrigger className="text-xl font-bold">Xếp hạng</AccordionTrigger>
+                                    <AccordionContent>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox
+                                                id="rating5"
+                                                checked={ratingFilter === '5.00'}
+                                                onCheckedChange={(checked) => handleRatingFilter(checked, '5.00')}
+                                            />
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    {" "}
+                                                    Từ 5.0
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox
+                                                id="rating4.00"
+                                                checked={ratingFilter === '4.00'}
+                                                onCheckedChange={(checked) => handleRatingFilter(checked, '4.00')}
+                                            />
                                             <Label>
                                                 <span className="text-sm lg:text-base font-normal text-gray-800">
                                                     {" "}
@@ -648,16 +755,11 @@ export const Courses = () => {
                                             </Label>
                                         </div>
                                         <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
-                                            <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
-                                                    Từ 3.5 trở lên
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
+                                            <Checkbox
+                                                id="rating3.0"
+                                                checked={ratingFilter === '3.0'}
+                                                onCheckedChange={(checked) => handleRatingFilter(checked, '3.0')}
+                                            />
                                             <Label>
                                                 <span className="text-sm lg:text-base font-normal text-gray-800">
                                                     {" "}
@@ -668,13 +770,19 @@ export const Courses = () => {
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
-                            <hr />
+
+                            {/* giá */}
                             <Accordion type="single" collapsible>
-                                <AccordionItem value="item-1">
+                                <AccordionItem value="item-3">
                                     <AccordionTrigger className="text-xl font-bold">Giá</AccordionTrigger>
                                     <AccordionContent>
                                         <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
+                                            <Checkbox
+                                                id="priceAsc"
+                                                checked={sortCriteria === 'priceAsc'}
+                                                onCheckedChange={(checked) => handlePriceSort(checked, 'priceAsc')}
+
+                                            />
                                             <Label>
                                                 <span className="text-sm lg:text-base font-normal text-gray-800">
                                                     {" "}
@@ -683,7 +791,12 @@ export const Courses = () => {
                                             </Label>
                                         </div>
                                         <div className="flex gap-2 items-center my-1">
-                                            <Checkbox></Checkbox>
+                                            <Checkbox
+                                                id="priceDesc"
+                                                checked={sortCriteria === 'priceDesc'}
+                                                onCheckedChange={(checked) => handlePriceSort(checked, 'priceDesc')}
+
+                                            />
                                             <Label>
                                                 <span className="text-sm lg:text-base font-normal text-gray-800">
                                                     {" "}
@@ -694,7 +807,7 @@ export const Courses = () => {
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
-                            <hr />
+
                         </div>
 
                         {/*Danh sách khóa học nơi hiển thị sản phẩm đã được search */}
