@@ -59,7 +59,11 @@ export const Quizzes = ({ quiz_id }) => {
             );
 
             setQuizzes([{ quiz_id: quizId, questions: questionsWithOptions }]);
-            toast.success("Hãy bắt đầu hành trình khám phá kiến thức của bạn nào! 📚");
+            toast.success("Hãy bắt đầu hành trình khám phá kiến thức của bạn nào! 📚", {
+                style: {
+                    padding: '15px'
+                }
+            });
         } catch (error) {
             console.error("Error fetching questions:", error);
             toast.error("Không thể tải dữ liệu câu hỏi");
@@ -216,7 +220,6 @@ export const Quizzes = ({ quiz_id }) => {
 
         } catch (error) {
             console.error("Error fetching score:", error);
-            toast.error("Không thể lấy điểm số!");
         }
     };
 
@@ -246,22 +249,21 @@ export const Quizzes = ({ quiz_id }) => {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="container mx-auto px-4 py-1 max-w-4xl">
             {!hasStarted ? (
                 <Card className="mt-8">
                     <CardHeader>
-                        <CardTitle className="text-2xl">Bài tập</CardTitle>
-                        <CardDescription>
+                        <CardTitle className="text-2xl text-center">
+                            Bài tập
+                        </CardTitle>
+                        <CardDescription className="text-center">
                             Hãy chuẩn bị sẵn sàng trước khi bắt đầu làm bài
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
                             <div className="flex justify-center">
-                                <button
-                                    onClick={handleStartQuiz}
-                                    className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2"
-                                >
+                                <button onClick={handleStartQuiz} className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2">
                                     <Trophy className="w-5 h-5" />
                                     Bắt đầu làm bài
                                 </button>
@@ -273,8 +275,10 @@ export const Quizzes = ({ quiz_id }) => {
                 <div className="space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Bài kiểm tra đang diễn ra</CardTitle>
-                            <CardDescription>
+                            <CardTitle className="text-center md:text-start">
+                                Bài kiểm tra đang diễn ra
+                            </CardTitle>
+                            <CardDescription  className="text-center md:text-start">
                                 Hoàn thành tất cả câu hỏi bên dưới
                             </CardDescription>
                         </CardHeader>
@@ -358,8 +362,14 @@ export const Quizzes = ({ quiz_id }) => {
                     </div>
                     {/* Hiển thị điểm số sau khi nộp bài */}
                     {quizCompleted && (
-                        <div className="mt-6">
-                            <h2 className="text-lg font-bold">Điểm số của bạn: {score !== null ? score : 'Đang tải...'}/{quizzes[0]?.questions.length}</h2>
+                        <div className="flex justify-center p-3">
+                            <div className="title flex items-center gap-3 border-yellow-400 border px-10 py-5 rounded">
+                                <h2 className="text-lg font-bold">Điểm số của bạn: </h2>
+                                <span className="text-xl text-yellow-400 font-semibold">
+                                    {score !== null ? score : 'Đang tải...'}/{quizzes[0]?.questions.length} điểm
+
+                                </span>
+                            </div>
                         </div>
                     )}
                 </div>
