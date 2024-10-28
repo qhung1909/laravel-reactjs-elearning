@@ -21,8 +21,6 @@ import { Separator } from "@/components/ui/separator";
 import { ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 import { useEffect, useState } from 'react';
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import axios from "axios";
 
 export const CategoryList = () => {
@@ -30,11 +28,15 @@ export const CategoryList = () => {
     const API_URL = import.meta.env.VITE_API_URL;
 
     const [categories, setCategory] = useState([]);
+    const [categoryCounts, setCategoryCounts] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    const [searchTerm, setSearchTerm] = useState('');
 
+    // Hàm fetch danh mục
     const fetchCategory = async () => {
         try {
             const res = await axios.get(`${API_URL}/categories`, {
@@ -45,6 +47,7 @@ export const CategoryList = () => {
             const data = res.data;
             setCategory(data);
             setTotalPages(Math.ceil(data.length / itemsPerPage));
+            await fetchQuantityOfCategory(data);
         } catch (error) {
             console.error('Error fetching Categories:', error);
         } finally {
@@ -52,15 +55,32 @@ export const CategoryList = () => {
         }
     };
 
+    // Hàm fetch số lượng khóa học cho mỗi danh mục
+    const fetchQuantityOfCategory = async (categories) => {
+        const promises = categories.map(category =>
+            axios.get(`${API_URL}/admin/categories/${category.course_category_id}/courses/count`, {
+                headers: { 'x-api-secret': API_KEY }
+            }).then(res => ({
+                id: category.course_category_id,
+                count: res.data.course_count
+            }))
+        );
+
+        try {
+            const counts = await Promise.all(promises);
+            const countsObject = counts.reduce((acc, { id, count }) => {
+                acc[id] = count;
+                return acc;
+            }, {});
+            setCategoryCounts(countsObject);
+        } catch (error) {
+            console.error('Error fetching Category Quantities:', error);
+        }
+    };
+
     useEffect(() => {
         fetchCategory();
     }, []);
-
-    const [sortConfig, setSortConfig] = useState({
-        key: null,
-        direction: 'asc'
-    });
-    const [searchTerm, setSearchTerm] = useState('');
 
     const handleSort = (key) => {
         let direction = 'asc';
@@ -76,14 +96,12 @@ export const CategoryList = () => {
 
     const sortedCategories = [...filteredCategories].sort((a, b) => {
         if (!sortConfig.key) return 0;
-
         const aValue = sortConfig.key === 'lastUpdated' ? new Date(a[sortConfig.key]) : a[sortConfig.key];
         const bValue = sortConfig.key === 'lastUpdated' ? new Date(b[sortConfig.key]) : b[sortConfig.key];
-
         return sortConfig.direction === 'asc' ? (aValue > bValue ? 1 : -1) : (aValue < bValue ? 1 : -1);
     });
 
-    // Pagination logic
+    // Logic phân trang
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = sortedCategories.slice(indexOfFirstItem, indexOfLastItem);
@@ -262,7 +280,7 @@ export const CategoryList = () => {
                                     </>
                                 ) : (
                                     currentItems.map((category) => (
-                                        <tr key={category.id} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
+                                        <tr key={category.course_category_id} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
                                             <td className="py-4 px-6 text-sm text-gray-600">#{category.course_category_id}</td>
                                             <td className="py-4 px-6 text-sm text-gray-600">
                                                 <img src={category.image} className="w-6 h-6" alt={category.name} />
@@ -271,7 +289,7 @@ export const CategoryList = () => {
                                                 <div className="font-medium text-gray-900">{category.name}</div>
                                             </td>
                                             <td className="py-4 px-6">
-                                                <span className="text-sm text-gray-600">{category.courseCount} update soon</span>
+                                                <span className="text-sm text-gray-600">{categoryCounts[category.course_category_id] || 0}</span>
                                             </td>
                                             <td className="py-4 px-6 text-sm text-gray-600">
                                                 {new Date(category.updated_at).toLocaleDateString('vi-VN')}
