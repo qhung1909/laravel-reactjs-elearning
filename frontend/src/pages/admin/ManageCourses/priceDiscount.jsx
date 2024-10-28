@@ -29,11 +29,15 @@ import {
     Filter,
     FileDown,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    Plus
 } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 import axios from "axios";
 import { toast } from 'react-toastify';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function PriceDiscount() {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -43,6 +47,15 @@ export default function PriceDiscount() {
     const [isLoading, setIsLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [searchTerm, setSearchTerm] = useState('');
+    const [editCouponId, setEditCouponId] = useState(null);
+    const [editCouponName, setEditCouponName] = useState('');
+    // const [editCouponImage, setEditCouponImage] = useState(null);
+    const [showEditDialog, setShowEditDialog] = useState(false);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [newCouponName, setNewCouponName] = useState('');
+    const [newDiscountPrice, setNewDiscountPrice] = useState(null);
+    const [editDiscountPrice, setEditDiscountPrice] = useState(0);
+
 
     const fetchCoupons = async () => {
         try {
@@ -88,6 +101,72 @@ export default function PriceDiscount() {
             ? (sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)
             : <ChevronUp className="h-4 w-4 opacity-0 group-hover:opacity-50" />
     );
+
+    const addCoupon = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('name_coupon', newCouponName);
+        formData.append('image', newDiscountPrice);
+        try {
+            const res = await axios.post(`${API_URL}/coupons`, formData, {
+                headers: { 'x-api-secret': API_KEY },
+            });
+            if (res.status === 201) {
+                toast.success('Thêm mã giảm giá thành công!');
+                fetchCoupons();
+                setNewCouponName('');
+                setNewDiscountPrice(null);
+                setIsDialogOpen(false);
+            }
+        } catch (error) {
+            console.error('Error adding coupon:', error);
+            toast.error('Lỗi khi thêm mã giảm giá.');
+        }
+    };
+
+    const editCoupon = async (e) => {
+        e.preventDefault();
+        const updatedCoupon = {
+            name_coupon: editCouponName,
+            discount_price: editDiscountPrice,
+        };
+        try {
+            const res = await axios.put(`${API_URL}/coupons/${editCouponId}`, updatedCoupon, {
+                headers: { 'x-api-secret': API_KEY },
+            });
+            if (res.status === 200) {
+                toast.success('Cập nhật mã giảm giá thành công!');
+                fetchCoupons();
+                setEditCouponId(null);
+                setEditCouponName('');
+                setEditDiscountPrice(0);
+                setShowEditDialog(false);
+            }
+        } catch (error) {
+            console.error('Error editing coupon:', error);
+            toast.error('Lỗi khi cập nhật mã giảm giá.');
+        }
+    };
+
+    const deleteCoupon = async (couponId) => {
+        try {
+            await axios.delete(`${API_URL}/coupons/${couponId}`, {
+                headers: { 'x-api-secret': API_KEY },
+            });
+            toast.success('Xóa mã giảm giá thành công!');
+            fetchCoupons();
+        } catch (error) {
+            console.error('Error deleting coupon:', error);
+            toast.error('Lỗi khi xóa mã giảm giá.');
+        }
+    };
+
+    const openEditDialog = (id, name, discountPrice) => {
+        setEditCouponId(id);
+        setEditCouponName(name);
+        setEditDiscountPrice(discountPrice);
+        setShowEditDialog(true);
+    };
 
     return (
         <SidebarProvider>
@@ -138,6 +217,45 @@ export default function PriceDiscount() {
                                         <FileDown size={16} />
                                         Xuất
                                     </Button>
+                                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                        <DialogTrigger asChild>
+                                            <Button variant="outline" className="flex items-center gap-2">
+                                                <Plus size={16} />
+                                                Thêm mã giảm giá
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent>
+                                            <DialogHeader>
+                                                <DialogTitle>Thêm mã giảm giá mới</DialogTitle>
+                                            </DialogHeader>
+                                            <form onSubmit={addCoupon}>
+                                                <div className="grid gap-4 py-4">
+                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                        <Label htmlFor="newCouponName" className="text-right">Tên</Label>
+                                                        <Input
+                                                            id="newCouponName"
+                                                            value={newCouponName}
+                                                            onChange={(e) => setNewCouponName(e.target.value)}
+                                                            className="col-span-3"
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                    <Label htmlFor="editDiscountPrice" className="text-right">Giảm giá</Label>
+                                                    <Input
+                                                        id="editDiscountPrice"
+                                                        type="number"
+                                                        value={editDiscountPrice}
+                                                        onChange={(e) => setEditDiscountPrice(Number(e.target.value))}
+                                                        className="col-span-3"
+                                                    />
+                                                </div>
+                                                </div>
+                                                <DialogFooter>
+                                                    <Button type="submit">Thêm mã giảm giá</Button>
+                                                </DialogFooter>
+                                            </form>
+                                        </DialogContent>
+                                    </Dialog>
                                 </div>
                             </div>
 
@@ -162,15 +280,6 @@ export default function PriceDiscount() {
                                                 <div className="flex items-center gap-2">
                                                     Giảm giá cố định
                                                     {getSortIcon('discount_price')}
-                                                </div>
-                                            </th>
-                                            <th
-                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
-                                                onClick={() => handleSort('percent_discount')}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    Phần trăm giảm giá
-                                                    {getSortIcon('percent_discount')}
                                                 </div>
                                             </th>
                                             <th
@@ -216,16 +325,14 @@ export default function PriceDiscount() {
                                                         {coupon.discount_price ? `${coupon.discount_price.toLocaleString('vi-VN')} VNĐ` : 'N/A'}
                                                     </td>
                                                     <td className="py-4 px-6 text-sm text-gray-600">
-                                                        {coupon.percent_discount ? `${coupon.percent_discount}%` : 'N/A'}
-                                                    </td>
-                                                    <td className="py-4 px-6 text-sm text-gray-600">
                                                         {new Date(coupon.start_discount).toLocaleDateString('vi-VN')}
                                                     </td>
                                                     <td className="py-4 px-6 text-sm text-gray-600">
                                                         {new Date(coupon.end_discount).toLocaleDateString('vi-VN')}
                                                     </td>
                                                     <td className="py-4 px-6 text-sm text-gray-600 text-right">
-                                                        <Button variant="link">Chỉnh sửa</Button>
+                                                        <Button variant="link" onClick={() => openEditDialog(coupon.coupons_id, coupon.name_coupon, coupon.discount_price)}>Chỉnh sửa</Button>
+                                                        <Button variant="link" onClick={() => deleteCoupon(coupon.coupons_id)}>Xóa</Button>
                                                     </td>
                                                 </tr>
                                             ))
@@ -261,6 +368,41 @@ export default function PriceDiscount() {
                         </PaginationItem>
                     </PaginationContent>
                 </Pagination>
+                <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+                    <DialogTrigger asChild>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Chỉnh sửa mã giảm giá</DialogTitle>
+                        </DialogHeader>
+                        <form onSubmit={editCoupon}>
+                            <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="editCouponName" className="text-right">Tên</Label>
+                                    <Input
+                                        id="editCouponName"
+                                        value={editCouponName}
+                                        onChange={(e) => setEditCouponName(e.target.value)}
+                                        className="col-span-3"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="editDiscountPrice" className="text-right">Giảm giá</Label>
+                                    <Input
+                                        id="editDiscountPrice"
+                                        type="number"
+                                        value={editDiscountPrice}
+                                        onChange={(e) => setEditDiscountPrice(Number(e.target.value))}
+                                        className="col-span-3"
+                                    />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button type="submit">Lưu thay đổi</Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
             </SidebarInset>
         </SidebarProvider>
     );
