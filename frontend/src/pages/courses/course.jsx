@@ -118,6 +118,14 @@ export const Courses = () => {
         }
     };
 
+    // Hàm clear tất cả các filter
+    const clearFilters = () => {
+        setSortCriteria('');
+        setRatingFilter('');
+        setSelectedCategory(null);
+        fetchCourses(); // Lấy lại tất cả sản phẩm
+    };
+
     // thao tác xử lý lọc giá
     const handlePriceSort = (checked, value) => {
         if (checked) {
@@ -674,8 +682,11 @@ export const Courses = () => {
                                     </SheetContent>
                                 </Sheet>
                             </div>
-
+                            <div className="bg-gray-300 py-2 px-4 rounded-full font-semibold">
+                                <button onClick={clearFilters}>X Clear filter</button>
+                            </div>
                         </div>
+
                         <div className="lg:block hidden">
                             <div className="ml-auto">
                                 <p className=" text-gray-500  font-bold">
