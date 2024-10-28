@@ -10,6 +10,7 @@ import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
 import { Play, BookOpen, Clock, Video, ArrowRight } from 'lucide-react';
+import Quizzes from "../quizzes/quizzes";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -164,6 +165,14 @@ export const Lesson = () => {
 
 
 
+    const [showQuiz, setShowQuiz] = useState(false);
+    const [currentQuizId, setCurrentQuizId] = useState(null);
+    console.log("Current Quiz ID:", currentQuizId);
+    console.log("Quizzes List:", quizzes);
+    const handleShowQuiz = (quizId) => {
+        setCurrentQuizId(quizId);
+        setShowQuiz(true);
+    };
 
     return (
         <>
@@ -204,8 +213,9 @@ export const Lesson = () => {
 
                 <div className="content-main py-16">
                     <div className="flex flex-col md:flex-row">
-                        {/* Phần video */}
+
                         <div className="flex-1 bg-white rounded-lg shadow-md p-4">
+                            {/* Phần video */}
                             <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden">
                                 {currentVideoUrls.length > 0 ? (
                                     <ReactPlayer
@@ -248,6 +258,15 @@ export const Lesson = () => {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Nút để hiển thị bài tập */}
+                            {/* Hiển thị quiz nếu đã bắt đầu, nằm bên trong div video */}
+                            {showQuiz && currentQuizId && (
+                                <div className="mt-4">
+                                    <Quizzes slug={slug} quiz_id={currentQuizId} />
+                                </div>
+                            )}
+
 
 
 
@@ -344,13 +363,14 @@ export const Lesson = () => {
                                                                     <Play className="w-4 h-4" />
                                                                     <span>Xem bài giảng</span>
                                                                 </button>
-                                                                <Link
-                                                                    to={`/quizzes/${quizzes.find(quiz => quiz.content_id === content.content_id)?.quiz_id || ''}`}
-                                                                    className="inline-flex items-center gap-1 px-3 py-1.5 border border-purple-200 text-purple-600 text-sm rounded-lg hover:bg-purple-50 transition-colors"
+                                                                <button
+                                                                    onClick={() => handleShowQuiz(quizzes.find(quiz => quiz.content_id === content.content_id)?.quiz_id)}
+                                                                    className="inline-flex items-center gap-1 mt-4 px-3 py-1.5 border border-purple-200 text-purple-600 text-sm rounded-lg hover:bg-purple-50 transition-colors"
                                                                 >
                                                                     <span>Bài tập</span>
                                                                     <ArrowRight className="w-3 h-3" />
-                                                                </Link>
+                                                                </button>
+
                                                             </div>
                                                         </div>
                                                     </AccordionContent>
