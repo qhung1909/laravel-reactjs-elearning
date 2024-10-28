@@ -123,4 +123,37 @@ class AdminController extends Controller
             'course_count' => $courseCount,
         ]);
     }
+
+    public function patchCourseStatus(Request $request, $course_id): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:published,unpublished,draft,pending'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $course = $this->course->find($course_id);
+
+        if (!$course) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Không tìm thấy khóa học',
+            ], 404);
+        }
+
+        $course->status = $request->status;
+        $course->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Cập nhật trạng thái khóa học thành công',
+            'data' => $course,
+        ]);
+    }
 }
