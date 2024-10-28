@@ -1,6 +1,6 @@
-"use client"
+import React, { useEffect, useState } from 'react';
 import { TrendingUp } from "lucide-react"
-import { CartesianGrid, XAxis, Line, LineChart } from "recharts"
+import { CartesianGrid, XAxis, YAxis, Line, LineChart, Tooltip } from "recharts"; // Added YAxis and Tooltip to imports
 import {
     Card,
     CardContent,
@@ -14,20 +14,6 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart"
-const chartData = [
-    { month: "T1", desktop: 186, mobile: 80 },
-    { month: "T2", desktop: 305, mobile: 200 },
-    { month: "T3", desktop: 237, mobile: 120 },
-    { month: "T4", desktop: 73, mobile: 190 },
-    { month: "T5", desktop: 209, mobile: 130 },
-    { month: "T6", desktop: 220, mobile: 160 },
-    { month: "T7", desktop: 240, mobile: 145 },
-    { month: "T8", desktop: 245, mobile: 245 },
-    { month: "T9", desktop: 200, mobile: 300 },
-    { month: "T10", desktop: 140, mobile: 240 },
-    { month: "T11", desktop: 240, mobile: 144 },
-    { month: "T12", desktop: 305, mobile: 200 },
-]
 const chartConfig = {
     desktop: {
         label: "Desktop",
@@ -57,10 +43,156 @@ import {
 import { SideBarUI } from "../sidebarUI"
 import { Link } from "react-router-dom"
 import { Input } from "@/components/ui/input"
-// import { DataTableDemo } from "./DataTable"
 
-
+const API_KEY = import.meta.env.VITE_API_KEY
+const API_URL = import.meta.env.VITE_API_URL
 export default function Dashboard() {
+    const [summaryData, setSummaryData] = useState({
+        total_revenue: 0,
+        total_courses_sold: 0,
+        total_lessons: 0
+    });
+    const [chartData, setChartData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchSummaryData = async () => {
+        try {
+            const response = await fetch(`${API_URL}/admin/summary`, {
+                headers: {
+                    'x-api-secret': API_KEY
+                }
+            });
+            const data = await response.json();
+            setSummaryData(data);
+        } catch (error) {
+            console.error('Error fetching summary data:', error);
+        }
+    };
+
+    const fetchRevenueData = async () => {
+        try {
+            const response = await fetch(`${API_URL}/admin/revenue-chart`, {
+                headers: {
+                    'x-api-secret': API_KEY
+                }
+            });
+            const data = await response.json();
+            const transformedData = Object.entries(data).map(([month, revenue]) => ({
+                month: `T${month}`,
+                revenue: revenue
+            }));
+            setChartData(transformedData);
+        } catch (error) {
+            console.error('Error fetching revenue data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const calculateRevenueGrowth = (chartData) => {
+        // Kiểm tra dữ liệu đầu vào
+        if (!chartData || !Array.isArray(chartData) || chartData.length < 2) {
+            return {
+                growthPercentage: 0,
+                trend: 'neutral',
+                message: 'Chưa có đủ dữ liệu'
+            };
+        }
+
+        // Lọc dữ liệu hợp lệ
+        const validData = chartData.filter(item =>
+            item &&
+            typeof item.revenue === 'number' &&
+            !isNaN(item.revenue)
+        );
+
+        if (validData.length < 2) {
+            return {
+                growthPercentage: 0,
+                trend: 'neutral',
+                message: 'Chưa có đủ dữ liệu'
+            };
+        }
+
+        // Lấy dữ liệu 2 tháng gần nhất
+        const currentMonth = validData[validData.length - 1];
+        const previousMonth = validData[validData.length - 2];
+
+        const currentRevenue = Number(currentMonth.revenue) || 0;
+        const previousRevenue = Number(previousMonth.revenue) || 0;
+
+        // Xử lý trường hợp đặc biệt khi previousRevenue = 0
+        if (previousRevenue === 0) {
+            if (currentRevenue > 0) {
+                return {
+                    growthPercentage: 100,
+                    trend: 'increase',
+                    message: 'Có xu hướng tăng'
+                };
+            }
+            return {
+                growthPercentage: 0,
+                trend: 'neutral',
+                message: 'Không đổi'
+            };
+        }
+
+        // Tính phần trăm tăng trưởng
+        const growthPercentage = ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+
+        // Xử lý kết quả
+        if (isNaN(growthPercentage)) {
+            return {
+                growthPercentage: 0,
+                trend: 'neutral',
+                message: 'Không xác định'
+            };
+        }
+
+        const roundedGrowth = Number(growthPercentage.toFixed(1));
+
+        return {
+            growthPercentage: roundedGrowth,
+            trend: roundedGrowth > 0 ? 'increase' : roundedGrowth < 0 ? 'decrease' : 'neutral',
+            message: `Có xu hướng ${roundedGrowth > 0 ? 'tăng' : 'giảm'}`
+        };
+    };
+
+    // Component hiển thị xu hướng
+    const GrowthTrendDisplay = ({ chartData }) => {
+        const growth = calculateRevenueGrowth(chartData);
+
+        // Xác định màu sắc dựa trên xu hướng
+        const trendColors = {
+            increase: 'text-green-500',
+            decrease: 'text-red-500',
+            neutral: 'text-gray-500'
+        };
+
+        // Chỉ hiển thị phần trăm nếu có sự thay đổi
+        const displayText = growth.trend === 'neutral'
+            ? growth.message
+            : `${growth.message} ${Math.abs(growth.growthPercentage)}% trong tháng này`;
+
+        return (
+            <div className="flex items-center gap-2 font-medium leading-none">
+                Doanh thu tháng này: {formatCurrency(chartData[chartData.length - 1]?.revenue || 0)}
+                <TrendingUp className={`h-4 w-4 ${trendColors[growth.trend]}`} />
+            </div>
+        );
+    };
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            minimumFractionDigits: 0,
+        }).format(amount);
+    };
+
+    useEffect(() => {
+        fetchSummaryData();
+        fetchRevenueData();
+    }, []);
 
     return (
         <SidebarProvider>
@@ -128,12 +260,14 @@ export default function Dashboard() {
                             {/* doanh thu */}
                             <div className="bg-white shadow rounded p-4">
                                 <div className="flex justify-between items-center">
-                                    <h2 className="xl:text-base lg:text-sm text-xs font-semibold text-green-500 uppercase">Tổng doanh thu</h2>
+                                    <h2 className="xl:text-base lg:text-sm text-xs font-semibold text-green-500 uppercase">
+                                        Tổng doanh thu
+                                    </h2>
                                 </div>
                                 <div className="my-2 text-2xl font-semibold">
-                                    <p>$30</p>
+                                    {formatCurrency(summaryData.total_revenue)}
                                 </div>
-                                <div className="text-sm  mt-1">
+                                <div className="text-sm mt-1">
                                     <p>Hàng tháng</p>
                                 </div>
                             </div>
@@ -141,19 +275,27 @@ export default function Dashboard() {
                             {/* tổng khóa học */}
                             <div className="bg-white shadow rounded p-4">
                                 <div className="flex justify-between items-center">
-                                    <h2 className="xl:text-base lg:text-sm text-xs font-semibold text-red-500 uppercase">Tổng khóa học</h2>
+                                    <h2 className="xl:text-base lg:text-sm text-xs font-semibold text-red-500 uppercase">
+                                        Tổng khóa học
+                                    </h2>
                                 </div>
-                                <div className="my-2 text-2xl font-semibold">21,000</div>
-                                <div className="text-sm  mt-1">Đã bán</div>
+                                <div className="my-2 text-2xl font-semibold">
+                                    {summaryData.total_courses_sold}
+                                </div>
+                                <div className="text-sm mt-1">Đã bán</div>
                             </div>
 
                             {/* tổng bài học */}
                             <div className="bg-white shadow rounded p-4">
                                 <div className="flex justify-between items-center">
-                                    <h2 className="xl:text-base lg:text-sm text-xs font-semibold text-blue-500 uppercase">Bài học</h2>
+                                    <h2 className="xl:text-base lg:text-sm text-xs font-semibold text-blue-500 uppercase">
+                                        Bài học
+                                    </h2>
                                 </div>
-                                <div className="my-2 text-2xl font-semibold">25,000</div>
-                                <div className="text-sm  mt-1">Tổng cộng</div>
+                                <div className="my-2 text-2xl font-semibold">
+                                    {summaryData.total_lessons}
+                                </div>
+                                <div className="text-sm mt-1">Tổng cộng</div>
                             </div>
 
                             {/* Đánh giá trung bình */}
@@ -168,66 +310,71 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className="xl:flex w-full gap-4 px-4 mb-10">
-
-                        {/* chart */}
-                        <Card className='xl:w-3/5 '>
+                        <Card className="xl:w-3/5">
                             <CardHeader>
                                 <CardTitle>Biểu đồ Doanh thu</CardTitle>
                                 <CardDescription>Tháng 1 - Tháng 12 2024</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <ChartContainer config={chartConfig}>
-                                    <LineChart
-                                        accessibilityLayer
-                                        data={chartData}
-                                        margin={{
-                                            left: 12,
-                                            right: 12,
-                                        }}
-                                    >
-                                        <CartesianGrid vertical={false} />
-                                        <XAxis
-                                            dataKey="month"
-                                            tickLine={false}
-                                            axisLine={false}
-                                            tickMargin={8}
-                                            tickFormatter={(value) => value.slice(0, 3)}
-                                        />
-                                        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                                        <Line
-                                            dataKey="desktop"
-                                            type="monotone"
-                                            stroke="var(--color-desktop)"
-                                            strokeWidth={2}
-                                            dot={false}
-                                        />
-                                        <Line
-                                            dataKey="mobile"
-                                            type="monotone"
-                                            stroke="var(--color-mobile)"
-                                            strokeWidth={2}
-                                            dot={false}
-                                        />
-                                    </LineChart>
-                                </ChartContainer>
+                                {!isLoading && (
+                                    <div className="w-full h-[300px]">
+                                        <LineChart
+                                            width={800}
+                                            height={300}
+                                            data={chartData}
+                                            margin={{
+                                                top: 5,
+                                                right: 30,
+                                                left: 20,
+                                                bottom: 5,
+                                            }}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis
+                                                dataKey="month"
+                                                tickLine={false}
+                                                axisLine={false}
+                                                tickMargin={8}
+                                            />
+                                            <YAxis
+                                                tickLine={false}
+                                                axisLine={false}
+                                                tickMargin={8}
+                                                domain={[0, 'dataMax + 10000']}
+                                                tickFormatter={(value) => new Intl.NumberFormat('vi-VN', {
+                                                    style: 'currency',
+                                                    currency: 'VND',
+                                                }).format(value)}
+                                                interval={0} // Đảm bảo hiển thị tất cả các ticks
+                                            />
+
+                                            <Tooltip formatter={(value) => new Intl.NumberFormat('vi-VN', {
+                                                style: 'currency',
+                                                currency: 'VND',
+                                            }).format(value)} />
+                                            <Line
+                                                type="monotone"
+                                                dataKey="revenue"
+                                                stroke="#4CAF50"
+                                                strokeWidth={2}
+                                                dot={false}
+                                            />
+                                        </LineChart>
+                                    </div>
+                                )}
                             </CardContent>
                             <CardFooter>
                                 <div className="flex w-full items-start gap-2 text-sm">
                                     <div className="grid gap-2">
-                                        <div className="flex items-center gap-2 font-medium leading-none">
-                                            Có xu hướng tăng 5,2% trong tháng này<TrendingUp className="h-4 w-4" />
-                                        </div>
+                                        <GrowthTrendDisplay chartData={chartData} />
+
                                         <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                                            Hiển thị tổng số khách truy cập trong 6 tháng qua
+                                            Hiển thị doanh thu trong 12 tháng qua
                                         </div>
                                     </div>
                                 </div>
                             </CardFooter>
                         </Card>
-                        <div className="xl:w-2/5 flex items-center justify-center xl:mt-0 mt-5">
-                            <>Nơi đổ dữ liệu </>
-                            {/* <DataTableDemo /> */}
-                        </div>
                     </div>
 
                 </div>
