@@ -62,6 +62,11 @@ export const ResetPassword = () => {
                 return;
             }
 
+            if (res.status === 422) {
+                setError('Mật khẩu mới không được trùng với mật khẩu cũ!');
+                return;
+            }
+
 
             if (!res.ok) {
                 const errorData = await res.json();
