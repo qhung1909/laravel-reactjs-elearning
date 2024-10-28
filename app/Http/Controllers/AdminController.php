@@ -205,65 +205,114 @@ class AdminController extends Controller
         }
     }
 
-    public function updateCategoryImage(Request $request, $course_id)
+    public function updateCategoryImage(Request $request, $course_category_id)
     {
+
         $rules = [
-            'name' => 'sometimes|required|string',
-            'description' => 'sometimes|nullable|string',
-            'image' => 'sometimes|nullable|image|max:2048',
+            'name' => 'nullable|string',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|max:2048',
         ];
-
+    
         $validator = Validator::make($request->all(), $rules);
-
+    
         if ($validator->fails()) {
+            Log::error('Validation failed:', $validator->errors()->toArray());
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
+    
         try {
-            $category = DB::transaction(function () use ($request, $course_id) {
-                $category = $this->category->where('course_id', $course_id)->firstOrFail();
-
-                if ($request->has('name') && $request->name !== $category->name) {
-                    $baseSlug = Str::slug($request->name);
-                    $newSlug = $baseSlug;
-                    $counter = 1;
-
-                    while (Category::where('slug', $newSlug)
-                        ->where('id', '!=', $category->id)
-                        ->exists()
-                    ) {
-                        $newSlug = $baseSlug . '-' . $counter;
-                        $counter++;
+            $category = Category::where('course_category_id', $course_category_id)->firstOrFail();
+            Log::info('Original category data:', $category->toArray());
+    
+            DB::transaction(function () use ($request, $category) {
+                $changes = []; 
+                if ($request->filled('name')) {
+                    Log::info('Processing name update:', [
+                        'current' => $category->name,
+                        'new' => $request->name
+                    ]);
+                    
+                    if ($request->name !== $category->name) {
+                        $oldName = $category->name;
+                        $category->name = $request->name;
+                        
+                        $baseSlug = Str::slug($request->name);
+                        $newSlug = $baseSlug;
+                        $counter = 1;
+                        
+                        while (Category::where('slug', $newSlug)
+                               ->where('course_category_id', '!=', $category->course_category_id)
+                               ->exists()) {
+                            $newSlug = $baseSlug . '-' . $counter;
+                            $counter++;
+                        }
+                        
+                        $category->slug = $newSlug;
+                        $changes['name'] = ['old' => $oldName, 'new' => $request->name];
+                        $changes['slug'] = ['old' => $category->getOriginal('slug'), 'new' => $newSlug];
                     }
-
-                    $category->slug = $newSlug;
                 }
-
-                $category->name = $request->input('name', $category->name);
-                $category->description = $request->input('description', $category->description);
-
+    
+                if ($request->filled('description')) {
+                    Log::info('Processing description update:', [
+                        'current' => $category->description,
+                        'new' => $request->description
+                    ]);
+                    
+                    if ($request->description !== $category->description) {
+                        $changes['description'] = [
+                            'old' => $category->description,
+                            'new' => $request->description
+                        ];
+                        $category->description = $request->description;
+                    }
+                }
+    
                 if ($request->hasFile('image')) {
-                    $imageUrl = $this->handleImageUpload($request->file('image'));
-                    $category->image_url = $imageUrl;
+                    Log::info('Processing image upload');
+                    try {
+                        $imageUrl = $this->handleImageUpload($request->file('image'));
+                        $changes['image'] = [
+                            'old' => $category->image,
+                            'new' => $imageUrl
+                        ];
+                        $category->image = $imageUrl;
+                    } catch (\Exception $e) {
+                        Log::error('Image upload failed:', ['error' => $e->getMessage()]);
+                        throw $e;
+                    }
                 }
-
-                $category->save();
-
-                return $category;
+    
+                if (!empty($changes)) {
+                    Log::info('Changes detected:', $changes);
+                    $category->updated_at = now();
+                    $category->save();
+                    Log::info('Category saved with changes');
+                } else {
+                    Log::info('No changes detected');
+                }
             });
-
-            Cache::forget('categories');
-            Cache::forget("category_{$category->slug}");
-
+    
+            $category->refresh();
+            Log::info('Final category data:', $category->toArray());
+    
             return response()->json([
                 'success' => true,
-                'message' => 'Danh mục được cập nhật thành công.',
+                'message' => !empty($changes) 
+                    ? 'Danh mục được cập nhật thành công.'
+                    : 'Không có thay đổi nào được thực hiện.',
                 'category' => $category
             ], 200);
+    
         } catch (\Exception $e) {
-            Log::error('Error updating category: ' . $e->getMessage());
+            Log::error('Error updating category:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
-                'error' => 'Có lỗi xảy ra khi cập nhật danh mục'
+                'error' => 'Có lỗi xảy ra khi cập nhật danh mục: ' . $e->getMessage()
             ], 500);
         }
     }
