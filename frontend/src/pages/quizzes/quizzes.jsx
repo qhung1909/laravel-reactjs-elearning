@@ -10,14 +10,14 @@ import { Alert, AlertDescription, AlertTitle, } from "@/components/ui/alert";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
-export const Quizzes = () => {
+export const Quizzes = (slug, quiz_id) => {
     const [quizzes, setQuizzes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [answers, setAnswers] = useState({});
     const [lesson, setLesson] = useState(null);
     const [hasStarted, setHasStarted] = useState(false);
     const [quizCompleted, setQuizCompleted] = useState(false);
-    const { slug, quiz_id } = useParams();
+    // const { slug, quiz_id } = useParams();
 
     const fetchLesson = async () => {
         try {
@@ -179,7 +179,7 @@ export const Quizzes = () => {
         setQuizCompleted(false);
         startQuiz();
     };
-    
+
     const handleConfirmExit = () => {
         Swal.fire({
             title: 'Bạn có chắc chắn muốn thoát?',
