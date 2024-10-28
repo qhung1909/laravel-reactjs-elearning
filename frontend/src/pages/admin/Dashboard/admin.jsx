@@ -268,7 +268,7 @@ export default function Dashboard() {
                                     {formatCurrency(summaryData.total_revenue)}
                                 </div>
                                 <div className="text-sm mt-1">
-                                    <p>Hàng tháng</p>
+                                    <p>2024</p>
                                 </div>
                             </div>
 
