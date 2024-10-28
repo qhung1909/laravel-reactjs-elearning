@@ -144,16 +144,25 @@ export const Lesson = () => {
         (a, b) => a.content_id - b.content_id
     );
 
-    const [currentVideoUrl, setCurrentVideoUrl] = useState("");
+    const [currentVideoUrls, setCurrentVideoUrls] = useState([]);
+    const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+
     const showVideo_content = (contentId) => {
-        const videoLinks = titleContent[contentId]?.map(item => item.video_link).filter(link => link !== null);
+        // Lấy danh sách các video link hợp lệ cho contentId hiện tại
+        const videoLinks = titleContent[contentId]
+            ?.map(item => item.video_link)
+            .filter(link => link !== null);
+
+        // Cập nhật currentVideoUrls và đặt lại chỉ số video
         if (videoLinks && videoLinks.length > 0) {
-            // Nếu có ít nhất một video link, lấy video link đầu tiên
-            setCurrentVideoUrl(videoLinks[0]);
+            setCurrentVideoUrls(videoLinks);
+            setCurrentVideoIndex(0); // Bắt đầu từ video đầu tiên
         } else {
-            setCurrentVideoUrl("");
+            setCurrentVideoUrls([]);
         }
     };
+
+
 
 
     return (
@@ -198,9 +207,9 @@ export const Lesson = () => {
                         {/* Phần video */}
                         <div className="flex-1 bg-white rounded-lg shadow-md p-4">
                             <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden">
-                                {currentVideoUrl ? (
+                                {currentVideoUrls.length > 0 ? (
                                     <ReactPlayer
-                                        url={currentVideoUrl}
+                                        url={currentVideoUrls[currentVideoIndex]}
                                         className="absolute top-0 left-0 w-full h-full"
                                         controls={true}
                                         width="100%"
@@ -214,7 +223,32 @@ export const Lesson = () => {
                                         style={{ borderRadius: "0.5rem" }}
                                     />
                                 )}
+                                {currentVideoUrls.length > 1 && (
+                                    <div className="absolute bottom-4 left-4 flex gap-2">
+                                        <button
+                                            onClick={() =>
+                                                setCurrentVideoIndex((prevIndex) =>
+                                                    prevIndex === 0 ? currentVideoUrls.length - 1 : prevIndex - 1
+                                                )
+                                            }
+                                            className="px-3 py-1 bg-purple-600 text-white rounded"
+                                        >
+                                            Video sau
+                                        </button>
+                                        <button
+                                            onClick={() =>
+                                                setCurrentVideoIndex((prevIndex) =>
+                                                    prevIndex === currentVideoUrls.length - 1 ? 0 : prevIndex + 1
+                                                )
+                                            }
+                                            className="px-3 py-1 bg-purple-600 text-white rounded"
+                                        >
+                                            Video trước
+                                        </button>
+                                    </div>
+                                )}
                             </div>
+
 
 
                             <div className="p-6 text-gray-800">
