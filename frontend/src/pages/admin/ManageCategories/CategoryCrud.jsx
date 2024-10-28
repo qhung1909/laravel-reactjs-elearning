@@ -49,6 +49,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from 'axios'
 import toast, { Toaster } from 'react-hot-toast';
+import Swal from "sweetalert2";
 
 
 const notify = (message, type) => {
@@ -173,7 +174,7 @@ export const CategoryCrud = () => {
 
 
 
-    const editCategory = async (categoryId) => {
+    const editCategory = async (courseCategoryId) => {
         const formData = new FormData();
         formData.append('name', editCategoryName);
         formData.append('image', editCategoryImage);
@@ -182,9 +183,12 @@ export const CategoryCrud = () => {
             setError('Vui lòng nhập đầy đủ thông tin');
         }
 
+        console.log('id danhmuc: ',courseCategoryId);
+
+
         try {
             setLoading(true);
-            const res = await axios.put(`${API_URL}/categories/${categoryId}`, formData, {
+            const res = await axios.post(`${API_URL}/admin/categories/${courseCategoryId}`, formData, {
                 headers: {
                     'x-api-secret': API_KEY
                 }
@@ -192,7 +196,11 @@ export const CategoryCrud = () => {
             const data = res.data;
             console.log('Category updated:', data);
             setEditCategoryName('');
-            setEditCategoryImage('');
+            setEditCategoryImage(null);
+            setSelectedImage(null);
+            setShowEditDialog(false);
+            window.location.reload()
+
         } catch (error) {
             setError('Lỗi khi sửa', error)
             console.error('Error updating category:', error);
@@ -203,6 +211,19 @@ export const CategoryCrud = () => {
 
 
     const deleteCategory = async (slug) => {
+        const { isConfirmed } = await Swal.fire({
+            title: "Xác nhận xóa",
+            text: "Bạn có chắc chắn muốn xóa danh mục này? Hành động này không thể hoàn tác.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Có, xóa!",
+            cancelButtonText: "Hủy",
+        });
+        if (!isConfirmed) {
+            return;
+        }
         try {
             setLoading(true)
             await axios.delete(`${API_URL}/categories/${slug}`, {
@@ -520,7 +541,7 @@ export const CategoryCrud = () => {
                                                             </div>
                                                             {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
                                                             <DialogFooter>
-                                                                <Button className='bg-yellow-500 hover:bg-yellow-600' type="submit" onClick={editCategory}>
+                                                                <Button className='bg-yellow-500 hover:bg-yellow-600' type="submit" onClick={() => editCategory(category.course_category_id)}>
                                                                     Cập nhật
                                                                 </Button>
                                                             </DialogFooter>
