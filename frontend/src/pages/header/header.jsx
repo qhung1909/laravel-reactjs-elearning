@@ -356,14 +356,13 @@ export const Header = () => {
                                     <div className="navbar-icons flex items-center justify-center gap-3 xl:mx-3">
 
                                         {/* Notification */}
-                                        <div className="navbar-noti cursor-pointer ">
+                                        {/* <div className="navbar-noti cursor-pointer ">
                                             <DropdownMenu >
                                                 <DropdownMenuTrigger className="flex">
                                                     <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-10" alt="" />
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="rounded-2xl p-3 mr-48 mt-1">
                                                     <div className=" w-96">
-                                                        {/* header */}
                                                         <div className="header">
                                                             <DropdownMenuLabel className="text-base text-blue-900 font-bold">
                                                                 <div className="flex justify-between items-center">
@@ -376,7 +375,6 @@ export const Header = () => {
                                                                 </div>
                                                             </DropdownMenuLabel>
 
-                                                            {/* content */}
                                                             <DropdownMenuItem>
                                                                 <div className="border-yellow-400 border-b-4 pb-2 cursor-pointer flex items-center gap-3 font-semibold text-yellow-400">
                                                                     <p className="text-lg ">Hệ thống</p>
@@ -401,7 +399,7 @@ export const Header = () => {
                                                     </div>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
-                                        </div>
+                                        </div> */}
 
                                         {/* language */}
                                         {/* <div className="navbar-language cursor-pointer">
@@ -729,7 +727,7 @@ export const Header = () => {
                                                             </div> */}
 
                                                             {/* notification */}
-                                                            <div className="">
+                                                            {/* <div className="">
                                                                 <div className="navbar-noti cursor-pointer ">
                                                                     <DropdownMenu >
 
@@ -737,12 +735,10 @@ export const Header = () => {
                                                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
                                                                         </DropdownMenuTrigger>
 
-                                                                        {/* notification - language */}
                                                                         <DropdownMenuContent className="rounded-2xl p-3 mr-14 mt-1">
                                                                             <div className=" w-96">
                                                                                 <div className="header">
 
-                                                                                    {/* notification */}
                                                                                     <DropdownMenuLabel className="text-base text-blue-900 font-bold">
                                                                                         <div className="flex justify-between items-center">
                                                                                             <div className="">
@@ -779,7 +775,7 @@ export const Header = () => {
                                                                         </DropdownMenuContent>
                                                                     </DropdownMenu>
                                                                 </div>
-                                                            </div>
+                                                            </div> */}
                                                         </div>
                                                     </div>
                                                 </SheetTitle>
@@ -898,14 +894,13 @@ export const Header = () => {
                                 <div className="navbar-icons flex items-center gap-2 xl:mx-3">
 
                                     {/* notification */}
-                                    <div className="navbar-noti cursor-pointer">
+                                    {/* <div className="navbar-noti cursor-pointer">
                                         <DropdownMenu >
                                             <DropdownMenuTrigger className="flex">
                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-16" alt="" />
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent className="rounded-2xl p-3 mr-80 mt-1">
                                                 <div className=" w-96">
-                                                    {/* header */}
                                                     <div className="header">
                                                         <DropdownMenuLabel className="text-base text-blue-900 font-bold">
                                                             <div className="flex justify-between items-center">
@@ -918,7 +913,6 @@ export const Header = () => {
                                                             </div>
                                                         </DropdownMenuLabel>
 
-                                                        {/* content */}
                                                         <DropdownMenuItem>
                                                             <div className="border-yellow-400 border-b-4 pb-2 cursor-pointer flex items-center gap-3 font-semibold text-yellow-400">
                                                                 <p className="text-lg ">Hệ thống</p>
@@ -944,7 +938,7 @@ export const Header = () => {
                                                 </div>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </div>
+                                    </div> */}
 
                                     {/* language */}
                                     {/* <div className="navbar-language cursor-pointer">
@@ -952,11 +946,11 @@ export const Header = () => {
                                     </div> */}
 
                                     {/* cart */}
-                                    <div className="">
+                                    {/* <div className="">
                                         <Link to='/cart'>
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-16" alt="" />
                                         </Link>
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 {/* login - signup */}
@@ -980,21 +974,20 @@ export const Header = () => {
 
                             </div>
                             {/* // toggle */}
-                            <div className="w-24 xl:hidden flex items-center justify-between">
+                            <div className=" xl:hidden flex items-center justify-between">
                                 <Sheet>
                                     <SheetTrigger>
                                         {/* icons*/}
                                         <div className="navbar-icons flex items-center justify-center gap-2 xl:mx-3 my-5">
 
                                             {/* notification */}
-                                            <div className="navbar-noti cursor-pointer mt-2">
+                                            {/* <div className="navbar-noti cursor-pointer mt-2">
                                                 <DropdownMenu >
                                                     <DropdownMenuTrigger>
                                                         <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-14" alt="" />
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent className="rounded-2xl p-3 mr-20 mt-1">
                                                         <div className=" w-96">
-                                                            {/* header */}
                                                             <div className="header">
                                                                 <DropdownMenuLabel className="text-base text-blue-900 font-bold">
                                                                     <div className="flex justify-between items-center">
@@ -1008,7 +1001,6 @@ export const Header = () => {
                                                                     </div>
                                                                 </DropdownMenuLabel>
 
-                                                                {/* content */}
                                                                 <DropdownMenuItem>
                                                                     <div className="border-yellow-400 border-b-4 pb-2 cursor-pointer flex items-center gap-3 font-semibold text-yellow-400">
                                                                         <p className="text-lg ">Hệ thống</p>
@@ -1033,16 +1025,18 @@ export const Header = () => {
                                                         </div>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
-                                            </div>
+                                            </div> */}
 
                                             {/* cart */}
-                                            <div className="">
+                                            {/* <div className="">
                                                 <Link to='/cart'>
                                                     <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-16" alt="" />
                                                 </Link>
-                                            </div>
+                                            </div> */}
+
+                                            {/* toggle */}
                                             <div className="flex items-center">
-                                                <img src="./src/assets/images/toggle.svg" className="w-16 mt-1" alt="" />
+                                                <img src="./src/assets/images/toggle.svg" className="w-8 mt-1" alt="" />
                                             </div>
                                         </div>
 
@@ -1054,9 +1048,9 @@ export const Header = () => {
                                                     <div className="logo ">
                                                         <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                                     </div>
-                                                    <div className="navbar-language cursor-pointer">
+                                                    {/* <div className="navbar-language cursor-pointer">
                                                         <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-7" alt="" />
-                                                    </div>
+                                                    </div> */}
                                                 </div>
                                             </SheetTitle>
                                             <SheetDescription>
