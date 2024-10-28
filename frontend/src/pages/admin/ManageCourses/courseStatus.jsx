@@ -31,7 +31,6 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import {
     Select,
@@ -42,7 +41,9 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import toast, { Toaster } from 'react-hot-toast';
 import axios from "axios";
 
 export default function CourseStatus() {
@@ -51,14 +52,15 @@ export default function CourseStatus() {
 
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
-    const [isNewCourseDialogOpen, setIsNewCourseDialogOpen] = useState(false);
     const [statusNote, setStatusNote] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
+    const [searchQuery, setSearchQuery] = useState("");
     const [courses, setCourses] = useState([]);
     const [statusOptions, setStatusOptions] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [newStatus, setNewStatus] = useState("");
 
-    // Fetch courses and status from API
     const fetchCourses = async () => {
         try {
             const res = await axios.get(`${API_URL}/admin/courses`, {
@@ -69,10 +71,43 @@ export default function CourseStatus() {
             const data = res.data;
             setCourses(data);
 
+            const uniqueStatuses = [...new Set(data.map(course => course.status))];
+            const statusOptionsWithColors = uniqueStatuses.map(status => ({
+                value: status,
+                color: getStatusColorByValue(status)
+            }));
+            setStatusOptions(statusOptionsWithColors);
+
         } catch (error) {
             console.error('Error fetching Courses:', error);
+            toast.error('Không thể tải danh sách khóa học. Vui lòng thử lại sau.');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const getStatusColorByValue = (status) => {
+        switch (status.toLowerCase()) {
+            case "published":
+                return "bg-green-100 text-green-800 w-full text-center flex justify-center items-center p-1 rounded-lg  ";
+            case "draft":
+                return "bg-blue-100 text-blue-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
+            case "pending":
+                return "bg-yellow-100 text-yellow-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
+            case "unpublished":
+                return "bg-red-500 text-white w-full text-center flex justify-center items-center p-1 rounded-lg ";
+        }
+    };
+    const getStatusText = (status) => {
+        switch (status) {
+            case "draft":
+                return "Nháp";
+            case "published":
+                return "Hoàn thành";
+            case "pending":
+                return "Đang chờ";
+            case "unpublished":
+                return "Thất bại";
         }
     };
 
@@ -85,121 +120,185 @@ export default function CourseStatus() {
         return statusOption ? statusOption.color : "bg-gray-300";
     };
 
-    const handleStatusChange = (courseId, newStatus) => {
-        setCourses(courses.map(course => {
-            if (course.id === courseId) {
-                return {
-                    ...course,
+    const handleStatusChange = async () => {
+        if (!newStatus) {
+            toast.error('Vui lòng chọn trạng thái mới.');
+            return;
+        }
+
+        setIsUpdating(true);
+        try {
+            await axios.patch(
+                `${API_URL}/admin/courses/${selectedCourse.id}/status`,
+                {
                     status: newStatus,
-                    lastUpdated: new Date().toISOString().split('T')[0]
-                };
-            }
-            return course;
-        }));
-        setIsStatusDialogOpen(false);
-        setStatusNote("");
+                    note: statusNote
+                },
+                {
+                    headers: {
+                        'x-api-secret': API_KEY
+                    }
+                }
+            );
+
+            setCourses(courses.map(course => {
+                if (course.id === selectedCourse.id) {
+                    return {
+                        ...course,
+                        status: newStatus,
+                        lastUpdated: new Date().toISOString()
+                    };
+                }
+                return course;
+            }));
+
+            toast.success('Đã cập nhật trạng thái khóa học.');
+
+            setIsStatusDialogOpen(false);
+            setStatusNote("");
+            setNewStatus("");
+        } catch (error) {
+            console.error('Error updating course status:', error);
+            toast.error('Không thể cập nhật trạng thái. Vui lòng thử lại sau.');
+        } finally {
+            setIsUpdating(false);
+        }
     };
 
     const openStatusDialog = (course) => {
         setSelectedCourse(course);
+        setNewStatus(course.status);
         setIsStatusDialogOpen(true);
     };
+
+    const filteredCourses = courses.filter(course => {
+        const matchesStatus = filterStatus === "all" || course.status === filterStatus;
+        const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            course.user.name.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesStatus && matchesSearch;
+    });
 
     return (
         <SidebarProvider>
             <SideBarUI />
             <SidebarInset>
                 <div className="w-full">
-                    <header className="z-10 absolute left-1 top-3">
-                        <div className="flex items-center gap-2 px-4 h-14">
-                            <SidebarTrigger />
-                            <Separator orientation="vertical" className="h-6" />
+                    <div className="absolute top-16 px-6 bg-gray-50 w-full min-h-screen">
+                        <div className="mb-4">
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     <BreadcrumbItem>
-                                        <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
+                                        <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator />
                                     <BreadcrumbItem>
-                                        <BreadcrumbLink href="/admin/courses">
-                                            Quản lý trạng thái khóa học
-                                        </BreadcrumbLink>
+                                        <BreadcrumbLink href="/admin/courses">Khóa học</BreadcrumbLink>
+                                    </BreadcrumbItem>
+                                    <BreadcrumbSeparator />
+                                    <BreadcrumbItem>
+                                        <BreadcrumbLink>Trạng thái</BreadcrumbLink>
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
                             </Breadcrumb>
                         </div>
-                    </header>
 
-                    {/* Main Content */}
-                    <div className="absolute top-16 px-6 bg-gray-50 w-full min-h-screen">
                         <Card>
                             <CardHeader>
                                 <CardTitle>Trạng thái khóa học</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="flex justify-between items-center mb-4">
-                                    <Select
-                                        value={filterStatus}
-                                        onValueChange={setFilterStatus}>
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Lọc theo trạng thái" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                                            {statusOptions.map((option) => (
-                                                <SelectItem key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <div className="flex flex-wrap gap-4 w-full md:w-auto">
-                                        <div className="relative flex-1 md:flex-initial">
-                                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                                            <input
-                                                type="text"
+                                    <div className="flex gap-4">
+                                        <Select
+                                            value={filterStatus}
+                                            onValueChange={setFilterStatus}>
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="Lọc theo trạng thái" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                                                {statusOptions.map((option) => (
+                                                    <SelectItem
+                                                        key={option.value}
+                                                        value={option.value}
+                                                    >
+                                                        <div className="flex items-center">
+                                                            <Badge className={option.color}>
+                                                                {/* {option.value} */}
+                                                                {`${getStatusText(option.value)}`}
+                                                            </Badge>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+
+                                        <div className="relative">
+                                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                            <Input
                                                 placeholder="Tìm kiếm khóa học..."
-                                                className="pl-9 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                className="pl-8 w-[300px]"
                                             />
                                         </div>
-
                                     </div>
                                 </div>
 
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Khóa học</TableHead>
-                                            <TableHead>Giảng viên</TableHead>
-                                            <TableHead>Trạng thái</TableHead>
-                                            <TableHead className="text-right">Hành động</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {courses.filter(course => filterStatus === "all" || course.status === filterStatus).map((course) => (
-                                            <TableRow key={course.id}>
-                                                <TableCell>{course.title}</TableCell>
-                                                <TableCell>{course.user.name}</TableCell>
-                                                <TableCell>
-                                                    <Badge className={getStatusColor(course.status)}>
-                                                        {course.status}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <Button onClick={() => openStatusDialog(course)}>
-                                                        Thay đổi trạng thái
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                                {isLoading ? (
+                                    <div className="flex justify-center items-center h-32">
+                                        <Loader2 className="h-8 w-8 animate-spin" />
+                                    </div>
+                                ) : (
+                                    <div className="rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Tên khóa học</TableHead>
+                                                    <TableHead>Giảng viên</TableHead>
+                                                    <TableHead>Trạng thái</TableHead>
+                                                    <TableHead className="text-right">Thao tác</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {filteredCourses.length === 0 ? (
+                                                    <TableRow>
+                                                        <TableCell colSpan={4} className="text-center">
+                                                            Không tìm thấy khóa học nào
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ) : (
+                                                    filteredCourses.map((course) => (
+                                                        <TableRow key={course.id}>
+                                                            <TableCell className="font-medium">
+                                                                {course.title}
+                                                            </TableCell>
+                                                            <TableCell>{course.user.name}</TableCell>
+                                                            <TableCell>
+                                                                <Badge className={getStatusColor(course.status)}>
+                                                                    {getStatusText(course.status)}
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell className="text-right">
+                                                                <Button
+                                                                    onClick={() => openStatusDialog(course)}
+                                                                    variant="outline"
+                                                                >
+                                                                    Thay đổi trạng thái
+                                                                </Button>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))
+                                                )}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </div>
                 </div>
 
-                {/* Dialog for status change */}
                 <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
                     <DialogContent>
                         <DialogHeader>
@@ -210,37 +309,75 @@ export default function CourseStatus() {
                         </DialogHeader>
                         <div className="grid gap-4 py-4">
                             <div className="grid gap-2">
+                                <Label>Trạng thái hiện tại</Label>
+                                <Badge className={`${getStatusColor(selectedCourse?.status)} px-2 py-2 rounded-md`}>
+                                {`${getStatusText(selectedCourse?.status)}`}
+                                </Badge>
+                            </div>
+                            <div className="grid gap-2">
                                 <Label>Trạng thái mới</Label>
                                 <Select
-                                    onValueChange={(value) => handleStatusChange(selectedCourse?.id, value)}
-                                    defaultValue={selectedCourse?.status}
+                                    value={newStatus}
+                                    onValueChange={setNewStatus}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Chọn trạng thái" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {statusOptions.map((option) => (
-                                            <SelectItem key={option.value} value={option.value}>
-                                                {option.label}
+                                            <SelectItem
+                                                key={option.value}
+                                                value={option.value}
+                                            >
+                                                <div className="flex items-center">
+                                                    <Badge className={option.color}>
+                                                        {/* {option.value} */}
+                                                        {`${getStatusText(option.value)}`}
+                                                    </Badge>
+                                                </div>
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </div>
+                            {/* Ghi chú */}
+                            {/* <div className="grid gap-2">
+                                <Label>Ghi chú</Label>
+                                <Textarea
+                                    value={statusNote}
+                                    onChange={(e) => setStatusNote(e.target.value)}
+                                    placeholder="Nhập ghi chú về việc thay đổi trạng thái (không bắt buộc)"
+                                />
+                            </div> */}
                         </div>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsStatusDialogOpen(false)}>
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsStatusDialogOpen(false)}
+                                disabled={isUpdating}
+                            >
                                 Hủy
                             </Button>
-                            <Button onClick={() => {
-                                setIsStatusDialogOpen(false);
-                            }}>
-                                Lưu
+                            <Button
+                                onClick={handleStatusChange}
+                                disabled={isUpdating}
+                            >
+                                {isUpdating ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Đang cập nhật
+                                    </>
+                                ) : (
+                                    'Lưu thay đổi'
+                                )}
                             </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
             </SidebarInset>
+            <Toaster position="top-right" />
         </SidebarProvider>
     );
 }
+
+
