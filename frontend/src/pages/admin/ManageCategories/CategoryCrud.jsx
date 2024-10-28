@@ -75,11 +75,11 @@ export const CategoryCrud = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [showAddCategory, setShowAddCategory] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
-    const [newCategoryIconUrl, setNewCategoryIconUrl] = useState('');
+    const [newCategoryImage, setNewCategoryImage] = useState('');
 
     const [editCategoryId, setEditCategoryId] = useState(null);
     const [editCategoryName, setEditCategoryName] = useState('');
-    const [editCategoryIconUrl, setEditCategoryIconUrl] = useState('');
+    const [editCategoryImage, setEditCategoryImage] = useState('');
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -96,58 +96,68 @@ export const CategoryCrud = () => {
     const [categories, setCategory] = useState([]);
     const token = localStorage.getItem('access_token');
 
-    const fetchCategory = async () => {
-        try {
-            setLoadingCategory(true)
-            const res = await axios.get(`${API_URL}/categories`, {
-                headers: {
-                    'x-api-secret': API_KEY
-                }
-            })
-            const data = res.data;
 
-            setCategory(data)
-        } catch (error) {
-            console.error('Error fetching Categories:', error)
-        } finally {
-            setLoadingCategory(false)
+    useEffect(() => {
+
+        const fetchCategory = async () => {
+            try {
+                setLoadingCategory(true)
+                const res = await axios.get(`${API_URL}/categories`, {
+                    headers: {
+                        'x-api-secret': API_KEY
+                    }
+                })
+                const data = res.data;
+
+                setCategory(data)
+            } catch (error) {
+                console.error('Error fetching Categories:', error)
+            } finally {
+                setLoadingCategory(false)
+            }
         }
-    }
+        fetchCategory()
+    }, [API_KEY, API_URL])
 
     const addCategory = async (e) => {
-        e.preventDefault(); // Ngăn chặn hành vi mặc định của form
+        e.preventDefault();
 
-        const newCategory = {
-            name: newCategoryName,
-            // iconUrl: newCategoryIconUrl // Đảm bảo đúng tên trường mà API yêu cầu
-        };
+        const formData = new FormData();
+        formData.append('name', newCategoryName);
+        formData.append('image', newCategoryImage); // newCategoryImage phải là một đối tượng File
 
         try {
             setLoading(true);
-            const res = await axios.post(`${API_URL}/categories`, newCategory, {
+            const res = await axios.post(`${API_URL}/categories`, formData, {
                 headers: {
-                    'x-api-secret': API_KEY // Nếu cần gửi khóa API
+                    'x-api-secret': API_KEY,
+                    'Content-Type': 'multipart/form-data'
                 }
             });
-            const data = res.data; // Xử lý dữ liệu phản hồi nếu cần
-            console.log('Category added:', data); // Xem phản hồi từ server
-            // window.location.reload()
+            const data = res.data;
+            console.log('Category added:', data);
             setIsDialogOpen(false);
             notify('Thêm danh mục thành công', 'success');
         } catch (error) {
-            console.error('Error adding category:', error);
+            if (error.response) {
+                // Lỗi trả về từ server
+                console.error('Server error:', error.response.data.errors);
+            } else {
+                // Lỗi không phải từ server
+                console.error('Error adding category:', error.message);
+            }
         } finally {
             setLoading(false);
-
-
         }
     };
+    console.log(newCategoryImage); // Kiểm tra xem có phải là đối tượng File không
+
 
 
     const editCategory = async (categoryId) => {
         const updatedCategory = {
             name: editCategoryName,
-            iconUrl: editCategoryIconUrl, // Đảm bảo đúng tên trường mà API yêu cầu
+            image: editCategoryImage, // Đảm bảo đúng tên trường mà API yêu cầu
         };
 
         try {
@@ -161,7 +171,7 @@ export const CategoryCrud = () => {
             console.log('Category updated:', data); // Xem phản hồi từ server
             // Reset các trường input sau khi sửa
             setEditCategoryName('');
-            setEditCategoryIconUrl('');
+            setEditCategoryImage('');
         } catch (error) {
             console.error('Error updating category:', error);
         } finally {
@@ -173,7 +183,7 @@ export const CategoryCrud = () => {
     const deleteCategory = async (slug) => {
         try {
             setLoading(true)
-            const res = await axios.delete(`${API_URL}/categories/${slug}`, {
+            await axios.delete(`${API_URL}/categories/${slug}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -186,9 +196,7 @@ export const CategoryCrud = () => {
         }
     }
 
-    useEffect(() => {
-        fetchCategory()
-    }, [])
+
 
 
 
@@ -238,9 +246,9 @@ export const CategoryCrud = () => {
 
 
     const openEditDialog = (category) => {
-        setEditCategoryId(category.id);
+        setEditCategoryId(category.slug);
         setEditCategoryName(category.name);
-        setEditCategoryIconUrl(category.icon);
+        setEditCategoryImage(category.icon);
         setShowEditDialog(true);
     };
 
@@ -316,13 +324,14 @@ export const CategoryCrud = () => {
                                             />
                                         </div>
                                         <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="newCategoryIconUrl" className="text-right">
-                                                URL icon
+                                            <Label htmlFor="newCategoryImage" className="text-right">
+                                                File ảnh
                                             </Label>
                                             <Input
-                                                // id="newCategoryIconUrl"
-                                                value={newCategoryIconUrl}
-                                                onChange={(e) => setNewCategoryIconUrl(e.target.value)}
+                                                // id="newCategoryImage"
+                                                type='file'
+                                                // value={newCategoryImage}
+                                                onChange={(e) => setNewCategoryImage(e.target.files[0])}
                                                 className="col-span-3"
                                                 required
                                             />
@@ -411,7 +420,7 @@ export const CategoryCrud = () => {
                                         <tr key={index} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
                                             <td className="py-4 px-6 text-sm text-gray-600">#{category.course_category_id}</td>
                                             <td className="py-4 px-6 text-sm text-gray-600">
-                                                <img src={category.icon} alt={`${category.name} icon`} className="h-6 w-6" />
+                                                <img src={category.image} alt={`${category.name} icon`} className="h-6 w-6" />
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="font-medium text-gray-900">{category.name}</div>
@@ -460,13 +469,13 @@ export const CategoryCrud = () => {
                                                                     />
                                                                 </div>
                                                                 <div className="grid grid-cols-4 items-center gap-4">
-                                                                    <Label htmlFor="editCategoryIconUrl" className="text-right">
+                                                                    <Label htmlFor="editCategoryImage" className="text-right">
                                                                         URL icon
                                                                     </Label>
                                                                     <Input
-                                                                        id="editCategoryIconUrl"
-                                                                        value={editCategoryIconUrl}
-                                                                        onChange={(e) => setEditCategoryIconUrl(e.target.value)}
+                                                                        id="editCategoryImage"
+                                                                        value={editCategoryImage}
+                                                                        onChange={(e) => setEditCategoryImage(e.target.value)}
                                                                         className="col-span-3"
                                                                         required
                                                                     />

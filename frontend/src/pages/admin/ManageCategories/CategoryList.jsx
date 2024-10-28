@@ -31,6 +31,9 @@ export const CategoryList = () => {
 
     const [categories, setCategory] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
 
     const fetchCategory = async () => {
         try {
@@ -41,6 +44,7 @@ export const CategoryList = () => {
             });
             const data = res.data;
             setCategory(data);
+            setTotalPages(Math.ceil(data.length / itemsPerPage));
         } catch (error) {
             console.error('Error fetching Categories:', error);
         } finally {
@@ -78,6 +82,78 @@ export const CategoryList = () => {
 
         return sortConfig.direction === 'asc' ? (aValue > bValue ? 1 : -1) : (aValue < bValue ? 1 : -1);
     });
+
+    // Pagination logic
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = sortedCategories.slice(indexOfFirstItem, indexOfLastItem);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
+    const renderPaginationItems = () => {
+        const items = [];
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        // First page
+        if (startPage > 1) {
+            items.push(
+                <PaginationItem key="1">
+                    <PaginationLink onClick={() => handlePageChange(1)}>
+                        1
+                    </PaginationLink>
+                </PaginationItem>
+            );
+            if (startPage > 2) {
+                items.push(
+                    <PaginationItem key="ellipsis1">
+                        <PaginationEllipsis />
+                    </PaginationItem>
+                );
+            }
+        }
+
+        // Page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            items.push(
+                <PaginationItem key={i}>
+                    <PaginationLink
+                        onClick={() => handlePageChange(i)}
+                        isActive={currentPage === i}
+                    >
+                        {i}
+                    </PaginationLink>
+                </PaginationItem>
+            );
+        }
+
+        // Last page
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                items.push(
+                    <PaginationItem key="ellipsis2">
+                        <PaginationEllipsis />
+                    </PaginationItem>
+                );
+            }
+            items.push(
+                <PaginationItem key={totalPages}>
+                    <PaginationLink onClick={() => handlePageChange(totalPages)}>
+                        {totalPages}
+                    </PaginationLink>
+                </PaginationItem>
+            );
+        }
+
+        return items;
+    };
 
     const getSortIcon = (key) => {
         if (sortConfig.key === key) {
@@ -131,6 +207,7 @@ export const CategoryList = () => {
                             <thead>
                                 <tr className="bg-yellow-400">
                                     <th className="text-left py-4 px-6 font-medium text-sm text-white-600">ID</th>
+                                    <th className="text-left py-4 px-6 font-medium text-sm text-white-600">Image</th>
                                     <th
                                         className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
                                         onClick={() => handleSort('name')}
@@ -158,36 +235,38 @@ export const CategoryList = () => {
                                             {getSortIcon('lastUpdated')}
                                         </div>
                                     </th>
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Trạng thái</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {isLoading ? (
                                     <>
-                                    {[...Array(5)].map((_, rowIndex) => (
-                                        <tr key={rowIndex} className="border-t border-gray-100">
-                                            <td className="py-4 px-6">
-                                                <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <div className="bg-gray-300 rounded animate-pulse" style={{ width: '150px', height: '20px' }} />
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <div className="bg-gray-300 rounded animate-pulse" style={{ width: '120px', height: '20px' }} />
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <div className="bg-gray-300 rounded animate-pulse" style={{ width: '80px', height: '20px' }} />
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </>
+                                        {[...Array(5)].map((_, rowIndex) => (
+                                            <tr key={rowIndex} className="border-t border-gray-100">
+                                                <td className="py-4 px-6">
+                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
+                                                </td>
+                                                <td className="py-4 px-6">
+                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
+                                                </td>
+                                                <td className="py-4 px-6">
+                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '150px', height: '20px' }} />
+                                                </td>
+                                                <td className="py-4 px-6">
+                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
+                                                </td>
+                                                <td className="py-4 px-6">
+                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '120px', height: '20px' }} />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </>
                                 ) : (
-                                    sortedCategories.map((category) => (
+                                    currentItems.map((category) => (
                                         <tr key={category.id} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
                                             <td className="py-4 px-6 text-sm text-gray-600">#{category.course_category_id}</td>
+                                            <td className="py-4 px-6 text-sm text-gray-600">
+                                                <img src={category.image} className="w-6 h-6" alt={category.name} />
+                                            </td>
                                             <td className="py-4 px-6">
                                                 <div className="font-medium text-gray-900">{category.name}</div>
                                             </td>
@@ -197,43 +276,23 @@ export const CategoryList = () => {
                                             <td className="py-4 px-6 text-sm text-gray-600">
                                                 {new Date(category.updated_at).toLocaleDateString('vi-VN')}
                                             </td>
-                                            <td className="py-4 px-6">
-                                                <div className="flex items-center">
-                                                    <Switch
-                                                        variant="outline"
-                                                        id={`category-status-${category.id}`}
-                                                        checked={category.isActive}
-                                                    />
-                                                </div>
-                                            </td>
                                         </tr>
                                     ))
                                 )}
                             </tbody>
-
                         </table>
                     </div>
-                    <div className="mt-3">
-                        <Pagination>
-                            <PaginationContent>
-                                <PaginationItem>
-                                    <PaginationLink href="#" isActive>
-                                        1
-                                    </PaginationLink>
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationLink href="#">
-                                        2
-                                    </PaginationLink>
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationLink href="#">3</PaginationLink>
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationEllipsis />
-                                </PaginationItem>
-                            </PaginationContent>
-                        </Pagination>
+                    <div className="mt-4">
+                        <div className="flex items-center justify-between">
+                            <div className="text-sm text-gray-500">
+                                Hiển thị {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, sortedCategories.length)} trong số {sortedCategories.length} danh mục
+                            </div>
+                            <Pagination>
+                                <PaginationContent>
+                                    {renderPaginationItems()}
+                                </PaginationContent>
+                            </Pagination>
+                        </div>
                     </div>
                 </div>
             </SidebarInset>

@@ -91,7 +91,9 @@ export const PriorityCategory = () => {
                     </div>
                 </header>
 
-                <div className="absolute top-12 w-full p-4">
+                <>Xin lỗi, trang bạn tìm đã không còn! </>
+
+                {/* <div className="absolute top-12 w-full p-4">
                     <div className="mb-4 flex items-center justify-between">
                         <div className="relative flex-1 max-w-md">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -178,7 +180,7 @@ export const PriorityCategory = () => {
                             </PaginationContent>
                         </Pagination>
                     </div>
-                </div>
+                </div> */}
             </SidebarInset>
         </SidebarProvider>
     );
