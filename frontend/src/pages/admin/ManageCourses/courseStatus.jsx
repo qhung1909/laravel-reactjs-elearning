@@ -126,10 +126,16 @@ export default function CourseStatus() {
             return;
         }
 
+        console.log('Updating course status:', {
+            courseId: selectedCourse.course_id,
+            newStatus: newStatus,
+            note: statusNote,
+        });
+
         setIsUpdating(true);
         try {
             await axios.patch(
-                `${API_URL}/admin/courses/${selectedCourse.id}/status`,
+                `${API_URL}/admin/courses/${selectedCourse.course_id}/status`,
                 {
                     status: newStatus,
                     note: statusNote
@@ -142,7 +148,7 @@ export default function CourseStatus() {
             );
 
             setCourses(courses.map(course => {
-                if (course.id === selectedCourse.id) {
+                if (course.course_id === selectedCourse.course_id) {
                     return {
                         ...course,
                         status: newStatus,
@@ -166,6 +172,8 @@ export default function CourseStatus() {
     };
 
     const openStatusDialog = (course) => {
+        console.log('Opening status dialog for course:', course); // Kiểm tra khóa học
+
         setSelectedCourse(course);
         setNewStatus(course.status);
         setIsStatusDialogOpen(true);
