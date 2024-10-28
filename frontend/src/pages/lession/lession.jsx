@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
+import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
@@ -36,6 +37,7 @@ export const Lesson = () => {
                 }
             });
             if (res.data) {
+                console.log("Fetched quizzes data:", res.data); // Thêm log này
                 setQuizzes(res.data);
             } else {
                 console.error(res.data);
@@ -167,12 +169,18 @@ export const Lesson = () => {
 
     const [showQuiz, setShowQuiz] = useState(false);
     const [currentQuizId, setCurrentQuizId] = useState(null);
-    console.log("Current Quiz ID:", currentQuizId);
-    console.log("Quizzes List:", quizzes);
-    const handleShowQuiz = (quizId) => {
-        setCurrentQuizId(quizId);
-        setShowQuiz(true);
+
+    const handleShowQuiz = (content_id) => {
+        const quiz = quizzes.find(quiz => quiz.content_id === content_id);
+        if (quiz) {
+            setCurrentQuizId(quiz.quiz_id);
+            setShowQuiz(true);
+        } else {
+            console.error("Quiz not found for content_id:", content_id);
+            toast.error("Không tìm thấy quiz cho nội dung này.");
+        }
     };
+
 
     return (
         <>
@@ -262,9 +270,10 @@ export const Lesson = () => {
                             {/* Nút để hiển thị bài tập */}
                             {/* Hiển thị quiz nếu đã bắt đầu, nằm bên trong div video */}
                             {showQuiz && currentQuizId && (
-                                <div className="mt-4">
-                                    <Quizzes slug={slug} quiz_id={currentQuizId} />
-                                </div>
+                                <Quizzes
+                                    quiz_id={currentQuizId}
+                                    onClose={() => setShowQuiz(false)}
+                                />
                             )}
 
 
@@ -364,13 +373,12 @@ export const Lesson = () => {
                                                                     <span>Xem bài giảng</span>
                                                                 </button>
                                                                 <button
-                                                                    onClick={() => handleShowQuiz(quizzes.find(quiz => quiz.content_id === content.content_id)?.quiz_id)}
+                                                                    onClick={() => handleShowQuiz(content.content_id)}
                                                                     className="inline-flex items-center gap-1 mt-4 px-3 py-1.5 border border-purple-200 text-purple-600 text-sm rounded-lg hover:bg-purple-50 transition-colors"
                                                                 >
                                                                     <span>Bài tập</span>
                                                                     <ArrowRight className="w-3 h-3" />
                                                                 </button>
-
                                                             </div>
                                                         </div>
                                                     </AccordionContent>
