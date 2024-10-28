@@ -13,8 +13,6 @@ class Coupon extends Model
     protected $fillable = [
         'name_coupon', 
         'discount_price',
-        'percent_discount',
-        'max_discount',
         'start_discount',
         'end_discount',
     ];
