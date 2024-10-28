@@ -174,4 +174,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     //Quản lí courses
     Route::get('/stats', [AdminController::class, 'statsCourses']);
+    //Quản lí Category
+    Route::get('/categories/{categoryId}/courses/count', [AdminController::class, 'countCoursesInCategory']);
 });

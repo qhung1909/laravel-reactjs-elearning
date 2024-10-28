@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
+import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import axios from "axios"
 export const UserOrderHistory = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -87,6 +88,9 @@ export const UserOrderHistory = () => {
 
         return orderHistory.map((item, index) => (
             <TableRow key={index} className="sm:p-4 p-0">
+                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
+                    {index + 1}
+                </TableCell>
                 <TableCell className="sm:p-4 py-2 px-0 xl:w-[400px] lg:w-[250px] md:w-[200px] w-fit font-medium lg:text-base sm:text-sm text-xs">
                     <p className="line-clamp-2">{item.courses && item.courses[0] ? item.courses[0].course_title : "Lỗi hiển thị tên khóa học"}</p>
                 </TableCell>
@@ -97,10 +101,10 @@ export const UserOrderHistory = () => {
                     {item.payment_method}
                 </TableCell>
                 <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                    {item.created_at}
+                {item.created_at}
                 </TableCell>
-                <TableCell className="sm:p-4 py-2 px-0 text-right lg:text-base sm:text-sm text-xs">
-                    {item.total_price}
+                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
+                    {formatCurrency(item.total_price)}
                 </TableCell>
             </TableRow>
         ));
@@ -162,12 +166,13 @@ export const UserOrderHistory = () => {
                                     <div className="mb-5">
                                         <Table>
                                             <TableHeader>
-                                                <TableRow >
-                                                    <TableHead className="sm:p-4 p-0 xl:w-[400px] lg:w-[250px] md:w-[200px] w-[150px] lg:text-base text-sm">Tên khóa học</TableHead>
-                                                    <TableHead className="sm:p-4 p-0 lg:text-base text-sm">Trạng thái</TableHead>
-                                                    <TableHead className="sm:p-4 p-0 lg:text-base text-sm">Giao dịch</TableHead>
-                                                    <TableHead className="sm:p-4 p-0 lg:text-base text-sm ">Ngày mua</TableHead>
-                                                    <TableHead className="sm:p-4 p-0 lg:text-base text-sm text-right">Giá</TableHead>
+                                                <TableRow>
+                                                    <TableHead className="sm:p-4 p-0 lg:text-base sm:text-sm text-xs">STT</TableHead>
+                                                    <TableHead className="sm:p-4 p-0 xl:w-[400px] lg:w-[250px] md:w-[200px] w-[90px] lg:text-base sm:text-sm text-xs">Tên khóa học</TableHead>
+                                                    <TableHead className="sm:p-4 p-0 lg:text-base sm:text-sm text-xs">Trạng thái</TableHead>
+                                                    <TableHead className="sm:p-4 p-0 lg:text-basesm:text-sm text-xs">Giao dịch</TableHead>
+                                                    <TableHead className="sm:p-4 p-0 lg:text-basesm:text-sm text-xs">Ngày mua</TableHead>
+                                                    <TableHead className="sm:p-4 p-0 lg:text-basesm:text-sm text-xs">Giá</TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>

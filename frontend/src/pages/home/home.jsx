@@ -71,7 +71,7 @@ export const Home = () => {
                         </Link>
 
                         <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
-                            <p>Bởi: Huy Hoàng</p>
+                            <p>Bởi: {`${item.user?.name}`}</p>
                         </div>
                         <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
                             <div className="product-box-time">
@@ -122,7 +122,7 @@ export const Home = () => {
                         </Link>
 
                         <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
-                            <p>Bởi: Huy Hoàng</p>
+                            <p>Bởi: {`${item.user?.name}`}</p>
                         </div>
                         <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
                         <div className="product-box-time">

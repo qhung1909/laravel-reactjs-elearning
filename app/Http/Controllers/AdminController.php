@@ -9,6 +9,7 @@ use App\Models\Course;
 use Illuminate\Support\Facades\DB;
 use App\Models\Enroll;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
@@ -109,6 +110,17 @@ class AdminController extends Controller
             'total_courses' => $totalCourses,
             'total_enrolls' => $totalEnrolls,
             'ongoing_courses' => $ongoingCourses,
+        ]);
+    }
+
+    public function countCoursesInCategory($categoryId): JsonResponse
+    {
+        $courseCount = $this->course->where('course_category_id', $categoryId)->count();
+
+        return response()->json([
+            'status' => 200,
+            'category_id' => $categoryId,
+            'course_count' => $courseCount,
         ]);
     }
 }
