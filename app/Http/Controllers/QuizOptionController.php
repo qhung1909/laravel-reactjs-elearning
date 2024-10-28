@@ -22,39 +22,39 @@ class QuizOptionController extends Controller
         if (!Auth::check()) {
             return response()->json(['message' => 'Người dùng chưa đăng nhập.'], 401);
         }
-    
+
         try {
             $quiz = Quiz::with('course')->find($quizId);
             if (!$quiz) {
                 return response()->json(['message' => 'Quiz không tồn tại.'], 404);
             }
-    
+
             $hasEnrolled = Enroll::where('user_id', Auth::id())
                 ->where('course_id', $quiz->course_id)
                 ->exists();
-    
+
             if (!$hasEnrolled) {
                 return response()->json(['message' => 'Bạn cần đăng ký khóa học để làm quiz này.'], 403);
             }
-    
+
             $existingSession = QuizSession::where('user_id', Auth::id())
                 ->where('quiz_id', $quizId)
                 ->first();
-    
+
             if ($existingSession) {
                 $answeredQuestionsCount = UserAnswer::where('user_id', Auth::id())
                     ->whereIn('question_id', function ($query) use ($quizId) {
                         $query->select('question_id')
-                              ->from('quizzes_questions')
-                              ->where('quiz_id', $quizId);
+                            ->from('quizzes_questions')
+                            ->where('quiz_id', $quizId);
                     })
                     ->count();
-    
+
                 if ($answeredQuestionsCount > 0) {
                     $existingSession->delete();
                 }
             }
-    
+
             $token = Str::random(60);
             $quizSession = QuizSession::create([
                 'user_id' => Auth::id(),
@@ -64,46 +64,45 @@ class QuizOptionController extends Controller
                 'score' => 0,
                 'started_at' => now()
             ]);
-    
+
             return response()->json([
                 'token' => $token,
                 'message' => 'Bạn đã bắt đầu quiz mới.'
             ]);
-    
         } catch (\Exception $e) {
             Log::error('Quiz start error: ' . $e->getMessage());
             return response()->json(['message' => 'Không thể tạo phiên quiz. Vui lòng thử lại.'], 500);
         }
     }
-    
-    
+
+
     public function submitAnswers(Request $request)
     {
         if (!Auth::check()) {
             return response()->json(['message' => 'Người dùng chưa đăng nhập.'], 401);
         }
-    
+
         $answers = $request->input('answers');
         $response = [];
         $userId = Auth::id();
         $quizSession = QuizSession::where('user_id', $userId)->latest()->first();
-    
+
         if (!$quizSession) {
             return response()->json(['message' => 'Không tìm thấy phiên quiz.'], 404);
         }
-    
+
         $questions = QuizQuestion::where('quiz_id', $quizSession->quiz_id)->get()->keyBy('question_id');
-    
+
         $existingAnswers = UserAnswer::where('user_id', $userId)
             ->whereIn('question_id', $questions->keys())
-            ->pluck('question_id', 'quiz_session_id') 
+            ->pluck('question_id', 'quiz_session_id')
             ->toArray();
-    
+
         $correctAnswersCount = 0;
-    
+
         foreach ($answers as $answer) {
             $questionId = $answer['question_id'];
-    
+
             if (!isset($questions[$questionId])) {
                 $response[] = [
                     'question_id' => $questionId,
@@ -112,7 +111,7 @@ class QuizOptionController extends Controller
                 ];
                 continue;
             }
-    
+
             if (isset($existingAnswers[$quizSession->quiz_session_id]) && $existingAnswers[$quizSession->quiz_session_id] == $questionId) {
                 $response[] = [
                     'question_id' => $questionId,
@@ -121,9 +120,9 @@ class QuizOptionController extends Controller
                 ];
                 continue;
             }
-    
-            $quizSessionId = $quizSession->quiz_session_id; 
-    
+
+            $quizSessionId = $quizSession->quiz_session_id;
+
             switch ($questions[$questionId]->question_type) {
                 case 'single_choice':
                     $this->handleSingleChoice($answer, $questions[$questionId], $response, $correctAnswersCount, $quizSessionId);
@@ -146,18 +145,18 @@ class QuizOptionController extends Controller
                     break;
             }
         }
-    
+
         $quizSession->score += $correctAnswersCount;
         $quizSession->save();
-        
+
         $answeredQuestions = DB::table('user_answers')
-        ->where('user_id', $userId)
-        ->where('quiz_session_id', $quizSession->quiz_session_id)
-        ->distinct('question_id')
-        ->count('question_id');
-    
+            ->where('user_id', $userId)
+            ->where('quiz_session_id', $quizSession->quiz_session_id)
+            ->distinct('question_id')
+            ->count('question_id');
+
         $totalQuestions = $questions->count();
-        
+
         if ($answeredQuestions == $totalQuestions) {
             try {
                 $quizSession->update([
@@ -170,13 +169,37 @@ class QuizOptionController extends Controller
         } else {
             Log::info('Not all questions answered yet for user: ' . $userId);
         }
-        $response['score'] = $quizSession->score;
 
         return response()->json($response);
-    }        
-    
-    
-    
+    }
+
+    public function getScore(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Người dùng chưa đăng nhập.'], 401);
+        }
+
+        $userId = Auth::id();
+
+        $quizSession = QuizSession::where('user_id', $userId)
+            ->where('status', 'completed')
+            ->latest()
+            ->first();
+
+        if (!$quizSession) {
+            return response()->json(['message' => 'Không tìm thấy phiên quiz đã hoàn thành.'], 404);
+        }
+
+        return response()->json([
+            'quiz_session_id' => $quizSession->quiz_session_id,
+            'score' => $quizSession->score,
+            'message' => 'Điểm số được lấy ra thành công.'
+        ]);
+    }
+
+
+
+
 
     protected function handleSingleChoice($answer, $question, &$response, &$correctAnswersCount, $quizSessionId)
     {
@@ -212,7 +235,7 @@ class QuizOptionController extends Controller
             'question_id' => $question->question_id,
             'option_id' => $option->option_id,
             'is_correct' => $option->is_correct,
-            'quiz_session_id' => $quizSessionId, 
+            'quiz_session_id' => $quizSessionId,
 
         ]);
 
@@ -235,7 +258,7 @@ class QuizOptionController extends Controller
             'option_ids.*' => 'exists:quiz_options,option_id',
             'question_id' => 'required|exists:quizzes_questions,question_id',
         ]);
-    
+
         if ($validator->fails()) {
             $response[] = [
                 'question_id' => $question->question_id,
@@ -244,26 +267,26 @@ class QuizOptionController extends Controller
             ];
             return;
         }
-    
+
         $selectedOptions = $answer['option_ids'];
         $correctOptionIds = QuizOption::where('question_id', $question->question_id)
             ->where('is_correct', true)
             ->pluck('option_id')
             ->toArray();
-    
-        $allCorrectSelected = empty(array_diff($correctOptionIds, $selectedOptions)); 
+
+        $allCorrectSelected = empty(array_diff($correctOptionIds, $selectedOptions));
         $anyIncorrectSelected = !empty(array_intersect($selectedOptions, QuizOption::where('question_id', $question->question_id)->where('is_correct', false)->pluck('option_id')->toArray())); // Có tùy chọn sai được chọn
-    
+
         foreach ($selectedOptions as $optionId) {
             UserAnswer::create([
                 'user_id' => Auth::id(),
                 'question_id' => $question->question_id,
                 'option_id' => $optionId,
                 'is_correct' => $allCorrectSelected && !$anyIncorrectSelected,
-                'quiz_session_id' => $quizSessionId, 
+                'quiz_session_id' => $quizSessionId,
             ]);
         }
-    
+
         if ($allCorrectSelected && !$anyIncorrectSelected) {
             $correctAnswersCount++;
             $response[] = [
@@ -271,7 +294,7 @@ class QuizOptionController extends Controller
                 'message' => 'Câu trả lời đúng',
                 'is_correct' => true,
                 'status' => 200,
-                'quiz_session_id' => $quizSessionId, 
+                'quiz_session_id' => $quizSessionId,
             ];
         } else {
             $response[] = [
@@ -279,11 +302,11 @@ class QuizOptionController extends Controller
                 'message' => 'Câu trả lời sai',
                 'is_correct' => false,
                 'status' => 200,
-                'quiz_session_id' => $quizSessionId, 
+                'quiz_session_id' => $quizSessionId,
             ];
         }
     }
-    
+
 
     protected function handleTrueFalse($answer, $question, &$response, &$correctAnswersCount, $quizSessionId)
     {
@@ -318,7 +341,7 @@ class QuizOptionController extends Controller
             'question_id' => $question->question_id,
             'option_id' => $option->option_id,
             'is_correct' => $option->is_correct,
-            'quiz_session_id' => $quizSessionId, 
+            'quiz_session_id' => $quizSessionId,
         ]);
 
         if ($option->is_correct) {
@@ -369,7 +392,7 @@ class QuizOptionController extends Controller
             'question_id' => $question->question_id,
             'text_answer' => $answer['text_answer'],
             'is_correct' => $isCorrect,
-            'quiz_session_id' => $quizSessionId, 
+            'quiz_session_id' => $quizSessionId,
         ]);
 
         if ($isCorrect) {
