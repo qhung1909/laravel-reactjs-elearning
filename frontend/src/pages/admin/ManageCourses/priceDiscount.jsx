@@ -1,5 +1,3 @@
-'use client'
-
 import React, { useEffect, useState } from 'react';
 import {
     Pagination,
@@ -49,13 +47,44 @@ export default function PriceDiscount() {
     const [searchTerm, setSearchTerm] = useState('');
     const [editCouponId, setEditCouponId] = useState(null);
     const [editCouponName, setEditCouponName] = useState('');
-    // const [editCouponImage, setEditCouponImage] = useState(null);
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [newCouponName, setNewCouponName] = useState('');
     const [newDiscountPrice, setNewDiscountPrice] = useState(null);
     const [editDiscountPrice, setEditDiscountPrice] = useState(0);
 
+    const calculateStatus = (endDate) => {
+        const now = new Date();
+        const end = new Date(endDate);
+        const diffTime = end - now;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) {
+            return {
+                status: "Hết hạn",
+                className: "bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium",
+                daysRemaining: 0
+            };
+        } else if (diffDays === 0) {
+            return {
+                status: "Hết hạn hôm nay",
+                className: "bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium",
+                daysRemaining: 0
+            };
+        } else if (diffDays <= 3) {
+            return {
+                status: `Còn ${diffDays} ngày`,
+                className: "bg-red-100 text-red-500 px-2 py-1 rounded-full text-xs font-medium",
+                daysRemaining: diffDays
+            };
+        } else {
+            return {
+                status: `Còn ${diffDays} ngày`,
+                className: "bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium",
+                daysRemaining: diffDays
+            };
+        }
+    };
 
     const fetchCoupons = async () => {
         try {
@@ -106,7 +135,7 @@ export default function PriceDiscount() {
         e.preventDefault();
         const formData = new FormData();
         formData.append('name_coupon', newCouponName);
-        formData.append('image', newDiscountPrice);
+        formData.append('discount_price', newDiscountPrice);
         try {
             const res = await axios.post(`${API_URL}/coupons`, formData, {
                 headers: { 'x-api-secret': API_KEY },
@@ -115,7 +144,7 @@ export default function PriceDiscount() {
                 toast.success('Thêm mã giảm giá thành công!');
                 fetchCoupons();
                 setNewCouponName('');
-                setNewDiscountPrice(null);
+                setNewDiscountPrice('');
                 setIsDialogOpen(false);
             }
         } catch (error) {
@@ -190,7 +219,7 @@ export default function PriceDiscount() {
                     </div>
                 </header>
 
-                <div className="absolute top-14 px-6 bg-gray-50 w-full">
+                <div className="absolute top-16 px-6 bg-gray-50 w-full">
                     <Card>
                         <CardContent className="p-6">
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -240,18 +269,18 @@ export default function PriceDiscount() {
                                                         />
                                                     </div>
                                                     <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label htmlFor="editDiscountPrice" className="text-right">Giảm giá</Label>
-                                                    <Input
-                                                        id="editDiscountPrice"
-                                                        type="number"
-                                                        value={editDiscountPrice}
-                                                        onChange={(e) => setEditDiscountPrice(Number(e.target.value))}
-                                                        className="col-span-3"
-                                                    />
-                                                </div>
+                                                        <Label htmlFor="editDiscountPrice" className="text-right">Giảm giá</Label>
+                                                        <Input
+                                                            id="editDiscountPrice"
+                                                            type="number"
+                                                            value={editDiscountPrice}
+                                                            onChange={(e) => setEditDiscountPrice(Number(e.target.value))}
+                                                            className="col-span-3"
+                                                        />
+                                                    </div>
                                                 </div>
                                                 <DialogFooter>
-                                                    <Button type="submit">Thêm mã giảm giá</Button>
+                                                    <Button type="submit" onClick={addCoupon}>Thêm mã giảm giá</Button>
                                                 </DialogFooter>
                                             </form>
                                         </DialogContent>
@@ -259,13 +288,13 @@ export default function PriceDiscount() {
                                 </div>
                             </div>
 
-                            <div className="overflow-x-auto rounded-lg border border-gray-200">
+                            <div className="overflow-x-auto rounded-md border border-gray-200">
                                 <table className="w-full">
                                     <thead>
                                         <tr className="bg-gray-50">
-                                            <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">ID</th>
+                                            <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">ID</th>
                                             <th
-                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('name_coupon')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -274,7 +303,7 @@ export default function PriceDiscount() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('discount_price')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -283,24 +312,27 @@ export default function PriceDiscount() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('start_discount')}
                                             >
                                                 <div className="flex items-center gap-2">
                                                     Ngày bắt đầu
                                                     {getSortIcon('start_discount')}
                                                 </div>
+
                                             </th>
                                             <th
-                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('end_discount')}
                                             >
                                                 <div className="flex items-center gap-2">
                                                     Ngày kết thúc
                                                     {getSortIcon('end_discount')}
                                                 </div>
+
                                             </th>
-                                            <th className="text-right py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
+                                            <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Thời hạn</th>
+                                            <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -317,25 +349,45 @@ export default function PriceDiscount() {
                                                 </tr>
                                             ))
                                         ) : (
-                                            sortedCoupons.map((coupon, index) => (
-                                                <tr key={coupon.coupons_id} className={`border-t border-gray-100 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                                                    <td className="py-4 px-6 text-sm text-gray-600">{coupon.coupons_id}</td>
-                                                    <td className="py-4 px-6 text-sm text-gray-600">{coupon.name_coupon}</td>
-                                                    <td className="py-4 px-6 text-sm text-gray-600">
-                                                        {coupon.discount_price ? `${coupon.discount_price.toLocaleString('vi-VN')} VNĐ` : 'N/A'}
-                                                    </td>
-                                                    <td className="py-4 px-6 text-sm text-gray-600">
-                                                        {new Date(coupon.start_discount).toLocaleDateString('vi-VN')}
-                                                    </td>
-                                                    <td className="py-4 px-6 text-sm text-gray-600">
-                                                        {new Date(coupon.end_discount).toLocaleDateString('vi-VN')}
-                                                    </td>
-                                                    <td className="py-4 px-6 text-sm text-gray-600 text-right">
-                                                        <Button variant="link" onClick={() => openEditDialog(coupon.coupons_id, coupon.name_coupon, coupon.discount_price)}>Chỉnh sửa</Button>
-                                                        <Button variant="link" onClick={() => deleteCoupon(coupon.coupons_id)}>Xóa</Button>
-                                                    </td>
-                                                </tr>
-                                            ))
+                                            sortedCoupons.map((coupon, index) => {
+                                                const status = calculateStatus(coupon.end_discount);
+                                                return (
+                                                    <tr key={coupon.coupons_id} className={`border-t border-gray-100 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                                                        <td className="py-4 px-6 text-sm text-gray-600">{coupon.coupons_id}</td>
+                                                        <td className="py-4 px-6 text-sm text-gray-600">{coupon.name_coupon}</td>
+                                                        <td className="py-4 px-6 text-sm text-gray-600">
+                                                            {coupon.discount_price ? `${coupon.discount_price.toLocaleString('vi-VN')} VNĐ` : 'N/A'}
+                                                        </td>
+                                                        <td className="py-4 px-6 text-sm text-gray-600">
+                                                            {new Date(coupon.start_discount).toLocaleDateString('vi-VN')}
+                                                        </td>
+                                                        <td className="py-4 px-6 text-sm text-gray-600">
+                                                            {new Date(coupon.end_discount).toLocaleDateString('vi-VN')}
+                                                        </td>
+                                                        <td className="py-4 px-6 text-sm">
+                                                            <span className={status.className}>
+                                                                {status.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-4 px-6 text-sm text-gray-600 text-center">
+                                                            <Button className="bg-amber-200 mr-2"
+                                                                variant="link"
+                                                                onClick={() => openEditDialog(coupon.coupons_id, coupon.name_coupon, coupon.discount_price)}
+                                                                disabled={status.daysRemaining <= 0}
+                                                            >
+                                                                Chỉnh sửa
+                                                            </Button>
+                                                            <Button
+                                                                variant="link"
+                                                                onClick={() => deleteCoupon(coupon.coupons_id)}
+                                                                className="text-red-600 hover:text-red-800 bg-gray-200"
+                                                            >
+                                                                Xóa
+                                                            </Button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })
                                         )}
                                     </tbody>
                                 </table>
@@ -368,9 +420,8 @@ export default function PriceDiscount() {
                         </PaginationItem>
                     </PaginationContent>
                 </Pagination>
+
                 <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-                    <DialogTrigger asChild>
-                    </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Chỉnh sửa mã giảm giá</DialogTitle>
