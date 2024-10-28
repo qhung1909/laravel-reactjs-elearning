@@ -174,6 +174,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     //Quản lí courses
     Route::get('/stats', [AdminController::class, 'statsCourses']);
+    Route::patch('/courses/{course_id}/status', [AdminController::class, 'patchCourseStatus']);
     //Quản lí Category
     Route::get('/categories/{categoryId}/courses/count', [AdminController::class, 'countCoursesInCategory']);
+    Route::put('/categories/{course_id}', [AdminController::class, 'updateCategoryImage']);
 });

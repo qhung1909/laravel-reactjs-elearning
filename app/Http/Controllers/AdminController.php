@@ -10,16 +10,22 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Enroll;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Aws\S3\S3Client;
+use App\Models\Category;
 
 class AdminController extends Controller
 {
     protected $course;
+    protected $category;
 
-
-    public function __construct(Course $course)
+    public function __construct(Course $course, Category $category)
     {
         $this->course = $course;
+        $this->category = $category;
     }
+
+
 
     public function getAllCourses()
     {
@@ -122,5 +128,143 @@ class AdminController extends Controller
             'category_id' => $categoryId,
             'course_count' => $courseCount,
         ]);
+    }
+
+    public function patchCourseStatus(Request $request, $course_id): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:published,unpublished,draft,pending'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $course = $this->course->find($course_id);
+
+        if (!$course) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Không tìm thấy khóa học',
+            ], 404);
+        }
+
+        $course->status = $request->status;
+        $course->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Cập nhật trạng thái khóa học thành công',
+            'data' => $course,
+        ]);
+    }
+
+    private function handleImageUpload($file)
+    {
+        $s3 = new S3Client([
+            'region'  => env('AWS_DEFAULT_REGION'),
+            'version' => 'latest',
+            'credentials' => [
+                'key'    => env('AWS_ACCESS_KEY_ID'),
+                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            ],
+            'http' => [
+                'verify' => env('VERIFY_URL')
+            ]
+        ]);
+
+        $filePath = $file->getRealPath();
+        $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $newFileName = uniqid() . ".{$originalFileName}.{$extension}";
+        $key = 'icons/new_folder/' . $newFileName;
+
+        $contentType = match ($extension) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'svg' => 'image/svg+xml',
+            default => 'application/octet-stream',
+        };
+
+        try {
+            $result = $s3->putObject([
+                'Bucket' => env('AWS_BUCKET'),
+                'Key'    => $key,
+                'SourceFile' => $filePath,
+                'ContentType' => $contentType,
+                'ACL' => 'public-read',
+            ]);
+            return $result['ObjectURL'];
+        } catch (\Exception $e) {
+            throw new \Exception('Could not upload new image to S3: ' . $e->getMessage());
+        }
+    }
+
+    public function updateCategoryImage(Request $request, $course_id)
+    {
+        $rules = [
+            'name' => 'sometimes|required|string',
+            'description' => 'sometimes|nullable|string',
+            'image' => 'sometimes|nullable|image|max:2048',
+        ];
+    
+        $validator = Validator::make($request->all(), $rules);
+    
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+    
+        try {
+            $category = DB::transaction(function () use ($request, $course_id) {
+                $category = $this->category->where('course_id', $course_id)->firstOrFail();
+    
+                if ($request->has('name') && $request->name !== $category->name) {
+                    $baseSlug = Str::slug($request->name);
+                    $newSlug = $baseSlug;
+                    $counter = 1;
+    
+                    while (Category::where('slug', $newSlug)
+                        ->where('id', '!=', $category->id)
+                        ->exists()
+                    ) {
+                        $newSlug = $baseSlug . '-' . $counter;
+                        $counter++;
+                    }
+    
+                    $category->slug = $newSlug;
+                }
+    
+                $category->name = $request->input('name', $category->name);
+                $category->description = $request->input('description', $category->description);
+    
+                if ($request->hasFile('image')) {
+                    $imageUrl = $this->handleImageUpload($request->file('image'));
+                    $category->image_url = $imageUrl; 
+                }
+    
+                $category->save();
+    
+                return $category;
+            });
+    
+            Cache::forget('categories');
+            Cache::forget("category_{$category->slug}"); 
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Danh mục được cập nhật thành công.',
+                'category' => $category
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error updating category: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Có lỗi xảy ra khi cập nhật danh mục'
+            ], 500);
+        }
     }
 }
