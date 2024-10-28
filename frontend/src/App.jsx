@@ -48,6 +48,7 @@ import CourseStatus from "./pages/admin/ManageCourses/courseStatus.jsx";
 import NewExample from "./pages/admin/ManageCourses/newExample.jsx";
 import { CoursesOfCategory } from "./pages/admin/ManageCategories/CoursesOfCategory.jsx";
 import ClassifyCourse from "./pages/admin/ManageCourses/classifyCourses.jsx";
+import PriceDiscount from "./pages/admin/ManageCourses/priceDiscount.jsx";
 
 
 function AppContent() {
@@ -109,6 +110,7 @@ function AppContent() {
                 <Route path="/admin/course-status" element={<CourseStatus />}></Route>
                 <Route path="/admin/browse-new-courses/new-example" element={<NewExample />}></Route>
                 <Route path="/admin/classify-course" element={<ClassifyCourse />}></Route>
+                <Route path="/admin/price-discount" element={<PriceDiscount />}></Route>
 
 
 
