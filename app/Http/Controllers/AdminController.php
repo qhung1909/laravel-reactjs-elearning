@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Aws\S3\S3Client;
 use App\Models\Category;
-
+use App\Models\Coupon;
 class AdminController extends Controller
 {
     protected $course;
@@ -212,22 +212,22 @@ class AdminController extends Controller
             'description' => 'sometimes|nullable|string',
             'image' => 'sometimes|nullable|image|max:2048',
         ];
-    
+
         $validator = Validator::make($request->all(), $rules);
-    
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-    
+
         try {
             $category = DB::transaction(function () use ($request, $course_id) {
                 $category = $this->category->where('course_id', $course_id)->firstOrFail();
-    
+
                 if ($request->has('name') && $request->name !== $category->name) {
                     $baseSlug = Str::slug($request->name);
                     $newSlug = $baseSlug;
                     $counter = 1;
-    
+
                     while (Category::where('slug', $newSlug)
                         ->where('id', '!=', $category->id)
                         ->exists()
@@ -235,26 +235,26 @@ class AdminController extends Controller
                         $newSlug = $baseSlug . '-' . $counter;
                         $counter++;
                     }
-    
+
                     $category->slug = $newSlug;
                 }
-    
+
                 $category->name = $request->input('name', $category->name);
                 $category->description = $request->input('description', $category->description);
-    
+
                 if ($request->hasFile('image')) {
                     $imageUrl = $this->handleImageUpload($request->file('image'));
-                    $category->image_url = $imageUrl; 
+                    $category->image_url = $imageUrl;
                 }
-    
+
                 $category->save();
-    
+
                 return $category;
             });
-    
+
             Cache::forget('categories');
-            Cache::forget("category_{$category->slug}"); 
-    
+            Cache::forget("category_{$category->slug}");
+
             return response()->json([
                 'success' => true,
                 'message' => 'Danh mục được cập nhật thành công.',
@@ -266,5 +266,67 @@ class AdminController extends Controller
                 'error' => 'Có lỗi xảy ra khi cập nhật danh mục'
             ], 500);
         }
+    }
+
+    public function allCoupons()
+    {
+        $coupons = Coupon::all();
+
+        return response()->json($coupons);
+    }
+
+    public function detailCoupon($coupon_id)
+    {
+        $coupon = Coupon::findOrFail($coupon_id);
+
+        return response()->json($coupon);
+    }
+
+    public function storeCoupon(Request $request)
+    {
+        $request->validate([
+            'name_coupon' => 'required|string|max:255',
+            'discount_price' => 'required|numeric|min:0',
+            'start_discount' => 'required|date',
+            'end_discount' => 'required|date|after:start_discount',
+        ]);
+
+        $coupon = Coupon::create([
+            'name_coupon' => $request->name_coupon,
+            'discount_price' => $request->discount_price,
+            'start_discount' => $request->start_discount,
+            'end_discount' => $request->end_discount,
+        ]);
+
+        return response()->json($coupon, 201);
+    }
+
+    public function updateCoupon(Request $request, $coupon_id)
+    {
+        $coupon = Coupon::findOrFail($coupon_id);
+
+        $request->validate([
+            'name_coupon' => 'sometimes|required|string|max:255',
+            'discount_price' => 'sometimes|required|numeric|min:0',
+            'start_discount' => 'sometimes|required|date',
+            'end_discount' => 'sometimes|required|date|after:start_discount',
+        ]);
+
+        $coupon->update($request->only([
+            'name_coupon',
+            'discount_price',
+            'start_discount',
+            'end_discount',
+        ]));
+
+        return response()->json($coupon);
+    }
+
+    public function destroyCoupon($coupon_id)
+    {
+        $coupon = Coupon::findOrFail($coupon_id);
+        $coupon->delete();
+
+        return response()->json(['message' => 'Coupon deleted successfully']);
     }
 }

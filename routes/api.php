@@ -125,6 +125,7 @@ Route::middleware(['admin'])->group(function () {
 
     Route::post('/quizzes/start/{quizId}', [QuizOptionController::class, 'startQuiz']);
     Route::post('/quizzes/submit', [QuizOptionController::class, 'submitAnswers']);
+    Route::get('/quiz/score', [QuizOptionController::class, 'getScore']);
 
     Route::get('questions/{questionId}/options', [QuizOptionController::class, 'index']);
     Route::post('questions/{questionId}/options', [QuizOptionController::class, 'store']);
@@ -178,4 +179,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     //Quản lí Category
     Route::get('/categories/{categoryId}/courses/count', [AdminController::class, 'countCoursesInCategory']);
     Route::put('/categories/{course_id}', [AdminController::class, 'updateCategoryImage']);
+    //Quản lí Coupons
+    Route::get('/coupons', [AdminController::class, 'allCoupons']);
+    Route::get('/coupons/{coupon_id}', [AdminController::class, 'detailCoupon']);
+    Route::post('/coupons', [AdminController::class, 'storeCoupon']);
+    Route::put('/coupons/{coupon_id}', [AdminController::class, 'updateCoupon']);
+    Route::delete('/coupons/{coupon_id}', [AdminController::class, 'destroyCoupon']);
 });
