@@ -220,8 +220,10 @@ export const Lesson = () => {
                 </div>
 
                 <div className="content-main py-16">
-                    <div className="flex flex-col md:flex-row">
+                    <div className="flex flex-col md:flex-row lg:gap-5 md:gap-2">
 
+
+                        {/* left site - content chính */}
                         <div className="flex-1 bg-white rounded-lg shadow-md p-4">
                             {/* Phần video */}
                             <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden">
@@ -267,7 +269,38 @@ export const Lesson = () => {
                                 )}
                             </div>
 
-                            {/* Nút để hiển thị bài tập */}
+                            {/* Bên dưới video: Tên - ngày - mô tả - */}
+                            <div className="p-6 text-gray-800">
+
+                                {/* tên */}
+                                <h2 className="text-2xl font-bold mb-2 text-center md:text-start">
+                                    <span className="font-semibold">Tên khóa học:  </span>{lesson ? lesson.name : "Loading..."}
+                                </h2>
+
+                                {/* ngày cập nhật */}
+                                <p className="text-sm text-gray-500 text-center md:text-start">
+                                    <span className="font-semibold">Cập nhật ngày: </span>{" "}
+                                    {lesson
+                                        ? formatDate(lesson.updated_at)
+                                        : "Loading..."}
+                                </p>
+
+                                {/* mô tả */}
+                                <p className="mt-4 text-center md:text-start">
+                                    <span className="font-semibold">Mô tả: </span>{lesson ? lesson.description : "Loading..."}
+                                </p>
+
+                                {/* link facebook */}
+                                <ul className="mt-4 space-y-2 ">
+                                    <li>
+                                        <a href="https://www.facebook.com/profile.php?id=100079303916866" className="flex items-center justify-center md:justify-start gap-2 text-yellow-400 text-lg hover:underline">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/facebook.svg" className="w-7" alt="" />
+                                            <p className="font-semibold">AntLearn - Elearning</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
                             {/* Hiển thị quiz nếu đã bắt đầu, nằm bên trong div video */}
                             {showQuiz && currentQuizId && (
                                 <Quizzes
@@ -275,42 +308,11 @@ export const Lesson = () => {
                                     onClose={() => setShowQuiz(false)}
                                 />
                             )}
-
-
-
-
-                            <div className="p-6 text-gray-800">
-                                <h2 className="text-2xl font-bold mb-2">
-                                    {lesson ? lesson.name : "Loading..."}
-                                </h2>
-                                <p className="text-sm text-gray-500">
-                                    Cập nhật ngày{" "}
-                                    {lesson
-                                        ? formatDate(lesson.updated_at)
-                                        : "Loading..."}
-                                </p>
-                                <p className="mt-4">
-                                    {lesson ? lesson.description : "Loading..."}
-                                </p>
-                                <ul className="mt-4 space-y-2">
-                                    <li>
-                                        <a
-                                            href="https://www.facebook.com/profile.php?id=100079303916866"
-                                            className="flex items-center text-orange-500 hover:underline"
-                                        >
-                                            <box-icon
-                                                name="facebook-square"
-                                                type="logo"
-                                            ></box-icon>
-                                            AntLearn - Elearning
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
                         </div>
 
-                        {/* Phần nội dung khóa học */}
-                        <div className="w-full md:w-[350px] bg-gray-50 rounded-lg shadow-md mt-8 md:mt-0 md:ml-8">
+                        {/* Phần nội dung khóa học - right site */}
+                        <div className="xl:w-96 lg:w-80 md:w-72 bg-gray-50 rounded-lg shadow-md mt-8 md:mt-0">
+                            {/* header */}
                             <div className="flex items-center space-x-2 border-b">
                                 <h3 className="text-lg font-semibold text-gray-800 p-4 ">
                                     Nội dung bài học
@@ -318,41 +320,46 @@ export const Lesson = () => {
                                         {contentLesson.length || 0} Phần
                                     </span>
                                 </h3>
-
                             </div>
 
+                            {/* content */}
                             <div className="p-6 max-h-[650px] overflow-y-auto">
                                 <Accordion type="multiple" className="space-y-3">
                                     {contentLesson.length > 0 ? (
                                         contentLesson.map((content, index) => (
-                                            <AccordionItem
-                                                key={content.content_id}
-                                                value={`content-${content.content_id}`}
-                                                className="border-none"
-                                                onClick={() => !titleContent[content.content_id] && fetchTitleContent(content.content_id)}
-                                            >
+                                            <AccordionItem key={content.content_id} value={`content-${content.content_id}`} className="border-none" onClick={() => !titleContent[content.content_id] && fetchTitleContent(content.content_id)}>
                                                 <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+
+                                                    {/* trigger */}
                                                     <AccordionTrigger className="w-full hover:no-underline">
                                                         <div className="flex items-center w-full p-4">
+
+                                                            {/* stt */}
                                                             <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center text-purple-600 font-medium mr-4">
                                                                 {index + 1}
                                                             </div>
+
+                                                            {/* name */}
                                                             <div className="flex-1 flex items-center justify-between">
-                                                                <h3 className="font-medium text-gray-800 text-sm truncate">
+                                                                <h3 className="font-medium text-gray-800 text-sm line-clamp-1">
                                                                     {content.name_content}
                                                                 </h3>
 
                                                             </div>
                                                         </div>
                                                     </AccordionTrigger>
+
+                                                    {/* content */}
                                                     <AccordionContent>
-                                                        <div className="px-4 pb-4">
-                                                            <div className="space-y-2 mb-4">
+                                                        <div className="px-4">
+
+                                                            {/* content */}
+                                                            <div className="">
                                                                 {Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
                                                                     titleContent[content.content_id].map((item, i) => (
                                                                         <div
                                                                             key={i}
-                                                                            className="flex items-start gap-2 p-2 hover:bg-purple-50 rounded-lg transition-colors"
+                                                                            className="flex items-start gap-2 py-2 hover:bg-purple-50 rounded-lg transition-colors"
                                                                         >
                                                                             <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0">
                                                                                 {i + 1}
@@ -364,20 +371,18 @@ export const Lesson = () => {
                                                                     <p className="text-sm text-gray-600 pl-7">Đang tải nội dung...</p>
                                                                 )}
                                                             </div>
-                                                            <div className="flex items-center gap-2 pl-7">
-                                                                <button
-                                                                    onClick={() => showVideo_content(content.content_id)}
-                                                                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors"
-                                                                >
+
+                                                            {/* button - video - bai tap */}
+                                                            <div className="flex items-center justify-center gap-2 ">
+
+                                                                {/* video */}
+                                                                <button onClick={() => showVideo_content(content.content_id)} className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold text-sm rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors">
                                                                     <Play className="w-4 h-4" />
                                                                     <span>Xem bài giảng</span>
                                                                 </button>
-                                                                <button
-                                                                    onClick={() => handleShowQuiz(content.content_id)}
-                                                                    className="inline-flex items-center gap-1 mt-4 px-3 py-1.5 border border-purple-200 text-purple-600 text-sm rounded-lg hover:bg-purple-50 transition-colors"
-                                                                >
+                                                                <button onClick={() => handleShowQuiz(content.content_id)} className="flex items-center gap-1 px-3 py-1.5 border font-semibold border-purple-200 text-purple-600 text-sm rounded-lg hover:bg-purple-50 transition-colors">
                                                                     <span>Bài tập</span>
-                                                                    <ArrowRight className="w-3 h-3" />
+                                                                    <ArrowRight className="w-3 h-3 mt-1" />
                                                                 </button>
                                                             </div>
                                                         </div>

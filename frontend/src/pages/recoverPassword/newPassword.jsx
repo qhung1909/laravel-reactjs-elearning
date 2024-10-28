@@ -63,7 +63,7 @@ export const NewPassword = () => {
             });
 
             if (res.status === 422) {
-                setError('Cập nhật mật khẩu không thành công!');
+                setError('Mật khẩu mới không được trùng với mật khẩu cũ!');
                 return;
             }
 

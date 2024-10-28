@@ -47,7 +47,7 @@ export const CategoryList = () => {
             const data = res.data;
             setCategory(data);
             setTotalPages(Math.ceil(data.length / itemsPerPage));
-            await fetchQuantityOfCategory(data);
+            // await fetchQuantityOfCategory(data);
         } catch (error) {
             console.error('Error fetching Categories:', error);
         } finally {

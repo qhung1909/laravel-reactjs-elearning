@@ -178,7 +178,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::patch('/courses/{course_id}/status', [AdminController::class, 'patchCourseStatus']);
     //Quản lí Category
     Route::get('/categories/{categoryId}/courses/count', [AdminController::class, 'countCoursesInCategory']);
-    Route::put('/categories/{course_id}', [AdminController::class, 'updateCategoryImage']);
+    Route::post('/categories/{course_category_id}', [AdminController::class, 'updateCategoryImage']);
     //Quản lí Coupons
     Route::get('/coupons', [AdminController::class, 'allCoupons']);
     Route::get('/coupons/{coupon_id}', [AdminController::class, 'detailCoupon']);

@@ -103,10 +103,10 @@ const data = {
             url: "#",
             icon: Bot,
             items: [
-                { title: "Danh sách tất cả Danh mục", url: "/admin/category-list" },
+                // { title: "Danh sách tất cả Danh mục", url: "/admin/category-list" },
                 { title: "Thêm/Sửa/Xóa Danh mục", url: "/admin/category-crud" },
-                { title: "Sắp xếp thứ tự hiển thị", url: "/admin/priority-category" },
-                { title: "Gán khóa học vào Danh mục", url: "/admin/courses-of-category" }
+                // { title: "Sắp xếp thứ tự hiển thị", url: "/admin/priority-category" },
+                // { title: "Gán khóa học vào Danh mục", url: "/admin/courses-of-category" }
             ],
         },
         {
