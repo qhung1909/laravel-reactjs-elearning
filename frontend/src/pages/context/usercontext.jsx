@@ -122,7 +122,7 @@ export const UserProvider = ({ children }) => {
             setPasswordAttempts(newAttempts);
 
             if (newAttempts >= MAX_PASSWORD_ATTEMPTS) {
-                notify('Bạn đã nhập sai quá nhiều lần. CÚT', 'error');
+                notify('Bạn đã nhập sai quá nhiều lần. Mời đăng nhập lại', 'error');
                 setTimeout(() => {
                     navigate('/login');
                     setError("");

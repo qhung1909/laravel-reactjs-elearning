@@ -202,9 +202,9 @@ export const Courses = () => {
                         <h3 className="xl:text-lg md:text-base sm:text-sm text-lg font-semibold text-gray-800">
                             {item.name}
                         </h3>
-                        <p className="text-yellow-500 text-sm">
+                        {/* <p className="text-yellow-500 text-sm">
                             <strong>4,8</strong> ★★★★☆ (297)
-                        </p>
+                        </p> */}
                         <p className="text-gray-700 text-sm">
                             <strong>Tổng khóa học đã bán:</strong> {item.max_is_buy}
                         </p>
