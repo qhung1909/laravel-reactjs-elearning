@@ -91,46 +91,46 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Email không hợp lệ.',
                 'errors' => $validator->errors()
             ], 422);
         }
-    
+
         $user = User::where('email', $request->email)->first();
         if (!$user) {
             return response()->json([
                 'message' => 'Email không tồn tại trong hệ thống.',
             ], 404);
         }
-    
+
         $lastRequest = DB::table('password_reset_tokens')
             ->where('email', $request->email)
             ->orderBy('created_at', 'desc')
             ->first();
-    
+
         if ($lastRequest && $lastRequest->created_at > now()->subMinutes(5)) {
             return response()->json(['message' => 'Bạn đã yêu cầu gửi link reset trong vòng 5 phút qua.'], 429);
         }
-    
+
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
-    
+
         $token = Str::random(70) . '-' . uniqid() . '-' . Str::random(70);
         $expiresAt = now()->addSeconds(300);
-    
+
         DB::table('password_reset_tokens')->insert([
             'email' => $request->email,
             'token' => $token,
             'expires_at' => $expiresAt,
             'created_at' => now(),
         ]);
-    
+
         $link = URL::to('http://localhost:5173/new-password?token=' . $token);
-    
+
         SendPasswordResetLink::dispatch($request->email, $link);
-    
+
         return response()->json(['message' => 'Email reset password đã được gửi!'], 200);
     }
 
@@ -139,48 +139,48 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'password' => 'required|string|min:6|confirmed',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Cập nhật mật khẩu không thành công.',
                 'errors' => $validator->errors()
             ], 422);
         }
-    
+
         $passwordReset = DB::table('password_reset_tokens')->where('token', $token)->first();
-    
+
         if (!$passwordReset) {
             return response()->json([
                 'message' => 'Token không hợp lệ hoặc đã hết hạn.',
                 'error' => 'passwords.token'
             ], 400);
         }
-    
+
         $user = User::where('email', $passwordReset->email)->first();
-    
+
         if (!$user) {
             return response()->json([
                 'message' => 'Người dùng không tồn tại.',
                 'error' => 'user.not_found'
             ], 404);
         }
-    
+
         if (Hash::check($request->password, $user->password)) {
             return response()->json([
                 'message' => 'Mật khẩu mới không được giống mật khẩu cũ.',
                 'error' => 'passwords.same'
             ], 422);
         }
-    
+
         $user->password = bcrypt($request->password);
         $user->save();
-    
+
         DB::table('password_reset_tokens')->where('token', $token)->delete();
-    
+
         return response()->json(['message' => 'Mật khẩu đã được cập nhật thành công!'], 200);
     }
-    
-    
+
+
 
     public function updateProf(Request $request)
     {
@@ -302,10 +302,14 @@ class UserController extends Controller
         $userId = Auth::id();
 
         $orders = Order::where('user_id', $userId)
-            ->with(['coupon', 'userCourses.course'])
+            ->whereHas('orderDetails', function ($query) {
+                $query->where('status', 'success'); // Lọc các orderDetail có status là success
+            })
+            ->with(['coupon', 'userCourses.course', 'orderDetails.course']) // Kết nối orderDetails
             ->select('order_id', 'total_price', 'coupon_id', 'status', 'payment_method', 'created_at')
             ->orderBy('created_at', 'desc')
             ->get();
+
 
         $orders = $orders->map(function ($order) {
             return [
@@ -315,9 +319,13 @@ class UserController extends Controller
                 'status' => $order->status,
                 'payment_method' => $order->payment_method,
                 'created_at' => $order->created_at->format('d-m-Y H:i:s'),
-                'courses' => $order->userCourses->map(function ($userCourse) {
+                'courses' => $order->orderDetails->filter(function ($orderDetail) {
+                    return $orderDetail->status === 'success'; // Lọc các khóa học có trạng thái success
+                })->map(function ($orderDetail) {
                     return [
-                        'course_title' => $userCourse->course ? $userCourse->course->title : null,
+                        'course_id' => $orderDetail->course_id,
+                        'price' => $orderDetail->price,
+                        'course_title' => $orderDetail->course ? $orderDetail->course->title : null,
                     ];
                 }),
             ];
@@ -325,6 +333,7 @@ class UserController extends Controller
 
         return response()->json($orders, 200);
     }
+
 
 
     public function searchOrderHistory(Request $request)
@@ -370,5 +379,4 @@ class UserController extends Controller
 
         return response()->json($orders, 200);
     }
-
 }

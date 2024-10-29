@@ -13,6 +13,7 @@ class OrderDetail extends Model
     protected $fillable = [
         'order_id',
         'course_id',
+        'status',
         'price',
     ];
 
@@ -20,5 +21,9 @@ class OrderDetail extends Model
     public function order()
     {
         return $this->belongsTo(Order::class, 'order_id', 'id');
+    }
+    public function course()
+    {
+        return $this->belongsTo(Course::class, 'course_id', 'course_id');
     }
 }

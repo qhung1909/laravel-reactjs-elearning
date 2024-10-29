@@ -7,7 +7,9 @@ use App\Models\UserCourse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Mail;
+use App\Models\Course;
+use App\Mail\EnrollmentConfirmation;
 class EnrollController extends Controller
 {
     public function enroll(Request $request)
@@ -28,7 +30,6 @@ class EnrollController extends Controller
             ->where('course_id', $request->course_id)
             ->first();
 
-
         if (!$userCourse) {
             return response()->json(['message' => 'Bạn phải mua khóa học trước.'], 409);
         }
@@ -41,14 +42,31 @@ class EnrollController extends Controller
             return response()->json(['message' => 'You are already enrolled in this course.'], 409);
         }
 
-        $enroll = Enroll::create([
-            'user_id' => Auth::id(),
-            'course_id' => $request->course_id,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        try {
+            $enroll = Enroll::create([
+                'user_id' => Auth::id(),
+                'course_id' => $request->course_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        return response()->json($enroll, 201);
+            // Lấy thông tin khóa học và user để gửi mail
+            $course = Course::find($request->course_id);
+            $user = Auth::user();
+
+            // Gửi mail xác nhận
+            Mail::to($user->email)->send(new EnrollmentConfirmation($user, $course));
+
+            return response()->json([
+                'data' => $enroll,
+                'message' => 'Enrollment successful and confirmation email sent'
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error occurred while enrolling: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
 
