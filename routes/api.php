@@ -63,6 +63,10 @@ Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
 //Coupons check
 Route::post('/check-discount', [CouponController::class, 'checkDiscount']);
 
+Route::get('/contents', [ContentController::class, 'index']);
+Route::get('/contents/{lesson_id}', [ContentController::class, 'show']);
+Route::get('/title-contents', [TitleContentController::class, 'index']); // Lấy danh sách title_contents
+Route::get('/title-contents/{content_id}', [TitleContentController::class, 'show']); // Xem chi tiết title_content
 //Reset Password
 Route::post('reset-password', [UserController::class, 'sendResetLink']);
 Route::post('reset-password/{token}', [UserController::class, 'resetPassword']);
@@ -141,8 +145,7 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('blogs/{slug}', [BlogController::class, 'destroy']);
 
 
-    Route::get('/contents', [ContentController::class, 'index']);
-    Route::get('/contents/{lesson_id}', [ContentController::class, 'show']);
+
     Route::post('/contents', [ContentController::class, 'store']);
     Route::put('/contents/{content_id}', [ContentController::class, 'update']);
     Route::delete('/contents/{content_id}', [ContentController::class, 'destroy']);
@@ -157,8 +160,7 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/orders/{user_id}/{order_id}', [OrderController::class, 'show']);
 
 
-    Route::get('/title-contents', [TitleContentController::class, 'index']); // Lấy danh sách title_contents
-    Route::get('/title-contents/{content_id}', [TitleContentController::class, 'show']); // Xem chi tiết title_content
+ 
     Route::post('/title-contents', [TitleContentController::class, 'store']); // Tạo mới title_content
     Route::put('/title-contents/{title_content_id}', [TitleContentController::class, 'update']); // Cập nhật title_content
     Route::delete('/title-contents/{title_content_id}', [TitleContentController::class, 'destroy']); // Xóa title_content
