@@ -86,28 +86,40 @@ export const UserOrderHistory = () => {
             );
         }
 
-        return orderHistory.map((item, index) => (
-            <TableRow key={index} className="sm:p-4 p-0">
-                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                    {index + 1}
-                </TableCell>
-                <TableCell className="sm:p-4 py-2 px-0 xl:w-[400px] lg:w-[250px] md:w-[200px] w-fit font-medium lg:text-base sm:text-sm text-xs">
-                    <p className="line-clamp-2">{item.courses && item.courses[0] ? item.courses[0].course_title : "Lỗi hiển thị tên khóa học"}</p>
-                </TableCell>
-                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                    {item.status}
-                </TableCell>
-                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                    {item.payment_method}
-                </TableCell>
-                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                {item.created_at}
-                </TableCell>
-                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                    {formatCurrency(item.total_price)}
-                </TableCell>
-            </TableRow>
-        ));
+        return orderHistory
+            .filter(item => item.status === "success")
+            .map((item, index) => (
+                <TableRow key={index} className="sm:p-4 p-0">
+                    <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
+                        {index + 1}
+                    </TableCell>
+                    <TableCell className="sm:p-4 py-2 px-0 xl:w-[400px] lg:w-[250px] md:w-[200px] w-fit font-medium lg:text-base sm:text-sm text-xs">
+                        <p className="line-clamp-2">{item.courses && item.courses[0] ? item.courses[0].course_title : "Lỗi hiển thị tên khóa học"}</p>
+                    </TableCell>
+                    <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
+                        <span className={`${item.status === "success" ? "bg-green-100 text-green-700 font-semibold px-3 py-1 rounded-full" : ""
+                            }`}>
+                            {item.status === "success" ? "Thành công" : item.status}
+                        </span>
+                    </TableCell>
+
+                    <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
+                        {item.payment_method === "vnpay" ? (
+                            <img src="/src/assets/images/logo-vnpay.jpg" alt="VNPay" className="w-32 h-14 object-contain pr-4" />
+                        ) : (
+                            item.payment_method
+                        )}
+                    </TableCell>
+
+
+                    <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
+                        {item.created_at}
+                    </TableCell>
+                    <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
+                        {formatCurrency(item.total_price)}
+                    </TableCell>
+                </TableRow>
+            ));
     };
 
 
@@ -166,14 +178,15 @@ export const UserOrderHistory = () => {
                                     <div className="mb-5">
                                         <Table>
                                             <TableHeader>
-                                                <TableRow>
-                                                    <TableHead className="sm:p-4 p-0 lg:text-base sm:text-sm text-xs">STT</TableHead>
-                                                    <TableHead className="sm:p-4 p-0 xl:w-[400px] lg:w-[250px] md:w-[200px] w-[90px] lg:text-base sm:text-sm text-xs">Tên khóa học</TableHead>
-                                                    <TableHead className="sm:p-4 p-0 lg:text-base sm:text-sm text-xs">Trạng thái</TableHead>
-                                                    <TableHead className="sm:p-4 p-0 lg:text-basesm:text-sm text-xs">Giao dịch</TableHead>
-                                                    <TableHead className="sm:p-4 p-0 lg:text-basesm:text-sm text-xs">Ngày mua</TableHead>
-                                                    <TableHead className="sm:p-4 p-0 lg:text-basesm:text-sm text-xs">Giá</TableHead>
+                                                <TableRow className="text-center">
+                                                    <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[50px]">STT</TableHead>
+                                                    <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[200px]">Tên khóa học</TableHead>
+                                                    <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[150px]">Trạng thái</TableHead>
+                                                    <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[150px]">Phương thức</TableHead>
+                                                    <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[150px]">Ngày mua</TableHead>
+                                                    <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[100px]">Giá</TableHead>
                                                 </TableRow>
+
                                             </TableHeader>
                                             <TableBody>
                                                 {renderOrderHistory()}
