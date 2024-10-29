@@ -11,12 +11,9 @@ use Illuminate\Support\Facades\Validator;
 
 class TitleContentController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        if (!Auth::check()) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-    
+
         try {
             $cacheKey = 'title_contents_all';
     
@@ -48,10 +45,6 @@ class TitleContentController extends Controller
      */
     public function show($content_id)
     {
-        if (!Auth::check()) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
         try {
             $titleContents = TitleContent::with('content')
                 ->select('title_content_id', 'content_id', 'body_content', 'video_link', 'document_link', 'description', 'created_at', 'updated_at')

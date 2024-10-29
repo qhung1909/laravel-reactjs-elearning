@@ -16,10 +16,6 @@ class ContentController extends Controller
      */
     public function index(Request $request)
     {
-        if (!Auth::check()) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
         try {
             $perPage = $request->input('per_page', 10);
             $cacheKey = 'contents_page_' . $request->input('page', 1) . '_' . $perPage;
@@ -37,7 +33,7 @@ class ContentController extends Controller
                     return [
                         'content_id' => $content->content_id,
                         'lesson_id' => $content->lesson_id,
-                        'quiz_id' => $content->quiz_id, // Thêm quiz_id vào dữ liệu trả về
+                        'quiz_id' => $content->quiz_id, 
                         'lesson' => $content->lesson,
                         'name_content' => $content->name_content,
                         'created_at' => $content->created_at,
@@ -65,10 +61,6 @@ class ContentController extends Controller
      */
     public function show($lesson_id)
     {
-        if (!Auth::check()) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
         try {
             $cacheKey = 'content_by_lesson_' . $lesson_id;
 
