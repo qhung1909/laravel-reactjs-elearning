@@ -27,6 +27,7 @@ use App\Http\Controllers\ContentController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TitleContentController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\FavoriteController;
 // Authentication
 Route::group([
     'middleware' => 'api',
@@ -159,7 +160,10 @@ Route::middleware(['admin'])->group(function () {
     // Route để lấy chi tiết một đơn hàng dựa vào user_id và order_id
     Route::get('/orders/{user_id}/{order_id}', [OrderController::class, 'show']);
 
-
+    //
+    Route::post('/favorites', [FavoriteController::class, 'addToFavorites']);
+    Route::get('/favorites', [FavoriteController::class, 'getFavorites']);
+    Route::delete('/favorites', [FavoriteController::class, 'removeFromFavorites']);
 
     Route::post('/title-contents', [TitleContentController::class, 'store']); // Tạo mới title_content
     Route::put('/title-contents/{title_content_id}', [TitleContentController::class, 'update']); // Cập nhật title_content
