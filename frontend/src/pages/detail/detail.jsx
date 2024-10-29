@@ -111,16 +111,11 @@ export const Detail = () => {
     const [titleContent, setTitleContent] = useState([]);
     const fetchContentLesson = async (lessonId) => {
         setLoading(true);
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            console.error("Người dùng chưa đăng nhập.");
-            return;
-        }
+
         try {
             const res = await axios.get(`${API_URL}/contents`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
                 },
                 params: {
                     lesson_id: lessonId
@@ -130,7 +125,6 @@ export const Detail = () => {
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
                 // Chỉ cập nhật state nếu lessonId phù hợp
                 setContentLesson(res.data.data.filter(content => content.lesson_id === lessonId));
-                console.log("Dữ liệu nội dung bài học:", res.data.data);
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
@@ -143,16 +137,10 @@ export const Detail = () => {
 
 
     const fetchTitleContent = async (contentId) => {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            console.error("Người dùng chưa đăng nhập.");
-            return;
-        }
         try {
             const res = await axios.get(`${API_URL}/title-contents/${contentId}`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
                 },
             });
             if (res.data && res.data.success) {
