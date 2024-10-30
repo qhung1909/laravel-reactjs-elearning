@@ -60,7 +60,8 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-            'verification_token' => bin2hex(random_bytes(80)),
+            'verification_token' => bin2hex(random_bytes(120)),
+            'avatar' => 'https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/avatar-default-svgrepo-com.svg', 
         ]);
 
         SendWelcomeEmail::dispatch($user);
