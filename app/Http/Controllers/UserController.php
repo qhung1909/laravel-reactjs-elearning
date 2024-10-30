@@ -303,9 +303,9 @@ class UserController extends Controller
 
         $orders = Order::where('user_id', $userId)
             ->whereHas('orderDetails', function ($query) {
-                $query->where('status', 'success'); // Lọc các orderDetail có status là success
+                $query->where('status', 'success'); 
             })
-            ->with(['coupon', 'userCourses.course', 'orderDetails.course']) // Kết nối orderDetails
+            ->with(['coupon', 'userCourses.course', 'orderDetails.course']) 
             ->select('order_id', 'total_price', 'coupon_id', 'status', 'payment_method', 'created_at')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -320,7 +320,7 @@ class UserController extends Controller
                 'payment_method' => $order->payment_method,
                 'created_at' => $order->created_at->format('d-m-Y H:i:s'),
                 'courses' => $order->orderDetails->filter(function ($orderDetail) {
-                    return $orderDetail->status === 'success'; // Lọc các khóa học có trạng thái success
+                    return $orderDetail->status === 'success'; 
                 })->map(function ($orderDetail) {
                     return [
                         'course_id' => $orderDetail->course_id,
