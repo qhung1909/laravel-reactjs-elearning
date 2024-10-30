@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chào mừng bạn đến với Antlearn</title>
+    <title>Welcome</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #ffffff;
@@ -24,7 +24,7 @@
         }
 
         h1 {
-            color: #FFD700; 
+            color: #FFD700;
             font-size: 28px;
             font-weight: bold;
             margin-bottom: 10px;
@@ -37,20 +37,26 @@
             margin: 8px 0;
         }
 
+        a {
+            color: #FFD700;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
         .button {
             display: inline-block;
-            padding: 12px 24px;
-            background-color: #FFD700; 
-            color: white;
-            text-decoration: none;
-            border-radius: 30px;
-            font-weight: bold;
+            background-color: #FFD700;
+            color: #fff;
+            padding: 10px 20px;
             margin-top: 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
             transition: background-color 0.3s ease;
         }
 
         .button:hover {
-            background-color: #e6c200; 
+            background-color: #e6c200;
         }
 
         .footer {
@@ -60,21 +66,31 @@
             font-size: 14px;
             color: #999;
         }
+
+        .logo {
+            width: 150px;
+            height: auto;
+            margin: 0 auto 20px; 
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Chào mừng, {{ $user->name }}! 🎉</h1>
-        <p>Chúc mừng bạn đã gia nhập team Gen Z của tụi mình! 🌈✨</p>
-        <p>Cảm ơn bạn đã đăng ký tài khoản tại ứng dụng của chúng tôi. Đây sẽ là một hành trình đầy thú vị và bất ngờ!</p>
-        <p>Vui lòng xác nhận email của bạn để hoàn tất quá trình đăng ký bằng cách nhấp vào nút bên dưới:</p>
+        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/uploads/antlearn.jpg" alt="Logo" class="logo">
+
+        <h1>Chào mừng đến với tụi mình, {{ $user->name }}! 🎉</h1>
+        <p>🔥 Bạn đã chính thức nhập hội với tụi mình rồi nhé!</p>
+        <p>Cảm ơn bạn đã chọn chúng mình, đây sẽ là hành trình cực cháy mà bạn sẽ không bao giờ hối hận đâu.</p>
         
-        <a href="{{ url('api/verify-email/'.$user->verification_token) }}" class="button">
-            Xác Nhận Email
-        </a>
+        <p>Nếu gặp khó khăn hay muốn tám chuyện gì thì đừng ngại ngần <a href="mailto:support@example.com">nhắn chúng mình</a> nha!</p>
+        
+        <p>Happy Exploring 🌏✨,</p>
+        <p>Team Antlearn của tụi mình 💌</p>
+
+        <a href="http://yourwebsite.com" class="button">Bắt đầu khám phá ngay!</a>
 
         <div class="footer">
-            <p>💌 Nếu bạn có bất kỳ câu hỏi nào, đừng ngại nhắn cho tụi mình nhé!</p>
+            <p>Cảm ơn bạn đã lựa chọn AntLearn!</p>
             <p>&copy; {{ date('Y') }} AntLearn. Tất cả các quyền được bảo lưu.</p>
         </div>
     </div>
