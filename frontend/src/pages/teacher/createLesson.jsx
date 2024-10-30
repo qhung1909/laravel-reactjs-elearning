@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from '@/components/ui/input';
 import toast, { Toaster } from 'react-hot-toast';
-import PropTypes from 'prop-types';
 import { Button } from '@/components/ui/button';
 import 'react-quill/dist/quill.snow.css';
 import { useNavigate } from 'react-router-dom';
@@ -34,8 +33,13 @@ const LessonCreator = () => {
         const section = sections.find(section => section.id === sectionId);
         const currentLesson = section.lessons[section.lessons.length - 1];
 
-        if (!currentLesson.title.trim()) {
-            toast.error("Vui lòng nhập tiêu đề nội dung trước khi thêm nội dung mới.");
+        if (
+            !currentLesson.title.trim() ||
+            (currentLesson.selectedOption === 'content' && !currentLesson.content.trim()) ||
+            (currentLesson.selectedOption === 'videoUrl' && !currentLesson.videoLink.trim()) ||
+            (currentLesson.selectedOption === 'videoFile' && !currentLesson.fileName.trim())
+        ) {
+            toast.error("Vui lòng điền đầy đủ thông tin trước khi thêm nội dung mới.");
             return;
         }
 
@@ -120,12 +124,11 @@ const LessonCreator = () => {
         <div className="max-w-4xl mx-auto p-6">
             <div className="space-y-4">
                 <h2 className="text-xl font-semibold">Nội dung khóa học</h2>
-                <Accordion type="multiple" collapsible className="space-y-4">
+                <Accordion type="multiple" collapsible="true" className="space-y-4">
                     {sections.map((section, sectionIndex) => (
                         <AccordionItem value={`section-${section.id}`} key={section.id} className="border-2 rounded-lg border-yellow-700 p-4 relative">
-                            <div className="flex items-center gap-4 w-9/12 md:w-10/12 absolute ml-12 mt-2">
+                            <div className="flex items-center gap-4 w-[80%] md:w-[89%] absolute ml-12 mt-2">
                                 <div className="flex items-center gap-2">
-                                    <MenuSquare className="w-4 h-4 text-gray-400 text-3xl" />
                                     <span className="font-medium text-gray-600">Bài {sectionIndex + 1}:</span>
                                 </div>
                                 <input
@@ -135,7 +138,7 @@ const LessonCreator = () => {
                                     onChange={(e) => handleSectionTitleChange(section.id, e.target.value)}
                                     onClick={(e) => e.stopPropagation()}
                                 />
-                                <Button onClick={() => openPageQuiz(section.id)}>Tạo quiz</Button>
+                                <Button className=' bg-yellow-500 hover:bg-yellow-600' onClick={() => openPageQuiz(section.id)}>Tạo quiz</Button>
                             </div>
 
                             <AccordionTrigger className="hover:no-underline border-2 rounded-lg border-yellow-600 p-5" />
@@ -147,7 +150,6 @@ const LessonCreator = () => {
                                             <div className="space-y-4">
                                                 <div className="flex items-center gap-4">
                                                     <div className="flex items-center gap-2">
-                                                        <GripVertical className="w-4 h-4 text-gray-400" />
                                                         <span className="font-medium text-gray-600">Nội dung: {sectionIndex + 1}.{lessonIndex + 1}</span>
                                                     </div>
                                                     <Input
@@ -161,22 +163,32 @@ const LessonCreator = () => {
 
                                                 <select onChange={(e) => handleSelectChange(section.id, lesson.id, e.target.value)} value={lesson.selectedOption} className="border p-2 rounded-md mb-4">
                                                     <option value="">Chọn loại nội dung</option>
-                                                    <option value="video">Dạng video</option>
+                                                    <option value="videoUrl">Dạng video URL</option>
+                                                    <option value="videoFile">Dạng video File</option>
                                                     <option value="content">Dạng nội dung</option>
                                                 </select>
 
-                                                {lesson.selectedOption === 'video' && (
+                                                {lesson.selectedOption === 'videoUrl' && (
                                                     <div>
-                                                        <label className='mb-2'>Nhập link video:</label>
-                                                        <input
+                                                        <label>Nhập link video:</label>
+                                                        <Input
                                                             className='my-3 border p-2 w-full'
                                                             type='text'
                                                             placeholder='Link VIDEO'
                                                             value={lesson.videoLink}
                                                             onChange={(e) => handleVideoLinkChange(section.id, lesson.id, e.target.value)}
                                                         />
-                                                        <input type='file' onChange={(e) => handleFileChange(section.id, lesson.id, e.target.files[0])} />
-                                                        {lesson.fileName && <p>File đã chọn: {lesson.fileName}</p>}
+                                                    </div>
+                                                )}
+
+                                                {lesson.selectedOption === 'videoFile' && (
+                                                    <div>
+                                                        <label>Tải lên video:</label>
+                                                        <Input
+                                                            className='mt-2'
+                                                            type='file'
+                                                            onChange={(e) => handleFileChange(section.id, lesson.id, e.target.files[0])}
+                                                        />
                                                     </div>
                                                 )}
 
@@ -226,15 +238,6 @@ const LessonCreator = () => {
     );
 };
 
-LessonCreator.propTypes = {
-    initialData: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-    contentId: PropTypes.string.isRequired,
-    sectionId: PropTypes.string.isRequired,
-    lessonId: PropTypes.string.isRequired,
-    initialValue: PropTypes.string,
-    handleContentChange: PropTypes.func.isRequired,
-    onChange: PropTypes.func.isRequired,
-};
+
 
 export default LessonCreator;

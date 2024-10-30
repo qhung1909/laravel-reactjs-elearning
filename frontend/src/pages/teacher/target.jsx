@@ -1,4 +1,4 @@
-import { Checkbox } from "@radix-ui/react-checkbox";
+import { Checkbox } from "@radix-ui/react-checkbox";z
 import { useState } from "react";
 
 export const StudyTarget = () => {
@@ -62,7 +62,7 @@ export const StudyTarget = () => {
 
     return (
         <>
-            
+
         </>
     );
 };

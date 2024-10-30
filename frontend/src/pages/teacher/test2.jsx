@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import  { useState } from 'react';
 import toast from 'react-hot-toast';
 
 const CourseManager = () => {
