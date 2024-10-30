@@ -28,7 +28,8 @@ export default function BrowseNewCourses () {
     const [courses, setCourses] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('pending'); // Thêm state để lọc status
+    const [statusFilter, setStatusFilter] = useState('pending');
+    const pendingCount = courses.filter(course => course.status === 'pending').length;
 
     const fetchCourses = async () => {
         try {
@@ -112,10 +113,17 @@ export default function BrowseNewCourses () {
                                     <Button
                                         variant="outline"
                                         className="flex items-center gap-2"
-                                        onClick={() => setStatusFilter('pending')} // Thêm onClick để lọc status pending
-                                    >
+                                        onClick={() => setStatusFilter('pending')}>
                                         <Filter size={16} />
                                         Chờ duyệt
+                                        {pendingCount > 0 && (
+                                            <Badge
+                                                variant="secondary"
+                                                className="ml-1 bg-yellow-100 text-yellow-800 border-yellow-200"
+                                            >
+                                                {pendingCount}
+                                            </Badge>
+                                        )}
                                     </Button>
                                     <Button variant="outline" className="flex items-center gap-2">
                                         <FileDown size={16} />
@@ -153,20 +161,21 @@ export default function BrowseNewCourses () {
                             ) : (
                                 <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
                                     {filteredCourses.map((course) => (
-                                        <div key={course.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+                                    <div key={course.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition flex flex-col h-full">
+                                        <div className="flex-grow">
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
                                                     <h3 className="text-xl font-bold text-gray-900">{course.title}</h3>
                                                     <p className="text-sm text-gray-500 mt-1">Submitted by: {course.user?.name}</p>
                                                 </div>
-                                                <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                                                <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 w-24 flex justify-center">
                                                     Chờ duyệt
                                                 </Badge>
                                             </div>
                                             <p className="text-gray-600 mb-4">
                                                 {course.description}
                                             </p>
-                                            <div className="grid grid-cols-3 gap-4 mb-4">
+                                            {/* <div className="grid grid-cols-3 gap-4 mb-4">
                                                 <div className="flex items-center gap-2">
                                                     <Clock className="h-4 w-4 text-gray-400" />
                                                     <span className="text-sm text-gray-600">{course.duration} tuần</span>
@@ -179,14 +188,14 @@ export default function BrowseNewCourses () {
                                                     <Users className="h-4 w-4 text-gray-400" />
                                                     <span className="text-sm text-gray-600">Trình độ: {course.level}</span>
                                                 </div>
-                                            </div>
-                                            <Link
-                                                to={`/admin/browse-new-courses/${course.course_id}`}
-                                                className="w-full md:w-1/2"
-                                                >
+                                            </div> */}
+                                        </div>
+                                        <div className="mt-auto pt-4">
+                                            <Link to={`/admin/browse-new-courses/${course.course_id}`} className="w-full">
                                                 <Button className="w-full">Xem chi tiết</Button>
                                             </Link>
                                         </div>
+                                    </div>
                                     ))}
                                 </div>
                             )}
