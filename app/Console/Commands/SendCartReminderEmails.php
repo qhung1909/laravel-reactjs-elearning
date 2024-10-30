@@ -25,7 +25,7 @@ class SendCartReminderEmails extends Command
             ->join('order_detail', 'orders.order_id', '=', 'order_detail.order_id')
             ->join('courses', 'order_detail.course_id', '=', 'courses.course_id')
             ->where('orders.status', 'pending')
-            ->where('orders.created_at', '<=', Carbon::now()->subMinutes(3))
+            ->where('orders.created_at', '<=', Carbon::now()->subMinutes(1))
             ->select('orders.*', 
                     DB::raw('GROUP_CONCAT(courses.title) as course_names'),
                     DB::raw('GROUP_CONCAT(order_detail.price) as course_prices'),
