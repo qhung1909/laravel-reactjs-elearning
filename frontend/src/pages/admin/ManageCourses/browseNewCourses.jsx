@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { Filter, FileDown, LayoutDashboard } from "lucide-react";
-import { Link } from 'react-router-dom';
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 
 export default function BrowseNewCourses() {
@@ -48,6 +48,7 @@ export default function BrowseNewCourses() {
 
     const [loading, setLoading] = React.useState(true);
 
+    // KHÓA HỌC
     const fetchCourses = async () => {
         try {
             const res = await axios.get(`${API_URL}/admin/courses`, {
@@ -75,23 +76,118 @@ export default function BrowseNewCourses() {
     });
     const fetchCategories = async () => {
         try {
-          const res = await axios.get(`${API_URL}/categories`, {
-            headers: { 'x-api-secret': API_KEY }
-          });
-          setCategories([{ course_category_id: 'all', name: 'Tất cả' }, ...res.data]);
+            const res = await axios.get(`${API_URL}/categories`, {
+                headers: { 'x-api-secret': API_KEY }
+            });
+            setCategories([{ course_category_id: 'all', name: 'Tất cả' }, ...res.data]);
         } catch (error) {
-          console.error('Error fetching categories:', error);
+            console.error('Error fetching categories:', error);
         }
-      }
+    }
 
-      React.useEffect(() => {
+    React.useEffect(() => {
         const fetchData = async () => {
-          setLoading(true);
-          await Promise.all([fetchCourses(), fetchCategories()]);
-          setLoading(false);
+            setLoading(true);
+            await Promise.all([fetchCourses(), fetchCategories()]);
+            setLoading(false);
         };
         fetchData();
-      }, []);
+    }, []);
+
+
+    // BÀI HỌC
+    const [quizzes, setQuizzes] = useState();
+    const fetchQuizzes = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/quizzes`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+            if (res.data) {
+                console.log("Fetched quizzes data:", res.data); // Thêm log này
+                setQuizzes(res.data);
+            } else {
+                console.error(res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy quizzes:", error);
+        }
+    }
+    useEffect(() => {
+        fetchQuizzes();
+    }, [])
+
+    const [lesson, setLesson] = useState(null);
+    const { slug } = useParams();
+
+    const fetchLesson = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/lessons/${slug}`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                },
+            });
+
+            if (res.data) {
+                setLesson(res.data);
+                if (res.data.lesson_id) {
+                    fetchContentLesson(res.data.lesson_id);
+                }
+
+            } else {
+                console.error("Dữ liệu không hợp lệ:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu bài học:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (slug) {
+            fetchLesson();
+        }
+    }, [slug]);
+
+    const [contentLesson, setContentLesson] = useState([]);
+    const [titleContent, setTitleContent] = useState([]);
+    const fetchContentLesson = async (lessonId) => {
+
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/contents`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                }, params: {
+                    lesson_id: lessonId
+                }
+            });
+            if (res.data && res.data.success && Array.isArray(res.data.data)) {
+                // Chỉ cập nhật state nếu lessonId phù hợp
+                setContentLesson(res.data.data.filter(content => content.lesson_id === lessonId));
+                console.log("Dữ liệu nội dung bài học:", res.data.data);
+            } else {
+                console.error("Dữ liệu không phải là mảng:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy nội dung bài học:", error);
+        }
+    };
+
 
     return (
         <SidebarProvider>
@@ -202,7 +298,7 @@ export default function BrowseNewCourses() {
                                             <div>
                                                 <CardTitle className="text-xl">{course.title}</CardTitle>
                                                 <div className="flex gap-2 mt-2">
-                                                    <Badge variant="outline">{course.category_name}</Badge> {/* hoặc một thuộc tính thay thế */}
+                                                    <Badge variant="outline">{course.category_name}</Badge>
                                                 </div>
                                             </div>
                                             <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
@@ -210,7 +306,11 @@ export default function BrowseNewCourses() {
                                             </Badge>
                                         </CardHeader>
                                         <CardContent>
+                                            <div className="">
+                                                <span>{course.description}</span>
+                                            </div>
                                             <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
+
                                                 <div className="flex items-center gap-2">
                                                     <Users className="h-4 w-4" />
                                                     <span>{course.user?.name}</span>
@@ -224,7 +324,7 @@ export default function BrowseNewCourses() {
                                         </CardContent>
                                     </Card>
                                 </div>
-                                ))}
+                            ))}
                         </TabsContent>
 
                         {/* Duyệt Bài Học */}
@@ -236,16 +336,36 @@ export default function BrowseNewCourses() {
                                         Xem xét và phê duyệt nội dung chi tiết của từng bài học
                                     </p>
                                 </div>
-                                <div className="flex gap-4">
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                            placeholder="Tìm bài học..."
-                                            className="pl-9 w-[300px]"
+                                <div className="flex flex-wrap gap-4 w-full md:w-auto">
+                                    <div className="relative flex-1 md:flex-initial">
+                                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="Tìm kiếm khóa học..."
+                                            className="pl-9 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                         />
                                     </div>
+                                    <Button
+                                        variant="outline"
+                                        className="flex items-center gap-2"
+                                        onClick={() => setStatusFilter('pending')}>
+                                        <Filter size={16} />
+                                        Chờ duyệt
+                                        {pendingCount > 0 && (
+                                            <Badge
+                                                variant="secondary"
+                                                className="ml-1 bg-yellow-100 text-yellow-800 border-yellow-200"
+                                            >
+                                                {pendingCount}
+                                            </Badge>
+                                        )}
+                                    </Button>
+                                    <Button variant="outline" className="flex items-center gap-2">
+                                        <FileDown size={16} />
+                                        Xuất
+                                    </Button>
                                 </div>
                             </div>
 
@@ -256,7 +376,7 @@ export default function BrowseNewCourses() {
                                             <div className="text-sm text-muted-foreground mb-1">
                                                 Thuộc khóa học: Lập trình React Native
                                             </div>
-                                            <CardTitle className="text-xl">Bài 1: Giới thiệu React Native</CardTitle>
+                                            <CardTitle className="text-xl">Bài 1:  {lesson ? lesson.name : "Loading..."}</CardTitle>
                                             <div className="flex gap-2 mt-2">
                                                 <Badge>Bài học</Badge>
                                                 <Badge variant="outline">15 phút</Badge>
@@ -270,11 +390,12 @@ export default function BrowseNewCourses() {
                                         <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
                                             <div className="flex items-center gap-2">
                                                 <Users className="h-4 w-4" />
-                                                <span>Nguyễn Văn A</span>
+                                                <span>Giảng viên:</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <FileText className="h-4 w-4" />
-                                                <span>Bài giảng + Quiz</span>
+                                                <span>Bài giảng + Quiz
+                                                </span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <BookCheck className="h-4 w-4" />
