@@ -1,3 +1,18 @@
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import {
+    BookOpen,
+    Search,
+    FileText,
+    GraduationCap,
+    Clock,
+    Users,
+    BookCheck,
+    ScrollText
+} from "lucide-react"
 import React, { useEffect, useState } from 'react';
 import NewExample from './newExample';
 import {
@@ -14,22 +29,24 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Search, Filter, FileDown, Clock, Users, BookOpen, LayoutDashboard, GraduationCap } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Filter, FileDown, LayoutDashboard } from "lucide-react";
 import { Link } from 'react-router-dom';
 import axios from "axios";
 
-export default function BrowseNewCourses () {
+export default function BrowseNewCourses() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
 
+    //   const [searchTerm, setSearchTerm] = React.useState("")
     const [courses, setCourses] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('pending');
     const pendingCount = courses.filter(course => course.status === 'pending').length;
+    const [categories, setCategories] = React.useState([]);
+    const [selectedCategory, setSelectedCategory] = React.useState("Tất cả");
+
+    const [loading, setLoading] = React.useState(true);
 
     const fetchCourses = async () => {
         try {
@@ -56,6 +73,25 @@ export default function BrowseNewCourses () {
         const matchesStatus = course.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
+    const fetchCategories = async () => {
+        try {
+          const res = await axios.get(`${API_URL}/categories`, {
+            headers: { 'x-api-secret': API_KEY }
+          });
+          setCategories([{ course_category_id: 'all', name: 'Tất cả' }, ...res.data]);
+        } catch (error) {
+          console.error('Error fetching categories:', error);
+        }
+      }
+
+      React.useEffect(() => {
+        const fetchData = async () => {
+          setLoading(true);
+          await Promise.all([fetchCourses(), fetchCategories()]);
+          setLoading(false);
+        };
+        fetchData();
+      }, []);
 
     return (
         <SidebarProvider>
@@ -92,13 +128,40 @@ export default function BrowseNewCourses () {
                 </header>
 
                 <div className="absolute top-14 w-full mx-auto px-6">
-                    <Card>
-                        <CardHeader>
-                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <h1 className="text-2xl font-bold mb-6">Quản lý phê duyệt nội dung</h1>
+
+                    <Tabs defaultValue="courses" className="space-y-6">
+                        <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+                            <TabsTrigger value="courses" className="flex items-center gap-2">
+                                <GraduationCap className="w-4 h-4" />
+                                Duyệt khóa học
+                            </TabsTrigger>
+                            <TabsTrigger value="lessons" className="flex items-center gap-2">
+                                <BookOpen className="w-4 h-4" />
+                                Duyệt bài học
+                            </TabsTrigger>
+                        </TabsList>
+
+                        {/* Duyệt Khóa Học */}
+                        <TabsContent value="courses">
+                            <div className="flex justify-between items-center mb-6">
                                 <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">Duyệt Khóa Học Mới</h1>
-                                    <p className="text-gray-500 mt-1">Xem xét và phê duyệt các khóa học được gửi bởi giảng viên</p>
+                                    <h2 className="text-xl font-semibold">Danh sách khóa học chờ duyệt</h2>
+                                    <p className="text-muted-foreground">
+                                        Xem xét và phê duyệt thông tin tổng quan của khóa học
+                                    </p>
                                 </div>
+                                {/* <div className="flex gap-4">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                            placeholder="Tìm khóa học..."
+                            className="pl-9 w-[300px]"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                                </div> */}
                                 <div className="flex flex-wrap gap-4 w-full md:w-auto">
                                     <div className="relative flex-1 md:flex-initial">
                                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
@@ -131,79 +194,101 @@ export default function BrowseNewCourses () {
                                     </Button>
                                 </div>
                             </div>
-                        </CardHeader>
-                        <CardContent>
-                            {isLoading ? (
-                                <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-                                    {[...Array(4)].map((_, index) => (
-                                        <div key={index} className="bg-white p-6 rounded-lg shadow-md">
-                                            <div className="animate-pulse space-y-4">
-                                                <div className="flex justify-between">
-                                                    <div className="space-y-2">
-                                                        <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                                                        <div className="h-3 bg-gray-300 rounded w-1/2"></div>
-                                                    </div>
-                                                    <div className="h-6 bg-gray-300 rounded w-20"></div>
-                                                </div>
-                                                <div className="h-16 bg-gray-300 rounded"></div>
-                                                <div className="grid grid-cols-3 gap-4">
-                                                    <div className="h-4 bg-gray-300 rounded"></div>
-                                                    <div className="h-4 bg-gray-300 rounded"></div>
-                                                    <div className="h-4 bg-gray-300 rounded"></div>
-                                                </div>
-                                                <div className="flex justify-center">
-                                                    <div className="h-10 bg-gray-300 rounded w-1/2"></div>
+
+                            {filteredCourses.map((course) => (
+                                <div key={course.id} className="grid gap-6">
+                                    <Card>
+                                        <CardHeader className="flex flex-row items-start justify-between">
+                                            <div>
+                                                <CardTitle className="text-xl">{course.title}</CardTitle>
+                                                <div className="flex gap-2 mt-2">
+                                                    <Badge variant="outline">{course.category_name}</Badge> {/* hoặc một thuộc tính thay thế */}
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                                                {course.status}
+                                            </Badge>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
+                                                <div className="flex items-center gap-2">
+                                                    <Users className="h-4 w-4" />
+                                                    <span>{course.user?.name}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Clock className="h-4 w-4" />
+                                                    <span>{course.duration || 'N/A'}</span>
+                                                </div>
+                                            </div>
+                                            <Button>Xem chi tiết & Duyệt</Button>
+                                        </CardContent>
+                                    </Card>
                                 </div>
-                            ) : (
-                                <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-                                    {filteredCourses.map((course) => (
-                                    <div key={course.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition flex flex-col h-full">
-                                        <div className="flex-grow">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div>
-                                                    <h3 className="text-xl font-bold text-gray-900">{course.title}</h3>
-                                                    <p className="text-sm text-gray-500 mt-1">Submitted by: {course.user?.name}</p>
-                                                </div>
-                                                <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 w-24 flex justify-center">
-                                                    Chờ duyệt
-                                                </Badge>
-                                            </div>
-                                            <p className="text-gray-600 mb-4">
-                                                {course.description}
-                                            </p>
-                                            {/* <div className="grid grid-cols-3 gap-4 mb-4">
-                                                <div className="flex items-center gap-2">
-                                                    <Clock className="h-4 w-4 text-gray-400" />
-                                                    <span className="text-sm text-gray-600">{course.duration} tuần</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <BookOpen className="h-4 w-4 text-gray-400" />
-                                                    <span className="text-sm text-gray-600">{course.lessons_count} bài học</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <Users className="h-4 w-4 text-gray-400" />
-                                                    <span className="text-sm text-gray-600">Trình độ: {course.level}</span>
-                                                </div>
-                                            </div> */}
-                                        </div>
-                                        <div className="mt-auto pt-4">
-                                            <Link to={`/admin/browse-new-courses/${course.course_id}`} className="w-full">
-                                                <Button className="w-full">Xem chi tiết</Button>
-                                            </Link>
-                                        </div>
+                                ))}
+                        </TabsContent>
+
+                        {/* Duyệt Bài Học */}
+                        <TabsContent value="lessons">
+                            <div className="flex justify-between items-center mb-6">
+                                <div>
+                                    <h2 className="text-xl font-semibold">Danh sách bài học chờ duyệt</h2>
+                                    <p className="text-muted-foreground">
+                                        Xem xét và phê duyệt nội dung chi tiết của từng bài học
+                                    </p>
+                                </div>
+                                <div className="flex gap-4">
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            placeholder="Tìm bài học..."
+                                            className="pl-9 w-[300px]"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
                                     </div>
-                                    ))}
                                 </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                            </div>
+
+                            <div className="grid gap-6">
+                                <Card>
+                                    <CardHeader className="flex flex-row items-start justify-between">
+                                        <div>
+                                            <div className="text-sm text-muted-foreground mb-1">
+                                                Thuộc khóa học: Lập trình React Native
+                                            </div>
+                                            <CardTitle className="text-xl">Bài 1: Giới thiệu React Native</CardTitle>
+                                            <div className="flex gap-2 mt-2">
+                                                <Badge>Bài học</Badge>
+                                                <Badge variant="outline">15 phút</Badge>
+                                            </div>
+                                        </div>
+                                        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                                            Chờ duyệt
+                                        </Badge>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
+                                            <div className="flex items-center gap-2">
+                                                <Users className="h-4 w-4" />
+                                                <span>Nguyễn Văn A</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <FileText className="h-4 w-4" />
+                                                <span>Bài giảng + Quiz</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <BookCheck className="h-4 w-4" />
+                                                <span>Kiểm tra nội dung chi tiết và câu hỏi quiz</span>
+                                            </div>
+                                        </div>
+                                        <Button>Xem chi tiết & Duyệt</Button>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </TabsContent>
+                    </Tabs>
                 </div>
             </SidebarInset>
         </SidebarProvider>
-    );
-};
-
+    )
+}
