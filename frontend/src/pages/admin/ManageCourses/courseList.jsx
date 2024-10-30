@@ -40,7 +40,7 @@ import { SideBarUI } from '../sidebarUI';
 import { useEffect, useState } from 'react';
 import axios from "axios";
 
-export const CourseList = () => {
+export default function CourseList () {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
 
@@ -395,4 +395,3 @@ export const CourseList = () => {
     );
 };
 
-export default CourseList;

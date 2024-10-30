@@ -107,10 +107,9 @@ function AppContent() {
                 <Route path="/admin/example" element={<Example />}></Route>
                 <Route path="/admin/course-list" element={<CourseList />}></Route>
                 <Route path="/admin/browse-new-courses" element={<BrowseNewCourses />}></Route>
-
+                <Route path="/admin/browse-new-courses/:id" element={<NewExample />}></Route>
 
                 <Route path="/admin/course-status" element={<CourseStatus />}></Route>
-                <Route path="/admin/browse-new-courses/new-example" element={<NewExample />}></Route>
                 <Route path="/admin/classify-course" element={<ClassifyCourse />}></Route>
                 <Route path="/admin/price-discount" element={<PriceDiscount />}></Route>
 
