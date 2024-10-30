@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from 'react'
 import axios from 'axios'
 import { Book, ChevronDown, Search } from 'lucide-react'
@@ -108,8 +106,6 @@ export default function ClassifyCourse() {
     return isInSelectedCategory && isInSearchTerm;
   });
 
-
-
   return (
     <SidebarProvider>
       <SideBarUI />
@@ -125,7 +121,7 @@ export default function ClassifyCourse() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/courses" className="text-blue-600 font-medium">Khóa học</BreadcrumbLink>
+                  <BreadcrumbLink href="/courses" className="text-blue-600 font-medium">Phân loại hóa học</BreadcrumbLink>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -133,8 +129,8 @@ export default function ClassifyCourse() {
         </header>
 
         <div className="absolute top-16 px-6 bg-gray-50 w-full">
-          <h1 className="text-3xl font-bold mb-8 text-gray-800">Phân loại khóa học</h1>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-white p-4 rounded-lg shadow-sm">
+          <h1 className="text-3xl font-bold mb-4 text-gray-800">Phân loại khóa học</h1>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 bg-white p-4 rounded-lg shadow-sm">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="w-full sm:w-auto">

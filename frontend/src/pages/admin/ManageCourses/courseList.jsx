@@ -74,7 +74,7 @@ export const CourseList = () => {
             setIsLoading(false);
         }
     };
-    
+
 
     useEffect(() => {
         fetchCourses();
