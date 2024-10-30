@@ -2,10 +2,12 @@
 
 namespace App\Events;
 
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\InteractsWithSockets;
 
 class MyEvent implements ShouldBroadcast
 {
@@ -14,21 +16,27 @@ class MyEvent implements ShouldBroadcast
     public $message;
     public $userId;
 
-
-    public function __construct($message, $userId)
+    public function __construct($message, $userId = null)
     {
         $this->message = $message;
         $this->userId = $userId; 
     }
 
-
     public function broadcastOn()
     {
-        return ['my-channel'];
+        $channels = [];
+
+        if ($this->userId) {
+            $channels[] = new PrivateChannel('user-' . $this->userId);
+        }
+
+        $channels[] = new Channel('my-channel');
+
+        return $channels;
     }
 
     public function broadcastAs()
     {
-        return 'my-event'; 
+        return 'notification'; 
     }
 }
