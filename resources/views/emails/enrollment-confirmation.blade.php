@@ -1,4 +1,3 @@
-<!-- resources/views/emails/enrollment-confirmation.blade.php -->
 <!DOCTYPE html>
 <html>
 

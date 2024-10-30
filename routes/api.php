@@ -28,6 +28,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TitleContentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\EmailController;
 // Authentication
 Route::group([
     'middleware' => 'api',
@@ -171,6 +172,14 @@ Route::middleware(['admin'])->group(function () {
 
 });
 
+Route::get('/emails', [EmailController::class, 'index']);
+Route::post('/emails', [EmailController::class, 'store']);
+Route::get('/emails/{email_id}', [EmailController::class, 'show']);
+Route::put('/emails/{email_id}', [EmailController::class, 'update']);
+Route::delete('/emails/{email_id}', [EmailController::class, 'destroy']);
+Route::post('/emails/{email_id}/send', [EmailController::class, 'sendEmail']);
+Route::post('/emails/{email_id}/send-mass', [EmailController::class, 'sendMassEmail']);
+Route::get('/emails/{email_id}/stats', [EmailController::class, 'getEmailStats']);
 
 Route::prefix('admin')->middleware('admin')->group(function () {
     //Dashboard
