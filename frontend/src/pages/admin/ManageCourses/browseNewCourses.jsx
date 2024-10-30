@@ -18,7 +18,8 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Filter, Download, FileDown, Clock, Users, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from 'react-router-dom';
-export const BrowseNewCourses = () => {
+export default function BrowseNewCourses () {
+
     return (
         <SidebarProvider>
             <SideBarUI />
@@ -223,4 +224,3 @@ export const BrowseNewCourses = () => {
     );
 };
 
-export default BrowseNewCourses;
