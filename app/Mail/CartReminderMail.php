@@ -3,40 +3,27 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Models\User;
 
 class CartReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
     public $user;
     public $order;
+    public $courses;
 
-    public function __construct(User $user, $order)
+    public function __construct($user, $order, $courses)
     {
         $this->user = $user;
         $this->order = $order;
+        $this->courses = $courses;
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function build()
     {
-        $data = [
-            'user' => $this->user,
-            'order_id' => $this->order->order_id
-        ];
-
-        return $this->subject('Nhắc nhở thanh toán đơn hàng')
-                    ->view('emails.cart_reminder', $data); 
+        return $this->subject('Nhắc nhở: Đơn hàng chưa thanh toán #' . $this->order->order_id)
+                    ->view('emails.cart-reminder');
     }
 }

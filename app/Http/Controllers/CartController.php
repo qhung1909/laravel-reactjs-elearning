@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\UserCourse;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ThankYouEmail;
 class CartController extends Controller
 {
     public function vnpay_payment(Request $request)
@@ -154,6 +155,8 @@ class CartController extends Controller
                         $order->status = 'success';
                         $order->save();
                         Log::info('Order status updated to success');
+                        Mail::to($order->user->email)->send(new ThankYouEmail($order));
+
                     }
                 } else {
                     Log::info('Transaction failed');
@@ -208,9 +211,9 @@ class CartController extends Controller
                 'message' => 'Người dùng chưa đăng nhập.',
             ], 401);
         }
-
+    
         $user_id = Auth::id();
-
+    
         try {
             $request->validate([
                 'coupon_id' => 'nullable|exists:coupons,id',
@@ -221,60 +224,48 @@ class CartController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $e->errors()], 422);
         }
-
-        $existingSuccessfulOrder = Order::where('user_id', $user_id)
-            ->where('status', 'success')
+    
+        $order = Order::where('user_id', $user_id)
+            ->where('status', 'pending')
             ->first();
-
-        if ($existingSuccessfulOrder) {
+    
+        if (!$order) {
             $order = Order::create([
                 'user_id' => $user_id,
                 'coupon_id' => $request->coupon_id,
                 'total_price' => 0,
                 'status' => 'pending',
             ]);
-        } else {
-            $order = Order::where('user_id', $user_id)
-                ->where('status', 'pending')
-                ->first();
-
-            if (!$order) {
-                $order = Order::create([
-                    'user_id' => $user_id,
-                    'coupon_id' => $request->coupon_id,
-                    'total_price' => 0,
-                    'status' => 'pending',
-                ]);
-            }
         }
-
+    
         foreach ($request->items as $item) {
             $existingItem = OrderDetail::where('order_id', $order->order_id)
                 ->where('course_id', $item['course_id'])
                 ->first();
-
+    
             if ($existingItem) {
                 return response()->json([
                     'message' => 'Khóa học này đã có trong giỏ hàng.',
                 ], 409);
             }
-
+    
             OrderDetail::create([
                 'order_id' => $order->order_id,
                 'course_id' => $item['course_id'],
                 'price' => $item['price'],
             ]);
-
+    
             $order->total_price += $item['price'];
         }
-
+    
         $order->update(['total_price' => $order->total_price]);
-
+    
         return response()->json([
             'message' => 'Đơn hàng đã được thêm vào giỏ hàng thành công!',
             'order' => $order,
         ], 201);
     }
+    
 
     public function removeItem(Request $request)
     {

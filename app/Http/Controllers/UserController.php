@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
-
+use App\Mail\GenZWelcomeEmail;
 class UserController extends Controller
 {
     public function getAllUsers(Request $request)
@@ -60,7 +60,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-            'verification_token' => sha1(time()),
+            'verification_token' => bin2hex(random_bytes(80)),
         ]);
 
         SendWelcomeEmail::dispatch($user);
@@ -82,6 +82,9 @@ class UserController extends Controller
         $user->email_verified_at = now();
         $user->verification_token = null;
         $user->save();
+
+        Mail::to($user->email)->send(new GenZWelcomeEmail($user));
+
 
         return redirect('http://localhost:5173/verification-success?token=' . $token);
     }
