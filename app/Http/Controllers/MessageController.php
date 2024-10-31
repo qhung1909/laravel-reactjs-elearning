@@ -51,16 +51,14 @@ class MessageController extends Controller
         }
     }
 
-    public function markAsRead(Request $request)
+    public function markAsRead($notification_id)
     {
         try {
             if (!Auth::check()) {
                 return response()->json(['status' => 'Đăng nhập để xem tin nhắn.'], 401);
             }
 
-            $notificationId = $request->input('notification_id');
-
-            $notification = Notification::find($notificationId);
+            $notification = Notification::find($notification_id);
             if ($notification && $notification->user_id === Auth::id()) {
                 $notification->is_read = true;
                 $notification->save();

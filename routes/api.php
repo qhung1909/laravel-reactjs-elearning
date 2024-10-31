@@ -50,7 +50,7 @@ Route::group([
     Route::post('/user/updatePassword', [UserController::class, 'updatePassword']);
     Route::get('orders/history', [UserController::class, 'getOrderHistory']);
     Route::get('/orders/searchHistory', [UserController::class, 'searchOrderHistory']);
-    Route::post('/notifications/read', [MessageController::class, 'markAsRead']);
+    Route::post('/notifications/read/{notification_id}', [MessageController::class, 'markAsRead']);
 
 });
 Route::post('/s3-buckets', [UserController::class, 'upload']);

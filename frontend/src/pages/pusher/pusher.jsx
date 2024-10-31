@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Toaster, toast } from 'react-hot-toast'; // Import react-hot-toast
+import { Toaster, toast } from 'react-hot-toast';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,10 +15,11 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from "@/components/ui/badge";
 
-const token = localStorage.getItem('access_token');
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
+
 const API_URL = import.meta.env.VITE_API_URL;
+const token = localStorage.getItem('access_token');
 
 const echo = new Echo({
     broadcaster: 'pusher',
@@ -46,11 +47,18 @@ const NotificationDropdown = ({ userId }) => {
         const channel = echo.private(`user.${userId}`);
 
         channel.listen('.notification', (data) => {
+            console.log("Received data:", data);
             if (data.userId === userId) {
                 setNotifications((prevNotifications) => [
                     ...prevNotifications,
-                    data.message
+                    {
+                        id: data.notificationId,
+                        message: typeof data.message === 'string' ? data.message : JSON.stringify(data.message),
+                        timestamp: data.timestamp,
+                        is_read: false
+                    }
                 ]);
+
 
                 toast('Bạn có thông báo mới!, kiểm tra hộp thư của bạn!', {
                     duration: 2000,
@@ -69,12 +77,18 @@ const NotificationDropdown = ({ userId }) => {
         };
     }, [userId]);
     const markAsRead = async (notificationId) => {
+        if (!notificationId) {
+            console.error("notificationId is undefined");
+            toast.error("Có lỗi xảy ra: ID thông báo không xác định.");
+            return;
+        }
+
         try {
-            const response = await fetch(`${API_URL}/notifications/read`, { 
+            const response = await fetch(`${API_URL}/auth/notifications/read/${notificationId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`, 
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({ notification_id: notificationId }),
             });
@@ -134,6 +148,7 @@ const NotificationDropdown = ({ userId }) => {
                                 {notifications.map((notification, index) => (
                                     <Card
                                         key={index}
+                                        onClick={() => markAsRead(notification.id)}
                                         className="bg-white hover:bg-gray-50 transition-colors cursor-pointer border-l-4 border-l-yellow-400"
                                     >
                                         <CardContent className="p-4">
@@ -142,9 +157,12 @@ const NotificationDropdown = ({ userId }) => {
                                                     <Bell className="w-5 h-5 text-yellow-400" />
                                                 </div>
                                                 <div className="space-y-1 flex-1">
-                                                    <p className="text-base font-medium text-blue-900">{notification}</p>
+                                                    {/* Chỉ render thuộc tính message */}
+                                                    <p className="text-base font-medium text-blue-900">{notification.message}</p>
                                                     <div className="flex justify-between items-center">
-                                                        <p className="text-xs text-gray-500">Vừa xong</p>
+                                                        <p className="text-xs text-gray-500">
+                                                            {new Date(notification.timestamp).toLocaleString()}
+                                                        </p>
                                                         <Badge
                                                             variant="outline"
                                                             className="text-xs text-blue-500 hover:bg-blue-50"
