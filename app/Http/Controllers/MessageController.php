@@ -111,4 +111,25 @@ class MessageController extends Controller
             return response()->json(['status' => 'Có lỗi xảy ra khi lấy thông báo.'], 500);
         }
     }
+    public function getNotificationDetails($id)
+    {
+        try {
+            if (!Auth::check()) {
+                return response()->json(['status' => 'Đăng nhập để xem thông báo.'], 401);
+            }
+
+            $notification = Notification::find($id);
+
+            if (!$notification || $notification->user_id !== Auth::id()) {
+                return response()->json(['status' => 'Không tìm thấy thông báo hoặc bạn không có quyền truy cập.'], 404);
+            }
+
+            return response()->json([
+                'status' => 'Thành công',
+                'notification' => $notification
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'Có lỗi xảy ra khi lấy chi tiết thông báo.'], 500);
+        }
+    }
 }

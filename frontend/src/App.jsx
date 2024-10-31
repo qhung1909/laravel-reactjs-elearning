@@ -49,7 +49,7 @@ import { CoursesOfCategory } from "./pages/admin/ManageCategories/CoursesOfCateg
 import ClassifyCourse from "./pages/admin/ManageCourses/classifyCourses.jsx";
 import PriceDiscount from "./pages/admin/ManageCourses/priceDiscount.jsx";
 import BrowseNewCourses from "./pages/admin/ManageCourses/browseNewCourses.jsx";
-
+import TaskList from "./pages/notifications/notification.jsx";
 
 function AppContent() {
     const location = useLocation();
@@ -153,6 +153,8 @@ function AppContent() {
                     path="/quizzes/:quiz_id"
                     element={<Quizzes />}
                 ></Route>
+                <Route path="/notifications" element={<TaskList />}></Route>
+
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}
         </>
