@@ -106,33 +106,42 @@ export const InstructorProfile = () => {
                             {/* ul list */}
                             <ul className="">
                                 <li className="mb-3">
-                                    <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 hover:bg-gray-100">
-                                        <div className="  mr-3 pt-1 px-1  rounded-full">
-                                            <box-icon name='sidebar'></box-icon>
+                                    <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 hover:bg-gray-100 ">
+                                        <div className="  mr-3 px-1  rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Bảng điều khiển</p>
                                     </Link>
+
                                 </li>
                                 <li className="mb-3">
                                     <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                        <div className=" mr-3 pt-1 px-1 rounded-full">
-                                            <box-icon name='book-open' ></box-icon>
+                                        <div className=" mr-3  px-1 rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Bài học của tôi</p>
                                     </Link>
                                 </li>
                                 <li className="mb-3">
                                     <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                        <div className="  mr-3 pt-1 px-1 rounded-full">
-                                            <box-icon name='credit-card'  ></box-icon>
+                                        <div className=" mr-3 px-1 rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Lịch sử mua hàng</p>
                                     </Link>
                                 </li>
+                                <li className="mb-3">
+                                    <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100 ">
+                                        <div className=" mr-3  px-1 rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
+                                        </div>
+                                        <p className="font-semibold text-base">Thông báo</p>
+                                    </Link>
+                                </li>
                                 <li>
                                     <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
-                                        <div className="bg-yellow-400 mr-3 pt-1 px-1 rounded-full">
-                                            <box-icon type='solid' name='user-circle' color='#ffffff'></box-icon>
+                                        <div className="bg-yellow-400 mr-3 px-1 rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Thông tin tài khoản</p>
                                     </Link>
@@ -347,63 +356,63 @@ export const InstructorProfile = () => {
 
                                     {/* password */}
                                     <TabsContent value="password">
-                                    <form onSubmit={handleChangePassword}>
-                                        <div className="bg-white rounded-xl py-5">
-                                            {/* header */}
-                                            <div className="px-8">
-                                                <div className="">
-                                                    <span className="text-xl font-bold">Thay đổi mật khẩu</span>
+                                        <form onSubmit={handleChangePassword}>
+                                            <div className="bg-white rounded-xl py-5">
+                                                {/* header */}
+                                                <div className="px-8">
+                                                    <div className="">
+                                                        <span className="text-xl font-bold">Thay đổi mật khẩu</span>
+                                                    </div>
+                                                </div>
+                                                <hr className="my-5" />
+                                                {/* content */}
+                                                <div className="px-8">
+
+                                                    {/* current password */}
+                                                    <div className="my-10 gap-5">
+                                                        <div className="w-[100%]">
+                                                            <Label htmlFor="password" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Mật khẩu hiện tại</p></Label>
+                                                            <Input
+                                                                placeholder="Nhập mật khẩu hiện tại..."
+                                                                className="text-sm py-7"
+                                                                type="password"
+                                                                value={current_password}
+                                                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                                            />                                                    </div>
+                                                    </div>
+
+                                                    {/* new password */}
+                                                    <div className="my-10 gap-5">
+                                                        <div className="w-[100%]">
+                                                            <Label htmlFor="newpassword" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Mật khẩu mới</p></Label>
+                                                            <Input
+                                                                placeholder="Nhập mật khẩu mới..."
+                                                                className="text-sm py-7"
+                                                                type="password"
+                                                                value={password}
+                                                                onChange={(e) => setPassword(e.target.value)}
+                                                            />                                                    </div>
+                                                    </div>
+
+                                                    {/* confirm password */}
+                                                    <div className="my-10 gap-5">
+                                                        <div className="w-[100%]">
+                                                            <Label htmlFor="confirmpassword" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Xác nhận mật khẩu</p></Label>
+                                                            <Input
+                                                                placeholder="Xác nhận mật khẩu mới..."
+                                                                className="text-sm py-7"
+                                                                type="password"
+                                                                value={password_confirmation}
+                                                                onChange={(e) => setPassword_Confirmation(e.target.value)}
+                                                            />                                                    </div>
+                                                    </div>
+
+                                                    {/* save button */}
+                                                    <div className="my-5">
+                                                        <button className="bg-yellow-400 p-3 font-bold rounded-xl">Lưu mật khẩu</button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <hr className="my-5" />
-                                            {/* content */}
-                                            <div className="px-8">
-
-                                                {/* current password */}
-                                                <div className="my-10 gap-5">
-                                                    <div className="w-[100%]">
-                                                        <Label htmlFor="password" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Mật khẩu hiện tại</p></Label>
-                                                        <Input
-                                                            placeholder="Nhập mật khẩu hiện tại..."
-                                                            className="text-sm py-7"
-                                                            type="password"
-                                                            value={current_password}
-                                                            onChange={(e) => setCurrentPassword(e.target.value)}
-                                                        />                                                    </div>
-                                                </div>
-
-                                                {/* new password */}
-                                                <div className="my-10 gap-5">
-                                                    <div className="w-[100%]">
-                                                        <Label htmlFor="newpassword" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Mật khẩu mới</p></Label>
-                                                        <Input
-                                                            placeholder="Nhập mật khẩu mới..."
-                                                            className="text-sm py-7"
-                                                            type="password"
-                                                            value={password}
-                                                            onChange={(e) => setPassword(e.target.value)}
-                                                        />                                                    </div>
-                                                </div>
-
-                                                {/* confirm password */}
-                                                <div className="my-10 gap-5">
-                                                    <div className="w-[100%]">
-                                                        <Label htmlFor="confirmpassword" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Xác nhận mật khẩu</p></Label>
-                                                        <Input
-                                                            placeholder="Xác nhận mật khẩu mới..."
-                                                            className="text-sm py-7"
-                                                            type="password"
-                                                            value={password_confirmation}
-                                                            onChange={(e) => setPassword_Confirmation(e.target.value)}
-                                                        />                                                    </div>
-                                                </div>
-
-                                                {/* save button */}
-                                                <div className="my-5">
-                                                    <button className="bg-yellow-400 p-3 font-bold rounded-xl">Lưu mật khẩu</button>
-                                                </div>
-                                            </div>
-                                        </div>
                                         </form>
 
                                     </TabsContent>

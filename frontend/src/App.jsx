@@ -51,6 +51,7 @@ import PriceDiscount from "./pages/admin/ManageCourses/priceDiscount.jsx";
 import BrowseNewCourses from "./pages/admin/ManageCourses/browseNewCourses.jsx";
 import TaskList from "./pages/notifications/notification.jsx";
 import CreateQuiz from "./pages/teacher/createQuiz.jsx";
+import { InstructorNotification } from "./pages/instructor/instuctorNotification.jsx";
 
 function AppContent() {
     const location = useLocation();
@@ -82,19 +83,10 @@ function AppContent() {
                 <Route path="/user/profile" element={<UserProfile />}></Route>
                 <Route path="/user/noti" element={<UserNoti />}></Route>
                 <Route path="/instructor" element={<Instructor />}></Route>
-                <Route
-                    path="/instructor/history"
-                    element={<InstructorHistory />}
-                ></Route>
-                <Route
-                    path="/instructor/lessson"
-                    element={<InstructorLesson />}
-                ></Route>
-                <Route
-                    path="/instructor/profile"
-                    element={<InstructorProfile />}
-                ></Route>
-
+                <Route path="/instructor/history" element={<InstructorHistory />}></Route>
+                <Route path="/instructor/lessson" element={<InstructorLesson />}></Route>
+                <Route path="/instructor/notification" element={<InstructorNotification />}></Route>
+                <Route path="/instructor/profile" element={<InstructorProfile />}></Route>
                 <Route path="/contact" element={<Contact />}></Route>
                 {/* <Route
                     path="/admin"
