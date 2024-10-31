@@ -97,20 +97,27 @@ class MessageController extends Controller
             if (!Auth::check()) {
                 return response()->json(['status' => 'Đăng nhập để xem thông báo.'], 401);
             }
-
+    
             $userId = Auth::id();
+            $perPage = $request->input('per_page', 8); 
+            $page = $request->input('page', 1);
+    
             $notifications = Notification::where('user_id', $userId)
                 ->orderBy('created_at', 'desc')
-                ->get();
-
+                ->paginate($perPage, ['*'], 'page', $page);
+    
             return response()->json([
                 'status' => 'Thành công',
-                'notifications' => $notifications
+                'notifications' => $notifications->items(), 
+                'current_page' => $notifications->currentPage(),
+                'last_page' => $notifications->lastPage(),
+                'total' => $notifications->total(),
             ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'Có lỗi xảy ra khi lấy thông báo.'], 500);
         }
     }
+    
     public function getNotificationDetails($id)
     {
         try {
