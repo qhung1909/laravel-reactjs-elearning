@@ -50,6 +50,7 @@ import ClassifyCourse from "./pages/admin/ManageCourses/classifyCourses.jsx";
 import PriceDiscount from "./pages/admin/ManageCourses/priceDiscount.jsx";
 import BrowseNewCourses from "./pages/admin/ManageCourses/browseNewCourses.jsx";
 import TaskList from "./pages/notifications/notification.jsx";
+import CreateQuiz from "./pages/teacher/createQuiz.jsx";
 
 function AppContent() {
     const location = useLocation();
@@ -145,6 +146,9 @@ function AppContent() {
                     path="/verification-success"
                     element={<VerificationEmail />}
                 ></Route>
+
+                <Route path="/create-quiz" element={<CreateQuiz />}></Route>
+
                 <Route
                     path="/quizzes"
                     element={<Quizzes />}

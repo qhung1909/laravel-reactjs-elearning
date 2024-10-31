@@ -8,11 +8,11 @@ import { Button } from '@/components/ui/button';
 import 'react-quill/dist/quill.snow.css';
 import { useNavigate } from 'react-router-dom';
 
-
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 
 const LessonCreator = () => {
-
 
     const navigate = useNavigate()
     const [sections, setSections] = useState([{ id: 1, title: '', lessons: [{ id: 1, title: '', selectedOption: '', videoLink: '', content: '', fileName: '' }] }]);
@@ -33,6 +33,7 @@ const LessonCreator = () => {
         const section = sections.find(section => section.id === sectionId);
         const currentLesson = section.lessons[section.lessons.length - 1];
 
+
         if (
             !currentLesson.title.trim() ||
             (currentLesson.selectedOption === 'content' && !currentLesson.content.trim()) ||
@@ -40,6 +41,11 @@ const LessonCreator = () => {
             (currentLesson.selectedOption === 'videoFile' && !currentLesson.fileName.trim())
         ) {
             toast.error("Vui lòng điền đầy đủ thông tin trước khi thêm nội dung mới.");
+            return;
+        }
+
+        if (!currentLesson.selectedOption) {
+            toast.error("Vui lòng Chọn loại nội dung.");
             return;
         }
 
@@ -92,12 +98,15 @@ const LessonCreator = () => {
             if (section.id === sectionId) {
                 return {
                     ...section,
-                    lessons: section.lessons.map(lesson => lesson.id === lessonId ? { ...lesson, content: value } : lesson)
+                    lessons: section.lessons.map(lesson =>
+                        lesson.id === lessonId ? { ...lesson, content: value } : lesson
+                    )
                 };
             }
             return section;
         }));
     };
+
 
     const handleFileChange = (sectionId, lessonId, file) => {
         setSections(sections.map(section => {
@@ -110,6 +119,42 @@ const LessonCreator = () => {
             return section;
         }));
     };
+
+
+    const resetIds = (sections) => {
+        return sections.map((section, sectionIndex) => ({
+            ...section,
+            id: sectionIndex + 1,
+            lessons: section.lessons.map((lesson, lessonIndex) => ({
+                ...lesson,
+                id: lessonIndex + 1
+            }))
+        }));
+    };
+
+    const deleteSection = (sectionId) => {
+        const updatedSections = sections.filter(section => section.id !== sectionId);
+        const resetSections = resetIds(updatedSections);
+        setSections(resetSections);
+        toast.success("Đã xóa Bài học thành công!");
+    };
+
+    const deleteContent = (sectionId, lessonId) => {
+        const updatedSections = sections.map(section => {
+            if (section.id === sectionId) {
+                return {
+                    ...section,
+                    lessons: section.lessons.filter(lesson => lesson.id !== lessonId)
+                };
+            }
+            return section;
+        });
+
+        const resetSections = resetIds(updatedSections);
+        setSections(resetSections);
+        toast.success("Nội dung đã được xóa!");
+    };
+
 
     const exportToJsonLog = () => {
         console.log(JSON.stringify(sections, null, 2));
@@ -124,10 +169,10 @@ const LessonCreator = () => {
         <div className="max-w-4xl mx-auto p-6">
             <div className="space-y-4">
                 <h2 className="text-xl font-semibold">Nội dung khóa học</h2>
-                <Accordion type="multiple" collapsible="true" className="space-y-4">
+                <Accordion type="multiple" collapsible="true" className="space-y-4 relative">
                     {sections.map((section, sectionIndex) => (
                         <AccordionItem value={`section-${section.id}`} key={section.id} className="border-2 rounded-lg border-yellow-700 p-4 relative">
-                            <div className="flex items-center gap-4 w-[80%] md:w-[89%] absolute ml-12 mt-2">
+                            <div className="flex items-center gap-4 w-[80%] md:w-[88%] absolute ml-14 mt-3">
                                 <div className="flex items-center gap-2">
                                     <span className="font-medium text-gray-600">Bài {sectionIndex + 1}:</span>
                                 </div>
@@ -141,14 +186,16 @@ const LessonCreator = () => {
                                 <Button className=' bg-yellow-500 hover:bg-yellow-600' onClick={() => openPageQuiz(section.id)}>Tạo quiz</Button>
                             </div>
 
-                            <AccordionTrigger className="hover:no-underline border-2 rounded-lg border-yellow-600 p-5" />
+
+                            <AccordionTrigger className="hover:no-underline border-2 rounded-lg border-yellow-600 p-5 mt-1 ml-3" />
+                            {sectionIndex > 0 && (<X onClick={() => deleteSection(section.id)} className='absolute text-red-600 cursor-pointer left-1 top-1' />)}
 
                             <AccordionContent>
                                 <div className="space-y-4 mt-4">
                                     {section.lessons.map((lesson, lessonIndex) => (
-                                        <Card key={lesson.id} className="p-4 border border-yellow-400 ml-6">
+                                        <Card key={lesson.id} className="relative p-4 border border-yellow-400 ml-6">
                                             <div className="space-y-4">
-                                                <div className="flex items-center gap-4">
+                                                <div className="flex items-center gap-4 mt-4">
                                                     <div className="flex items-center gap-2">
                                                         <span className="font-medium text-gray-600">Nội dung: {sectionIndex + 1}.{lessonIndex + 1}</span>
                                                     </div>
@@ -170,7 +217,12 @@ const LessonCreator = () => {
 
                                                 {lesson.selectedOption === 'videoUrl' && (
                                                     <div>
-                                                        <label>Nhập link video:</label>
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <PlayCircle className="text-green-500 h-5 w-5" />
+                                                            <label className="font-medium">Nhập link video:</label>
+                                                        </div>
+
+
                                                         <Input
                                                             className='my-3 border p-2 w-full'
                                                             type='text'
@@ -178,12 +230,16 @@ const LessonCreator = () => {
                                                             value={lesson.videoLink}
                                                             onChange={(e) => handleVideoLinkChange(section.id, lesson.id, e.target.value)}
                                                         />
+
                                                     </div>
                                                 )}
 
                                                 {lesson.selectedOption === 'videoFile' && (
                                                     <div>
-                                                        <label>Tải lên video:</label>
+                                                        <div className="flex items-center gap-2">
+                                                            <Video className="text-red-500 h-5 w-5" />
+                                                            <label className="font-medium">Tải lên video:</label>
+                                                        </div>
                                                         <Input
                                                             className='mt-2'
                                                             type='file'
@@ -194,16 +250,40 @@ const LessonCreator = () => {
 
                                                 {lesson.selectedOption === 'content' && (
                                                     <div>
-                                                        <label className='mb-2'>Nhập nội dung:</label>
-                                                        <textarea
-                                                            className='my-3 border p-2 w-full'
-                                                            placeholder='Nội dung...'
-                                                            value={lesson.content}
-                                                            onChange={(e) => handleContentChange(section.id, lesson.id, e.target.value)}
+                                                        <div className="flex items-center gap-2">
+                                                            <FileText className="text-purple-500 h-5 w-5" />
+                                                            <label className="font-medium">Nhập nội dung:</label>
+                                                        </div>
+
+                                                        <ReactQuill
+                                                            className="mt-2 pb-2"
+                                                            value={lesson.content || ''} // Đảm bảo có giá trị mặc định
+                                                            onChange={(value) => handleContentChange(section.id, lesson.id, value)}
+                                                            modules={{
+                                                                toolbar: [
+                                                                    [{ 'header': [1, 2, 3, false] }],
+                                                                    ['bold', 'italic', 'underline'],
+                                                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                                                    ['link', 'image', 'code-block'],
+                                                                    ['clean']
+                                                                ],
+                                                            }}
+                                                            formats={[
+                                                                'header', 'bold', 'italic', 'underline',
+                                                                'list', 'bullet', 'link', 'image', 'code-block'
+                                                            ]}
+                                                        />
+                                                        <Input
+                                                            className='mt-2'
+                                                            type='file'
+                                                            onChange={(e) => handleFileChange(section.id, lesson.id, e.target.files[0])}
                                                         />
                                                     </div>
                                                 )}
                                             </div>
+                                            {lessonIndex > 0 && (
+                                                <X onClick={() => deleteContent(section.id, lesson.id)} className='absolute top-1 left-2 text-red-400' />
+                                            )}
                                         </Card>
                                     ))}
 
@@ -216,7 +296,9 @@ const LessonCreator = () => {
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
+
                     ))}
+
                 </Accordion>
 
                 <button
