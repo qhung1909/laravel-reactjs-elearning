@@ -50,18 +50,10 @@ Route::group([
     Route::post('/user/updatePassword', [UserController::class, 'updatePassword']);
     Route::get('orders/history', [UserController::class, 'getOrderHistory']);
     Route::get('/orders/searchHistory', [UserController::class, 'searchOrderHistory']);
+    Route::post('/notifications/read', [MessageController::class, 'markAsRead']);
+
 });
 Route::post('/s3-buckets', [UserController::class, 'upload']);
-
-Route::get('/send-notification', function () {
-    $message = "Thông báo kiểm tra cho người dùng ID 43";
-    $userId = 43;
-
-    // Phát sự kiện
-    event(new MyEvent($message, $userId));
-
-    return response()->json(['status' => 'Thông báo đã được gửi!']);
-});
 
 //Register
 Route::get('/courses/{slug}/related', [CourseController::class, 'relatedCourses']);
