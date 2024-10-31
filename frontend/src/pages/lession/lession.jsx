@@ -163,7 +163,6 @@ export const Lesson = () => {
             });
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
                 setContentLesson(res.data.data.filter(content => content.lesson_id === lessonId));
-                console.log("Dữ liệu nội dung bài học:", res.data.data);
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }

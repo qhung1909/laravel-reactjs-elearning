@@ -77,50 +77,52 @@ export const Payment = () => {
 
             console.log("Server response:", response.data);
 
-            if (
-                response.data &&
-                response.data.message === "Discount applied successfully"
-            ) {
+            if (response.data && response.data.message === "Discount applied successfully") {
                 let appliedDiscount = 0;
 
                 // Tính toán số tiền giảm giá dựa trên thông tin từ server
                 if (response.data.discount_price) {
                     appliedDiscount = response.data.discount_price;
                 } else if (response.data.percent_discount) {
-                    const discountAmount =
-                        (totalPrice * response.data.percent_discount) / 100;
+                    const discountAmount = (totalPrice * response.data.percent_discount) / 100;
                     appliedDiscount = response.data.max_discount
                         ? Math.min(discountAmount, response.data.max_discount)
                         : discountAmount;
                 } else if (response.data.new_total_price) {
                     // Nếu server trả về giá mới sau khi áp dụng giảm giá
-                    appliedDiscount =
-                        totalPrice - response.data.new_total_price;
+                    appliedDiscount = totalPrice - response.data.new_total_price;
                 }
 
                 setDiscount(appliedDiscount);
                 setIsVoucherApplied(true); // Đánh dấu đã áp dụng voucher
-                toast.success("Áp dụng mã giảm giá thành công! ");
+                toast.success("Áp dụng mã giảm giá thành công!");
             } else {
+                // Hiển thị thông báo lỗi nếu không phải là thông báo thành công
                 toast.error("Có lỗi xảy ra khi áp dụng mã giảm giá.");
             }
         } catch (error) {
             console.error("Có lỗi xảy ra:", error);
-            if (
-                error.response &&
-                error.response.data &&
-                error.response.data.message
-            ) {
-                toast.error("Có lỗi xảy ra khi áp dụng voucher");
-            } else if (error.response) {
-                toast.error("Mã giảm giá không hợp lệ.");
+            if (error.response && error.response.data) {
+                // Kiểm tra thông báo cụ thể từ server
+                const errorMessage = error.response.data.message;
+
+                switch (errorMessage) {
+                    case "Coupon not found":
+                        toast.error("Mã giảm giá không hợp lệ."); // Thông báo cho mã không hợp lệ
+                        break;
+                    case "Coupon has expired":
+                        toast.error("Mã giảm giá đã hết hạn."); // Thông báo cho mã giảm giá hết hạn
+                        break;
+
+                    default:
+                        toast.error("Có lỗi xảy ra, vui lòng thử lại.");
+                }
             } else {
-                toast.error(
-                    "Không thể kết nối đến server. Vui lòng thử lại sau."
-                );
+                toast.error("Không thể kết nối đến server. Vui lòng thử lại sau.");
             }
         }
     };
+
     const handlePayment = async () => {
         const token = localStorage.getItem("access_token");
 
