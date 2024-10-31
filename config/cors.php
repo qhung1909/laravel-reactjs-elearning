@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'paths' => ['api/*', 'login/google', 'login/google/callback'],
+    'paths' => ['api/*', 'login/google', 'login/google/callback', 'broadcasting/auth'],
     'allowed_methods' => ['*'],
     'allowed_origins' => [
         'http://localhost:5173',

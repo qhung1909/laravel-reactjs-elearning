@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Events\MyEvent;
-use App\Jobs\ProcessMessageJob;
-use App\Models\Notification; 
-use App\Models\User; 
+use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log; 
-use Exception; 
+use Illuminate\Support\Facades\Log;
 
 class MessageController extends Controller
 {
@@ -21,27 +19,53 @@ class MessageController extends Controller
             }
 
             $message = $request->input('message');
-            $userId = $request->input('user_id'); 
+            $userId = $request->input('user_id');
 
-            Log::info('Sending message', ['user_id' => $userId, 'message' => $message]);
+            Log::info('Attempting to send message', ['user_id' => $userId, 'message' => $message]);
 
             if ($userId) {
-                Notification::create([
+                $notification = Notification::create([
                     'user_id' => $userId,
                     'message' => $message,
-                    'is_read' => false 
+                    'is_read' => false
                 ]);
-                dispatch(new ProcessMessageJob($message, $userId));
-                event(new MyEvent($message, $userId)); 
+
+                // Thêm log trước khi phát sự kiện
+                Log::info('Preparing to broadcast event', [
+                    'user_id' => $userId,
+                    'message' => $message,
+                ]);
+
+                broadcast(new MyEvent($message, $userId, $notification->id))->toOthers();
+
+                // Thêm log sau khi phát sự kiện
+                Log::info('Broadcast event sent successfully', [
+                    'user_id' => $userId,
+                    'notification_id' => $notification->id,
+                ]);
+
             } else {
                 $users = User::all();
                 foreach ($users as $user) {
-                    Notification::create([
+                    $notification = Notification::create([
                         'user_id' => $user->user_id,
                         'message' => $message,
-                        'is_read' => false 
+                        'is_read' => false
                     ]);
-                    event(new MyEvent($message, $user->id)); 
+
+                    // Thêm log trước khi phát sự kiện
+                    Log::info('Preparing to broadcast event', [
+                        'user_id' => $user->user_id,
+                        'message' => $message,
+                    ]);
+
+                    broadcast(new MyEvent($message, $user->user_id, $notification->id))->toOthers();
+
+                    // Thêm log sau khi phát sự kiện
+                    Log::info('Broadcast event sent successfully', [
+                        'user_id' => $user->user_id,
+                        'notification_id' => $notification->id,
+                    ]);
                 }
             }
 
@@ -50,8 +74,12 @@ class MessageController extends Controller
                 'user_id' => $userId,
                 'message' => $message
             ]);
-        } catch (Exception $e) {
-            Log::error('Error sending message: ' . $e->getMessage());
+
+        } catch (\Exception $e) {
+            Log::error('Error sending message: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => $userId ?? null
+            ]);
             return response()->json(['status' => 'Có lỗi xảy ra khi gửi tin nhắn.'], 500);
         }
     }

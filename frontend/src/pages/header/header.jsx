@@ -374,7 +374,7 @@ export const Header = () => {
                                     <div className="navbar-icons flex items-center justify-center gap-3 xl:mx-3">
 
                                         {/* Notification */}
-                                        <NotificationDropdown />
+                                        {user && <NotificationDropdown userId={user.user_id} />}
 
 
                                         {/* language */}
@@ -702,7 +702,7 @@ export const Header = () => {
                                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-7" alt="" />
                                                             </div> */}
 
-                                                            <NotificationDropdown />
+                                                            {user && <NotificationDropdown userId={user.user_id} />}
                                                         </div>
                                                     </div>
                                                 </SheetTitle>
@@ -905,7 +905,7 @@ export const Header = () => {
                                 <Sheet>
                                     <SheetTrigger>
                                         {/* icons*/}
-                                        <NotificationDropdown />
+                                        <NotificationDropdown userId={user.user_id} />
 
                                     </SheetTrigger>
                                     <SheetContent>

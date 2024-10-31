@@ -28,6 +28,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TitleContentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FavoriteController;
+use App\Events\MyEvent;
 // Authentication
 Route::group([
     'middleware' => 'api',
@@ -52,6 +53,15 @@ Route::group([
 });
 Route::post('/s3-buckets', [UserController::class, 'upload']);
 
+Route::get('/send-notification', function () {
+    $message = "Thông báo kiểm tra cho người dùng ID 43";
+    $userId = 43;
+
+    // Phát sự kiện
+    event(new MyEvent($message, $userId));
+
+    return response()->json(['status' => 'Thông báo đã được gửi!']);
+});
 
 //Register
 Route::get('/courses/{slug}/related', [CourseController::class, 'relatedCourses']);

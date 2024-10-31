@@ -1,4 +1,3 @@
-import Pusher from 'pusher-js';
 import React, { useEffect, useState } from 'react';
 import {
     DropdownMenu,
@@ -9,31 +8,41 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+const token = localStorage.getItem('access_token');
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
 
-const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
+const echo = new Echo({
+    broadcaster: 'pusher',
+    key: import.meta.env.VITE_PUSHER_APP_KEY,
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
-    encrypted: true
+    authEndpoint: 'http://localhost:8000/broadcasting/auth',
+    forceTLS: false, 
+    auth: {
+        headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`
+        }
+    }
 });
 
 const NotificationDropdown = ({ userId }) => {
     const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
-        console.log('Current User ID:', userId);
+        if (!userId) {
+            console.error('User ID is undefined, cannot subscribe to Pusher channel.');
+            return;
+        }
 
-        const channel = pusher.subscribe(`user-${userId}`);
+        console.log('Mounting component for User ID:', userId);
 
-        pusher.connection.bind('connected', () => {
-            console.log('Pusher connected!');
-        });
+        const channel = echo.private(`user.${userId}`);
+        console.log('Subscribing to channel:', `user.${userId}`);
 
-        channel.bind('subscription_succeeded', () => {
-            console.log('Subscribed to channel:', `user-${userId}`);
-        });
-
-        channel.bind('notification', (data) => {
+        channel.listen('.notification', (data) => {
             console.log('Received notification:', data);
-            if (data.user_id === userId) {
+            if (data.userId === userId) {
                 setNotifications((prevNotifications) => [
                     ...prevNotifications,
                     data.message
@@ -41,15 +50,13 @@ const NotificationDropdown = ({ userId }) => {
             }
         });
 
-        channel.bind('error', (err) => {
-            console.error('Pusher error:', err);
-        });
-
         return () => {
-            channel.unbind_all();
-            channel.unsubscribe();
+            console.log('Unsubscribing channel for User ID:', userId);
+            echo.leave(`user.${userId}`);
         };
     }, [userId]);
+    
+    
 
     return (
         <div className="navbar-noti cursor-pointer ">
