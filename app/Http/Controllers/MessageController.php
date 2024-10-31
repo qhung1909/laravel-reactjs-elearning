@@ -8,48 +8,126 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-
+use App\Mail\NotificationMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 class MessageController extends Controller
 {
     public function sendMessage(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'message' => 'required|string|max:255',
+            'user_id' => 'nullable|exists:users,user_id',
+            'type' => 'required|string|in:High,Normal,Low',
+            'content' => 'nullable|string|max:1000'
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Dữ liệu không hợp lệ.',
+                'errors' => $validator->errors(),
+                'data' => null 
+            ], 422);
+        }
+    
+        if (!Auth::check()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Vui lòng đăng nhập để gửi tin nhắn.',
+                'data' => null
+            ], 401);
+        }
+    
         try {
-            if (!Auth::check()) {
-                return response()->json(['status' => 'Đăng nhập để gửi tin nhắn.'], 401);
-            }
-
             $message = $request->input('message');
             $userId = $request->input('user_id');
-
+            $type = $request->input('type');
+            $content = $request->input('content');
+            $notificationIds = [];
+    
             if ($userId) {
+                $user = User::find($userId);
+                if (!$user) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Không tìm thấy người dùng.',
+                        'data' => null 
+                    ], 404);
+                }
+    
                 $notification = Notification::create([
                     'user_id' => $userId,
                     'message' => $message,
-                    'is_read' => false
+                    'content' => $content,
+                    'type' => $type,
+                    'is_read' => false,
+                    'created_by' => Auth::id()
                 ]);
+    
                 broadcast(new MyEvent($message, $userId, $notification->id))->toOthers();
+    
+                if ($type === 'High') {
+                    try {
+                        Mail::to($user->email)
+                            ->queue(new NotificationMail($message, $content ?? '', $type));
+                    } catch (\Exception $e) {
+                        Log::warning("Failed to send email to {$user->email}: {$e->getMessage()}");
+                    }
+                }
+    
+                $notificationIds[] = $notification->id;
+    
             } else {
-                $users = User::all();
+                $users = User::select(['user_id', 'email'])->get();
+    
                 foreach ($users as $user) {
                     $notification = Notification::create([
                         'user_id' => $user->user_id,
                         'message' => $message,
-                        'is_read' => false
+                        'content' => $content,
+                        'type' => $type,
+                        'is_read' => false,
+                        'created_by' => Auth::id()
                     ]);
-
+    
                     broadcast(new MyEvent($message, $user->user_id, $notification->id))->toOthers();
+    
+                    if ($type === 'High') {
+                        try {
+                            Mail::to($user->email)
+                                ->queue(new NotificationMail($message, $content ?? '', $type));
+                        } catch (\Exception $e) {
+                            Log::warning("Failed to send email to {$user->email}: {$e->getMessage()}");
+                        }
+                    }
+    
+                    $notificationIds[] = $notification->id;
                 }
             }
-
+    
             return response()->json([
-                'status' => 'Tin nhắn đã được gửi!',
-                'user_id' => $userId,
-                'message' => $message
+                'status' => 'success',
+                'message' => $userId ? 'Tin nhắn đã được gửi thành công!' : 'Tin nhắn đã được gửi đến tất cả người dùng!',
+                'data' => [
+                    'user_id' => $userId ?? null,
+                    'notification_ids' => $notificationIds,
+                    'sent_at' => now()->toISOString(), // Định dạng thời gian ISO
+                ]
             ]);
+    
         } catch (\Exception $e) {
-            return response()->json(['status' => 'Có lỗi xảy ra khi gửi tin nhắn.'], 500);
+            Log::error('Notification Error: ' . $e->getMessage());
+    
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Có lỗi xảy ra khi gửi tin nhắn.',
+                'debug' => config('app.debug') ? $e->getMessage() : null,
+                'data' => null // Thêm trường này nếu cần thiết
+            ], 500);
         }
     }
+    
 
     public function markAsRead($notification_id)
     {
@@ -97,20 +175,27 @@ class MessageController extends Controller
             if (!Auth::check()) {
                 return response()->json(['status' => 'Đăng nhập để xem thông báo.'], 401);
             }
-
+    
             $userId = Auth::id();
+            $perPage = $request->input('per_page', 8); 
+            $page = $request->input('page', 1);
+    
             $notifications = Notification::where('user_id', $userId)
                 ->orderBy('created_at', 'desc')
-                ->get();
-
+                ->paginate($perPage, ['*'], 'page', $page);
+    
             return response()->json([
                 'status' => 'Thành công',
-                'notifications' => $notifications
+                'notifications' => $notifications->items(), 
+                'current_page' => $notifications->currentPage(),
+                'last_page' => $notifications->lastPage(),
+                'total' => $notifications->total(),
             ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'Có lỗi xảy ra khi lấy thông báo.'], 500);
         }
     }
+    
     public function getNotificationDetails($id)
     {
         try {
