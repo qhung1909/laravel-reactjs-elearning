@@ -87,7 +87,7 @@
         <p>Happy Exploring 🌏✨,</p>
         <p>Team Antlearn của tụi mình 💌</p>
 
-        <a href="http://yourwebsite.com" class="button">Bắt đầu khám phá ngay!</a>
+        <a href="http://localhost:5173/" class="button">Bắt đầu khám phá ngay!</a>
 
         <div class="footer">
             <p>Cảm ơn bạn đã lựa chọn AntLearn!</p>
