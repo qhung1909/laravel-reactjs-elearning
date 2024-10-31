@@ -905,7 +905,7 @@ export const Header = () => {
                                 <Sheet>
                                     <SheetTrigger>
                                         {/* icons*/}
-                                        <NotificationDropdown userId={user.user_id} />
+                                        <NotificationDropdown userId={user?.user_id} />
 
                                     </SheetTrigger>
                                     <SheetContent>
