@@ -412,12 +412,12 @@ export const Lesson = () => {
                                                                     titleContent[content.content_id].map((item, i) => (
                                                                         <div
                                                                             key={i}
-                                                                            className="flex items-start gap-2 py-2 hover:bg-purple-50 rounded-lg transition-colors"
+                                                                            className="flex items-start gap-2 py-2 hover:bg-purple-50 rounded-lg transition-colors "
                                                                         >
                                                                             <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0">
                                                                                 {i + 1}
                                                                             </span>
-                                                                            <p className="text-sm text-gray-600">{item.body_content}</p>
+                                                                            <p className="text-sm text-gray-600 line-clamp-2">{item.body_content}</p>
                                                                         </div>
                                                                     ))
                                                                 ) : (
