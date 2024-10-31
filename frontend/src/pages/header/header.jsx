@@ -241,23 +241,7 @@ export const Header = () => {
                                     onKeyDown={handleKeyPress}
                                     className="h-10"
                                 />
-                                {isOpen && (filteredProducts.length > 0 || suggestedCourses.length > 0) && (
-                                    <div className="suggestions">
-                                        {filteredProducts.length > 0 ? (
-                                            filteredProducts.map((product) => (
-                                                <div key={product.id} className="suggestion-item">
-                                                    {product.title}
-                                                </div>
-                                            ))
-                                        ) : (
-                                            suggestedCourses.map((course) => (
-                                                <div key={course.id} className="suggestion-item">
-                                                    {course.title}
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                )}
+                            
                                 <div className={`absolute w-4/5 bg-white mt-10 ${isOpen ? 'block' : 'hidden'}`}>
                                     <CommandList className="shadow-lg ">
                                         {loading ? (
