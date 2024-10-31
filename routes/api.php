@@ -51,7 +51,8 @@ Route::group([
     Route::get('orders/history', [UserController::class, 'getOrderHistory']);
     Route::get('/orders/searchHistory', [UserController::class, 'searchOrderHistory']);
     Route::post('/notifications/read/{notification_id}', [MessageController::class, 'markAsRead']);
-
+    Route::get('/notifications', [MessageController::class, 'getNotifications']);
+    Route::post('/notifications/read-all', [MessageController::class, 'markAllAsRead']);
 });
 Route::post('/s3-buckets', [UserController::class, 'upload']);
 

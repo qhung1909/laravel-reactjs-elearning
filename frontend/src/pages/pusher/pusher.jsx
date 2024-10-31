@@ -9,6 +9,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 import { Card, CardContent } from '@/components/ui/card';
 import { Bell, CheckCheck } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -37,49 +44,68 @@ const echo = new Echo({
 
 const NotificationDropdown = ({ userId }) => {
     const [notifications, setNotifications] = useState([]);
+    const unreadCount = notifications.filter(notification => !notification.is_read).length;
 
     useEffect(() => {
-        if (!userId) {
-            console.error('User ID is undefined, cannot subscribe to Pusher channel.');
-            return;
-        }
-
-        const channel = echo.private(`user.${userId}`);
-
-        channel.listen('.notification', (data) => {
-            console.log("Received data:", data);
-            if (data.userId === userId) {
-                setNotifications((prevNotifications) => [
-                    ...prevNotifications,
-                    {
-                        id: data.notificationId,
-                        message: typeof data.message === 'string' ? data.message : JSON.stringify(data.message),
-                        timestamp: data.timestamp,
-                        is_read: false
-                    }
-                ]);
-
-
-                toast('Bạn có thông báo mới!, kiểm tra hộp thư của bạn!', {
-                    duration: 2000,
-                    position: 'top-right',
-                    style: {
-                        border: '1px solid red',
-                        padding: '16px',
-                        color: '#fff',
-                        backgroundColor: '#ff4d4f',
+        const fetchNotifications = async () => {
+            try {
+                const response = await fetch(`${API_URL}/auth/notifications`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
                     },
                 });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setNotifications(data.notifications);
+                } else {
+                    console.error('Failed to fetch notifications');
+                }
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
             }
-        });
-        return () => {
-            echo.leave(`user.${userId}`);
         };
+
+        fetchNotifications();
+
+        if (userId) {
+            const channel = echo.private(`user.${userId}`);
+            channel.listen('.notification', (data) => {
+                if (data.userId === userId) {
+                    setNotifications((prevNotifications) => [
+                        {
+                            id: data.notificationId,
+                            message: typeof data.message === 'string' ? data.message : JSON.stringify(data.message),
+                            timestamp: data.timestamp,
+                            is_read: false
+                        },
+                        ...prevNotifications
+
+                    ]);
+                    toast('Bạn có thông báo mới! Kiểm tra hộp thư của bạn!', {
+                        duration: 2000,
+                        position: 'top-right',
+                        style: {
+                            border: '1px solid red',
+                            padding: '16px',
+                            color: '#fff',
+                            backgroundColor: '#ff4d4f',
+                        },
+                    });
+                }
+            });
+
+            return () => {
+                echo.leave(`user.${userId}`);
+            };
+        }
     }, [userId]);
+
     const markAsRead = async (notificationId) => {
         if (!notificationId) {
             console.error("notificationId is undefined");
-            toast.error("Có lỗi xảy ra: ID thông báo không xác định.");
             return;
         }
 
@@ -95,7 +121,6 @@ const NotificationDropdown = ({ userId }) => {
 
             const data = await response.json();
             if (response.ok) {
-                toast.success(data.status);
                 setNotifications((prevNotifications) =>
                     prevNotifications.map(notification =>
                         notification.id === notificationId ? { ...notification, is_read: true } : notification
@@ -108,22 +133,67 @@ const NotificationDropdown = ({ userId }) => {
             toast.error('Có lỗi xảy ra khi đánh dấu tin nhắn.');
         }
     };
+
+    const markAllAsRead = async () => {
+        try {
+            const response = await fetch(`${API_URL}/auth/notifications/read-all`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                toast.success('Tất cả thông báo đã được đánh dấu là đã xem.');
+                setNotifications((prevNotifications) =>
+                    prevNotifications.map(notification => ({
+                        ...notification,
+                        is_read: true
+                    }))
+                );
+            } else {
+                const data = await response.json();
+                toast.error(data.status || 'Có lỗi xảy ra khi đánh dấu tất cả tin nhắn.');
+            }
+        } catch (error) {
+            toast.error('Có lỗi xảy ra khi đánh dấu tất cả tin nhắn.');
+        }
+    };
+
     return (
         <>
             <DropdownMenu>
-                <DropdownMenuTrigger className="flex">
+                <DropdownMenuTrigger className="flex relative">
                     <img
                         src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg"
                         className="w-10"
                         alt="notifications"
                     />
+                    {unreadCount > 0 && (
+                        <span className="absolute top-[-10px] right-[-5px] bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">
+                            {unreadCount}
+                        </span>
+                    )}
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent className="w-96 p-3 mr-48 mt-1 rounded-2xl">
                     <DropdownMenuLabel className="text-base text-blue-900 font-bold">
                         <div className="flex justify-between items-center">
                             <div>Thông báo</div>
-                            <CheckCheck className="w-4 h-4 hover:text-blue-500 transition-colors cursor-pointer" />
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <CheckCheck
+                                            className="w-4 h-4 hover:text-blue-500 transition-colors cursor-pointer"
+                                            onClick={markAllAsRead}
+                                        />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Đánh dấu tất cả là đã đọc</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         </div>
                     </DropdownMenuLabel>
 
@@ -131,7 +201,7 @@ const NotificationDropdown = ({ userId }) => {
                         <div className="border-yellow-400 border-b-4 pb-2 w-full flex items-center gap-3 font-semibold text-yellow-400">
                             <p className="text-lg">Hệ thống</p>
                             <Badge variant="secondary" className="bg-pink-100 text-pink-500">
-                                {notifications.length}
+                                {unreadCount}
                             </Badge>
                         </div>
                     </DropdownMenuItem>
@@ -149,26 +219,47 @@ const NotificationDropdown = ({ userId }) => {
                                     <Card
                                         key={index}
                                         onClick={() => markAsRead(notification.id)}
-                                        className="bg-white hover:bg-gray-50 transition-colors cursor-pointer border-l-4 border-l-yellow-400"
+                                        className={`transition-colors cursor-pointer border-l-4 ${notification.is_read
+                                            ? "bg-gray-200 border-l-gray-400"
+                                            : "bg-white hover:bg-gray-50 border-l-yellow-400"
+                                            }`}
                                     >
                                         <CardContent className="p-4">
                                             <div className="flex gap-3 items-start">
-                                                <div className="bg-yellow-100 p-1.5 rounded-lg">
-                                                    <Bell className="w-5 h-5 text-yellow-400" />
+                                                <div className={`p-1.5 rounded-lg ${notification.is_read ? "bg-gray-300" : "bg-yellow-100"
+                                                    }`}>
+                                                    {notification.is_read ? (
+                                                        <CheckCheck className="w-5 h-5 text-gray-500" />
+                                                    ) : (
+                                                        <Bell className="w-5 h-5 text-yellow-400" />
+                                                    )}
                                                 </div>
                                                 <div className="space-y-1 flex-1">
-                                                    {/* Chỉ render thuộc tính message */}
-                                                    <p className="text-base font-medium text-blue-900">{notification.message}</p>
+                                                    <p className={`text-base font-medium ${notification.is_read ? "text-gray-500" : "text-blue-900"
+                                                        }`}>
+                                                        {notification.message}
+                                                    </p>
                                                     <div className="flex justify-between items-center">
                                                         <p className="text-xs text-gray-500">
-                                                            {new Date(notification.timestamp).toLocaleString()}
+                                                            {notification.created_at
+                                                                ? new Date(notification.created_at).toLocaleDateString('en-GB', {
+                                                                    day: '2-digit',
+                                                                    month: '2-digit',
+                                                                    year: 'numeric',
+                                                                }) + ', ' + new Date(notification.created_at).toLocaleTimeString('en-GB', {
+                                                                    hour: '2-digit',
+                                                                    minute: '2-digit',
+                                                                })
+                                                                : "Thời gian không hợp lệ"}
                                                         </p>
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="text-xs text-blue-500 hover:bg-blue-50"
-                                                        >
-                                                            Mới
-                                                        </Badge>
+                                                        {!notification.is_read && (
+                                                            <Badge
+                                                                variant="outline"
+                                                                className="text-xs text-blue-500 hover:bg-blue-50"
+                                                            >
+                                                                Mới
+                                                            </Badge>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -187,6 +278,7 @@ const NotificationDropdown = ({ userId }) => {
             <Toaster />
         </>
     );
+
 };
 
 export default NotificationDropdown;

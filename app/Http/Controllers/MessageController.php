@@ -71,4 +71,44 @@ class MessageController extends Controller
             return response()->json(['status' => 'Có lỗi xảy ra khi đánh dấu tin nhắn.'], 500);
         }
     }
+
+    public function markAllAsRead(Request $request)
+    {
+        try {
+            if (!Auth::check()) {
+                return response()->json(['status' => 'Đăng nhập để đánh dấu tất cả thông báo.'], 401);
+            }
+
+            $userId = Auth::id();
+
+            Notification::where('user_id', $userId)
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+
+            return response()->json(['status' => 'Tất cả thông báo đã được đánh dấu là đã xem.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'Có lỗi xảy ra khi đánh dấu tất cả thông báo.'], 500);
+        }
+    }
+
+    public function getNotifications(Request $request)
+    {
+        try {
+            if (!Auth::check()) {
+                return response()->json(['status' => 'Đăng nhập để xem thông báo.'], 401);
+            }
+
+            $userId = Auth::id();
+            $notifications = Notification::where('user_id', $userId)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return response()->json([
+                'status' => 'Thành công',
+                'notifications' => $notifications
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'Có lỗi xảy ra khi lấy thông báo.'], 500);
+        }
+    }
 }

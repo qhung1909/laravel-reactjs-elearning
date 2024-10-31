@@ -821,7 +821,7 @@ export const Header = () => {
                                 <div className="navbar-icons flex items-center gap-2 xl:mx-3">
 
                                     {/* notification */}
-                                    {/* <div className="navbar-noti cursor-pointer">
+                                    <div className="navbar-noti cursor-pointer">
                                         <DropdownMenu >
                                             <DropdownMenuTrigger className="flex">
                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-16" alt="" />
@@ -865,7 +865,7 @@ export const Header = () => {
                                                 </div>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </div> */}
+                                    </div>
 
                                     {/* language */}
                                     {/* <div className="navbar-language cursor-pointer">
