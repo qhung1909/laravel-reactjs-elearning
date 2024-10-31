@@ -19,7 +19,7 @@ class MessageController extends Controller
             'message' => 'required|string|max:255',
             'user_id' => 'nullable|exists:users,user_id',
             'type' => 'required|string|in:High,Normal,Low',
-            'content' => 'nullable|string|max:1000'
+            'content' => 'nullable|string'
         ]);
     
         if ($validator->fails()) {
@@ -112,7 +112,7 @@ class MessageController extends Controller
                 'data' => [
                     'user_id' => $userId ?? null,
                     'notification_ids' => $notificationIds,
-                    'sent_at' => now()->toISOString(), // Định dạng thời gian ISO
+                    'sent_at' => now()->toISOString(),
                 ]
             ]);
     
@@ -123,7 +123,7 @@ class MessageController extends Controller
                 'status' => 'error',
                 'message' => 'Có lỗi xảy ra khi gửi tin nhắn.',
                 'debug' => config('app.debug') ? $e->getMessage() : null,
-                'data' => null // Thêm trường này nếu cần thiết
+                'data' => null 
             ], 500);
         }
     }
