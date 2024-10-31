@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import { SideBarCreateCoure } from "./SideBarCreateCoure"
+import { Footer } from "../footer/footer"
 
 export const Promotion = () => {
     return (
@@ -37,9 +38,47 @@ export const Promotion = () => {
                         </div>
                         <div className="border-b-2"></div>
                     </div>
+                    <div className="p-10">
+
+                    <h2 className="font-medium text-lg pb-1">Coupon</h2>
+                    <div className="border border-slate-400 px-3 py-5 mb-6">
+                        <p className="font-medium">Tháng 10 coupon</p>
+                        <p>Bạn không thể tạo coupon cho khóa học miễn phí</p>
+                    </div>
+
+                    <div className="flex flex-cols-2">
+                        <h2 className="flex-1 font-medium pb-2">Coupon đang hoạt động/đã lên lịch phát hành</h2>
+                        <Link to="">
+                            <p className="flex-0 text-right underline underline-offset-2 text-blue-700">Tạo nhiều coupon</p>
+                        </Link>
+                    </div>
+
+
+                    <div className="border border-slate-400 p-3 text-center mb-6">
+                        <p>Không tìm thấy coupon</p>
+                    </div>
+
+
+                    <div className="pb-3 flex items-end relative">
+                        <h2 className="flex-1 font-medium">Coupon đã hết hạn</h2>
+                        <div className="flex-1 text-right">
+                            <div className="flex justify-end">
+                                <input className="border border-slate-500 h-10 px-3" placeholder="Tìm kiếm mã coupon" />
+                                <button className="bg-slate-800 w-10 h-10">
+                                    <box-icon name='search' color='#ffffff'></box-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="border border-slate-400 p-3 text-center mb-6">
+                        <p>Không tìm thấy coupon</p>
+                    </div>
+
+                </div>
 
                 </div>
             </div>
+            <Footer />
         </>
     )
 }

@@ -13,6 +13,7 @@ import 'react-quill/dist/quill.snow.css';
 
 import CryptoJS from 'crypto-js';
 import { SideBarCreateCoure } from './SideBarCreateCoure';
+import { Footer } from '../footer/footer';
 
 
 const secretKey = '*dodoanduocmatkhau****';
@@ -218,7 +219,7 @@ export const Curriculum = () => {
                         <div className="border-b-2"></div>
                     </div>
 
-                    
+
                     <div className="max-w-4xl mx-auto p-6">
                         <div className="space-y-4">
                             <h2 className="text-xl font-semibold">Nội dung khóa học</h2>
@@ -368,7 +369,7 @@ export const Curriculum = () => {
 
                 </div>
             </div>
-
+            <Footer />
         </>
 
     );

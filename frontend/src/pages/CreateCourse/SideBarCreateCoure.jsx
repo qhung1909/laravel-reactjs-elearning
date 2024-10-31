@@ -1,8 +1,20 @@
 import { Checkbox } from "@radix-ui/react-checkbox";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Footer } from "../footer/footer";
 
 export const SideBarCreateCoure = () => {
+    const handleBeforeUnload = (event) => {
+        const message = "Bạn có chắc chắn muốn rời khỏi trang? Tất cả nội dung đã nhập sẽ bị mất!";
+        event.returnValue = message;
+        return message;
+    };
+    useEffect(() => {
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
     return (
         <>
             <div className="w-3/12 mr-4 hidden lg:block">

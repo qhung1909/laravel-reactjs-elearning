@@ -215,6 +215,7 @@ export const CourseOverview = () => {
                     </div>
                 </div>
             </div>
+            <Footer />
         </>
     )
 }

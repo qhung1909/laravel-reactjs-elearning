@@ -1,7 +1,17 @@
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+
 import { Link } from "react-router-dom"
 import { SideBarCreateCoure } from "./SideBarCreateCoure"
+import { Footer } from "../footer/footer"
+import { useState } from 'react';
 
 export const CourseMessage = () => {
+
+    const [welcomeText, setWelcomeText] = useState('');
+    const [congratulationsText, setCongratulationsText] = useState('');const [courseDescriptionText, setCourseDescriptionText] = useState("");
+
+
     return (
         <>
             <div className="bg-yellow-500 h-12">
@@ -36,9 +46,61 @@ export const CourseMessage = () => {
                         </div>
                         <div className="border-b-2"></div>
                     </div>
+                    <div>
+                    <div>
+
+                    </div>
+                    <div className="p-10 lg:pr-32">
+
+                        <div className="pb-6">
+                            <p>Bạn có thể viết tin nhắn cho học viên (tùy chọn) để khuyến khích học viên tương tác với nội dung khóa học. Tin nhắn này sẽ được tự động gửi đi khi họ tham gia hoặc hoàn thành khóa học. Nếu bạn không muốn gửi tin nhắn chào mừng hoặc chúc mừng. Hãy để trống ô văn bản này</p>
+                        </div>
+
+                        <p className="pb-3 font-medium">Tin nhắn chào mừng</p>
+                        <ReactQuill
+                            className="pb-6"
+                            value={welcomeText}
+                            onChange={setWelcomeText}
+                            modules={{
+                                toolbar: [
+                                    [{ 'header': [1, 2, 3, false] }],
+                                    ['bold', 'italic', 'underline'],
+                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                    ['link', 'image', 'code-block'],
+                                    ['clean']
+                                ],
+                            }}
+                            formats={[
+                                'header', 'bold', 'italic', 'underline',
+                                'list', 'bullet', 'link', 'image', 'code-block'
+                            ]}
+                        />
+
+                        <p className="pb-3 font-medium">Tin nhắn chúc mừng</p>
+                        <ReactQuill
+                            className="pb-6"
+                            value={congratulationsText}
+                            onChange={setCongratulationsText}
+                            modules={{
+                                toolbar: [
+                                    [{ 'header': [1, 2, 3, false] }],
+                                    ['bold', 'italic', 'underline'],
+                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                    ['link', 'image', 'code-block'],
+                                    ['clean']
+                                ],
+                            }}
+                            formats={[
+                                'header', 'bold', 'italic', 'underline',
+                                'list', 'bullet', 'link', 'image', 'code-block'
+                            ]}
+                        />
+                    </div>
+                </div>
 
                 </div>
             </div>
+            <Footer />
         </>
     )
 }

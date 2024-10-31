@@ -1,7 +1,28 @@
 import { Link } from "react-router-dom"
 import { SideBarCreateCoure } from "./SideBarCreateCoure"
+import { Footer } from "../footer/footer"
+import { useState } from "react";
+import {
+    Select,
+    SelectContent,
+    // SelectGroup,
+    SelectItem,
+    // SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { Input } from "@/components/ui/input";
 
 export const Valuation = () => {
+    const [currency, setCurrency] = useState("");
+    const [price, setPrice] = useState("");
+
+    // const allInputsValuationFilled = () => {
+    //     return currency !== "" && price.trim() !== "";
+    // };
+
+    // const [isChecked, setIsChecked] = useState(false);
+
     return (
         <>
             <div className="bg-yellow-500 h-12">
@@ -37,11 +58,47 @@ export const Valuation = () => {
                         </div>
                         <div className="border-b-2"></div>
                     </div>
+                    
+                    <div className="p-10">
+                        <h2 className="pb-6 font-medium text-lg">Đặt giá cho khóa học của bạn</h2>
+                        <p>Vui lòng chọn đơn vị tiền tệ và mức giá cho khóa học của bạn. Nếu muốn cung cấp miễn phí khóa học của mình thì khóa học đó phải có tổng thời lượng video dưới 2 giờ. Ngoài ra, các khóa học có bài kiểm tra thực hành không thể miễn phí.</p>
+                        {/* <form> */}
 
+
+                        <div className="flex flex-cols-2 gap-4 pt-6 pb-3">
+                            <div className="">
+                                <p className="pb-1 font-medium">
+                                    Tiền tệ
+                                </p>
+                                <Select value={currency} onValueChange={setCurrency}>
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Chọn" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="vnd">VND</SelectItem>
+                                        <SelectItem value="usd">USD</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="">
+                                <p className="pb-1 font-medium">
+                                    Mức giá
+                                </p>
+                                <div>
+                                    <Input value={price} onChange={(e) => setPrice(e.target.value)} type="number" placeholder="Giá" />
+                                </div>
+                            </div>
+
+                        </div>
+                        {/* <button className="w-16 h-10 bg-yellow-500 text-white font-bold">Lưu</button> */}
+                        {/* </form> */}
+                    </div>
 
 
                 </div>
             </div>
+            <Footer />
+
         </>
     )
 }

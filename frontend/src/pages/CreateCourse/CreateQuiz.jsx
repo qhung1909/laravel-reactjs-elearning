@@ -1,221 +1,245 @@
-import { useState } from 'react';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import {
-  ListChecks,
-  CheckCircle2,
-  Circle,
-  Type,
-  Plus,
-  Trash2,
-} from 'lucide-react';
+import { ListChecks, CheckCircle2, Circle, Type, Plus, Trash2 } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 const CreateQuiz = () => {
-  const [questions, setQuestions] = useState([]);
+    const location = useLocation();
+    const lessonId = new URLSearchParams(location.search).get('lesson');
+    const [questions, setQuestions] = useState([]);
 
-  const addQuestion = () => {
-    setQuestions([...questions, {
-      type: '',
-      question: '',
-      options: ['', '', '', ''],  // 4 tùy chọn cố định
-      answers: [] // Sẽ lưu index thay vì giá trị
-    }]);
-  };
+    useEffect(() => {
+        const storedData = sessionStorage.getItem(`quiz-${lessonId}`);
+        if (storedData) {
+            setQuestions(JSON.parse(storedData));
+        }
+    }, [lessonId]);
 
-  const handleTypeChange = (index, value) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[index].type = value;
-    updatedQuestions[index].answers = [];
-    setQuestions(updatedQuestions);
-  };
+    const addQuestion = () => {
+        setQuestions([...questions, {
+            type: '',
+            question: '',
+            options: ['', '', '', ''],
+            answers: []
+        }]);
+    };
 
-  const handleQuestionChange = (index, value) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[index].question = value;
-    setQuestions(updatedQuestions);
-  };
+    const handleTypeChange = (index, value) => {
+        const updatedQuestions = [...questions];
+        updatedQuestions[index].type = value;
+        updatedQuestions[index].answers = [];
+        setQuestions(updatedQuestions);
+    };
 
-  const handleOptionChange = (qIndex, optIndex, value) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[qIndex].options[optIndex] = value;
-    setQuestions(updatedQuestions);
-  };
+    const handleQuestionChange = (index, value) => {
+        const updatedQuestions = [...questions];
+        updatedQuestions[index].question = value;
+        setQuestions(updatedQuestions);
+    };
 
-  const handleAnswerChange = (questionIndex, optionIndex) => {
-    const updatedQuestions = [...questions];
-    const question = updatedQuestions[questionIndex];
+    const handleOptionChange = (qIndex, optIndex, value) => {
+        const updatedQuestions = [...questions];
+        updatedQuestions[qIndex].options[optIndex] = value;
+        setQuestions(updatedQuestions);
+    };
 
-    if (question.type === 'multiplechoice') {
-      // Xử lý multiple choice - toggle selection bằng index
-      if (question.answers.includes(optionIndex)) {
-        question.answers = question.answers.filter(ans => ans !== optionIndex);
-      } else {
-        question.answers.push(optionIndex);
-      }
-    } else {
-      // Xử lý single choice - chỉ chọn một index
-      question.answers = [optionIndex];
-    }
+    const handleAnswerChange = (questionIndex, optionIndex) => {
+        const updatedQuestions = [...questions];
+        const question = updatedQuestions[questionIndex];
 
-    setQuestions(updatedQuestions);
-  };
+        if (question.type === 'multiplechoice') {
+            if (question.answers.includes(optionIndex)) {
+                question.answers = question.answers.filter(ans => ans !== optionIndex);
+            } else {
+                question.answers.push(optionIndex);
+            }
+        } else {
+            question.answers = [optionIndex];
+        }
 
-  const deleteQuestion = (index) => {
-    const updatedQuestions = questions.filter((_, i) => i !== index);
-    setQuestions(updatedQuestions);
-  };
+        setQuestions(updatedQuestions);
+    };
 
-  const handleSubmit = () => {
-    // Chuyển đổi answers từ index sang giá trị thực tế trước khi submit
-    const formattedQuestions = questions.map(q => ({
-      ...q,
-      answers: q.type === 'truefalse' || q.type === 'fillblank'
-        ? q.answers
-        : q.answers.map(ansIndex => q.options[ansIndex])
-    }));
-    console.log(formattedQuestions);
-  };
+    const deleteQuestion = (index) => {
+        const updatedQuestions = questions.filter((_, i) => i !== index);
+        setQuestions(updatedQuestions);
+    };
 
-  return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Tạo Quiz</h2>
-        <Button
-          onClick={addQuestion}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-        >
-          <Plus size={20} />
-          Thêm câu hỏi
-        </Button>
-      </div>
+    const handleSubmit = () => {
+        const formattedQuestions = questions.map(q => ({
+            ...q,
+            answers: q.type === 'truefalse' || q.type === 'fillblank'
+                ? q.answers
+                : q.type === 'multiplechoice'
+                    ? q.answers
+                    : q.answers[0] !== undefined ? [q.answers[0]] : []
+        }));
 
-      <div className="space-y-4">
-        {questions.map((q, questionIndex) => (
-          <Card key={questionIndex} className="p-6 relative">
-            <div className="absolute top-4 right-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                onClick={() => deleteQuestion(questionIndex)}
-              >
-                <Trash2 size={20} />
-              </Button>
-            </div>
+        sessionStorage.setItem(`quiz-${lessonId}`, JSON.stringify(formattedQuestions));
+        console.log(formattedQuestions);
+    };
 
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="font-semibold text-gray-700">Câu hỏi {questionIndex + 1}</span>
-              </div>
+    return (
+        <div className="max-w-4xl mx-auto p-6 space-y-6">
+            <h2 className="text-3xl font-bold text-gray-800 mb-8">Tạo Quiz cho Lesson {lessonId}</h2>
 
-              <select
-                value={q.type}
-                onChange={(e) => handleTypeChange(questionIndex, e.target.value)}
-                className="w-full p-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Chọn loại câu hỏi</option>
-                <option value="singlechoice">Single Choice</option>
-                <option value="multiplechoice">Multiple Choice</option>
-                <option value="truefalse">True/False</option>
-                <option value="fillblank">Fill in the Blank</option>
-              </select>
-
-              {q.type && (
-                <div className="space-y-4">
-                  <div className="relative">
-                    <Type className="absolute top-3 left-3 text-gray-400" size={20} />
-                    <Input
-                      type="text"
-                      placeholder="Nhập câu hỏi của bạn"
-                      value={q.question}
-                      onChange={(e) => handleQuestionChange(questionIndex, e.target.value)}
-                      className="pl-10 py-2"
-                    />
-                  </div>
-
-                  {(q.type === 'singlechoice' || q.type === 'multiplechoice') && (
-                    <div className="grid grid-cols-2 gap-4">
-                      {q.options.map((option, optionIndex) => (
-                        <div key={optionIndex} className="flex items-center gap-2 p-3 border rounded-lg bg-gray-50 hover:bg-gray-100">
-                          <div
-                            className="cursor-pointer"
-                            onClick={() => handleAnswerChange(questionIndex, optionIndex)}
-                          >
-                            {q.type === 'singlechoice' ? (
-                              <Circle
-                                size={20}
-                                className={`${q.answers.includes(optionIndex) ? 'text-blue-500 fill-blue-500' : 'text-gray-400'}`}
-                              />
-                            ) : (
-                              <CheckCircle2
-                                size={20}
-                                className={`${q.answers.includes(optionIndex) ? 'text-blue-500' : 'text-gray-400'}`}
-                              />
-                            )}
-                          </div>
-                          <Input
-                            type="text"
-                            placeholder={`Tùy chọn ${optionIndex + 1}`}
-                            value={option}
-                            onChange={(e) => handleOptionChange(questionIndex, optionIndex, e.target.value)}
-                            className="flex-1 border-0 bg-transparent focus:ring-0"
-                          />
+            <div className="space-y-6">
+                {questions.map((q, questionIndex) => (
+                    <Card key={questionIndex} className="p-8 relative shadow-md hover:shadow-lg transition-shadow">
+                        <div className="absolute top-4 right-4">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                onClick={() => deleteQuestion(questionIndex)}
+                            >
+                                <Trash2 size={20} />
+                            </Button>
                         </div>
-                      ))}
-                    </div>
-                  )}
 
-                  {q.type === 'truefalse' && (
-                    <div className="flex gap-4">
-                      <Button
-                        type="button"
-                        variant={q.answers[0] === 'true' ? 'default' : 'outline'}
-                        onClick={() => handleAnswerChange(questionIndex, 'true')}
-                        className="flex-1"
-                      >
-                        Đúng
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={q.answers[0] === 'false' ? 'default' : 'outline'}
-                        onClick={() => handleAnswerChange(questionIndex, 'false')}
-                        className="flex-1"
-                      >
-                        Sai
-                      </Button>
-                    </div>
-                  )}
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-2 mb-6">
+                                <span className="text-lg font-semibold text-gray-700">Câu hỏi {questionIndex + 1}</span>
+                            </div>
 
-                  {q.type === 'fillblank' && (
-                    <Input
-                      type="text"
-                      placeholder="Nhập đáp án"
-                      value={q.answers[0] || ''}
-                      onChange={(e) => handleAnswerChange(questionIndex, e.target.value)}
-                      className="w-full"
-                    />
-                  )}
-                </div>
-              )}
+                            <Select
+                                value={q.type}
+                                onValueChange={(value) => handleTypeChange(questionIndex, value)}
+                            >
+                                <SelectTrigger className="w-full p-3 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 hover:border-yellow-400 transition-colors cursor-pointer text-gray-700">
+                                    <SelectValue placeholder="Chọn loại câu hỏi" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="singlechoice">Single Choice</SelectItem>
+                                    <SelectItem value="multiplechoice">Multiple Choice</SelectItem>
+                                    <SelectItem value="truefalse">True/False</SelectItem>
+                                    <SelectItem value="fillblank">Fill in the Blank</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            {q.type && (
+                                <div className="space-y-6">
+                                    <div className="relative">
+                                        <Type className="absolute top-3 left-3 text-yellow-500" size={20} />
+                                        <Input
+                                            type="text"
+                                            placeholder="Nhập câu hỏi của bạn"
+                                            value={q.question}
+                                            onChange={(e) => handleQuestionChange(questionIndex, e.target.value)}
+                                            className="pl-10 py-3 focus:ring-yellow-500 focus:border-yellow-500"
+                                        />
+                                    </div>
+
+                                    {(q.type === 'singlechoice' || q.type === 'multiplechoice') && (
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {q.options.map((option, optionIndex) => (
+                                                <div
+                                                    key={optionIndex}
+                                                    className={`flex items-center gap-3 p-4 border rounded-lg transition-colors cursor-pointer
+                                                            ${q.type === 'singlechoice'
+                                                            ? q.answers[0] === optionIndex
+                                                                ? 'bg-yellow-50 border-yellow-300'
+                                                                : 'bg-gray-50 hover:bg-gray-100'
+                                                            : q.answers.includes(optionIndex)
+                                                                ? 'bg-yellow-50 border-yellow-300'
+                                                                : 'bg-gray-50 hover:bg-gray-100'
+                                                        }`}
+                                                    onClick={() => handleAnswerChange(questionIndex, optionIndex)}
+                                                >
+                                                    <div className="flex-shrink-0">
+                                                        {q.type === 'singlechoice' ? (
+                                                            <Circle
+                                                                size={20}
+                                                                className={`${q.answers[0] === optionIndex ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400'}`}
+                                                            />
+                                                        ) : (
+                                                            <CheckCircle2
+                                                                size={20}
+                                                                className={`${q.answers.includes(optionIndex) ? 'text-yellow-500' : 'text-gray-400'}`}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                    <Input
+                                                        type="text"
+                                                        placeholder={`Tùy chọn ${optionIndex + 1}`}
+                                                        value={option}
+                                                        onChange={(e) => handleOptionChange(questionIndex, optionIndex, e.target.value)}
+                                                        className="flex-1 border-0 bg-transparent focus:ring-0 placeholder-gray-400"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {q.type === 'truefalse' && (
+                                        <div className="flex gap-4">
+                                            <Button
+                                                type="button"
+                                                variant={q.answers[0] === 'true' ? 'default' : 'outline'}
+                                                onClick={() => handleAnswerChange(questionIndex, 'true')}
+                                                className={`flex-1 ${q.answers[0] === 'true' ? 'bg-yellow-500 hover:bg-yellow-600' : 'hover:bg-gray-100'}`}
+                                            >
+                                                Đúng
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                variant={q.answers[0] === 'false' ? 'default' : 'outline'}
+                                                onClick={() => handleAnswerChange(questionIndex, 'false')}
+                                                className={`flex-1 ${q.answers[0] === 'false' ? 'bg-yellow-500 hover:bg-yellow-600' : 'hover:bg-gray-100'}`}
+                                            >
+                                                Sai
+                                            </Button>
+                                        </div>
+                                    )}
+
+                                    {q.type === 'fillblank' && (
+                                        <Input
+                                            type="text"
+                                            placeholder="Nhập đáp án"
+                                            value={q.answers[0] || ''}
+                                            onChange={(e) => handleAnswerChange(questionIndex, e.target.value)}
+                                            className="w-full focus:ring-yellow-500 focus:border-yellow-500"
+                                        />
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </Card>
+                ))}
             </div>
-          </Card>
-        ))}
-      </div>
 
-      {questions.length > 0 && (
-        <div className="flex justify-end gap-4">
-          <Button
-            onClick={handleSubmit}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            <ListChecks className="mr-2" size={20} />
-            Lưu Quiz
-          </Button>
+            <Button
+                onClick={addQuestion}
+                className="w-full p-4 border-2 border-dashed border-yellow-400 bg-yellow-50 rounded-lg text-yellow-600 hover:bg-yellow-100 hover:border-yellow-500 transition-colors"
+            >
+                <Plus size={20} className="mr-2" />
+                Thêm câu hỏi
+            </Button>
+
+            {questions.length > 0 && (
+                <div className="flex justify-end gap-4">
+                    <Button
+                        onClick={handleSubmit}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-6 text-lg transition-colors"
+                    >
+                        <ListChecks className="mr-2" size={20} />
+                        Lưu Quiz
+                    </Button>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default CreateQuiz;
