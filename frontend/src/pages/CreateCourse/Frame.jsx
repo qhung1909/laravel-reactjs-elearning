@@ -16,8 +16,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import LessonCreator from "./createLesson";
-import LessonCreatorNoJson from "./createLesson copy";
+// import LessonCreator from "./createLesson";
 export const FrameTeacher = () => {
 
 
