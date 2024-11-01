@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Google\Service\Oauth2;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Jobs\SendWelcomeEmail;
 
 class AuthController extends Controller
 {
@@ -131,11 +132,9 @@ class AuthController extends Controller
             ]);
 
             $state = $request->query('state');
-            Log::info('State parameter received: ' . $state);
             $client->setState($state);
 
             $authUrl = $client->createAuthUrl();
-            Log::info('Auth URL generated: ' . $authUrl);
 
             return response()->json(['auth_url' => $authUrl]);
         } catch (\Exception $e) {
@@ -174,20 +173,31 @@ class AuthController extends Controller
                 throw new \Exception('No email found from Google');
             }
 
-            $user = User::updateOrCreate(
-                ['email' => $googleUser->getEmail()],
-                [
-                    'name' => $googleUser->getName(),
-                    'google_id' => $googleUser->getId(),
-                    'avatar' => $googleUser->getPicture(),
-                    'role' => 'user',
-                    'status' => 1,
-                    'email_verified_at' => now(),
-                    'password' => Hash::make(Str::random(16))
-                ]
-            );
+            $user = User::where('email', $googleUser->getEmail())->first();
 
-            Log::info('User after updateOrCreate: ' . json_encode($user));
+        if (!$user) {
+            $user = User::create([
+                'name' => $googleUser->getName(),
+                'email' => $googleUser->getEmail(),
+                'google_id' => $googleUser->getId(),
+                'avatar' => $googleUser->getPicture(),
+                'role' => 'user',
+                'status' => 1,
+                'email_verified_at' => now(),
+                'password' => Hash::make(Str::random(16))
+            ]);
+
+            SendWelcomeEmail::dispatch($user);
+        } else {
+            $user->update([
+                'name' => $googleUser->getName(),
+                'google_id' => $googleUser->getId(),
+                'avatar' => $googleUser->getPicture(),
+                'status' => 1,
+                'email_verified_at' => now(),
+            ]);
+        }
+
 
             if (!$user) {
                 Log::error('User is null after updateOrCreate');
@@ -195,17 +205,12 @@ class AuthController extends Controller
             }
 
             $token = JWTAuth::fromUser($user);
-            Log::info('JWT Token Created: ' . $token);
 
             $refreshToken = $this->createRefreshToken($user->user_id);
-            Log::info('Refresh Token Created: ' . $refreshToken);
 
             return $this->respondWithToken($token, $refreshToken);
 
         } catch (\Exception $e) {
-            Log::error('Google Login Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
-            Log::error('Stack Trace: ' . $e->getTraceAsString());
-
             return response()->json([
                 'error' => 'Google login failed',
                 'message' => $e->getMessage()
