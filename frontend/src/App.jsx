@@ -26,7 +26,6 @@ import { InstructorLesson } from "./pages/instructor/instructorLesson.jsx";
 import { InstructorProfile } from "./pages/instructor/instructorProfile.jsx";
 import { PaymentResult } from "./pages/payment/payment-result.jsx";
 import { VerificationEmail } from "./pages/verification/verification-email.jsx";
-import Demo from "./pages/teacher/demo.jsx";
 import { UserProfile } from "./pages/userprofile/userprofile.jsx";
 import { UserOrderHistory } from "./pages/userprofile/userorderhistory.jsx";
 import { UserNoti } from "./pages/userprofile/usernoti.jsx";
@@ -50,6 +49,14 @@ import ClassifyCourse from "./pages/admin/ManageCourses/classifyCourses.jsx";
 import PriceDiscount from "./pages/admin/ManageCourses/priceDiscount.jsx";
 import BrowseNewCourses from "./pages/admin/ManageCourses/browseNewCourses.jsx";
 import TaskList from "./pages/notifications/notification.jsx";
+import { InstructorNotification } from "./pages/instructor/instuctorNotification.jsx";
+import CreateQuiz from "./pages/CreateCourse/createQuiz.jsx";
+import { CourseOverview } from "./pages/CreateCourse/courseOverview.jsx";
+import { Curriculum } from "./pages/CreateCourse/curriculum.jsx";
+import { Valuation } from "./pages/CreateCourse/valuation.jsx";
+import { Promotion } from "./pages/CreateCourse/Promotion.jsx";
+import { CourseMessage } from "./pages/CreateCourse/CourseMessage.jsx";
+import Demo from "./pages/demo/Demo.jsx";
 
 function AppContent() {
     const location = useLocation();
@@ -81,20 +88,19 @@ function AppContent() {
                 <Route path="/user/profile" element={<UserProfile />}></Route>
                 <Route path="/user/noti" element={<UserNoti />}></Route>
                 <Route path="/instructor" element={<Instructor />}></Route>
-                <Route
-                    path="/instructor/history"
-                    element={<InstructorHistory />}
-                ></Route>
-                <Route
-                    path="/instructor/lessson"
-                    element={<InstructorLesson />}
-                ></Route>
-                <Route
-                    path="/instructor/profile"
-                    element={<InstructorProfile />}
-                ></Route>
-
+                <Route path="/instructor/history" element={<InstructorHistory />}></Route>
+                <Route path="/instructor/lessson" element={<InstructorLesson />}></Route>
+                <Route path="/instructor/notification" element={<InstructorNotification />}></Route>
+                <Route path="/instructor/profile" element={<InstructorProfile />}></Route>
                 <Route path="/contact" element={<Contact />}></Route>
+
+                <Route path="/course/manage/course-overview" element={<CourseOverview />}></Route>
+                <Route path="/course/manage/curriculum" element={<Curriculum />}></Route>
+                <Route path="/course/manage/valuation" element={<Valuation />}></Route>
+                <Route path="/course/manage/promotion" element={<Promotion />}></Route>
+                <Route path="/course/manage/course-message" element={<CourseMessage />}></Route>
+                <Route path="/course/manage/create-quiz" element={<CreateQuiz />}></Route>
+
                 {/* <Route
                     path="/admin"
                     element={<AdminRole element={<Dashboard />} />}
@@ -145,6 +151,9 @@ function AppContent() {
                     path="/verification-success"
                     element={<VerificationEmail />}
                 ></Route>
+
+
+
                 <Route
                     path="/quizzes"
                     element={<Quizzes />}

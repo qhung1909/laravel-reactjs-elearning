@@ -146,32 +146,41 @@ export const InstructorLesson = () => {
                             <ul className="">
                                 <li className="mb-3">
                                     <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 hover:bg-gray-100">
-                                        <div className="  mr-3 pt-1 px-1  rounded-full">
-                                            <box-icon name='sidebar'></box-icon>
+                                        <div className="  mr-3 px-1  rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Bảng điều khiển</p>
                                     </Link>
+
                                 </li>
                                 <li className="mb-3">
-                                    <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
-                                        <div className="bg-yellow-400 mr-3 pt-1 px-1 rounded-full">
-                                            <box-icon name='book-open' color='#ffffff'></box-icon>
+                                    <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 bg-gray-100">
+                                        <div className="bg-yellow-400 mr-3 px-1 rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Bài học của tôi</p>
                                     </Link>
                                 </li>
                                 <li className="mb-3">
                                     <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                        <div className=" mr-3 pt-1 px-1 rounded-full">
-                                            <box-icon name='credit-card' ></box-icon>
+                                        <div className=" mr-3 px-1 rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Lịch sử mua hàng</p>
                                     </Link>
                                 </li>
+                                <li className="mb-3">
+                                    <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                        <div className=" mr-3 px-1 rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
+                                        </div>
+                                        <p className="font-semibold text-base">Thông báo</p>
+                                    </Link>
+                                </li>
                                 <li>
                                     <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                        <div className=" mr-3 pt-1 px-1 rounded-full">
-                                            <box-icon type='solid' name='user-circle'></box-icon>
+                                        <div className=" mr-3 px-1 rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Thông tin tài khoản</p>
                                     </Link>
@@ -300,7 +309,7 @@ export const InstructorLesson = () => {
 
                             <div className="my-5 bg-white rounded-3xl p-3">
                                 <Table>
-                                <TableCaption>
+                                    <TableCaption>
                                         <div className="py-5">
                                             <svg width="100%" height="177" viewBox="0 0 139 142" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M71.5016 125.45C104.302 125.45 130.902 99.0496 130.902 66.4496C130.902 33.8496 104.302 7.44958 71.5016 7.44958C38.7016 7.44958 12.1016 33.8496 12.1016 66.4496C12.1016 99.0496 38.7016 125.45 71.5016 125.45Z" fill="#EAEEF9">
