@@ -9,14 +9,22 @@ use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Google\Service\Oauth2;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'refresh', 'googleLogin']]);
+        $this->middleware('auth:api', ['except' => [
+            'login', 
+            'refresh', 
+            'googleLogin',
+            'redirectToAuth',
+            'handleGoogleCallback'
+        ]]);
     }
 
     /**
@@ -42,29 +50,27 @@ class AuthController extends Controller
             return response()->json(['error' => 'Your account is not verified.'], 403);
         }
 
-        $refreshToken = $this->createRefreshToken();
-
+        $refreshToken = $this->createRefreshToken($user->user_id);
         return $this->respondWithToken($token, $refreshToken);
     }
 
-
-    private function createRefreshToken()
-    {   
-        
+    private function createRefreshToken($userId)
+    {
         $data = [
-            'sub' => auth('api')->user()->user_id,
+            'sub' => $userId,
             'random' => rand() . time(),
             'exp' => time() + config('jwt.refresh_ttl')
         ];
 
-        $refreshToken = JWTAuth::getJWTProvider()->encode($data);
-        return $refreshToken;
+        return JWTAuth::getJWTProvider()->encode($data);
     }
+
     public function me()
     {
         try {
             return response()->json(auth()->user());
         } catch (\Throwable $th) {
+            Log::error('Unauthorized access attempt: ' . $th->getMessage());
             return response()->json([
                 'error' => 'Unauthorized',
                 'status' => 401
@@ -77,7 +83,6 @@ class AuthController extends Controller
         $cookie = cookie('token', '', -1);
         return response()->json(['message' => 'Successfully logged out'])->withCookie($cookie);
     }
-
 
     public function refresh()
     {
@@ -94,73 +99,117 @@ class AuthController extends Controller
                 return response()->json(['error' => 'User not found'], 404);
             }
             $token = auth('api')->login($user);
-            $refreshToken = $this->createRefreshToken();
+            $refreshToken = $this->createRefreshToken($user->user_id);
             return $this->respondWithToken($token, $refreshToken);
         } catch (JWTException $exception) {
+            Log::error('Invalid refresh token: ' . $exception->getMessage());
             return response()->json(['error' => 'Refresh token invalid'], 500);
         }
     }
 
-
     private function respondWithToken($token, $refreshToken)
-    {           
+    {
         return response()->json([
             'access_token' => $token,
             'refresh_token' => $refreshToken,
             'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 30
+            'expires_in' => auth('api')->factory()->getTTL() * 60
         ]);
     }
 
+    public function redirectToAuth(Request $request)
+    {
+        try {
+            $client = new Google_Client();
+            $client->setClientId(config('services.google.client_id'));
+            $client->setClientSecret(config('services.google.client_secret'));
+            $client->setRedirectUri(config('services.google.redirect'));
 
-    // public function redirectToAuth()
-    // {
-    //     return response()->json([
-    //         'url' => Socialite::driver('google')->stateless()->redirect()->getTargetUrl(),
-    //     ]);
-    // }
+            $client->setScopes([
+                'https://www.googleapis.com/auth/userinfo.email',
+                'https://www.googleapis.com/auth/userinfo.profile'
+            ]);
 
-    // public function handleGoogleCallback()
-    // {
-    //     try {
-    //         $client = new Client([
-    //             'verify' => 'C:\laragon\etc\ssl\cacert.pem', 
-    //         ]);
+            $state = $request->query('state');
+            Log::info('State parameter received: ' . $state);
+            $client->setState($state);
 
-    //         Socialite::driver('google')->setHttpClient($client);
+            $authUrl = $client->createAuthUrl();
+            Log::info('Auth URL generated: ' . $authUrl);
 
-    //         $googleUser = Socialite::driver('google')->stateless()->user();
+            return response()->json(['auth_url' => $authUrl]);
+        } catch (\Exception $e) {
+            Log::error('Google Auth URL Error: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Failed to generate auth URL',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 
-    //         $user = User::where('google_id', $googleUser->id)->first();
+    public function handleGoogleCallback(Request $request)
+    {
+        $request->validate(['code' => 'required|string']);
 
-    //         if (!$user) {
-    //             $user = User::create([
-    //                 'name' => $googleUser->name,
-    //                 'email' => $googleUser->email,
-    //                 'google_id' => $googleUser->id,
-    //                 'avatar' => $googleUser->avatar,
-    //                 'role' => 'user',
-    //                 'status' => 1,
-    //             ]);
-    //         } else {
-    //             $user->avatar = $googleUser->avatar;
-    //             $user->save();
-    //         }
+        try {
+            $client = new Google_Client();
+            $client->setClientId(config('services.google.client_id'));
+            $client->setClientSecret(config('services.google.client_secret'));
+            $client->setRedirectUri(config('services.google.redirect'));
 
-    //         auth()->login($user);
+            $token = $client->fetchAccessTokenWithAuthCode($request->code);
 
-    //         $accessToken = auth('api')->login($user);
-    //         $refreshToken = $this->createRefreshToken($user);
+            if (!$client->getAccessToken()) {
+                throw new \Exception('Failed to get access token');
+            }
 
-    //         $frontendUrl = 'http://localhost:5173';
-    //         return response()->json([
-    //             'access_token' => $accessToken,
-    //             'refresh_token' => $refreshToken,
-    //             'redirect_url' => $frontendUrl,
-    //         ]);
+            if (isset($token['error'])) {
+                throw new \Exception($token['error_description'] ?? 'Unknown Google authentication error');
+            }
 
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => 'Đăng nhập Google thất bại 22'], 500);
-    //     }
-    // }
+            $googleService = new Oauth2($client);
+            $googleUser = $googleService->userinfo->get();
+
+            if (!$googleUser->getEmail()) {
+                throw new \Exception('No email found from Google');
+            }
+
+            $user = User::updateOrCreate(
+                ['email' => $googleUser->getEmail()],
+                [
+                    'name' => $googleUser->getName(),
+                    'google_id' => $googleUser->getId(),
+                    'avatar' => $googleUser->getPicture(),
+                    'role' => 'user',
+                    'status' => 1,
+                    'email_verified_at' => now(),
+                    'password' => Hash::make(Str::random(16))
+                ]
+            );
+
+            Log::info('User after updateOrCreate: ' . json_encode($user));
+
+            if (!$user) {
+                Log::error('User is null after updateOrCreate');
+                throw new \Exception('User creation or update failed');
+            }
+
+            $token = JWTAuth::fromUser($user);
+            Log::info('JWT Token Created: ' . $token);
+
+            $refreshToken = $this->createRefreshToken($user->user_id);
+            Log::info('Refresh Token Created: ' . $refreshToken);
+
+            return $this->respondWithToken($token, $refreshToken);
+
+        } catch (\Exception $e) {
+            Log::error('Google Login Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+            Log::error('Stack Trace: ' . $e->getTraceAsString());
+
+            return response()->json([
+                'error' => 'Google login failed',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

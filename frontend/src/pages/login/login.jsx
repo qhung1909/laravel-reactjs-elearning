@@ -1,10 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCallback, useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 const API_URL = import.meta.env.VITE_API_URL;
-// const notify = (message) => toast.error(message);
-
 
 const notify = (message, type) => {
     if (type === 'success') {
@@ -22,10 +23,6 @@ const notify = (message, type) => {
     }
 }
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-
 export const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -33,6 +30,7 @@ export const Login = () => {
     const [_success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const [user, setUser] = useState(null);
 
     const debounce = (func, delay) => {
         let timer;
@@ -47,7 +45,6 @@ export const Login = () => {
     const getUserInfo = async () => {
         const token = localStorage.getItem('access_token');
         if (!token) {
-            // console.error('No token found');
             return;
         }
         setLoading(true);
@@ -59,13 +56,15 @@ export const Login = () => {
                 }
             });
 
-            if (!res.ok) {
-                // console.error('Failed to fetch data');
+            if (res.ok) {
+                const userData = await res.json();
+                setUser(userData);
             } else {
-                const _dataUser = await res.json();
+                throw new Error('Failed to fetch user data');
             }
         } catch (error) {
-            console.error('Error fetching data user', error);
+            console.error('Error fetching user data:', error);
+            notify('Không thể lấy thông tin người dùng');
         } finally {
             setLoading(false);
         }
@@ -74,7 +73,7 @@ export const Login = () => {
     const refreshToken = async () => {
         const storedRefreshToken = localStorage.getItem('refresh_token');
         if (!storedRefreshToken) {
-            alert('Session expired. Please log in again.');
+            notify('Phiên đăng nhập đã hết hạn');
             navigate('/login');
             return;
         }
@@ -88,55 +87,70 @@ export const Login = () => {
             });
 
             if (!res.ok) {
-                alert('Session expired. Please log in again.');
-                navigate('/login');
-                return;
+                throw new Error('Failed to refresh token');
             }
 
             const data = await res.json();
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('refresh_token', data.refresh_token);
-            await getUserInfo();
+            return true;
         } catch (error) {
-            alert('Session expired. Please log in again.');
+            console.error('Token refresh error:', error);
+            notify('Phiên đăng nhập đã hết hạn');
             navigate('/login');
+            return false;
         }
     };
 
     const makeApiRequest = async (url, options) => {
         const accessToken = localStorage.getItem('access_token');
-        const storedRefreshToken = localStorage.getItem('refresh_token');
 
         if (isTokenExpired(accessToken)) {
-            if (storedRefreshToken) {
-                await refreshToken();
-            } else {
-                alert("Session expired. Please log in again.");
-                navigate('/login');
-                return;
-            }
+            const refreshSuccess = await refreshToken();
+            if (!refreshSuccess) return null;
         }
 
-        const response = await fetch(url, {
-            ...options,
-            headers: {
-                ...options.headers,
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        try {
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    ...options.headers,
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                }
+            });
+
+            if (response.status === 401) {
+                const refreshSuccess = await refreshToken();
+                if (!refreshSuccess) return null;
+
+                return await fetch(url, {
+                    ...options,
+                    headers: {
+                        ...options.headers,
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    }
+                });
             }
-        });
 
-        return response;
+            return response;
+        } catch (error) {
+            console.error('API request error:', error);
+            throw error;
+        }
     };
-
 
     const isTokenExpired = (token) => {
         if (!token) return true;
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const exp = payload.exp * 1000;
-        return Date.now() > exp;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const exp = payload.exp * 1000;
+            return Date.now() > exp;
+        } catch (error) {
+            console.error('Token parsing error:', error);
+            return true;
+        }
     };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedLogin = useCallback(debounce(async () => {
         setLoading(false);
         if (!email || !password) {
@@ -157,37 +171,162 @@ export const Login = () => {
                 body: JSON.stringify({ email, password })
             });
 
+            const data = await res.json();
+
             if (res.status === 401) {
                 setError('Tài khoản hoặc mật khẩu chưa chính xác!');
                 return;
             }
 
             if (!res.ok) {
-                const errorData = await res.json();
-                console.log(errorData);
-                notify('Vui lòng xác thực email!');
-                return;
+                if (data.message === 'Email not verified') {
+                    notify('Vui lòng xác thực email!');
+                    return;
+                }
+                throw new Error(data.message || 'Đăng nhập thất bại');
             }
 
-            const data = await res.json();
+            if (!data.access_token || !data.refresh_token) {
+                throw new Error('Invalid token data received');
+            }
+
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('refresh_token', data.refresh_token);
+
             notify('Đăng nhập thành công', 'success');
             setSuccess('Đăng nhập thành công');
+
             await getUserInfo();
+
             const previousPage = sessionStorage.getItem('previousPage');
+            sessionStorage.removeItem('previousPage');
+
             if (previousPage) {
                 navigate(previousPage);
             } else {
-                navigate('/'); // Điều hướng về trang chính nếu không có trang trước
+                navigate('/');
             }
-            window.location.reload();
         } catch (error) {
+            console.error('Login error:', error);
             setError('Đã xảy ra lỗi: ' + error.message);
+            notify('Đăng nhập thất bại');
         } finally {
             setLoading(false);
         }
     }, 300), [email, password, navigate]);
+
+    const handleGoogleLogin = async () => {
+        try {
+            setLoading(true);
+            const state = Math.random().toString(36).substring(7);
+            sessionStorage.setItem('oauth_state', state);
+
+            const response = await fetch(`${API_URL}/auth/google/url?state=${state}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error('Server response was not in JSON format');
+            }
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to get Google OAuth URL');
+            }
+
+            const data = await response.json();
+
+            if (!data.auth_url) {
+                throw new Error('No authentication URL received');
+            }
+
+            const currentPath = window.location.pathname;
+            sessionStorage.setItem('previousPage', currentPath);
+
+            window.location.href = data.auth_url;
+        } catch (error) {
+            console.error('Google Login Error:', error);
+            notify(error.message || 'Không thể kết nối với Google');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleCallback = async (code, state) => {
+        const storedState = sessionStorage.getItem('oauth_state');
+        console.log('Google Callback:');
+        console.log('Code:', code);
+        console.log('State:', state);
+        console.log('Stored State:', storedState);
+        if (state !== storedState) {
+            notify('Phiên xác thực không hợp lệ');
+            navigate('/login');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const response = await fetch(`${API_URL}/auth/google/callback`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    code,
+                    state,
+                    redirect_uri: window.location.origin + '/login'
+                })
+            });
+
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error('Server response was not in JSON format');
+            }
+
+            if (!response.ok) {
+                try {
+                    const errorData = await response.json();
+                    console.error('Error Data:', errorData);
+                    throw new Error(errorData.message || 'Xác thực Google thất bại');
+                } catch (e) {
+                    throw new Error('Failed to parse error response from server');
+                }
+            }
+
+
+            const data = await response.json();
+
+            if (!data.access_token || !data.refresh_token) {
+                throw new Error('Invalid token data received');
+            }
+
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+
+            notify('Đăng nhập thành công', 'success');
+
+            setTimeout(() => {
+                navigate('/');
+                window.location.reload();
+            }, 1000);
+
+
+            sessionStorage.removeItem('oauth_state');
+            sessionStorage.removeItem('previousPage');
+
+        } catch (error) {
+            console.error('Google Callback Error:', error);
+            notify(error.message || 'Đăng nhập Google thất bại');
+            navigate('/login');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const submit = (e) => {
         e.preventDefault();
@@ -195,12 +334,26 @@ export const Login = () => {
     };
 
     useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+
+        if (code && state) {
+            handleGoogleCallback(code, state);
+        }
+    }, []);
+
+    useEffect(() => {
         const intervalId = setInterval(() => {
-            refreshToken();
+            const token = localStorage.getItem('access_token');
+            if (token && isTokenExpired(token)) {
+                refreshToken();
+            }
         }, 1800000);
 
         return () => clearInterval(intervalId);
     }, []);
+
     return (
         <>
             {loading && (
@@ -208,16 +361,15 @@ export const Login = () => {
                     <div className='loading-spin'></div>
                 </div>
             )}
-            <div className="relative m-auto h-screen overflow-hidden items-center shadow-inner lg:grid  lg:grid-cols-2 pt-32 lg:pt-0">
+            <div className="relative m-auto h-screen overflow-hidden items-center shadow-inner lg:grid lg:grid-cols-2 pt-32 lg:pt-0">
                 <Link className='absolute top-1 left-0 xl:top-8 xl:left-8' to='/'>
                     <div className="flex items-center gap-3">
-                        <box-icon name='arrow-back' color='gray' ></box-icon>
+                        <box-icon name='arrow-back' color='gray'></box-icon>
                         <p className="text-gray-600">Trang chủ</p>
                     </div>
                 </Link>
 
-                <div className=" flex items-center justify-center">
-
+                <div className="flex items-center justify-center">
                     <form onSubmit={submit} className="relative mx-auto grid w-[350px] gap-6">
                         <div className="grid gap-2">
                             <h1 className="text-3xl font-bold">Chào mừng trở lại</h1>
@@ -247,14 +399,26 @@ export const Login = () => {
                                         Quên mật khẩu?
                                     </Link>
                                 </div>
-                                <Input id="password" type="password" tabIndex="2" value={password} onChange={(e) => setPassword(e.target.value)} />
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    tabIndex="2"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
                             </div>
-                            <Button  type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600">
+                            <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600" disabled={loading}>
                                 Đăng nhập
                             </Button>
                             {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
 
-                            <Button type='button' variant="outline" className="w-full">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full"
+                                onClick={handleGoogleLogin}
+                                disabled={loading}
+                            >
                                 <svg
                                     className="flex-none mr-3"
                                     id="google"
@@ -290,7 +454,7 @@ export const Login = () => {
                     <img
                         src="/src/assets/images/login-bg.jpg"
                         alt="Image"
-                        className=" object-cover dark:brightness-[0.2] dark:grayscale"
+                        className="object-cover dark:brightness-[0.2] dark:grayscale"
                         width='100%'
                     />
                 </div>
