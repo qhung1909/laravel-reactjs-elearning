@@ -88,8 +88,8 @@ export const Detail = () => {
 
             if (res.data) {
                 setLesson(res.data);
-                if (res.data.lesson_id) {
-                    fetchContentLesson(res.data.lesson_id);
+                if (res.data.course_id) {  // Thay đổi lesson_id thành course_id
+                    fetchContentLesson(res.data.course_id);  // Truyền course_id vào fetchContentLesson
                 }
 
             } else {
@@ -101,6 +101,7 @@ export const Detail = () => {
             }
         }
     };
+
     useEffect(() => {
         if (slug) {
             fetchLesson();
@@ -108,34 +109,34 @@ export const Detail = () => {
     }, [slug]);
 
     const [contentLesson, setContentLesson] = useState([]);
-    const [titleContent, setTitleContent] = useState([]);
-    const fetchContentLesson = async (lessonId) => {
-        setLoading(true);
-
+    const fetchContentLesson = async (courseId) => {  // Đổi lessonId thành courseId
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            return;
+        }
         try {
             const res = await axios.get(`${API_URL}/contents`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
                 },
                 params: {
-                    lesson_id: lessonId
+                    course_id: courseId
                 }
             });
-
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
-                // Chỉ cập nhật state nếu lessonId phù hợp
-                setContentLesson(res.data.data.filter(content => content.lesson_id === lessonId));
+                setContentLesson(res.data.data.filter(content => content.course_id === courseId));
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
         } catch (error) {
             console.error("Lỗi khi lấy nội dung bài học:", error);
-        } finally {
-            setLoading(false);
         }
     };
 
 
+    const [titleContent, setTitleContent] = useState([]);
     const fetchTitleContent = async (contentId) => {
         try {
             const res = await axios.get(`${API_URL}/title-contents/${contentId}`, {
@@ -974,118 +975,117 @@ export const Detail = () => {
 
                             <div className="bg-white rounded-lg overflow-hidden">
                                 <div className="border-b">
-                                    <Accordion type="multiple" className="w-full space-y-4 bg-white rounded-xl shadow-lg p-6">
-                                        {loading ? (
-                                            Array.from({ length: 2 }).map((_, index) => (
-                                                <div key={index} className="group border border-gray-200 rounded-lg overflow-hidden mb-2 animate-pulse">
-                                                    <div className="px-6 py-4 bg-gray-200">
-                                                        <div className="flex items-center justify-between w-full">
-                                                            <div className="flex items-center gap-4">
-                                                                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-300 text-gray-600 font-semibold text-sm">
-                                                                    {index + 1}
-                                                                </span>
-                                                                <div className="h-4 bg-gray-300 rounded w-3/4" />
+                                <Accordion type="multiple" className="w-full space-y-4 bg-white rounded-xl shadow-lg p-6">
+    {loading ? (
+        Array.from({ length: 2 }).map((_, index) => (
+            <div key={index} className="group border border-gray-200 rounded-lg overflow-hidden mb-2 animate-pulse">
+                <div className="px-6 py-4 bg-gray-200">
+                    <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-4">
+                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-300 text-gray-600 font-semibold text-sm">
+                                {index + 1}
+                            </span>
+                            <div className="h-4 bg-gray-300 rounded w-3/4" />
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="h-4 bg-gray-300 rounded w-8" />
+                        </div>
+                    </div>
+                </div>
+                <div className="border-t border-gray-100">
+                    <div className="p-6 space-y-4">
+                        <div className="h-3 bg-gray-300 rounded w-full" />
+                        <div className="h-3 bg-gray-300 rounded w-full" />
+                    </div>
+                </div>
+            </div>
+        ))
+    ) : (
+        contentLesson.length > 0 ? (
+            contentLesson.map((content, index) => (
+                <AccordionItem
+                    key={content.content_id}
+                    value={`content-${content.content_id}`}
+                    className="group border border-gray-200 rounded-lg overflow-hidden mb-2 hover:border-yellow-500 hover:shadow-md transition-all duration-300"
+                    onClick={() => !titleContent[content.content_id] && fetchTitleContent(content.content_id)} // Gọi fetch cho từng content khi mở rộng
+                >
+                    <AccordionTrigger className="px-6 py-4 bg-gradient-to-r from-yellow-50/50 to-white hover:bg-gradient-to-r hover:from-yellow-50 hover:to-white font-medium text-gray-700 text-left hover:no-underline">
+                        <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center gap-4">
+                                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 font-semibold text-sm group-hover:bg-yellow-200 transition-colors">
+                                    {index + 1}
+                                </span>
+                                <span className="text-base group-hover:text-yellow-600 transition-colors">
+                                    {content.name_content}
+                                </span>
+                            </div>
+                            <div className="mr-3">
+                                {index === 0 ? (
+                                    <CheckCircle className="text-green-600 w-4 h-4" />
+                                ) : (
+                                    <Lock className="text-gray-400 w-4 h-4" />
+                                )}
+                            </div>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="border-t border-gray-100">
+                        {Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
+                            <div className="space-y-6 p-6">
+                                {titleContent[content.content_id].map((item, i) => (
+                                    <div key={i} className="flex gap-3 text-gray-600 leading-relaxed hover:bg-yellow-50 rounded-lg p-3 transition-colors">
+                                        <span className="font-medium text-yellow-600 min-w-[24px]">
+                                            {i + 1}.
+                                        </span>
+                                        <div className="flex-1">
+                                            <p>{item.body_content}</p>
+                                            {item.video_link && (
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <Button
+                                                            className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg flex items-center gap-2 px-6 py-3 transition-all duration-300 hover:shadow-lg"
+                                                            onClick={() => showModal(item.video_link)}
+                                                        >
+                                                            <Play size={18} />
+                                                            Xem video bài học
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="max-w-4xl mx-auto p-6 bg-gray-300">
+                                                        <DialogTitle className="text-xl font-semibold mb-4">
+                                                            {item.content.name_content || "Video Bài Học"}
+                                                        </DialogTitle>
+                                                        <DialogDescription>
+                                                            <div className="relative w-full rounded-lg overflow-hidden shadow-lg" style={{ paddingTop: "56.25%" }}>
+                                                                <ReactPlayer
+                                                                    url={currentVideoUrl}
+                                                                    className="absolute top-0 left-0"
+                                                                    controls={true}
+                                                                    width="100%"
+                                                                    height="100%"
+                                                                />
                                                             </div>
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="h-4 bg-gray-300 rounded w-8" />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="border-t border-gray-100">
-                                                        <div className="p-6 space-y-4">
-                                                            <div className="h-3 bg-gray-300 rounded w-full" />
-                                                            <div className="h-3 bg-gray-300 rounded w-full" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            contentLesson.length > 0 ? (
-                                                contentLesson.map((content, index) => (
-                                                    <AccordionItem
-                                                        key={content.content_id}
-                                                        value={`content-${content.content_id}`}
-                                                        className="group border border-gray-200 rounded-lg overflow-hidden mb-2 hover:border-yellow-500 hover:shadow-md transition-all duration-300"
-                                                        onClick={() => index === 0 && !titleContent[content.content_id] && fetchTitleContent(content.content_id)} // Chỉ fetch cho phần đầu tiên
-                                                    >
-                                                        <AccordionTrigger className="px-6 py-4 bg-gradient-to-r from-yellow-50/50 to-white hover:bg-gradient-to-r hover:from-yellow-50 hover:to-white font-medium text-gray-700 text-left hover:no-underline">
-                                                            <div className="flex items-center justify-between w-full">
-                                                                <div className="flex items-center gap-4">
-                                                                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 font-semibold text-sm group-hover:bg-yellow-200 transition-colors">
-                                                                        {index + 1}
-                                                                    </span>
-                                                                    <span className="text-base group-hover:text-yellow-600 transition-colors">
-                                                                        {content.name_content}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="mr-3">
-                                                                    {index === 0 ? ( // Chỉ hiển thị biểu tượng CheckCircle cho phần đầu tiên
-                                                                        <CheckCircle className="text-green-600 w-4 h-4" />
-                                                                    ) : (
-                                                                        <Lock className="text-gray-400 w-4 h-4" /> // Hiển thị biểu tượng khóa cho phần còn lại
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="border-t border-gray-100">
-                                                            {index === 0 && content.lesson_id === lesson.lesson_id && Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? ( // Chỉ hiển thị nội dung cho phần đầu tiên
-                                                                <div className="space-y-6 p-6">
-                                                                    {titleContent[content.content_id].map((item, i) => (
-                                                                        <div key={i} className="flex gap-3 text-gray-600 leading-relaxed hover:bg-yellow-50 rounded-lg p-3 transition-colors">
-                                                                            <span className="font-medium text-yellow-600 min-w-[24px]">
-                                                                                {i + 1}.
-                                                                            </span>
-                                                                            <div className="flex-1">
-                                                                                <p>{item.body_content}</p>
-                                                                                {item.video_link && (
-                                                                                    <Dialog>
-                                                                                        <DialogTrigger asChild>
-                                                                                            <Button
-                                                                                                className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg flex items-center gap-2 px-6 py-3 transition-all duration-300 hover:shadow-lg"
-                                                                                                onClick={() => showModal(item.video_link)}
-                                                                                            >
-                                                                                                <Play size={18} />
-                                                                                                Xem video bài học
-                                                                                            </Button>
-                                                                                        </DialogTrigger>
-                                                                                        <DialogContent className="max-w-4xl mx-auto p-6 bg-gray-300">
-                                                                                            <DialogTitle className="text-xl font-semibold mb-4">
-                                                                                                {item.content.name_content || "Video Bài Học"}
-                                                                                            </DialogTitle>
-                                                                                            <DialogDescription>
-                                                                                                <div className="relative w-full rounded-lg overflow-hidden shadow-lg" style={{ paddingTop: "56.25%" }}>
-                                                                                                    <ReactPlayer
-                                                                                                        url={currentVideoUrl}
-                                                                                                        className="absolute top-0 left-0"
-                                                                                                        controls={true}
-                                                                                                        width="100%"
-                                                                                                        height="100%"
-                                                                                                    />
-                                                                                                </div>
-                                                                                            </DialogDescription>
-                                                                                        </DialogContent>
-                                                                                    </Dialog>
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            ) : (
-                                                                index !== 0 && (
-                                                                    <p className="p-6 text-gray-500 text-center italic">Vào học để xem thêm nội dung!</p>
-                                                                )
-                                                            )}
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                ))
-                                            ) : (
-                                                <div className="text-center py-8 bg-white rounded-xl">
-                                                    <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                                                    <p className="text-gray-500">Đang cập nhật nội dung...</p>
-                                                </div>
-                                            )
-                                        )}
-                                    </Accordion>
+                                                        </DialogDescription>
+                                                    </DialogContent>
+                                                </Dialog>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="p-6 text-gray-500 text-center italic">Vào học để xem thêm nội dung!</p>
+                        )}
+                    </AccordionContent>
+                </AccordionItem>
+            ))
+        ) : (
+            <div className="text-center py-8 bg-white rounded-xl">
+                <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                <p className="text-gray-500">Đang cập nhật nội dung...</p>
+            </div>
+        )
+    )}
+</Accordion>
+
 
 
                                 </div>
