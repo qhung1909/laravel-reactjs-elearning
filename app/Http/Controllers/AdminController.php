@@ -72,7 +72,7 @@ class AdminController extends Controller
     public function updateCourseCategory(Request $request, $courseId)
     {
         $request->validate([
-            'course_category_id' => 'required|integer|exists:course_categories,course_category_id',
+            'course_category_id' => 'required|integer|exists:courses,course_category_id',
         ]);
 
         $course = $this->course->find($courseId);
