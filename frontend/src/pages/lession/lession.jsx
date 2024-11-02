@@ -49,9 +49,8 @@ export const Lesson = () => {
                     if (res.data.course_id) {
                         await checkPaymentCourse(user.user_id, res.data.course_id);
 
-                        if (res.data.lesson_id) {
-                            fetchContentLesson(res.data.lesson_id);
-                        }
+                        // Thay đổi hàm gọi để truyền course_id
+                        fetchContentLesson(res.data.course_id);
                     } else {
                         console.error("Không tìm thấy course_id của bài học");
                     }
@@ -114,6 +113,7 @@ export const Lesson = () => {
         if (isNaN(date)) return "Ngày không hợp lệ";
         return format(date, "dd/MM/yyyy - HH:mm a");
     };
+
     const [quizzes, setQuizzes] = useState();
     const fetchQuizzes = async () => {
         const token = localStorage.getItem("access_token");
@@ -129,7 +129,6 @@ export const Lesson = () => {
                 }
             });
             if (res.data) {
-                console.log("Fetched quizzes data:", res.data); // Thêm log này
                 setQuizzes(res.data);
             } else {
                 console.error(res.data);
@@ -142,10 +141,32 @@ export const Lesson = () => {
         fetchQuizzes();
     }, [])
 
+    const [courses, setCourses] = useState([]);
+    const fetchCourses = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/courses`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                },
+            });
+
+            if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+                setCourses(response.data);
+                console.log("Course:", response.data);
+            }
+        } catch (error) {
+            console.log('Error fetching categories', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCourses();
+    }, []);
+
+
 
     const [contentLesson, setContentLesson] = useState([]);
-    const [titleContent, setTitleContent] = useState([]);
-    const fetchContentLesson = async (lessonId) => {
+    const fetchContentLesson = async (courseId) => {  // Đổi lessonId thành courseId
         const token = localStorage.getItem("access_token");
         if (!token) {
             toast.error("Bạn chưa đăng nhập.");
@@ -157,12 +178,13 @@ export const Lesson = () => {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
-                }, params: {
-                    lesson_id: lessonId
+                },
+                params: {
+                    course_id: courseId  // Đổi lesson_id thành course_id
                 }
             });
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
-                setContentLesson(res.data.data.filter(content => content.lesson_id === lessonId));
+                setContentLesson(res.data.data.filter(content => content.course_id === courseId));
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
@@ -171,6 +193,8 @@ export const Lesson = () => {
         }
     };
 
+
+    const [titleContent, setTitleContent] = useState([]);
     const fetchTitleContent = async (contentId) => {
         const token = localStorage.getItem("access_token");
         try {

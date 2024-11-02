@@ -21,7 +21,7 @@ export const Footer = () => {
 
                         {/* grid - right */}
                         <div className="md:flex col-span-2 lg:justify-between gap-5 md:ps-0 mt-5 lg:mt-0">
-                            <div className="flex items-start gap-5 lg:w-2/3 md:w-2/5">
+                            <div className="flex items-start gap-5 xl:w-2/3 md:w-2/5">
                                 {/* thẻ 1 */}
                                 <div className="footer-mid-left md:w-1/3 sm:w-1/4 w-1/3">
                                     <span className="font-semibold text-[#344054] text-[14px]">
@@ -49,6 +49,7 @@ export const Footer = () => {
 
                             {/* thẻ 3 */}
                             <div className="footer-end  mt-5 md:mt-0">
+                                {/* <div className="">
                                 <div className="footer-end-head">
                                     <p className="text-[#344054] font-semibold lg:mb-3 text-[14px]">
                                         Nhận cập nhật mới nhất
@@ -67,6 +68,23 @@ export const Footer = () => {
                                 <div className="hotline md:mt-3 mt-3 md:text-[16px] font-semibold text-[16px]">
                                     <p>Đường dây nóng: 0123 456 789</p>
                                 </div>
+                                </div> */}
+                                <div className="">
+                                    <span className="font-semibold text-[#344074] text-[14px]">
+                                        Ngôn ngữ
+                                    </span>
+                                    <div className="border border-gray-400 rounded-sm mt-3 md:w-full w-36">
+                                        <div className="flex items-center gap-3 py-1 px-4 ">
+                                            <div className="">
+                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-6" alt="" />
+                                            </div>
+                                            <div className="">
+                                                Tiếng Việt
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
 
                         </div>

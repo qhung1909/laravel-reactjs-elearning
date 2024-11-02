@@ -88,8 +88,8 @@ export const Detail = () => {
 
             if (res.data) {
                 setLesson(res.data);
-                if (res.data.lesson_id) {
-                    fetchContentLesson(res.data.lesson_id);
+                if (res.data.course_id) {  // Thay đổi lesson_id thành course_id
+                    fetchContentLesson(res.data.course_id);  // Truyền course_id vào fetchContentLesson
                 }
 
             } else {
@@ -101,6 +101,7 @@ export const Detail = () => {
             }
         }
     };
+
     useEffect(() => {
         if (slug) {
             fetchLesson();
@@ -108,34 +109,34 @@ export const Detail = () => {
     }, [slug]);
 
     const [contentLesson, setContentLesson] = useState([]);
-    const [titleContent, setTitleContent] = useState([]);
-    const fetchContentLesson = async (lessonId) => {
-        setLoading(true);
-
+    const fetchContentLesson = async (courseId) => {  // Đổi lessonId thành courseId
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            return;
+        }
         try {
             const res = await axios.get(`${API_URL}/contents`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
                 },
                 params: {
-                    lesson_id: lessonId
+                    course_id: courseId
                 }
             });
-
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
-                // Chỉ cập nhật state nếu lessonId phù hợp
-                setContentLesson(res.data.data.filter(content => content.lesson_id === lessonId));
+                setContentLesson(res.data.data.filter(content => content.course_id === courseId));
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
         } catch (error) {
             console.error("Lỗi khi lấy nội dung bài học:", error);
-        } finally {
-            setLoading(false);
         }
     };
 
 
+    const [titleContent, setTitleContent] = useState([]);
     const fetchTitleContent = async (contentId) => {
         try {
             const res = await axios.get(`${API_URL}/title-contents/${contentId}`, {
@@ -1028,7 +1029,7 @@ export const Detail = () => {
                                                             </div>
                                                         </AccordionTrigger>
                                                         <AccordionContent className="border-t border-gray-100">
-                                                            {index === 0 && content.lesson_id === lesson.lesson_id && Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? ( // Chỉ hiển thị nội dung cho phần đầu tiên
+                                                            {index === 0 && content.course_id === lesson.course_id && Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? ( // Chỉ hiển thị nội dung cho phần đầu tiên
                                                                 <div className="space-y-6 p-6">
                                                                     {titleContent[content.content_id].map((item, i) => (
                                                                         <div key={i} className="flex gap-3 text-gray-600 leading-relaxed hover:bg-yellow-50 rounded-lg p-3 transition-colors">

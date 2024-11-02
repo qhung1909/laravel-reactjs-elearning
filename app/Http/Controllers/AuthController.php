@@ -187,7 +187,11 @@ class AuthController extends Controller
                 'password' => Hash::make(Str::random(16))
             ]);
 
-            SendWelcomeEmail::dispatch($user);
+            try {
+                SendWelcomeEmail::dispatch($user);
+            } catch (\Exception $e) {
+                Log::error('SendWelcomeEmail failed: ' . $e->getMessage());
+            }        
         } else {
             $user->update([
                 'name' => $googleUser->getName(),

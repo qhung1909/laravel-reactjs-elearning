@@ -154,7 +154,7 @@ Route::middleware(['admin'])->group(function () {
     Route::put('/contents/{content_id}', [ContentController::class, 'update']);
     Route::delete('/contents/{content_id}', [ContentController::class, 'destroy']);
     Route::get('/contents', [ContentController::class, 'index']);
-    Route::get('/contents/{lesson_id}', [ContentController::class, 'show']);
+    Route::get('/contents/{course_id}', [ContentController::class, 'show']);
     Route::get('/title-contents', [TitleContentController::class, 'index']); // Lấy danh sách title_contents
     Route::get('/title-contents/{content_id}', [TitleContentController::class, 'show']); // Xem chi tiết title_content
     // Route để lấy danh sách tất cả các đơn hàng
@@ -180,6 +180,8 @@ Route::middleware(['admin'])->group(function () {
 Route::prefix('admin')->middleware('admin')->group(function () {
     //Dashboard
     Route::get('/courses', [AdminController::class, 'getAllCourses']);
+    Route::put('/courses/{courseId}/category', [AdminController::class, 'updateCourseCategory']);
+    
     Route::get('/courses/{slug}', [AdminController::class, 'showCourses']);
     Route::get('/summary', [AdminController::class, 'getSummary']);
     Route::get('/revenue-chart', [AdminController::class, 'getMonthlyRevenue']);

@@ -11,13 +11,13 @@ class Content extends Model
     protected $table = 'contents';
     protected $primaryKey = 'content_id';
     protected $fillable = [
-        'lesson_id',
+        'course_id',
         'name_content',
         'created_at',
         'updated_at'
     ];
-    public function lesson()
+    public function course()
     {
-        return $this->belongsTo(Lesson::class, 'lesson_id');
+        return $this->belongsTo(Course::class, 'course_id');
     }
 }

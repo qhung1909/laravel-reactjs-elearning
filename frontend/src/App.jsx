@@ -74,8 +74,10 @@ function AppContent() {
             "/user/profile",
             "/user/orderhistory",
             "/user/noti",
+            "/user/noti/:id",
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/") &&
+        !location.pathname.startsWith("/user/noti/") &&
         !location.pathname.startsWith("/blogs/");
 
     return (
@@ -101,32 +103,19 @@ function AppContent() {
                 <Route path="/course/manage/course-message" element={<CourseMessage />}></Route>
                 <Route path="/course/manage/create-quiz" element={<CreateQuiz />}></Route>
 
-                {/* <Route
-                    path="/admin"
-                    element={<AdminRole element={<Dashboard />} />}
-                ></Route> */}
-                <Route
-                    path="/admin"
-                    element={<Dashboard />}
-                ></Route>
-
+                {/* <Route path="/admin" element={<AdminRole element={<Dashboard />} />}></Route> */}
+                <Route path="/admin" element={<Dashboard />}></Route>
                 <Route path="/admin/example" element={<Example />}></Route>
                 <Route path="/admin/course-list" element={<CourseList />}></Route>
                 <Route path="/admin/browse-new-courses" element={<BrowseNewCourses />}></Route>
                 <Route path="/admin/browse-new-courses/:id" element={<NewExample />}></Route>
-
                 <Route path="/admin/course-status" element={<CourseStatus />}></Route>
                 <Route path="/admin/classify-course" element={<ClassifyCourse />}></Route>
                 <Route path="/admin/price-discount" element={<PriceDiscount />}></Route>
-
-
-
                 <Route path="/admin/category-list" element={<CategoryList />}></Route>
                 <Route path="/admin/category-crud" element={<CategoryCrud />}></Route>
                 <Route path="/admin/priority-category" element={<PriorityCategory />}></Route>
                 <Route path="/admin/courses-of-category" element={<CoursesOfCategory />}></Route>
-
-
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/register" element={<Signup />}></Route>
@@ -141,27 +130,12 @@ function AppContent() {
                 <Route path="*" element={<PageNotFound />}></Route>
                 <Route path="/404" element={<PageNotFound />}></Route>
                 <Route path="/detail/:slug" element={<Detail />}></Route>
-                <Route
-                    path="/payment-result"
-                    element={<PaymentResult />}
-                ></Route>
+                <Route path="/payment-result" element={<PaymentResult />}></Route>
                 <Route path="/payment" element={<Payment />}></Route>
                 <Route path="/cart" element={<Cart />}></Route>
-                <Route
-                    path="/verification-success"
-                    element={<VerificationEmail />}
-                ></Route>
-
-
-
-                <Route
-                    path="/quizzes"
-                    element={<Quizzes />}
-                ></Route>
-                <Route
-                    path="/quizzes/:quiz_id"
-                    element={<Quizzes />}
-                ></Route>
+                <Route path="/verification-success" element={<VerificationEmail />}></Route>
+                <Route path="/quizzes" element={<Quizzes />}></Route>
+                <Route path="/quizzes/:quiz_id" element={<Quizzes />}></Route>
                 <Route path="/notifications" element={<TaskList />}></Route>
 
             </Routes>
