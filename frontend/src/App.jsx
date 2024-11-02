@@ -46,7 +46,7 @@ import CourseStatus from "./pages/admin/ManageCourses/courseStatus.jsx";
 import NewExample from "./pages/admin/ManageCourses/newExample.jsx";
 import { CoursesOfCategory } from "./pages/admin/ManageCategories/CoursesOfCategory.jsx";
 import ClassifyCourse from "./pages/admin/ManageCourses/classifyCourses.jsx";
-import PriceDiscount from "./pages/admin/ManageCourses/priceDiscount.jsx";
+import PageCoupons from "./pages/admin/ManageCourses/pageCoupons.jsx";
 import BrowseNewCourses from "./pages/admin/ManageCourses/browseNewCourses.jsx";
 import TaskList from "./pages/notifications/notification.jsx";
 import { InstructorNotification } from "./pages/instructor/instuctorNotification.jsx";
@@ -109,7 +109,7 @@ function AppContent() {
                 <Route path="/admin/browse-new-courses/:id" element={<NewExample />}></Route>
                 <Route path="/admin/course-status" element={<CourseStatus />}></Route>
                 <Route path="/admin/classify-course" element={<ClassifyCourse />}></Route>
-                <Route path="/admin/price-discount" element={<PriceDiscount />}></Route>
+                <Route path="/admin/page-coupons" element={<PageCoupons/>}></Route>
                 <Route path="/admin/category-list" element={<CategoryList />}></Route>
                 <Route path="/admin/category-crud" element={<CategoryCrud />}></Route>
                 <Route path="/admin/priority-category" element={<PriorityCategory />}></Route>
