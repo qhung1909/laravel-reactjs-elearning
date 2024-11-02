@@ -206,26 +206,60 @@ class MessageController extends Controller
     {
         try {
             if (!Auth::check()) {
-                return response()->json(['status' => 'Đăng nhập để xem thông báo.'], 401);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Đăng nhập để xem thông báo.',
+                    'data' => null
+                ], 401);
             }
-
+    
             $userId = Auth::id();
             $perPage = $request->input('per_page', 8);
             $page = $request->input('page', 1);
-
+    
             $notifications = Notification::where('user_id', $userId)
-                ->orderBy('created_at', 'desc')
+                ->join('users', 'notifications.created_by', '=', 'users.user_id')
+                ->select(
+                    'notifications.*',
+                    'users.name as sender_name'
+                )
+                ->orderBy('notifications.created_at', 'desc')
                 ->paginate($perPage, ['*'], 'page', $page);
-
+    
+            $formattedNotifications = collect($notifications->items())->map(function ($notification) {
+                return [
+                    'id' => $notification->id,
+                    'message' => $notification->message,
+                    'content' => $notification->content,
+                    'type' => $notification->type,
+                    'is_read' => $notification->is_read,
+                    'created_at' => $notification->created_at,
+                    'created_by' => $notification->created_by,
+                    'sender_name' => $notification->sender_name
+                ];
+            });
+    
             return response()->json([
-                'status' => 'Thành công',
-                'notifications' => $notifications->items(),
-                'current_page' => $notifications->currentPage(),
-                'last_page' => $notifications->lastPage(),
-                'total' => $notifications->total(),
+                'status' => 'success',
+                'message' => 'Thành công',
+                'data' => [
+                    'notifications' => $formattedNotifications,
+                    'pagination' => [
+                        'current_page' => $notifications->currentPage(),
+                        'last_page' => $notifications->lastPage(),
+                        'total' => $notifications->total(),
+                        'per_page' => $notifications->perPage()
+                    ]
+                ]
             ]);
+    
         } catch (\Exception $e) {
-            return response()->json(['status' => 'Có lỗi xảy ra khi lấy thông báo.'], 500);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Có lỗi xảy ra khi lấy thông báo.',
+                'debug' => config('app.debug') ? $e->getMessage() : null,
+                'data' => null
+            ], 500);
         }
     }
 
