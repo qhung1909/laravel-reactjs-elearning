@@ -29,7 +29,6 @@ import { VerificationEmail } from "./pages/verification/verification-email.jsx";
 import { UserProfile } from "./pages/userprofile/userprofile.jsx";
 import { UserOrderHistory } from "./pages/userprofile/userorderhistory.jsx";
 import { UserNoti } from "./pages/userprofile/usernoti.jsx";
-import { UserNotiDetail } from "./pages/userprofile/userdetailnoti.jsx";
 import ScrollToTop from "./pages/scrollToTop/scrollToTop.jsx";
 import { Quizzes } from './pages/quizzes/quizzes.jsx';
 import { NewPassword } from "./pages/recoverPassword/newPassword.jsx";
@@ -75,10 +74,10 @@ function AppContent() {
             "/user/profile",
             "/user/orderhistory",
             "/user/noti",
-            "/user/noti/id",
+            "/user/noti/:id",
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/") &&
-        !location.pathname.startsWith("/noti/") &&
+        !location.pathname.startsWith("/user/noti/") &&
         !location.pathname.startsWith("/blogs/");
 
     return (
@@ -90,7 +89,6 @@ function AppContent() {
                 <Route path="/user/orderhistory" element={<UserOrderHistory />}></Route>
                 <Route path="/user/profile" element={<UserProfile />}></Route>
                 <Route path="/user/noti" element={<UserNoti />}></Route>
-                <Route path="/user/noti/id" element={<UserNotiDetail />}></Route>
                 <Route path="/instructor" element={<Instructor />}></Route>
                 <Route path="/instructor/history" element={<InstructorHistory />}></Route>
                 <Route path="/instructor/lessson" element={<InstructorLesson />}></Route>
