@@ -30,6 +30,10 @@ const decryptData = (cipherText) => {
 export const CourseOverview = () => {
     const [courseTitle, setCourseTitle] = useState("");
     const [courseDescriptionText, setCourseDescriptionText] = useState("");
+
+    const [currency, setCurrency] = useState("");
+    const [price, setPrice] = useState("");
+
     const [selectedLanguage, setSelectedLanguage] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
     const [courseImage, setCourseImage] = useState(null);
@@ -55,6 +59,8 @@ export const CourseOverview = () => {
             const decryptedData = decryptData(storedData);
             setCourseTitle(decryptedData.courseTitle);
             setCourseDescriptionText(decryptedData.courseDescriptionText);
+            setCurrency(decryptedData.currency);
+            setPrice(decryptedData.price);
             setSelectedLanguage(decryptedData.selectedLanguage);
             setSelectedCategory(decryptedData.selectedCategory);
             setCourseImage(decryptedData.courseImage); // Đã lưu dưới dạng base64
@@ -64,23 +70,33 @@ export const CourseOverview = () => {
     useEffect(() => {
         const isCourseTitleValid = courseTitle.trim() !== "";
         const isDescriptionValid = wordCount >= 200;
+        const isCurrencyValid = currency !== "";
+        const isPriceValid = price.trim() !== ""; // Kiểm tra giá không rỗng
         const isLanguageSelected = selectedLanguage !== "";
         const isCategorySelected = selectedCategory !== "";
         const isImageUploaded = courseImage !== null;
 
-        if (isCourseTitleValid || isDescriptionValid || isLanguageSelected || isCategorySelected || isImageUploaded) {
-            const dataToStore = { courseTitle, courseDescriptionText, selectedLanguage, selectedCategory, courseImage };
+        if (isCourseTitleValid || isDescriptionValid || isCurrencyValid || isPriceValid || isLanguageSelected || isCategorySelected || isImageUploaded) {
+            const dataToStore = {
+                courseTitle,
+                courseDescriptionText,
+                currency,
+                price,
+                selectedLanguage,
+                selectedCategory,
+                courseImage
+            };
             localStorage.setItem('courseOverview', encryptData(dataToStore));
         } else {
             localStorage.removeItem('courseOverview'); // Xóa nếu không có trường nào hợp lệ
         }
 
-        if (isCourseTitleValid && isDescriptionValid && isLanguageSelected && isCategorySelected && isImageUploaded) {
+        if (isCourseTitleValid && isDescriptionValid && isCurrencyValid && isPriceValid && isLanguageSelected && isCategorySelected && isImageUploaded) {
             localStorage.setItem('FA-CO', 'done');
         } else {
             localStorage.removeItem('FA-CO');
         }
-    }, [courseTitle, wordCount, courseDescriptionText, selectedLanguage, selectedCategory, courseImage]);
+    }, [courseTitle, wordCount, courseDescriptionText, currency, price, selectedLanguage, selectedCategory, courseImage]);
 
     return (
         <>
@@ -144,6 +160,30 @@ export const CourseOverview = () => {
                                 ]}
                             />
                             <p className="text-sm text-gray-400">Mô tả hiện tại: {wordCount} từ. (Cần ít nhất 200 từ)</p>
+                        </div>
+
+                        <div className="pb-6">
+                            <h2 className="pb-2 font-medium text-lg">Đặt giá cho khóa học của bạn</h2>
+                            <div className="flex flex-cols-2 py-2 gap-4">
+                                <div>
+                                    <Select value={currency} onValueChange={setCurrency}>
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue placeholder="Chọn tiền tệ" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                <SelectLabel>Tiền tệ</SelectLabel>
+                                                <SelectItem value="vnd">VND</SelectItem>
+                                                <SelectItem value="usd">USD</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <Input className='h-full' value={price} onChange={(e) => setPrice(e.target.value)} type="number" placeholder="Giá" />
+                                </div>
+                            </div>
+                            <p className="text-sm text-gray-400">Nếu muốn cung cấp miễn phí khóa học của mình thì khóa học đó phải có tổng thời lượng video dưới 2 giờ. Ngoài ra, các khóa học có bài kiểm tra thực hành không thể miễn phí.</p>
                         </div>
 
                         <div className="pb-6">

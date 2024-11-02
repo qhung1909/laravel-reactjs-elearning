@@ -53,7 +53,6 @@ import { InstructorNotification } from "./pages/instructor/instuctorNotification
 import CreateQuiz from "./pages/CreateCourse/createQuiz.jsx";
 import { CourseOverview } from "./pages/CreateCourse/courseOverview.jsx";
 import { Curriculum } from "./pages/CreateCourse/curriculum.jsx";
-import { Valuation } from "./pages/CreateCourse/valuation.jsx";
 import { Promotion } from "./pages/CreateCourse/Promotion.jsx";
 import { CourseMessage } from "./pages/CreateCourse/CourseMessage.jsx";
 import Demo from "./pages/demo/Demo.jsx";
@@ -98,7 +97,6 @@ function AppContent() {
 
                 <Route path="/course/manage/course-overview" element={<CourseOverview />}></Route>
                 <Route path="/course/manage/curriculum" element={<Curriculum />}></Route>
-                <Route path="/course/manage/valuation" element={<Valuation />}></Route>
                 <Route path="/course/manage/promotion" element={<Promotion />}></Route>
                 <Route path="/course/manage/course-message" element={<CourseMessage />}></Route>
                 <Route path="/course/manage/create-quiz" element={<CreateQuiz />}></Route>
