@@ -18,15 +18,7 @@ export const Promotion = () => {
                 </div>
 
             </div>
-            <div className="w-96 h-100 bg-red-100"></div>
-            <div className="w-full h-100 bg-red-100">
-                {/* <Link className='absolute top-1 left-0 xl:top-8 xl:left-8' to='/'>
-                    <div className="flex items-center gap-3">
-                        <box-icon name='arrow-back' color='gray' ></box-icon>
-                        <p className="text-gray-600">Trang chủ</p>
-                    </div>
-                </Link> */}
-            </div>
+            
             <div className="flex max-w-7xl m-auto pt-10 pb-36">
                 <SideBarCreateCoure />
                 <div className="w-full lg:w-10/12 shadow-lg">
