@@ -28,6 +28,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TitleContentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\ProgressController;
 use App\Events\MyEvent;
 // Authentication
 Route::group([
@@ -175,6 +176,10 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/title-contents', [TitleContentController::class, 'store']); // Tạo mới title_content
     Route::put('/title-contents/{title_content_id}', [TitleContentController::class, 'update']); // Cập nhật title_content
     Route::delete('/title-contents/{title_content_id}', [TitleContentController::class, 'destroy']); // Xóa title_content
+
+    //Progress
+    Route::get('/progress', [ProgressController::class, 'index']);
+    Route::post('/progress/complete-content', [ProgressController::class, 'completeContent']);
 
 });
 
