@@ -90,6 +90,7 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/userCourses/{userId}', [UserCourseController::class, 'show']);
     Route::get('/courses/related/{categoryId}/{slug}', [CourseController::class, 'relatedCoursesByCategory']);
     Route::get('/courses/user/{userId}', [CourseController::class, 'coursesByUserId']);
+    Route::get('/instructor/{instructorId}/students', [CourseController::class, 'getStudentsForInstructor']);
 
     //Comment
     Route::get('/comments/{course_id}', [CommentController::class, 'index']);
