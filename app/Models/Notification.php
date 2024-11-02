@@ -15,9 +15,13 @@ class Notification extends Model
         'message',
         'is_read',
         'content',
+        'created_by',
         'type',
         'created_at',
         'updated_at',
     ];
-
+    public function sender()
+    {
+        return $this->belongsTo(User::class, 'created_by', 'user_id');
+    }
 }

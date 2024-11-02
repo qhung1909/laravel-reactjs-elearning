@@ -11,26 +11,27 @@ use Illuminate\Support\Facades\Log;
 use App\Mail\NotificationMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+
 class MessageController extends Controller
 {
     public function sendMessage(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'message' => 'required|string|max:255',
-            'user_id' => 'nullable|exists:users,user_id', 
+            'user_id' => 'nullable|exists:users,user_id',
             'type' => 'required|string|in:High,Normal,Low',
             'content' => 'nullable|string'
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Dữ liệu không hợp lệ.',
                 'errors' => $validator->errors(),
-                'data' => null 
+                'data' => null
             ], 422);
         }
-    
+
         if (!Auth::check()) {
             return response()->json([
                 'status' => 'error',
@@ -38,31 +39,31 @@ class MessageController extends Controller
                 'data' => null
             ], 401);
         }
-    
+
         try {
             $message = $request->input('message');
             $userId = $request->input('user_id');
             $type = $request->input('type');
             $content = $request->input('content');
             $notificationIds = [];
-            
+
             // Lấy thông tin người gửi
             $sender = User::select(['user_id', 'name', 'email'])
                 ->find(Auth::id());
-    
+
             if ($userId) {
                 // Lấy thông tin người nhận cụ thể
                 $receiver = User::select(['user_id', 'name', 'email'])
                     ->find($userId);
-    
+
                 if (!$receiver) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Không tìm thấy người dùng.',
-                        'data' => null 
+                        'data' => null
                     ], 404);
                 }
-    
+
                 $notification = Notification::create([
                     'user_id' => $userId,
                     'message' => $message,
@@ -71,9 +72,9 @@ class MessageController extends Controller
                     'is_read' => false,
                     'created_by' => Auth::id()
                 ]);
-    
+
                 broadcast(new MyEvent($message, $userId, $notification->id))->toOthers();
-    
+
                 if ($type === 'High') {
                     try {
                         Mail::to($receiver->email)
@@ -82,9 +83,9 @@ class MessageController extends Controller
                         Log::warning("Failed to send email to {$receiver->email}: {$e->getMessage()}");
                     }
                 }
-    
+
                 $notificationIds[] = $notification->id;
-    
+
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Tin nhắn đã được gửi thành công!',
@@ -101,12 +102,11 @@ class MessageController extends Controller
                         ]
                     ]
                 ]);
-    
             } else {
                 // Gửi cho tất cả người dùng
                 $receivers = User::select(['user_id', 'name', 'email'])->get();
                 $receiversList = [];
-    
+
                 foreach ($receivers as $receiver) {
                     $notification = Notification::create([
                         'user_id' => $receiver->user_id,
@@ -116,9 +116,9 @@ class MessageController extends Controller
                         'is_read' => false,
                         'created_by' => Auth::id()
                     ]);
-    
+
                     broadcast(new MyEvent($message, $receiver->user_id, $notification->id))->toOthers();
-    
+
                     if ($type === 'High') {
                         try {
                             Mail::to($receiver->email)
@@ -127,14 +127,14 @@ class MessageController extends Controller
                             Log::warning("Failed to send email to {$receiver->email}: {$e->getMessage()}");
                         }
                     }
-    
+
                     $notificationIds[] = $notification->id;
                     $receiversList[] = [
                         'user_id' => $receiver->user_id,
                         'name' => $receiver->name
                     ];
                 }
-    
+
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Tin nhắn đã được gửi đến tất cả người dùng!',
@@ -149,19 +149,18 @@ class MessageController extends Controller
                     ]
                 ]);
             }
-    
         } catch (\Exception $e) {
             Log::error('Notification Error: ' . $e->getMessage());
-    
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Có lỗi xảy ra khi gửi tin nhắn.',
                 'debug' => config('app.debug') ? $e->getMessage() : null,
-                'data' => null 
+                'data' => null
             ], 500);
         }
     }
-    
+
 
     public function markAsRead($notification_id)
     {
@@ -209,18 +208,18 @@ class MessageController extends Controller
             if (!Auth::check()) {
                 return response()->json(['status' => 'Đăng nhập để xem thông báo.'], 401);
             }
-    
+
             $userId = Auth::id();
-            $perPage = $request->input('per_page', 8); 
+            $perPage = $request->input('per_page', 8);
             $page = $request->input('page', 1);
-    
+
             $notifications = Notification::where('user_id', $userId)
                 ->orderBy('created_at', 'desc')
                 ->paginate($perPage, ['*'], 'page', $page);
-    
+
             return response()->json([
                 'status' => 'Thành công',
-                'notifications' => $notifications->items(), 
+                'notifications' => $notifications->items(),
                 'current_page' => $notifications->currentPage(),
                 'last_page' => $notifications->lastPage(),
                 'total' => $notifications->total(),
@@ -229,26 +228,55 @@ class MessageController extends Controller
             return response()->json(['status' => 'Có lỗi xảy ra khi lấy thông báo.'], 500);
         }
     }
-    
+
     public function getNotificationDetails($id)
     {
         try {
             if (!Auth::check()) {
-                return response()->json(['status' => 'Đăng nhập để xem thông báo.'], 401);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Đăng nhập để xem thông báo.',
+                    'data' => null
+                ], 401);
             }
 
-            $notification = Notification::find($id);
+            $notification = Notification::with(['sender' => function ($query) {
+                $query->select('user_id', 'name');
+            }])->find($id);
 
             if (!$notification || $notification->user_id !== Auth::id()) {
-                return response()->json(['status' => 'Không tìm thấy thông báo hoặc bạn không có quyền truy cập.'], 404);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Không tìm thấy thông báo hoặc bạn không có quyền truy cập.',
+                    'data' => null
+                ], 404);
             }
 
+            $responseData = [
+                'id' => $notification->id,
+                'message' => $notification->message,
+                'content' => $notification->content,
+                'type' => $notification->type,
+                'is_read' => $notification->is_read,
+                'created_at' => $notification->created_at,
+                'sender' => $notification->sender ? [
+                    'user_id' => $notification->sender->user_id,
+                    'name' => $notification->sender->name
+                ] : null
+            ];
+
             return response()->json([
-                'status' => 'Thành công',
-                'notification' => $notification
+                'status' => 'success',
+                'message' => 'Thành công',
+                'data' => $responseData
             ]);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'Có lỗi xảy ra khi lấy chi tiết thông báo.'], 500);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Có lỗi xảy ra khi lấy chi tiết thông báo.',
+                'debug' => config('app.debug') ? $e->getMessage() : null,
+                'data' => null
+            ], 500);
         }
     }
 }
