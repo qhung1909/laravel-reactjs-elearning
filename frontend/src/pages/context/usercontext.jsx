@@ -162,7 +162,6 @@ export const UserProvider = ({ children }) => {
                     'x-api-secret': `${API_KEY}`,
                 },
             });
-            notify('Cập nhật thành công', 'success');
             fetchUserData(); // Refresh user data
         } catch (error) {
             console.log('Error updating profile', error);
