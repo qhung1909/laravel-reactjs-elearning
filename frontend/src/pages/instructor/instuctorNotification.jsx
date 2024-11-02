@@ -38,9 +38,86 @@ export const InstructorNotification = () => {
     const [loading, setLoading] = useState(false)
     const [loadingLogout, setLoadingLogout] = useState(false);
     const [_success, setSuccess] = useState("");
-    const [userCourses, setUserCourses] = useState([]);
-    const [selectedType, setSelectedType] = useState("Loại")
+    const [selectedType, setSelectedType] = useState("Loại");
+    const [message, setMessage] = useState("");
+    const [content, setContent] = useState("");
+    const [users, setUsers] = useState([]);
+    const [selectedUser, setSelectedUser] = useState("");
+
     const navigate = useNavigate();
+
+    const fetchStudents = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get(`${API_URL}/instructor/${instructor.user_id}/students`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                },
+            });
+            if (response.data.success) {
+                setUsers(response.data.data);
+            }
+        } catch (error) {
+            notify("Không thể tải danh sách học viên", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSubmitNotification = async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('access_token');
+        const cleanContent = content
+        .replace(/<p><br><\/p>/g, '') // Loại bỏ các thẻ `<p><br></p>`
+        .replace(/<(.|\n)*?>/g, '') // Loại bỏ tất cả các thẻ HTML
+        .trim();
+
+        if (!message || !cleanContent  || !selectedUser || selectedType === "Loại") {
+            notify("Vui lòng điền đầy đủ thông tin", "error");
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const response = await axios.post(
+                `${API_URL}/auth/send-message`,
+
+                {
+                    message,
+                    content,
+                    user_id: selectedUser,
+                    type: selectedType
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "x-api-secret": API_KEY,
+                    },
+                },
+            );
+
+            if (response.data) {
+                setMessage("");
+                setContent("");
+                setSelectedUser("");
+                setSelectedType("Loại");
+                notify("Gửi thông báo thành công", "success");
+                console.log('success')
+            }
+
+        } catch (error) {
+            notify("Không thể gửi thông báo", "error");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (instructor?.user_id) {
+            fetchStudents();
+        }
+    }, [instructor?.user_id]);
+
 
     const handleSetType = (value) => {
         setSelectedType(value);
@@ -244,27 +321,28 @@ export const InstructorNotification = () => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         {/* Notification content */}
                         <div className="md:p-6 p-2 max-lg:h-screen">
-                            <form action="">
+                            <form onSubmit={handleSubmitNotification}>
                                 <div className="my-5 bg-white rounded-3xl p-10 space-y-5">
-                                    {/* form notification */}
-
-                                    {/* title */}
+                                    {/* Title */}
                                     <div className="space-y-2">
-                                        <span className="font-semibold text-lg">
-                                            Tiêu đề:
-                                        </span>
-                                        <Input placeholder="Nhập tên người nhận..." className="p-1"></Input>
+                                        <span className="font-semibold text-lg">Tiêu đề:</span>
+                                        <Input
+                                            value={message}
+                                            onChange={(e) => setMessage(e.target.value)}
+                                            placeholder="Nhập tiêu đề thông báo..."
+                                            className="p-1"
+                                        />
                                     </div>
 
-                                    {/* content */}
+                                    {/* Content */}
                                     <div className="space-y-2">
-                                        <span className="font-semibold text-lg">
-                                            Nội dung thông báo:
-                                        </span>
+                                        <span className="font-semibold text-lg">Nội dung thông báo:</span>
                                         <ReactQuill
+                                            value={content}
+                                            onChange={setContent}
                                             className="pb-2"
                                             modules={{
                                                 toolbar: [
@@ -280,60 +358,76 @@ export const InstructorNotification = () => {
                                                 'list', 'bullet', 'link', 'image', 'code-block'
                                             ]}
                                         />
-
                                     </div>
 
-                                    {/* user */}
+                                    {/* User Selection */}
                                     <div className="space-y-2">
-                                        <span className="font-semibold text-lg">
-                                            Người nhận:
-                                        </span>
-                                        <Input placeholder="Nhập người nhận..."></Input>
+                                        <span className="font-semibold text-lg">Người nhận:</span>
+                                        <select
+                                            value={selectedUser}
+                                            onChange={(e) => setSelectedUser(e.target.value)}
+                                            className="w-full p-2 border rounded"
+                                        >
+                                            <option value="">Chọn người nhận...</option>
+                                            {users.map((user) => (
+                                                <option key={user.user_id} value={user.user_id}>
+                                                    {user.name} - {user.email}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
 
-                                    {/* type */}
+                                    {/* Type Selection - Keep your existing type selection code */}
                                     <div className="space-y-2">
-                                        <div className="flex items-center gap-5">
-                                            <div className="">
-                                                <span className="font-semibold text-lg">
-                                                    Chọn kiểu:
-                                                </span>
-                                            </div>
-                                            <div className="">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger>
-                                                        <div className="border px-5 rounded py-1 text-base">
-                                                            {selectedType}
-                                                        </div>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="space-y-1 cursor-pointer">
-                                                        <DropdownMenuItem className="bg-yellow-100 cursor-pointer" onClick={() => handleSetType("Low")}>
-                                                            <div>
-                                                                Low
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-5">
+                                                <div className="">
+                                                    <span className="font-semibold text-lg">
+                                                        Chọn kiểu:
+                                                    </span>
+                                                </div>
+                                                <div className="">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger>
+                                                            <div className="border px-5 rounded py-1 text-base">
+                                                                {selectedType}
                                                             </div>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem className="bg-yellow-300 cursor-pointer" onClick={() => handleSetType("Medium")}>
-                                                            Medium
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem className="bg-yellow-500 cursor-pointer" onClick={() => handleSetType("High")}>
-                                                            High
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent className="space-y-1 cursor-pointer">
+                                                            <DropdownMenuItem className="bg-yellow-100 cursor-pointer" onClick={() => handleSetType("Low")}>
+                                                                <div>
+                                                                    Low
+                                                                </div>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem className="bg-yellow-300 cursor-pointer" onClick={() => handleSetType("Medium")}>
+                                                                Medium
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem className="bg-yellow-500 cursor-pointer" onClick={() => handleSetType("High")}>
+                                                                High
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* button submit */}
-                                    <Button className="bg-yellow-400 text-black hover:bg-black hover:text-white duration-300 rounded">Gửi thông báo</Button>
+                                    {/* Submit Button */}
+                                    <Button
+                                        type="submit"
+                                        className="bg-yellow-400 text-black hover:bg-black hover:text-white duration-300 rounded"
+                                        disabled={loading}
+                                    >
+                                        {loading ? "Đang gửi..." : "Gửi thông báo"}
+                                    </Button>
                                 </div>
                             </form>
-
                         </div>
                     </div>
                 </div>
+                <Toaster />
+
             </section>
-            <Toaster />
         </>
     )
 }
