@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Bell, Search, MoreHorizontal, Eye, Trash } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
-
+import axios from "axios"
 export default function TaskList() {
     const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
@@ -50,35 +50,70 @@ export default function TaskList() {
     const [currentPage, setCurrentPage] = useState(1)
     const [tasksPerPage] = useState(8)
     const [totalPages, setTotalPages] = useState(0)
+    const [selectedNotification, setSelectedNotification] = useState(null);
     const API_URL = import.meta.env.VITE_API_URL
     const location = useLocation()
     const navigate = useNavigate()
 
+    // hàm xử lý hiện thông báo
     const fetchNotifications = async (page = 1) => {
-        const token = localStorage.getItem('access_token')
+        const token = localStorage.getItem('access_token');
         try {
-            const response = await fetch(`${API_URL}/auth/notifications?per_page=${tasksPerPage}&page=${page}`, {
-                method: 'GET',
+            const response = await axios.get(`${API_URL}/auth/notifications?per_page=${tasksPerPage}&page=${page}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-            })
-
-            if (response.ok) {
-                const data = await response.json()
-                setTasks(data.notifications)
-                setTotalPages(data.last_page)
-                setCurrentPage(data.current_page)
-            } else {
-                console.error('Failed to fetch notifications:', response.statusText)
-            }
+            });
+            setTasks(response.data.notifications);
+            setTotalPages(response.data.last_page);
+            setCurrentPage(response.data.current_page);
         } catch (error) {
-            console.error('Error fetching notifications:', error)
+            console.error('Error fetching notifications:', error);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
+
+    const markAsRead = async (notificationId) => {
+        const token = localStorage.getItem('access_token');
+        try {
+            // Gửi yêu cầu POST để đánh dấu thông báo là đã đọc
+            await axios.post(`${API_URL}/auth/notifications/read/${notificationId}`, null, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            // Cập nhật trạng thái thông báo đã đọc trong danh sách
+            setTasks((prevTasks) =>
+                prevTasks.map((task) =>
+                    task.id === notificationId ? { ...task, is_read: 1 } : task
+                )
+            );
+        } catch (error) {
+            console.error('Error marking notification as read:', error);
+        }
+    };
+
+
+    // hàm xử lý lấy thông báo chi tiết
+    const handleNotificationClick = async (notificationId) => {
+        const token = localStorage.getItem('access_token');
+        try {
+            const response = await axios.get(`${API_URL}/auth/notifications/${notificationId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            })
+            setSelectedNotification(response.data.notification); // Truy cập vào response.data
+            console.log(response.data);
+
+            await markAsRead(notificationId);
+        } catch (error) {
+            console.error('Error fetching notification details:', error);
+        }
+    };
 
     useEffect(() => {
         const params = new URLSearchParams(location.search)
@@ -88,18 +123,6 @@ export default function TaskList() {
         setCurrentPage(page)
         fetchNotifications(page)
     }, [location.search])
-
-    const handleNotificationClick = async (notificationId) => {
-        const token = localStorage.getItem('access_token')
-
-        await fetch(`${API_URL}/auth/notifications/read/${notificationId}`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-        });
-    };
 
     const filteredTasks = tasks.filter(task =>
         task.message.toLowerCase().includes(searchQuery.toLowerCase())
@@ -145,6 +168,7 @@ export default function TaskList() {
                             <TableHeader>
                                 <TableRow className="bg-secondary">
                                     <TableHead className="w-12 font-bold">STT</TableHead>
+                                    <TableHead className="w-40 font-bold">Người gửi</TableHead>
                                     <TableHead className="font-bold">Nội dung</TableHead>
                                     <TableHead className="w-[120px] font-bold">Trạng thái</TableHead>
                                     <TableHead className="w-[120px] font-bold">Thao tác</TableHead>
@@ -158,13 +182,15 @@ export default function TaskList() {
                                     filteredTasks.map((task, index) => (
                                         <TableRow
                                             key={task.id}
-                                            className={task.is_read === 0 ? "bg-red-50 hover:bg-red-100 " : "bg-green-50 hover:bg-green-100 cursor-pointer"}
+                                            className={task.is_read === 0 ? "bg-red-50 hover:bg-red-100 " : "bg-green-50 hover:bg-green-100"}
                                             onClick={() => handleNotificationClick(task.id)}
                                         >
 
                                             {/* STT */}
                                             <TableCell>{(currentPage - 1) * tasksPerPage + index + 1}</TableCell>
 
+                                            {/* Người gửi */}
+                                            <TableCell>Hoàng</TableCell>
                                             {/* ID */}
                                             {/* <TableCell className="font-medium">
                                                 <Badge variant={task.type === "high" ? "destructive" : task.type === "medium" ? "default" : "secondary"}>
@@ -188,9 +214,11 @@ export default function TaskList() {
                                             {/* Thao tác */}
                                             <TableCell>
                                                 <AlertDialog>
-                                                    <AlertDialogTrigger>Xem chi tiết</AlertDialogTrigger>
-                                                    <AlertDialogContent  className="max-h-[700px]">
+                                                    <AlertDialogTrigger onClick={() => handleNotificationClick(task.id)}>Xem chi tiết</AlertDialogTrigger>
+                                                    <AlertDialogContent className="max-h-[700px]">
                                                         <AlertDialogHeader>
+
+                                                            {/* title */}
                                                             <AlertDialogTitle>
                                                                 <div className="">
                                                                     <div className="space-y-5 border-b-2 border-yellow-500 pb-8">
@@ -202,53 +230,57 @@ export default function TaskList() {
                                                                                 <p>AntLearn - Cùng học trực tuyến tại nhà</p>
                                                                             </div>
                                                                         </div>
-                                                                        <div className="text-2xl font-bold text-yellow-500">
-                                                                            Thông báo chi tiết
-                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </AlertDialogTitle>
                                                             <AlertDialogDescription>
+
                                                                 {/* content */}
                                                                 <div className="max-h-[450px] overflow-y-auto py-3">
-                                                                    <div className="space-y-3">
-                                                                        <div className="space-y-1">
+                                                                    <div className="space-y-2">
+                                                                        {selectedNotification ? (
+                                                                            <>
 
-                                                                            {/* title */}
-                                                                            <div className="">
-                                                                                <p className="text-xl font-semibold">Tiêu đề: </p>
-                                                                            </div>
+                                                                                {/* date */}
+                                                                                <div className="">
+                                                                                    <span className="text-sm">
+                                                                                        {new Date(selectedNotification.created_at).toLocaleString('vi-VN')}
 
-                                                                            {/* detail title */}
-                                                                            <div className="">
-                                                                                <span className="">Thông báo nhắc nhở hoàn thành bài tập</span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="space-y-1">
-                                                                            {/* content */}
-                                                                            <div className="">
-                                                                                <p className="text-xl font-semibold">Nội dung:</p>
-                                                                            </div>
-                                                                            {/* detail content */}
-                                                                            <div className="space-y-3">
-                                                                                <span className="">
-                                                                                    Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,
-                                                                                </span>
-                                                                                <img src="/src/assets/images/doremon.jpg" className=" w-72" alt="" />
-                                                                            </div>
-                                                                        </div>
+                                                                                    </span>
+                                                                                </div>
+
+                                                                                {/* title */}
+                                                                                <div className="text-2xl font-bold">
+                                                                                    <span className="text-xl font-semibold">{selectedNotification.message}</span>
+                                                                                </div>
+
+                                                                                {/* content */}
+                                                                                <div className="space-y-1">
+                                                                                    <div className="space-y-3">
+                                                                                        <div
+                                                                                            className="space-y-3"
+                                                                                            dangerouslySetInnerHTML={{ __html: selectedNotification.content }}
+                                                                                        />
+                                                                                        <img src="/src/assets/images/doremon.jpg" className=" w-52" alt="" />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </>
+                                                                        ) : (
+                                                                            <p>Đang tải</p>
+                                                                        )}
+
 
                                                                     </div>
                                                                 </div>
                                                             </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
-                                                            <AlertDialogCancel  className=" hover:bg-yellow-500">
+                                                            <AlertDialogCancel className=" hover:bg-yellow-500">
                                                                 Trở về
                                                             </AlertDialogCancel>
-                                                            <AlertDialogAction  className=" hover:bg-yellow-500">
-                                                                    Đánh dấu đã đọc
-                                                            </AlertDialogAction>
+                                                            {/* <AlertDialogAction className=" hover:bg-yellow-500">
+                                                                Đánh dấu đã đọc
+                                                            </AlertDialogAction> */}
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
                                                 </AlertDialog>
