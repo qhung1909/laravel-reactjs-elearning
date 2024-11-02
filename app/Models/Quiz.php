@@ -13,6 +13,8 @@ class Quiz extends Model
     protected $fillable = [
         'course_id',
         'title',
+        'status',
+
     ];
     public function questions()
     {

@@ -12,7 +12,7 @@ class TitleContent extends Model
     protected $table = 'title_content';
     protected $primaryKey = 'title_content_id';
 
-    protected $fillable = ['body_content', 'content_id', 'video_link', 'document_link', 'description', 'created_at', 'updated_at'];
+    protected $fillable = ['body_content', 'content_id', 'video_link', 'document_link', 'description','status','created_at', 'updated_at'];
 
     public function content()
     {

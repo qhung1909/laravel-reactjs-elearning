@@ -11,19 +11,21 @@ use Illuminate\Support\Facades\Validator;
 
 class TitleContentController extends Controller
 {
+    const STATUS_PUBLISHED = 'published';
+
     public function index()
     {
-
         try {
             $cacheKey = 'title_contents_all';
-    
+
             $titleContents = Cache::remember($cacheKey, 3600, function () {
                 return TitleContent::with('content')
-                    ->select('title_content_id', 'content_id', 'body_content', 'video_link', 'document_link', 'description', 'created_at', 'updated_at')
+                    ->select('title_content_id', 'content_id', 'body_content', 'video_link', 'document_link', 'description', 'status', 'created_at', 'updated_at')
+                    ->where('status', self::STATUS_PUBLISHED)
                     ->latest()
                     ->get();
             });
-    
+
             return response()->json([
                 'success' => true,
                 'data' => $titleContents,
@@ -38,18 +40,15 @@ class TitleContentController extends Controller
             ], 500);
         }
     }
-    
 
-    /**
-     * Xem chi tiết title_content kèm thông tin content liên quan
-     */
     public function show($content_id)
     {
         try {
             $titleContents = TitleContent::with('content')
-                ->select('title_content_id', 'content_id', 'body_content', 'video_link', 'document_link', 'description', 'created_at', 'updated_at')
+                ->select('title_content_id', 'content_id', 'body_content', 'video_link', 'document_link', 'description', 'status', 'created_at', 'updated_at')
                 ->where('content_id', $content_id)
-                ->get(); 
+                ->where('status', self::STATUS_PUBLISHED)
+                ->get();
 
             if ($titleContents->isEmpty()) {
                 return response()->json([
@@ -60,7 +59,7 @@ class TitleContentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $titleContents, 
+                'data' => $titleContents,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -69,8 +68,6 @@ class TitleContentController extends Controller
             ], 500);
         }
     }
-
-
 
     public function store(Request $request)
     {
@@ -84,12 +81,14 @@ class TitleContentController extends Controller
             'video_link' => 'nullable|string|url',
             'document_link' => 'nullable|string|url',
             'description' => 'nullable|string|max:500',
+            'status' => 'nullable|string|in:draft,published,hide,pending,failed',
         ], [
             'content_id.required' => 'Content ID là bắt buộc',
             'content_id.exists' => 'Content không tồn tại',
             'body_content.required' => 'Nội dung là bắt buộc',
             'video_link.url' => 'Link video không hợp lệ',
             'document_link.url' => 'Link tài liệu không hợp lệ',
+            'status.in' => 'Trạng thái không hợp lệ',
         ]);
 
         if ($validator->fails()) {
@@ -98,7 +97,10 @@ class TitleContentController extends Controller
 
         DB::beginTransaction();
         try {
-            $titleContent = TitleContent::create($validator->validated());
+            $data = $validator->validated();
+            $data['status'] = $data['status'] ?? 'draft';
+
+            $titleContent = TitleContent::create($data);
 
             Cache::tags(['title_contents'])->flush();
 
@@ -110,9 +112,6 @@ class TitleContentController extends Controller
         }
     }
 
-    /**
-     * Cập nhật title_content
-     */
     public function update(Request $request, $title_content_id)
     {
         if (!Auth::check()) {
@@ -125,12 +124,14 @@ class TitleContentController extends Controller
             'video_link' => 'nullable|string|url',
             'document_link' => 'nullable|string|url',
             'description' => 'nullable|string|max:500',
+            'status' => 'nullable|string|in:draft,published,hide,pending,failed',
         ], [
             'content_id.required' => 'Content ID là bắt buộc',
             'content_id.exists' => 'Content không tồn tại',
             'body_content.required' => 'Nội dung là bắt buộc',
             'video_link.url' => 'Link video không hợp lệ',
             'document_link.url' => 'Link tài liệu không hợp lệ',
+            'status.in' => 'Trạng thái không hợp lệ',
         ]);
 
         if ($validator->fails()) {
@@ -153,9 +154,6 @@ class TitleContentController extends Controller
         }
     }
 
-    /**
-     * Xóa title_content
-     */
     public function destroy($title_content_id)
     {
         if (!Auth::check()) {

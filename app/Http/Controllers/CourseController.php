@@ -33,7 +33,7 @@ class CourseController extends Controller
             ->join('courses', 'users.user_id', '=', 'courses.user_id')
             ->leftJoin('comments', 'courses.course_id', '=', 'comments.course_id')
             ->where('users.role', 'teacher')
-            ->where('courses.status', 'published') // Chỉ lấy các khóa học đã xuất bản
+            ->where('courses.status', 'published') 
             ->groupBy('users.user_id')
             ->orderBy('max_is_buy', 'desc')
             ->get();
@@ -208,33 +208,34 @@ class CourseController extends Controller
             'description' => 'required|string',
             'img' => 'nullable|max:2048',
             'title' => 'required|string',
+            'status' => 'nullable|string|in:draft,published,hide,pending,failed'
         ];
-
+    
         $validator = Validator::make($request->all(), $rules);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
+    
         if ($request->price < $request->price_discount) {
             return response()->json(['error' => 'Giá không được nhỏ hơn giá giảm giá.'], 422);
         }
-
+    
         try {
             $course = DB::transaction(function () use ($request) {
                 $userId = auth()->id();
-
+    
                 // Tạo slug từ title
                 $baseSlug = Str::slug($request->title);
                 $slug = $baseSlug;
                 $counter = 1;
-
+    
                 // Kiểm tra slug tồn tại
                 while (Course::where('slug', $slug)->exists()) {
                     $slug = $baseSlug . '-' . $counter;
                     $counter++;
                 }
-
+    
                 // Upload hình ảnh trong transaction
                 $imageName = null;
                 if ($request->hasFile('img')) {
@@ -242,7 +243,7 @@ class CourseController extends Controller
                     $imageName = time() . '.' . $img->getClientOriginalExtension();
                     $img->move(public_path('upload/products'), $imageName);
                 }
-
+    
                 $course = Course::create([
                     'user_id' => $userId,
                     'course_category_id' => $request->course_category_id,
@@ -251,17 +252,17 @@ class CourseController extends Controller
                     'description' => $request->description,
                     'title' => $request->title,
                     'slug' => $slug,
-                    'img' => $imageName
+                    'img' => $imageName,
+                    'status' => $request->status ?? 'draft'
                 ]);
-
-                // Xóa các cache liên quan
+    
                 Cache::forget('courses');
                 Cache::forget('featured_course');
                 Cache::tags(['courses'])->flush();
-
+    
                 return $course;
             });
-
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Khóa học được thêm thành công.',
@@ -274,7 +275,7 @@ class CourseController extends Controller
             ], 500);
         }
     }
-
+    
     public function update(Request $request, $slug)
     {
         $rules = [
@@ -284,32 +285,33 @@ class CourseController extends Controller
             'description' => 'sometimes|string',
             'img' => 'nullable|max:2048',
             'title' => 'sometimes|required|string',
+            'status' => 'nullable|string|in:draft,published,hide,pending,failed'
         ];
-
+    
         $validator = Validator::make($request->all(), $rules);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
+    
         if ($request->has(['price', 'price_discount']) && $request->price < $request->price_discount) {
             return response()->json(['error' => 'Giá không được nhỏ hơn giá giảm giá.'], 422);
         }
-
+    
         try {
             $course = DB::transaction(function () use ($request, $slug) {
                 $course = $this->course->where('slug', $slug)->firstOrFail();
-
+    
                 if ($course->user_id !== auth()->id()) {
                     throw new \Exception('Bạn không có quyền cập nhật khóa học này.');
                 }
-
+    
                 $newSlug = $slug;
                 if ($request->has('title') && $request->title !== $course->title) {
                     $baseSlug = Str::slug($request->title);
                     $newSlug = $baseSlug;
                     $counter = 1;
-
+    
                     while (Course::where('slug', $newSlug)
                         ->where('course_id', '!=', $course->course_id)
                         ->exists()
@@ -318,7 +320,7 @@ class CourseController extends Controller
                         $counter++;
                     }
                 }
-
+    
                 $imageName = $course->img;
                 if ($request->hasFile('img')) {
                     if ($course->img) {
@@ -327,12 +329,12 @@ class CourseController extends Controller
                             unlink($oldImagePath);
                         }
                     }
-
+    
                     $img = $request->file('img');
                     $imageName = time() . '.' . $img->getClientOriginalExtension();
                     $img->move(public_path('upload/products'), $imageName);
                 }
-
+    
                 $course->update([
                     'course_category_id' => $request->input('course_category_id', $course->course_category_id),
                     'price' => $request->input('price', $course->price),
@@ -340,17 +342,18 @@ class CourseController extends Controller
                     'description' => $request->input('description', $course->description),
                     'title' => $request->input('title', $course->title),
                     'img' => $imageName,
-                    'slug' => $newSlug
+                    'slug' => $newSlug,
+                    'status' => $request->input('status', $course->status)
                 ]);
-
+    
                 Cache::forget('courses');
                 Cache::forget("course_{$slug}");
                 Cache::forget('featured_course');
                 Cache::tags(['courses'])->flush();
-
+    
                 return $course;
             });
-
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Khóa học được cập nhật thành công.',

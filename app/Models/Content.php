@@ -13,6 +13,7 @@ class Content extends Model
     protected $fillable = [
         'course_id',
         'name_content',
+        'status',
         'created_at',
         'updated_at'
     ];
