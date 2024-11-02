@@ -28,6 +28,9 @@ import { UserContext } from "../context/usercontext";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+
 export const InstructorNotification = () => {
     const { instructor, logout, refreshToken } = useContext(UserContext);
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -36,7 +39,12 @@ export const InstructorNotification = () => {
     const [loadingLogout, setLoadingLogout] = useState(false);
     const [_success, setSuccess] = useState("");
     const [userCourses, setUserCourses] = useState([]);
+    const [selectedType, setSelectedType] = useState("Loại")
     const navigate = useNavigate();
+
+    const handleSetType = (value) => {
+        setSelectedType(value);
+    }
 
     // hàm xử lý đăng xuất
     const handleLogout = () => {
@@ -238,27 +246,80 @@ export const InstructorNotification = () => {
                         {/* Notification content */}
                         <div className="md:p-6 p-2 max-lg:h-screen">
                             <form action="">
-                                <div className="my-5 bg-white rounded-3xl p-3 space-y-5">
+                                <div className="my-5 bg-white rounded-3xl p-10 space-y-5">
                                     {/* form notification */}
+
+                                    {/* title */}
                                     <div className="space-y-2">
                                         <span className="font-semibold text-lg">
-                                            Tên thông báo:
+                                            Tiêu đề:
                                         </span>
-                                        <Input placeholder="Nhập tên người nhận..." classNamep="p-1"></Input>
+                                        <Input placeholder="Nhập tên người nhận..." className="p-1"></Input>
                                     </div>
+
+                                    {/* content */}
                                     <div className="space-y-2">
                                         <span className="font-semibold text-lg">
                                             Nội dung thông báo:
                                         </span>
-                                        <Textarea placeholder="Nhập nội dung...">
+                                        <ReactQuill
+                                            className="pb-2"
+                                            modules={{
+                                                toolbar: [
+                                                    [{ 'header': [1, 2, 3, false] }],
+                                                    ['bold', 'italic', 'underline'],
+                                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                                    ['link', 'image', 'code-block'],
+                                                    ['clean']
+                                                ],
+                                            }}
+                                            formats={[
+                                                'header', 'bold', 'italic', 'underline',
+                                                'list', 'bullet', 'link', 'image', 'code-block'
+                                            ]}
+                                        />
 
-                                        </Textarea>
                                     </div>
+
+                                    {/* user */}
                                     <div className="space-y-2">
                                         <span className="font-semibold text-lg">
                                             Người nhận:
                                         </span>
                                         <Input placeholder="Nhập người nhận..."></Input>
+                                    </div>
+
+                                    {/* type */}
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-5">
+                                            <div className="">
+                                                <span className="font-semibold text-lg">
+                                                    Chọn kiểu:
+                                                </span>
+                                            </div>
+                                            <div className="">
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger>
+                                                        <div className="bg-red-300 px-5 rounded py-1 text-base">
+                                                            {selectedType}
+                                                        </div>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent className="space-y-1 cursor-pointer">
+                                                        <DropdownMenuItem className="bg-yellow-100 cursor-pointer" onClick={() => handleSetType("Low")}>
+                                                            <div>
+                                                                Low
+                                                            </div>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem className="bg-yellow-300 cursor-pointer" onClick={() => handleSetType("Medium")}>
+                                                            Medium
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem className="bg-yellow-500 cursor-pointer" onClick={() => handleSetType("High")}>
+                                                            High
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     {/* button submit */}
