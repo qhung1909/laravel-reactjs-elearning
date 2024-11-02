@@ -21,8 +21,8 @@ class ContentController extends Controller
             $cacheKey = 'contents_page_' . $request->input('page', 1) . '_' . $perPage;
 
             $contents = Cache::remember($cacheKey, 3600, function () use ($perPage) {
-                return Content::with('lesson')
-                    ->select('content_id', 'lesson_id', 'quiz_id', 'name_content', 'created_at', 'updated_at') // Thêm quiz_id
+                return Content::with('course')
+                    ->select('content_id', 'course_id', 'quiz_id', 'name_content', 'created_at', 'updated_at')
                     ->latest()
                     ->paginate($perPage);
             });
@@ -32,9 +32,9 @@ class ContentController extends Controller
                 'data' => $contents->map(function ($content) {
                     return [
                         'content_id' => $content->content_id,
-                        'lesson_id' => $content->lesson_id,
-                        'quiz_id' => $content->quiz_id, 
-                        'lesson' => $content->lesson,
+                        'course_id' => $content->course_id,
+                        'quiz_id' => $content->quiz_id,
+                        'course' => $content->course,
                         'name_content' => $content->name_content,
                         'created_at' => $content->created_at,
                         'updated_at' => $content->updated_at,
@@ -55,19 +55,18 @@ class ContentController extends Controller
         }
     }
 
-
     /**
      * Xem chi tiết content
      */
-    public function show($lesson_id)
+    public function show($course_id)
     {
         try {
-            $cacheKey = 'content_by_lesson_' . $lesson_id;
+            $cacheKey = 'content_by_course_' . $course_id;
 
-            $contents = Cache::remember($cacheKey, 3600, function () use ($lesson_id) {
-                return Content::with('lesson')
-                    ->select('content_id', 'lesson_id', 'quiz_id', 'name_content', 'created_at', 'updated_at') // Thêm quiz_id
-                    ->where('lesson_id', $lesson_id)
+            $contents = Cache::remember($cacheKey, 3600, function () use ($course_id) {
+                return Content::with('course')
+                    ->select('content_id', 'course_id', 'quiz_id', 'name_content', 'created_at', 'updated_at')
+                    ->where('course_id', $course_id)
                     ->orderBy('created_at', 'desc')
                     ->get();
             });
@@ -75,7 +74,7 @@ class ContentController extends Controller
             if ($contents->isEmpty()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Không tìm thấy nội dung cho lesson_id này.',
+                    'message' => 'Không tìm thấy nội dung cho course_id này.',
                 ], 404);
             }
 
@@ -84,9 +83,9 @@ class ContentController extends Controller
                 'data' => $contents->map(function ($content) {
                     return [
                         'content_id' => $content->content_id,
-                        'lesson_id' => $content->lesson_id,
-                        'quiz_id' => $content->quiz_id, // Thêm quiz_id vào dữ liệu trả về
-                        'lesson' => $content->lesson,
+                        'course_id' => $content->course_id,
+                        'quiz_id' => $content->quiz_id,
+                        'course' => $content->course,
                         'name_content' => $content->name_content,
                         'created_at' => $content->created_at,
                         'updated_at' => $content->updated_at,
@@ -111,11 +110,11 @@ class ContentController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'lesson_id' => 'required|exists:lessons,id',
+            'course_id' => 'required|exists:courses,id',
             'name_content' => 'required|string|max:255',
         ], [
-            'lesson_id.required' => 'Lesson ID là bắt buộc',
-            'lesson_id.exists' => 'Lesson không tồn tại',
+            'course_id.required' => 'Course ID là bắt buộc',
+            'course_id.exists' => 'Course không tồn tại',
             'name_content.required' => 'Nội dung là bắt buộc',
             'name_content.max' => 'Nội dung không được vượt quá 255 ký tự',
         ]);
@@ -158,11 +157,11 @@ class ContentController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'lesson_id' => 'required|exists:lessons,id',
+            'course_id' => 'required|exists:courses,id',
             'name_content' => 'required|string|max:255',
         ], [
-            'lesson_id.required' => 'Lesson ID là bắt buộc',
-            'lesson_id.exists' => 'Lesson không tồn tại',
+            'course_id.required' => 'Course ID là bắt buộc',
+            'course_id.exists' => 'Course không tồn tại',
             'name_content.required' => 'Nội dung là bắt buộc',
             'name_content.max' => 'Nội dung không được vượt quá 255 ký tự',
         ]);
