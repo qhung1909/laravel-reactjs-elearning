@@ -17,7 +17,7 @@ class MessageController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'message' => 'required|string|max:255',
-            'user_id' => 'nullable|exists:users,user_id',
+            'user_id' => 'nullable|exists:users,user_id', 
             'type' => 'required|string|in:High,Normal,Low',
             'content' => 'nullable|string'
         ]);
@@ -45,10 +45,17 @@ class MessageController extends Controller
             $type = $request->input('type');
             $content = $request->input('content');
             $notificationIds = [];
+            
+            // Lấy thông tin người gửi
+            $sender = User::select(['user_id', 'name', 'email'])
+                ->find(Auth::id());
     
             if ($userId) {
-                $user = User::find($userId);
-                if (!$user) {
+                // Lấy thông tin người nhận cụ thể
+                $receiver = User::select(['user_id', 'name', 'email'])
+                    ->find($userId);
+    
+                if (!$receiver) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Không tìm thấy người dùng.',
@@ -69,21 +76,40 @@ class MessageController extends Controller
     
                 if ($type === 'High') {
                     try {
-                        Mail::to($user->email)
+                        Mail::to($receiver->email)
                             ->queue(new NotificationMail($message, $content ?? '', $type));
                     } catch (\Exception $e) {
-                        Log::warning("Failed to send email to {$user->email}: {$e->getMessage()}");
+                        Log::warning("Failed to send email to {$receiver->email}: {$e->getMessage()}");
                     }
                 }
     
                 $notificationIds[] = $notification->id;
     
-            } else {
-                $users = User::select(['user_id', 'email'])->get();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Tin nhắn đã được gửi thành công!',
+                    'data' => [
+                        'notification_ids' => $notificationIds,
+                        'sent_at' => now()->toISOString(),
+                        'sender' => [
+                            'user_id' => $sender->user_id,
+                            'name' => $sender->name
+                        ],
+                        'receiver' => [
+                            'user_id' => $receiver->user_id,
+                            'name' => $receiver->name
+                        ]
+                    ]
+                ]);
     
-                foreach ($users as $user) {
+            } else {
+                // Gửi cho tất cả người dùng
+                $receivers = User::select(['user_id', 'name', 'email'])->get();
+                $receiversList = [];
+    
+                foreach ($receivers as $receiver) {
                     $notification = Notification::create([
-                        'user_id' => $user->user_id,
+                        'user_id' => $receiver->user_id,
                         'message' => $message,
                         'content' => $content,
                         'type' => $type,
@@ -91,30 +117,38 @@ class MessageController extends Controller
                         'created_by' => Auth::id()
                     ]);
     
-                    broadcast(new MyEvent($message, $user->user_id, $notification->id))->toOthers();
+                    broadcast(new MyEvent($message, $receiver->user_id, $notification->id))->toOthers();
     
                     if ($type === 'High') {
                         try {
-                            Mail::to($user->email)
+                            Mail::to($receiver->email)
                                 ->queue(new NotificationMail($message, $content ?? '', $type));
                         } catch (\Exception $e) {
-                            Log::warning("Failed to send email to {$user->email}: {$e->getMessage()}");
+                            Log::warning("Failed to send email to {$receiver->email}: {$e->getMessage()}");
                         }
                     }
     
                     $notificationIds[] = $notification->id;
+                    $receiversList[] = [
+                        'user_id' => $receiver->user_id,
+                        'name' => $receiver->name
+                    ];
                 }
-            }
     
-            return response()->json([
-                'status' => 'success',
-                'message' => $userId ? 'Tin nhắn đã được gửi thành công!' : 'Tin nhắn đã được gửi đến tất cả người dùng!',
-                'data' => [
-                    'user_id' => $userId ?? null,
-                    'notification_ids' => $notificationIds,
-                    'sent_at' => now()->toISOString(),
-                ]
-            ]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Tin nhắn đã được gửi đến tất cả người dùng!',
+                    'data' => [
+                        'notification_ids' => $notificationIds,
+                        'sent_at' => now()->toISOString(),
+                        'sender' => [
+                            'user_id' => $sender->user_id,
+                            'name' => $sender->name
+                        ],
+                        'receivers' => $receiversList
+                    ]
+                ]);
+            }
     
         } catch (\Exception $e) {
             Log::error('Notification Error: ' . $e->getMessage());
