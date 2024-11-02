@@ -94,7 +94,7 @@ const data = {
                 { title: "Duyệt khóa học mới từ giảng viên", url: "/admin/browse-new-courses" },
                 { title: "Quản lý trạng thái khóa học (Draft/Published/Hidden)", url: "/admin/course-status" },
                 { title: "Phân loại khóa học theo category", url: "/admin/classify-course" },
-                { title: "Quản lý mã voucher", url: "/admin/price-discount" },
+                { title: "Quản lý mã voucher", url: "/admin/page-coupons" },
                 { title: "Quản lý nội dung và tài liệu của khóa học", url: "#" },
             ],
         },

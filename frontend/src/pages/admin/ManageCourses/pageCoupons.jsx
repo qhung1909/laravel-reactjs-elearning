@@ -1,3 +1,4 @@
+import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import React, { useEffect, useState } from 'react';
 import {
     Pagination,
@@ -20,7 +21,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Search,
@@ -32,26 +32,65 @@ import {
 } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 import axios from "axios";
-import { toast } from 'react-toastify';
+import { toast, Toaster } from 'react-hot-toast';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function PriceDiscount() {
+export default function PageCoupons() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
 
     const [coupons, setCoupons] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [searchTerm, setSearchTerm] = useState('');
     const [editCouponId, setEditCouponId] = useState(null);
     const [editCouponName, setEditCouponName] = useState('');
+    const [editStartDate, setEditStartDate] = useState('');
+    const [editEndDate, setEditEndDate] = useState('');
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [newCouponName, setNewCouponName] = useState('');
     const [newDiscountPrice, setNewDiscountPrice] = useState(null);
     const [editDiscountPrice, setEditDiscountPrice] = useState(0);
+    const [validationError, setValidationError] = useState('');
+
+    const validateDiscountPrice = (value) => {
+        if (value === '') {
+            return true;
+        }
+
+        const numValue = Number(value);
+        if (isNaN(numValue)) {
+            return false;
+        }
+
+        if (numValue < 0) {
+            return false;
+        }
+
+        if (numValue > 1000000000) {
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleDiscountPriceChange = (e) => {
+        const value = e.target.value;
+        setEditDiscountPrice(value);
+
+        if (value === '') {
+            setValidationError('');
+            return;
+        }
+
+        if (!validateDiscountPrice(value)) {
+            setValidationError('Vui lòng nhập giá giảm hợp lệ (từ 0 đến 1,000,000,000)');
+        } else {
+            setValidationError('');
+        }
+    };
 
     const calculateStatus = (endDate) => {
         const now = new Date();
@@ -95,10 +134,9 @@ export default function PriceDiscount() {
         } catch (error) {
             console.error('Error fetching Coupons:', error);
             toast.error('Lỗi khi tải dữ liệu mã giảm giá.');
-        } finally {
-            setIsLoading(false);
         }
     };
+
 
     useEffect(() => {
         fetchCoupons();
@@ -107,6 +145,161 @@ export default function PriceDiscount() {
     const handleSort = (key) => {
         const direction = (sortConfig.key === key && sortConfig.direction === 'asc') ? 'desc' : 'asc';
         setSortConfig({ key, direction });
+    };
+
+    const addCoupon = async (e) => {
+        e.preventDefault();
+
+        // Validate required fields
+        if (!newCouponName || !editDiscountPrice || !editStartDate || !editEndDate) {
+            toast.error('Vui lòng điền đầy đủ thông tin!');
+            return;
+        }
+
+        // Validate discount price
+        if (!validateDiscountPrice(editDiscountPrice)) {
+            toast.error('Giá giảm không hợp lệ!');
+            return;
+        }
+
+        // Validate dates
+        const startDate = new Date(editStartDate);
+        const endDate = new Date(editEndDate);
+        if (endDate <= startDate) {
+            toast.error('Ngày kết thúc phải sau ngày bắt đầu!');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('name_coupon', newCouponName);
+        formData.append('discount_price', Number(editDiscountPrice));
+        formData.append('start_discount', formatDateNoTime(editStartDate));
+        formData.append('end_discount', formatDateNoTime(editEndDate));
+
+
+        try {
+            const res = await axios.post(`${API_URL}/coupons`, formData, {
+                headers: { 'x-api-secret': API_KEY },
+            });
+            if (res.status === 201) {
+                toast.dismiss();
+                toast.success('Thêm mã giảm giá thành công!', {
+                    duration: 3000,
+                    position: 'top-right'
+                });
+                fetchCoupons();
+                setNewCouponName('');
+                setEditDiscountPrice('');
+                setEditStartDate('');
+                setEditEndDate('');
+                setIsDialogOpen(false);
+            }
+        } catch (error) {
+            toast.dismiss();
+            console.error('Error adding coupon:', error);
+            toast.error('Lỗi khi thêm mã giảm giá. Vui lòng thử lại!', {
+                duration: 3000,
+                position: 'top-right'
+            });
+        }
+    };
+
+    const editCoupon = async (e) => {
+        e.preventDefault();
+
+        if (!editCouponName || !editDiscountPrice) {
+            toast.error('Vui lòng điền đầy đủ thông tin!');
+            return;
+        }
+
+        if (!validateDiscountPrice(editDiscountPrice)) {
+            toast.error('Giá giảm không hợp lệ!');
+            return;
+        }
+
+        const updatedCoupon = {
+            name_coupon: editCouponName,
+            discount_price: editDiscountPrice,
+            start_discount: editStartDate,
+            end_discount: editEndDate,
+        };
+
+
+        try {
+            const res = await axios.put(`${API_URL}/admin/coupons/${editCouponId}`, updatedCoupon, {
+                headers: {
+                    'x-api-secret': API_KEY,
+                    'Content-Type': 'application/json'
+                },
+            });
+            if (res.status === 200) {
+                toast.dismiss();
+                toast.success('Cập nhật mã giảm giá thành công!', {
+                    duration: 3000,
+                    position: 'top-right'
+                });
+                fetchCoupons();
+                setEditCouponId(null);
+                setEditCouponName('');
+                setEditDiscountPrice(0);
+                setShowEditDialog(false);
+            }
+        } catch (error) {
+            toast.dismiss();
+            console.error('Error editing coupon:', error);
+            toast.error('Lỗi khi cập nhật mã giảm giá. Vui lòng thử lại!', {
+                duration: 3000,
+                position: 'top-right'
+            });
+        }
+    };
+
+    const deleteCoupon = async (couponId) => {
+        toast((t) => (
+            <div>
+                <p>Bạn có chắc chắn muốn xóa mã giảm giá này?</p>
+                <div className="mt-4 text-center">
+                    <button
+                        className="mr-2 px-3 py-1 bg-red-500 text-white rounded"
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            try {
+                                await axios.delete(`${API_URL}/coupons/${couponId}`, {
+                                    headers: { 'x-api-secret': API_KEY },
+                                });
+                                toast.dismiss();
+                                toast.success('Xóa mã giảm giá thành công!');
+                                fetchCoupons();
+                            } catch (error) {
+                                toast.dismiss();
+                                console.error('Error deleting coupon:', error);
+                                toast.error('Lỗi khi xóa mã giảm giá. Vui lòng thử lại!');
+                            }
+                        }}
+                    >
+                        Xóa
+                    </button>
+                    <button
+                        className="px-3 py-1 bg-gray-200 rounded"
+                        onClick={() => toast.dismiss(t.id)}
+                    >
+                        Hủy
+                    </button>
+                </div>
+            </div>
+        ), {
+            duration: 5000,
+            position: 'top-center',
+        });
+    };
+
+    const openEditDialog = (id, name, discountPrice, startDate, endDate) => {
+        setEditCouponId(id);
+        setEditCouponName(name);
+        setEditDiscountPrice(discountPrice);
+        setEditStartDate(new Date(startDate).toISOString().split('T')[0]);
+        setEditEndDate(new Date(endDate).toISOString().split('T')[0]);
+        setShowEditDialog(true);
     };
 
     const filteredCoupons = coupons.filter(coupon =>
@@ -131,74 +324,9 @@ export default function PriceDiscount() {
             : <ChevronUp className="h-4 w-4 opacity-0 group-hover:opacity-50" />
     );
 
-    const addCoupon = async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('name_coupon', newCouponName);
-        formData.append('discount_price', newDiscountPrice);
-        try {
-            const res = await axios.post(`${API_URL}/coupons`, formData, {
-                headers: { 'x-api-secret': API_KEY },
-            });
-            if (res.status === 201) {
-                toast.success('Thêm mã giảm giá thành công!');
-                fetchCoupons();
-                setNewCouponName('');
-                setNewDiscountPrice('');
-                setIsDialogOpen(false);
-            }
-        } catch (error) {
-            console.error('Error adding coupon:', error);
-            toast.error('Lỗi khi thêm mã giảm giá.');
-        }
-    };
-
-    const editCoupon = async (e) => {
-        e.preventDefault();
-        const updatedCoupon = {
-            name_coupon: editCouponName,
-            discount_price: editDiscountPrice,
-        };
-        try {
-            const res = await axios.put(`${API_URL}/coupons/${editCouponId}`, updatedCoupon, {
-                headers: { 'x-api-secret': API_KEY },
-            });
-            if (res.status === 200) {
-                toast.success('Cập nhật mã giảm giá thành công!');
-                fetchCoupons();
-                setEditCouponId(null);
-                setEditCouponName('');
-                setEditDiscountPrice(0);
-                setShowEditDialog(false);
-            }
-        } catch (error) {
-            console.error('Error editing coupon:', error);
-            toast.error('Lỗi khi cập nhật mã giảm giá.');
-        }
-    };
-
-    const deleteCoupon = async (couponId) => {
-        try {
-            await axios.delete(`${API_URL}/coupons/${couponId}`, {
-                headers: { 'x-api-secret': API_KEY },
-            });
-            toast.success('Xóa mã giảm giá thành công!');
-            fetchCoupons();
-        } catch (error) {
-            console.error('Error deleting coupon:', error);
-            toast.error('Lỗi khi xóa mã giảm giá.');
-        }
-    };
-
-    const openEditDialog = (id, name, discountPrice) => {
-        setEditCouponId(id);
-        setEditCouponName(name);
-        setEditDiscountPrice(discountPrice);
-        setShowEditDialog(true);
-    };
-
     return (
         <SidebarProvider>
+            <Toaster position="top-right" />
             <SideBarUI />
             <SidebarInset>
                 <header className="z-10 absolute left-1 top-3">
@@ -272,15 +400,35 @@ export default function PriceDiscount() {
                                                         <Label htmlFor="editDiscountPrice" className="text-right">Giảm giá</Label>
                                                         <Input
                                                             id="editDiscountPrice"
-                                                            type="number"
                                                             value={editDiscountPrice}
-                                                            onChange={(e) => setEditDiscountPrice(Number(e.target.value))}
+                                                            onChange={handleDiscountPriceChange}
+                                                            className={`col-span-3 ${validationError ? 'border-red-500' : ''}`}
+                                                            placeholder="Enter discount price"
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                        <Label htmlFor="editStartDate" className="text-right">Ngày bắt đầu</Label>
+                                                        <Input
+                                                            id="editStartDate"
+                                                            type="date"
+                                                            value={editStartDate}
+                                                            onChange={(e) => setEditStartDate(e.target.value)}
+                                                            className="col-span-3"
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                        <Label htmlFor="editEndDate" className="text-right">Ngày kết thúc</Label>
+                                                        <Input
+                                                            id="editEndDate"
+                                                            type="date"
+                                                            value={editEndDate}
+                                                            onChange={(e) => setEditEndDate(e.target.value)}
                                                             className="col-span-3"
                                                         />
                                                     </div>
                                                 </div>
                                                 <DialogFooter>
-                                                    <Button type="submit" onClick={addCoupon}>Thêm mã giảm giá</Button>
+                                                    <Button type="submit">Thêm mã giảm giá</Button>
                                                 </DialogFooter>
                                             </form>
                                         </DialogContent>
@@ -336,59 +484,45 @@ export default function PriceDiscount() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {isLoading ? (
-                                            Array.from({ length: 5 }).map((_, index) => (
-                                                <tr key={index} className="border-t border-gray-100 bg-gray-200 h-6">
-                                                    <td className="py-4 px-6 h-6" />
-                                                    <td className="py-4 px-6 h-6" />
-                                                    <td className="py-4 px-6 h-6" />
-                                                    <td className="py-4 px-6 h-6" />
-                                                    <td className="py-4 px-6 h-6" />
-                                                    <td className="py-4 px-6 h-6" />
-                                                    <td className="py-4 px-6 h-6" />
+                                        {sortedCoupons.map((coupon, index) => {
+                                            const status = calculateStatus(coupon.end_discount);
+                                            return (
+                                                <tr key={coupon.coupons_id} className={`border-t border-gray-100 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                                                    <td className="py-4 px-6 text-sm text-gray-600">{coupon.coupons_id}</td>
+                                                    <td className="py-4 px-6 text-sm text-gray-600">{coupon.name_coupon}</td>
+                                                    <td className="py-4 px-6 text-sm text-gray-600">
+                                                        {coupon.discount_price ? `${coupon.discount_price.toLocaleString('vi-VN')} VNĐ` : 'N/A'}
+                                                    </td>
+                                                    <td className="py-4 px-6 text-sm text-gray-600">
+                                                        {new Date(coupon.start_discount).toLocaleDateString('vi-VN')}
+                                                    </td>
+                                                    <td className="py-4 px-6 text-sm text-gray-600">
+                                                        {new Date(coupon.end_discount).toLocaleDateString('vi-VN')}
+                                                    </td>
+                                                    <td className="py-4 px-6 text-sm">
+                                                        <span className={status.className}>
+                                                            {status.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-4 px-6 text-sm text-gray-600 text-center">
+                                                        <Button className="bg-amber-200 mr-2"
+                                                            variant="link"
+                                                            onClick={() => openEditDialog(coupon.coupons_id, coupon.name_coupon, coupon.discount_price, coupon.start_discount, coupon.end_discount)}
+                                                            disabled={status.daysRemaining <= 0}
+                                                        >
+                                                            Chỉnh sửa
+                                                        </Button>
+                                                        <Button
+                                                            variant="link"
+                                                            onClick={() => deleteCoupon(coupon.coupons_id)}
+                                                            className="text-red-600 hover:text-red-800 bg-gray-200"
+                                                        >
+                                                            Xóa
+                                                        </Button>
+                                                    </td>
                                                 </tr>
-                                            ))
-                                        ) : (
-                                            sortedCoupons.map((coupon, index) => {
-                                                const status = calculateStatus(coupon.end_discount);
-                                                return (
-                                                    <tr key={coupon.coupons_id} className={`border-t border-gray-100 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                                                        <td className="py-4 px-6 text-sm text-gray-600">{coupon.coupons_id}</td>
-                                                        <td className="py-4 px-6 text-sm text-gray-600">{coupon.name_coupon}</td>
-                                                        <td className="py-4 px-6 text-sm text-gray-600">
-                                                            {coupon.discount_price ? `${coupon.discount_price.toLocaleString('vi-VN')} VNĐ` : 'N/A'}
-                                                        </td>
-                                                        <td className="py-4 px-6 text-sm text-gray-600">
-                                                            {new Date(coupon.start_discount).toLocaleDateString('vi-VN')}
-                                                        </td>
-                                                        <td className="py-4 px-6 text-sm text-gray-600">
-                                                            {new Date(coupon.end_discount).toLocaleDateString('vi-VN')}
-                                                        </td>
-                                                        <td className="py-4 px-6 text-sm">
-                                                            <span className={status.className}>
-                                                                {status.status}
-                                                            </span>
-                                                        </td>
-                                                        <td className="py-4 px-6 text-sm text-gray-600 text-center">
-                                                            <Button className="bg-amber-200 mr-2"
-                                                                variant="link"
-                                                                onClick={() => openEditDialog(coupon.coupons_id, coupon.name_coupon, coupon.discount_price)}
-                                                                disabled={status.daysRemaining <= 0}
-                                                            >
-                                                                Chỉnh sửa
-                                                            </Button>
-                                                            <Button
-                                                                variant="link"
-                                                                onClick={() => deleteCoupon(coupon.coupons_id)}
-                                                                className="text-red-600 hover:text-red-800 bg-gray-200"
-                                                            >
-                                                                Xóa
-                                                            </Button>
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })
-                                        )}
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
@@ -447,6 +581,26 @@ export default function PriceDiscount() {
                                         className="col-span-3"
                                     />
                                 </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="editStartDate" className="text-right">Ngày bắt đầu</Label>
+                                    <Input
+                                        id="editStartDate"
+                                        type="date"
+                                        value={editStartDate}
+                                        onChange={(e) => setEditStartDate(e.target.value)}
+                                        className="col-span-3"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="editEndDate" className="text-right">Ngày kết thúc</Label>
+                                    <Input
+                                        id="editEndDate"
+                                        type="date"
+                                        value={editEndDate}
+                                        onChange={(e) => setEditEndDate(e.target.value)}
+                                        className="col-span-3"
+                                    />
+                                </div>
                             </div>
                             <DialogFooter>
                                 <Button type="submit">Lưu thay đổi</Button>
@@ -454,6 +608,7 @@ export default function PriceDiscount() {
                         </form>
                     </DialogContent>
                 </Dialog>
+
             </SidebarInset>
         </SidebarProvider>
     );
