@@ -212,6 +212,7 @@ export const Login = () => {
             notify('Đăng nhập thất bại');
         } finally {
             setLoading(false);
+            window.location.reload()
         }
     }, 300), [email, password, navigate]);
 
