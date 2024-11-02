@@ -16,7 +16,7 @@ class Content extends Model
         'created_at',
         'updated_at'
     ];
-    public function courses()
+    public function course()
     {
         return $this->belongsTo(Course::class, 'course_id');
     }
