@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Aws\S3\S3Client;
 use App\Models\Category;
 use App\Models\Coupon;
+
 class AdminController extends Controller
 {
     protected $course;
@@ -67,6 +68,27 @@ class AdminController extends Controller
             'data' => $course
         ]);
     }
+
+    public function updateCourseCategory(Request $request, $courseId)
+    {
+        $request->validate([
+            'course_category_id' => 'required|integer|exists:course_categories,course_category_id',
+        ]);
+
+        $course = $this->course->find($courseId);
+
+        if (!$course) {
+            return response()->json(['message' => 'Course not found'], 404);
+        }
+
+        $course->course_category_id = $request->course_category_id;
+        $course->save();
+
+        Cache::forget('admin_courses_all');
+
+        return response()->json(['message' => 'Course category updated successfully', 'course' => $course]);
+    }
+
 
     public function getSummary()
     {
@@ -212,53 +234,54 @@ class AdminController extends Controller
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
         ];
-    
+
         $validator = Validator::make($request->all(), $rules);
-    
+
         if ($validator->fails()) {
             Log::error('Validation failed:', $validator->errors()->toArray());
             return response()->json(['errors' => $validator->errors()], 422);
         }
-    
+
         try {
             $category = Category::where('course_category_id', $course_category_id)->firstOrFail();
             Log::info('Original category data:', $category->toArray());
-    
-            $changes = []; 
-    
+
+            $changes = [];
+
             if ($request->filled('name')) {
                 Log::info('Processing name update:', [
                     'current' => $category->name,
                     'new' => $request->name
                 ]);
-                
+
                 if ($request->name !== $category->name) {
                     $oldName = $category->name;
                     $category->name = $request->name;
-                    
+
                     $baseSlug = Str::slug($request->name);
                     $newSlug = $baseSlug;
                     $counter = 1;
-                    
+
                     while (Category::where('slug', $newSlug)
-                           ->where('course_category_id', '!=', $category->course_category_id)
-                           ->exists()) {
+                        ->where('course_category_id', '!=', $category->course_category_id)
+                        ->exists()
+                    ) {
                         $newSlug = $baseSlug . '-' . $counter;
                         $counter++;
                     }
-                    
+
                     $category->slug = $newSlug;
                     $changes['name'] = ['old' => $oldName, 'new' => $request->name];
                     $changes['slug'] = ['old' => $category->getOriginal('slug'), 'new' => $newSlug];
                 }
             }
-    
+
             if ($request->filled('description')) {
                 Log::info('Processing description update:', [
                     'current' => $category->description,
                     'new' => $request->description
                 ]);
-                
+
                 if ($request->description !== $category->description) {
                     $changes['description'] = [
                         'old' => $category->description,
@@ -267,7 +290,7 @@ class AdminController extends Controller
                     $category->description = $request->description;
                 }
             }
-    
+
             if ($request->hasFile('image')) {
                 Log::info('Processing image upload');
                 try {
@@ -282,7 +305,7 @@ class AdminController extends Controller
                     throw $e;
                 }
             }
-    
+
             if (!empty($changes)) {
                 Log::info('Changes detected:', $changes);
                 $category->updated_at = now();
@@ -291,24 +314,23 @@ class AdminController extends Controller
             } else {
                 Log::info('No changes detected');
             }
-    
+
             $category->refresh();
             Log::info('Final category data:', $category->toArray());
-    
+
             return response()->json([
                 'success' => true,
-                'message' => !empty($changes) 
+                'message' => !empty($changes)
                     ? 'Danh mục được cập nhật thành công.'
                     : 'Không có thay đổi nào được thực hiện.',
                 'category' => $category
             ], 200);
-    
         } catch (\Exception $e) {
             Log::error('Error updating category:', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return response()->json([
                 'error' => 'Có lỗi xảy ra khi cập nhật danh mục: ' . $e->getMessage()
             ], 500);
