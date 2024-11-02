@@ -58,6 +58,10 @@ export default function TaskList() {
     // hàm xử lý hiện thông báo
     const fetchNotifications = async (page = 1) => {
         const token = localStorage.getItem('access_token');
+        if (!token) {
+            console.error('No token found');
+            return;
+        }
         try {
             const response = await axios.get(`${API_URL}/auth/notifications?per_page=${tasksPerPage}&page=${page}`, {
                 headers: {
@@ -65,9 +69,12 @@ export default function TaskList() {
                     'Content-Type': 'application/json',
                 },
             });
-            setTasks(response.data.notifications);
-            setTotalPages(response.data.last_page);
-            setCurrentPage(response.data.current_page);
+
+            // Log response data
+
+            setTasks(response.data.data.notifications || []);
+            setTotalPages(response.data.data.pagination.last_page);
+            setCurrentPage(response.data.data.pagination.current_page);
         } catch (error) {
             console.error('Error fetching notifications:', error);
         } finally {
@@ -192,7 +199,7 @@ export default function TaskList() {
 
                                             {/* Người gửi */}
                                             <TableCell>
-                                            {task.sender ? task.sender.name : <p>đang tải</p>}
+                                            {task.sender_name}
                                             </TableCell>
                                             {/* ID */}
                                             {/* <TableCell className="font-medium">
@@ -250,7 +257,6 @@ export default function TaskList() {
                                                                                         {new Date(selectedNotification.created_at).toLocaleString('vi-VN')}
                                                                                     </span>
                                                                                 </div>
-                                                                                {task.sender ? task.sender.name : <p>đang tải</p>}
 
                                                                                 {/* title */}
                                                                                 <div className="text-2xl font-bold">

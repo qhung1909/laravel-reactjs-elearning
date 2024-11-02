@@ -19,7 +19,7 @@ const CreateQuiz = () => {
     const [questions, setQuestions] = useState([]);
 
     useEffect(() => {
-        const storedData = sessionStorage.getItem(`quiz-${lessonId}`);
+        const storedData = localStorage.getItem(`quiz-${lessonId}`);
         if (storedData) {
             setQuestions(JSON.parse(storedData));
         }
@@ -85,7 +85,7 @@ const CreateQuiz = () => {
                     : q.answers[0] !== undefined ? [q.answers[0]] : []
         }));
 
-        sessionStorage.setItem(`quiz-${lessonId}`, JSON.stringify(formattedQuestions));
+        localStorage.setItem(`quiz-${lessonId}`, JSON.stringify(formattedQuestions));
         console.log(formattedQuestions);
     };
 

@@ -129,6 +129,7 @@ export const InstructorNotification = () => {
                     </div>
                     {/* Main Content */}
                     <div className="flex-1">
+
                         {/* Header */}
                         <div className="bg-white shadow-sm p-2">
                             <div className="flex items-center justify-between px-4 py-3">
@@ -243,6 +244,7 @@ export const InstructorNotification = () => {
                                 </div>
                             </div>
                         </div>
+                        
                         {/* Notification content */}
                         <div className="md:p-6 p-2 max-lg:h-screen">
                             <form action="">
@@ -300,7 +302,7 @@ export const InstructorNotification = () => {
                                             <div className="">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger>
-                                                        <div className="bg-red-300 px-5 rounded py-1 text-base">
+                                                        <div className="border px-5 rounded py-1 text-base">
                                                             {selectedType}
                                                         </div>
                                                     </DropdownMenuTrigger>
