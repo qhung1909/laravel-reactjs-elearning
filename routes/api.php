@@ -83,9 +83,9 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/top-purchased-courses', [CourseController::class, 'topPurchasedCourses']);
     Route::get('/top-viewed-courses', [CourseController::class, 'topViewedCourses']);
     Route::get('course/{slug}', [CourseController::class, 'show'])->name('courses.show');
-    Route::post('course', [CourseController::class, 'store'])->name('courses.store');
-    Route::put('course/{slug}', [CourseController::class, 'update'])->name('courses.update');
-    Route::delete('course/{slug}', [CourseController::class, 'delete'])->name('courses.delete');
+    Route::post('/course', [CourseController::class, 'store'])->name('courses.store');
+    Route::put('/course/{slug}', [CourseController::class, 'update'])->name('courses.update');
+    Route::delete('/course/{slug}', [CourseController::class, 'delete'])->name('courses.delete');
     Route::get('courses/featured', [CourseController::class, 'featureCouse']);
     Route::get('/userCourses/{userId}', [UserCourseController::class, 'show']);
     Route::get('/courses/related/{categoryId}/{slug}', [CourseController::class, 'relatedCoursesByCategory']);
