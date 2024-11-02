@@ -65,8 +65,8 @@ export const InstructorNotification = () => {
 
     return (
         <>
-            <section className="instructor-home">
-                <div className="flex bg-gray-100 h-sc">
+            <section className="instructor-notification">
+                <div className="flex bg-gray-100 ">
                     {/* Sidebar */}
                     <div className="h-screen w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
                         <div className="p-3">

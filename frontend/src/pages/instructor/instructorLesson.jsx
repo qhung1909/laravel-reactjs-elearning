@@ -126,7 +126,7 @@ export const InstructorLesson = () => {
 
     return (
         <>
-            <section className="instructor-home">
+            <section className="instructor-lesson">
                 <div className="flex bg-gray-100 h-sc">
                     {/* Sidebar */}
                     <div className="h-screen w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
