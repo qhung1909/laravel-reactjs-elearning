@@ -15,6 +15,8 @@ import { Link } from "react-router-dom";
 import { Footer } from "../footer/footer";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import axios from "axios";
+
 import CryptoJS from 'crypto-js';
 
 const secretKey = 'your-secret-key';
@@ -28,12 +30,17 @@ const decryptData = (cipherText) => {
 };
 
 export const CourseOverview = () => {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+
     const [courseTitle, setCourseTitle] = useState("");
     const [courseDescriptionText, setCourseDescriptionText] = useState("");
-
     const [currency, setCurrency] = useState("");
     const [price, setPrice] = useState("");
-
     const [selectedLanguage, setSelectedLanguage] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
     const [courseImage, setCourseImage] = useState(null);
@@ -97,6 +104,25 @@ export const CourseOverview = () => {
             localStorage.removeItem('FA-CO');
         }
     }, [courseTitle, wordCount, courseDescriptionText, currency, price, selectedLanguage, selectedCategory, courseImage]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            setLoading(true);
+            try {
+                const res = await axios.get(`${API_URL}/categories`, {
+                    headers: { 'x-api-secret': API_KEY }
+                });
+                setCategories(res.data);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            } finally {
+                setLoading(false)
+            }
+        };
+        fetchCategories()
+    }, [API_KEY, API_URL])
+
+
 
     return (
         <>
@@ -208,14 +234,28 @@ export const CourseOverview = () => {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectGroup>
-                                            <SelectLabel>Thể loại khóa học</SelectLabel>
-                                            <SelectItem value="frontend">Frontend Development</SelectItem>
-                                            <SelectItem value="backend">Backend Development</SelectItem>
-                                            <SelectItem value="fullstack">Fullstack Development</SelectItem>
-                                            <SelectItem value="devops">DevOps</SelectItem>
+
+                                            {loading ? (
+                                                <>
+                                                    <SelectLabel>Đang load</SelectLabel>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <SelectLabel>Thể loại khóa học</SelectLabel>
+
+                                                    {categories.map((category) => (
+                                                        <SelectItem key={category.category_course_id} value={category.slug}>
+                                                            {category.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </>
+                                            )
+                                            }
+
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
+
                             </div>
                         </div>
 

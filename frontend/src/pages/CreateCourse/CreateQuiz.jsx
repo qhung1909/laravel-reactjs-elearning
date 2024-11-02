@@ -4,16 +4,28 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { ListChecks, CheckCircle2, Circle, Type, Plus, Trash2 } from 'lucide-react';
+import { CheckCircle2, Circle, Type, Plus, Trash2 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 
-const CreateQuiz = () => {
+const secretKey = 'your-secret-key';
+
+const encryptData = (data) => {
+    return CryptoJS.AES.encrypt(JSON.stringify(data), secretKey).toString();
+};
+
+const decryptData = (cipherText) => {
+    const bytes = CryptoJS.AES.decrypt(cipherText, secretKey);
+    return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+};
+
+export const CreateQuiz = () => {
     const location = useLocation();
     const lessonId = new URLSearchParams(location.search).get('lesson');
     const [questions, setQuestions] = useState([]);
@@ -21,9 +33,29 @@ const CreateQuiz = () => {
     useEffect(() => {
         const storedData = localStorage.getItem(`quiz-${lessonId}`);
         if (storedData) {
-            setQuestions(JSON.parse(storedData));
+            try {
+                const decryptedData = decryptData(storedData);
+                setQuestions(decryptedData);
+            } catch (error) {
+                console.error("Error decrypting data:", error);
+            }
         }
     }, [lessonId]);
+
+
+    useEffect(() => {
+        if (questions.length > 0 && lessonId) {
+            try {
+                const encryptedData = encryptData(questions);
+                localStorage.setItem(`quiz-${lessonId}`, encryptedData);
+            } catch (error) {
+                console.error("Error saving data to localStorage:", error);
+            }
+        } else {
+            localStorage.removeItem(`quiz-${lessonId}`);
+        }
+    }, [questions, lessonId]);
+
 
     const addQuestion = () => {
         setQuestions([...questions, {
@@ -73,20 +105,6 @@ const CreateQuiz = () => {
     const deleteQuestion = (index) => {
         const updatedQuestions = questions.filter((_, i) => i !== index);
         setQuestions(updatedQuestions);
-    };
-
-    const handleSubmit = () => {
-        const formattedQuestions = questions.map(q => ({
-            ...q,
-            answers: q.type === 'truefalse' || q.type === 'fillblank'
-                ? q.answers
-                : q.type === 'multiplechoice'
-                    ? q.answers
-                    : q.answers[0] !== undefined ? [q.answers[0]] : []
-        }));
-
-        localStorage.setItem(`quiz-${lessonId}`, JSON.stringify(formattedQuestions));
-        console.log(formattedQuestions);
     };
 
     return (
@@ -226,20 +244,7 @@ const CreateQuiz = () => {
                 <Plus size={20} className="mr-2" />
                 Thêm câu hỏi
             </Button>
-
-            {questions.length > 0 && (
-                <div className="flex justify-end gap-4">
-                    <Button
-                        onClick={handleSubmit}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-6 text-lg transition-colors"
-                    >
-                        <ListChecks className="mr-2" size={20} />
-                        Lưu Quiz
-                    </Button>
-                </div>
-            )}
         </div>
     );
 };
 
-export default CreateQuiz;
