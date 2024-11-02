@@ -106,9 +106,8 @@ export default function TaskList() {
                     'Authorization': `Bearer ${token}`,
                 },
             })
-            setSelectedNotification(response.data.notification); // Truy cập vào response.data
-            console.log(response.data);
-
+            setSelectedNotification(response.data.data);
+            console.log(response.data.data)
             await markAsRead(notificationId);
         } catch (error) {
             console.error('Error fetching notification details:', error);
@@ -180,7 +179,9 @@ export default function TaskList() {
                                     Array(8).fill(0).map((_, index) => <TaskSkeleton key={index} />)
                                 ) : filteredTasks.length > 0 ? (
                                     filteredTasks.map((task, index) => (
+
                                         <TableRow
+
                                             key={task.id}
                                             className={task.is_read === 0 ? "bg-red-50 hover:bg-red-100 " : "bg-green-50 hover:bg-green-100"}
                                             onClick={() => handleNotificationClick(task.id)}
@@ -190,7 +191,9 @@ export default function TaskList() {
                                             <TableCell>{(currentPage - 1) * tasksPerPage + index + 1}</TableCell>
 
                                             {/* Người gửi */}
-                                            <TableCell>Hoàng</TableCell>
+                                            <TableCell>
+                                            {task.sender ? task.sender.name : <p>đang tải</p>}
+                                            </TableCell>
                                             {/* ID */}
                                             {/* <TableCell className="font-medium">
                                                 <Badge variant={task.type === "high" ? "destructive" : task.type === "medium" ? "default" : "secondary"}>
@@ -245,9 +248,9 @@ export default function TaskList() {
                                                                                 <div className="">
                                                                                     <span className="text-sm">
                                                                                         {new Date(selectedNotification.created_at).toLocaleString('vi-VN')}
-
                                                                                     </span>
                                                                                 </div>
+                                                                                {task.sender ? task.sender.name : <p>đang tải</p>}
 
                                                                                 {/* title */}
                                                                                 <div className="text-2xl font-bold">
