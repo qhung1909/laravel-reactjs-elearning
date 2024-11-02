@@ -34,17 +34,19 @@ export const CourseMessage = () => {
         const isWelcomeTextValid = welcomeText.trim() && welcomeText !== '<p><br></p>';
         const isCongratulationsTextValid = congratulationsText.trim() && congratulationsText !== '<p><br></p>';
 
+        // Lưu courseMessages nếu ít nhất một trường hợp lệ
         if (isWelcomeTextValid || isCongratulationsTextValid) {
             const dataToStore = { welcomeText, congratulationsText };
             localStorage.setItem('courseMessages', encryptData(dataToStore));
         } else {
-            localStorage.removeItem('courseMessages');
+            localStorage.removeItem('courseMessages'); // Xóa nếu cả hai trường đều trống
         }
 
+        // Lưu FA-CM nếu cả hai trường đều hợp lệ
         if (isWelcomeTextValid && isCongratulationsTextValid) {
             localStorage.setItem('FA-CM', 'done');
         } else {
-            localStorage.removeItem('FA-CM');
+            localStorage.removeItem('FA-CM'); // Xóa khóa FA-CM nếu không hợp lệ
         }
     }, [welcomeText, congratulationsText]);
 
