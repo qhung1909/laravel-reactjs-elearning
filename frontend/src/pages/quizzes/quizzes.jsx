@@ -148,7 +148,7 @@ export const Quizzes = ({ quiz_id }) => {
 
             setQuizCompleted(true);
             toast.success("Nộp bài thành công!");
-
+            fetchScore();
         } catch (error) {
             console.error("Error submitting answers:", error);
             toast.error("Có lỗi xảy ra khi nộp bài!");
@@ -278,7 +278,7 @@ export const Quizzes = ({ quiz_id }) => {
                             <CardTitle className="text-center md:text-start">
                                 Bài kiểm tra đang diễn ra
                             </CardTitle>
-                            <CardDescription  className="text-center md:text-start">
+                            <CardDescription className="text-center md:text-start">
                                 Hoàn thành tất cả câu hỏi bên dưới
                             </CardDescription>
                         </CardHeader>

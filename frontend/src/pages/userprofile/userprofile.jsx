@@ -9,7 +9,7 @@ import { UserContext } from "../context/usercontext";
 
 export const UserProfile = () => {
     const { user, updateUserProfile, updatePassword } = useContext(UserContext);
-    const [_success, setSuccess] = useState("");
+    const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
     const [avatar, setAvatar] = useState(null);
     const [currentAvatar, setCurrentAvatar] = useState('');
@@ -19,6 +19,7 @@ export const UserProfile = () => {
     const [current_password, setCurrentPassword] = useState("");
     const [password_confirmation, setPassword_Confirmation] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isProfileSubmitting, setIsProfileSubmitting] = useState(false);
 
     const navigate = useNavigate();
 
@@ -40,9 +41,21 @@ export const UserProfile = () => {
     };
 
     // hàm xử lý update user profile
-    const handleUpdateProfile = (e) => {
+    const handleUpdateProfile = async (e) => {
         e.preventDefault();
-        updateUserProfile(userName, email, avatar);
+        if (isProfileSubmitting) return;
+
+        setIsProfileSubmitting(true);
+        try {
+            await updateUserProfile(userName, email, avatar);
+            setSuccess(true);
+            toast.success("Cập nhật hồ sơ thành công!");
+        } catch (error) {
+            setError("Cập nhật không thành công, vui lòng thử lại.");
+            toast.error(error.message);
+        } finally {
+            setIsProfileSubmitting(false);
+        }
     };
 
 
@@ -51,17 +64,26 @@ export const UserProfile = () => {
         e.preventDefault();
         if (isSubmitting) return;
 
-        setIsSubmitting(true); // Vô hiệu hóa nút khi xử lý
-        const isUpdated = await updatePassword(current_password, password, password_confirmation);
-        setIsSubmitting(false); // Kích hoạt lại nút sau khi xử lý
+        setIsSubmitting(true);
+        const isUpdated = await updatePassword(
+            current_password,
+            password,
+            password_confirmation
+        );
+        setIsSubmitting(false); 
 
         if (isUpdated) {
-            setCurrentPassword('');
-            setPassword('');
-            setPassword_Confirmation('');
+            setCurrentPassword("");
+            setPassword("");
+            setPassword_Confirmation("");
         }
     };
 
+    useEffect(() => {
+        if (success) {
+            window.location.reload();
+        }
+    }, [success]);
 
     return (
         <>
@@ -170,7 +192,13 @@ export const UserProfile = () => {
                                                 </div>
                                             </div>
                                             <div className="my-5">
-                                                <button className="bg-yellow-400 p-3 font-bold rounded-xl">Lưu hồ sơ</button>
+                                                <button
+                                                    type="submit"
+                                                    className="bg-yellow-400 p-3 font-bold rounded-xl"
+                                                    disabled={isProfileSubmitting}
+                                                >
+                                                    {isProfileSubmitting ? "Đang lưu..." : "Lưu hồ sơ"}
+                                                </button>
                                             </div>
                                         </form>
 
