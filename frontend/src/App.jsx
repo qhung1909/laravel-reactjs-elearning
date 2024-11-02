@@ -50,12 +50,12 @@ import PageCoupons from "./pages/admin/ManageCourses/pageCoupons.jsx";
 import BrowseNewCourses from "./pages/admin/ManageCourses/browseNewCourses.jsx";
 import TaskList from "./pages/notifications/notification.jsx";
 import { InstructorNotification } from "./pages/instructor/instuctorNotification.jsx";
-import CreateQuiz from "./pages/CreateCourse/createQuiz.jsx";
 import { CourseOverview } from "./pages/CreateCourse/courseOverview.jsx";
 import { Curriculum } from "./pages/CreateCourse/curriculum.jsx";
 import { Promotion } from "./pages/CreateCourse/Promotion.jsx";
 import { CourseMessage } from "./pages/CreateCourse/CourseMessage.jsx";
 import Demo from "./pages/demo/Demo.jsx";
+import { CreateQuiz } from "./pages/CreateCourse/CreateQuiz.jsx";
 
 function AppContent() {
     const location = useLocation();

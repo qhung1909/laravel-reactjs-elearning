@@ -28,6 +28,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TitleContentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\ProgressController;
 use App\Events\MyEvent;
 // Authentication
 Route::group([
@@ -83,9 +84,9 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/top-purchased-courses', [CourseController::class, 'topPurchasedCourses']);
     Route::get('/top-viewed-courses', [CourseController::class, 'topViewedCourses']);
     Route::get('course/{slug}', [CourseController::class, 'show'])->name('courses.show');
-    Route::post('course', [CourseController::class, 'store'])->name('courses.store');
-    Route::put('course/{slug}', [CourseController::class, 'update'])->name('courses.update');
-    Route::delete('course/{slug}', [CourseController::class, 'delete'])->name('courses.delete');
+    Route::post('/course', [CourseController::class, 'store'])->name('courses.store');
+    Route::put('/course/{slug}', [CourseController::class, 'update'])->name('courses.update');
+    Route::delete('/course/{slug}', [CourseController::class, 'delete'])->name('courses.delete');
     Route::get('courses/featured', [CourseController::class, 'featureCouse']);
     Route::get('/userCourses/{userId}', [UserCourseController::class, 'show']);
     Route::get('/courses/related/{categoryId}/{slug}', [CourseController::class, 'relatedCoursesByCategory']);
@@ -175,6 +176,10 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/title-contents', [TitleContentController::class, 'store']); // Tạo mới title_content
     Route::put('/title-contents/{title_content_id}', [TitleContentController::class, 'update']); // Cập nhật title_content
     Route::delete('/title-contents/{title_content_id}', [TitleContentController::class, 'destroy']); // Xóa title_content
+
+    //Progress
+    Route::get('/progress', [ProgressController::class, 'index']);
+    Route::post('/progress/complete-content', [ProgressController::class, 'completeContent']);
 
 });
 

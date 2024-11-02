@@ -10,9 +10,12 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Progress } from "@/components/ui/progress";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -226,6 +229,8 @@ export const Lesson = () => {
 
     const [currentVideoUrls, setCurrentVideoUrls] = useState([]);
     const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+    // Add this state for the currently displayed video URL
+    const [currentVideoUrl, setCurrentVideoUrl] = useState(null);
 
     const showVideo_content = (contentId) => {
         // Lấy danh sách các video link hợp lệ cho contentId hiện tại
@@ -246,7 +251,7 @@ export const Lesson = () => {
 
     const [showQuiz, setShowQuiz] = useState(false);
     const [currentQuizId, setCurrentQuizId] = useState(null);
-
+    const [completedLessons, setCompletedLessons] = useState(new Set());
     const handleShowQuiz = (content_id) => {
         const quiz = quizzes.find(quiz => quiz.content_id === content_id);
         if (quiz) {
@@ -257,7 +262,14 @@ export const Lesson = () => {
             toast.error("Không tìm thấy quiz cho nội dung này.");
         }
     };
+    const handleLessonComplete = (contentId) => {
+        setCompletedLessons(prev => new Set([...prev, contentId]));
+    };
 
+    const calculateProgress = () => {
+        return (completedLessons.size / Object.keys(titleContent).reduce((acc, key) =>
+            acc + titleContent[key].length, 0)) * 100;
+    };
 
     return (
         <>
@@ -304,9 +316,9 @@ export const Lesson = () => {
                         <div className="flex-1 bg-white rounded-lg shadow-md p-4">
                             {/* Phần video */}
                             <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden">
-                                {currentVideoUrls.length > 0 ? (
+                                {currentVideoUrl ? (
                                     <ReactPlayer
-                                        url={currentVideoUrls[currentVideoIndex]}
+                                        url={currentVideoUrl}
                                         className="absolute top-0 left-0 w-full h-full"
                                         controls={true}
                                         width="100%"
@@ -320,32 +332,7 @@ export const Lesson = () => {
                                         style={{ borderRadius: "0.5rem" }}
                                     />
                                 )}
-                                {currentVideoUrls.length > 1 && (
-                                    <div className="absolute bottom-4 left-4 flex gap-2">
-                                        <button
-                                            onClick={() =>
-                                                setCurrentVideoIndex((prevIndex) =>
-                                                    prevIndex === 0 ? currentVideoUrls.length - 1 : prevIndex - 1
-                                                )
-                                            }
-                                            className="px-3 py-1 bg-purple-600 text-white rounded"
-                                        >
-                                            Video sau
-                                        </button>
-                                        <button
-                                            onClick={() =>
-                                                setCurrentVideoIndex((prevIndex) =>
-                                                    prevIndex === currentVideoUrls.length - 1 ? 0 : prevIndex + 1
-                                                )
-                                            }
-                                            className="px-3 py-1 bg-purple-600 text-white rounded"
-                                        >
-                                            Video trước
-                                        </button>
-                                    </div>
-                                )}
                             </div>
-
                             {/* Bên dưới video: Tên - ngày - mô tả - */}
                             <div className="p-6 text-gray-800">
 
@@ -390,90 +377,128 @@ export const Lesson = () => {
                         {/* Phần nội dung khóa học - right site */}
                         <div className="xl:w-96 lg:w-80 md:w-72 bg-gray-50 rounded-lg shadow-md mt-8 md:mt-0">
                             {/* header */}
-                            <div className="flex items-center space-x-2 border-b">
-                                <h3 className="text-lg font-semibold text-gray-800 p-4 ">
-                                    Nội dung bài học
-                                    <span className="text-gray-400 text-sm md:text-base ml-16">
-                                        {contentLesson.length || 0} Phần
-                                    </span>
-                                </h3>
-                            </div>
+
 
                             {/* content */}
-                            <div className="p-6 max-h-[650px] overflow-y-auto">
-                                <Accordion type="multiple" className="space-y-3">
-                                    {contentLesson.length > 0 ? (
-                                        contentLesson.map((content, index) => (
-                                            <AccordionItem key={content.content_id} value={`content-${content.content_id}`} className="border-none" onClick={() => !titleContent[content.content_id] && fetchTitleContent(content.content_id)}>
-                                                <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+                            <div className="xl:w-96 lg:w-80 md:w-72 bg-gray-50 rounded-xl shadow-lg">
+                                {/* Header */}
+                                <div className="p-4 border-b border-gray-100">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                                            <BookOpenCheck className="w-5 h-5 mr-2 text-purple-500" />
+                                            Nội dung bài học
+                                        </h3>
+                                        <TooltipProvider>
+                                            <Tooltip >
+                                                <TooltipTrigger>
+                                                    <Badge variant="secondary"className="text-xl">
+                                                        {contentLesson.length} phần
+                                                    </Badge>
+                                                </TooltipTrigger>
 
-                                                    {/* trigger */}
-                                                    <AccordionTrigger className="w-full hover:no-underline">
-                                                        <div className="flex items-center w-full p-4">
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    </div>
+                                    {/* Progress */}
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between text-sm text-gray-600">
+                                            <span className="text-base">Tiến độ học tập</span>
+                                            <span className="font-medium text-base">{Math.round(calculateProgress())}%</span>
+                                        </div>
+                                        <Progress
+                                            value={calculateProgress()}
+                                            className="h-2 bg-gray-100"
+                                        />
+                                    </div>
 
-                                                            {/* stt */}
-                                                            <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center text-purple-600 font-medium mr-4">
-                                                                {index + 1}
+                                    {/* Stats */}
+                                    <div className="grid grid-cols-2 gap-3 mt-4">
+                                        <div className="bg-purple-50 rounded-xl p-3 border border-purple-100">
+                                            <div className="flex items-center text-purple-600 mb-1">
+                                                <PlayCircle className="w-4 h-4 mr-2" />
+                                                <span className="text-sm font-medium">Đã hoàn thành</span>
+                                            </div>
+                                            <p className="text-lg font-semibold text-gray-800">
+                                                {completedLessons.size}/{Object.keys(titleContent).reduce((acc, key) =>
+                                                    acc + titleContent[key].length, 0
+                                                )}
+                                            </p>
+                                        </div>
+                                        <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
+                                            <div className="flex items-center text-blue-600 mb-1">
+                                                <Clock className="w-4 h-4 mr-2" />
+                                                <span className="text-sm font-medium">Thời lượng</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Content List */}
+                                <div className="p-4 max-h-[650px] overflow-y-auto custom-scrollbar">
+                                    <Accordion type="multiple" className="space-y-3">
+                                        {contentLesson.length > 0 ? (
+                                            contentLesson.map((content, index) => (
+                                                <AccordionItem key={content.content_id} value={`content-${content.content_id}`} className="border-none" onClick={() => !titleContent[content.content_id] && fetchTitleContent(content.content_id)}>
+                                                    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+
+                                                        {/* trigger */}
+                                                        <AccordionTrigger className="w-full hover:no-underline">
+                                                            <div className="flex items-center w-full p-4">
+
+                                                                {/* stt */}
+                                                                <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center text-purple-600 font-medium mr-4">
+                                                                    {index + 1}
+                                                                </div>
+
+                                                                {/* name */}
+                                                                <div className="flex-1 flex items-center justify-between">
+                                                                    <h3 className="font-medium text-gray-800 text-sm line-clamp-1">
+                                                                        {content.name_content}
+                                                                    </h3>
+
+                                                                </div>
                                                             </div>
+                                                        </AccordionTrigger>
 
-                                                            {/* name */}
-                                                            <div className="flex-1 flex items-center justify-between">
-                                                                <h3 className="font-medium text-gray-800 text-sm line-clamp-1">
-                                                                    {content.name_content}
-                                                                </h3>
-
-                                                            </div>
-                                                        </div>
-                                                    </AccordionTrigger>
-
-                                                    {/* content */}
-                                                    <AccordionContent>
-                                                        <div className="px-4">
-
-                                                            {/* content */}
-                                                            <div className="">
+                                                        {/* content */}
+                                                        <AccordionContent>
+                                                            <div className="px-4">
                                                                 {Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
                                                                     titleContent[content.content_id].map((item, i) => (
                                                                         <div
                                                                             key={i}
-                                                                            className="flex items-start gap-2 py-2 hover:bg-purple-50 rounded-lg transition-colors "
+                                                                            className="flex items-start gap-2 py-2 hover:bg-purple-50 rounded-lg transition-colors"
+                                                                            onClick={() => setCurrentVideoUrl(item.video_link)}
                                                                         >
                                                                             <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0">
                                                                                 {i + 1}
                                                                             </span>
                                                                             <p className="text-sm text-gray-600 line-clamp-2">{item.body_content}</p>
+                                                                            <button onClick={() => handleShowQuiz(content.content_id)} className="flex items-center gap-1 px-3 py-1.5 border font-semibold border-purple-200 text-purple-600 text-sm rounded-lg hover:bg-purple-50 transition-colors">
+                                                                                <span>Bài tập</span>
+                                                                                <ArrowRight className="w-3 h-3 mt-1" />
+                                                                            </button>
                                                                         </div>
                                                                     ))
                                                                 ) : (
                                                                     <p className="text-sm text-gray-600 pl-7">Đang tải nội dung...</p>
                                                                 )}
                                                             </div>
+                                                        </AccordionContent>
 
-                                                            {/* button - video - bai tap */}
-                                                            <div className="flex items-center justify-center gap-2 ">
+                                                    </div>
+                                                </AccordionItem>
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-8 bg-white rounded-xl">
+                                                <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                                                <p className="text-gray-500">Đang cập nhật nội dung...</p>
+                                            </div>
+                                        )}
+                                    </Accordion>
+                                </div>
 
-                                                                {/* video */}
-                                                                <button onClick={() => showVideo_content(content.content_id)} className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold text-sm rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors">
-                                                                    <Play className="w-4 h-4" />
-                                                                    <span>Xem bài giảng</span>
-                                                                </button>
-                                                                <button onClick={() => handleShowQuiz(content.content_id)} className="flex items-center gap-1 px-3 py-1.5 border font-semibold border-purple-200 text-purple-600 text-sm rounded-lg hover:bg-purple-50 transition-colors">
-                                                                    <span>Bài tập</span>
-                                                                    <ArrowRight className="w-3 h-3 mt-1" />
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </AccordionContent>
-                                                </div>
-                                            </AccordionItem>
-                                        ))
-                                    ) : (
-                                        <div className="text-center py-8 bg-white rounded-xl">
-                                            <BookOpen className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                                            <p className="text-gray-500">Đang cập nhật nội dung...</p>
-                                        </div>
-                                    )}
-                                </Accordion>
+
                             </div>
                         </div>
 

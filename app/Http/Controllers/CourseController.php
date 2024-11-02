@@ -256,10 +256,6 @@ class CourseController extends Controller
                     'status' => $request->status ?? 'draft'
                 ]);
     
-                Cache::forget('courses');
-                Cache::forget('featured_course');
-                Cache::tags(['courses'])->flush();
-    
                 return $course;
             });
     
@@ -346,11 +342,6 @@ class CourseController extends Controller
                     'status' => $request->input('status', $course->status)
                 ]);
     
-                Cache::forget('courses');
-                Cache::forget("course_{$slug}");
-                Cache::forget('featured_course');
-                Cache::tags(['courses'])->flush();
-    
                 return $course;
             });
     
@@ -386,10 +377,6 @@ class CourseController extends Controller
 
                 $course->delete();
 
-                Cache::forget('courses');
-                Cache::forget("course_{$slug}");
-                Cache::forget('featured_course');
-                Cache::tags(['courses'])->flush();
             });
 
             return response()->json([
@@ -441,13 +428,11 @@ class CourseController extends Controller
 
     public function getStudentsForInstructor($instructorId)
     {
-        // Lấy danh sách khóa học mà giảng viên (user_id) đã tạo
         $courses = Course::where('user_id', $instructorId)->pluck('course_id');
 
-        // Lấy danh sách sinh viên đã mua các khóa học này
         $students = UserCourse::whereIn('course_id', $courses)
-            ->join('users', 'user_courses.user_id', '=', 'users.id')
-            ->select('users.id', 'users.name', 'users.email') // Chọn thông tin cần lấy
+            ->join('users', 'user_courses.user_id', '=', 'users.user_id')
+            ->select('users.user_id', 'users.name', 'users.email') 
             ->get();
 
         return response()->json([
