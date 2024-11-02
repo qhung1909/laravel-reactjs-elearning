@@ -256,10 +256,6 @@ class CourseController extends Controller
                     'status' => $request->status ?? 'draft'
                 ]);
     
-                Cache::forget('courses');
-                Cache::forget('featured_course');
-                Cache::tags(['courses'])->flush();
-    
                 return $course;
             });
     
@@ -346,11 +342,6 @@ class CourseController extends Controller
                     'status' => $request->input('status', $course->status)
                 ]);
     
-                Cache::forget('courses');
-                Cache::forget("course_{$slug}");
-                Cache::forget('featured_course');
-                Cache::tags(['courses'])->flush();
-    
                 return $course;
             });
     
@@ -386,10 +377,6 @@ class CourseController extends Controller
 
                 $course->delete();
 
-                Cache::forget('courses');
-                Cache::forget("course_{$slug}");
-                Cache::forget('featured_course');
-                Cache::tags(['courses'])->flush();
             });
 
             return response()->json([
