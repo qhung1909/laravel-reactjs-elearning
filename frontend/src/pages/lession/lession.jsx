@@ -10,7 +10,7 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
@@ -169,7 +169,7 @@ export const Lesson = () => {
 
 
     const [contentLesson, setContentLesson] = useState([]);
-    const fetchContentLesson = async (courseId) => {  // Đổi lessonId thành courseId
+    const fetchContentLesson = async (courseId) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
             toast.error("Bạn chưa đăng nhập.");
@@ -227,27 +227,8 @@ export const Lesson = () => {
         (a, b) => a.content_id - b.content_id
     );
 
-    const [currentVideoUrls, setCurrentVideoUrls] = useState([]);
-    const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-    // Add this state for the currently displayed video URL
     const [currentVideoUrl, setCurrentVideoUrl] = useState(null);
-
-    const showVideo_content = (contentId) => {
-        // Lấy danh sách các video link hợp lệ cho contentId hiện tại
-        const videoLinks = titleContent[contentId]
-            ?.map(item => item.video_link)
-            .filter(link => link !== null);
-
-        // Cập nhật currentVideoUrls và đặt lại chỉ số video
-        if (videoLinks && videoLinks.length > 0) {
-            setCurrentVideoUrls(videoLinks);
-            setCurrentVideoIndex(0); // Bắt đầu từ video đầu tiên
-        } else {
-            setCurrentVideoUrls([]);
-        }
-    };
-
-
+    const [activeIndex, setActiveIndex] = useState(null);
 
     const [showQuiz, setShowQuiz] = useState(false);
     const [currentQuizId, setCurrentQuizId] = useState(null);
@@ -376,9 +357,6 @@ export const Lesson = () => {
 
                         {/* Phần nội dung khóa học - right site */}
                         <div className="xl:w-96 lg:w-80 md:w-72 bg-gray-50 rounded-lg shadow-md mt-8 md:mt-0">
-                            {/* header */}
-
-
                             {/* content */}
                             <div className="xl:w-96 lg:w-80 md:w-72 bg-gray-50 rounded-xl shadow-lg">
                                 {/* Header */}
@@ -391,7 +369,7 @@ export const Lesson = () => {
                                         <TooltipProvider>
                                             <Tooltip >
                                                 <TooltipTrigger>
-                                                    <Badge variant="secondary"className="text-xl">
+                                                    <Badge variant="secondary" className="text-xl">
                                                         {contentLesson.length} phần
                                                     </Badge>
                                                 </TooltipTrigger>
@@ -438,54 +416,97 @@ export const Lesson = () => {
                                     <Accordion type="multiple" className="space-y-3">
                                         {contentLesson.length > 0 ? (
                                             contentLesson.map((content, index) => (
-                                                <AccordionItem key={content.content_id} value={`content-${content.content_id}`} className="border-none" onClick={() => !titleContent[content.content_id] && fetchTitleContent(content.content_id)}>
-                                                    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
-
+                                                <AccordionItem
+                                                    key={content.content_id}
+                                                    value={`content-${content.content_id}`}
+                                                    className="border-none"
+                                                    onClick={() => !titleContent[content.content_id] && fetchTitleContent(content.content_id)}
+                                                >
+                                                    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01]">
                                                         {/* trigger */}
                                                         <AccordionTrigger className="w-full hover:no-underline">
                                                             <div className="flex items-center w-full p-4">
-
                                                                 {/* stt */}
-                                                                <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center text-purple-600 font-medium mr-4">
+                                                                <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center text-purple-600 font-medium mr-4 shadow-sm">
                                                                     {index + 1}
                                                                 </div>
-
                                                                 {/* name */}
-                                                                <div className="flex-1 flex items-center justify-between">
-                                                                    <h3 className="font-medium text-gray-800 text-sm line-clamp-1">
-                                                                        {content.name_content}
-                                                                    </h3>
-
+                                                                <div className="flex-1 flex items-start justify-between">
+                                                                    <div className="space-y-1">
+                                                                        <h3 className="font-medium text-gray-800 text-sm line-clamp-1">
+                                                                            {content.name_content}
+                                                                        </h3>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="text-xs text-gray-500 flex items-center">
+                                                                                <Clock className="w-3 h-3 mr-1" />
+                                                                                25 phút
+                                                                            </span>
+                                                                            <span className="h-4 w-[1px] bg-gray-200"></span>
+                                                                            <span className="text-xs text-purple-600 flex items-center">
+                                                                                <BookOpen className="w-3 h-3 mr-1" />
+                                                                                {Array.isArray(titleContent[content.content_id]) ? titleContent[content.content_id].length : 0} phần
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    {/* Nút bài tập bên phải */}
+                                                                    {content.quiz_id != null && content.quiz_id !== 0 && (
+                                                                        <button
+                                                                            onClick={() => handleShowQuiz(content.content_id)}
+                                                                            className="flex items-center gap-1 px-3 py-1 border border-purple-600 text-purple-600 font-medium text-xs rounded-md"
+                                                                        >
+                                                                            <span className="text-xs">Bài tập</span>
+                                                                            <ArrowRight className="w-3 h-3 mt-0.5" />
+                                                                        </button>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </AccordionTrigger>
-
                                                         {/* content */}
                                                         <AccordionContent>
-                                                            <div className="px-4">
+                                                            <div className="px-4 pb-4">
                                                                 {Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
                                                                     titleContent[content.content_id].map((item, i) => (
                                                                         <div
                                                                             key={i}
-                                                                            className="flex items-start gap-2 py-2 hover:bg-purple-50 rounded-lg transition-colors"
-                                                                            onClick={() => setCurrentVideoUrl(item.video_link)}
+                                                                            onClick={() => {
+                                                                                setCurrentVideoUrl(item.video_link);
+                                                                                setActiveIndex(i); 
+                                                                            }}
+                                                                            className={`group flex items-start gap-3 p-3 rounded-lg transition-all duration-200 cursor-pointer border ${activeIndex === i
+                                                                                ? 'bg-purple-100 border-purple-300' // Hiệu ứng khi đang hoạt động
+                                                                                : 'border-transparent hover:bg-purple-50 hover:border-purple-100'
+                                                                                }`}
                                                                         >
-                                                                            <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0">
+                                                                            <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0 mt-1 group-hover:bg-purple-200">
                                                                                 {i + 1}
                                                                             </span>
-                                                                            <p className="text-sm text-gray-600 line-clamp-2">{item.body_content}</p>
-                                                                            <button onClick={() => handleShowQuiz(content.content_id)} className="flex items-center gap-1 px-3 py-1.5 border font-semibold border-purple-200 text-purple-600 text-sm rounded-lg hover:bg-purple-50 transition-colors">
-                                                                                <span>Bài tập</span>
-                                                                                <ArrowRight className="w-3 h-3 mt-1" />
-                                                                            </button>
+                                                                            <div className="flex-1 min-w-0">
+                                                                                <div className="flex items-center justify-between gap-2">
+                                                                                    <p className="text-sm text-gray-600 line-clamp-2 flex-1">
+                                                                                        {item.body_content}
+                                                                                    </p>
+                                                                                </div>
+
+                                                                                <div className="flex items-center gap-2 mt-1">
+                                                                                    <span className="text-xs text-gray-400 flex items-center">
+                                                                                        <Clock className="w-3 h-3 mr-1" />
+                                                                                        10:00
+                                                                                    </span>
+                                                                                    <span>
+                                                                                        <CheckCircle className="text-green-600 w-4 h-4 mr-1" />
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
                                                                         </div>
                                                                     ))
                                                                 ) : (
-                                                                    <p className="text-sm text-gray-600 pl-7">Đang tải nội dung...</p>
+                                                                    <div className="flex items-center justify-center py-6 text-gray-400">
+                                                                        <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                                                                        <p className="text-sm">Đang tải nội dung...</p>
+                                                                    </div>
                                                                 )}
                                                             </div>
                                                         </AccordionContent>
-
                                                     </div>
                                                 </AccordionItem>
                                             ))
