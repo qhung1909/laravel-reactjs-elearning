@@ -133,16 +133,18 @@ export default function ClassifyCourse() {
             <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-50">
-                    <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Tên khóa học</th>
-                    <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Giá</th>
-                    <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Danh mục</th>
-                    <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
+                  <tr className="bg-yellow-100">
+                  <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">STT</th>
+                  <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Tên khóa học</th>
+                    <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Giá</th>
+                    <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Danh mục</th>
+                    <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Hành động</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredCourses.map((course) => (
                     <tr key={course.course_id} className="border-t border-gray-100">
+                      <td className="py-4 px-6">{course.course_id}</td>
                       <td className="py-4 px-6">{course.title}</td>
                       <td className="py-4 px-6 text-center">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}</td>
                       <td className="py-4 px-6 text-center">
@@ -154,11 +156,14 @@ export default function ClassifyCourse() {
                       </td>
                       <td className="py-4 px-6 text-center">
                         <Link to="/courses">
-                          <Button variant="outline" size="sm">
-                            Xem
-                          </Button>
+                        <Button
+                              variant="outline"
+                              size="sm"
+                              className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors"
+                            >
+                              Xem chi tiết
+                            </Button>
                         </Link>
-
                       </td>
                     </tr>
                   ))}
