@@ -207,7 +207,7 @@ class MessageController extends Controller
         try {
             if (!Auth::check()) {
                 return response()->json([
-                    'status' => 'error',
+                    'status' => 'error', 
                     'message' => 'Đăng nhập để xem thông báo.',
                     'data' => null
                 ], 401);
@@ -217,11 +217,12 @@ class MessageController extends Controller
             $perPage = $request->input('per_page', 8);
             $page = $request->input('page', 1);
     
-            $notifications = Notification::where('user_id', $userId)
+            // Chỉ rõ bảng cho cột user_id
+            $notifications = Notification::where('notifications.user_id', $userId)
                 ->join('users', 'notifications.created_by', '=', 'users.user_id')
                 ->select(
                     'notifications.*',
-                    'users.name as sender_name'
+                    'users.name as sender_name'  
                 )
                 ->orderBy('notifications.created_at', 'desc')
                 ->paginate($perPage, ['*'], 'page', $page);
@@ -229,7 +230,7 @@ class MessageController extends Controller
             $formattedNotifications = collect($notifications->items())->map(function ($notification) {
                 return [
                     'id' => $notification->id,
-                    'message' => $notification->message,
+                    'message' => $notification->message, 
                     'content' => $notification->content,
                     'type' => $notification->type,
                     'is_read' => $notification->is_read,
@@ -246,7 +247,7 @@ class MessageController extends Controller
                     'notifications' => $formattedNotifications,
                     'pagination' => [
                         'current_page' => $notifications->currentPage(),
-                        'last_page' => $notifications->lastPage(),
+                        'last_page' => $notifications->lastPage(), 
                         'total' => $notifications->total(),
                         'per_page' => $notifications->perPage()
                     ]
