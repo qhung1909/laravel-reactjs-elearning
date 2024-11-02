@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-
+use App\Models\UserCourse;
 class CourseController extends Controller
 {
     protected $course;
@@ -437,5 +437,22 @@ class CourseController extends Controller
         }
 
         return response()->json($courses, 200);
+    }
+
+    public function getStudentsForInstructor($instructorId)
+    {
+        // Lấy danh sách khóa học mà giảng viên (user_id) đã tạo
+        $courses = Course::where('user_id', $instructorId)->pluck('course_id');
+
+        // Lấy danh sách sinh viên đã mua các khóa học này
+        $students = UserCourse::whereIn('course_id', $courses)
+            ->join('users', 'user_courses.user_id', '=', 'users.id')
+            ->select('users.id', 'users.name', 'users.email') // Chọn thông tin cần lấy
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $students
+        ]);
     }
 }
