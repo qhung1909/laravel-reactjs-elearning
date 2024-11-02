@@ -31,24 +31,29 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Filter, FileDown, LayoutDashboard } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+
 import axios from "axios";
+import ReactPlayer from "react-player"
+import toast from "react-hot-toast"
 
 export default function BrowseNewCourses() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
 
-    //   const [searchTerm, setSearchTerm] = React.useState("")
     const [courses, setCourses] = useState([]);
+    const [lessons, setLessons] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('pending');
     const pendingCount = courses.filter(course => course.status === 'pending').length;
-    const [categories, setCategories] = React.useState([]);
-    const [selectedCategory, setSelectedCategory] = React.useState("Tất cả");
+    const pendingLessonsCount = lessons.filter(lesson => lesson.status === 'pending').length;
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState("Tất cả");
+    const [titleContent, setTitleContent] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const { slug } = useParams();
 
-    const [loading, setLoading] = React.useState(true);
-
-    // KHÓA HỌC
+    // Fetch courses
     const fetchCourses = async () => {
         try {
             const res = await axios.get(`${API_URL}/admin/courses`, {
@@ -64,16 +69,106 @@ export default function BrowseNewCourses() {
         }
     };
 
+    // Fetch lessons
     useEffect(() => {
-        fetchCourses();
+        const fetchLessons = async () => {
+            try {
+                const response = await axios.get(`${API_URL}/lessons`, {
+                    headers: {
+                        'x-api-secret': API_KEY
+                    }
+                });
+                console.log("Dữ liệu bài học:", response.data);
+                const pendingLessons = response.data.filter(lesson => lesson.status === 'pending');
+                setLessons(pendingLessons);
+                console.log('Fetched Lessons:', pendingLessons); // Log here
+            } catch (err) {
+                console.error('Error fetching lessons:', err);
+            }
+        };
+        fetchLessons();
     }, []);
 
+
+    useEffect(() => {
+        const fetchData = async () => {
+
+            setLoading(true);
+            await Promise.all([fetchCourses(), fetchCategories()]);
+            setLoading(false);
+        };
+        fetchData();
+    }, []);
+
+
+    const [contentLesson, setContentLesson] = useState([]);
+    const fetchContentLesson = async (lessonId) => {
+
+
+        try {
+            const res = await axios.get(`${API_URL}/contents`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                }, params: {
+                    lesson_id: lessonId
+                }
+            });
+            if (res.data && res.data.success && Array.isArray(res.data.data)) {
+                setContentLesson(res.data.data.filter(content => content.lesson_id === lessonId));
+            } else {
+                console.error("Dữ liệu không phải là mảng:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy nội dung bài học:", error);
+        }
+    };
+
+    // Video
+    const fetchTitleContent = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/title-contents`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                },
+            });
+
+            if (res.data && res.data.success) {
+                if (Array.isArray(res.data.data)) {
+                    setTitleContent(res.data);
+                    console.log("Dữ liệu titleContent 2w2w2 22 :", res.data); // Log dữ liệu nhận được
+                } else {
+                    console.error("Dữ liệu titleContent không phải là mảng:", res.data.data);
+                    setTitleContent([]); // Đặt về mảng rỗng nếu không phải là mảng
+                }
+            } else {
+                console.error("Dữ liệu không hợp lệ:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy chi tiết title_content:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchTitleContent()
+    }, [])
+
+    // Filter courses
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             course.instructor?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = course.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
+
+    // Filter lessons
+    const filteredLessons = lessons.filter(lesson => {
+        const matchesSearch = lesson.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            lesson.course_title?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus = lesson.status === statusFilter;
+        return matchesSearch && matchesStatus;
+    });
+
+    // Fetch categories
     const fetchCategories = async () => {
         try {
             const res = await axios.get(`${API_URL}/categories`, {
@@ -85,108 +180,7 @@ export default function BrowseNewCourses() {
         }
     }
 
-    React.useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            await Promise.all([fetchCourses(), fetchCategories()]);
-            setLoading(false);
-        };
-        fetchData();
-    }, []);
 
-
-    // BÀI HỌC
-    const [quizzes, setQuizzes] = useState();
-    const fetchQuizzes = async () => {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            console.error("Người dùng chưa đăng nhập.");
-            return;
-        }
-        try {
-            const res = await axios.get(`${API_URL}/quizzes`, {
-                headers: {
-                    "x-api-secret": `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                }
-            });
-            if (res.data) {
-                console.log("Fetched quizzes data:", res.data); // Thêm log này
-                setQuizzes(res.data);
-            } else {
-                console.error(res.data);
-            }
-        } catch (error) {
-            console.error("Lỗi khi lấy quizzes:", error);
-        }
-    }
-    useEffect(() => {
-        fetchQuizzes();
-    }, [])
-
-    const [lesson, setLesson] = useState(null);
-    const { slug } = useParams();
-
-    const fetchLesson = async () => {
-        try {
-            const res = await axios.get(`${API_URL}/lessons/${slug}`, {
-                headers: {
-                    "x-api-secret": `${API_KEY}`,
-                },
-            });
-
-            if (res.data) {
-                setLesson(res.data);
-                if (res.data.lesson_id) {
-                    fetchContentLesson(res.data.lesson_id);
-                }
-
-            } else {
-                console.error("Dữ liệu không hợp lệ:", res.data);
-            }
-        } catch (error) {
-            console.error("Lỗi khi lấy dữ liệu bài học:", error);
-            if (error.response) {
-                console.error("Chi tiết lỗi:", error.response.data);
-            }
-        }
-    };
-
-    useEffect(() => {
-        if (slug) {
-            fetchLesson();
-        }
-    }, [slug]);
-
-    const [contentLesson, setContentLesson] = useState([]);
-    const [titleContent, setTitleContent] = useState([]);
-    const fetchContentLesson = async (lessonId) => {
-
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            console.error("Người dùng chưa đăng nhập.");
-            return;
-        }
-        try {
-            const res = await axios.get(`${API_URL}/contents`, {
-                headers: {
-                    "x-api-secret": `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                }, params: {
-                    lesson_id: lessonId
-                }
-            });
-            if (res.data && res.data.success && Array.isArray(res.data.data)) {
-                // Chỉ cập nhật state nếu lessonId phù hợp
-                setContentLesson(res.data.data.filter(content => content.lesson_id === lessonId));
-                console.log("Dữ liệu nội dung bài học:", res.data.data);
-            } else {
-                console.error("Dữ liệu không phải là mảng:", res.data);
-            }
-        } catch (error) {
-            console.error("Lỗi khi lấy nội dung bài học:", error);
-        }
-    };
 
 
     return (
@@ -247,17 +241,6 @@ export default function BrowseNewCourses() {
                                         Xem xét và phê duyệt thông tin tổng quan của khóa học
                                     </p>
                                 </div>
-                                {/* <div className="flex gap-4">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                            placeholder="Tìm khóa học..."
-                            className="pl-9 w-[300px]"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                                </div> */}
                                 <div className="flex flex-wrap gap-4 w-full md:w-auto">
                                     <div className="relative flex-1 md:flex-initial">
                                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
@@ -368,44 +351,102 @@ export default function BrowseNewCourses() {
                                     </Button>
                                 </div>
                             </div>
-
                             <div className="grid gap-6">
-                                <Card>
-                                    <CardHeader className="flex flex-row items-start justify-between">
-                                        <div>
-                                            <div className="text-sm text-muted-foreground mb-1">
-                                                Thuộc khóa học: Lập trình React Native
-                                            </div>
-                                            <CardTitle className="text-xl">Bài 1:  {lesson ? lesson.name : "Loading..."}</CardTitle>
-                                            <div className="flex gap-2 mt-2">
-                                                <Badge>Bài học</Badge>
-                                                <Badge variant="outline">15 phút</Badge>
-                                            </div>
-                                        </div>
-                                        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-                                            Chờ duyệt
-                                        </Badge>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
-                                            <div className="flex items-center gap-2">
-                                                <Users className="h-4 w-4" />
-                                                <span>Giảng viên:</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <FileText className="h-4 w-4" />
-                                                <span>Bài giảng + Quiz
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <BookCheck className="h-4 w-4" />
-                                                <span>Kiểm tra nội dung chi tiết và câu hỏi quiz</span>
-                                            </div>
-                                        </div>
-                                        <Button>Xem chi tiết & Duyệt</Button>
-                                    </CardContent>
-                                </Card>
+                            {lessons.length > 0 ? lessons.map((lesson) => {
+    const lessonContent = contentLesson.find(content => content.lesson_id === lesson.lesson_id);
+    console.log("lesson.title_content:", lesson.title_content); // Giả định bạn có thuộc tính này
+    console.log("Dữ liệu titleContent:", titleContent);
+
+    // Lấy titleContentItems từ titleContent.data
+    const titleContentItems = titleContent && titleContent.data ? titleContent.data : [];
+
+    // In ra tất cả các title_content từ titleContentItems
+    titleContentItems.forEach(item => {
+        console.log("title_content trong titleContent:", item.title_content);
+    });
+
+    // Tìm mục trong titleContentItems tương ứng với lesson.title_content
+    const titleContentItem = titleContentItems.find(item => item.title_content === lesson.title_content) || null;
+
+    console.log("titleContentItem:", titleContentItem);
+    console.log("lesson.course_id:", lesson.course_id);
+
+
+
+
+                                    return (
+                                        <Card key={lesson.lesson_id}>
+            <CardHeader className="flex flex-row items-start justify-between">
+                <div>
+                    <div className="text-sm text-muted-foreground mb-1">
+                        Thuộc khóa học: Lập trình React Native
+                    </div>
+                    <CardTitle className="text-xl">Bài {lesson.lesson_id}: {lesson.name}</CardTitle>
+                    <div className="flex gap-2 mt-2">
+                        <Badge>Bài học</Badge>
+                        <Badge variant="outline">15 phút</Badge>
+                    </div>
+                </div>
+                <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                    Chờ duyệt
+                </Badge>
+            </CardHeader>
+            <CardContent>
+                <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
+                    <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        <span>Giảng viên:</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        <span>Bài giảng + Quiz</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <BookCheck className="h-4 w-4" />
+                        <span>Kiểm tra nội dung chi tiết và câu hỏi quiz</span>
+                    </div>
+                </div>
+
+                {/* Hiển thị nội dung của bài học */}
+                <div className="text-muted-foreground mb-4">
+                    <h4 className="font-semibold">
+                        {lessonContent ? lessonContent.name_content : "Đang tải nội dung..."}
+                    </h4>
+
+                    {/* Kiểm tra xem có titleContentItem không */}
+                    {titleContentItem ? (
+                        <div>
+                            <p>{titleContentItem.body_content || "Nội dung không có"}</p>
+                            {/* Hiển thị video nếu có URL */}
+                            {titleContentItem.video_link ? (
+                                <ReactPlayer
+                                    url={titleContentItem.video_link}
+                                    className="absolute top-0 left-0 w-full h-full"
+                                    controls={true}
+                                    width="100%"
+                                    height="100%"
+                                />
+                            ) : (
+                                <p>Đang tải video...</p>
+                            )}
+                        </div>
+                    ) : (
+                        <p>Không có nội dung tương ứng...</p>
+                    )}
+                </div>
+                <Button>Xem chi tiết & Duyệt</Button>
+            </CardContent>
+        </Card>
+                                    );
+                                }) : (
+                                    <div className="text-center py-8 bg-white rounded-xl">
+                                        <p className="text-gray-500">Không có bài học nào để hiển thị.</p>
+                                    </div>
+                                )}
                             </div>
+
+
+
                         </TabsContent>
                     </Tabs>
                 </div>

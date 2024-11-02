@@ -319,8 +319,8 @@ export default function CourseList () {
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center">
                                                             {/* <div className="w-10 h-10 rounded-lg bg-gray-100 mr-3 flex items-center justify-center">
-                        <GraduationCap className="h-5 w-5 text-gray-500" />
-                    </div> */}
+                                                                <GraduationCap className="h-5 w-5 text-gray-500" />
+                                                            </div> */}
                                                             <div>
                                                                 <p className="text-sm font-medium text-gray-900">{course.title}</p>
                                                                 {/* <p className="text-sm text-gray-500">{course.description}</p> */}
