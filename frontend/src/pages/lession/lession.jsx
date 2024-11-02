@@ -228,7 +228,7 @@ export const Lesson = () => {
     );
 
     const [currentVideoUrl, setCurrentVideoUrl] = useState(null);
-    const [activeIndex, setActiveIndex] = useState(null);
+    const [activeItem, setActiveItem] = useState({ contentId: null, index: null });
 
     const [showQuiz, setShowQuiz] = useState(false);
     const [currentQuizId, setCurrentQuizId] = useState(null);
@@ -470,11 +470,11 @@ export const Lesson = () => {
                                                                             key={i}
                                                                             onClick={() => {
                                                                                 setCurrentVideoUrl(item.video_link);
-                                                                                setActiveIndex(i); 
+                                                                                setActiveItem({ contentId: content.content_id, index: i }); // Cập nhật chỉ số và content_id đang hoạt động
                                                                             }}
-                                                                            className={`group flex items-start gap-3 p-3 rounded-lg transition-all duration-200 cursor-pointer border ${activeIndex === i
-                                                                                ? 'bg-purple-100 border-purple-300' // Hiệu ứng khi đang hoạt động
-                                                                                : 'border-transparent hover:bg-purple-50 hover:border-purple-100'
+                                                                            className={`group flex items-start gap-3 p-3 rounded-lg transition-all duration-200 cursor-pointer border ${activeItem.contentId === content.content_id && activeItem.index === i
+                                                                                    ? 'bg-purple-100 border-purple-300' // Hiệu ứng khi đang hoạt động
+                                                                                    : 'border-transparent hover:bg-purple-50 hover:border-purple-100'
                                                                                 }`}
                                                                         >
                                                                             <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0 mt-1 group-hover:bg-purple-200">
