@@ -241,7 +241,7 @@ export const Header = () => {
                                     onKeyDown={handleKeyPress}
                                     className="h-10"
                                 />
-                            
+
                                 <div className={`absolute w-4/5 bg-white mt-10 ${isOpen ? 'block' : 'hidden'}`}>
                                     <CommandList className="shadow-lg ">
                                         {loading ? (
@@ -299,7 +299,8 @@ export const Header = () => {
                             </Command>
                         </div>
                     </div>
-                    {logined ? (
+                    {logined
+                    ? (
                         <>
                             <>
                                 {/* header - content */}
@@ -805,7 +806,7 @@ export const Header = () => {
                                 <div className="navbar-icons flex items-center gap-2 xl:mx-3">
 
                                     {/* notification */}
-                                    <div className="navbar-noti cursor-pointer">
+                                    {/* <div className="navbar-noti cursor-pointer">
                                         <DropdownMenu >
                                             <DropdownMenuTrigger className="flex">
                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-16" alt="" />
@@ -849,7 +850,7 @@ export const Header = () => {
                                                 </div>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
-                                    </div>
+                                    </div> */}
 
                                     {/* language */}
                                     {/* <div className="navbar-language cursor-pointer">

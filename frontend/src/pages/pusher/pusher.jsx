@@ -67,8 +67,11 @@ const NotificationDropdown = ({ userId }) => {
                 console.error('Error fetching notifications:', error);
             }
         };
+        const token = localStorage.getItem("access_token");
+        if (token && !userId) {
+            fetchNotifications();
+        }
 
-        fetchNotifications();
 
         if (userId) {
             const channel = echo.private(`user.${userId}`);
