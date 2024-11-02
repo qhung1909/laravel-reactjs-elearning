@@ -1,47 +1,38 @@
-import * as React from 'react'
-import axios from 'axios'
-import { Book, ChevronDown, Search } from 'lucide-react'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Book, ChevronDown, Search } from 'lucide-react';
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { SideBarUI } from "../sidebarUI"
+} from "@/components/ui/sidebar";
+import { SideBarUI } from "../sidebarUI";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+import { toast, Toaster } from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
 export default function ClassifyCourse() {
-  const [courses, setCourses] = React.useState([]);
-  const [categories, setCategories] = React.useState([]);
-  const [selectedCategory, setSelectedCategory] = React.useState("Tất cả");
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [loading, setLoading] = React.useState(true);
+  const [courses, setCourses] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("Tất cả");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const API_KEY = import.meta.env.VITE_API_KEY;
   const API_URL = import.meta.env.VITE_API_URL;
@@ -68,7 +59,7 @@ export default function ClassifyCourse() {
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       await Promise.all([fetchCourses(), fetchCategories()]);
@@ -77,28 +68,6 @@ export default function ClassifyCourse() {
     fetchData();
   }, []);
 
-  const handleCategoryChange = async (courseId, categoryId) => {
-    if (!courseId) {
-      console.error('Course ID is undefined');
-      return;
-    }
-
-    setCourses(prevCourses =>
-      prevCourses.map(course =>
-        course.course_id === courseId ? { ...course, course_category_id: categoryId } : course
-      )
-    );
-
-    try {
-      await axios.put(`${API_URL}/admin/courses/${courseId}`, {
-        course_category_id: categoryId
-      }, {
-        headers: { 'x-api-secret': API_KEY }
-      });
-    } catch (error) {
-      console.error('Error updating course category:', error);
-    }
-  }
 
   const filteredCourses = courses.filter(course => {
     const isInSelectedCategory = selectedCategory === "Tất cả" || selectedCategory === "all" || course.course_category_id === selectedCategory;
@@ -108,6 +77,7 @@ export default function ClassifyCourse() {
 
   return (
     <SidebarProvider>
+      <Toaster />
       <SideBarUI />
       <SidebarInset>
         <header className="z-10 absolute left-1 top-3">
@@ -121,7 +91,7 @@ export default function ClassifyCourse() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/courses" className="text-blue-600 font-medium">Phân loại hóa học</BreadcrumbLink>
+                  <BreadcrumbLink href="/courses" className="text-blue-600 font-medium">Phân loại khóa học</BreadcrumbLink>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -164,34 +134,31 @@ export default function ClassifyCourse() {
               <table className="w-full">
                 <thead>
                   <tr className="bg-gray-50">
-                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Tên khóa học</th>
-                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Giá</th>
-                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Danh mục</th>
-                    <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
+                    <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Tên khóa học</th>
+                    <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Giá</th>
+                    <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Danh mục</th>
+                    <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredCourses.map((course) => (
                     <tr key={course.course_id} className="border-t border-gray-100">
                       <td className="py-4 px-6">{course.title}</td>
-                      <td className="py-4 px-6">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}</td>
-                      <td className="py-4 px-6">
-                        <select
-                          value={course.course_category_id || ''}
-                          onChange={(e) => handleCategoryChange(course.course_id, e.target.value)}
-                          className="border border-gray-300 rounded-lg p-2"
-                        >
-                          {categories.filter(c => c.course_category_id !== 'all').map(category => (
-                            <option key={category.course_category_id} value={category.course_category_id}>
-                              {category.name}
-                            </option>
-                          ))}
-                        </select>
+                      <td className="py-4 px-6 text-center">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}</td>
+                      <td className="py-4 px-6 text-center">
+                        {course.course_category_id ? (
+                          categories.find(c => c.course_category_id === course.course_category_id)?.name || 'Chưa có danh mục'
+                        ) : (
+                          <span className="text-red-500">Chưa có danh mục</span>
+                        )}
                       </td>
-                      <td className="py-4 px-6">
-                        <Button variant="outline" size="sm">
-                          Xem chi tiết
-                        </Button>
+                      <td className="py-4 px-6 text-center">
+                        <Link to="/courses">
+                          <Button variant="outline" size="sm">
+                            Xem
+                          </Button>
+                        </Link>
+
                       </td>
                     </tr>
                   ))}

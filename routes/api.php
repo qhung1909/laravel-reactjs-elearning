@@ -180,6 +180,8 @@ Route::middleware(['admin'])->group(function () {
 Route::prefix('admin')->middleware('admin')->group(function () {
     //Dashboard
     Route::get('/courses', [AdminController::class, 'getAllCourses']);
+    Route::put('/courses/{courseId}/category', [AdminController::class, 'updateCourseCategory']);
+    
     Route::get('/courses/{slug}', [AdminController::class, 'showCourses']);
     Route::get('/summary', [AdminController::class, 'getSummary']);
     Route::get('/revenue-chart', [AdminController::class, 'getMonthlyRevenue']);
