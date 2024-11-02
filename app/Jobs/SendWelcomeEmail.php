@@ -14,8 +14,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 class SendWelcomeEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    
-    
+
+
     protected $user;
 
     /**
@@ -29,11 +29,11 @@ class SendWelcomeEmail implements ShouldQueue
     public function handle()
     {
         $verificationUrl = URL::temporarySignedRoute(
-            'verify.email', 
+            'verify.email',
             now()->addMinutes(30),
             ['token' => $this->user->verification_token]
         );
-    
+
         Mail::to($this->user->email)->send(new WelcomeMail($this->user, $verificationUrl));
     }
 }

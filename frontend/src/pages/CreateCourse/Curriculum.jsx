@@ -30,13 +30,32 @@ const decryptData = (cipherText) => {
 export const Curriculum = () => {
     const navigate = useNavigate();
     const [sections, setSections] = useState(() => {
-        const savedSections = sessionStorage.getItem('lessonSections');
+        const savedSections = localStorage.getItem('curriculum');
         return savedSections ? decryptData(savedSections) : [{ id: 1, title: '', lessons: [{ id: 1, title: '', selectedOption: '', videoLink: '', content: '', fileName: '' }] }];
     });
 
     useEffect(() => {
-        sessionStorage.setItem('lessonSections', encryptData(sections));
+        localStorage.setItem('curriculum', encryptData(sections));
+
+        // Kiểm tra xem có bất kỳ trường nào được điền không
+        const hasContent = sections.some(section =>
+            section.title.trim() !== "" ||
+            section.lessons.some(lesson =>
+                lesson.title.trim() !== "" ||
+                lesson.videoLink.trim() !== "" ||
+                lesson.fileName.trim() !== "" ||
+                lesson.content.trim() !== ""
+            )
+        );
+
+        if (hasContent) {
+            localStorage.setItem('FA-CU', 'done');
+        } else {
+            localStorage.removeItem('FA-CU');
+            localStorage.removeItem('curriculum');
+        }
     }, [sections]);
+
 
     const handleSectionTitleChange = (sectionId, newTitle) => {
         setSections(sections.map(section => section.id === sectionId ? { ...section, title: newTitle } : section));
