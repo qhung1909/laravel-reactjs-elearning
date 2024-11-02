@@ -6,26 +6,26 @@ export const UserNotiDetail = () => {
 
                     {/* header */}
                     <div className="px-10 py-5">
-                        <div className="space-y-5 border-b-2 border-yellow-500 pb-5">
+                        <div className="space-y-5 border-b-2 border-yellow-500 pb-8">
                             <div className="flex items-center gap-3">
                                 <div className="">
-                                    <img src="/src/assets/images/antlearn.png" className="w-20" alt="" />
+                                    <img src="/src/assets/images/antlearn.png" className="w-16" alt="" />
                                 </div>
                                 <div className="text-2xl font-bold text-yellow-400">
-                                    <p>AntLearn</p>
+                                    <p>AntLearn - Cùng học trực tuyến tại nhà</p>
                                 </div>
                             </div>
                             <div className="text-2xl font-bold text-yellow-500">
-                                Notification Detail
+                                Thông báo chi tiết
                             </div>
                         </div>
 
                     </div>
 
                     {/* content */}
-                    <div className="mt-5 px-10 py-5">
+                    <div className=" px-10 py-5">
                         <div className="space-y-3">
-                            <div className="sapce-y-1">
+                            <div className="space-y-1">
 
                                 {/* title */}
                                 <div className="">
@@ -37,19 +37,17 @@ export const UserNotiDetail = () => {
                                     <span className="">Thông báo nhắc nhở hoàn thành bài tập</span>
                                 </div>
                             </div>
-                            <div className="">
-
+                            <div className="space-y-1">
                                 {/* content */}
                                 <div className="">
                                     <p className="text-xl font-semibold">Nội dung:</p>
                                 </div>
-
                                 {/* detail content */}
-                                <div className="">
+                                <div className="space-y-3">
                                     <span className="">
                                         Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,Mày nhớ làm bài cho tao,
                                     </span>
-                                    <img src="/src/assets/images/doremon.jpg" className="p-5 w-72" alt="" />
+                                    <img src="/src/assets/images/doremon.jpg" className=" w-72" alt="" />
                                 </div>
                             </div>
 
