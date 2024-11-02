@@ -17,7 +17,8 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import axios from "axios";
 
-import toast, { Toaster } from "@/components/ui/toaster";
+import toast, { Toaster } from 'react-hot-toast';
+
 const notify = (message, type) => {
     if (type === 'success') {
         toast.success(message, {
