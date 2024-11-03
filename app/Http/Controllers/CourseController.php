@@ -202,12 +202,12 @@ class CourseController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'course_category_id' => 'required|numeric',
-            'price' => 'required|numeric',
-            'price_discount' => 'required|numeric',
-            'description' => 'required|string',
+            'course_category_id' => 'nullable|numeric',
+            'price' => 'nullable|numeric',
+            'price_discount' => 'nullable|numeric',
+            'description' => 'nullable|string',
             'img' => 'nullable|max:2048',
-            'title' => 'required|string',
+            'title' => 'nullable|string',
             'status' => 'nullable|string|in:draft,published,hide,pending,failed'
         ];
     
@@ -275,12 +275,12 @@ class CourseController extends Controller
     public function update(Request $request, $slug)
     {
         $rules = [
-            'course_category_id' => 'sometimes|numeric',
-            'price' => 'sometimes|numeric',
-            'price_discount' => 'sometimes|numeric',
-            'description' => 'sometimes|string',
+            'course_category_id' => 'required|numeric',
+            'price' => 'required|numeric',
+            'price_discount' => 'required|numeric',
+            'description' => 'required|string',
             'img' => 'nullable|max:2048',
-            'title' => 'sometimes|required|string',
+            'title' => 'required|required|string',
             'status' => 'nullable|string|in:draft,published,hide,pending,failed'
         ];
     

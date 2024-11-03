@@ -23,11 +23,12 @@ class OrderResource extends JsonResource
                 'name' => $this->user->name,
                 'email' => $this->user->email,
             ],
-            'coupon' => $this->when($this->coupon, [
-                'coupon_id' => $this->coupon->coupon_id,
-                'name' => $this->coupon->name_coupon,
-                'discount_price' => $this->coupon->discount_price,
+            'coupon' => $this->when($this->coupon !== null, [
+                'coupon_id' => optional($this->coupon)->coupon_id,
+                'name' => optional($this->coupon)->name_coupon,
+                'discount_price' => optional($this->coupon)->discount_price,
             ]),
+
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
