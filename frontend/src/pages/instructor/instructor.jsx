@@ -137,9 +137,9 @@ export const Instructor = () => {
                                     </Link>
                                 </h1>
                                 <div className="flex items-center space-x-4">
-                                    <button className="p-1 rounded-full hover:bg-gray-100">
+                                    {/* <button className="p-1 rounded-full hover:bg-gray-100">
                                         <img src="./src/assets/images/notification.svg" className="w-7" alt="" />
-                                    </button>
+                                    </button> */}
                                     <div className="flex items-center gap-2">
                                         {/* avatar */}
                                         {instructor?.avatar ? (

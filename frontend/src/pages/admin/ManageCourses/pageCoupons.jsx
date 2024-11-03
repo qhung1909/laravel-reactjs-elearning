@@ -55,6 +55,10 @@ export default function PageCoupons() {
     const [editDiscountPrice, setEditDiscountPrice] = useState(0);
     const [validationError, setValidationError] = useState('');
 
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [filterStatus, setFilterStatus] = useState('all');
+
+
     const validateDiscountPrice = (value) => {
         if (value === '') {
             return true;
@@ -137,7 +141,6 @@ export default function PageCoupons() {
         }
     };
 
-
     useEffect(() => {
         fetchCoupons();
     }, []);
@@ -149,20 +152,14 @@ export default function PageCoupons() {
 
     const addCoupon = async (e) => {
         e.preventDefault();
-
-        // Validate required fields
         if (!newCouponName || !editDiscountPrice || !editStartDate || !editEndDate) {
             toast.error('Vui lòng điền đầy đủ thông tin!');
             return;
         }
-
-        // Validate discount price
         if (!validateDiscountPrice(editDiscountPrice)) {
             toast.error('Giá giảm không hợp lệ!');
             return;
         }
-
-        // Validate dates
         const startDate = new Date(editStartDate);
         const endDate = new Date(editEndDate);
         if (endDate <= startDate) {
@@ -175,7 +172,6 @@ export default function PageCoupons() {
         formData.append('discount_price', Number(editDiscountPrice));
         formData.append('start_discount', formatDateNoTime(editStartDate));
         formData.append('end_discount', formatDateNoTime(editEndDate));
-
 
         try {
             const res = await axios.post(`${API_URL}/coupons`, formData, {
@@ -223,7 +219,6 @@ export default function PageCoupons() {
             start_discount: editStartDate,
             end_discount: editEndDate,
         };
-
 
         try {
             const res = await axios.put(`${API_URL}/admin/coupons/${editCouponId}`, updatedCoupon, {
@@ -306,7 +301,23 @@ export default function PageCoupons() {
         coupon.name_coupon.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const sortedCoupons = [...filteredCoupons].sort((a, b) => {
+    const filterCoupons = (coupons) => {
+        if (filterStatus === 'expired') {
+            return coupons.filter(coupon => {
+                const status = calculateStatus(coupon.end_discount);
+                return status.daysRemaining <= 0;
+            });
+        } else if (filterStatus === 'expiring') {
+            return coupons.filter(coupon => {
+                const status = calculateStatus(coupon.end_discount);
+                return status.daysRemaining > 0;
+            });
+        }
+        return coupons;
+    };
+
+
+    const sortedCoupons = filterCoupons(filteredCoupons).sort((a, b) => {
         if (!sortConfig.key) return 0;
         const aValue = a[sortConfig.key];
         const bValue = b[sortConfig.key];
@@ -317,6 +328,7 @@ export default function PageCoupons() {
         }
         return sortConfig.direction === 'asc' ? (aValue > bValue ? 1 : -1) : (aValue < bValue ? 1 : -1);
     });
+
 
     const getSortIcon = (key) => (
         sortConfig.key === key
@@ -366,10 +378,29 @@ export default function PageCoupons() {
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                         />
                                     </div>
-                                    <Button variant="outline" className="flex items-center gap-2">
-                                        <Filter size={16} />
-                                        Lọc
-                                    </Button>
+                                    <div className="relative">
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2"
+                                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                        >
+                                            <Filter size={16} />
+                                            Lọc
+                                        </Button>
+                                        {isDropdownOpen && (
+                                            <div className="absolute mt-2  border rounded shadow-lg z-10">
+                                                <Button onClick={() => setFilterStatus('all')} className="w-full text-left p-2">
+                                                    Tất cả
+                                                </Button>
+                                                <Button onClick={() => setFilterStatus('expired')} className="w-full text-left p-2">
+                                                    Hết hạn
+                                                </Button>
+                                                <Button onClick={() => setFilterStatus('expiring')} className="w-full text-left p-2">
+                                                    Còn hạn
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
                                     <Button variant="outline" className="flex items-center gap-2">
                                         <FileDown size={16} />
                                         Xuất
