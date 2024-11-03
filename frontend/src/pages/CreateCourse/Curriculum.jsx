@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import toast, { Toaster } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import 'react-quill/dist/quill.snow.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -197,9 +197,15 @@ export const Curriculum = () => {
         toast.success("Đã xuất dữ liệu ra log!");
     };
 
+    const { course_id } = useParams();
+
+
+
     const openPageQuiz = (sectionId) => {
         navigate(`/course/manage/create-quiz?lesson=${sectionId}`);
     };
+
+
 
     return (
         <>
@@ -225,7 +231,8 @@ export const Curriculum = () => {
                 </Link> */}
             </div>
             <div className="flex max-w-7xl m-auto pt-10 pb-36">
-                <SideBarCreateCoure />
+                <SideBarCreateCoure course_id={course_id} />
+
                 <div className="w-full lg:w-10/12 shadow-lg">
 
 

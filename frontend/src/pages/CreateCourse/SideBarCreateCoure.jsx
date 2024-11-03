@@ -32,7 +32,8 @@ const useLocalStorage = (key) => {
     return [isChecked, setChecked];
 };
 
-export const SideBarCreateCoure = () => {
+// eslint-disable-next-line react/prop-types
+export const SideBarCreateCoure = ({course_id}) => {
     const [isCheckedCO, setCheckedCO] = useLocalStorage('FA-CO');
     const [isCheckedCU, setCheckedCU] = useLocalStorage('FA-CU');
 
@@ -62,7 +63,7 @@ export const SideBarCreateCoure = () => {
                             disabled
                         />
                         <label className="cursor-pointer">
-                            <Link to="/course/manage/course-overview">
+                            <Link to={`/course/manage/${course_id}/course-overview`}>
                                 Trang tổng quan khóa học
                             </Link>
                         </label>
@@ -74,7 +75,7 @@ export const SideBarCreateCoure = () => {
                             disabled
                         />
                         <label className="cursor-pointer">
-                            <Link to="/course/manage/curriculum">
+                            <Link to={`/course/manage/${course_id}/curriculum`}>
                                 Chương trình giảng dạy
                             </Link>
                         </label>
