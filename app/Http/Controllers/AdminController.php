@@ -15,6 +15,7 @@ use Aws\S3\S3Client;
 use App\Models\Category;
 use App\Models\Coupon;
 use Illuminate\Support\Facades\Auth;
+
 class AdminController extends Controller
 {
     protected $course;
@@ -402,8 +403,10 @@ class AdminController extends Controller
     public function showCoursesTeacher($courseId)
     {
         try {
-            $course = Course::getCourseWithAuth($courseId, Auth::id());
-            
+            $course = Course::where('course_id', $courseId)
+                ->where('user_id', Auth::id())
+                ->first();
+
             if (!$course) {
                 return response()->json([
                     'success' => false,
@@ -421,8 +424,8 @@ class AdminController extends Controller
                 'message' => 'Lỗi: ' . $e->getMessage()
             ], 500);
         }
-
     }
+
     public function updateCoursesTeacher(Request $request, $courseId)
     {
         try {
@@ -477,5 +480,4 @@ class AdminController extends Controller
             ], 500);
         }
     }
-
 }

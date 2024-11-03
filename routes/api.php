@@ -208,5 +208,4 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::get('/courses/{courseId}', [AdminController::class, 'showCoursesTeacher']);
     Route::put('/courses/{courseId}', [AdminController::class, 'updateCoursesTeacher']);
 
-
 });
