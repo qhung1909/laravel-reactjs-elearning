@@ -35,8 +35,7 @@ const useLocalStorage = (key) => {
 export const SideBarCreateCoure = () => {
     const [isCheckedCO, setCheckedCO] = useLocalStorage('FA-CO');
     const [isCheckedCU, setCheckedCU] = useLocalStorage('FA-CU');
-    const [isCheckedCM, setCheckedCM] = useLocalStorage('FA-CM');
-    const [isCheckedPR, setCheckedPR] = useLocalStorage('FA-PR'); 
+    const [isCheckedPR, setCheckedPR] = useLocalStorage('FA-PR');
 
     const handleBeforeUnload = (event) => {
         const message = "Bạn có chắc chắn muốn rời khỏi trang? Tất cả nội dung đã nhập sẽ bị mất!";
@@ -98,18 +97,7 @@ export const SideBarCreateCoure = () => {
                             <Link to="/course/manage/promotion">Khuyến mại</Link>
                         </label>
                     </div>
-                    <div className="flex items-center space-x-2 mt-2 mb-8">
-                        <Checkbox
-                            checked={isCheckedCM}
-                            onCheckedChange={setCheckedCM}
-                            readOnly={isCheckedCM}
-                        />
-                        <label className="cursor-pointer">
-                            <Link to="/course/manage/course-message">
-                                Tin nhắn khóa học
-                            </Link>
-                        </label>
-                    </div>
+
                 </div>
                 <button className="bg-yellow-400 w-full px-3 py-3">
                     <h2 className="text-white font-bold">Gửi đi để xem xét</h2>

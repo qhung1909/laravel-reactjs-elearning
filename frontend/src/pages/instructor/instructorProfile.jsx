@@ -34,12 +34,14 @@ export const InstructorProfile = () => {
     const [email, setEmail] = useState('');
     const [avatar, setAvatar] = useState(null);
     const [currentAvatar, setCurrentAvatar] = useState('');
-    const [_success, setSuccess] = useState("");
+    const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
     const [loadingLogout, setLoadingLogout] = useState(false);
     const [password, setPassword] = useState("");
     const [current_password, setCurrentPassword] = useState("");
     const [password_confirmation, setPassword_Confirmation] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isProfileSubmitting, setIsProfileSubmitting] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -61,9 +63,21 @@ export const InstructorProfile = () => {
     };
 
     // hàm xử lý update user profile
-    const handleUpdateProfile = (e) => {
+    const handleUpdateProfile = async (e) => {
         e.preventDefault();
-        updateUserProfile(userName, email, avatar);
+        if (isProfileSubmitting) return;
+
+        setIsProfileSubmitting(true);
+        try {
+            await updateUserProfile(userName, email, avatar);
+            setSuccess(true);
+            toast.success("Cập nhật hồ sơ thành công!");
+        } catch (error) {
+            setError("Cập nhật không thành công, vui lòng thử lại.");
+            toast.error(error.message);
+        } finally {
+            setIsProfileSubmitting(false);
+        }
     };
 
     // hàm xử lý đăng xuất
@@ -76,15 +90,27 @@ export const InstructorProfile = () => {
     // hàm xử lý validate thay đổi mật khẩu
     const handleChangePassword = async (e) => {
         e.preventDefault();
-        const isUpdated = await updatePassword(current_password, password, password_confirmation);
+        if (isSubmitting) return;
+
+        setIsSubmitting(true);
+        const isUpdated = await updatePassword(
+            current_password,
+            password,
+            password_confirmation
+        );
+        setIsSubmitting(false);
+
         if (isUpdated) {
-            setCurrentPassword('');
-            setPassword('');
-            setPassword_Confirmation('');
-            setError('');
+            setCurrentPassword("");
+            setPassword("");
+            setPassword_Confirmation("");
         }
     };
-
+    useEffect(() => {
+        if (success) {
+            window.location.reload();
+        }
+    }, [success]);
     return (
         <>
             <section className="instructor-profile">
@@ -302,7 +328,12 @@ export const InstructorProfile = () => {
                                                             <p>Điều này sẽ được chia sẻ với các học viên khác</p>
                                                         </div>
                                                         <div className="">
-                                                            <button className="bg-yellow-400 px-4 py-2 rounded-xl font-bold sm:block hidden">Lưu</button>
+                                                            <button
+                                                                className="bg-yellow-400 px-4 py-2 rounded-xl font-bold sm:block hidden"
+                                                                disabled={isProfileSubmitting}
+                                                            >
+                                                            {isProfileSubmitting ? "Đang lưu..." : "Lưu"}
+                                                            </button>
                                                         </div>
                                                     </div>
                                                     <hr className="my-5" />

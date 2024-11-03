@@ -17,6 +17,24 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import axios from "axios";
 
+import toast, { Toaster } from 'react-hot-toast';
+
+const notify = (message, type) => {
+    if (type === 'success') {
+        toast.success(message, {
+            style: {
+                padding: '16px'
+            }
+        });
+    } else {
+        toast.error(message, {
+            style: {
+                padding: '16px'
+            }
+        })
+    }
+}
+
 import CryptoJS from 'crypto-js';
 
 const secretKey = 'your-secret-key';
@@ -43,6 +61,7 @@ export const CourseOverview = () => {
     const [price, setPrice] = useState("");
     const [selectedLanguage, setSelectedLanguage] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
+
     const [courseImage, setCourseImage] = useState(null);
 
     const wordCount = courseDescriptionText.trim().split(/\s+/).filter(word => word).length;
@@ -70,7 +89,7 @@ export const CourseOverview = () => {
             setPrice(decryptedData.price);
             setSelectedLanguage(decryptedData.selectedLanguage);
             setSelectedCategory(decryptedData.selectedCategory);
-            setCourseImage(decryptedData.courseImage); // Đã lưu dưới dạng base64
+            setCourseImage(decryptedData.courseImage);
         }
     }, []);
 
@@ -78,7 +97,7 @@ export const CourseOverview = () => {
         const isCourseTitleValid = courseTitle.trim() !== "";
         const isDescriptionValid = wordCount >= 200;
         const isCurrencyValid = currency !== "";
-        const isPriceValid = price.trim() !== ""; // Kiểm tra giá không rỗng
+        const isPriceValid = price.trim() !== "";
         const isLanguageSelected = selectedLanguage !== "";
         const isCategorySelected = selectedCategory !== "";
         const isImageUploaded = courseImage !== null;
@@ -95,7 +114,7 @@ export const CourseOverview = () => {
             };
             localStorage.setItem('courseOverview', encryptData(dataToStore));
         } else {
-            localStorage.removeItem('courseOverview'); // Xóa nếu không có trường nào hợp lệ
+            localStorage.removeItem('courseOverview');
         }
 
         if (isCourseTitleValid && isDescriptionValid && isCurrencyValid && isPriceValid && isLanguageSelected && isCategorySelected && isImageUploaded) {
@@ -121,6 +140,43 @@ export const CourseOverview = () => {
         };
         fetchCategories()
     }, [API_KEY, API_URL])
+
+
+    const handleSubmit = async () => {
+        const courseData = {
+            course_category_id: selectedCategory,
+            price: price,
+            price_discount: price,
+            description: courseDescriptionText,
+            title: courseTitle,
+            // img: courseImage, // Base64 image string
+        };
+
+
+
+        try {
+            const response = await axios.post(`${API_URL}/course`, courseData, {
+                headers: {
+                    'x-api-secret': API_KEY,
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.data.success) {
+                notify('Khóa học của bạn đã được gửi vui lòng chờ duyệt!', 'success');
+
+            } else {
+                console.error('Error:', response.data.message);
+                alert('Failed to add course', 'success');
+            }
+        } catch (error) {
+            // console.error('Error submitting course:', error);
+            alert('Error submitting course');
+            console.log(error);
+
+        }
+    };
 
 
 
@@ -243,8 +299,8 @@ export const CourseOverview = () => {
                                                 <>
                                                     <SelectLabel>Thể loại khóa học</SelectLabel>
 
-                                                    {categories.map((category) => (
-                                                        <SelectItem key={category.category_course_id} value={category.slug}>
+                                                    {categories.map((category, index) => (
+                                                        <SelectItem key={index} value={category.course_category_id}>
                                                             {category.name}
                                                         </SelectItem>
                                                     ))}
@@ -279,9 +335,17 @@ export const CourseOverview = () => {
                                 </div>
                             </div>
                         </div>
+                        <button
+                            onClick={handleSubmit}
+                            className="bg-blue-500 text-white py-2 px-4 rounded"
+                        >
+                            Thêm Khóa Học
+                        </button>
                     </div>
                 </div>
             </div>
+            <Toaster />
+
             <Footer />
         </>
     );

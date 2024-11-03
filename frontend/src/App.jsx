@@ -46,14 +46,13 @@ import CourseStatus from "./pages/admin/ManageCourses/courseStatus.jsx";
 import NewExample from "./pages/admin/ManageCourses/newExample.jsx";
 import { CoursesOfCategory } from "./pages/admin/ManageCategories/CoursesOfCategory.jsx";
 import ClassifyCourse from "./pages/admin/ManageCourses/classifyCourses.jsx";
-import PriceDiscount from "./pages/admin/ManageCourses/priceDiscount.jsx";
+import PageCoupons from "./pages/admin/ManageCourses/pageCoupons.jsx";
 import BrowseNewCourses from "./pages/admin/ManageCourses/browseNewCourses.jsx";
 import TaskList from "./pages/notifications/notification.jsx";
 import { InstructorNotification } from "./pages/instructor/instuctorNotification.jsx";
 import { CourseOverview } from "./pages/CreateCourse/courseOverview.jsx";
 import { Curriculum } from "./pages/CreateCourse/curriculum.jsx";
 import { Promotion } from "./pages/CreateCourse/Promotion.jsx";
-import { CourseMessage } from "./pages/CreateCourse/CourseMessage.jsx";
 import Demo from "./pages/demo/Demo.jsx";
 import { CreateQuiz } from "./pages/CreateCourse/CreateQuiz.jsx";
 
@@ -98,7 +97,6 @@ function AppContent() {
                 <Route path="/course/manage/course-overview" element={<CourseOverview />}></Route>
                 <Route path="/course/manage/curriculum" element={<Curriculum />}></Route>
                 <Route path="/course/manage/promotion" element={<Promotion />}></Route>
-                <Route path="/course/manage/course-message" element={<CourseMessage />}></Route>
                 <Route path="/course/manage/create-quiz" element={<CreateQuiz />}></Route>
 
                 {/* <Route path="/admin" element={<AdminRole element={<Dashboard />} />}></Route> */}
@@ -109,7 +107,7 @@ function AppContent() {
                 <Route path="/admin/browse-new-courses/:id" element={<NewExample />}></Route>
                 <Route path="/admin/course-status" element={<CourseStatus />}></Route>
                 <Route path="/admin/classify-course" element={<ClassifyCourse />}></Route>
-                <Route path="/admin/price-discount" element={<PriceDiscount />}></Route>
+                <Route path="/admin/page-coupons" element={<PageCoupons/>}></Route>
                 <Route path="/admin/category-list" element={<CategoryList />}></Route>
                 <Route path="/admin/category-crud" element={<CategoryCrud />}></Route>
                 <Route path="/admin/priority-category" element={<PriorityCategory />}></Route>
