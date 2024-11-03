@@ -205,7 +205,12 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::put('/coupons/{coupon_id}', [AdminController::class, 'updateCoupon']);
     Route::delete('/coupons/{coupon_id}', [AdminController::class, 'destroyCoupon']);
 
+
+});
+Route::prefix('teacher')->middleware('admin')->group(function () {
+
     Route::get('/courses/{courseId}', [AdminController::class, 'showCoursesTeacher']);
     Route::put('/courses/{courseId}', [AdminController::class, 'updateCoursesTeacher']);
+
 
 });
