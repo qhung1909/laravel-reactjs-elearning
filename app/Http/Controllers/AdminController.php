@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 use Aws\S3\S3Client;
 use App\Models\Category;
 use App\Models\Coupon;
-
+use Illuminate\Support\Facades\Auth;
 class AdminController extends Controller
 {
     protected $course;
@@ -398,4 +398,84 @@ class AdminController extends Controller
 
         return response()->json(['message' => 'Coupon deleted successfully']);
     }
+
+    public function showCoursesTeacher($courseId)
+    {
+        try {
+            $course = Course::getCourseWithAuth($courseId, Auth::id());
+            
+            if (!$course) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy khóa học hoặc bạn không có quyền truy cập'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $course
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+
+    }
+    public function updateCoursesTeacher(Request $request, $courseId)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'title' => 'sometimes|required|string|max:255',
+                'course_category_id' => 'sometimes|required|exists:course_categories,course_category_id',
+                'price' => 'sometimes|required|numeric|min:0',
+                'description' => 'sometimes|required|string',
+                'img' => 'sometimes|nullable|image|mimes:jpeg,png,jpg|max:2048'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validator->errors()
+                ], 422);
+            }
+
+            $updateData = $request->only([
+                'title',
+                'course_category_id',
+                'price',
+                'price_discount',
+                'description',
+                'status'
+            ]);
+
+            // Xử lý upload ảnh mới nếu có
+            if ($request->hasFile('img')) {
+                $image = $request->file('img');
+                $imageName = time() . '.' . $image->extension();
+                $image->move(public_path('images/courses'), $imageName);
+                $updateData['img'] = 'images/courses/' . $imageName;
+            }
+
+            // Cập nhật slug nếu title thay đổi
+            if (isset($updateData['title'])) {
+                $updateData['slug'] = Str::slug($updateData['title']);
+            }
+
+            $result = Course::updateCourseWithAuth($courseId, Auth::id(), $updateData);
+
+            if (!$result['success']) {
+                return response()->json($result, 404);
+            }
+
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }
