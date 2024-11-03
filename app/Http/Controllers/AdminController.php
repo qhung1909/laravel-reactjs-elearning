@@ -431,7 +431,7 @@ class AdminController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'title' => 'sometimes|required|string|max:255',
-                'course_category_id' => 'sometimes|required|exists:course_categories,course_category_id',
+                'course_category_id' => 'sometimes|required|exists:categories,course_category_id',
                 'price' => 'sometimes|required|numeric|min:0',
                 'description' => 'sometimes|required|string',
                 'img' => 'sometimes|nullable|image|mimes:jpeg,png,jpg|max:2048'
