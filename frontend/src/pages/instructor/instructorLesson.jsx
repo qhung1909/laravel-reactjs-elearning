@@ -34,6 +34,7 @@ const notify = (message, type) => {
     }
 }
 import { UserContext } from "../context/usercontext";
+import { Button } from "@/components/ui/button";
 export const InstructorLesson = () => {
     const { instructor, logout, refreshToken } = useContext(UserContext);
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -43,6 +44,8 @@ export const InstructorLesson = () => {
     const [_success, setSuccess] = useState("");
     const [userCourses, setUserCourses] = useState([]);
     const navigate = useNavigate();
+    const [course, setCourse] = useState([]);
+
     // const fetchUserCourses = async (userId) => {
     //     const token = localStorage.getItem("access_token");
     //     try {
@@ -123,6 +126,25 @@ export const InstructorLesson = () => {
             alert('Failed to refresh token. Please log in again.');
         }
     };
+
+
+
+    const addCourse = async ()=>{
+        const token = localStorage.getItem("access_token");
+        try {
+            const response = await axios.post(`${API_URL}/course`,{}, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            console.log(response.data)
+            setCourse(response.data)
+            navigate(`/course/manage/${response.data.course.course_id}/course-overview`)
+        } catch (error) {
+            console.log('Error add new course', error)
+        }
+    }
 
     return (
         <>
@@ -319,6 +341,7 @@ export const InstructorLesson = () => {
                                             <br />
                                             <p className="font-bold text-black">Không tìm thấy dữ liệu.</p>
                                             <p className="text-slate-600 font-semibold mt-1">Chưa có dữ liệu, tạo mới để bắt đầu</p>
+                                            <Button onClick={addCourse}>Thêm khóa học</Button>
                                         </div>
                                     </TableCaption>
                                     <TableHeader>
