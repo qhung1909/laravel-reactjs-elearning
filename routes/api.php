@@ -30,6 +30,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ProgressController;
 use App\Events\MyEvent;
+use App\Http\Controllers\TeacherController;
 // Authentication
 Route::group([
     'middleware' => 'api',
@@ -212,5 +213,9 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::get('/courses/{courseId}', [AdminController::class, 'showCoursesTeacher']);
     Route::put('/courses/{courseId}', [AdminController::class, 'updateCoursesTeacher']);
 
+    Route::get('content/{contentId}', [TeacherController::class, 'show']);
+    Route::post('content/', [TeacherController::class, 'store']);
+    Route::put('content/{contentId}', [TeacherController::class, 'update']);
+    Route::delete('content/{contentId}', [TeacherController::class, 'delete']);
 
 });
