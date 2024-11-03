@@ -116,7 +116,7 @@ class ContentController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'course_id' => 'required|exists:courses,id',
+            'course_id' => 'required|exists:courses,course_id',
             'name_content' => 'required|string|max:255',
             'status' => 'sometimes|string|in:' . implode(',', self::CONTENT_STATUSES),
         ], [
@@ -171,7 +171,7 @@ class ContentController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'course_id' => 'required|exists:courses,id',
+            'course_id' => 'required|exists:courses,course_id',
             'name_content' => 'required|string|max:255',
             'status' => 'sometimes|required|string|in:' . implode(',', self::CONTENT_STATUSES),
         ], [
