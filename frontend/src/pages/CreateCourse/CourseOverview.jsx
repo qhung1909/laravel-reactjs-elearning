@@ -164,11 +164,11 @@ export const CourseOverview = () => {
             });
 
             if (response.data.success) {
-                console.log('Success:', response.data);
-                alert(response.data.message);
+                notify('Khóa học của bạn đã được gửi vui lòng chờ duyệt!', 'success');
+
             } else {
                 console.error('Error:', response.data.message);
-                alert('Failed to add course');
+                alert('Failed to add course', 'success');
             }
         } catch (error) {
             // console.error('Error submitting course:', error);
