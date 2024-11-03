@@ -35,7 +35,6 @@ const useLocalStorage = (key) => {
 export const SideBarCreateCoure = () => {
     const [isCheckedCO, setCheckedCO] = useLocalStorage('FA-CO');
     const [isCheckedCU, setCheckedCU] = useLocalStorage('FA-CU');
-    const [isCheckedPR, setCheckedPR] = useLocalStorage('FA-PR');
 
     const handleBeforeUnload = (event) => {
         const message = "Bạn có chắc chắn muốn rời khỏi trang? Tất cả nội dung đã nhập sẽ bị mất!";
@@ -50,12 +49,6 @@ export const SideBarCreateCoure = () => {
         };
     }, []);
 
-    const handlePromotionClick = () => {
-        // Nếu checkbox "Khuyến mại" chưa được tick, tick nó
-        if (!isCheckedPR) {
-            setCheckedPR(true);
-        }
-    };
 
     return (
         <div className="w-3/12 mr-4 hidden lg:block">
@@ -66,7 +59,7 @@ export const SideBarCreateCoure = () => {
                         <Checkbox
                             checked={isCheckedCO}
                             onCheckedChange={setCheckedCO}
-                            readOnly={isCheckedCO}
+                            disabled
                         />
                         <label className="cursor-pointer">
                             <Link to="/course/manage/course-overview">
@@ -78,7 +71,7 @@ export const SideBarCreateCoure = () => {
                         <Checkbox
                             checked={isCheckedCU}
                             onCheckedChange={setCheckedCU}
-                            readOnly={isCheckedCU}
+                            disabled
                         />
                         <label className="cursor-pointer">
                             <Link to="/course/manage/curriculum">
@@ -87,21 +80,18 @@ export const SideBarCreateCoure = () => {
                         </label>
                     </div>
 
-                    <h2 className="font-medium">Xuất bản khóa học của bạn</h2>
-                    <div className="flex items-center space-x-2 my-4">
-                        <Checkbox
-                            checked={isCheckedPR} // Sử dụng state cho checkbox "Khuyến mại"
-                            readOnly={true} // Không cho phép bỏ tick
-                        />
-                        <label className="cursor-pointer" onClick={handlePromotionClick}>
-                            <Link to="/course/manage/promotion">Khuyến mại</Link>
-                        </label>
-                    </div>
 
                 </div>
-                <button className="bg-yellow-400 w-full px-3 py-3">
-                    <h2 className="text-white font-bold">Gửi đi để xem xét</h2>
-                </button>
+                <div className="space-y-3">
+                    {/* Nút Lưu - secondary button */}
+                    <button className="w-full px-4 py-3 bg-white border-2 border-yellow-500 hover:bg-yellow-50 focus:ring-4 focus:outline-none focus:ring-yellow-300 text-yellow-600 font-semibold rounded-lg text-sm transition-all duration-200">
+                        Lưu bản nháp
+                    </button>
+                    {/* Nút Gửi đi để xem xét - primary button */}
+                    <button className="w-full px-4 py-3 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-yellow-300 text-white font-semibold rounded-lg text-sm transition-all duration-200 shadow-lg hover:shadow-xl">
+                        Gửi đi để xem xét
+                    </button>
+                </div>
             </div>
         </div>
     );
