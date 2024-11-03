@@ -444,6 +444,15 @@ class AdminController extends Controller
                 ], 422);
             }
 
+            $course = Course::find($courseId);
+
+            if (!$course) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy khóa học'
+                ], 404);
+            }
+
             $updateData = $request->only([
                 'title',
                 'course_category_id',
@@ -459,6 +468,11 @@ class AdminController extends Controller
                 $imageName = time() . '.' . $image->extension();
                 $image->move(public_path('images/courses'), $imageName);
                 $updateData['img'] = 'images/courses/' . $imageName;
+
+                // Xóa ảnh cũ nếu có
+                if ($course->img && file_exists(public_path($course->img))) {
+                    unlink(public_path($course->img));
+                }
             }
 
             // Cập nhật slug nếu title thay đổi
@@ -466,13 +480,13 @@ class AdminController extends Controller
                 $updateData['slug'] = Str::slug($updateData['title']);
             }
 
-            $result = Course::updateCourseWithAuth($courseId, Auth::id(), $updateData);
+            $course->update($updateData);
 
-            if (!$result['success']) {
-                return response()->json($result, 404);
-            }
-
-            return response()->json($result);
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật khóa học thành công',
+                'data' => $course
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
