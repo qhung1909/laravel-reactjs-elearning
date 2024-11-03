@@ -137,14 +137,11 @@ class ContentController extends Controller
         DB::beginTransaction();
         try {
             $data = $validator->validated();
-            // Set default status if not provided
             if (!isset($data['status'])) {
                 $data['status'] = 'draft';
             }
 
             $content = Content::create($data);
-
-            Cache::tags(['contents'])->flush();
 
             DB::commit();
             return response()->json([
@@ -193,10 +190,6 @@ class ContentController extends Controller
         try {
             $content = Content::findOrFail($content_id);
             $content->update($validator->validated());
-
-            Cache::forget('content_' . $content_id);
-            Cache::tags(['contents'])->flush();
-
             DB::commit();
             return response()->json([
                 'success' => true,
