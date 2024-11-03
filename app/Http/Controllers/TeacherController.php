@@ -5,18 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\Content;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Auth;
+use App\Models\Course;
 class TeacherController extends Controller
 {
     public function show($contentId)
     {
         try {
-            $content = Content::find($contentId);
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Người dùng chưa đăng nhập'
+                ], 401);
+            }
+
+            $content = Content::whereHas('course', function($query) {
+                $query->where('user_id', Auth::id());
+            })->find($contentId);
             
             if (!$content) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Không tìm thấy nội dung'
+                    'message' => 'Không tìm thấy nội dung hoặc bạn không có quyền truy cập'
                 ], 404);
             }
 
@@ -33,10 +43,16 @@ class TeacherController extends Controller
         }
     }
 
-    // Tạo content mới
     public function store(Request $request)
     {
         try {
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Người dùng chưa đăng nhập'
+                ], 401);
+            }
+
             $validator = Validator::make($request->all(), [
                 'course_id' => 'required|exists:courses,course_id',
                 'name_content' => 'required|string|max:255',
@@ -47,6 +63,17 @@ class TeacherController extends Controller
                     'success' => false,
                     'message' => $validator->errors()
                 ], 422);
+            }
+
+            $isCourseOwner = Course::where('course_id', $request->course_id)
+                                 ->where('user_id', Auth::id())
+                                 ->exists();
+            
+            if (!$isCourseOwner) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền thêm nội dung vào khóa học này'
+                ], 403);
             }
 
             $content = Content::create([
@@ -72,6 +99,13 @@ class TeacherController extends Controller
     public function update(Request $request, $contentId)
     {
         try {
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Người dùng chưa đăng nhập'
+                ], 401);
+            }
+
             $validator = Validator::make($request->all(), [
                 'name_content' => 'sometimes|required|string|max:255',
             ]);
@@ -83,12 +117,14 @@ class TeacherController extends Controller
                 ], 422);
             }
 
-            $content = Content::find($contentId);
+            $content = Content::whereHas('course', function($query) {
+                $query->where('user_id', Auth::id());
+            })->find($contentId);
 
             if (!$content) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Không tìm thấy nội dung'
+                    'message' => 'Không tìm thấy nội dung hoặc bạn không có quyền cập nhật'
                 ], 404);
             }
 
@@ -108,16 +144,24 @@ class TeacherController extends Controller
         }
     }
 
-    // Xóa content
     public function destroy($contentId)
     {
         try {
-            $content = Content::find($contentId);
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Người dùng chưa đăng nhập'
+                ], 401);
+            }
+
+            $content = Content::whereHas('course', function($query) {
+                $query->where('user_id', Auth::id());
+            })->find($contentId);
 
             if (!$content) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Không tìm thấy nội dung'
+                    'message' => 'Không tìm thấy nội dung hoặc bạn không có quyền xóa'
                 ], 404);
             }
 
