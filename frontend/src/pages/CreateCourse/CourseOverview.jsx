@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { SideBarCreateCoure } from "./SideBarCreateCoure";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Footer } from "../footer/footer";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -35,17 +35,7 @@ const notify = (message, type) => {
     }
 }
 
-import CryptoJS from 'crypto-js';
 
-const secretKey = 'your-secret-key';
-const encryptData = (data) => {
-    return CryptoJS.AES.encrypt(JSON.stringify(data), secretKey).toString();
-};
-
-const decryptData = (cipherText) => {
-    const bytes = CryptoJS.AES.decrypt(cipherText, secretKey);
-    return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-};
 
 export const CourseOverview = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -80,20 +70,6 @@ export const CourseOverview = () => {
     };
 
     useEffect(() => {
-        const storedData = localStorage.getItem('courseOverview');
-        if (storedData) {
-            const decryptedData = decryptData(storedData);
-            setCourseTitle(decryptedData.courseTitle);
-            setCourseDescriptionText(decryptedData.courseDescriptionText);
-            setCurrency(decryptedData.currency);
-            setPrice(decryptedData.price);
-            setSelectedLanguage(decryptedData.selectedLanguage);
-            setSelectedCategory(decryptedData.selectedCategory);
-            setCourseImage(decryptedData.courseImage);
-        }
-    }, []);
-
-    useEffect(() => {
         const isCourseTitleValid = courseTitle.trim() !== "";
         const isDescriptionValid = wordCount >= 200;
         const isCurrencyValid = currency !== "";
@@ -112,9 +88,6 @@ export const CourseOverview = () => {
                 selectedCategory,
                 courseImage
             };
-            localStorage.setItem('courseOverview', encryptData(dataToStore));
-        } else {
-            localStorage.removeItem('courseOverview');
         }
 
         if (isCourseTitleValid && isDescriptionValid && isCurrencyValid && isPriceValid && isLanguageSelected && isCategorySelected && isImageUploaded) {
@@ -140,22 +113,51 @@ export const CourseOverview = () => {
         };
         fetchCategories()
     }, [API_KEY, API_URL])
+    const { course_id } = useParams();
+    // console.log(course_id);
+
+    useEffect(() => {
+        const fetchCourse = async () => {
+            const response = await axios.get(`${API_URL}/teacher/courses/${course_id}`, {
+                headers: {
+                    'x-api-secret': API_KEY,
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                },
+            });
+
+            if (response.data) {
+                const courseData = response.data.data;
+                console.log(courseData);
+                setCourseTitle(courseData.title || '');
+                setCourseDescriptionText(courseData.description || '');
+                setPrice(courseData.price || '');
+                setCourseImage(courseData.img || '');
+                setSelectedCategory(courseData.course_category_id || '');
+
+            } else {
+                console.error('Error fetching course:', response.data.message);
+                alert('Failed to fetch course');
+            }
+            console.log(course_id);
+
+        };
+        fetchCourse()
+    }, [API_KEY, API_URL, course_id])
+
 
 
     const handleSubmit = async () => {
         const courseData = {
             course_category_id: selectedCategory,
             price: price,
-            price_discount: price,
+            // price_discount: price,
             description: courseDescriptionText,
             title: courseTitle,
             // img: courseImage, // Base64 image string
         };
 
-
-
         try {
-            const response = await axios.post(`${API_URL}/course`, courseData, {
+            const response = await axios.put(`${API_URL}/teacher/courses/${course_id}`, courseData, {
                 headers: {
                     'x-api-secret': API_KEY,
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -195,7 +197,7 @@ export const CourseOverview = () => {
             </div>
 
             <div className="flex max-w-7xl m-auto pt-10 pb-36">
-                <SideBarCreateCoure />
+                <SideBarCreateCoure course_id={course_id} />
                 <div className="w-full lg:w-10/12 shadow-lg">
                     <div>
                         <div className="m-2">
