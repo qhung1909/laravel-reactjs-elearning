@@ -57,7 +57,8 @@ import { CreateQuiz } from "./pages/CreateCourse/CreateQuiz.jsx";
 import ListStudents from "./pages/admin/ManageAcount/ListStudents.jsx";
 import ListTeachers from "./pages/admin/ManageAcount/ListTeachers.jsx";
 import ClassifyUsers from "./pages/admin/ManageAcount/ClassifyUsers.jsx";
-import { PersonalInformation } from "./pages/admin/ManageAcount/PersonalInformation.jsx";
+import {PersonalInformation} from "./pages/admin/ManageAcount/PersonalInformation.jsx";
+
 
 
 function AppContent() {
