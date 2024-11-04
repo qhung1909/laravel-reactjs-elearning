@@ -270,7 +270,6 @@ export const Lesson = () => {
                 },
             });
 
-            // Kiểm tra phản hồi từ API
             if (res.data && res.data.message === 'Tiến trình đã được cập nhật.') {
                 toast.success("Tiến độ đã được cập nhật!");
             } else {
@@ -283,34 +282,34 @@ export const Lesson = () => {
         }
     };
 
-
     const handleLessonComplete = (contentId) => {
         setCompletedLessons(prev => new Set([...prev, contentId]));
     };
 
     const calculateProgress = () => {
-        return (completedLessons.size / Object.keys(titleContent).reduce((acc, key) =>
-            acc + titleContent[key].length, 0)) * 100;
+        return (completedLessons.size / Object.keys(titleContent).length) * 100;
     };
 
+    const [completedVideosInSection, setCompletedVideosInSection] = useState({});
     const [completedVideos, setCompletedVideos] = useState({});
+
     const handleVideoComplete = (contentId, index) => {
-        setCompletedVideos(prev => {
+        setCompletedVideosInSection(prev => {
             const updated = { ...prev };
             updated[contentId] = updated[contentId] ? updated[contentId] + 1 : 1;
             return updated;
         });
 
-        // Kiểm tra xem tất cả video của tiêu đề đã được hoàn thành chưa
         const allVideos = titleContent[contentId] || [];
-        if (completedVideos[contentId] + 1 === allVideos.length) {
+        if (completedVideosInSection[contentId] + 1 === allVideos.length) {
             handleLessonComplete(contentId);
-            updateProgress(contentId); // Cập nhật tiến độ chỉ khi tất cả video đã hoàn thành
+            updateProgress(contentId);
         }
     };
 
     const playerRef = useRef();
     const [videoDurations, setVideoDurations] = useState({});
+
     const handleProgress = (progress, titleContentId, index) => {
         const { playedSeconds } = progress;
         const duration = videoDurations[titleContentId] || playerRef.current.getDuration();
@@ -323,7 +322,6 @@ export const Lesson = () => {
                 [titleContentId]: duration
             }));
 
-            // Chỉ đánh dấu hoàn thành video con khi đã xem ít nhất 70%
             if (playedPercentage >= 70 && playedPercentage < 80) {
                 handleVideoComplete(titleContentId);
             }
@@ -340,6 +338,7 @@ export const Lesson = () => {
             updateProgress(contentId);
         });
     }, [completedLessons]);
+
 
     return (
         <>
@@ -491,7 +490,7 @@ export const Lesson = () => {
                                                 <span className="text-sm font-medium">Đã hoàn thành</span>
                                             </div>
                                             <p className="text-lg font-semibold text-gray-800">
-                                                {completedLessons.size}/{Object.keys(titleContent).length}
+                                                {completedLessons.size}/{contentLesson.length}
                                             </p>
                                         </div>
                                         <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
