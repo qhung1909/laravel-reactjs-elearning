@@ -186,7 +186,7 @@ export default function ListTeachers() {
                                                             {new Date(teacher.created_at).toLocaleDateString('vi-VN')}
                                                         </TableCell>
                                                         <TableCell className="text-center">
-                                                            {teacher.role === "user" ? "Giảng viên" : teacher.role}
+                                                            {teacher.role === "teacher" ? "Giảng viên" : teacher.role}
                                                         </TableCell>
                                                         <TableCell className="text-center">
                                                             <Button variant="ghost" size="sm">
