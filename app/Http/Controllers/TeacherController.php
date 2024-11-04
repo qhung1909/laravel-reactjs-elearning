@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Course;
 use Illuminate\Support\Facades\DB;
 use App\Models\TitleContent;
-use Aws\S3\S3Client;
 
 class TeacherController extends Controller
 {
@@ -321,7 +320,7 @@ class TeacherController extends Controller
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-
+    
             $validator = Validator::make($request->all(), [
                 'content_id' => 'required|exists:contents,content_id',
                 'title_contents' => 'required|array',
@@ -330,7 +329,7 @@ class TeacherController extends Controller
                 'title_contents.*.document_link' => 'nullable|string',
                 'title_contents.*.description' => 'nullable|string'
             ]);
-
+    
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -338,34 +337,27 @@ class TeacherController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-
+    
             DB::beginTransaction();
-
+    
             try {
                 $createdTitleContents = [];
-
-                foreach ($request->title_contents as $index => $titleContentData) {
-                    if ($request->hasFile("title_contents.$index.video_link")) {
-                        $videoFile = $request->file("title_contents.$index.video_link");
-                        $videoLink = $this->handleFileUpload($videoFile);
-                    } else {
-                        $videoLink = $titleContentData['video_link'];
-                    }
-
+    
+                foreach ($request->title_contents as $titleContentData) {
                     $titleContent = TitleContent::create([
                         'content_id' => $request->content_id,
                         'body_content' => $titleContentData['body_content'],
-                        'video_link' => $videoLink,
+                        'video_link' => $titleContentData['video_link'],
                         'document_link' => $titleContentData['document_link'],
                         'description' => $titleContentData['description'],
                         'status' => 'draft'
                     ]);
-
+    
                     $createdTitleContents[] = $titleContent;
                 }
-
+    
                 DB::commit();
-
+    
                 return response()->json([
                     'success' => true,
                     'message' => 'Tạo tiêu đề nội dung thành công',
@@ -382,7 +374,7 @@ class TeacherController extends Controller
             ], 500);
         }
     }
-
+    
 
     public function updateTitleContent(Request $request, $contentId)
     {
@@ -423,7 +415,7 @@ class TeacherController extends Controller
             DB::beginTransaction();
 
             try {
-                foreach ($request->title_contents as $index => $titleContentData) {
+                foreach ($request->title_contents as $titleContentData) {
                     $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
                         ->where('content_id', $contentId)
                         ->first();
@@ -432,19 +424,12 @@ class TeacherController extends Controller
                         throw new \Exception("TitleContent ID {$titleContentData['title_content_id']} không thuộc về nội dung này");
                     }
 
-                    if ($request->hasFile("title_contents.$index.video_link")) {
-                        $videoFile = $request->file("title_contents.$index.video_link");
-                        $videoLink = $this->handleFileUpload($videoFile);
-                    } else {
-                        $videoLink = $titleContentData['video_link'];
-                    }
-
                     $titleContent->update([
                         'body_content' => $titleContentData['body_content'],
-                        'video_link' => $videoLink,
+                        'video_link' => $titleContentData['video_link'],
                         'document_link' => $titleContentData['document_link'],
                         'description' => $titleContentData['description'],
-                        'status' => 'draft'
+                        'status' => 'draft'  
                     ]);
                 }
 
@@ -502,45 +487,6 @@ class TeacherController extends Controller
                 'success' => false,
                 'message' => 'Lỗi: ' . $e->getMessage()
             ], 500);
-        }
-    }
-
-    private function handleFileUpload($file)
-    {
-        $s3 = new S3Client([
-            'region'  => env('AWS_DEFAULT_REGION'),
-            'version' => 'latest',
-            'credentials' => [
-                'key'    => env('AWS_ACCESS_KEY_ID'),
-                'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            ],
-            'http' => [
-                'verify' => env('VERIFY_URL'),
-            ],
-        ]);
-
-        $filePath = $file->getRealPath();
-        $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $extension = $file->getClientOriginalExtension();
-        $newFileName = "{$originalFileName}.{$extension}";
-        $key = 'uploads/' . $newFileName;
-
-        $contentType = match ($extension) {
-            'mp4', 'avi', 'mov' => 'video/mp4',
-            default => throw new \Exception('Chỉ cho phép upload file video.'),
-        };
-
-        try {
-            $result = $s3->putObject([
-                'Bucket' => env('AWS_BUCKET'),
-                'Key'    => $key,
-                'SourceFile' => $filePath,
-                'ContentType' => $contentType,
-                'ACL' => 'public-read',
-            ]);
-            return $result['ObjectURL'];
-        } catch (\Exception $e) {
-            throw new \Exception('Could not upload new file to S3: ' . $e->getMessage());
         }
     }
 }
