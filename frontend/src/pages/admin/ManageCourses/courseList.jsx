@@ -118,13 +118,13 @@ export default function CourseList () {
     const getStatusColor = (status) => {
         switch (status) {
             case "published":
-                return "w-full justify-center bg-green-100 text-green-800";
-            case "drafl":
-                return "w-full justify-center bg-blue-100 text-blue-800";
+                return "bg-green-100 text-green-800 w-full text-center flex justify-center items-center p-1 rounded-lg  ";
+            case "draft":
+                return "bg-blue-100 text-blue-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
             case "pending":
-                return "w-full justify-center bg-yellow-100 text-yellow-800";
+                return "bg-yellow-100 text-yellow-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
             case "unpublished":
-                return "w-full justify-center bg-yellow-100 text-yellow-800";
+                return "bg-red-500 text-white w-full text-center flex justify-center items-center p-1 rounded-lg ";
         }
     };
 

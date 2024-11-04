@@ -13,7 +13,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, BookOpen, Users, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import toast, { Toaster } from 'react-hot-toast';
 import axios from "axios";
@@ -261,11 +261,12 @@ export default function CourseStatus() {
                                     <div className="rounded-md border">
                                         <Table>
                                             <TableHeader>
-                                                <TableRow>
-                                                    <TableHead>Tên khóa học</TableHead>
-                                                    <TableHead>Giảng viên</TableHead>
-                                                    <TableHead>Trạng thái</TableHead>
-                                                    <TableHead className="text-right">Thao tác</TableHead>
+                                                <TableRow className="bg-yellow-100">
+                                                    <TableHead  className="font-semibold text-center">ID</TableHead>
+                                                    <TableHead  className="font-semibold text-center">Tên khóa học</TableHead>
+                                                    <TableHead  className="font-semibold text-center">Giảng viên</TableHead>
+                                                    <TableHead  className="font-semibold text-center">Trạng thái</TableHead>
+                                                    <TableHead  className="font-semibold text-center">Thao tác</TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
@@ -278,6 +279,9 @@ export default function CourseStatus() {
                                                 ) : (
                                                     filteredCourses.map((course) => (
                                                         <TableRow key={course.id}>
+                                                            <TableCell className="font-medium">
+                                                                {course.course_id}
+                                                            </TableCell>
                                                             <TableCell className="font-medium">
                                                                 {course.title}
                                                             </TableCell>
