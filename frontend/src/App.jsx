@@ -54,7 +54,7 @@ import { CourseOverview } from "./pages/CreateCourse/courseOverview.jsx";
 import { Curriculum } from "./pages/CreateCourse/curriculum.jsx";
 import Demo from "./pages/demo/Demo.jsx";
 import { CreateQuiz } from "./pages/CreateCourse/CreateQuiz.jsx";
-import { ListStudents } from "./pages/admin/ManageAcount/ListStudents.jsx";
+import ListStudents from "./pages/admin/ManageAcount/ListStudents.jsx";
 
 
 function AppContent() {
