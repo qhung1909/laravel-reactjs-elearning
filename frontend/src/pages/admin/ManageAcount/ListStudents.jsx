@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
     SidebarInset,
     SidebarProvider,
@@ -29,15 +30,54 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Search, UserPlus, Filter } from 'lucide-react';
+import { Search, UserPlus, Filter, FileDown } from 'lucide-react';
 
-export default function ListStudents () {
+export default function ListStudents() {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
 
-    const students = [
-        { id: 1, name: "baohung2605", age: 20, status: "Đang học", email: "baohung2605@gmail.com" },
-        { id: 2, name: "lamchantoan", age: 19, status: "Đang học", email: "lamchantoan.sg@gmail.com" },
-        { id: 3, name: "baohung2605", age: 21, status: "Tạm nghỉ", email: "lamchantoan.sg@gmail.com" },
-    ];
+    const [students, setStudents] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const res = await axios.get(`${API_URL}/admin/users`, {
+                    headers: {
+                        'x-api-secret': API_KEY
+                    }
+                });
+                const data = res.data;
+
+                console.log("Dữ liệu từ API:", data);
+
+                const filteredData = data.map(user => ({
+                    id: user.user_id,
+                    name: user.name,
+                    email: user.email,
+                    avatar: user.avatar,
+                    created_at: user.created_at,
+                    role: user.role,
+                    status: user.status
+                }));
+
+                setStudents(filteredData);
+            } catch (error) {
+                console.error('Error fetching Users:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchUsers();
+    }, []);
+
+
+    const filteredStudents = students.filter(student =>
+        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <>
@@ -66,23 +106,31 @@ export default function ListStudents () {
                         </div>
                     </header>
 
-                    <main className="w-full">
+                    <div className="absolute top-16 px-6 bg-gray-50 w-full">
                         <Card>
                             <CardHeader>
                                 <CardTitle>Danh sách học viên</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="flex justify-between items-center mb-6">
-                                    <div className="flex gap-4 items-center">
-                                        <div className="relative">
-                                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                                            <Input
+                                    <div className="flex flex-wrap gap-4 w-full md:w-auto">
+                                        <div className="relative flex-1 md:flex-initial">
+                                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                                            <input
+                                                type="text"
                                                 placeholder="Tìm kiếm học viên..."
-                                                className="pl-8 w-64"
+                                                className="pl-9 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
                                             />
                                         </div>
-                                        <Button variant="outline" size="icon">
-                                            <Filter className="h-4 w-4" />
+                                        <Button variant="outline" className="flex items-center gap-2">
+                                            <Filter size={16} />
+                                            Lọc
+                                        </Button>
+                                        <Button variant="outline" className="flex items-center gap-2">
+                                            <FileDown size={16} />
+                                            Xuất
                                         </Button>
                                     </div>
                                     <Button>
@@ -95,49 +143,67 @@ export default function ListStudents () {
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead>ID</TableHead>
-                                                <TableHead>Họ và tên</TableHead>
-                                                <TableHead>Tuổi</TableHead>
-                                                <TableHead>Lớp</TableHead>
-                                                <TableHead>Trạng thái</TableHead>
-                                                <TableHead>Số điện thoại</TableHead>
-                                                <TableHead className="text-right">Thao tác</TableHead>
+                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">ID</TableHead>
+                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Avatar</TableHead>
+                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Họ và tên</TableHead>
+                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Email</TableHead>
+                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Trạng thái</TableHead>
+                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Ngày</TableHead>
+                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Quyền</TableHead>
+                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Thao tác</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {students.map((student) => (
-                                                <TableRow key={student.id}>
-                                                    <TableCell>{student.id}</TableCell>
-                                                    <TableCell className="font-medium">{student.name}</TableCell>
-                                                    <TableCell>{student.age}</TableCell>
-                                                    <TableCell>{student.class}</TableCell>
-                                                    <TableCell>
-                                                        <span className={`px-2 py-1 rounded-full text-xs ${
-                                                            student.status === "Đang học"
-                                                                ? "bg-green-100 text-green-800"
-                                                                : "bg-yellow-100 text-yellow-800"
-                                                        }`}>
-                                                            {student.status}
-                                                        </span>
-                                                    </TableCell>
-                                                    <TableCell>{student.phone}</TableCell>
-                                                    <TableCell className="text-right">
-                                                        <Button variant="ghost" size="sm">
-                                                            Chi tiết
-                                                        </Button>
+                                            {isLoading ? (
+                                                <TableRow>
+                                                    <TableCell colSpan="8" className="text-center">
+                                                        Đang tải dữ liệu...
                                                     </TableCell>
                                                 </TableRow>
-                                            ))}
+                                            ) : (
+                                                filteredStudents.map((student) => (
+                                                    <TableRow key={student.id}>
+                                                        <TableCell className="text-center">{student.id}</TableCell>
+                                                        <TableCell className="flex justify-center items-center gap-3">
+                                                            <img
+                                                                src={student.avatar}
+                                                                alt={`Avatar of ${student.name}`}
+                                                                className="w-10 h-10 rounded-full object-cover"
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell className="font-medium text-center">{student.name}</TableCell>
+                                                        <TableCell>{student.email}</TableCell>
+                                                        <TableCell className="text-center">
+                                                            <span className={`px-2 py-1 w-full rounded-full text-xs text-center ${
+                                                                student.status === 1
+                                                                    ? "bg-green-100 text-green-800"
+                                                                    : "bg-red-100 text-red-800"
+                                                            }`}>
+                                                                {student.status === 1 ? "Đang hoạt động" : "Bị khóa"}
+                                                            </span>
+                                                        </TableCell>
+                                                        <TableCell className="text-center">
+                                                            {new Date(student.created_at).toLocaleDateString('vi-VN')}
+                                                        </TableCell>
+                                                        <TableCell className="text-center">
+                                                            {student.role === "user" ? "Học viên" : student.role}
+                                                        </TableCell>
+                                                        <TableCell className="text-center">
+                                                            <Button variant="ghost" size="sm">
+                                                                Chi tiết
+                                                            </Button>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))
+                                            )}
                                         </TableBody>
                                     </Table>
                                 </div>
                             </CardContent>
                         </Card>
-                    </main>
+                    </div>
                 </SidebarInset>
             </SidebarProvider>
         </>
     );
-};
-
-
+}
