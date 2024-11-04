@@ -216,9 +216,10 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::get('/courses/{courseId}', [AdminController::class, 'showCoursesTeacher']);
     Route::put('/courses/{courseId}', [AdminController::class, 'updateCoursesTeacher']);
 
-    Route::get('content/{contentId}', [TeacherController::class, 'show']);
-    Route::post('content/', [TeacherController::class, 'store']);
-    Route::put('content/{contentId}', [TeacherController::class, 'update']);
-    Route::delete('content/{contentId}', [TeacherController::class, 'delete']);
+    Route::get('/content/{courseId}', [TeacherController::class, 'showContent']);
+    Route::post('/content/', [TeacherController::class, 'storeContent']);
+    Route::put('/courses/{courseId}/contents', [TeacherController::class, 'updateContents']);
+    Route::delete('/courses/{courseId}/contents', [TeacherController::class, 'deleteContents']);
+
 
 });
