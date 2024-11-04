@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/card";
 import { Search, UserPlus, Filter, FileDown } from 'lucide-react';
 
-export default function ListStudents() {
+export default function ListTeachers() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
 

@@ -55,6 +55,7 @@ import { Curriculum } from "./pages/CreateCourse/curriculum.jsx";
 import Demo from "./pages/demo/Demo.jsx";
 import { CreateQuiz } from "./pages/CreateCourse/CreateQuiz.jsx";
 import ListStudents from "./pages/admin/ManageAcount/ListStudents.jsx";
+import ListTeachers from "./pages/admin/ManageAcount/ListTeachers.jsx";
 
 
 function AppContent() {
@@ -113,6 +114,7 @@ function AppContent() {
                 <Route path="/admin/priority-category" element={<PriorityCategory />}></Route>
                 <Route path="/admin/courses-of-category" element={<CoursesOfCategory />}></Route>
                 <Route path="/admin/list-students" element={<ListStudents />}></Route>
+                <Route path="/admin/list-teachers" element={<ListTeachers />}></Route>
 
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/login" element={<Login />}></Route>

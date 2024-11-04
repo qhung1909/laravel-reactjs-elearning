@@ -115,7 +115,7 @@ const data = {
             icon: BookOpen,
             items: [
                 { title: "Danh sách học viên", url: "/admin/list-students" },
-                { title: "Danh sách giảng viên", url: "#" },
+                { title: "Danh sách giảng viên", url: "/admin/list-teachers" },
                 { title: "Thiết lập chính sách giá", url: "#" },
                 { title: "Xuất báo cáo tài chính", url: "#" },
             ],
