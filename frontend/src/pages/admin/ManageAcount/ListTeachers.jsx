@@ -43,7 +43,7 @@ export default function ListTeachers() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const res = await axios.get(`${API_URL}/admin/users`, {
+                const res = await axios.get(`${API_URL}/admin/teachers`, {
                     headers: {
                         'x-api-secret': API_KEY
                     }
@@ -64,7 +64,7 @@ export default function ListTeachers() {
 
                 setStudents(filteredData);
             } catch (error) {
-                console.error('Error fetching Users:', error);
+                console.error('Error fetching teachers:', error);
             } finally {
                 setIsLoading(false);
             }
@@ -74,9 +74,9 @@ export default function ListTeachers() {
     }, []);
 
 
-    const filteredStudents = students.filter(student =>
-        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.email.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredStudents = students.filter(teacher =>
+        teacher.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        teacher.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -98,7 +98,7 @@ export default function ListTeachers() {
                                     <BreadcrumbSeparator className="hidden md:block" />
                                     <BreadcrumbItem>
                                         <BreadcrumbLink href="/students">
-                                            Danh sách học viên
+                                            Danh sách giảng viên
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
@@ -109,7 +109,7 @@ export default function ListTeachers() {
                     <div className="absolute top-16 px-6 bg-gray-50 w-full">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Danh sách học viên</CardTitle>
+                                <CardTitle>Danh sách giảng viên</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="flex justify-between items-center mb-6">
@@ -118,7 +118,7 @@ export default function ListTeachers() {
                                             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                                             <input
                                                 type="text"
-                                                placeholder="Tìm kiếm học viên..."
+                                                placeholder="Tìm kiếm giảng viên..."
                                                 className="pl-9 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -133,10 +133,10 @@ export default function ListTeachers() {
                                             Xuất
                                         </Button>
                                     </div>
-                                    <Button>
+                                    {/* <Button>
                                         <UserPlus className="mr-2 h-4 w-4" />
-                                        Thêm học viên
-                                    </Button>
+                                        Thêm giảng viên
+                                    </Button> */}
                                 </div>
 
                                 <div className="rounded-md border">
@@ -161,32 +161,32 @@ export default function ListTeachers() {
                                                     </TableCell>
                                                 </TableRow>
                                             ) : (
-                                                filteredStudents.map((student) => (
-                                                    <TableRow key={student.user_id}>
-                                                        <TableCell className="text-center">{student.user_id}</TableCell>
+                                                filteredStudents.map((teacher) => (
+                                                    <TableRow key={teacher.user_id}>
+                                                        <TableCell className="text-center">{teacher.user_id}</TableCell>
                                                         <TableCell className="flex justify-center items-center gap-3">
                                                             <img
-                                                                src={student.avatar}
-                                                                alt={`Avatar of ${student.name}`}
+                                                                src={teacher.avatar}
+                                                                alt={`Avatar of ${teacher.name}`}
                                                                 className="w-10 h-10 rounded-full object-cover"
                                                             />
                                                         </TableCell>
-                                                        <TableCell className="font-medium text-center">{student.name}</TableCell>
-                                                        <TableCell className="text-center">{student.email}</TableCell>
+                                                        <TableCell className="font-medium text-center">{teacher.name}</TableCell>
+                                                        <TableCell className="text-center">{teacher.email}</TableCell>
                                                         <TableCell className="text-center">
                                                             <span className={`px-2 py-1 w-full rounded-full text-xs text-center ${
-                                                                student.status === 1
+                                                                teacher.status === 1
                                                                     ? "bg-green-100 text-green-800"
                                                                     : "bg-red-100 text-red-800"
                                                             }`}>
-                                                                {student.status === 1 ? "Đang hoạt động" : "Bị khóa"}
+                                                                {teacher.status === 1 ? "Đang hoạt động" : "Bị khóa"}
                                                             </span>
                                                         </TableCell>
                                                         <TableCell className="text-center">
-                                                            {new Date(student.created_at).toLocaleDateString('vi-VN')}
+                                                            {new Date(teacher.created_at).toLocaleDateString('vi-VN')}
                                                         </TableCell>
                                                         <TableCell className="text-center">
-                                                            {student.role === "user" ? "Học viên" : student.role}
+                                                            {teacher.role === "user" ? "Giảng viên" : teacher.role}
                                                         </TableCell>
                                                         <TableCell className="text-center">
                                                             <Button variant="ghost" size="sm">
