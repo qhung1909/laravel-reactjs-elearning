@@ -114,8 +114,8 @@ const data = {
             url: "#",
             icon: BookOpen,
             items: [
-                { title: "Danh sách học viên", url: "#" },
-                { title: "Quản lý mã giảm giá (Thêm/ xóa/ sửa)", url: "#" },
+                { title: "Danh sách học viên", url: "/admin/list-students" },
+                { title: "Danh sách giảng viên", url: "#" },
                 { title: "Thiết lập chính sách giá", url: "#" },
                 { title: "Xuất báo cáo tài chính", url: "#" },
             ],

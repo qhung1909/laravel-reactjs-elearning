@@ -105,25 +105,25 @@ export default function PageCoupons() {
         if (diffDays < 0) {
             return {
                 status: "Hết hạn",
-                className: "bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium",
+                className: "w-full text-center flex justify-center items-center p-1 rounded-lg bg-red-100 text-red-800 px-2 py-1 text-xs font-medium",
                 daysRemaining: 0
             };
         } else if (diffDays === 0) {
             return {
                 status: "Hết hạn hôm nay",
-                className: "bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium",
+                className: "w-full text-center flex justify-center items-center p-1 rounded-lg bg-orange-100 text-orange-800 px-2 py-1 text-xs font-medium",
                 daysRemaining: 0
             };
         } else if (diffDays <= 3) {
             return {
                 status: `Còn ${diffDays} ngày`,
-                className: "bg-red-100 text-red-500 px-2 py-1 rounded-full text-xs font-medium",
+                className: "w-full text-center flex justify-center items-center p-1 rounded-lg bg-red-100 text-red-500 px-2 py-1 text-xs font-medium",
                 daysRemaining: diffDays
             };
         } else {
             return {
                 status: `Còn ${diffDays} ngày`,
-                className: "bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium",
+                className: "w-full text-center flex justify-center items-center p-1 rounded-lg bg-green-100 text-green-800 px-2 py-1 text-xs font-medium",
                 daysRemaining: diffDays
             };
         }
@@ -470,10 +470,10 @@ export default function PageCoupons() {
                             <div className="overflow-x-auto rounded-md border border-gray-200">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="bg-gray-50">
-                                            <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">ID</th>
+                                        <tr className=" bg-yellow-100 ">
+                                            <th className="text-center py-4 px-6 font-bold text-sm text-gray-600">ID</th>
                                             <th
-                                                className="text-center py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('name_coupon')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -482,7 +482,7 @@ export default function PageCoupons() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('discount_price')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -491,7 +491,7 @@ export default function PageCoupons() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('start_discount')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -501,7 +501,7 @@ export default function PageCoupons() {
 
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('end_discount')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -510,8 +510,8 @@ export default function PageCoupons() {
                                                 </div>
 
                                             </th>
-                                            <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Thời hạn</th>
-                                            <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
+                                            <th className="text-center py-4 px-6 font-bold text-sm text-gray-600">Thời hạn</th>
+                                            <th className="text-center py-4 px-6 font-bold text-sm text-gray-600">Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody>

@@ -324,7 +324,7 @@ export default function BrowseNewCourses() {
                                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                                         <input
                                             type="text"
-                                            placeholder="Tìm kiếm khóa học..."
+                                            placeholder="Tìm kiếm bài học..."
                                             className="pl-9 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -336,12 +336,12 @@ export default function BrowseNewCourses() {
                                         onClick={() => setStatusFilter('pending')}>
                                         <Filter size={16} />
                                         Chờ duyệt
-                                        {pendingCount > 0 && (
+                                        {pendingLessonsCount > 0 && (
                                             <Badge
                                                 variant="secondary"
                                                 className="ml-1 bg-yellow-100 text-yellow-800 border-yellow-200"
                                             >
-                                                {pendingCount}
+                                                {pendingLessonsCount}
                                             </Badge>
                                         )}
                                     </Button>
@@ -352,91 +352,69 @@ export default function BrowseNewCourses() {
                                 </div>
                             </div>
                             <div className="grid gap-6">
-                            {lessons.length > 0 ? lessons.map((lesson) => {
-    const lessonContent = contentLesson.find(content => content.lesson_id === lesson.lesson_id);
-    console.log("lesson.title_content:", lesson.title_content); // Giả định bạn có thuộc tính này
-    console.log("Dữ liệu titleContent:", titleContent);
-
-    // Lấy titleContentItems từ titleContent.data
-    const titleContentItems = titleContent && titleContent.data ? titleContent.data : [];
-
-    // In ra tất cả các title_content từ titleContentItems
-    titleContentItems.forEach(item => {
-        console.log("title_content trong titleContent:", item.title_content);
-    });
-
-    // Tìm mục trong titleContentItems tương ứng với lesson.title_content
-    const titleContentItem = titleContentItems.find(item => item.title_content === lesson.title_content) || null;
-
-    console.log("titleContentItem:", titleContentItem);
-    console.log("lesson.course_id:", lesson.course_id);
-
-
-
+                                {lessons.length > 0 ? lessons.map((lesson) => {
+                                    const lessonContent = contentLesson.find(content => content.lesson_id === lesson.lesson_id);
+                                    const titleContentItems = titleContent && titleContent.data ? titleContent.data : [];
+                                    const titleContentItem = titleContentItems.find(item => item.title_content === lesson.title_content) || null;
 
                                     return (
                                         <Card key={lesson.lesson_id}>
-            <CardHeader className="flex flex-row items-start justify-between">
-                <div>
-                    <div className="text-sm text-muted-foreground mb-1">
-                        Thuộc khóa học: Lập trình React Native
-                    </div>
-                    <CardTitle className="text-xl">Bài {lesson.lesson_id}: {lesson.name}</CardTitle>
-                    <div className="flex gap-2 mt-2">
-                        <Badge>Bài học</Badge>
-                        <Badge variant="outline">15 phút</Badge>
-                    </div>
-                </div>
-                <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-                    Chờ duyệt
-                </Badge>
-            </CardHeader>
-            <CardContent>
-                <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
-                    <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
-                        <span>Giảng viên:</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        <span>Bài giảng + Quiz</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <BookCheck className="h-4 w-4" />
-                        <span>Kiểm tra nội dung chi tiết và câu hỏi quiz</span>
-                    </div>
-                </div>
-
-                {/* Hiển thị nội dung của bài học */}
-                <div className="text-muted-foreground mb-4">
-                    <h4 className="font-semibold">
-                        {lessonContent ? lessonContent.name_content : "Đang tải nội dung..."}
-                    </h4>
-
-                    {/* Kiểm tra xem có titleContentItem không */}
-                    {titleContentItem ? (
-                        <div>
-                            <p>{titleContentItem.body_content || "Nội dung không có"}</p>
-                            {/* Hiển thị video nếu có URL */}
-                            {titleContentItem.video_link ? (
-                                <ReactPlayer
-                                    url={titleContentItem.video_link}
-                                    className="absolute top-0 left-0 w-full h-full"
-                                    controls={true}
-                                    width="100%"
-                                    height="100%"
-                                />
-                            ) : (
-                                <p>Đang tải video...</p>
-                            )}
-                        </div>
-                    ) : (
-                        <p>Không có nội dung tương ứng...</p>
-                    )}
-                </div>
-                <Button>Xem chi tiết & Duyệt</Button>
-            </CardContent>
-        </Card>
+                                            <CardHeader className="flex flex-row items-start justify-between">
+                                                <div>
+                                                    <div className="text-sm text-muted-foreground mb-1">
+                                                        Thuộc khóa học: {lesson.course_title || "Khóa học không xác định"}
+                                                    </div>
+                                                    <CardTitle className="text-xl">Bài {lesson.lesson_id}: {lesson.name}</CardTitle>
+                                                    <div className="flex gap-2 mt-2">
+                                                        <Badge>Bài học</Badge>
+                                                        <Badge variant="outline">15 phút</Badge>
+                                                    </div>
+                                                </div>
+                                                <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                                                    Chờ duyệt
+                                                </Badge>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <Users className="h-4 w-4" />
+                                                        <span>Giảng viên:</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <FileText className="h-4 w-4" />
+                                                        <span>Bài giảng + Quiz</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <BookCheck className="h-4 w-4" />
+                                                        <span>Kiểm tra nội dung chi tiết và câu hỏi quiz</span>
+                                                    </div>
+                                                </div>
+                                                <div className="text-muted-foreground mb-4">
+                                                    <h4 className="font-semibold">
+                                                        {lessonContent ? lessonContent.name_content : "Đang tải nội dung..."}
+                                                    </h4>
+                                                    {titleContentItem ? (
+                                                        <div>
+                                                            <p>{titleContentItem.body_content || "Nội dung không có"}</p>
+                                                            {titleContentItem.video_link ? (
+                                                                <ReactPlayer
+                                                                    url={titleContentItem.video_link}
+                                                                    className="absolute top-0 left-0 w-full h-full"
+                                                                    controls={true}
+                                                                    width="100%"
+                                                                    height="100%"
+                                                                />
+                                                            ) : (
+                                                                <p>Đang tải video...</p>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <p>Không có nội dung tương ứng...</p>
+                                                    )}
+                                                </div>
+                                                <Button>Xem chi tiết & Duyệt</Button>
+                                            </CardContent>
+                                        </Card>
                                     );
                                 }) : (
                                     <div className="text-center py-8 bg-white rounded-xl">
@@ -444,10 +422,8 @@ export default function BrowseNewCourses() {
                                     </div>
                                 )}
                             </div>
-
-
-
                         </TabsContent>
+
                     </Tabs>
                 </div>
             </SidebarInset>

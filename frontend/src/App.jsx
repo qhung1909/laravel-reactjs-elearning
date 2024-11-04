@@ -54,6 +54,8 @@ import { CourseOverview } from "./pages/CreateCourse/courseOverview.jsx";
 import { Curriculum } from "./pages/CreateCourse/curriculum.jsx";
 import Demo from "./pages/demo/Demo.jsx";
 import { CreateQuiz } from "./pages/CreateCourse/CreateQuiz.jsx";
+import ListStudents from "./pages/admin/ManageAcount/ListStudents.jsx";
+
 
 function AppContent() {
     const location = useLocation();
@@ -110,6 +112,8 @@ function AppContent() {
                 <Route path="/admin/category-crud" element={<CategoryCrud />}></Route>
                 <Route path="/admin/priority-category" element={<PriorityCategory />}></Route>
                 <Route path="/admin/courses-of-category" element={<CoursesOfCategory />}></Route>
+                <Route path="/admin/list-students" element={<ListStudents />}></Route>
+
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/register" element={<Signup />}></Route>

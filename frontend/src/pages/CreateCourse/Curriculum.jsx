@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Video, File, X, GripVertical, PlayCircle, FileText, ListTodo, MenuSquare } from 'lucide-react';
+import { Video, X, PlayCircle, FileText } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,7 @@ import 'react-quill/dist/quill.snow.css';
 import CryptoJS from 'crypto-js';
 import { SideBarCreateCoure } from './SideBarCreateCoure';
 import { Footer } from '../footer/footer';
+import axios from 'axios';
 
 
 const secretKey = '*dodoanduocmatkhau****';
@@ -28,6 +29,10 @@ const decryptData = (cipherText) => {
 };
 
 export const Curriculum = () => {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
+
+
     const navigate = useNavigate();
     const [sections, setSections] = useState(() => {
         const savedSections = localStorage.getItem('curriculum');
@@ -206,6 +211,53 @@ export const Curriculum = () => {
     };
 
 
+
+    const handleSubmit = async () => {
+        // Lấy tất cả các section titles không rỗng
+        const sectionTitles = sections
+            .map(section => section.title.trim())
+            .filter(title => title !== '');
+
+        if (sectionTitles.length === 0) {
+            toast.error('Vui lòng nhập ít nhất một tiêu đề bài học!');
+            return;
+        }
+
+        try {
+            // Tạo một mảng các promises cho mỗi request
+            const promises = sectionTitles.map(title =>
+                axios.post(
+                    `${API_URL}/teacher/content`,
+                    {
+                        course_id: course_id,
+                        name_content: title  // Gửi từng title một
+                    },
+                    {
+                        headers: {
+                            'x-api-secret': API_KEY,
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                )
+            );
+
+            // Chờ tất cả các requests hoàn thành
+            const results = await Promise.all(promises);
+
+            // Kiểm tra kết quả
+            const allSuccess = results.every(response => response.data.success);
+
+            if (allSuccess) {
+                toast.success('Tất cả nội dung đã được thêm thành công!');
+            } else {
+                toast.warning('Một số nội dung có thể chưa được thêm thành công!');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            toast.error('Có lỗi xảy ra khi thêm nội dung!');
+        }
+    };
 
     return (
         <>
@@ -389,6 +441,8 @@ export const Curriculum = () => {
                             >
                                 Xuất dữ liệu ra log
                             </button>
+
+                            <Button onClick={handleSubmit}>Add Content</Button>
                         </div>
                         <Toaster />
                     </div>
