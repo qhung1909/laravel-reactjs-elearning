@@ -57,6 +57,7 @@ import { CreateQuiz } from "./pages/CreateCourse/CreateQuiz.jsx";
 import ListStudents from "./pages/admin/ManageAcount/ListStudents.jsx";
 import ListTeachers from "./pages/admin/ManageAcount/ListTeachers.jsx";
 import ClassifyUsers from "./pages/admin/ManageAcount/ClassifyUsers.jsx";
+import { PersonalInformation } from "./pages/admin/ManageAcount/PersonalInformation.jsx";
 
 
 function AppContent() {
@@ -110,13 +111,14 @@ function AppContent() {
                 <Route path="/admin/course-status" element={<CourseStatus />}></Route>
                 <Route path="/admin/classify-course" element={<ClassifyCourse />}></Route>
                 <Route path="/admin/page-coupons" element={<PageCoupons/>}></Route>
-                <Route path="/admin/category-list" element={<CategoryList />}></Route>
-                <Route path="/admin/category-crud" element={<CategoryCrud />}></Route>
+                <Route path="/admin/category-list" element={<CategoryList/>}></Route>
+                <Route path="/admin/category-crud" element={<CategoryCrud/>}></Route>
                 <Route path="/admin/priority-category" element={<PriorityCategory />}></Route>
                 <Route path="/admin/courses-of-category" element={<CoursesOfCategory />}></Route>
-                <Route path="/admin/list-students" element={<ListStudents />}></Route>
-                <Route path="/admin/list-teachers" element={<ListTeachers />}></Route>
-                <Route path="/admin/classify-users" element={<ClassifyUsers />}></Route>
+                <Route path="/admin/list-students" element={<ListStudents/>}></Route>
+                <Route path="/admin/list-teachers" element={<ListTeachers/>}></Route>
+                <Route path="/admin/classify-users" element={<ClassifyUsers/>}></Route>
+                <Route path="/admin/personal-information" element={<PersonalInformation/>}></Route>
 
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/login" element={<Login />}></Route>
