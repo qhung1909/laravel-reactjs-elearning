@@ -66,7 +66,7 @@ export default function CourseList () {
             setStats({
                 totalCourses: data.length,
                 totalStudents: data.reduce((sum, course) => sum + (course.enrolled_count || 0), 0),
-                activeCourses: data.filter(course => course.status === "active").length
+                activeCourses: data.filter(course => course.status === "pending").length
             });
         } catch (error) {
             console.error('Error fetching Courses:', error);
@@ -118,13 +118,13 @@ export default function CourseList () {
     const getStatusColor = (status) => {
         switch (status) {
             case "published":
-                return "bg-green-100 text-green-800";
+                return "w-full justify-center bg-green-100 text-green-800";
             case "drafl":
-                return "bg-blue-100 text-blue-800";
+                return "w-full justify-center bg-blue-100 text-blue-800";
             case "pending":
-                return "bg-yellow-100 text-yellow-800";
+                return "w-full justify-center bg-yellow-100 text-yellow-800";
             case "unpublished":
-                return "bg-yellow-100 text-yellow-800";
+                return "w-full justify-center bg-yellow-100 text-yellow-800";
         }
     };
 
@@ -238,50 +238,52 @@ export default function CourseList () {
 
                             <div className="overflow-x-auto rounded-lg border border-gray-200">
                                 <table className="w-full">
-                                    <thead>
-                                        <tr className="bg-gray-50">
-                                            <th className="text-left py-4 px-6 font-medium text-sm text-gray-600">ID</th>
-                                            <th
-                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
-                                                onClick={() => handleSort('title')}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    Tiêu đề
-                                                    {getSortIcon('title')}
-                                                </div>
-                                            </th>
-                                            <th
-                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
-                                                onClick={() => handleSort('user?.name')}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    Giảng viên
-                                                    {getSortIcon('user?.name')}
-                                                </div>
-                                            </th>
-                                            <th
-                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
-                                                onClick={() => handleSort('status')}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    Trạng thái
-                                                    {getSortIcon('status')}
-                                                </div>
-                                            </th>
-                                            <th
-                                                className="text-left py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
-                                                onClick={() => handleSort('price')}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    Giá
-                                                    {getSortIcon('price')}
-                                                </div>
-                                            </th>
-
-
-                                            <th className="text-right py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
-                                        </tr>
-                                    </thead>
+                                <thead>
+                                    <tr className="bg-yellow-100">
+                                        <th className="text-left py-4 px-6 font-bold text-sm text-gray-600" style={{ width: '10%' }}>ID</th>
+                                        <th
+                                            className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                            onClick={() => handleSort('title')}
+                                            style={{ width: '40%' }}
+                                        >
+                                            <div className="flex items-center justify-center gap-2">
+                                                Tiêu đề
+                                                {getSortIcon('title')}
+                                            </div>
+                                        </th>
+                                        <th
+                                            className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                            onClick={() => handleSort('user?.name')}
+                                            style={{ width: '20%' }}
+                                        >
+                                            <div className="flex items-center justify-center gap-2">
+                                                Giảng viên
+                                                {getSortIcon('user?.name')}
+                                            </div>
+                                        </th>
+                                        <th
+                                            className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                            onClick={() => handleSort('status')}
+                                            style={{ width: '15%' }}
+                                        >
+                                            <div className="flex items-center justify-center gap-2">
+                                                Trạng thái
+                                                {getSortIcon('status')}
+                                            </div>
+                                        </th>
+                                        <th
+                                            className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                            onClick={() => handleSort('price')}
+                                            style={{ width: '20%' }}
+                                        >
+                                            <div className="flex items-center justify-center gap-2">
+                                                Giá
+                                                {getSortIcon('price')}
+                                            </div>
+                                        </th>
+                                        <th className="text-center py-4 px-6 font-bold text-sm text-gray-600" style={{ width: '10%' }}>Hành động</th>
+                                    </tr>
+                                </thead>
                                     <tbody>
                                         {isLoading ? (
                                             <>
@@ -345,7 +347,7 @@ export default function CourseList () {
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         <div className="flex justify-end gap-2">
-                                                            <Button variant="outline" size="sm" className="text-bold text-yellow-400 hover:text-orange-500">
+                                                            <Button variant="outline" size="sm" className="text-bold text-amber-400 hover:text-amber-700">
                                                                 Xem chi tiết
                                                             </Button>
                                                         </div>
