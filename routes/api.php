@@ -227,7 +227,7 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::post('/title-content', [TeacherController::class, 'storeTitleContent']);
 
     // Route để cập nhật title_content theo content_id
-    Route::put('/title-content/update/{contentId}', [TeacherController::class, 'updateTitleContent']);
+    Route::post('/title-content/update/{contentId}', [TeacherController::class, 'updateTitleContent']);
 
     // Route để xóa title_content theo title_content_id
     Route::delete('/title-content/delete/{titleContentId}', [TeacherController::class, 'deleteTitleContent']);
