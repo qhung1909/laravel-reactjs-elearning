@@ -12,6 +12,7 @@ import ReactQuill from 'react-quill';
 import axios from 'axios';
 import { SideBarCreateCoure } from './SideBarCreateCoure';
 import { Footer } from '../footer/footer';
+import { Textarea } from '@/components/ui/textarea';
 
 export const Curriculum = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -100,18 +101,44 @@ export const Curriculum = () => {
     };
 
     const handleSelectChange = (sectionId, lessonId, value) => {
-        setSections(sections.map(section => {
-            if (section.id === sectionId) {
-                return {
-                    ...section,
-                    lessons: section.lessons.map(lesson =>
-                        lesson.id === lessonId ? { ...lesson, selectedOption: value } : lesson
-                    )
-                };
-            }
-            return section;
-        }));
+        setSections(prevSections =>
+            prevSections.map(section => {
+                if (section.id === sectionId) {
+                    return {
+                        ...section,
+                        lessons: section.lessons.map(lesson => {
+                            if (lesson.id === lessonId) {
+                                if (value === "videoFile") {
+                                    return {
+                                        ...lesson,
+                                        selectedOption: value,
+                                        content: null, // Đặt content thành null
+                                        fileName: lesson.fileName || null, // Giữ lại fileName hoặc đặt thành null
+                                    };
+                                } else if (value === "content") {
+                                    return {
+                                        ...lesson,
+                                        selectedOption: value,
+                                        videoLink: null, // Đặt videoLink thành null
+                                        fileName: null, // Đặt fileName thành null
+                                    };
+                                }
+                                return {
+                                    ...lesson,
+                                    selectedOption: value,
+                                };
+                            }
+                            return lesson;
+                        })
+                    };
+                }
+                return section;
+            })
+        );
     };
+
+
+
 
     const handleVideoLinkChange = (sectionId, lessonId, value) => {
         setSections(sections.map(section => {
@@ -126,6 +153,21 @@ export const Curriculum = () => {
             return section;
         }));
     };
+
+    const handleLessonDescriptionChange = (sectionId, lessonId, newDescription) => {
+        setSections(prevSections =>
+            prevSections.map(section =>
+                section.id === sectionId
+                    ? {
+                        ...section,
+                        lessons: section.lessons.map(lesson =>
+                            lesson.id === lessonId ? { ...lesson, description: newDescription } : lesson
+                        )
+                    }
+                    : section
+            )
+        )
+    }
 
     const handleContentChange = (sectionId, lessonId, value) => {
         setSections(sections.map(section => {
@@ -174,7 +216,7 @@ export const Curriculum = () => {
         if (isDataFetched) {
             console.log("Dữ liệu đã được tải, không cần fetch lại");
             return;
-          }
+        }
         try {
             const response = await axios.get(
                 `${API_URL}/teacher/content/${course_id}`,
@@ -296,15 +338,12 @@ export const Curriculum = () => {
             return;
         }
 
-        // Tách mục cần thêm và mục cần cập nhật
         const sectionsToAdd = validSections.filter(section => !section.content_id);
         const sectionsToUpdate = validSections.filter(section => section.content_id);
 
-        // Show loading toast
         const loadingToast = toast.loading('Đang xử lý...');
 
         try {
-            // Tạo các yêu cầu thêm nội dung
             const addPromises = sectionsToAdd.map(section =>
                 axios.post(
                     `${API_URL}/teacher/content`,
@@ -322,7 +361,6 @@ export const Curriculum = () => {
                 )
             );
 
-            // Tạo yêu cầu cập nhật nội dung
             const updateContentsData = sectionsToUpdate.map(section => ({
                 content_id: section.content_id,
                 name_content: section.title.trim(),
@@ -343,29 +381,65 @@ export const Curriculum = () => {
                 );
             }
 
-            // Chờ tất cả các yêu cầu thêm và cập nhật hoàn thành
             const [addResults, updateResult] = await Promise.all([
                 Promise.all(addPromises),
                 updatePromise,
             ]);
 
+            let hasError = false; // Biến để kiểm tra nếu có lỗi
+
             // Kiểm tra kết quả của các yêu cầu thêm
-            const allAddSuccess = addResults.every(response => response.data.success);
-            if (!allAddSuccess) {
-                toast.warning('Một số nội dung có thể chưa được thêm thành công!');
-            }
+            addResults.forEach(response => {
+                if (!response.data.success) {
+                    toast.error(response.data.message || 'Có lỗi xảy ra khi thêm nội dung!');
+                    hasError = true; // Đánh dấu có lỗi
+                }
+            });
 
             // Kiểm tra kết quả của yêu cầu cập nhật
             if (updateContentsData.length > 0 && updateResult.data.success) {
-                toast.success('Cập nhật nội dung bài học thành công!');
+                // Không làm gì cả, thông báo thành công sẽ hiển thị sau
             } else if (updateContentsData.length > 0) {
                 toast.error(updateResult.data.message || 'Không thể cập nhật nội dung khóa học!');
+                hasError = true; // Đánh dấu có lỗi
             }
 
-            // Thông báo thành công nếu tất cả đều thành công
-            if (allAddSuccess && (!updateContentsData.length || updateResult.data.success)) {
-                // toast.success('Tất cả nội dung đã được xử lý thành công!');
+            // Cập nhật title-content cho các sections
+            const titleContentPromises = validSections.map(section =>
+                axios.post(
+                    `${API_URL}/teacher/title-content/update/${section.content_id}`,
+                    {
+                        title_contents: section.lessons.map(lesson => ({
+                            title_content_id: lesson.title_content_id || '',
+                            body_content: lesson.title,
+                            video_link: lesson.fileName,
+                            document_link: lesson.content,
+                            description: lesson.description,
+                        })),
+                    },
+                    {
+                        headers: {
+                            'x-api-secret': API_KEY,
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                )
+            );
+
+            const titleContentResults = await Promise.all(titleContentPromises);
+            titleContentResults.forEach(response => {
+                if (!response.data.success) {
+                    toast.error(response.data.message || 'Có lỗi xảy ra khi cập nhật chi tiết tiêu đề!');
+                    hasError = true; // Đánh dấu có lỗi
+                }
+            });
+
+            // Hiển thị toast thành công chỉ nếu không có lỗi nào xảy ra
+            if (!hasError) {
+                toast.success('Đã lưu thành nội dung thành công!');
             }
+
         } catch (error) {
             if (error.response?.status === 401) {
                 toast.error('Phiên làm việc đã hết hạn, vui lòng đăng nhập lại!');
@@ -383,9 +457,12 @@ export const Curriculum = () => {
             console.error('Error:', error);
         } finally {
             toast.dismiss(loadingToast);
-            fetchContent()
+            fetchContent();
         }
     };
+
+
+
 
     const handleAccordionClick = (contentId) => {
 
@@ -407,14 +484,17 @@ export const Curriculum = () => {
                 });
 
                 if (response.data.success) {
-                    const fetchedLessons = response.data.data.map((item) => ({
-                        id: item.title_content_id,
-                        title: item.body_content,
-                        videoLink: item.video_link,
-                        documentLink: item.document_link,
-                        selectedOption: "content", // Hoặc thiết lập giá trị mặc định phù hợp
-                        content: item.body_content,
-                    }));
+                    const fetchedLessons = response.data.data.map((item) => {
+                        return {
+                            id: item.title_content_id,
+                            title: item.body_content,
+                            description: item.description,
+                            fileName: item.video_link,
+                            content: item.document_link,
+                            selectedOption: item.video_link ? "videoFile" : item.document_link ? "content" : "",
+                            title_content_id: item.title_content_id || null
+                        };
+                    });
 
                     // Update only the lessons of the section with the matching content_id
                     setSections((prevSections) =>
@@ -429,6 +509,7 @@ export const Curriculum = () => {
                 console.error("Error fetching data:", error);
             }
         };
+
 
         fetchData();
     };
@@ -471,7 +552,7 @@ export const Curriculum = () => {
                     <div className="max-w-4xl mx-auto p-6">
                         <div className="space-y-4">
                             <h2 className="text-xl font-semibold">Nội dung khóa học</h2>
-                            <Accordion type="multiple" collapsible={true} className="space-y-4 relative">
+                            <Accordion type="multiple"  collapsible="true" className="space-y-4 relative">
                                 {sections.map((section, sectionIndex) => (
                                     <AccordionItem
                                         value={`section-${section.id}`}
@@ -520,18 +601,25 @@ export const Curriculum = () => {
                                                                 />
                                                             </div>
 
+                                                            <Textarea
+                                                                placeholder="Nhập mô tả cho bài học này"
+                                                                value={lesson.description}
+                                                                onChange={(e) => handleLessonDescriptionChange(section.id, lesson.id, e.target.value)}
+                                                                className="w-full"
+                                                            />
+
                                                             <select
                                                                 onChange={(e) => handleSelectChange(section.id, lesson.id, e.target.value)}
                                                                 value={lesson.selectedOption}
                                                                 className="border p-2 rounded-md mb-4"
                                                             >
                                                                 <option value="">Chọn loại nội dung</option>
-                                                                <option value="videoUrl">Dạng video URL</option>
-                                                                <option value="videoFile">Dạng video File</option>
-                                                                <option value="content">Dạng nội dung</option>
+                                                                {/* <option value="videoUrl">Dạng video URL</option> */}
+                                                                <option value="videoFile">Dạng Video file</option>
+                                                                <option value="content">Dạng Nội dung</option>
                                                             </select>
 
-                                                            {lesson.selectedOption === "videoUrl" && (
+                                                            {/* {lesson.selectedOption === "videoUrl" && (
                                                                 <div>
                                                                     <div className="flex items-center gap-2 mb-2">
                                                                         <PlayCircle className="text-green-500 h-5 w-5" />
@@ -545,7 +633,7 @@ export const Curriculum = () => {
                                                                         onChange={(e) => handleVideoLinkChange(section.id, lesson.id, e.target.value)}
                                                                     />
                                                                 </div>
-                                                            )}
+                                                            )} */}
 
                                                             {lesson.selectedOption === "videoFile" && (
                                                                 <div>
@@ -553,6 +641,12 @@ export const Curriculum = () => {
                                                                         <Video className="text-red-500 h-5 w-5" />
                                                                         <label className="font-medium">Tải lên video:</label>
                                                                     </div>
+
+                                                                    {/* Hiển thị tên file từ cơ sở dữ liệu nếu có */}
+                                                                    {lesson.fileName && (
+                                                                        <p className="text-gray-600 mt-2">Tệp hiện tại: {lesson.fileName}</p>
+                                                                    )}
+
                                                                     <Input
                                                                         className="mt-2"
                                                                         type="file"
@@ -560,6 +654,7 @@ export const Curriculum = () => {
                                                                     />
                                                                 </div>
                                                             )}
+
 
                                                             {lesson.selectedOption === "content" && (
                                                                 <div>
