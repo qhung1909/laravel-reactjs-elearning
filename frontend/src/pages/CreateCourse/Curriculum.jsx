@@ -18,7 +18,8 @@ export const Curriculum = () => {
     const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
 
-    const [appearData, setApperarData] = useState(false)
+    const [isDataFetched, setIsDataFetched] = useState(false);
+
     const { course_id } = useParams();
 
     const [sections, setSections] = useState([
@@ -167,8 +168,13 @@ export const Curriculum = () => {
 
     useEffect(() => {
         fetchContent()
-    }, [API_URL, API_KEY, course_id]);
+    }, []);
     const fetchContent = async () => {
+
+        if (isDataFetched) {
+            console.log("Dữ liệu đã được tải, không cần fetch lại");
+            return;
+          }
         try {
             const response = await axios.get(
                 `${API_URL}/teacher/content/${course_id}`,
@@ -194,13 +200,12 @@ export const Curriculum = () => {
                 // If there are sections from API, use them; otherwise, keep default empty section
                 if (transformedSections.length > 0) {
                     setSections(transformedSections);
+                    setIsDataFetched(true);
                 }
             }
         } catch (error) {
             console.error('Error fetching content:', error);
             toast.error('Không thể tải nội dung khóa học');
-        } finally {
-            setApperarData(true);
         }
     };
 
@@ -222,7 +227,6 @@ export const Curriculum = () => {
             return;
         }
 
-        console.log(contentId);
 
         try {
             // Gửi yêu cầu xóa đến API
@@ -241,13 +245,14 @@ export const Curriculum = () => {
                 const resetSections = resetIds(updatedSections);
                 setSections(resetSections);
                 toast.success("Đã xóa Bài học thành công!");
-                fetchContent();
             } else {
                 toast.error("Có lỗi xảy ra khi xóa Bài học!");
             }
         } catch (error) {
             console.error('Error:', error);
             toast.error("Có lỗi xảy ra khi xóa Bài học!");
+        } finally {
+            fetchContent();
         }
     };
 
@@ -382,6 +387,55 @@ export const Curriculum = () => {
         }
     };
 
+    const handleAccordionClick = (contentId) => {
+
+        const section = sections.find((s) => s.content_id === contentId);
+        if (section && section.lessons.length > 0 && section.lessons[0].title !== '') {
+            console.log("Dữ liệu đã được tải, không cần fetch lại");
+            return;
+        }
+        console.log(contentId);
+
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(`${API_URL}/teacher/title-content/${contentId}`, {
+                    headers: {
+                        'x-api-secret': API_KEY,
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.data.success) {
+                    const fetchedLessons = response.data.data.map((item) => ({
+                        id: item.title_content_id,
+                        title: item.body_content,
+                        videoLink: item.video_link,
+                        documentLink: item.document_link,
+                        selectedOption: "content", // Hoặc thiết lập giá trị mặc định phù hợp
+                        content: item.body_content,
+                    }));
+
+                    // Update only the lessons of the section with the matching content_id
+                    setSections((prevSections) =>
+                        prevSections.map((section) =>
+                            section.content_id === contentId
+                                ? { ...section, lessons: fetchedLessons }
+                                : section
+                        )
+                    );
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
+
+        fetchData();
+    };
+
+
+
+
 
     return (
         <>
@@ -417,9 +471,14 @@ export const Curriculum = () => {
                     <div className="max-w-4xl mx-auto p-6">
                         <div className="space-y-4">
                             <h2 className="text-xl font-semibold">Nội dung khóa học</h2>
-                            <Accordion type="multiple" collapsible="true" className="space-y-4 relative">
+                            <Accordion type="multiple" collapsible={true} className="space-y-4 relative">
                                 {sections.map((section, sectionIndex) => (
-                                    <AccordionItem value={`section-${section.id}`} key={section.id} className="border-2 rounded-lg border-yellow-700 p-4 relative">
+                                    <AccordionItem
+                                        value={`section-${section.id}`}
+                                        key={section.id}
+                                        className="border-2 rounded-lg border-yellow-700 p-4 relative"
+                                        onClick={() => handleAccordionClick(section.content_id)} // Thêm sự kiện onClick vào đây
+                                    >
                                         <div className="flex items-center gap-4 w-[80%] md:w-[88%] absolute ml-14 mt-3">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-medium text-gray-600">Bài {sectionIndex + 1}:</span>
@@ -430,14 +489,16 @@ export const Curriculum = () => {
                                                 placeholder={`Nhập tiêu đề bài ${sectionIndex + 1}`}
                                                 value={section.title}
                                                 onChange={(e) => handleSectionTitleChange(section.id, e.target.value)}
-                                                onClick={(e) => e.stopPropagation()}
+                                                onClick={(e) => e.stopPropagation()} // Ngăn chặn sự kiện click lan truyền
                                             />
-                                            <Button className='bg-yellow-500 hover:bg-yellow-600' onClick={() => openPageQuiz(section.id)}>Tạo quiz</Button>
+                                            <Button className="bg-yellow-500 hover:bg-yellow-600" onClick={() => openPageQuiz(section.id)}>
+                                                Tạo quiz
+                                            </Button>
                                         </div>
 
                                         <AccordionTrigger className="hover:no-underline border-2 rounded-lg border-yellow-600 p-5 mt-1 ml-3" />
                                         {sections.length > 1 && (
-                                            <X onClick={() => deleteSection(section.content_id)} className='absolute text-red-600 cursor-pointer left-1 top-1' />
+                                            <X onClick={() => deleteSection(section.content_id)} className="absolute text-red-600 cursor-pointer left-1 top-1" />
                                         )}
                                         <AccordionContent>
                                             <div className="space-y-4 mt-4">
@@ -446,7 +507,9 @@ export const Curriculum = () => {
                                                         <div className="space-y-4">
                                                             <div className="flex items-center gap-4 mt-4">
                                                                 <div className="flex items-center gap-2">
-                                                                    <span className="font-medium text-gray-600">Nội dung: {sectionIndex + 1}.{lessonIndex + 1}</span>
+                                                                    <span className="font-medium text-gray-600">
+                                                                        Nội dung: {sectionIndex + 1}.{lessonIndex + 1}
+                                                                    </span>
                                                                 </div>
                                                                 <Input
                                                                     type="text"
@@ -457,78 +520,83 @@ export const Curriculum = () => {
                                                                 />
                                                             </div>
 
-                                                            <select onChange={(e) => handleSelectChange(section.id, lesson.id, e.target.value)} value={lesson.selectedOption} className="border p-2 rounded-md mb-4">
+                                                            <select
+                                                                onChange={(e) => handleSelectChange(section.id, lesson.id, e.target.value)}
+                                                                value={lesson.selectedOption}
+                                                                className="border p-2 rounded-md mb-4"
+                                                            >
                                                                 <option value="">Chọn loại nội dung</option>
                                                                 <option value="videoUrl">Dạng video URL</option>
                                                                 <option value="videoFile">Dạng video File</option>
                                                                 <option value="content">Dạng nội dung</option>
                                                             </select>
 
-                                                            {lesson.selectedOption === 'videoUrl' && (
+                                                            {lesson.selectedOption === "videoUrl" && (
                                                                 <div>
                                                                     <div className="flex items-center gap-2 mb-2">
                                                                         <PlayCircle className="text-green-500 h-5 w-5" />
                                                                         <label className="font-medium">Nhập link video:</label>
                                                                     </div>
                                                                     <Input
-                                                                        className='my-3 border p-2 w-full'
-                                                                        type='text'
-                                                                        placeholder='Link VIDEO'
+                                                                        className="my-3 border p-2 w-full"
+                                                                        type="text"
+                                                                        placeholder="Link VIDEO"
                                                                         value={lesson.videoLink}
                                                                         onChange={(e) => handleVideoLinkChange(section.id, lesson.id, e.target.value)}
                                                                     />
                                                                 </div>
                                                             )}
 
-                                                            {lesson.selectedOption === 'videoFile' && (
+                                                            {lesson.selectedOption === "videoFile" && (
                                                                 <div>
                                                                     <div className="flex items-center gap-2">
                                                                         <Video className="text-red-500 h-5 w-5" />
                                                                         <label className="font-medium">Tải lên video:</label>
                                                                     </div>
                                                                     <Input
-                                                                        className='mt-2'
-                                                                        type='file'
+                                                                        className="mt-2"
+                                                                        type="file"
                                                                         onChange={(e) => handleFileChange(section.id, lesson.id, e.target.files[0])}
                                                                     />
                                                                 </div>
                                                             )}
 
-                                                            {lesson.selectedOption === 'content' && (
+                                                            {lesson.selectedOption === "content" && (
                                                                 <div>
                                                                     <div className="flex items-center gap-2">
                                                                         <FileText className="text-purple-500 h-5 w-5" />
                                                                         <label className="font-medium">Nhập nội dung:</label>
                                                                     </div>
-
                                                                     <ReactQuill
                                                                         className="mt-2 pb-2"
-                                                                        value={lesson.content || ''} // Đảm bảo có giá trị mặc định
+                                                                        value={lesson.content || ""}
                                                                         onChange={(value) => handleContentChange(section.id, lesson.id, value)}
                                                                         modules={{
                                                                             toolbar: [
-                                                                                [{ 'header': [1, 2, 3, false] }],
-                                                                                ['bold', 'italic', 'underline'],
-                                                                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                                                                ['link', 'image', 'code-block'],
-                                                                                ['clean']
+                                                                                [{ header: [1, 2, 3, false] }],
+                                                                                ["bold", "italic", "underline"],
+                                                                                [{ list: "ordered" }, { list: "bullet" }],
+                                                                                ["link", "image", "code-block"],
+                                                                                ["clean"],
                                                                             ],
                                                                         }}
                                                                         formats={[
-                                                                            'header', 'bold', 'italic', 'underline',
-                                                                            'list', 'bullet', 'link', 'image', 'code-block'
+                                                                            "header",
+                                                                            "bold",
+                                                                            "italic",
+                                                                            "underline",
+                                                                            "list",
+                                                                            "bullet",
+                                                                            "link",
+                                                                            "image",
+                                                                            "code-block",
                                                                         ]}
-                                                                    />
-                                                                    <Input
-                                                                        className='mt-2'
-                                                                        type='file'
-                                                                        onChange={(e) => handleFileChange(section.id, lesson.id, e.target.files[0])}
                                                                     />
                                                                 </div>
                                                             )}
                                                         </div>
                                                         {section.lessons.length > 1 && (
-                                                            <X onClick={() => deleteContent(section.id, lesson.id)} className='absolute top-1 left-2 text-red-400' />
+                                                            <X onClick={() => deleteContent(section.id, lesson.id)} className="absolute top-1 left-2 text-red-400" />
                                                         )}
                                                     </Card>
                                                 ))}
@@ -544,6 +612,7 @@ export const Curriculum = () => {
                                     </AccordionItem>
                                 ))}
                             </Accordion>
+
 
                             <button
                                 onClick={addSection}
