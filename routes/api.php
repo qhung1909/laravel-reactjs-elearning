@@ -221,5 +221,15 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::put('/courses/{courseId}/contents', [TeacherController::class, 'updateContents']);
     Route::delete('/courses/{courseId}/contents', [TeacherController::class, 'deleteContents']);
 
+    Route::get('/title-content/{contentId}', [TeacherController::class, 'showTitleContent']);
+
+    // Route để tạo mới title_content
+    Route::post('/title-content', [TeacherController::class, 'storeTitleContent']);
+
+    // Route để cập nhật title_content theo content_id
+    Route::put('/title-content/update/{contentId}', [TeacherController::class, 'updateTitleContent']);
+
+    // Route để xóa title_content theo title_content_id
+    Route::delete('/title-content/delete/{titleContentId}', [TeacherController::class, 'deleteTitleContent']);
 
 });
