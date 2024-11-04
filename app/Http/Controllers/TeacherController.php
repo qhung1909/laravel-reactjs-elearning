@@ -31,7 +31,6 @@ class TeacherController extends Controller
                 ], 404);
             }
 
-            // Lấy tất cả content draft của course
             $contents = Content::where('course_id', $courseId)
                              ->where('status', 'draft')
                              ->orderBy('created_at', 'desc')
