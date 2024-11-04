@@ -261,8 +261,8 @@ export const Lesson = () => {
                 content_id: contentId,
                 course_id: courseId,
                 is_complete: isComplete,
-                complete_at: new Date().toISOString(), // Thời gian hoàn thành
-                progress_percent: progressPercent, // Phần trăm tiến độ
+                complete_at: new Date().toISOString(),
+                progress_percent: progressPercent,
             }, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
@@ -270,16 +270,19 @@ export const Lesson = () => {
                 },
             });
 
-            if (res.data && res.data.success) {
+            // Kiểm tra phản hồi từ API
+            if (res.data && res.data.message === 'Tiến trình đã được cập nhật.') {
                 toast.success("Tiến độ đã được cập nhật!");
             } else {
                 console.error("Lỗi khi cập nhật tiến độ:", res.data);
+                toast.error("Có lỗi xảy ra khi cập nhật tiến độ.");
             }
         } catch (error) {
             console.error("Lỗi khi cập nhật tiến độ:", error);
             toast.error("Có lỗi xảy ra khi cập nhật tiến độ.");
         }
     };
+
 
     const handleLessonComplete = (contentId) => {
         setCompletedLessons(prev => new Set([...prev, contentId]));
