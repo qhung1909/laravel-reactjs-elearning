@@ -166,7 +166,7 @@ export const CourseOverview = () => {
             });
 
             if (response.data.success) {
-                notify('Khóa học của bạn đã được gửi vui lòng chờ duyệt!', 'success');
+                notify('Khóa học đã được cập nhật', 'success');
 
             } else {
                 console.error('Error:', response.data.message);
@@ -341,7 +341,7 @@ export const CourseOverview = () => {
                             onClick={handleSubmit}
                             className="bg-blue-500 text-white py-2 px-4 rounded"
                         >
-                            Thêm Khóa Học
+                            Cập nhật Khóa Học
                         </button>
                     </div>
                 </div>
