@@ -320,7 +320,7 @@ class TeacherController extends Controller
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-    
+
             $validator = Validator::make($request->all(), [
                 'content_id' => 'required|exists:contents,content_id',
                 'title_contents' => 'required|array',
@@ -329,7 +329,7 @@ class TeacherController extends Controller
                 'title_contents.*.document_link' => 'nullable|string',
                 'title_contents.*.description' => 'nullable|string'
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -337,12 +337,12 @@ class TeacherController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-    
+
             DB::beginTransaction();
-    
+
             try {
                 $createdTitleContents = [];
-    
+
                 foreach ($request->title_contents as $titleContentData) {
                     $titleContent = TitleContent::create([
                         'content_id' => $request->content_id,
@@ -352,12 +352,12 @@ class TeacherController extends Controller
                         'description' => $titleContentData['description'],
                         'status' => 'draft'
                     ]);
-    
+
                     $createdTitleContents[] = $titleContent;
                 }
-    
+
                 DB::commit();
-    
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Tạo tiêu đề nội dung thành công',
@@ -374,7 +374,7 @@ class TeacherController extends Controller
             ], 500);
         }
     }
-    
+
 
     public function updateTitleContent(Request $request, $contentId)
     {
@@ -424,13 +424,22 @@ class TeacherController extends Controller
                         throw new \Exception("TitleContent ID {$titleContentData['title_content_id']} không thuộc về nội dung này");
                     }
 
-                    $titleContent->update([
-                        'body_content' => $titleContentData['body_content'],
-                        'video_link' => $titleContentData['video_link'],
-                        'document_link' => $titleContentData['document_link'],
-                        'description' => $titleContentData['description'],
-                        'status' => 'draft'  
-                    ]);
+                    // Cập nhật từng trường nếu có
+                    $updateData = [
+                        'body_content' => $titleContentData['body_content'] ?? $titleContent->body_content,
+                        'description' => $titleContentData['description'] ?? $titleContent->description,
+                        'status' => 'draft'
+                    ];
+
+                    // Chỉ thêm 'video_link' và 'document_link' nếu tồn tại trong yêu cầu
+                    if (isset($titleContentData['video_link'])) {
+                        $updateData['video_link'] = $titleContentData['video_link'];
+                    }
+                    if (isset($titleContentData['document_link'])) {
+                        $updateData['document_link'] = $titleContentData['document_link'];
+                    }
+
+                    $titleContent->update($updateData);
                 }
 
                 DB::commit();
@@ -450,6 +459,7 @@ class TeacherController extends Controller
             ], 500);
         }
     }
+
 
     public function deleteTitleContent($titleContentId)
     {
