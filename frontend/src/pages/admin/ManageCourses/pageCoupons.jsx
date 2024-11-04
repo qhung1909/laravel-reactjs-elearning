@@ -470,10 +470,10 @@ export default function PageCoupons() {
                             <div className="overflow-x-auto rounded-md border border-gray-200">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="bg-gray-50">
-                                            <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">ID</th>
+                                        <tr className=" bg-yellow-100 ">
+                                            <th className="text-center py-4 px-6 font-bold text-sm text-gray-600">ID</th>
                                             <th
-                                                className="text-center py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('name_coupon')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -482,7 +482,7 @@ export default function PageCoupons() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('discount_price')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -491,7 +491,7 @@ export default function PageCoupons() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('start_discount')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -501,7 +501,7 @@ export default function PageCoupons() {
 
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-medium text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('end_discount')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -510,8 +510,8 @@ export default function PageCoupons() {
                                                 </div>
 
                                             </th>
-                                            <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Thời hạn</th>
-                                            <th className="text-center py-4 px-6 font-medium text-sm text-gray-600">Hành động</th>
+                                            <th className="text-center py-4 px-6 font-bold text-sm text-gray-600">Thời hạn</th>
+                                            <th className="text-center py-4 px-6 font-bold text-sm text-gray-600">Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody>
