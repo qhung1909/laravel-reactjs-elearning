@@ -116,8 +116,8 @@ const data = {
             items: [
                 { title: "Danh sách học viên", url: "/admin/list-students" },
                 { title: "Danh sách giảng viên", url: "/admin/list-teachers" },
-                { title: "Thiết lập chính sách giá", url: "#" },
-                { title: "Xuất báo cáo tài chính", url: "#" },
+                { title: "Thông tin cá nhân và hồ sơ", url: "#" },
+                { title: "Phân loại người dùng", url: "/admin/classify-users" },
             ],
         },
         {
