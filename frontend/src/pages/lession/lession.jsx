@@ -281,13 +281,9 @@ export const Lesson = () => {
         }
     };
 
-
-
     const handleLessonComplete = (contentId) => {
         setCompletedLessons(prev => new Set([...prev, contentId]));
-        updateProgress(contentId); // Gọi hàm cập nhật tiến độ
     };
-
 
     const calculateProgress = () => {
         return (completedLessons.size / Object.keys(titleContent).reduce((acc, key) =>
@@ -295,7 +291,6 @@ export const Lesson = () => {
     };
 
     const [completedVideos, setCompletedVideos] = useState({});
-
     const handleVideoComplete = (contentId, index) => {
         setCompletedVideos(prev => {
             const updated = { ...prev };
@@ -303,8 +298,11 @@ export const Lesson = () => {
             return updated;
         });
 
-        if (completedVideos[contentId] + 1 === titleContent[contentId]?.length) {
+        // Kiểm tra xem tất cả video của tiêu đề đã được hoàn thành chưa
+        const allVideos = titleContent[contentId] || [];
+        if (completedVideos[contentId] + 1 === allVideos.length) {
             handleLessonComplete(contentId);
+            updateProgress(contentId); // Cập nhật tiến độ chỉ khi tất cả video đã hoàn thành
         }
     };
 
@@ -312,7 +310,8 @@ export const Lesson = () => {
     const [videoDurations, setVideoDurations] = useState({});
     const handleProgress = (progress, titleContentId, index) => {
         const { playedSeconds } = progress;
-        const duration = playerRef.current.getDuration();
+        const duration = videoDurations[titleContentId] || playerRef.current.getDuration();
+
         if (duration) {
             const playedPercentage = (playedSeconds / duration) * 100;
 
@@ -321,17 +320,23 @@ export const Lesson = () => {
                 [titleContentId]: duration
             }));
 
+            // Chỉ đánh dấu hoàn thành video con khi đã xem ít nhất 70%
             if (playedPercentage >= 70 && playedPercentage < 80) {
-                handleVideoComplete(titleContentId, index);
+                handleVideoComplete(titleContentId);
             }
         }
     };
-
 
     const handleVideoClick = (item, contentId, index) => {
         setCurrentVideoUrl(item.video_link);
         setActiveItem({ contentId, index });
     };
+
+    useEffect(() => {
+        completedLessons.forEach(contentId => {
+            updateProgress(contentId);
+        });
+    }, [completedLessons]);
 
     return (
         <>
@@ -380,7 +385,7 @@ export const Lesson = () => {
                             <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden">
                                 {currentVideoUrl ? (
                                     <ReactPlayer
-                                        ref={playerRef} // Thêm ref vào ReactPlayer
+                                        ref={playerRef}
                                         url={currentVideoUrl}
                                         className="absolute top-0 left-0 w-full h-full"
                                         controls={true}
@@ -391,7 +396,6 @@ export const Lesson = () => {
                                             handleProgress(progress, titleContentId, activeItem.index);
                                         }}
                                     />
-
                                 ) : (
                                     <img
                                         src="/src/assets/images/thumnail-lesson.jpeg"
