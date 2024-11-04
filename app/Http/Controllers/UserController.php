@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use App\Mail\GenZWelcomeEmail;
+
 class UserController extends Controller
 {
     public function getAllUsers(Request $request)
@@ -61,7 +62,7 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'verification_token' => bin2hex(random_bytes(120)),
-            'avatar' => 'https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/avatar-default-svgrepo-com.svg', 
+            'avatar' => 'https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/avatar-default-svgrepo-com.svg',
         ]);
 
         SendWelcomeEmail::dispatch($user);
@@ -307,9 +308,9 @@ class UserController extends Controller
 
         $orders = Order::where('user_id', $userId)
             ->whereHas('orderDetails', function ($query) {
-                $query->where('status', 'success'); 
+                $query->where('status', 'success');
             })
-            ->with(['coupon', 'userCourses.course', 'orderDetails.course']) 
+            ->with(['coupon', 'userCourses.course', 'orderDetails.course'])
             ->select('order_id', 'total_price', 'coupon_id', 'status', 'payment_method', 'created_at')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -324,7 +325,7 @@ class UserController extends Controller
                 'payment_method' => $order->payment_method,
                 'created_at' => $order->created_at->format('d-m-Y H:i:s'),
                 'courses' => $order->orderDetails->filter(function ($orderDetail) {
-                    return $orderDetail->status === 'success'; 
+                    return $orderDetail->status === 'success';
                 })->map(function ($orderDetail) {
                     return [
                         'course_id' => $orderDetail->course_id,
@@ -382,5 +383,16 @@ class UserController extends Controller
         });
 
         return response()->json($orders, 200);
+    }
+
+    public function getUsers()
+    {
+        $users = User::where('role', 'user')->select('name', 'email', 'avatar', 'created_at', 'role')->get();
+        return response()->json($users);
+    }
+    public function getTeacher()
+    {
+        $teachers = User::where('role', 'teacher')->select('name', 'email', 'avatar', 'created_at', 'role')->get();
+        return response()->json($teachers);
     }
 }

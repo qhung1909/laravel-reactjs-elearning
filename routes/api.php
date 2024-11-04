@@ -185,6 +185,9 @@ Route::middleware(['admin'])->group(function () {
 });
 
 Route::prefix('admin')->middleware('admin')->group(function () {
+    Route::get('/users', [UserController::class, 'getUsers']);
+    Route::get('/teachers', [UserController::class, 'getTeacher']);
+
     //Dashboard
     Route::get('/courses', [AdminController::class, 'getAllCourses']);
     Route::put('/courses/{courseId}/category', [AdminController::class, 'updateCourseCategory']);
