@@ -4,7 +4,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
@@ -243,13 +243,94 @@ export const Lesson = () => {
             toast.error("Không tìm thấy quiz cho nội dung này.");
         }
     };
+
+    const updateProgress = async (contentId) => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+        try {
+            const courseId = lesson.course_id;
+            const isComplete = true;
+            const progressPercent = calculateProgress();
+
+            const res = await axios.post(`${API_URL}/progress/complete-content`, {
+                user_id: user.user_id,
+                content_id: contentId,
+                course_id: courseId,
+                is_complete: isComplete,
+                complete_at: new Date().toISOString(), // Thời gian hoàn thành
+                progress_percent: progressPercent, // Phần trăm tiến độ
+            }, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (res.data && res.data.success) {
+                toast.success("Tiến độ đã được cập nhật!");
+            } else {
+                console.error("Lỗi khi cập nhật tiến độ:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi cập nhật tiến độ:", error);
+            toast.error("Có lỗi xảy ra khi cập nhật tiến độ.");
+        }
+    };
+
+
+
     const handleLessonComplete = (contentId) => {
         setCompletedLessons(prev => new Set([...prev, contentId]));
+        updateProgress(contentId); // Gọi hàm cập nhật tiến độ
     };
+
 
     const calculateProgress = () => {
         return (completedLessons.size / Object.keys(titleContent).reduce((acc, key) =>
             acc + titleContent[key].length, 0)) * 100;
+    };
+
+    const [completedVideos, setCompletedVideos] = useState({});
+
+    const handleVideoComplete = (contentId, index) => {
+        setCompletedVideos(prev => {
+            const updated = { ...prev };
+            updated[contentId] = updated[contentId] ? updated[contentId] + 1 : 1;
+            return updated;
+        });
+
+        if (completedVideos[contentId] + 1 === titleContent[contentId]?.length) {
+            handleLessonComplete(contentId);
+        }
+    };
+
+    const playerRef = useRef();
+    const [videoDurations, setVideoDurations] = useState({});
+    const handleProgress = (progress, titleContentId, index) => {
+        const { playedSeconds } = progress;
+        const duration = playerRef.current.getDuration();
+        if (duration) {
+            const playedPercentage = (playedSeconds / duration) * 100;
+
+            setVideoDurations(prev => ({
+                ...prev,
+                [titleContentId]: duration
+            }));
+
+            if (playedPercentage >= 70 && playedPercentage < 80) {
+                handleVideoComplete(titleContentId, index);
+            }
+        }
+    };
+
+
+    const handleVideoClick = (item, contentId, index) => {
+        setCurrentVideoUrl(item.video_link);
+        setActiveItem({ contentId, index });
     };
 
     return (
@@ -299,12 +380,18 @@ export const Lesson = () => {
                             <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden">
                                 {currentVideoUrl ? (
                                     <ReactPlayer
+                                        ref={playerRef} // Thêm ref vào ReactPlayer
                                         url={currentVideoUrl}
                                         className="absolute top-0 left-0 w-full h-full"
                                         controls={true}
                                         width="100%"
                                         height="100%"
+                                        onProgress={(progress) => {
+                                            const titleContentId = titleContent[activeItem.contentId][activeItem.index].title_content_id;
+                                            handleProgress(progress, titleContentId, activeItem.index);
+                                        }}
                                     />
+
                                 ) : (
                                     <img
                                         src="/src/assets/images/thumnail-lesson.jpeg"
@@ -397,9 +484,7 @@ export const Lesson = () => {
                                                 <span className="text-sm font-medium">Đã hoàn thành</span>
                                             </div>
                                             <p className="text-lg font-semibold text-gray-800">
-                                                {completedLessons.size}/{Object.keys(titleContent).reduce((acc, key) =>
-                                                    acc + titleContent[key].length, 0
-                                                )}
+                                                {completedLessons.size}/{Object.keys(titleContent).length}
                                             </p>
                                         </div>
                                         <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
@@ -468,13 +553,10 @@ export const Lesson = () => {
                                                                     titleContent[content.content_id].map((item, i) => (
                                                                         <div
                                                                             key={i}
-                                                                            onClick={() => {
-                                                                                setCurrentVideoUrl(item.video_link);
-                                                                                setActiveItem({ contentId: content.content_id, index: i }); // Cập nhật chỉ số và content_id đang hoạt động
-                                                                            }}
+                                                                            onClick={() => handleVideoClick(item, content.content_id, i)}
                                                                             className={`group flex items-start gap-3 p-3 rounded-lg transition-all duration-200 cursor-pointer border ${activeItem.contentId === content.content_id && activeItem.index === i
-                                                                                    ? 'bg-purple-100 border-purple-300' // Hiệu ứng khi đang hoạt động
-                                                                                    : 'border-transparent hover:bg-purple-50 hover:border-purple-100'
+                                                                                ? 'bg-purple-100 border-purple-300'
+                                                                                : 'border-transparent hover:bg-purple-50 hover:border-purple-100'
                                                                                 }`}
                                                                         >
                                                                             <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0 mt-1 group-hover:bg-purple-200">
@@ -486,12 +568,12 @@ export const Lesson = () => {
                                                                                         {item.body_content}
                                                                                     </p>
                                                                                 </div>
-
                                                                                 <div className="flex items-center gap-2 mt-1">
                                                                                     <span className="text-xs text-gray-400 flex items-center">
                                                                                         <Clock className="w-3 h-3 mr-1" />
-                                                                                        10:00
+                                                                                        {videoDurations[item.title_content_id] ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}` : "0:00"}
                                                                                     </span>
+
                                                                                     <span>
                                                                                         <CheckCircle className="text-green-600 w-4 h-4 mr-1" />
                                                                                     </span>
@@ -517,6 +599,7 @@ export const Lesson = () => {
                                             </div>
                                         )}
                                     </Accordion>
+
                                 </div>
 
 
