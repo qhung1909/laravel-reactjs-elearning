@@ -58,7 +58,7 @@ import ListStudents from "./pages/admin/ManageAcount/ListStudents.jsx";
 import ListTeachers from "./pages/admin/ManageAcount/ListTeachers.jsx";
 import ClassifyUsers from "./pages/admin/ManageAcount/ClassifyUsers.jsx";
 import {PersonalInformation} from "./pages/admin/ManageAcount/PersonalInformation.jsx";
-
+import { ThemeProvider } from "./components/ui/theme-provider.jsx";
 
 
 function AppContent() {
@@ -151,6 +151,7 @@ function AppContent() {
 
 function App() {
     return (
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <Router>
             <UserProvider>
                 <CoursesProvider>
@@ -160,6 +161,8 @@ function App() {
                 </CoursesProvider>
             </UserProvider>
         </Router>
+        </ThemeProvider>
+
 
     );
 }
