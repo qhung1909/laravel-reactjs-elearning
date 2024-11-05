@@ -183,7 +183,7 @@ export const Lesson = () => {
                     Authorization: `Bearer ${token}`,
                 },
                 params: {
-                    course_id: courseId  // Đổi lesson_id thành course_id
+                    course_id: courseId  
                 }
             });
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
@@ -348,12 +348,12 @@ export const Lesson = () => {
 
     useEffect(() => {
         if (completedVideosInSection) {
-            const completedCount = Object.keys(completedVideosInSection).filter(
-                contentId => completedVideosInSection[contentId] === titleContent[contentId].length
-            ).length;
+            const completedCount = Object.keys(completedVideosInSection).filter((contentId) => {
+                return Array.isArray(titleContent[contentId]) && completedVideosInSection[contentId] === titleContent[contentId].length;
+            }).length;
             setCompletedLessons(new Set([...completedLessons, ...Array(completedCount).keys()]));
         }
-    }, [completedVideosInSection]);
+    }, [completedVideosInSection, titleContent]);
 
     const [progressData, setProgressData] = useState([]);
     const fetchProgress = async () => {
@@ -398,8 +398,11 @@ export const Lesson = () => {
     };
 
     useEffect(() => {
-        fetchProgress();
-    }, []);
+        if (user && lesson) {
+            fetchProgress();
+        }
+    }, [user, lesson]);
+
 
 
 
@@ -635,7 +638,7 @@ export const Lesson = () => {
                                                                                     <p className="text-sm text-gray-600 line-clamp-2 flex-1">
                                                                                         {item.body_content}
                                                                                     </p>
-                                                                                    {completedVideosInSection[content.content_id] ? (
+                                                                                    {completedVideosInSection[content.content_id] && completedVideosInSection[content.content_id] > i ? (
                                                                                         <CheckCircle className="text-green-600 w-4 h-4" />
                                                                                     ) : (
                                                                                         <XCircle className="text-red-600 w-4 h-4" />
