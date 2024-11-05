@@ -18,6 +18,8 @@ import 'react-quill/dist/quill.snow.css';
 import axios from "axios";
 
 import toast, { Toaster } from 'react-hot-toast';
+import { ArrowLeft, Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const notify = (message, type) => {
     if (type === 'success') {
@@ -184,17 +186,41 @@ export const CourseOverview = () => {
 
     return (
         <>
-            <div className="bg-yellow-500 h-12">
-                <Link className='absolute top-3 left-6 lg:left-0 xl:top-3 xl:left-8' to='/'>
-                    <div className="flex items-center gap-3">
-                        <box-icon name='arrow-back' color='black'></box-icon>
-                        <p className="text-slate-900">Quay lại khóa học</p>
+            <header className="bg-yellow-500 py-3">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center">
+                        <Link
+                            to='/'
+                            className="flex items-center gap-2 text-slate-900 hover:text-slate-700 transition-colors"
+                        >
+                            <ArrowLeft className="h-5 w-5" />
+                            <span className="text-sm font-medium hidden sm:inline">Quay lại khóa học</span>
+                        </Link>
+
+                        <div className="flex items-center gap-4">
+                            <Button
+                                onClick={handleSubmit}
+                                className="hidden sm:inline-flex items-center px-6 py-3 bg-white text-yellow-600 font-semibold rounded-lg border-2 border-yellow-600 hover:bg-yellow-600 hover:text-white transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+                            >
+                                <span>Cập nhật Khóa Học</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="lg:hidden text-slate-900 hover:bg-yellow-400"
+                                aria-label="Menu"
+                            >
+                                <Menu className="h-6 w-6" />
+                            </Button>
+                        </div>
                     </div>
-                </Link>
-                <div className="block lg:hidden text-right pt-3 pr-6">
-                    <box-icon name='menu-alt-left'></box-icon>
                 </div>
-            </div>
+            </header>
+
 
             <div className="flex max-w-7xl m-auto pt-10 pb-36">
                 <SideBarCreateCoure course_id={course_id} />
@@ -337,12 +363,7 @@ export const CourseOverview = () => {
                                 </div>
                             </div>
                         </div>
-                        <button
-                            onClick={handleSubmit}
-                            className="bg-blue-500 text-white py-2 px-4 rounded"
-                        >
-                            Cập nhật Khóa Học
-                        </button>
+
                     </div>
                 </div>
             </div>

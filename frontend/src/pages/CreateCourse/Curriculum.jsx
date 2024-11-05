@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Video, X, PlayCircle, FileText } from 'lucide-react';
+import { Video, X, FileText, ArrowLeft, Menu } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from '@/components/ui/input';
@@ -38,80 +38,8 @@ export const Curriculum = () => {
         ));
     };
 
-    const addSection = () => {
-        if (sections.length > 0 && !sections[sections.length - 1].title.trim()) {
-            toast.error("Vui lòng nhập tiêu đề cho Bài học trước khi thêm Bài học mới.");
-            return;
-        }
-        setSections([...sections, {
-            id: sections.length + 1,
-            title: '',
-            lessons: [{ id: 1, title: '', selectedOption: '', videoLink: '', content: '', fileName: '' }]
-        }]);
-    };
 
-    const addLesson = async (sectionId) => {
-        const section = sections.find(section => section.id === sectionId);
 
-        try {
-            // Gửi request với nội dung trống để chỉ lấy ID mới
-            const requestData = {
-                content_id: section.content_id,
-                title_contents: [{
-                    body_content: "",        // Để trống title
-                    video_link: null,        // Để trống video
-                    document_link: null,     // Để trống document
-                    description: ""          // Để trống description
-                }]
-            };
-
-            const response = await axios.post(
-                `${API_URL}/teacher/title-content`,
-                requestData,
-                {
-                    headers: {
-                        'x-api-secret': API_KEY,
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-
-            if (!response.data.success) {
-                throw new Error(response.data.message || "Thêm bài học thất bại");
-            }
-
-            const newTitleContentId = response.data.data[0].title_content_id;
-
-            // Thêm bài học mới với nội dung trống
-            setSections(sections.map(section => {
-                if (section.id === sectionId) {
-                    return {
-                        ...section,
-                        lessons: [
-                            ...section.lessons,
-                            {
-                                id: section.lessons.length + 1,
-                                title: '',                    // Trống
-                                selectedOption: '',           // Trống
-                                videoLink: '',                // Trống
-                                content: '',                  // Trống
-                                fileName: '',                 // Trống
-                                description: '',              // Trống
-                                title_content_id: newTitleContentId  // Chỉ lấy ID mới
-                            }
-                        ]
-                    };
-                }
-                return section;
-            }));
-
-            toast.success("Thêm bài học mới thành công!");
-        } catch (error) {
-            console.error("Error adding lesson:", error);
-            toast.error(error.message || "Có lỗi xảy ra khi kết nối với máy chủ!");
-        }
-    };
 
 
     const handleLessonTitleChange = (sectionId, lessonId, newTitle) => {
@@ -239,8 +167,8 @@ export const Curriculum = () => {
     useEffect(() => {
         fetchContent()
     }, []);
-    const fetchContent = async () => {
-        if (isDataFetched) {
+    const fetchContent = async (force = false) => {
+        if (!force && isDataFetched) {
             console.log("Dữ liệu đã được tải, không cần fetch lại");
             return;
         }
@@ -273,6 +201,120 @@ export const Curriculum = () => {
         } catch (error) {
             console.error('Error fetching content:', error);
             // toast.error('Không thể tải nội dung khóa học');
+        }
+    };
+
+
+    const addSection = async () => {
+        if (sections.length > 0 && !sections[sections.length - 1].title.trim()) {
+            toast.error("Vui lòng nhập tiêu đề cho Bài học trước khi thêm Bài học mới.");
+            return;
+        }
+
+        // Tạo đối tượng phần mới
+        const newSection = {
+            course_id: course_id,  // Thêm course_id nếu cần
+            title: '',
+            lessons: [{ id: 1, title: '', selectedOption: '', videoLink: '', content: '', fileName: '' }]
+        };
+
+        try {
+            // Gửi yêu cầu POST để lưu phần mới
+            const response = await axios.post(
+                `${API_URL}/teacher/content`,
+                {
+                    course_id: course_id,
+                    name_content: newSection.title,
+                },
+                {
+                    headers: {
+                        'x-api-secret': API_KEY,
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            // Kiểm tra phản hồi từ server và thêm ID vào phần mới
+            if (response.data.success) {
+                const sectionWithId = { ...newSection, content_id: response.data.content_id };
+                setSections([...sections, sectionWithId]);
+                await fetchContent(true);
+                toast.success("Thêm phần mới thành công!");
+            } else {
+                toast.error(response.data.message || "Có lỗi xảy ra khi thêm nội dung!");
+            }
+
+        } catch (error) {
+            console.error("Error:", error);
+            toast.error("Đã xảy ra lỗi khi thêm phần mới.");
+        }
+    };
+
+
+    const addLesson = async (sectionId) => {
+        const section = sections.find(section => section.id === sectionId);
+
+        try {
+            // Gửi request với nội dung trống để chỉ lấy ID mới
+            const requestData = {
+                content_id: section.content_id,
+                title_contents: [{
+                    body_content: "",        // Để trống title
+                    video_link: null,        // Để trống video
+                    document_link: null,     // Để trống document
+                    description: ""          // Để trống description
+                }]
+            };
+
+            const response = await axios.post(
+                `${API_URL}/teacher/title-content`,
+                requestData,
+                {
+                    headers: {
+                        'x-api-secret': API_KEY,
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (!response.data.success) {
+                throw new Error(response.data.message || "Thêm bài học thất bại");
+            }
+
+            const newTitleContentId = response.data.data[0].title_content_id;
+
+            // Thêm bài học mới với nội dung trống
+            setSections(sections.map(section => {
+                if (section.id === sectionId) {
+                    return {
+                        ...section,
+                        lessons: [
+                            ...section.lessons,
+                            {
+                                id: section.lessons.length + 1,
+                                title: '',                    // Trống
+                                selectedOption: '',           // Trống
+                                videoLink: '',                // Trống
+                                content: '',                  // Trống
+                                fileName: '',                 // Trống
+                                description: '',              // Trống
+                                title_content_id: newTitleContentId  // Chỉ lấy ID mới
+                            }
+                        ]
+                    };
+                }
+                return section;
+            }));
+
+            await fetchContent()
+
+            toast.success("Thêm bài học mới thành công!");
+
+        } catch (error) {
+            console.error("Error adding lesson:", error);
+            toast.error(error.message || "Có lỗi xảy ra khi kết nối với máy chủ!");
         }
     };
 
@@ -312,15 +354,15 @@ export const Curriculum = () => {
                 const updatedSections = sections.filter(section => section.id !== contentId);
                 const resetSections = resetIds(updatedSections);
                 setSections(resetSections);
+                await fetchContent(true);
                 toast.success("Đã xóa Bài học thành công!");
+
             } else {
                 toast.error("Có lỗi xảy ra khi xóa Bài học!");
             }
         } catch (error) {
             console.error('Error:', error);
             toast.error("Có lỗi xảy ra khi xóa Bài học!");
-        } finally {
-            fetchContent();
         }
     };
 
@@ -446,35 +488,19 @@ export const Curriculum = () => {
             return;
         }
 
-        const sectionsToAdd = validSections.filter(section => !section.content_id);
         const sectionsToUpdate = validSections.filter(section => section.content_id);
 
         const loadingToast = toast.loading('Đang xử lý...');
 
         try {
-            const addPromises = sectionsToAdd.map(section =>
-                axios.post(
-                    `${API_URL}/teacher/content`,
-                    {
-                        course_id: course_id,
-                        name_content: section.title.trim(),
-                    },
-                    {
-                        headers: {
-                            'x-api-secret': API_KEY,
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                )
-            );
+
 
             const updateContentsData = sectionsToUpdate.map(section => ({
                 content_id: section.content_id,
                 name_content: section.title.trim(),
             }));
 
-            let updatePromise = Promise.resolve(); // Default nếu không có gì để cập nhật
+            let updatePromise = Promise.resolve();
             if (updateContentsData.length > 0) {
                 updatePromise = axios.put(
                     `${API_URL}/teacher/courses/${course_id}/contents`,
@@ -489,20 +515,14 @@ export const Curriculum = () => {
                 );
             }
 
-            const [addResults, updateResult] = await Promise.all([
-                Promise.all(addPromises),
+            const [updateResult] = await Promise.all([
                 updatePromise,
             ]);
 
             let hasError = false; // Biến để kiểm tra nếu có lỗi
 
             // Kiểm tra kết quả của các yêu cầu thêm
-            addResults.forEach(response => {
-                if (!response.data.success) {
-                    toast.error(response.data.message || 'Có lỗi xảy ra khi thêm nội dung!');
-                    hasError = true; // Đánh dấu có lỗi
-                }
-            });
+
 
             // Kiểm tra kết quả của yêu cầu cập nhật
             if (updateContentsData.length > 0 && updateResult.data.success) {
@@ -628,18 +648,40 @@ export const Curriculum = () => {
 
     return (
         <>
-            <div className="bg-yellow-500 h-12">
-                <Link className='absolute top-3 left-6 lg:left-0 xl:top-3 xl:left-8' to='/'>
-                    <div className="flex items-center gap-3">
-                        <box-icon name='arrow-back' color='black' ></box-icon>
-                        <p className="text-slate-900">Quay lại khóa học</p>
-                    </div>
-                </Link>
-                <div className="block lg:hidden text-right pt-3 pr-6">
-                    <box-icon name='menu-alt-left'></box-icon>
-                </div>
+            <header className="bg-yellow-500 py-3">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center">
+                        <Link
+                            to='/'
+                            className="flex items-center gap-2 text-slate-900 hover:text-slate-700 transition-colors"
+                        >
+                            <ArrowLeft className="h-5 w-5" />
+                            <span className="text-sm font-medium hidden sm:inline">Quay lại khóa học</span>
+                        </Link>
 
-            </div>
+                        <div className="flex items-center gap-4">
+                            <Button
+                                onClick={handleSubmit}
+                                className="hidden sm:inline-flex items-center px-6 py-3 bg-white text-yellow-600 font-semibold rounded-lg border-2 border-yellow-600 hover:bg-yellow-600 hover:text-white transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+                            >
+                                <span>Cập nhật Nội Dung</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="lg:hidden text-slate-900 hover:bg-yellow-400"
+                                aria-label="Menu"
+                            >
+                                <Menu className="h-6 w-6" />
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
             <div className="flex max-w-7xl m-auto pt-10 pb-36">
                 <SideBarCreateCoure course_id={course_id} />
@@ -824,19 +866,12 @@ export const Curriculum = () => {
                                 + Thêm Bài học mới
                             </button>
 
-                            <button
+                            {/* <button
                                 onClick={exportToJsonLog}
                                 className="w-full p-3 border-2 border-dashed border-green-700 rounded-md text-gray-600 hover:bg-gray-50"
                             >
                                 Xuất dữ liệu ra log
-                            </button>
-
-
-                            {/* {appearData ? (
-                                <Button onClick={updateContent}>Update Content</Button>
-                            ) : ( */}
-                            <Button onClick={handleSubmit}>Cập nhật Content</Button>
-                            {/* )} */}
+                            </button> */}
 
                         </div>
                         <Toaster />
