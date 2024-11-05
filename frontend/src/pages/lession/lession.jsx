@@ -10,7 +10,7 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
@@ -244,6 +244,12 @@ export const Lesson = () => {
         }
     };
 
+    const handleVideoClick = (item, contentId, index) => {
+        setCurrentVideoUrl(item.video_link);
+        setActiveItem({ contentId, index });
+    };
+
+    //Progress
     const updateProgress = async (contentId) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -282,62 +288,120 @@ export const Lesson = () => {
         }
     };
 
-    const handleLessonComplete = (contentId) => {
-        setCompletedLessons(prev => new Set([...prev, contentId]));
-    };
-
     const calculateProgress = () => {
-        return (completedLessons.size / Object.keys(titleContent).length) * 100;
+        const totalLessons = contentLesson.length;
+        const completedCount = completedLessons.size;
+        return totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
     };
 
+
+
+    // Theo dõi video nào đã hoàn thành trong từng phần nội dung
     const [completedVideosInSection, setCompletedVideosInSection] = useState({});
-    const [completedVideos, setCompletedVideos] = useState({});
-
-    const handleVideoComplete = (contentId, index) => {
-        setCompletedVideosInSection(prev => {
-            const updated = { ...prev };
-            updated[contentId] = updated[contentId] ? updated[contentId] + 1 : 1;
-            return updated;
-        });
-
-        const allVideos = titleContent[contentId] || [];
-        if (completedVideosInSection[contentId] + 1 === allVideos.length) {
-            handleLessonComplete(contentId);
-            updateProgress(contentId);
-        }
-    };
-
+    const [videoProgress, setVideoProgress] = useState({});
     const playerRef = useRef();
     const [videoDurations, setVideoDurations] = useState({});
 
-    const handleProgress = (progress, titleContentId, index) => {
+    const handleVideoComplete = (contentId, index) => {
+        // Kiểm tra xem video này đã được đánh dấu là hoàn thành chưa
+        if (!videoProgress[`${contentId}-${index}`]) {
+            setVideoProgress(prev => ({
+                ...prev,
+                [`${contentId}-${index}`]: true
+            }));
+
+            setCompletedVideosInSection(prev => {
+                const updated = { ...prev };
+                updated[contentId] = (updated[contentId] || 0) + 1;
+                // Kiểm tra nếu tất cả video trong phần đã hoàn thành
+                if (updated[contentId] === titleContent[contentId].length) {
+                    updateProgress(contentId);
+                }
+
+                return updated;
+            });
+        }
+    };
+
+    const handleProgress = (progress, titleContentId, index, contentId) => {
         const { playedSeconds } = progress;
         const duration = videoDurations[titleContentId] || playerRef.current.getDuration();
 
         if (duration) {
             const playedPercentage = (playedSeconds / duration) * 100;
 
-            setVideoDurations(prev => ({
-                ...prev,
-                [titleContentId]: duration
-            }));
+            // Cập nhật duration nếu chưa có
+            if (!videoDurations[titleContentId]) {
+                setVideoDurations(prev => ({
+                    ...prev,
+                    [titleContentId]: duration
+                }));
+            }
 
-            if (playedPercentage >= 70 && playedPercentage < 80) {
-                handleVideoComplete(titleContentId);
+            // Đánh dấu hoàn thành khi video đạt 70% và chưa được đánh dấu trước đó
+            if (playedPercentage >= 70 && !videoProgress[`${titleContentId}-${index}`]) {
+                handleVideoComplete(contentId, index);  // Truyền đúng contentId
             }
         }
     };
 
-    const handleVideoClick = (item, contentId, index) => {
-        setCurrentVideoUrl(item.video_link);
-        setActiveItem({ contentId, index });
+
+    useEffect(() => {
+        if (completedVideosInSection) {
+            const completedCount = Object.keys(completedVideosInSection).filter(
+                contentId => completedVideosInSection[contentId] === titleContent[contentId].length
+            ).length;
+            setCompletedLessons(new Set([...completedLessons, ...Array(completedCount).keys()]));
+        }
+    }, [completedVideosInSection]);
+
+    const [progressData, setProgressData] = useState([]);
+    const fetchProgress = async () => {
+        try {
+            const token = localStorage.getItem("access_token");
+            if (!token) {
+                console.error("Chưa có token");
+                return;
+            }
+
+            const res = await axios.get(`${API_URL}/progress`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (res.data) {
+                // Lọc dữ liệu theo user_id và course_id
+                const userProgress = res.data.filter(
+                    (progress) => progress.user_id === user.user_id && progress.course_id === lesson.course_id
+                );
+                setProgressData(userProgress);
+
+                // Cập nhật trạng thái phần đã hoàn thành
+                const updatedCompletedLessons = new Set();
+                const updatedCompletedVideos = {};
+
+                userProgress.forEach((progress) => {
+                    if (progress.is_complete) {
+                        updatedCompletedLessons.add(progress.content_id);
+                        updatedCompletedVideos[progress.content_id] = true;
+                    }
+                });
+
+                setCompletedLessons(updatedCompletedLessons);
+                setCompletedVideosInSection(updatedCompletedVideos);
+            }
+        } catch (error) {
+            console.error("Lỗi khi gọi API tiến độ:", error);
+        }
     };
 
     useEffect(() => {
-        completedLessons.forEach(contentId => {
-            updateProgress(contentId);
-        });
-    }, [completedLessons]);
+        fetchProgress();
+    }, []);
+
+
 
 
     return (
@@ -394,10 +458,12 @@ export const Lesson = () => {
                                         width="100%"
                                         height="100%"
                                         onProgress={(progress) => {
-                                            const titleContentId = titleContent[activeItem.contentId][activeItem.index].title_content_id;
-                                            handleProgress(progress, titleContentId, activeItem.index);
+                                            const contentId = activeItem.contentId;
+                                            const titleContentId = titleContent[contentId][activeItem.index].title_content_id;
+                                            handleProgress(progress, titleContentId, activeItem.index, contentId);
                                         }}
                                     />
+
                                 ) : (
                                     <img
                                         src="/src/assets/images/thumnail-lesson.jpeg"
@@ -500,6 +566,7 @@ export const Lesson = () => {
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
 
                                 {/* Content List */}
@@ -514,14 +581,11 @@ export const Lesson = () => {
                                                     onClick={() => !titleContent[content.content_id] && fetchTitleContent(content.content_id)}
                                                 >
                                                     <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01]">
-                                                        {/* trigger */}
                                                         <AccordionTrigger className="w-full hover:no-underline">
                                                             <div className="flex items-center w-full p-4">
-                                                                {/* stt */}
                                                                 <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center text-purple-600 font-medium mr-4 shadow-sm">
                                                                     {index + 1}
                                                                 </div>
-                                                                {/* name */}
                                                                 <div className="flex-1 flex items-start justify-between">
                                                                     <div className="space-y-1">
                                                                         <h3 className="font-medium text-gray-800 text-sm line-clamp-1">
@@ -539,7 +603,6 @@ export const Lesson = () => {
                                                                             </span>
                                                                         </div>
                                                                     </div>
-                                                                    {/* Nút bài tập bên phải */}
                                                                     {content.quiz_id != null && content.quiz_id !== 0 && (
                                                                         <button
                                                                             onClick={() => handleShowQuiz(content.content_id)}
@@ -552,7 +615,6 @@ export const Lesson = () => {
                                                                 </div>
                                                             </div>
                                                         </AccordionTrigger>
-                                                        {/* content */}
                                                         <AccordionContent>
                                                             <div className="px-4 pb-4">
                                                                 {Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
@@ -573,15 +635,18 @@ export const Lesson = () => {
                                                                                     <p className="text-sm text-gray-600 line-clamp-2 flex-1">
                                                                                         {item.body_content}
                                                                                     </p>
+                                                                                    {completedVideosInSection[content.content_id] ? (
+                                                                                        <CheckCircle className="text-green-600 w-4 h-4" />
+                                                                                    ) : (
+                                                                                        <XCircle className="text-red-600 w-4 h-4" />
+                                                                                    )}
                                                                                 </div>
                                                                                 <div className="flex items-center gap-2 mt-1">
                                                                                     <span className="text-xs text-gray-400 flex items-center">
                                                                                         <Clock className="w-3 h-3 mr-1" />
-                                                                                        {videoDurations[item.title_content_id] ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}` : "0:00"}
-                                                                                    </span>
-
-                                                                                    <span>
-                                                                                        <CheckCircle className="text-green-600 w-4 h-4 mr-1" />
+                                                                                        {videoDurations[item.title_content_id]
+                                                                                            ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}`
+                                                                                            : "0:00"}
                                                                                     </span>
                                                                                 </div>
                                                                             </div>
@@ -597,6 +662,7 @@ export const Lesson = () => {
                                                         </AccordionContent>
                                                     </div>
                                                 </AccordionItem>
+
                                             ))
                                         ) : (
                                             <div className="text-center py-8 bg-white rounded-xl">
