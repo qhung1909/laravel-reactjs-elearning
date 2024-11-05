@@ -12,6 +12,7 @@ class Quiz extends Model
     protected $primaryKey = 'quiz_id';
     protected $fillable = [
         'course_id',
+        'content_id',
         'title',
         'status',
 
