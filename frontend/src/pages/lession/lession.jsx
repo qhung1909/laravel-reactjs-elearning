@@ -183,7 +183,7 @@ export const Lesson = () => {
                     Authorization: `Bearer ${token}`,
                 },
                 params: {
-                    course_id: courseId  
+                    course_id: courseId
                 }
             });
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
@@ -232,7 +232,7 @@ export const Lesson = () => {
 
     const [showQuiz, setShowQuiz] = useState(false);
     const [currentQuizId, setCurrentQuizId] = useState(null);
-    const [completedLessons, setCompletedLessons] = useState(new Set());
+
     const handleShowQuiz = (content_id) => {
         const quiz = quizzes.find(quiz => quiz.content_id === content_id);
         if (quiz) {
@@ -287,15 +287,12 @@ export const Lesson = () => {
             toast.error("Có lỗi xảy ra khi cập nhật tiến độ.");
         }
     };
-
+    const [completedLessons, setCompletedLessons] = useState(new Set());
     const calculateProgress = () => {
         const totalLessons = contentLesson.length;
         const completedCount = completedLessons.size;
         return totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
     };
-
-
-
     // Theo dõi video nào đã hoàn thành trong từng phần nội dung
     const [completedVideosInSection, setCompletedVideosInSection] = useState({});
     const [videoProgress, setVideoProgress] = useState({});
@@ -344,7 +341,6 @@ export const Lesson = () => {
             }
         }
     };
-
 
     useEffect(() => {
         if (completedVideosInSection) {
@@ -402,9 +398,6 @@ export const Lesson = () => {
             fetchProgress();
         }
     }, [user, lesson]);
-
-
-
 
 
     return (
