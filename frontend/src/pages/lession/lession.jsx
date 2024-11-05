@@ -348,12 +348,12 @@ export const Lesson = () => {
 
     useEffect(() => {
         if (completedVideosInSection) {
-            const completedCount = Object.keys(completedVideosInSection).filter(
-                contentId => completedVideosInSection[contentId] === titleContent[contentId].length
-            ).length;
+            const completedCount = Object.keys(completedVideosInSection).filter((contentId) => {
+                return Array.isArray(titleContent[contentId]) && completedVideosInSection[contentId] === titleContent[contentId].length;
+            }).length;
             setCompletedLessons(new Set([...completedLessons, ...Array(completedCount).keys()]));
         }
-    }, [completedVideosInSection]);
+    }, [completedVideosInSection, titleContent]);
 
     const [progressData, setProgressData] = useState([]);
     const fetchProgress = async () => {
@@ -398,8 +398,12 @@ export const Lesson = () => {
     };
 
     useEffect(() => {
-        fetchProgress();
-    }, []);
+        // Kiểm tra nếu `user` và `lesson` đã có dữ liệu thì gọi `fetchProgress`
+        if (user && lesson) {
+            fetchProgress();
+        }
+    }, [user, lesson]);
+
 
 
 
@@ -635,7 +639,7 @@ export const Lesson = () => {
                                                                                     <p className="text-sm text-gray-600 line-clamp-2 flex-1">
                                                                                         {item.body_content}
                                                                                     </p>
-                                                                                    {completedVideosInSection[content.content_id] ? (
+                                                                                    {completedVideosInSection[content.content_id] && completedVideosInSection[content.content_id] > i ? (
                                                                                         <CheckCircle className="text-green-600 w-4 h-4" />
                                                                                     ) : (
                                                                                         <XCircle className="text-red-600 w-4 h-4" />
