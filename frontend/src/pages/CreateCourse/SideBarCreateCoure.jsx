@@ -1,6 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect, useState } from "react";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 
@@ -133,9 +133,9 @@ export const SideBarCreateCoure = () => {
                 </div>
                 <div className="space-y-3">
                     {/* Nút Lưu - secondary button */}
-                    <button className="w-full px-4 py-3 bg-white border-2 border-yellow-500 hover:bg-yellow-50 focus:ring-4 focus:outline-none focus:ring-yellow-300 text-yellow-600 font-semibold rounded-lg text-sm transition-all duration-200">
+                    {/* <button className="w-full px-4 py-3 bg-white border-2 border-yellow-500 hover:bg-yellow-50 focus:ring-4 focus:outline-none focus:ring-yellow-300 text-yellow-600 font-semibold rounded-lg text-sm transition-all duration-200">
                         Lưu bản nháp
-                    </button>
+                    </button> */}
                     {/* Nút Gửi đi để xem xét - primary button */}
                     <button
                         onClick={handleSentDone}
