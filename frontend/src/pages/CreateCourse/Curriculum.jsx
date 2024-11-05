@@ -27,7 +27,8 @@ export const Curriculum = () => {
         {
             id: 1,
             title: '',
-            lessons: [{ id: 1, title: '', selectedOption: '', videoLink: '', content: '', fileName: '' }]
+            lessons: []
+            // lessons: [{ id: 1, title: '', selectedOption: '', videoLink: '', content: '', fileName: '' }]
         }
     ]);
 
@@ -49,42 +50,69 @@ export const Curriculum = () => {
         }]);
     };
 
-    const addLesson = (sectionId) => {
+    const addLesson = async (sectionId) => {
         const section = sections.find(section => section.id === sectionId);
-        const currentLesson = section.lessons[section.lessons.length - 1];
 
-        if (
-            !currentLesson.title.trim() ||
-            (currentLesson.selectedOption === 'content' && !currentLesson.content.trim()) ||
-            (currentLesson.selectedOption === 'videoUrl' && !currentLesson.videoLink.trim()) ||
-            (currentLesson.selectedOption === 'videoFile' && !currentLesson.fileName.trim())
-        ) {
-            toast.error("Vui lòng điền đầy đủ thông tin trước khi thêm nội dung mới.");
-            return;
-        }
+        try {
+            // Gửi request với nội dung trống để chỉ lấy ID mới
+            const requestData = {
+                content_id: section.content_id,
+                title_contents: [{
+                    body_content: "",        // Để trống title
+                    video_link: null,        // Để trống video
+                    document_link: null,     // Để trống document
+                    description: ""          // Để trống description
+                }]
+            };
 
-        if (!currentLesson.selectedOption) {
-            toast.error("Vui lòng Chọn loại nội dung.");
-            return;
-        }
+            const response = await axios.post(
+                `${API_URL}/teacher/title-content`,
+                requestData,
+                {
+                    headers: {
+                        'x-api-secret': API_KEY,
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
 
-        setSections(sections.map(section => {
-            if (section.id === sectionId) {
-                return {
-                    ...section,
-                    lessons: [...section.lessons, {
-                        id: section.lessons.length + 1,
-                        title: '',
-                        selectedOption: '',
-                        videoLink: '',
-                        content: '',
-                        fileName: ''
-                    }]
-                };
+            if (!response.data.success) {
+                throw new Error(response.data.message || "Thêm bài học thất bại");
             }
-            return section;
-        }));
+
+            const newTitleContentId = response.data.data[0].title_content_id;
+
+            // Thêm bài học mới với nội dung trống
+            setSections(sections.map(section => {
+                if (section.id === sectionId) {
+                    return {
+                        ...section,
+                        lessons: [
+                            ...section.lessons,
+                            {
+                                id: section.lessons.length + 1,
+                                title: '',                    // Trống
+                                selectedOption: '',           // Trống
+                                videoLink: '',                // Trống
+                                content: '',                  // Trống
+                                fileName: '',                 // Trống
+                                description: '',              // Trống
+                                title_content_id: newTitleContentId  // Chỉ lấy ID mới
+                            }
+                        ]
+                    };
+                }
+                return section;
+            }));
+
+            toast.success("Thêm bài học mới thành công!");
+        } catch (error) {
+            console.error("Error adding lesson:", error);
+            toast.error(error.message || "Có lỗi xảy ra khi kết nối với máy chủ!");
+        }
     };
+
 
     const handleLessonTitleChange = (sectionId, lessonId, newTitle) => {
         setSections(sections.map(section => {
@@ -212,7 +240,6 @@ export const Curriculum = () => {
         fetchContent()
     }, []);
     const fetchContent = async () => {
-
         if (isDataFetched) {
             console.log("Dữ liệu đã được tải, không cần fetch lại");
             return;
@@ -229,17 +256,15 @@ export const Curriculum = () => {
             );
 
             if (response.data.success) {
-                // Transform API data into sections format
                 const apiContents = response.data.data.contents;
-                apiContents.sort((a, b) => a.content_id - b.content_id)
+                apiContents.sort((a, b) => a.content_id - b.content_id);
                 const transformedSections = apiContents.map((content, index) => ({
                     id: index + 1,
                     title: content.name_content,
-                    content_id: content.content_id, // Store API content ID
-                    lessons: [{ id: 1, title: '', selectedOption: '', videoLink: '', content: '', fileName: '' }]
+                    content_id: content.content_id,
+                    lessons: [] // Mảng lessons trống, không có bài học mặc định
                 }));
 
-                // If there are sections from API, use them; otherwise, keep default empty section
                 if (transformedSections.length > 0) {
                     setSections(transformedSections);
                     setIsDataFetched(true);
@@ -250,6 +275,7 @@ export const Curriculum = () => {
             toast.error('Không thể tải nội dung khóa học');
         }
     };
+
 
 
 
@@ -302,20 +328,64 @@ export const Curriculum = () => {
 
 
     const deleteContent = async (sectionId, lessonId) => {
-        const updatedSections = sections.map(section => {
-            if (section.id === sectionId) {
-                return {
-                    ...section,
-                    lessons: section.lessons.filter(lesson => lesson.id !== lessonId)
-                };
-            }
-            return section;
+        const section = sections.find(section => section.id === sectionId);
+        const lesson = section.lessons.find(lesson => lesson.id === lessonId);
+
+        if (!lesson.title_content_id) {
+            toast.error("Không thể xóa vì thiếu title_content_id.");
+            return;
+        }
+
+        // Hiển thị xác nhận trước khi xóa
+        const { isConfirmed } = await Swal.fire({
+            title: "Xác nhận xóa",
+            text: "Bạn có chắc chắn muốn xóa nội dung này? Hành động này không thể hoàn tác.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Có, xóa!",
+            cancelButtonText: "Hủy",
         });
 
-        const resetSections = resetIds(updatedSections);
-        setSections(resetSections);
-        toast.success("Nội dung đã được xóa!");
+        if (!isConfirmed) {
+            return;
+        }
+
+        try {
+            // Gửi yêu cầu xóa đến API
+            const response = await axios.delete(`${API_URL}/teacher/title-content/delete/${lesson.title_content_id}`, {
+                headers: {
+                    'x-api-secret': API_KEY,
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.data.success) {
+                // Xóa bài học khỏi state sau khi xóa thành công
+                const updatedSections = sections.map(section => {
+                    if (section.id === sectionId) {
+                        return {
+                            ...section,
+                            lessons: section.lessons.filter(lesson => lesson.id !== lessonId)
+                        };
+                    }
+                    return section;
+                });
+
+                const resetSections = resetIds(updatedSections);
+                setSections(resetSections);
+                toast.success("Nội dung đã được xóa!");
+            } else {
+                toast.error(response.data.message || "Có lỗi xảy ra khi xóa nội dung.");
+            }
+        } catch (error) {
+            console.error("Error deleting content:", error);
+            toast.error("Có lỗi xảy ra khi kết nối với máy chủ!");
+        }
     };
+
 
     const exportToJsonLog = () => {
         console.log(JSON.stringify(sections, null, 2));
@@ -410,7 +480,7 @@ export const Curriculum = () => {
                     `${API_URL}/teacher/title-content/update/${section.content_id}`,
                     {
                         title_contents: section.lessons.map(lesson => ({
-                            title_content_id: lesson.title_content_id || '',
+                            title_content_id: lesson.title_content_id,
                             body_content: lesson.title,
                             video_link: lesson.fileName,
                             document_link: lesson.content,
@@ -552,7 +622,7 @@ export const Curriculum = () => {
                     <div className="max-w-4xl mx-auto p-6">
                         <div className="space-y-4">
                             <h2 className="text-xl font-semibold">Nội dung khóa học</h2>
-                            <Accordion type="multiple"  collapsible="true" className="space-y-4 relative">
+                            <Accordion type="multiple" collapsible="true" className="space-y-4 relative">
                                 {sections.map((section, sectionIndex) => (
                                     <AccordionItem
                                         value={`section-${section.id}`}
@@ -698,7 +768,7 @@ export const Curriculum = () => {
 
                                                 <button
                                                     onClick={() => addLesson(section.id)}
-                                                    className="w-full p-2 border-2 ml-6 border-dashed rounded-md text-gray-600 hover:bg-gray-50"
+                                                    className="w-full p-2 border-2 ml-6 border-dashed rounded-md text-gray-600 hover:bg-gray-50 transition-colors"
                                                 >
                                                     + Thêm nội dung mới
                                                 </button>
