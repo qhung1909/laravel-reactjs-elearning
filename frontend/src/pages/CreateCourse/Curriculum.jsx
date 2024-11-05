@@ -272,7 +272,7 @@ export const Curriculum = () => {
             }
         } catch (error) {
             console.error('Error fetching content:', error);
-            toast.error('Không thể tải nội dung khóa học');
+            // toast.error('Không thể tải nội dung khóa học');
         }
     };
 
@@ -393,8 +393,46 @@ export const Curriculum = () => {
     };
 
 
-    const openPageQuiz = (sectionId) => {
-        navigate(`/course/manage/create-quiz?lesson=${sectionId}`);
+    const openPageQuiz = async (sectionId) => {
+        try {
+            const response = await axios.post(
+                `${API_URL}/quizzes`,
+                {
+                    course_id: parseInt(course_id, 10),
+                    content_id: sectionId,
+                },
+                {
+                    headers: {
+                        'x-api-secret': API_KEY,
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            // Kiểm tra cả status code và response data
+            if (response.data && response.data.quiz_id) { // hoặc một field khác xác nhận thành công
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Quiz đã được thêm thành công. Chuyển đến trang tạo quiz.',
+                    icon: 'success',
+                    confirmButtonText: 'Đóng',
+                });
+
+                navigate(`/course/manage/${course_id}/create-quiz/${sectionId}`);
+            } else {
+                throw new Error('Có lỗi xảy ra khi thêm quiz.');
+            }
+        } catch (error) {
+            console.error('Error details:', error.response?.data || error.message);
+
+            Swal.fire({
+                title: 'Thất bại!',
+                text: error.response?.data?.message || error.message || 'Không thể thêm quiz.',
+                icon: 'error',
+                confirmButtonText: 'Đóng',
+            });
+        }
     };
 
 
@@ -642,7 +680,7 @@ export const Curriculum = () => {
                                                 onChange={(e) => handleSectionTitleChange(section.id, e.target.value)}
                                                 onClick={(e) => e.stopPropagation()} // Ngăn chặn sự kiện click lan truyền
                                             />
-                                            <Button className="bg-yellow-500 hover:bg-yellow-600" onClick={() => openPageQuiz(section.id)}>
+                                            <Button className="bg-yellow-500 hover:bg-yellow-600" onClick={() => openPageQuiz(section.content_id)}>
                                                 Tạo quiz
                                             </Button>
                                         </div>

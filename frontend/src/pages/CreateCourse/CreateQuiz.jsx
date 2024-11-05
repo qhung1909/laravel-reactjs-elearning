@@ -13,6 +13,8 @@ import { Card } from '@/components/ui/card';
 import { CheckCircle2, Circle, Type, Plus, Trash2 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
+import Swal from "sweetalert2";
+import axios from "axios";
 
 const secretKey = 'your-secret-key';
 
@@ -26,6 +28,8 @@ const decryptData = (cipherText) => {
 };
 
 export const CreateQuiz = () => {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
     const location = useLocation();
     const lessonId = new URLSearchParams(location.search).get('lesson');
     const [questions, setQuestions] = useState([]);
@@ -57,13 +61,40 @@ export const CreateQuiz = () => {
     }, [questions, lessonId]);
 
 
-    const addQuestion = () => {
-        setQuestions([...questions, {
-            type: '',
-            question: '',
-            options: ['', '', '', ''],
-            answers: []
-        }]);
+    const addQuiz = async (course_id, content_id) => {
+        try {
+            // Gửi yêu cầu POST đến API để thêm quiz
+            const response = await axios.post(`${API_URL}/quizzes`, {
+                course_id: course_id,
+                content_id: content_id,
+            }, {
+                headers: {
+                    'x-api-secret': API_KEY,
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            // Kiểm tra xem yêu cầu có thành công không
+            if (response.status === 200) {
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Quiz đã được thêm thành công.',
+                    icon: 'success',
+                    confirmButtonText: 'Đóng',
+                });
+            } else {
+                throw new Error('Có lỗi xảy ra khi thêm quiz.');
+            }
+        } catch (error) {
+            // Hiển thị thông báo lỗi nếu có lỗi xảy ra
+            Swal.fire({
+                title: 'Thất bại!',
+                text: error.message || 'Không thể thêm quiz.',
+                icon: 'error',
+                confirmButtonText: 'Đóng',
+            });
+        }
     };
 
     const handleTypeChange = (index, value) => {
@@ -238,7 +269,7 @@ export const CreateQuiz = () => {
             </div>
 
             <Button
-                onClick={addQuestion}
+                onClick={addQuiz}
                 className="w-full p-4 border-2 border-dashed border-yellow-400 bg-yellow-50 rounded-lg text-yellow-600 hover:bg-yellow-100 hover:border-yellow-500 transition-colors"
             >
                 <Plus size={20} className="mr-2" />

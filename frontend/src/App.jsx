@@ -101,7 +101,7 @@ function AppContent() {
 
                 <Route path="/course/manage/:course_id/course-overview" element={<CourseOverview />}></Route>
                 <Route path="/course/manage/:course_id/curriculum" element={<Curriculum />}></Route>
-                <Route path="/course/manage/create-quiz" element={<CreateQuiz />}></Route>
+                <Route path="/course/manage/:course_id/create-quiz/:content_id" element={<CreateQuiz />}></Route>
 
                 {/* <Route path="/admin" element={<AdminRole element={<Dashboard />} />}></Route> */}
                 <Route path="/admin" element={<Dashboard />}></Route>
