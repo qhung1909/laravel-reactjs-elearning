@@ -31,8 +31,8 @@ class QuizController extends Controller
         Log::info('2. Authentication Success: User logged in', ['user_id' => Auth::id()]);
     
         $validator = Validator::make($request->all(), [
-            'course_id' => 'required|integer',
-            'content_id' => 'required|integer',
+            'course_id' => 'required',
+            'content_id' => 'required',
             'title' => 'nullable|string|max:255',
             'status' => 'sometimes|in:' . implode(',', self::QUIZ_STATUSES)
         ]);
