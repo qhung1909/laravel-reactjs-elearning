@@ -385,25 +385,27 @@ class TeacherController extends Controller
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-
+    
             $content = Content::where('content_id', $contentId)->first();
-
+    
             if (!$content) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Không tìm thấy nội dung'
                 ], 404);
             }
-
+    
             $validator = Validator::make($request->all(), [
                 'title_contents' => 'required|array',
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
-                'title_contents.*.body_content' => 'nullable|string',
+                'title_contents.*.body_content' => 'required|string',
                 'title_contents.*.video_link' => 'nullable|string',
                 'title_contents.*.document_link' => 'nullable|string',
                 'title_contents.*.description' => 'nullable|string'
+            ], [
+                'title_contents.*.body_content.required' => 'Nội dung không được để trống'
             ]);
-
+    
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -411,39 +413,32 @@ class TeacherController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-
+    
             DB::beginTransaction();
-
+    
             try {
                 foreach ($request->title_contents as $titleContentData) {
                     $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
                         ->where('content_id', $contentId)
                         ->first();
-
+    
                     if (!$titleContent) {
                         throw new \Exception("TitleContent ID {$titleContentData['title_content_id']} không thuộc về nội dung này");
                     }
-
-                    // Cập nhật từng trường nếu có
+    
                     $updateData = [
-                        'body_content' => $titleContentData['body_content'] ?? $titleContent->body_content,
-                        'description' => $titleContentData['description'] ?? $titleContent->description,
+                        'body_content' => $titleContentData['body_content'], 
+                        'video_link' => array_key_exists('video_link', $titleContentData) ? $titleContentData['video_link'] : $titleContent->video_link,
+                        'document_link' => array_key_exists('document_link', $titleContentData) ? $titleContentData['document_link'] : $titleContent->document_link,
+                        'description' => array_key_exists('description', $titleContentData) ? $titleContentData['description'] : $titleContent->description,
                         'status' => 'draft'
                     ];
-
-                    // Chỉ thêm 'video_link' và 'document_link' nếu tồn tại trong yêu cầu
-                    if (isset($titleContentData['video_link'])) {
-                        $updateData['video_link'] = $titleContentData['video_link'];
-                    }
-                    if (isset($titleContentData['document_link'])) {
-                        $updateData['document_link'] = $titleContentData['document_link'];
-                    }
-
+    
                     $titleContent->update($updateData);
                 }
-
+    
                 DB::commit();
-
+    
                 return response()->json([
                     'success' => true,
                     'message' => 'Cập nhật tiêu đề nội dung thành công'
