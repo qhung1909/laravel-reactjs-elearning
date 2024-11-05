@@ -73,7 +73,7 @@ class TeacherController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'course_id' => 'required|exists:courses,course_id',
-                'name_content' => 'required|string|max:255',
+                'name_content' => 'nullable|string|max:255',
             ]);
 
             if ($validator->fails()) {
