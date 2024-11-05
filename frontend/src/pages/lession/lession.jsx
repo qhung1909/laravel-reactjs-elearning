@@ -289,13 +289,11 @@ export const Lesson = () => {
     };
 
     const calculateProgress = () => {
-        const totalContents = Object.keys(titleContent).length;
-        const completedCount = Object.keys(completedVideosInSection).filter(contentId => {
-            return completedVideosInSection[contentId] === titleContent[contentId].length;
-        }).length;
-
-        return (completedCount / totalContents) * 100;
+        const totalLessons = contentLesson.length;
+        const completedCount = completedLessons.size;
+        return totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
     };
+
 
 
     // Theo dõi video nào đã hoàn thành trong từng phần nội dung
@@ -357,6 +355,54 @@ export const Lesson = () => {
         }
     }, [completedVideosInSection]);
 
+    const [progressData, setProgressData] = useState([]);
+    const fetchProgress = async () => {
+        try {
+            const token = localStorage.getItem("access_token");
+            if (!token) {
+                console.error("Chưa có token");
+                return;
+            }
+
+            const res = await axios.get(`${API_URL}/progress`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (res.data) {
+                // Lọc dữ liệu theo user_id và course_id
+                const userProgress = res.data.filter(
+                    (progress) => progress.user_id === user.user_id && progress.course_id === lesson.course_id
+                );
+                setProgressData(userProgress);
+
+                // Cập nhật trạng thái phần đã hoàn thành
+                const updatedCompletedLessons = new Set();
+                const updatedCompletedVideos = {};
+
+                userProgress.forEach((progress) => {
+                    if (progress.is_complete) {
+                        updatedCompletedLessons.add(progress.content_id);
+                        updatedCompletedVideos[progress.content_id] = true;
+                    }
+                });
+
+                setCompletedLessons(updatedCompletedLessons);
+                setCompletedVideosInSection(updatedCompletedVideos);
+            }
+        } catch (error) {
+            console.error("Lỗi khi gọi API tiến độ:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchProgress();
+    }, []);
+
+
+
 
     return (
         <>
@@ -412,7 +458,7 @@ export const Lesson = () => {
                                         width="100%"
                                         height="100%"
                                         onProgress={(progress) => {
-                                            const contentId = activeItem.contentId; // Đảm bảo bạn lấy đúng contentId
+                                            const contentId = activeItem.contentId;
                                             const titleContentId = titleContent[contentId][activeItem.index].title_content_id;
                                             handleProgress(progress, titleContentId, activeItem.index, contentId);
                                         }}
@@ -510,9 +556,8 @@ export const Lesson = () => {
                                                 <span className="text-sm font-medium">Đã hoàn thành</span>
                                             </div>
                                             <p className="text-lg font-semibold text-gray-800">
-                                                {completedLessons ? completedLessons.size : 0}/{contentLesson ? contentLesson.length : 0}
+                                                {completedLessons.size}/{contentLesson.length}
                                             </p>
-
                                         </div>
                                         <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
                                             <div className="flex items-center text-blue-600 mb-1">
@@ -521,6 +566,7 @@ export const Lesson = () => {
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
 
                                 {/* Content List */}
@@ -535,14 +581,11 @@ export const Lesson = () => {
                                                     onClick={() => !titleContent[content.content_id] && fetchTitleContent(content.content_id)}
                                                 >
                                                     <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01]">
-                                                        {/* trigger */}
                                                         <AccordionTrigger className="w-full hover:no-underline">
                                                             <div className="flex items-center w-full p-4">
-                                                                {/* stt */}
                                                                 <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center text-purple-600 font-medium mr-4 shadow-sm">
                                                                     {index + 1}
                                                                 </div>
-                                                                {/* name */}
                                                                 <div className="flex-1 flex items-start justify-between">
                                                                     <div className="space-y-1">
                                                                         <h3 className="font-medium text-gray-800 text-sm line-clamp-1">
@@ -560,7 +603,6 @@ export const Lesson = () => {
                                                                             </span>
                                                                         </div>
                                                                     </div>
-                                                                    {/* Nút bài tập bên phải */}
                                                                     {content.quiz_id != null && content.quiz_id !== 0 && (
                                                                         <button
                                                                             onClick={() => handleShowQuiz(content.content_id)}
@@ -573,7 +615,6 @@ export const Lesson = () => {
                                                                 </div>
                                                             </div>
                                                         </AccordionTrigger>
-                                                        {/* content */}
                                                         <AccordionContent>
                                                             <div className="px-4 pb-4">
                                                                 {Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
@@ -594,8 +635,7 @@ export const Lesson = () => {
                                                                                     <p className="text-sm text-gray-600 line-clamp-2 flex-1">
                                                                                         {item.body_content}
                                                                                     </p>
-                                                                                    {/* Biểu tượng hoàn thành */}
-                                                                                    {completedVideosInSection[content.content_id] && completedVideosInSection[content.content_id] > i ? (
+                                                                                    {completedVideosInSection[content.content_id] ? (
                                                                                         <CheckCircle className="text-green-600 w-4 h-4" />
                                                                                     ) : (
                                                                                         <XCircle className="text-red-600 w-4 h-4" />
@@ -618,11 +658,11 @@ export const Lesson = () => {
                                                                         <p className="text-sm">Đang tải nội dung...</p>
                                                                     </div>
                                                                 )}
-
                                                             </div>
                                                         </AccordionContent>
                                                     </div>
                                                 </AccordionItem>
+
                                             ))
                                         ) : (
                                             <div className="text-center py-8 bg-white rounded-xl">
