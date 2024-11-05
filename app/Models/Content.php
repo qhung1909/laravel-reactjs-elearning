@@ -21,4 +21,10 @@ class Content extends Model
     {
         return $this->belongsTo(Course::class, 'course_id');
     }
+
+    public function titleContents()
+    {
+        return $this->hasMany(TitleContent::class, 'content_id', 'content_id');
+    }
+    
 }

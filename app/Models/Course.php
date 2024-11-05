@@ -50,6 +50,9 @@ class Course extends Model
     {
         return $this->comments()->avg('rating');
     }
-    
+    public function contents()
+    {
+        return $this->hasMany(Content::class, 'course_id', 'course_id');
+    }
     
 }

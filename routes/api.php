@@ -232,4 +232,7 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     // Route để xóa title_content theo title_content_id
     Route::delete('/title-content/delete/{titleContentId}', [TeacherController::class, 'deleteTitleContent']);
 
+    Route::post('/update-pending/{course_id}', [TeacherController::class, 'updateToPending']);
+
+
 });

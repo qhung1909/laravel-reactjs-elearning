@@ -499,4 +499,40 @@ class TeacherController extends Controller
             ], 500);
         }
     }
+
+    public function updateToPending(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $courseId = $request->course_id;
+            
+            $course = Course::findOrFail($courseId);
+            $course->update(['status' => 'pending']);
+            
+            $contents = Content::where('course_id', $courseId)->get();
+            foreach ($contents as $content) {
+                $content->update(['status' => 'pending']);
+                
+                TitleContent::where('content_id', $content->content_id)
+                    ->update(['status' => 'pending']);
+            }
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã cập nhật tất cả status thành pending'
+            ]);
+            
+        } catch (\Exception $e) {
+            DB::rollback();
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }
