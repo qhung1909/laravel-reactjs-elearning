@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 class QuizController extends Controller
 {
     const QUIZ_STATUSES = ['draft', 'published', 'hide', 'pending', 'failed'];
-    
+
     public function index()
     {
         $quizzes = Quiz::where('status', 'published')->get();
@@ -27,6 +27,7 @@ class QuizController extends Controller
 
         $validator = Validator::make($request->all(), [
             'course_id' => 'required|integer',
+            'content_id' => 'required|integer',
             'title' => 'required|string|max:255',
             'status' => 'sometimes|in:' . implode(',', self::QUIZ_STATUSES)
         ]);
@@ -47,9 +48,9 @@ class QuizController extends Controller
     public function show($id)
     {
         $quiz = Quiz::where('id', $id)
-                    ->where('status', 'published')
-                    ->first();
-                    
+            ->where('status', 'published')
+            ->first();
+
         if (!$quiz) {
             return response()->json(['message' => 'Quiz not found'], 404);
         }
@@ -71,8 +72,8 @@ class QuizController extends Controller
 
         $validator = Validator::make($request->all(), [
             'course_id' => 'sometimes|required|integer',
-            'title' => 'sometimes|required|string|max:255',
-            'status' => 'sometimes|required|in:' . implode(',', self::QUIZ_STATUSES)
+            'content_id' => 'sometimes|required|integer',
+            'title' => 'sometimes|required|string|max:255'
         ]);
 
         if ($validator->fails()) {
