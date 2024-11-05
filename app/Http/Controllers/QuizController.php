@@ -28,7 +28,7 @@ class QuizController extends Controller
         $validator = Validator::make($request->all(), [
             'course_id' => 'required|integer',
             'content_id' => 'required|integer',
-            'title' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
             'status' => 'sometimes|in:' . implode(',', self::QUIZ_STATUSES)
         ]);
 
@@ -73,7 +73,7 @@ class QuizController extends Controller
         $validator = Validator::make($request->all(), [
             'course_id' => 'sometimes|required|integer',
             'content_id' => 'sometimes|required|integer',
-            'title' => 'sometimes|required|string|max:255'
+            'title' => 'sometimes|nullable|string|max:255'
         ]);
 
         if ($validator->fails()) {
