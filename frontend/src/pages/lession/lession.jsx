@@ -183,7 +183,7 @@ export const Lesson = () => {
                     Authorization: `Bearer ${token}`,
                 },
                 params: {
-                    course_id: courseId  // Đổi lesson_id thành course_id
+                    course_id: courseId  
                 }
             });
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
@@ -398,7 +398,6 @@ export const Lesson = () => {
     };
 
     useEffect(() => {
-        // Kiểm tra nếu `user` và `lesson` đã có dữ liệu thì gọi `fetchProgress`
         if (user && lesson) {
             fetchProgress();
         }
