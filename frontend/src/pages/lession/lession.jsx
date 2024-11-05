@@ -10,7 +10,7 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
@@ -358,7 +358,6 @@ export const Lesson = () => {
     }, [completedVideosInSection]);
 
 
-
     return (
         <>
             <body className="bg-gray-100">
@@ -595,15 +594,19 @@ export const Lesson = () => {
                                                                                     <p className="text-sm text-gray-600 line-clamp-2 flex-1">
                                                                                         {item.body_content}
                                                                                     </p>
+                                                                                    {/* Biểu tượng hoàn thành */}
+                                                                                    {completedVideosInSection[content.content_id] && completedVideosInSection[content.content_id] > i ? (
+                                                                                        <CheckCircle className="text-green-600 w-4 h-4" />
+                                                                                    ) : (
+                                                                                        <XCircle className="text-red-600 w-4 h-4" />
+                                                                                    )}
                                                                                 </div>
                                                                                 <div className="flex items-center gap-2 mt-1">
                                                                                     <span className="text-xs text-gray-400 flex items-center">
                                                                                         <Clock className="w-3 h-3 mr-1" />
-                                                                                        {videoDurations[item.title_content_id] ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}` : "0:00"}
-                                                                                    </span>
-
-                                                                                    <span>
-                                                                                        <CheckCircle className="text-green-600 w-4 h-4 mr-1" />
+                                                                                        {videoDurations[item.title_content_id]
+                                                                                            ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}`
+                                                                                            : "0:00"}
                                                                                     </span>
                                                                                 </div>
                                                                             </div>
@@ -615,6 +618,7 @@ export const Lesson = () => {
                                                                         <p className="text-sm">Đang tải nội dung...</p>
                                                                     </div>
                                                                 )}
+
                                                             </div>
                                                         </AccordionContent>
                                                     </div>
