@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Course;
 use Illuminate\Support\Facades\DB;
 use App\Models\TitleContent;
-
+use Illuminate\Support\Facades\Log;
 class TeacherController extends Controller
 {
     public function showContent($courseId)
@@ -407,6 +407,11 @@ class TeacherController extends Controller
             ]);
     
             if ($validator->fails()) {
+                Log::error('Validation failed', [
+                    'errors' => $validator->errors(),
+                    'input' => request()->all()
+                ]);
+            
                 return response()->json([
                     'success' => false,
                     'message' => 'Dữ liệu không hợp lệ',
