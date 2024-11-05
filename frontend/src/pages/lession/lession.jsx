@@ -244,6 +244,12 @@ export const Lesson = () => {
         }
     };
 
+    const handleVideoClick = (item, contentId, index) => {
+        setCurrentVideoUrl(item.video_link);
+        setActiveItem({ contentId, index });
+    };
+
+    //Progress
     const updateProgress = async (contentId) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -282,62 +288,75 @@ export const Lesson = () => {
         }
     };
 
-    const handleLessonComplete = (contentId) => {
-        setCompletedLessons(prev => new Set([...prev, contentId]));
-    };
-
     const calculateProgress = () => {
-        return (completedLessons.size / Object.keys(titleContent).length) * 100;
+        const totalContents = Object.keys(titleContent).length;
+        const completedCount = Object.keys(completedVideosInSection).filter(contentId => {
+            return completedVideosInSection[contentId] === titleContent[contentId].length;
+        }).length;
+
+        return (completedCount / totalContents) * 100;
     };
 
+
+    // Theo dõi video nào đã hoàn thành trong từng phần nội dung
     const [completedVideosInSection, setCompletedVideosInSection] = useState({});
-    const [completedVideos, setCompletedVideos] = useState({});
-
-    const handleVideoComplete = (contentId, index) => {
-        setCompletedVideosInSection(prev => {
-            const updated = { ...prev };
-            updated[contentId] = updated[contentId] ? updated[contentId] + 1 : 1;
-            return updated;
-        });
-
-        const allVideos = titleContent[contentId] || [];
-        if (completedVideosInSection[contentId] + 1 === allVideos.length) {
-            handleLessonComplete(contentId);
-            updateProgress(contentId);
-        }
-    };
-
+    const [videoProgress, setVideoProgress] = useState({});
     const playerRef = useRef();
     const [videoDurations, setVideoDurations] = useState({});
 
-    const handleProgress = (progress, titleContentId, index) => {
+    const handleVideoComplete = (contentId, index) => {
+        // Kiểm tra xem video này đã được đánh dấu là hoàn thành chưa
+        if (!videoProgress[`${contentId}-${index}`]) {
+            setVideoProgress(prev => ({
+                ...prev,
+                [`${contentId}-${index}`]: true
+            }));
+
+            setCompletedVideosInSection(prev => {
+                const updated = { ...prev };
+                updated[contentId] = (updated[contentId] || 0) + 1;
+                // Kiểm tra nếu tất cả video trong phần đã hoàn thành
+                if (updated[contentId] === titleContent[contentId].length) {
+                    updateProgress(contentId);
+                }
+
+                return updated;
+            });
+        }
+    };
+
+    const handleProgress = (progress, titleContentId, index, contentId) => {
         const { playedSeconds } = progress;
         const duration = videoDurations[titleContentId] || playerRef.current.getDuration();
 
         if (duration) {
             const playedPercentage = (playedSeconds / duration) * 100;
 
-            setVideoDurations(prev => ({
-                ...prev,
-                [titleContentId]: duration
-            }));
+            // Cập nhật duration nếu chưa có
+            if (!videoDurations[titleContentId]) {
+                setVideoDurations(prev => ({
+                    ...prev,
+                    [titleContentId]: duration
+                }));
+            }
 
-            if (playedPercentage >= 70 && playedPercentage < 80) {
-                handleVideoComplete(titleContentId);
+            // Đánh dấu hoàn thành khi video đạt 70% và chưa được đánh dấu trước đó
+            if (playedPercentage >= 70 && !videoProgress[`${titleContentId}-${index}`]) {
+                handleVideoComplete(contentId, index);  // Truyền đúng contentId
             }
         }
     };
 
-    const handleVideoClick = (item, contentId, index) => {
-        setCurrentVideoUrl(item.video_link);
-        setActiveItem({ contentId, index });
-    };
 
     useEffect(() => {
-        completedLessons.forEach(contentId => {
-            updateProgress(contentId);
-        });
-    }, [completedLessons]);
+        if (completedVideosInSection) {
+            const completedCount = Object.keys(completedVideosInSection).filter(
+                contentId => completedVideosInSection[contentId] === titleContent[contentId].length
+            ).length;
+            setCompletedLessons(new Set([...completedLessons, ...Array(completedCount).keys()]));
+        }
+    }, [completedVideosInSection]);
+
 
 
     return (
@@ -394,10 +413,12 @@ export const Lesson = () => {
                                         width="100%"
                                         height="100%"
                                         onProgress={(progress) => {
-                                            const titleContentId = titleContent[activeItem.contentId][activeItem.index].title_content_id;
-                                            handleProgress(progress, titleContentId, activeItem.index);
+                                            const contentId = activeItem.contentId; // Đảm bảo bạn lấy đúng contentId
+                                            const titleContentId = titleContent[contentId][activeItem.index].title_content_id;
+                                            handleProgress(progress, titleContentId, activeItem.index, contentId);
                                         }}
                                     />
+
                                 ) : (
                                     <img
                                         src="/src/assets/images/thumnail-lesson.jpeg"
@@ -490,8 +511,9 @@ export const Lesson = () => {
                                                 <span className="text-sm font-medium">Đã hoàn thành</span>
                                             </div>
                                             <p className="text-lg font-semibold text-gray-800">
-                                                {completedLessons.size}/{contentLesson.length}
+                                                {completedLessons ? completedLessons.size : 0}/{contentLesson ? contentLesson.length : 0}
                                             </p>
+
                                         </div>
                                         <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
                                             <div className="flex items-center text-blue-600 mb-1">
