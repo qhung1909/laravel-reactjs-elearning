@@ -324,7 +324,7 @@ class TeacherController extends Controller
             $validator = Validator::make($request->all(), [
                 'content_id' => 'required|exists:contents,content_id',
                 'title_contents' => 'required|array',
-                'title_contents.*.body_content' => 'required|string',
+                'title_contents.*.body_content' => 'nullable|string',
                 'title_contents.*.video_link' => 'nullable|string',
                 'title_contents.*.document_link' => 'nullable|string',
                 'title_contents.*.description' => 'nullable|string'
