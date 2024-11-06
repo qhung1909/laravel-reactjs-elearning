@@ -36,7 +36,7 @@ import { SideBarUI } from '../sidebarUI';
 import { useEffect, useState } from 'react';
 import axios from "axios";
 
-export default function CourseList () {
+export default function CourseList() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
 
@@ -51,10 +51,6 @@ export default function CourseList () {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;
 
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
-    };
-
     const fetchCourses = async () => {
         try {
             const res = await axios.get(`${API_URL}/admin/courses`, {
@@ -64,7 +60,6 @@ export default function CourseList () {
             });
             const data = res.data;
             setCourses(data);
-
             setStats({
                 totalCourses: data.length,
                 totalStudents: data.reduce((sum, course) => sum + (course.enrolled_count || 0), 0),
@@ -80,12 +75,6 @@ export default function CourseList () {
     useEffect(() => {
         fetchCourses();
     }, []);
-
-    const totalPages = Math.ceil(courses.length / itemsPerPage);
-    const indexOfLastCourse = currentPage * itemsPerPage;
-    const indexOfFirstCourse = indexOfLastCourse - itemsPerPage;
-    const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
-
 
     const [sortConfig, setSortConfig] = useState({
         key: null,
@@ -103,17 +92,14 @@ export default function CourseList () {
 
     const filteredCourses = courses.filter(course =>
         course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.user.name.toLowerCase().includes(searchTerm.toLowerCase())
+        (course.user && course.user.name.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
-    const sortedCourses = [...filteredCourses].sort((a, b) => {
-        if (!sortConfig.key) return 0;
-
-        const aValue = sortConfig.key === 'updated_at' ? new Date(a[sortConfig.key]) : a[sortConfig.key];
-        const bValue = sortConfig.key === 'updated_at' ? new Date(b[sortConfig.key]) : b[sortConfig.key];
-
-        return sortConfig.direction === 'asc' ? (aValue > bValue ? 1 : -1) : (aValue < bValue ? 1 : -1);
-    });
+    const totalFilteredCourses = filteredCourses.length;
+    const totalFilteredPages = Math.ceil(totalFilteredCourses / itemsPerPage);
+    const indexOfLastCourseFiltered = currentPage * itemsPerPage;
+    const indexOfFirstCourseFiltered = indexOfLastCourseFiltered - itemsPerPage;
+    const currentFilteredCourses = filteredCourses.slice(indexOfFirstCourseFiltered, indexOfLastCourseFiltered);
 
     const getSortIcon = (key) => {
         if (sortConfig.key === key) {
@@ -125,13 +111,15 @@ export default function CourseList () {
     const getStatusColor = (status) => {
         switch (status) {
             case "published":
-                return "bg-green-100 text-green-800 w-full text-center flex justify-center items-center p-1 rounded-lg  ";
+                return "bg-green-100 text-green-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
             case "draft":
                 return "bg-blue-100 text-blue-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
             case "pending":
                 return "bg-yellow-100 text-yellow-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
             case "unpublished":
-                return "bg-red-500 text-white w-full text-center flex justify-center items-center p-1 rounded-lg ";
+                return "bg-red-500 text-white w-full text-center flex justify-center items-center p-1 rounded-lg";
+            default:
+                return '';
         }
     };
 
@@ -145,6 +133,14 @@ export default function CourseList () {
                 return "Đang chờ";
             case "unpublished":
                 return "Thất bại";
+            default:
+                return '';
+        }
+    };
+
+    const handlePageChange = (page) => {
+        if (page > 0 && page <= totalFilteredPages) {
+            setCurrentPage(page);
         }
     };
 
@@ -244,52 +240,52 @@ export default function CourseList () {
 
                             <div className="overflow-x-auto rounded-lg border border-gray-200">
                                 <table className="w-full">
-                                <thead>
-                                    <tr className="bg-yellow-100">
-                                        <th className="text-left py-4 px-6 font-bold text-sm text-gray-600" style={{ width: '10%' }}>ID</th>
-                                        <th
-                                            className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
-                                            onClick={() => handleSort('title')}
-                                            style={{ width: '40%' }}
-                                        >
-                                            <div className="flex items-center justify-center gap-2">
-                                                Tiêu đề
-                                                {getSortIcon('title')}
-                                            </div>
-                                        </th>
-                                        <th
-                                            className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
-                                            onClick={() => handleSort('user?.name')}
-                                            style={{ width: '20%' }}
-                                        >
-                                            <div className="flex items-center justify-center gap-2">
-                                                Giảng viên
-                                                {getSortIcon('user?.name')}
-                                            </div>
-                                        </th>
-                                        <th
-                                            className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
-                                            onClick={() => handleSort('status')}
-                                            style={{ width: '15%' }}
-                                        >
-                                            <div className="flex items-center justify-center gap-2">
-                                                Trạng thái
-                                                {getSortIcon('status')}
-                                            </div>
-                                        </th>
-                                        <th
-                                            className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
-                                            onClick={() => handleSort('price')}
-                                            style={{ width: '20%' }}
-                                        >
-                                            <div className="flex items-center justify-center gap-2">
-                                                Giá
-                                                {getSortIcon('price')}
-                                            </div>
-                                        </th>
-                                        <th className="text-center py-4 px-6 font-bold text-sm text-gray-600" style={{ width: '10%' }}>Hành động</th>
-                                    </tr>
-                                </thead>
+                                    <thead>
+                                        <tr className="bg-yellow-100">
+                                            <th className="text-left py-4 px-6 font-bold text-sm text-gray-600" style={{ width: '10%' }}>ID</th>
+                                            <th
+                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                                onClick={() => handleSort('title')}
+                                                style={{ width: '40%' }}
+                                            >
+                                                <div className="flex items-center justify-center gap-2">
+                                                    Tiêu đề
+                                                    {getSortIcon('title')}
+                                                </div>
+                                            </th>
+                                            <th
+                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                                onClick={() => handleSort('user?.name')}
+                                                style={{ width: '20%' }}
+                                            >
+                                                <div className="flex items-center justify-center gap-2">
+                                                    Giảng viên
+                                                    {getSortIcon('user?.name')}
+                                                </div>
+                                            </th>
+                                            <th
+                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                                onClick={() => handleSort('status')}
+                                                style={{ width: '15%' }}
+                                            >
+                                                <div className="flex items-center justify-center gap-2">
+                                                    Trạng thái
+                                                    {getSortIcon('status')}
+                                                </div>
+                                            </th>
+                                            <th
+                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                                onClick={() => handleSort('price')}
+                                                style={{ width: '20%' }}
+                                            >
+                                                <div className="flex items-center justify-center gap-2">
+                                                    Giá
+                                                    {getSortIcon('price')}
+                                                </div>
+                                            </th>
+                                            <th className="text-center py-4 px-6 font-bold text-sm text-gray-600" style={{ width: '10%' }}>Hành động</th>
+                                        </tr>
+                                    </thead>
                                     <tbody>
                                         {isLoading ? (
                                             <>
@@ -313,31 +309,22 @@ export default function CourseList () {
                                                         <td className="py-4 px-6">
                                                             <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
                                                         </td>
-                                                        <td className="py-4 px-6">
-                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '120px', height: '20px' }} />
-                                                        </td>
                                                     </tr>
                                                 ))}
                                             </>
-
                                         ) : (
-                                            currentCourses.map((course) => (
+                                            currentFilteredCourses.map((course) => (
                                                 <tr key={course.id} className="border-t border-gray-100 hover:bg-gray-50">
                                                     <td className="py-4 px-6 text-sm text-gray-600">{course.course_id}</td>
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center">
-                                                            {/* <div className="w-10 h-10 rounded-lg bg-gray-100 mr-3 flex items-center justify-center">
-                                                                <GraduationCap className="h-5 w-5 text-gray-500" />
-                                                            </div> */}
                                                             <div>
                                                                 <p className="text-sm font-medium text-gray-900">{course.title}</p>
-                                                                {/* <p className="text-sm text-gray-500">{course.description}</p> */}
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center">
-
                                                             <span className="text-sm text-gray-900">{course.user?.name}</span>
                                                         </div>
                                                     </td>
@@ -366,20 +353,17 @@ export default function CourseList () {
                             </div>
 
                             <div className="mt-6 flex items-center justify-between">
-                                {/* <p className="text-sm text-gray-500">
-                                    Hiển thị {sortedCourses.length} trên tổng số {courses.length} khóa học
-                                </p> */}
                                 <Pagination>
                                     <PaginationContent>
                                         <PaginationItem>
-                                        <button
+                                            <button
                                                 onClick={() => handlePageChange(currentPage - 1)}
                                                 disabled={currentPage === 1}
                                             >
                                                 <box-icon name='left-arrow-alt'></box-icon>
-                                        </button>
+                                            </button>
                                         </PaginationItem>
-                                        {[...Array(totalPages)].map((_, index) => (
+                                        {[...Array(totalFilteredPages)].map((_, index) => (
                                             <PaginationItem key={index}>
                                                 <PaginationLink
                                                     href="#"
@@ -393,7 +377,7 @@ export default function CourseList () {
                                         <PaginationItem>
                                             <button
                                                 onClick={() => handlePageChange(currentPage + 1)}
-                                                disabled={currentPage === totalPages}
+                                                disabled={currentPage === totalFilteredPages}
                                             >
                                                 <box-icon name='right-arrow-alt'></box-icon>
                                             </button>
@@ -407,5 +391,4 @@ export default function CourseList () {
             </SidebarInset>
         </SidebarProvider>
     );
-};
-
+}
