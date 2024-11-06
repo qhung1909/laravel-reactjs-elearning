@@ -177,7 +177,6 @@ export default function CourseList () {
                 </header>
 
                 <div className="absolute top-14 px-6 bg-gray-50 w-full">
-                    {/* Summary Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                         <Card>
                             <CardContent className="flex items-center p-4">

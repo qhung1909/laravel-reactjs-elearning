@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
+    Pagination,
+    PaginationContent,
+    PaginationPrevious,
+    PaginationNext,
+    PaginationItem,
+    PaginationLink,
+} from "@/components/ui/pagination";
+import {
     SidebarInset,
     SidebarProvider,
     SidebarTrigger,
@@ -60,6 +68,19 @@ export default function CourseStatus() {
     const [isLoading, setIsLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const [newStatus, setNewStatus] = useState("");
+
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+    const totalPages = Math.ceil(courses.length / itemsPerPage);
+    const indexOfLastCourse = currentPage * itemsPerPage;
+    const indexOfFirstCourse = indexOfLastCourse - itemsPerPage;
+    const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
+
 
     const fetchCourses = async () => {
         try {
@@ -182,7 +203,7 @@ export default function CourseStatus() {
     const filteredCourses = courses.filter(course => {
         const matchesStatus = filterStatus === "all" || course.status === filterStatus;
         const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            course.user.name.toLowerCase().includes(searchQuery.toLowerCase());
+            course.user.name.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesStatus && matchesSearch;
     });
 
@@ -262,11 +283,11 @@ export default function CourseStatus() {
                                         <Table>
                                             <TableHeader>
                                                 <TableRow className="bg-yellow-100">
-                                                    <TableHead  className="font-semibold text-center">ID</TableHead>
-                                                    <TableHead  className="font-semibold text-center">Tên khóa học</TableHead>
-                                                    <TableHead  className="font-semibold text-center">Giảng viên</TableHead>
-                                                    <TableHead  className="font-semibold text-center">Trạng thái</TableHead>
-                                                    <TableHead  className="font-semibold text-center">Thao tác</TableHead>
+                                                    <TableHead className="font-semibold text-center">ID</TableHead>
+                                                    <TableHead className="font-semibold text-center">Tên khóa học</TableHead>
+                                                    <TableHead className="font-semibold text-center">Giảng viên</TableHead>
+                                                    <TableHead className="font-semibold text-center">Trạng thái</TableHead>
+                                                    <TableHead className="font-semibold text-center">Thao tác</TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
@@ -277,7 +298,7 @@ export default function CourseStatus() {
                                                         </TableCell>
                                                     </TableRow>
                                                 ) : (
-                                                    filteredCourses.map((course) => (
+                                                    currentCourses.map((course) => (
                                                         <TableRow key={course.id}>
                                                             <TableCell className="font-medium">
                                                                 {course.course_id}
@@ -305,12 +326,45 @@ export default function CourseStatus() {
                                             </TableBody>
                                         </Table>
                                     </div>
+
                                 )}
                             </CardContent>
                         </Card>
+                        <div className="mt-6 flex items-center justify-between">
+                            <Pagination>
+                                <PaginationContent>
+                                    <PaginationItem>
+                                        <button
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                        >
+                                            <box-icon name='left-arrow-alt'></box-icon>
+                                        </button>
+                                    </PaginationItem>
+                                    {[...Array(totalPages)].map((_, index) => (
+                                        <PaginationItem key={index}>
+                                            <PaginationLink
+                                                href="#"
+                                                isActive={currentPage === index + 1}
+                                                onClick={() => handlePageChange(index + 1)}
+                                            >
+                                                {index + 1}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    ))}
+                                    <PaginationItem>
+                                        <button
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            <box-icon name='right-arrow-alt'></box-icon>
+                                        </button>
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                        </div>
                     </div>
                 </div>
-
                 <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
                     <DialogContent>
                         <DialogHeader>
@@ -323,7 +377,7 @@ export default function CourseStatus() {
                             <div className="grid gap-2">
                                 <Label>Trạng thái hiện tại</Label>
                                 <Badge className={`${getStatusColor(selectedCourse?.status)} px-2 py-2 rounded-md`}>
-                                {`${getStatusText(selectedCourse?.status)}`}
+                                    {`${getStatusText(selectedCourse?.status)}`}
                                 </Badge>
                             </div>
                             <div className="grid gap-2">
@@ -391,5 +445,3 @@ export default function CourseStatus() {
         </SidebarProvider>
     );
 }
-
-
