@@ -37,38 +37,41 @@ class QuizQuestionController extends Controller
                 'message' => 'Người dùng chưa đăng nhập.',
             ], 401);
         }
-
+    
         $validator = Validator::make($request->all(), [
             'questions' => 'array',
             'questions.*.question' => 'string|max:255',
+            'questions.*.question_type' => 'required|string|in:single_choice,true_false,mutiple_choice,fill_blank',
             'question' => 'string|max:255',
+            'question_type' => 'required_with:question|string|in:single_choice,true_false,mutiple_choice,fill_blank'
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-
+    
         $questions = [];
-
+    
         $checkExistingQuestion = function ($questionText) use ($quizId) {
             return QuizQuestion::where('quiz_id', $quizId)
                 ->whereRaw('LOWER(question) = ?', [strtolower($questionText)])
                 ->exists();
         };
-
+    
         if ($request->has('question')) {
             if ($checkExistingQuestion($request->question)) {
                 return response()->json([
                     'message' => 'Câu hỏi đã tồn tại.',
                 ], 409);
             }
-
+    
             $questions[] = QuizQuestion::create([
                 'quiz_id' => $quizId,
                 'question' => $request->question,
+                'question_type' => $request->question_type
             ]);
         }
-
+    
         if ($request->has('questions')) {
             foreach ($request->questions as $questionData) {
                 if ($checkExistingQuestion($questionData['question'])) {
@@ -76,18 +79,18 @@ class QuizQuestionController extends Controller
                         'message' => 'Câu hỏi "' . $questionData['question'] . '" đã tồn tại.',
                     ], 409);
                 }
-
+    
                 $questions[] = QuizQuestion::create([
                     'quiz_id' => $quizId,
                     'question' => $questionData['question'],
+                    'question_type' => $questionData['question_type']
                 ]);
             }
         }
-
+    
         return response()->json($questions, 201);
     }
-
-
+    
     public function update(Request $request, $quizId, $id)
     {
         if (!Auth::check()) {
@@ -95,20 +98,21 @@ class QuizQuestionController extends Controller
                 'message' => 'Người dùng chưa đăng nhập.',
             ], 401);
         }
-
+    
         $question = QuizQuestion::where('quiz_id', $quizId)->find($id);
         if (!$question) {
             return response()->json(['message' => 'Question not found'], 404);
         }
-
+    
         $validator = Validator::make($request->all(), [
             'question' => 'sometimes|required|string|max:255',
+            'question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank'
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-
+    
         $question->update($request->all());
         return response()->json($question);
     }
