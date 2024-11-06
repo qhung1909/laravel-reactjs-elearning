@@ -142,7 +142,7 @@ export default function ListTeachers() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">ID</TableHead>
+                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">STT</TableHead>
                                             <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Avatar</TableHead>
                                             <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Họ và tên</TableHead>
                                             <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Email</TableHead>
@@ -160,10 +160,10 @@ export default function ListTeachers() {
                                                 </TableCell>
                                             </TableRow>
                                         ) : (
-                                            filteredTeachers.map((teacher) => (
+                                            filteredTeachers.map((teacher, index) => (
                                                 <TableRow key={teacher.id}>
-                                                    <TableCell className="text-center">{teacher.id}</TableCell>
-                                                    <TableCell className="flex justify-center items-center gap-3">
+                                                        <TableCell className="text-center">{index + 1}</TableCell>
+                                                        <TableCell className="flex justify-center items-center gap-3">
                                                         <img
                                                             src={teacher.avatar}
                                                             alt={`Avatar of ${teacher.name}`}
@@ -187,7 +187,7 @@ export default function ListTeachers() {
                                                     <TableCell className="text-center">
                                                         {teacher.role === "teacher" ? "Giảng viên" : teacher.role}
                                                     </TableCell>
-                                                    <TableCell className="text-center">
+                                                    <TableCell className="text-center; cursor-pointer">
                                                         <Button variant="ghost" size="sm">
                                                             Chi tiết
                                                         </Button>

@@ -217,7 +217,7 @@ export default function ClassifyUsers() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow >
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">ID</TableHead>
+                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">STT</TableHead>
                                             <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Avatar</TableHead>
                                             <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Tên</TableHead>
                                             <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Email</TableHead>
@@ -228,9 +228,9 @@ export default function ClassifyUsers() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {!isLoading && getFilteredData().map((user) => (
+                                        {!isLoading && getFilteredData().map((user, index) => (
                                             <TableRow key={user.id}>
-                                                <TableCell className="font-medium text-center">{user.id}</TableCell>
+                                                <TableCell className="font-medium text-center">{index + 1}</TableCell>
                                                 <TableCell className="text-center">
                                                     <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full mx-auto" />
                                                 </TableCell>

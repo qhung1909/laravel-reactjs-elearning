@@ -62,6 +62,10 @@ import { ThemeProvider } from "./components/ui/theme-provider.jsx";
 import PersonalInformation from "./pages/admin/ManageAcount/PersonalInformation.jsx";
 import { ManageHeader } from "./pages/admin/ManageHeaderFooter/ManageHeader.jsx";
 import { ManageFooter } from "./pages/admin/ManageHeaderFooter/ManageFooter.jsx";
+import Draft from "./pages/admin/ManageCourses/draft.jsx";
+
+
+
 
 
 function AppContent() {
@@ -125,6 +129,7 @@ function AppContent() {
                 <Route path="/admin/personal-information" element={<PersonalInformation/>}></Route>
                 <Route path="/admin/manage-footer" element={<ManageFooter/>}></Route>
                 <Route path="/admin/manage-header" element={<ManageHeader/>}></Route>
+                <Route path="/admin/draft" element={<Draft/>}></Route>
 
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/login" element={<Login />}></Route>
