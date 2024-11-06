@@ -131,6 +131,15 @@ const data = {
                 { title: "Thông báo hệ thống", url: "#" },
             ],
         },
+        {
+            title: "Quản lý Header/Footer",
+            url: "#",
+            icon: Settings2,
+            items: [
+                { title: "Quản lý Header", url: "/admin/manage-header" },
+                { title: "Quản lý Footer", url: "/admin/manage-footer" },
+            ],
+        },
     ],
 };
 

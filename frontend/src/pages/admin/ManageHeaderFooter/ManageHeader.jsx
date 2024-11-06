@@ -3,7 +3,7 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { SideBarUI } from "./sidebarUI"
+import { SideBarUI } from "../sidebarUI"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 
-export const Example = () => {
+export const ManageHeader = () => {
     return (
         <>
             <SidebarProvider>

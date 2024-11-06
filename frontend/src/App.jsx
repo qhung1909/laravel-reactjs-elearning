@@ -57,8 +57,11 @@ import { CreateQuiz } from "./pages/CreateCourse/CreateQuiz.jsx";
 import ListStudents from "./pages/admin/ManageAcount/ListStudents.jsx";
 import ListTeachers from "./pages/admin/ManageAcount/ListTeachers.jsx";
 import ClassifyUsers from "./pages/admin/ManageAcount/ClassifyUsers.jsx";
-import {PersonalInformation} from "./pages/admin/ManageAcount/PersonalInformation.jsx";
+
 import { ThemeProvider } from "./components/ui/theme-provider.jsx";
+import PersonalInformation from "./pages/admin/ManageAcount/PersonalInformation.jsx";
+import { ManageHeader } from "./pages/admin/ManageHeaderFooter/ManageHeader.jsx";
+import { ManageFooter } from "./pages/admin/ManageHeaderFooter/ManageFooter.jsx";
 
 
 function AppContent() {
@@ -120,6 +123,8 @@ function AppContent() {
                 <Route path="/admin/list-teachers" element={<ListTeachers/>}></Route>
                 <Route path="/admin/classify-users" element={<ClassifyUsers/>}></Route>
                 <Route path="/admin/personal-information" element={<PersonalInformation/>}></Route>
+                <Route path="/admin/manage-footer" element={<ManageFooter/>}></Route>
+                <Route path="/admin/manage-header" element={<ManageHeader/>}></Route>
 
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/login" element={<Login />}></Route>
