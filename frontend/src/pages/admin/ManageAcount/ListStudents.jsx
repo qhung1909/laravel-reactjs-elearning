@@ -143,7 +143,7 @@ export default function ListStudents() {
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">ID</TableHead>
+                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">STT</TableHead>
                                                 <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Avatar</TableHead>
                                                 <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Họ và tên</TableHead>
                                                 <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Email</TableHead>
@@ -161,9 +161,9 @@ export default function ListStudents() {
                                                     </TableCell>
                                                 </TableRow>
                                             ) : (
-                                                filteredStudents.map((student) => (
+                                                filteredStudents.map((student, index) => (
                                                     <TableRow key={student.user_id}>
-                                                        <TableCell className="text-center">{student.user_id}</TableCell>
+                                                        <TableCell className="text-center">{index + 1}</TableCell>
                                                         <TableCell className="flex justify-center items-center gap-3">
                                                             <img
                                                                 src={student.avatar}
