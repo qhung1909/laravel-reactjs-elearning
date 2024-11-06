@@ -1,7 +1,8 @@
 import {
     Pagination,
     PaginationContent,
-    PaginationEllipsis,
+    PaginationPrevious,
+    PaginationNext,
     PaginationItem,
     PaginationLink,
 } from "@/components/ui/pagination";
@@ -21,12 +22,7 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import {
-    CheckCircle,
-    Trash2,
-    Plus,
     Search,
     LayoutDashboard,
     GraduationCap,
@@ -52,6 +48,13 @@ export default function CourseList () {
         activeCourses: 0
     });
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
     const fetchCourses = async () => {
         try {
             const res = await axios.get(`${API_URL}/admin/courses`, {
@@ -62,7 +65,6 @@ export default function CourseList () {
             const data = res.data;
             setCourses(data);
 
-            // Calculate stats
             setStats({
                 totalCourses: data.length,
                 totalStudents: data.reduce((sum, course) => sum + (course.enrolled_count || 0), 0),
@@ -75,10 +77,15 @@ export default function CourseList () {
         }
     };
 
-
     useEffect(() => {
         fetchCourses();
     }, []);
+
+    const totalPages = Math.ceil(courses.length / itemsPerPage);
+    const indexOfLastCourse = currentPage * itemsPerPage;
+    const indexOfFirstCourse = indexOfLastCourse - itemsPerPage;
+    const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
+
 
     const [sortConfig, setSortConfig] = useState({
         key: null,
@@ -315,7 +322,7 @@ export default function CourseList () {
                                             </>
 
                                         ) : (
-                                            sortedCourses.map((course) => (
+                                            currentCourses.map((course) => (
                                                 <tr key={course.id} className="border-t border-gray-100 hover:bg-gray-50">
                                                     <td className="py-4 px-6 text-sm text-gray-600">{course.course_id}</td>
                                                     <td className="py-4 px-6">
@@ -360,32 +367,38 @@ export default function CourseList () {
                             </div>
 
                             <div className="mt-6 flex items-center justify-between">
-                                <p className="text-sm text-gray-500">
+                                {/* <p className="text-sm text-gray-500">
                                     Hiển thị {sortedCourses.length} trên tổng số {courses.length} khóa học
-                                </p>
+                                </p> */}
                                 <Pagination>
                                     <PaginationContent>
-                                        {/* <PaginationItem>
-                                            <PaginationLink href="#">Previous</PaginationLink>
-                                        </PaginationItem> */}
                                         <PaginationItem>
-                                            <PaginationLink href="#" isActive>1</PaginationLink>
+                                        <button
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                            >
+                                                <box-icon name='left-arrow-alt'></box-icon>
+                                        </button>
                                         </PaginationItem>
+                                        {[...Array(totalPages)].map((_, index) => (
+                                            <PaginationItem key={index}>
+                                                <PaginationLink
+                                                    href="#"
+                                                    isActive={currentPage === index + 1}
+                                                    onClick={() => handlePageChange(index + 1)}
+                                                >
+                                                    {index + 1}
+                                                </PaginationLink>
+                                            </PaginationItem>
+                                        ))}
                                         <PaginationItem>
-                                            <PaginationLink href="#">2</PaginationLink>
+                                            <button
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage === totalPages}
+                                            >
+                                                <box-icon name='right-arrow-alt'></box-icon>
+                                            </button>
                                         </PaginationItem>
-                                        <PaginationItem>
-                                            <PaginationLink href="#">3</PaginationLink>
-                                        </PaginationItem>
-                                        <PaginationItem>
-                                            <PaginationEllipsis />
-                                        </PaginationItem>
-                                        <PaginationItem>
-                                            <PaginationLink href="#">10</PaginationLink>
-                                        </PaginationItem>
-                                        {/* <PaginationItem>
-                                            <PaginationLink href="#">Next</PaginationLink>
-                                        </PaginationItem> */}
                                     </PaginationContent>
                                 </Pagination>
                             </div>

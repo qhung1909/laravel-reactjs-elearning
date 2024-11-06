@@ -290,7 +290,7 @@ export default function PersonalInformation () {
                                                         </DialogFooter>
                                                     </DialogContent>
                                                 </Dialog> */}
-                                                    <AlertDialog>
+                                                    <AlertDialog className="cursor-pointer">
                                                         <AlertDialogTrigger asChild>
                                                             <Button variant="outline" size="sm">
                                                                 Xóa

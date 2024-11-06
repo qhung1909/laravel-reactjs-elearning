@@ -188,7 +188,7 @@ export default function ListStudents() {
                                                         <TableCell className="text-center">
                                                             {student.role === "user" ? "Học viên" : student.role}
                                                         </TableCell>
-                                                        <TableCell className="text-center">
+                                                        <TableCell className="text-center; cursor-pointer">
                                                             <Button variant="ghost" size="sm">
                                                                 Chi tiết
                                                             </Button>
