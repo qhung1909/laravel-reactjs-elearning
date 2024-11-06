@@ -145,7 +145,7 @@ export default function ClassifyCourse() {
                             <table className="w-full">
                                 <thead>
                                     <tr className="bg-yellow-100">
-                                        <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">STT</th>
+                                        <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">ID</th>
                                         <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Tên khóa học</th>
                                         <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Giá</th>
                                         <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Danh mục</th>
