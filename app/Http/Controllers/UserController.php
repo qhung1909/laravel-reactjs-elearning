@@ -271,12 +271,15 @@ class UserController extends Controller
         $user = Auth::user();
     
         if ($user->locked_until && \Carbon\Carbon::parse($user->locked_until)->isFuture()) {
-            return response()->json(['message' => 'Tài khoản của bạn đã bị khóa. Vui lòng thử lại sau.'], 403);
+            $remainingTime = \Carbon\Carbon::now()->diffInMinutes(\Carbon\Carbon::parse($user->locked_until));
+            return response()->json([
+                'message' => "Tài khoản của bạn đã bị khóa. Vui lòng thử lại sau {$remainingTime} phút."
+            ], 403);
         }
     
         if ($user->locked_until && \Carbon\Carbon::parse($user->locked_until)->isPast()) {
             $user->status = 1;
-            $user->locked_until = null; 
+            $user->locked_until = null;
             $user->save();
         }
     
@@ -296,32 +299,46 @@ class UserController extends Controller
             $user->failed_attempts = $user->failed_attempts + 1;
     
             if ($user->failed_attempts >= 5) {
-                $user->locked_until = \Carbon\Carbon::now()->addMinutes(15); 
-                $user->status = 0; 
+                $lockoutMinutes = 2;
+                if ($user->lockout_count > 0) {
+                    $lockoutMinutes = 2 * pow(2, $user->lockout_count);
+                }
+                
+                $user->locked_until = \Carbon\Carbon::now()->addMinutes($lockoutMinutes);
+                $user->status = 0;
                 $user->failed_attempts = 0;
+                $user->lockout_count = ($user->lockout_count ?? 0) + 1;
+                
+                $user->save();
+                
+                return response()->json([
+                    'message' => "Tài khoản của bạn đã bị khóa trong {$lockoutMinutes} phút do nhập sai mật khẩu nhiều lần."
+                ], 400);
             }
     
             $user->save();
-            return response()->json(['message' => 'Mật khẩu cũ không đúng.'], 400);
+            return response()->json([
+                'message' => 'Mật khẩu cũ không đúng. Bạn còn ' . (5 - $user->failed_attempts) . ' lần thử.'
+            ], 400);
         }
     
         if (Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Mật khẩu mới không được trùng với mật khẩu hiện tại.'], 400);
+            return response()->json([
+                'message' => 'Mật khẩu mới không được trùng với mật khẩu hiện tại.'
+            ], 400);
         }
     
         $user->password = Hash::make($request->password);
-        $user->failed_attempts = 0; 
-        $user->locked_until = null; 
-        $user->status = 1; 
+        $user->failed_attempts = 0;
+        $user->locked_until = null;
+        $user->status = 1;
+        $user->lockout_count = 0;
         $user->save();
     
         return response()->json(['message' => 'Cập nhật mật khẩu thành công!'], 200);
     }
     
     
-
-
-
     public function getOrderHistory()
     {
         if (!Auth::check()) {
