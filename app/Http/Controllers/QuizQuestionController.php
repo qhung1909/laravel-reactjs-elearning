@@ -91,7 +91,7 @@ class QuizQuestionController extends Controller
         return response()->json($questions, 201);
     }
     
-    public function update(Request $request, $quizId, $id)
+    public function update(Request $request, $quizId)
     {
         if (!Auth::check()) {
             return response()->json([
@@ -99,22 +99,33 @@ class QuizQuestionController extends Controller
             ], 401);
         }
     
-        $question = QuizQuestion::where('quiz_id', $quizId)->find($id);
-        if (!$question) {
-            return response()->json(['message' => 'Question not found'], 404);
-        }
-    
         $validator = Validator::make($request->all(), [
-            'question' => 'sometimes|required|string|max:255',
-            'question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank'
+            'questions' => 'required|array',
+            'questions.*.id' => 'required|integer|exists:quizzes_questions,question_id',
+            'questions.*.question' => 'sometimes|required|string|max:255',
+            'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank'
         ]);
     
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
     
-        $question->update($request->all());
-        return response()->json($question);
+        $updatedQuestions = [];
+        foreach ($request->questions as $questionData) {
+            $question = QuizQuestion::where('quiz_id', $quizId)
+                ->where('question_id', $questionData['id'])
+                ->first();
+    
+            if ($question) {
+                $question->update($questionData);
+                $updatedQuestions[] = $question;
+            }
+        }
+    
+        return response()->json([
+            'message' => 'Questions updated successfully',
+            'questions' => $updatedQuestions
+        ]);
     }
 
     public function destroy($quizId, $id)
