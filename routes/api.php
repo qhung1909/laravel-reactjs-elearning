@@ -128,7 +128,7 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/quizzes/{quizId}/questions', [QuizQuestionController::class, 'index']);
     Route::post('/quizzes/{quizId}/questions', [QuizQuestionController::class, 'store']);
     Route::get('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'show']);
-    Route::put('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'update']);
+    Route::put('/quizzes/{quizId}/questions', [QuizQuestionController::class, 'update']);
     Route::delete('/quizzes/{quizId}/questions/{id}', [QuizQuestionController::class, 'destroy']);
 
     Route::get('quiz-questions/export', [QuizQuestionController::class, 'exportQuizQuestions']);
