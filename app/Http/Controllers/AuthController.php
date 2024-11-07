@@ -36,21 +36,83 @@ class AuthController extends Controller
     public function login()
     {
         $credentials = request()->only('email', 'password');
-
-        if (!$token = auth('api')->attempt($credentials)) {
-            Log::error('Unauthorized login attempt', $credentials);
-            return response()->json(['error' => 'Unauthorized'], 401);
+    
+        $user = User::where('email', $credentials['email'])->first();
+        
+        if ($user) {
+            if ($user->locked_until && \Carbon\Carbon::parse($user->locked_until)->isFuture()) {
+                $remainingTime = \Carbon\Carbon::now()->diffInMinutes(\Carbon\Carbon::parse($user->locked_until));
+                return response()->json([
+                    'error' => "Tài khoản của bạn đã bị khóa. Vui lòng thử lại sau {$remainingTime} phút."
+                ], 403);
+            }
+    
+            if ($user->locked_until && \Carbon\Carbon::parse($user->locked_until)->isPast()) {
+                $user->status = 1;
+                $user->locked_until = null;
+                $user->save();
+            }
         }
-
+    
+        if (!$token = auth('api')->attempt($credentials)) {
+            if ($user) {
+                $user->failed_attempts = ($user->failed_attempts ?? 0) + 1;
+    
+                if ($user->failed_attempts >= 5) {
+                    $lockoutMinutes = 2; 
+                    if ($user->lockout_count > 0) {
+                        $lockoutMinutes = 2 * pow(2, $user->lockout_count);
+                    }
+                    
+                    $user->locked_until = \Carbon\Carbon::now()->addMinutes($lockoutMinutes);
+                    $user->status = 0;
+                    $user->failed_attempts = 0;
+                    $user->lockout_count = ($user->lockout_count ?? 0) + 1;
+                    $user->save();
+    
+                    Log::error('Account locked due to multiple failed attempts', [
+                        'email' => $credentials['email'],
+                        'lockout_minutes' => $lockoutMinutes,
+                        'lockout_count' => $user->lockout_count
+                    ]);
+    
+                    return response()->json([
+                        'error' => "Tài khoản của bạn đã bị khóa trong {$lockoutMinutes} phút do đăng nhập sai nhiều lần."
+                    ], 403);
+                }
+    
+                $user->save();
+    
+                Log::error('Failed login attempt', [
+                    'email' => $credentials['email'],
+                    'remaining_attempts' => 5 - $user->failed_attempts
+                ]);
+    
+                return response()->json([
+                    'error' => 'Email hoặc mật khẩu không đúng. Bạn còn ' . (5 - $user->failed_attempts) . ' lần thử.'
+                ], 401);
+            }
+    
+            return response()->json([
+                'error' => 'Email hoặc mật khẩu không đúng.'
+            ], 401);
+        }
+    
         $user = auth('api')->user();
         if (!$user || !$user->getJWTIdentifier()) {
             return response()->json(['error' => 'User ID is null or invalid'], 401);
         }
-
+    
         if ($user->verification_token !== null) {
-            return response()->json(['error' => 'Your account is not verified.'], 403);
+            return response()->json(['error' => 'Tài khoản của bạn chưa được xác thực.'], 403);
         }
-
+    
+        $user->failed_attempts = 0;
+        $user->locked_until = null;
+        $user->lockout_count = 0;
+        $user->status = 1;
+        $user->save();
+    
         $refreshToken = $this->createRefreshToken($user->user_id);
         return $this->respondWithToken($token, $refreshToken);
     }

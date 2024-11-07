@@ -37,10 +37,13 @@ class QuizController extends Controller
             return response()->json($validator->errors(), 400);
         }
     
-        $existingQuiz = Quiz::where('content_id', $request->content_id)->exists();
+        $existingQuiz = Quiz::where('content_id', $request->content_id)->first();
         if ($existingQuiz) {
             return response()->json([
                 'message' => 'Quiz cho content_id này đã tồn tại.',
+                'data' => [
+                    'quiz_id' => $existingQuiz->id,
+                ]
             ], 400);
         }
     
@@ -51,7 +54,13 @@ class QuizController extends Controller
     
         $quiz = Quiz::create($data);
     
-        return response()->json($quiz, 201);
+        return response()->json([
+            'message' => 'Tạo quiz thành công',
+            'data' => [
+                'quiz_id' => $quiz->id,
+                'quiz' => $quiz
+            ]
+        ], 201);
     }
 
     public function show($id)
