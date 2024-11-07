@@ -34,7 +34,7 @@ class UserController extends Controller
         $perPage = $request->input('per_page', 10);
 
         $users = Cache::remember('users_list', 180, function () use ($perPage) {
-            return User::select('user_id', 'email', 'name', 'role', 'avatar')->paginate($perPage);
+            return User::select('user_id', 'email', 'name', 'role', 'avatar', 'status')->paginate($perPage);
         });
 
         return response()->json($users, 200);
@@ -428,12 +428,12 @@ class UserController extends Controller
 
     public function getUsers()
     {
-        $users = User::where('role', 'user')->select('name', 'email', 'avatar', 'created_at', 'role')->get();
+        $users = User::where('role', 'user')->select('name', 'email', 'avatar', 'created_at', 'role','status')->get();
         return response()->json($users);
     }
     public function getTeacher()
     {
-        $teachers = User::where('role', 'teacher')->select('name', 'email', 'avatar', 'created_at', 'role')->get();
+        $teachers = User::where('role', 'teacher')->select('name', 'email', 'avatar', 'created_at', 'role','status')->get();
         return response()->json($teachers);
     }
 }
