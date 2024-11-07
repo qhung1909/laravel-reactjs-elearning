@@ -134,7 +134,7 @@ export const Instructor = () => {
                                             <p className="text-slate-600">Trang chủ</p>
                                         </div>
 
-                                    </Link>
+                                    </Link> 
                                 </h1>
                                 <div className="flex items-center space-x-4">
                                     {/* <button className="p-1 rounded-full hover:bg-gray-100">
