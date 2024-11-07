@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
     Select,
     SelectContent,
@@ -12,20 +13,11 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { CheckCircle2, Circle, Type, Plus, Trash2 } from 'lucide-react';
 import { useLocation, useParams } from 'react-router-dom';
-import CryptoJS from 'crypto-js';
 import Swal from "sweetalert2";
 import axios from "axios";
 
-const secretKey = 'your-secret-key';
 
-const encryptData = (data) => {
-    return CryptoJS.AES.encrypt(JSON.stringify(data), secretKey).toString();
-};
 
-const decryptData = (cipherText) => {
-    const bytes = CryptoJS.AES.decrypt(cipherText, secretKey);
-    return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-};
 
 export const CreateQuiz = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -33,32 +25,8 @@ export const CreateQuiz = () => {
     const location = useLocation();
     const lessonId = new URLSearchParams(location.search).get('lesson');
     const [questions, setQuestions] = useState([]);
-    const { content_id, quiz_id } = useParams();
+    const { quiz_id } = useParams();
 
-    useEffect(() => {
-        const storedData = localStorage.getItem(`quiz-${lessonId}`);
-        if (storedData) {
-            try {
-                const decryptedData = decryptData(storedData);
-                setQuestions(decryptedData);
-            } catch (error) {
-                console.error("Error decrypting data:", error);
-            }
-        }
-    }, [lessonId]);
-
-    useEffect(() => {
-        if (questions.length > 0 && lessonId) {
-            try {
-                const encryptedData = encryptData(questions);
-                localStorage.setItem(`quiz-${lessonId}`, encryptedData);
-            } catch (error) {
-                console.error("Error saving data to localStorage:", error);
-            }
-        } else {
-            localStorage.removeItem(`quiz-${lessonId}`);
-        }
-    }, [questions, lessonId]);
 
     useEffect(() => {
         showQuizQuestions();
@@ -247,95 +215,95 @@ export const CreateQuiz = () => {
 
                 // Gửi yêu cầu cập nhật hoặc tạo mới đáp án cho từng câu hỏi
                 await Promise.all(questions.map(async (q) => {
+                    // Gửi yêu cầu GET để kiểm tra đáp án hiện có
+                    let hasExistingOptions = false;
+                    try {
+                        const response = await axios.get(`${API_URL}/questions/${q.id}/options`, {
+                            headers: {
+                                'x-api-secret': API_KEY,
+                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                'Content-Type': 'application/json',
+                            },
+                        });
+                        hasExistingOptions = Array.isArray(response.data) && response.data.length > 0;
+                    } catch (error) {
+                        console.error(`Không thể kiểm tra đáp án cho câu hỏi ${q.id}:`, error);
+                    }
+
+                    let optionsData;
+
                     if (q.type === 'single_choice' || q.type === 'mutiple_choice') {
                         if (q.options && q.options.length > 0) {
                             const putOptions = q.options.filter(option => option.id); // Đáp án có ID để cập nhật
                             const postOptions = q.options.filter(option => !option.id); // Đáp án không có ID để thêm mới
 
-                            // Gửi yêu cầu PUT để cập nhật đáp án có ID
+                            // Cấu trúc dữ liệu để tạo mới hoặc cập nhật
                             if (putOptions.length > 0) {
-                                await axios.put(
-                                    `${API_URL}/questions/${q.id}/options`,
-                                    {
-                                        options: putOptions.map(option => ({
-                                            id: option.id,
-                                            answer: option.answer, // Đảm bảo trả về chuỗi cho answer
-                                            is_correct: q.answers.includes(q.options.indexOf(option))
-                                        }))
-                                    },
-                                    {
-                                        headers: {
-                                            'x-api-secret': API_KEY,
-                                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                                            'Content-Type': 'application/json',
-                                        },
-                                    }
-                                );
+                                optionsData = {
+                                    options: putOptions.map(option => ({
+                                        id: option.id,
+                                        answer: option.answer, // Đảm bảo trả về chuỗi cho answer
+                                        is_correct: q.answers.includes(q.options.indexOf(option))
+                                    }))
+                                };
                             }
-
-                            // Gửi yêu cầu POST để thêm mới đáp án không có ID
                             if (postOptions.length > 0) {
-                                await axios.post(
-                                    `${API_URL}/questions/${q.id}/options`,
-                                    {
-                                        options: postOptions.map(option => ({
-                                            answer: option.answer, // Đảm bảo trả về chuỗi cho answer
-                                            is_correct: q.answers.includes(q.options.indexOf(option))
-                                        }))
-                                    },
-                                    {
-                                        headers: {
-                                            'x-api-secret': API_KEY,
-                                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                                            'Content-Type': 'application/json',
-                                        },
-                                    }
-                                );
+                                optionsData = {
+                                    options: postOptions.map(option => ({
+                                        answer: option.answer, // Đảm bảo trả về chuỗi cho answer
+                                        is_correct: q.answers.includes(q.options.indexOf(option))
+                                    }))
+                                };
                             }
                         }
                     } else if (q.type === 'true_false') {
-                        // Xử lý câu hỏi "Đúng/Sai"
-                        const answerData = {
+                        if (!q.answers || !Array.isArray(q.answers) || q.answers.length === 0) {
+                            q.answers = ["true"]; // Giá trị mặc định
+                        }
+
+                        optionsData = {
                             options: [
                                 { answer: "true", is_correct: q.answers[0] === "true" },
                                 { answer: "false", is_correct: q.answers[0] === "false" }
                             ]
                         };
-
-                        // Gửi yêu cầu PUT để cập nhật hoặc thêm mới đáp án "Đúng/Sai"
-                        await axios.put(
-                            `${API_URL}/questions/${q.id}/options`,
-                            answerData,
-                            {
-                                headers: {
-                                    'x-api-secret': API_KEY,
-                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                                    'Content-Type': 'application/json',
-                                },
-                            }
-                        );
                     } else if (q.type === 'fill_blank') {
-                        // Xử lý câu hỏi "Điền vào ô trống"
-                        const optionsData = {
+                        if (!q.answers || !Array.isArray(q.answers) || q.answers.length === 0) {
+                            q.answers = [""]; // Giá trị mặc định
+                        }
+
+                        optionsData = {
                             options: [
                                 { answer: q.answers[0], is_correct: true } // Chỉ có một đáp án đúng
                             ]
                         };
+                    }
 
-                        // Gửi yêu cầu PUT để cập nhật hoặc thêm mới đáp án "Điền vào ô trống"
-                        await axios.put(
-                            `${API_URL}/questions/${q.id}/options`,
-                            optionsData,
-                            {
+                    // Gửi yêu cầu POST hoặc PUT dựa trên dữ liệu đã tồn tại hay chưa
+                    if (optionsData) {
+                        if (!hasExistingOptions) {
+                            // Gửi yêu cầu POST để tạo mới đáp án
+                            await axios.post(`${API_URL}/questions/${q.id}/options`, optionsData, {
                                 headers: {
                                     'x-api-secret': API_KEY,
                                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                                     'Content-Type': 'application/json',
                                 },
-                            }
-                        );
+                            });
+                        } else {
+                            // Gửi yêu cầu PUT để cập nhật đáp án
+                            await axios.put(`${API_URL}/questions/${q.id}/options`, optionsData, {
+                                headers: {
+                                    'x-api-secret': API_KEY,
+                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                    'Content-Type': 'application/json',
+                                },
+                            });
+                        }
                     }
                 }));
+
+
 
                 Swal.fire({
                     toast: true,
@@ -379,13 +347,11 @@ export const CreateQuiz = () => {
                 ];
             }
         } else if (value === 'true_false') {
-            // Nếu chuyển sang loại "Đúng/Sai", thiết lập 2 tùy chọn
             updatedQuestions[index].options = [
                 { answer: "Đúng", isCorrect: false },
                 { answer: "Sai", isCorrect: false }
             ];
         } else if (value === 'fill_blank') {
-            // Reset các tùy chọn khi chuyển sang loại "Điền vào ô trống"
             updatedQuestions[index].options = [];
         }
 
@@ -638,7 +604,7 @@ export const CreateQuiz = () => {
 
             <Button
                 onClick={() => console.log(JSON.stringify(questions, null, 2))}
-                className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                className="ml-2 mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
             >
                 Xuất JSON
             </Button>
