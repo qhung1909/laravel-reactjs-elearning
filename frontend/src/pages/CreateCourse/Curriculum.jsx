@@ -482,7 +482,7 @@ export const Curriculum = () => {
                     });
 
                     // Chuyển hướng đến trang tạo quiz
-                    navigate(`/course/manage/${course_id}/create-quiz/${sectionId}/quiz/${response.quiz_id}`);
+                    navigate(`/course/manage/${course_id}/create-quiz/${sectionId}/quiz/${error.response?.data?.data?.quiz_id}`);
                 } else {
                     // Xử lý lỗi khác (ví dụ 401, 500, v.v.)
                     Swal.fire({
