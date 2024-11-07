@@ -490,16 +490,16 @@ export const Lesson = () => {
                                         </SheetTrigger>
 
                                         <SheetContent
-                                            side="right" 
+                                            side="right"
                                             className="w-80 h-full p-4 bg-gray-900 text-white rounded-l-2xl shadow-2xl"
                                         >
-                                            <h2 className="text-lg font-semibold mb-1">Chat với chúng tôi</h2>
+                                            <h2 className="text-lg font-semibold mb-1">Chat với AI</h2>
                                             <p className="text-sm mb-4 text-gray-400">Nhập tin nhắn để bắt đầu cuộc trò chuyện.</p>
 
                                             <div className="overflow-auto h-[70%] mb-4 border border-gray-700 rounded-lg p-3 bg-gray-800">
                                                 <div className="p-2 space-y-2 text-sm">
-                                                    <p><strong>Bot:</strong> Xin chào! Bạn cần gì hôm nay?</p>
-                                                    <p><strong>Bạn:</strong> Tôi muốn biết thông tin về sản phẩm.</p>
+                                                    <p><strong>Bạn:</strong> Giúp tôi giải bài quiz này</p>
+                                                    <p><strong>Bot:</strong> Mua gói vip đi tôi giải</p>
                                                 </div>
                                             </div>
 
