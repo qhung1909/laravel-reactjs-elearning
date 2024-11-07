@@ -25,39 +25,39 @@ class QuizController extends Controller
                 'message' => 'Người dùng chưa đăng nhập.',
             ], 401);
         }
-    
+
         $validator = Validator::make($request->all(), [
             'course_id' => 'required',
             'content_id' => 'required',
             'title' => 'nullable|string|max:255',
             'status' => 'sometimes|in:' . implode(',', self::QUIZ_STATUSES)
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-    
+
         $existingQuiz = Quiz::where('content_id', $request->content_id)->first();
         if ($existingQuiz) {
             return response()->json([
                 'message' => 'Quiz cho content_id này đã tồn tại.',
                 'data' => [
-                    'quiz_id' => $existingQuiz->id,
+                    'quiz_id' => $existingQuiz->quiz_id,
                 ]
             ], 400);
         }
-    
+
         $data = $request->all();
         if (!isset($data['status'])) {
             $data['status'] = 'draft';
         }
-    
+
         $quiz = Quiz::create($data);
-    
+
         return response()->json([
             'message' => 'Tạo quiz thành công',
             'data' => [
-                'quiz_id' => $quiz->id,
+                'quiz_id' => $quiz->quiz_id,
                 'quiz' => $quiz
             ]
         ], 201);
