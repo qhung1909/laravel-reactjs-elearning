@@ -120,4 +120,93 @@ export const ProductSkeletonHome = () => (
 
 
 
+export const QuizCreatorSkeleton = () => {
+    return (
+        <div className="max-w-5xl mx-auto p-6 space-y-12">
+            {/* Phần tiêu đề cố định */}
+            <div className="fixed top-0 left-0 w-full bg-white shadow-md z-50 p-4">
+                <div className="max-w-5xl mx-auto flex items-center justify-between">
+                    <div className="h-8 w-64 bg-gray-200 rounded-md animate-pulse"></div>
+                    <div className="flex space-x-4">
+                        <div className="h-10 w-40 bg-gray-200 rounded-md animate-pulse"></div>
+                        <div className="h-10 w-32 bg-gray-200 rounded-md animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Phần nội dung chính với khoảng cách lớn hơn */}
+            <div className="pt-24 space-y-10">
+                {[1, 2, 3].map((_, index) => (
+                    <div key={index} className="p-6 bg-white rounded-lg shadow-sm space-y-6">
+                        <div className="flex justify-between items-center">
+                            <div className="h-6 w-48 bg-gray-200 rounded-md animate-pulse"></div>
+                            <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse"></div>
+                        </div>
+
+                        <div className="h-10 w-full bg-gray-200 rounded-md animate-pulse"></div>
+
+                        <div className="space-y-4">
+                            <div className="h-10 w-full bg-gray-200 rounded-md animate-pulse"></div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {[1, 2, 3, 4].map((_, optionIndex) => (
+                                    <div key={optionIndex} className="flex items-center gap-3 p-3 bg-gray-100 border rounded-md animate-pulse">
+                                        <div className="h-5 w-5 bg-gray-200 rounded-full flex-shrink-0"></div>
+                                        <div className="h-8 flex-grow bg-gray-200 rounded-md"></div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Nút Skeleton lớn */}
+            <div className="h-12 w-full bg-gray-200 rounded-md animate-pulse"></div>
+        </div>
+    );
+}
+
+
+
+
+export const SkeletonLoaderCurriculum = () => {
+    return (
+        <div className="max-w-4xl mx-auto p-4 space-y-6">
+          {/* Skeleton cho tiêu đề chính */}
+          <div className="h-6 w-64 bg-gray-200 rounded-md animate-pulse mb-2"></div>
+          <div className="h-1 bg-gray-200 rounded animate-pulse mb-4"></div>
+
+          {/* Skeleton cho nội dung khóa học */}
+          <div className="space-y-4">
+            {/* Skeleton cho tiêu đề nội dung khóa học */}
+            <div className="h-6 w-48 bg-gray-200 rounded-md animate-pulse"></div>
+
+            {/* Skeleton cho từng phần Accordion */}
+            {[1, 2, 3].map((_, index) => (
+              <div
+                key={index}
+                className="border border-gray-300 rounded-lg p-4 bg-white space-y-4 animate-pulse"
+              >
+                {/* Skeleton cho tiêu đề AccordionItem */}
+                <div className="flex items-center gap-4">
+                  <div className="h-5 w-20 bg-gray-200 rounded-md"></div>
+                  <div className="flex-1 h-8 bg-gray-200 rounded-md"></div>
+                  <div className="h-8 w-24 bg-gray-200 rounded-md"></div>
+                </div>
+
+                {/* Skeleton cho nội dung bài học bên trong Accordion */}
+              </div>
+            ))}
+
+            {/* Skeleton cho nút thêm bài học mới */}
+            <div className="border border-gray-300 rounded-lg p-4 bg-white space-y-4 animate-pulse"></div>
+          </div>
+        </div>
+      );
+  };
+
+
+
+
 
