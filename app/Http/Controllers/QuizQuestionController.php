@@ -103,7 +103,7 @@ class QuizQuestionController extends Controller
             'questions' => 'required|array',
             'questions.*.id' => 'required|integer|exists:quizzes_questions,question_id',
             'questions.*.question' => 'sometimes|required|string|max:255',
-            'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,multiple_choice,fill_blank'
+            'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank'
         ]);
     
         if ($validator->fails()) {
