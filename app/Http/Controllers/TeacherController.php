@@ -11,7 +11,19 @@ use Illuminate\Support\Facades\DB;
 use App\Models\TitleContent;
 use Illuminate\Support\Facades\Log;
 class TeacherController extends Controller
-{
+{   
+    public function getCoursesByTeacher()
+    {
+        $courses = Course::whereHas('user', function($query) {
+            $query->where('role', 'teacher');
+        })->get();
+
+        return response()->json([
+            'message' => 'Courses retrieved successfully',
+            'courses' => $courses
+        ]);
+    }
+
     public function showContent($courseId)
     {
         try {
