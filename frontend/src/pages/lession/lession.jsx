@@ -437,10 +437,7 @@ export const Lesson = () => {
 
                             {/* Center Section */}
                             <div className="hidden md:flex items-center flex-1 justify-center space-x-6">
-                                <Link
-                                    to="/"
-                                    className="flex items-center group"
-                                >
+                                <Link to="/" className="flex items-center group">
                                     <div className="relative">
                                         <img
                                             alt="Logo"
@@ -476,7 +473,7 @@ export const Lesson = () => {
                                 <div className="flex items-center space-x-3">
                                     <button
                                         onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                                        className="p-2 md:p-3 bg-gray-600 rounded-lg hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-gray-500/20"
+                                        className="p-2 md:p-3 bg-gray-600 rounded-lg hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                                     >
                                         📅
                                     </button>
@@ -491,7 +488,7 @@ export const Lesson = () => {
 
                                         <SheetContent
                                             side="right"
-                                            className="w-80 h-full p-4 bg-gray-900 text-white rounded-l-2xl shadow-2xl"
+                                            className="w-full md:w-80 h-full md:h-auto p-4 bg-gray-900 text-white rounded-t-2xl md:rounded-l-2xl shadow-2xl md:fixed md:top-0 md:right-0"
                                         >
                                             <h2 className="text-lg font-semibold mb-1">Chat với AI</h2>
                                             <p className="text-sm mb-4 text-gray-400">Nhập tin nhắn để bắt đầu cuộc trò chuyện.</p>
@@ -499,7 +496,7 @@ export const Lesson = () => {
                                             <div className="overflow-auto h-[70%] mb-4 border border-gray-700 rounded-lg p-3 bg-gray-800">
                                                 <div className="p-2 space-y-2 text-sm">
                                                     <p><strong>Bạn:</strong> Giúp tôi giải bài quiz này</p>
-                                                    <p><strong>Bot:</strong> Mua gói vip đi tôi giải</p>
+                                                    <p><strong>Bot:</strong> Mua gói VIP đi, tôi sẽ giải cho bạn.</p>
                                                 </div>
                                             </div>
 
@@ -507,7 +504,7 @@ export const Lesson = () => {
                                                 <input
                                                     type="text"
                                                     placeholder="Nhập tin nhắn của bạn..."
-                                                    className="flex-grow p-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring focus:ring-blue-300"
+                                                    className="flex-grow p-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring focus:ring-blue-500"
                                                 />
                                                 <Button
                                                     onClick={() => console.log("Gửi tin nhắn")}
@@ -518,6 +515,7 @@ export const Lesson = () => {
                                             </div>
                                         </SheetContent>
                                     </Sheet>
+
                                 </div>
 
                                 {/* Hiển thị lịch nếu isCalendarOpen là true */}
@@ -543,7 +541,6 @@ export const Lesson = () => {
                                     </div>
                                 )}
                             </div>
-
 
                             {/* Mobile Menu Button */}
                             <div className="flex md:hidden">
@@ -575,12 +572,44 @@ export const Lesson = () => {
                                         </div>
                                     )}
                                     <div className="flex justify-center space-x-3">
-                                        <button className="p-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all duration-300">
-                                            <MessageCircle className="h-4 w-4 text-white" />
-                                        </button>
-                                        <button className="p-2 bg-green-600 rounded-lg hover:bg-green-700 transition-all duration-300">
-                                            <MessageSquare className="h-4 w-4 text-white" />
-                                        </button>
+                                        <Sheet>
+                                            <SheetTrigger asChild>
+                                                <button className="p-2 md:p-3 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                                                    <MessageCircle className="h-4 w-4 md:h-5 md:w-5 text-white" />
+                                                </button>
+                                            </SheetTrigger>
+
+                                            <SheetContent
+                                                side="right"
+                                                className="w-80 md:w-80 h-full md:h-auto p-4 bg-gray-900 text-white rounded-t-2xl md:rounded-l-2xl shadow-2xl md:fixed md:top-0 md:right-0"
+                                            >
+                                                <h2 className="text-lg font-semibold mb-1">Chat với AI</h2>
+                                                <p className="text-sm mb-4 text-gray-400">Nhập tin nhắn để bắt đầu cuộc trò chuyện.</p>
+
+                                                <div className="overflow-auto h-[60vh] md:h-[70%] mb-4 border border-gray-700 rounded-lg p-3 bg-gray-800">
+                                                    <div className="p-2 space-y-2 text-sm">
+                                                        <p><strong>Bạn:</strong> Giúp tôi giải bài quiz này</p>
+                                                        <p><strong>Bot:</strong> Mua gói VIP đi, tôi sẽ giải cho bạn.</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center space-x-2">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Nhập tin nhắn của bạn..."
+                                                        className="flex-grow p-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring focus:ring-blue-500"
+                                                    />
+                                                    <Button
+                                                        onClick={() => console.log("Gửi tin nhắn")}
+                                                        className="bg-blue-600 text-white hover:bg-blue-700 rounded-lg px-4 py-2"
+                                                    >
+                                                        Gửi
+                                                    </Button>
+                                                </div>
+                                            </SheetContent>
+                                        </Sheet>
+
+
                                     </div>
                                 </div>
                             </div>
