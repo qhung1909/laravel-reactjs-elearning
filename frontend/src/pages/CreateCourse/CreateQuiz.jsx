@@ -68,6 +68,17 @@ export const CreateQuiz = () => {
                         const optionsData = optionsResponse.data || [];
 
                         // Cấu trúc lại câu hỏi và tùy chọn
+                        let answers;
+                        if (q.question_type === 'fill_blank') {
+                            // Xử lý riêng cho "Fill in the Blank"
+                            answers = optionsData.length > 0 ? [optionsData[0].answer] : [""];
+                        } else {
+                            // Logic không thay đổi cho ba loại câu hỏi kia
+                            answers = optionsData
+                                .filter(option => option.is_correct === 1)
+                                .map(option => optionsData.indexOf(option));
+                        }
+
                         return {
                             id: q.question_id,
                             question: q.question || "",
@@ -77,9 +88,7 @@ export const CreateQuiz = () => {
                                 answer: option.answer,
                                 isCorrect: option.is_correct === 1
                             })),
-                            answers: optionsData
-                                .filter(option => option.is_correct === 1)
-                                .map(option => optionsData.indexOf(option))
+                            answers
                         };
                     } catch (error) {
                         console.error(`Không thể tải tùy chọn cho câu hỏi ${q.question_id}:`, error);
@@ -87,8 +96,8 @@ export const CreateQuiz = () => {
                             id: q.question_id,
                             question: q.question || "",
                             type: q.question_type || "",
-                            options: ["", "", "", ""], // Giá trị mặc định nếu không thể lấy tùy chọn
-                            answers: []
+                            options: [],
+                            answers: [""]
                         };
                     }
                 }));
@@ -107,6 +116,7 @@ export const CreateQuiz = () => {
             });
         }
     };
+
 
 
 
@@ -257,27 +267,47 @@ export const CreateQuiz = () => {
                             }
                         }
                     } else if (q.type === 'true_false') {
+                        // Sử dụng dữ liệu từ q.options để lấy id
+                        const trueOption = q.options.find(option => option.answer === "true") || {};
+                        const falseOption = q.options.find(option => option.answer === "false") || {};
+
                         if (!q.answers || !Array.isArray(q.answers) || q.answers.length === 0) {
                             q.answers = ["true"]; // Giá trị mặc định
                         }
 
                         optionsData = {
                             options: [
-                                { answer: "true", is_correct: q.answers[0] === "true" },
-                                { answer: "false", is_correct: q.answers[0] === "false" }
+                                {
+                                    id: trueOption.id || null,
+                                    answer: "true",
+                                    is_correct: q.answers[0] === "true"
+                                },
+                                {
+                                    id: falseOption.id || null,
+                                    answer: "false",
+                                    is_correct: q.answers[0] === "false"
+                                }
                             ]
                         };
                     } else if (q.type === 'fill_blank') {
+                        // Sử dụng dữ liệu từ q.options để lấy đáp án
+                        const blankOption = q.options[0] || {}; // Giả sử chỉ có một tùy chọn cho "Fill in the Blank"
+
                         if (!q.answers || !Array.isArray(q.answers) || q.answers.length === 0) {
-                            q.answers = [""]; // Giá trị mặc định
+                            q.answers = [blankOption.answer || ""]; // Khởi tạo từ blankOption.answer nếu có, hoặc giá trị mặc định
                         }
 
                         optionsData = {
                             options: [
-                                { answer: q.answers[0], is_correct: true } // Chỉ có một đáp án đúng
+                                {
+                                    id: blankOption.id || null, // Lấy id từ tùy chọn hoặc null nếu không có
+                                    answer: q.answers[0],
+                                    is_correct: true // Chỉ có một đáp án đúng
+                                }
                             ]
                         };
                     }
+
 
                     // Gửi yêu cầu POST hoặc PUT dựa trên dữ liệu đã tồn tại hay chưa
                     if (optionsData) {
@@ -324,6 +354,8 @@ export const CreateQuiz = () => {
                 showConfirmButton: false,
                 timer: 1500,
             });
+        } finally {
+            await showQuizQuestions(true)
         }
     };
 
@@ -554,22 +586,30 @@ export const CreateQuiz = () => {
                                         <div className="flex gap-4">
                                             <Button
                                                 type="button"
-                                                variant={q.answers[0] === 'true' ? 'default' : 'outline'}
-                                                onClick={() => handleAnswerChange(questionIndex, 'true')}
-                                                className={`flex-1 ${q.answers[0] === 'true' ? 'bg-yellow-500 hover:bg-yellow-600' : 'hover:bg-gray-100'}`}
+                                                variant={q.options.find(option => option.answer === 'true' && option.isCorrect) ? 'default' : 'outline'}
+                                                onClick={() => {
+                                                    handleAnswerChange(questionIndex, 'true');
+                                                    q.options.forEach(option => option.isCorrect = option.answer === 'true'); // Cập nhật trạng thái isCorrect
+                                                }}
+                                                className={`flex-1 ${q.options.find(option => option.answer === 'true' && option.isCorrect) ? 'bg-yellow-500 hover:bg-yellow-600' : 'hover:bg-gray-100'}`}
                                             >
                                                 Đúng
                                             </Button>
                                             <Button
                                                 type="button"
-                                                variant={q.answers[0] === 'false' ? 'default' : 'outline'}
-                                                onClick={() => handleAnswerChange(questionIndex, 'false')}
-                                                className={`flex-1 ${q.answers[0] === 'false' ? 'bg-yellow-500 hover:bg-yellow-600' : 'hover:bg-gray-100'}`}
+                                                variant={q.options.find(option => option.answer === 'false' && option.isCorrect) ? 'default' : 'outline'}
+                                                onClick={() => {
+                                                    handleAnswerChange(questionIndex, 'false');
+                                                    q.options.forEach(option => option.isCorrect = option.answer === 'false'); // Cập nhật trạng thái isCorrect
+                                                }}
+                                                className={`flex-1 ${q.options.find(option => option.answer === 'false' && option.isCorrect) ? 'bg-yellow-500 hover:bg-yellow-600' : 'hover:bg-gray-100'}`}
                                             >
                                                 Sai
                                             </Button>
                                         </div>
                                     )}
+
+
 
                                     {q.type === 'fill_blank' && (
                                         <Input
