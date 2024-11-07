@@ -193,11 +193,8 @@ export const Login = () => {
 
             notify('Đăng nhập thành công', 'success');
             setSuccess('Đăng nhập thành công');
-
-            // Lấy thông tin người dùng
             await getUserInfo();
 
-            // Điều hướng người dùng đến trang trước đó hoặc trang chính
             const previousPage = sessionStorage.getItem('previousPage');
             sessionStorage.removeItem('previousPage');
 
@@ -205,11 +202,12 @@ export const Login = () => {
                 navigate(previousPage);
             } else {
                 navigate('/');
+                window.location.reload();
+
             }
         } catch (error) {
             console.error('Login error:', error);
 
-            // Kiểm tra và lấy thông báo lỗi từ phản hồi của axios
             const errorMessage = error.response && error.response.data && error.response.data.error
                 ? error.response.data.error
                 : 'Đã xảy ra lỗi: ' + error.message;
@@ -218,7 +216,6 @@ export const Login = () => {
             notify(errorMessage, 'error');
         } finally {
             setLoading(false);
-            // window.location.reload();
         }
     }, 300), [email, password, navigate]);
 
