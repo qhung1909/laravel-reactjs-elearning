@@ -10,7 +10,7 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
@@ -155,7 +155,6 @@ export const Lesson = () => {
 
             if (response.data && Array.isArray(response.data) && response.data.length > 0) {
                 setCourses(response.data);
-                console.log("Course:", response.data);
             }
         } catch (error) {
             console.log('Error fetching categories', error);
@@ -240,14 +239,19 @@ export const Lesson = () => {
             setShowQuiz(true);
         } else {
             console.error("Quiz not found for content_id:", content_id);
-            toast.error("Không tìm thấy quiz cho nội dung này.");
+            toast.error("Chưa có bài tập cho nội dung này.");
         }
     };
-
+    const [currentBodyContent, setCurrentBodyContent] = useState(null);
     const handleVideoClick = (item, contentId, index) => {
         setCurrentVideoUrl(item.video_link);
         setActiveItem({ contentId, index });
+
+        const bodyContent = titleContent[contentId][index];
+
+        setCurrentBodyContent(bodyContent);
     };
+
 
     //Progress
     const updateProgress = async (contentId) => {
@@ -403,44 +407,60 @@ export const Lesson = () => {
     return (
         <>
             <body className="bg-gray-100">
-                <div className="bg-gray-800 flex items-center justify-between py-1 px-6 fixed z-20 right-0 left-0">
-                    <Link to={`/detail/${slug}`}>
-                        <button className="text-white">
-                            <box-icon color="white" name="chevron-left" />
-                        </button>
-                    </Link>
-                    <div className="text-white font-bold flex items-center">
-                        <Link to="/">
-                            <div className="w-12 h-12 flex items-center justify-center text-white mr-4">
-                                <img
-                                    alt="Logo"
-                                    className="w-full h-full object-contain"
-                                    src="/src/assets/images/antlearn.png"
-                                />
+                <nav className="bg-gray-800 fixed z-20 w-full shadow-md">
+                    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between h-16">
+                            {/* Left Section - Back Button */}
+                            <div className="flex items-center">
+                                <Link
+                                    to={`/detail/${slug}`}
+                                    className="p-2 rounded-md hover:bg-gray-700 transition-all duration-200 ease-in-out"
+                                >
+                                    <ChevronLeft className="h-6 w-6 text-white" />
+                                </Link>
                             </div>
-                        </Link>
-                        <h1 className="text-xl">
-                            {lesson ? lesson.name : "Loading..."}
-                        </h1>
-                    </div>
-                    <div className="ml-auto flex items-center space-x-6">
 
-                        <button className="p-2 rounded text-white">
-                            <box-icon color="white" name="chat" />
-                        </button>
-                        <button className="p-2 rounded text-white">
-                            <box-icon
-                                color="white"
-                                name="message-square-dots"
-                            />
-                        </button>
+                            {/* Center Section - Logo & Title */}
+                            <div className="flex items-center flex-1 justify-center space-x-4">
+                                <Link
+                                    to="/"
+                                    className="flex items-center hover:scale-105 transition-transform duration-300 ease-in-out"
+                                >
+                                    <img
+                                        alt="Logo"
+                                        className="w-12 h-12 object-contain"
+                                        src="/src/assets/images/antlearn.png"
+                                    />
+                                </Link>
+                                <h1 className="text-2xl font-semibold text-white truncate max-w-md">
+                                    {lesson ? lesson.name : "Đang tải..."}
+                                </h1>
+                            </div>
+
+                            {/* Right Section - Date & Buttons */}
+                            <div className="flex items-center space-x-6">
+                                {progressData.length > 0 && (
+                                    <span className="ml-2 text-sm text-teal-400">
+                                        Lần học gần nhất: {formatDate(progressData[0].updated_at)}
+                                    </span>
+                                )}
+
+                                <div className="flex items-center space-x-4">
+                                    <button className="p-2 bg-blue-600 rounded-full hover:bg-blue-700 transition-colors duration-200 text-white">
+                                        <MessageCircle className="h-5 w-5" />
+                                    </button>
+                                    <button className="p-2 bg-green-600 rounded-full hover:bg-green-700 transition-colors duration-200 text-white">
+                                        <MessageSquare className="h-5 w-5" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </nav>
+
 
                 <div className="content-main py-16">
                     <div className="flex flex-col md:flex-row lg:gap-5 md:gap-2">
-
-
                         {/* left site - content chính */}
                         <div className="flex-1 bg-white rounded-lg shadow-md p-4">
                             {/* Phần video */}
@@ -459,7 +479,6 @@ export const Lesson = () => {
                                             handleProgress(progress, titleContentId, activeItem.index, contentId);
                                         }}
                                     />
-
                                 ) : (
                                     <img
                                         src="/src/assets/images/thumnail-lesson.jpeg"
@@ -469,29 +488,26 @@ export const Lesson = () => {
                                     />
                                 )}
                             </div>
-                            {/* Bên dưới video: Tên - ngày - mô tả - */}
+
+                            {/* Bên dưới video: nội dung khóa học - */}
                             <div className="p-6 text-gray-800">
+                                {currentBodyContent ? (
+                                    <div>
+                                        <h2 className="text-2xl font-bold mb-2 text-center md:text-start">
+                                            {currentBodyContent.body_content}
+                                        </h2>
 
-                                {/* tên */}
-                                <h2 className="text-2xl font-bold mb-2 text-center md:text-start">
-                                    <span className="font-semibold">Tên khóa học:  </span>{lesson ? lesson.name : "Loading..."}
-                                </h2>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <h2 className="text-2xl font-bold mb-2 text-center md:text-start">
+                                            {lesson && lesson.name ? lesson.name : "Không có tên khóa học."}
+                                        </h2>
+                                    </div>
 
-                                {/* ngày cập nhật */}
-                                <p className="text-sm text-gray-500 text-center md:text-start">
-                                    <span className="font-semibold">Cập nhật ngày: </span>{" "}
-                                    {lesson
-                                        ? formatDate(lesson.updated_at)
-                                        : "Loading..."}
-                                </p>
-
-                                {/* mô tả */}
-                                <p className="mt-4 text-center md:text-start">
-                                    <span className="font-semibold">Mô tả: </span>{lesson ? lesson.description : "Loading..."}
-                                </p>
-
-                                {/* link facebook */}
-                                <ul className="mt-4 space-y-2 ">
+                                )}
+                                {/* Link Facebook */}
+                                <ul className="mt-4 space-y-2">
                                     <li>
                                         <a href="https://www.facebook.com/profile.php?id=100079303916866" className="flex items-center justify-center md:justify-start gap-2 text-yellow-400 text-lg hover:underline">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/facebook.svg" className="w-7" alt="" />
