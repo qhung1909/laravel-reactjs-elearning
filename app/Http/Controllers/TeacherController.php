@@ -14,10 +14,22 @@ class TeacherController extends Controller
 {   
     public function getCoursesByTeacher()
     {
-        $courses = Course::whereHas('user', function($query) {
-            $query->where('role', 'teacher');
-        })->get();
-
+        if (!Auth::check()) {
+            return response()->json([
+                'message' => 'Người dùng chưa đăng nhập.',
+            ], 401);
+        }
+    
+        $user = Auth::user();
+    
+        if ($user->role !== 'teacher') {
+            return response()->json([
+                'message' => 'Người dùng không có quyền truy cập.',
+            ], 403);
+        }
+    
+        $courses = Course::where('user_id', $user->user_id)->get();
+    
         return response()->json([
             'message' => 'Courses retrieved successfully',
             'courses' => $courses
