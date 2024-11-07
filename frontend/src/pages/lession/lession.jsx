@@ -16,6 +16,7 @@ import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
+import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -492,30 +493,64 @@ export const Lesson = () => {
                             {/* Bên dưới video: nội dung khóa học - */}
                             <div className="p-6 text-gray-800">
                                 {currentBodyContent ? (
-                                    <div>
+                                    <div className="flex flex-col items-center mb-4">
                                         <h2 className="text-2xl font-bold mb-2 text-center md:text-start">
                                             {currentBodyContent.body_content}
                                         </h2>
-
                                     </div>
                                 ) : (
-                                    <div>
+                                    <div className="flex flex-col items-center mb-4">
                                         <h2 className="text-2xl font-bold mb-2 text-center md:text-start">
-                                            {lesson && lesson.name ? lesson.name : "Không có tên khóa học."}
+                                            {lesson && lesson.name ? lesson.name : "Đang tải..."}
                                         </h2>
+                                        <p className="text-gray-500 text-sm text-center md:text-start">
+                                            Cập nhật ngày: {lesson ? formatDateNoTime(lesson.updated_at) : "Cập nhật: Đang tải..."}
+                                        </p>
                                     </div>
-
                                 )}
+
                                 {/* Link Facebook */}
-                                <ul className="mt-4 space-y-2">
-                                    <li>
-                                        <a href="https://www.facebook.com/profile.php?id=100079303916866" className="flex items-center justify-center md:justify-start gap-2 text-yellow-400 text-lg hover:underline">
-                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/facebook.svg" className="w-7" alt="" />
-                                            <p className="font-semibold">AntLearn - Elearning</p>
-                                        </a>
-                                    </li>
-                                </ul>
+                                <div className="flex flex-col ">
+                                    <a
+                                        href="https://www.facebook.com/profile.php?id=100079303916866"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="group relative overflow-hidden rounded-lg transition-all duration-300"
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                                        <div className="relative flex items-center gap-3 bg-gradient-to-r from-yellow-50 to-yellow-100 p-3 group-hover:bg-yellow-200 transition-all duration-300">
+                                            {/* Icon Container */}
+                                            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center group-hover:bg-yellow-200 transition-colors duration-300">
+                                                <img
+                                                    src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/facebook.svg"
+                                                    className="w-5 h-5 group-hover:scale-110 transition-transform duration-300"
+                                                    alt="Facebook"
+                                                />
+                                            </div>
+
+                                            {/* Text Content */}
+                                            <div className="flex-1">
+                                                <h4 className="text-base font-bold text-yellow-600 group-hover:text-black transition-colors duration-300">
+                                                    AntLearn - Elearning
+                                                </h4>
+                                                <p className="text-gray-600 group-hover:text-black transition-colors duration-300 mt-1 text-xs">
+                                                    Theo dõi chúng tôi trên Facebook
+                                                </p>
+                                            </div>
+                                            {/* Arrow Indicator */}
+                                            <div className="w-5 h-5 flex items-center justify-center">
+                                                <span className="text-yellow-600 group-hover:text-white transform translate-x-0 group-hover:translate-x-1 transition-all duration-300">
+                                                    →
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+
+
                             </div>
+
 
                             {/* Hiển thị quiz nếu đã bắt đầu, nằm bên trong div video */}
                             {showQuiz && currentQuizId && (
