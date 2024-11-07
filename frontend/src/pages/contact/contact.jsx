@@ -148,24 +148,27 @@ export const Contact = () =>{
         <div className="relative z-10">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="text-slate-800 font-serif">
-              <h2 className="text-xl font-semibold">Hanoistar Primary School</h2>
-              <p className="text-sm mt-1">Lo T1, khu Do thi Trung Hoa, Nhan Chinh,</p>
-              <p className="text-sm">Thanh Xuan, Ha Noi</p>
+            <div className="text-slate-800">
+              <p className="flex justify-center">
+                <img src="/src/assets/images/antlearn.png" className="w-28"  alt="" />
+              </p>
+              <p className="text-xl font-medium mt-1 text-center">
+                Ứng dụng học trực tuyến số 1 Việt Nam.
+                </p>
             </div>
           </div>
 
           {/* Title */}
           <div className="text-center mb-12">
-            <h1 className="text-6xl font-bold mb-4">Certificate</h1>
-            <p className="text-xl text-amber-700 tracking-wide">OF ACHIEVEMENT</p>
+            <h1 className="text-6xl font-bold mb-4">Chứng nhận</h1>
+            <p className="text-xl text-amber-700 tracking-wide">Đã hoàn toàn xuất sắc khóa học</p>
           </div>
 
           {/* Recipient */}
           <div className="text-center mb-12">
-            <p className="text-lg mb-6">THIS CERTIFICATE IS PROUDLY PRESENTED TO</p>
-            <h2 className="text-4xl text-amber-700 font-serif font-bold mb-8">Nguyen Van A</h2>
-            <p className="text-xl mb-2">For achieving the GOLD MEDAL</p>
+            <p className="text-lg mb-6">Khóa học NextJs</p>
+            <h2 className="text-4xl text-amber-700 font-serif font-bold mb-8">Hoàng dâm tặc</h2>
+            <p className="text-xl mb-2">Đã hò</p>
             <p className="text-xl">NATIONAL LEVEL In .....</p>
           </div>
 
