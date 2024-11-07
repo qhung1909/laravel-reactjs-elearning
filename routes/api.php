@@ -140,7 +140,7 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('questions/{questionId}/options', [QuizOptionController::class, 'index']);
     Route::post('questions/{questionId}/options', [QuizOptionController::class, 'store']);
-    Route::put('questions/{questionId}/options/{id}', [QuizOptionController::class, 'update']);
+    Route::put('questions/{questionId}/options', [QuizOptionController::class, 'update']);
     Route::delete('questions/{questionId}/options/{id}', [QuizOptionController::class, 'destroy']);
 
     Route::get('/users', [UserController::class, 'getAllUsers']);
@@ -208,6 +208,11 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::post('/coupons', [AdminController::class, 'storeCoupon']);
     Route::put('/coupons/{coupon_id}', [AdminController::class, 'updateCoupon']);
     Route::delete('/coupons/{coupon_id}', [AdminController::class, 'destroyCoupon']);
+
+    Route::get('/pending-contents', [AdminController::class, 'getPendingContents']);
+    Route::get('/pending-title-contents', [AdminController::class, 'getPendingTitleContents']);
+    Route::get('/pending-quizzes', [AdminController::class, 'getPendingQuizzes']);
+
 
 
 });
