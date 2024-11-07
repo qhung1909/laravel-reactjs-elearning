@@ -172,7 +172,7 @@ export const Contact = () => {
                                     </div>
 
                                     {/* Footer */}
-                                    <div className="flex justify-between items-center mt-16 px-32">
+                                    <div className="flex justify-between items-center mt-16 px-10">
                                         <div className="text-center">
                                             <p className="text-xl font-serif mb-2">Ngày hoàn thành</p>
                                             <p className="text-sm text-slate-600">11/11/2024</p>
@@ -183,14 +183,18 @@ export const Contact = () => {
                                             <div className="w-20 h-20 rounded-full bg-amber-100 border-4 border-amber-300 flex items-center justify-center">
                                                 <div className="w-16 h-16 rounded-full bg-amber-200 flex items-center justify-center">
                                                     <span className="text-amber-700 text-xs text-center font-bold">
-                                                        BEST
+                                                        10 điểm
                                                         <br />
-                                                        AWARD
+                                                        vcl
                                                     </span>
                                                 </div>
                                             </div>
                                         </div>
-
+                                        {/* Medal Icon */}
+                                        <div className="text-center">
+                                            <p className="text-xl font-serif mb-2">Chữ ký già làng</p>
+                                            <p className="text-sm text-slate-600">Lozs</p>
+                                        </div>
 
                                     </div>
                                 </div>
