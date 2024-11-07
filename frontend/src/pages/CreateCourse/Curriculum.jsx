@@ -96,19 +96,19 @@ export const Curriculum = () => {
 
 
 
-    const handleVideoLinkChange = (sectionId, lessonId, value) => {
-        setSections(sections.map(section => {
-            if (section.id === sectionId) {
-                return {
-                    ...section,
-                    lessons: section.lessons.map(lesson =>
-                        lesson.id === lessonId ? { ...lesson, videoLink: value } : lesson
-                    )
-                };
-            }
-            return section;
-        }));
-    };
+    // const handleVideoLinkChange = (sectionId, lessonId, value) => {
+    //     setSections(sections.map(section => {
+    //         if (section.id === sectionId) {
+    //             return {
+    //                 ...section,
+    //                 lessons: section.lessons.map(lesson =>
+    //                     lesson.id === lessonId ? { ...lesson, videoLink: value } : lesson
+    //                 )
+    //             };
+    //         }
+    //         return section;
+    //     }));
+    // };
 
     const handleLessonDescriptionChange = (sectionId, lessonId, newDescription) => {
         setSections(prevSections =>
@@ -429,14 +429,15 @@ export const Curriculum = () => {
     };
 
 
-    const exportToJsonLog = () => {
-        console.log(JSON.stringify(sections, null, 2));
-        toast.success("Đã xuất dữ liệu ra log!");
-    };
+    // const exportToJsonLog = () => {
+    //     console.log(JSON.stringify(sections, null, 2));
+    //     toast.success("Đã xuất dữ liệu ra log!");
+    // };
 
 
     const openPageQuiz = async (sectionId) => {
         try {
+            // Gửi yêu cầu POST để thêm quiz
             const response = await axios.post(
                 `${API_URL}/quizzes`,
                 {
@@ -452,8 +453,10 @@ export const Curriculum = () => {
                 }
             );
 
-            // Kiểm tra cả status code và response data
-            if (response.data && response.data.quiz_id) { // hoặc một field khác xác nhận thành công
+
+
+            // Kiểm tra và xử lý phản hồi khi quiz được thêm thành công
+            if (response.data && response.data.quiz_id) {
                 Swal.fire({
                     title: 'Thành công!',
                     text: 'Quiz đã được thêm thành công. Chuyển đến trang tạo quiz.',
@@ -461,21 +464,46 @@ export const Curriculum = () => {
                     confirmButtonText: 'Đóng',
                 });
 
+                // Chuyển hướng đến trang tạo quiz
                 navigate(`/course/manage/${course_id}/create-quiz/${sectionId}`);
             } else {
                 throw new Error('Có lỗi xảy ra khi thêm quiz.');
             }
         } catch (error) {
-            console.error('Error details:', error.response?.data || error.message);
+            if (error.response) {
+                // Kiểm tra mã lỗi từ phản hồi
+                if (error.response.status === 400) {
+                    // Lỗi 400, quiz đã tồn tại
+                    Swal.fire({
+                        title: 'Tiếp tục!',
+                        text: 'Quiz đã có sẵn. Chuyển đến trang tạo quiz.',
+                        icon: 'success',
+                        confirmButtonText: 'Đóng',
+                    });
 
-            Swal.fire({
-                title: 'Thất bại!',
-                text: error.response?.data?.message || error.message || 'Không thể thêm quiz.',
-                icon: 'error',
-                confirmButtonText: 'Đóng',
-            });
+                    // Chuyển hướng đến trang tạo quiz
+                    navigate(`/course/manage/${course_id}/create-quiz/${sectionId}`);
+                } else {
+                    // Xử lý lỗi khác (ví dụ 401, 500, v.v.)
+                    Swal.fire({
+                        title: 'Thất bại!',
+                        text: error.response?.data?.message || error.message || 'Không thể thêm quiz.',
+                        icon: 'error',
+                        confirmButtonText: 'Đóng',
+                    });
+                }
+            } else {
+                // Nếu không có phản hồi từ máy chủ
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: error.message || 'Không thể kết nối với máy chủ.',
+                    icon: 'error',
+                    confirmButtonText: 'Đóng',
+                });
+            }
         }
     };
+
 
 
 
