@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, Book, Filter, Search } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import ReactPlayer from "react-player";
 import {
     Accordion,
     AccordionContent,
@@ -83,7 +84,11 @@ export default function Draft() {
     const indexOfLastCourse = currentPage * itemsPerPage;
     const indexOfFirstCourse = indexOfLastCourse - itemsPerPage;
     const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
+    const [isVideoLayerOpen, setVideoLayerOpen] = useState(false);
 
+    const handleVideoOpen = () => {
+        setVideoLayerOpen(true);
+    };
     const renderPaginationItems = () => {
         const items = [];
 
@@ -475,44 +480,67 @@ export default function Draft() {
                                                         {/* Nội dung bài học */}
                                                         <TabsContent value="content" className="mt-4">
                                                             {contentLesson.length > 0 ? (
-                                                                contentLesson.map((lesson) => (
-                                                                    <div key={lesson.content_id}>
-                                                                        <Dialog>
+                                                                contentLesson.map((lesson, index) => (
+                                                                    <div className="hover:bg-slate-200 rounded-sm" key={lesson.content_id}>
+                                                                        <Dialog >
                                                                             <DialogTrigger
-                                                                                className="py-5"
+                                                                                className="py-5 "
                                                                                 onClick={() => {
                                                                                     fetchPendingTitleContents(lesson.content_id);
                                                                                 }}
                                                                             >
-                                                                                {lesson.name_content}
+                                                                                <span className="mx-2">Bài {index + 1}: </span>{lesson.name_content}
                                                                             </DialogTrigger>
                                                                             <hr />
-                                                                            <DialogContent>
-                                                                                <DialogHeader>
-                                                                                    <DialogTitle>{lesson.name_content}</DialogTitle>
-
-                                                                                    {titleContents.length > 0 ? (
-                                                                                        <div className="mt-4">
-                                                                                            <h5 className="font-semibold">Tiêu đề Nội dung:</h5>
-                                                                                            {titleContents.map((title, index) => (
-                                                                                                <div key={index}>
-                                                                                                    <p>{title.body_content}</p>
-                                                                                                    <DialogDescription>
-                                                                                                        {title.body_content || "Nội dung không có sẵn."}
-                                                                                                    </DialogDescription>
-                                                                                                    <DialogDescription>
-                                                                                                        {title.video_link || "Nội dung không có sẵn."}
-                                                                                                    </DialogDescription>
+                                                                            <DialogContent className="max-w-3xl max-h-[80vh] p-6 bg-gradient-to-r from-blue-200 to-green-200 text-gray-800 rounded-lg shadow-lg">                                                                            <DialogHeader>
+                                                                                <DialogTitle className="text-2xl font-bold text-center">{lesson.name_content}</DialogTitle>
+                                                                                {titleContents.length > 0 ? (
+                                                                                    <div className="mt-4">
+                                                                                        <h5 className="font-semibold text-lg">Tiêu đề Nội dung:</h5>
+                                                                                        {titleContents.map((title, index) => (
+                                                                                            <div key={index} className="mb-4 p-4 bg-white rounded-lg shadow-md text-gray-900">
+                                                                                                <div className="flex flex-col space-y-4">
+                                                                                                    <div className="flex items-center">
+                                                                                                        <DialogDescription className="flex-1 font-medium text-md">
+                                                                                                            <span>{index + 1}. </span>
+                                                                                                            {title.body_content || "Nội dung không có sẵn."}
+                                                                                                        </DialogDescription>
+                                                                                                        <Dialog>
+                                                                                                            <DialogTrigger className="bg-orange-400 text-white p-2 rounded-md ml-3 my-2 hover:bg-orange-500 transition">
+                                                                                                                Xem video
+                                                                                                            </DialogTrigger>
+                                                                                                            <DialogContent className="p-0 bg-white rounded-lg shadow-md w-full">
+                                                                                                                <DialogDescription className="text-center mb-4">
+                                                                                                                    <h2 className="text-xl font-semibold mb-2">Xem Video</h2>
+                                                                                                                    {title.video_link ? (
+                                                                                                                        <div className="relative" style={{ paddingTop: '56.25%' }}>
+                                                                                                                            <ReactPlayer
+                                                                                                                                url={title.video_link}
+                                                                                                                                className="absolute top-0 left-0 w-full h-full"
+                                                                                                                                controls
+                                                                                                                                width="100%"
+                                                                                                                                height="100%"
+                                                                                                                            />
+                                                                                                                        </div>
+                                                                                                                    ) : (
+                                                                                                                        <p className="text-gray-500">Nội dung không có sẵn.</p>
+                                                                                                                    )}
+                                                                                                                </DialogDescription>
+                                                                                                            </DialogContent>
+                                                                                                        </Dialog>
+                                                                                                    </div>
                                                                                                 </div>
-                                                                                            ))}
-                                                                                        </div>
-                                                                                    ) : (
-                                                                                        <p className="mt-4">Không có tiêu đề nào để hiển thị.</p>
-                                                                                    )}
 
 
-                                                                                </DialogHeader>
+                                                                                            </div>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <p className="mt-4 text-center">Không có tiêu đề nào để hiển thị.</p>
+                                                                                )}
+                                                                            </DialogHeader>
                                                                             </DialogContent>
+
                                                                         </Dialog>
                                                                     </div>
                                                                 ))
