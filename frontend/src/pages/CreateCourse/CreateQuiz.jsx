@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { CheckCircle2, Circle, Type, Plus, Trash2 } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -33,7 +33,7 @@ export const CreateQuiz = () => {
     const location = useLocation();
     const lessonId = new URLSearchParams(location.search).get('lesson');
     const [questions, setQuestions] = useState([]);
-
+    const {course_id, content_id} = useParams()
     useEffect(() => {
         const storedData = localStorage.getItem(`quiz-${lessonId}`);
         if (storedData) {
@@ -60,11 +60,10 @@ export const CreateQuiz = () => {
         }
     }, [questions, lessonId]);
 
-
-    const addQuiz = async (course_id, content_id) => {
+    const addQuiz = async () => {
         try {
             // Gửi yêu cầu POST đến API để thêm quiz
-            const response = await axios.post(`${API_URL}/quizzes`, {
+            const response = await axios.post(`${API_URL}/quizzes/`, {
                 course_id: course_id,
                 content_id: content_id,
             }, {
@@ -269,7 +268,7 @@ export const CreateQuiz = () => {
             </div>
 
             <Button
-                onClick={addQuiz}
+                onClick={() => addQuiz(course_id, content_id)}
                 className="w-full p-4 border-2 border-dashed border-yellow-400 bg-yellow-50 rounded-lg text-yellow-600 hover:bg-yellow-100 hover:border-yellow-500 transition-colors"
             >
                 <Plus size={20} className="mr-2" />

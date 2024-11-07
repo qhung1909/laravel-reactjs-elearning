@@ -21,7 +21,7 @@ export const Curriculum = () => {
 
     const [isDataFetched, setIsDataFetched] = useState(false);
 
-    const { course_id } = useParams();
+    const { course_id, quiz_id } = useParams();
 
     const [sections, setSections] = useState([
         {
@@ -465,7 +465,7 @@ export const Curriculum = () => {
                 });
 
                 // Chuyển hướng đến trang tạo quiz
-                navigate(`/course/manage/${course_id}/create-quiz/${sectionId}`);
+                navigate(`/course/manage/${course_id}/create-quiz/${sectionId}/quiz/${response.quiz_id}`);
             } else {
                 throw new Error('Có lỗi xảy ra khi thêm quiz.');
             }
@@ -482,7 +482,7 @@ export const Curriculum = () => {
                     });
 
                     // Chuyển hướng đến trang tạo quiz
-                    navigate(`/course/manage/${course_id}/create-quiz/${sectionId}`);
+                    navigate(`/course/manage/${course_id}/create-quiz/${sectionId}/quiz/${response.quiz_id}`);
                 } else {
                     // Xử lý lỗi khác (ví dụ 401, 500, v.v.)
                     Swal.fire({
