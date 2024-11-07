@@ -96,6 +96,7 @@ export const UserProvider = ({ children }) => {
         }
 
         const token = localStorage.getItem('access_token');
+
         try {
             const response = await axios.post(
                 `${API_URL}/auth/user/updatePassword`,
@@ -118,23 +119,34 @@ export const UserProvider = ({ children }) => {
                 return true;
             }
         } catch (error) {
-            const newAttempts = passwordAttempts + 1;
-            setPasswordAttempts(newAttempts);
-
-            if (newAttempts >= MAX_PASSWORD_ATTEMPTS) {
-                notify('Bạn đã nhập sai quá nhiều lần. Mời đăng nhập lại', 'error');
+            if (error.response.status === 403) {
+                // Tài khoản bị khóa
+                notify(error.response.data.message, 'error');
                 setTimeout(() => {
                     navigate('/login');
-                    setError("");
-                    setSuccess("");
                     localStorage.removeItem('access_token');
                     localStorage.removeItem('refresh_token');
                     setUser(null);
                     setLogined(null);
                 }, 2000);
             } else {
-                const remainingAttempts = MAX_PASSWORD_ATTEMPTS - newAttempts;
-                notify(`Mật khẩu hiện tại không đúng! Còn ${remainingAttempts} lần thử`, 'error');
+                // Xử lý thông báo số lần thử còn lại
+                const newAttempts = passwordAttempts + 1;
+                setPasswordAttempts(newAttempts);
+
+                if (newAttempts >= MAX_PASSWORD_ATTEMPTS) {
+                    notify('Bạn đã nhập sai quá nhiều lần. Mời đăng nhập lại', 'error');
+                    setTimeout(() => {
+                        navigate('/login');
+                        localStorage.removeItem('access_token');
+                        localStorage.removeItem('refresh_token');
+                        setUser(null);
+                        setLogined(null);
+                    }, 1000);
+                } else {
+                    const remainingAttempts = MAX_PASSWORD_ATTEMPTS - newAttempts;
+                    notify(`Mật khẩu hiện tại không đúng! Còn ${remainingAttempts} lần thử`, 'error');
+                }
             }
             return false;
         }
