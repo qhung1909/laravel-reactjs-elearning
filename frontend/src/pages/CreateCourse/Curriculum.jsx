@@ -24,12 +24,12 @@ export const Curriculum = () => {
     const { course_id, quiz_id } = useParams();
 
     const [sections, setSections] = useState([
-        {
-            id: 1,
-            title: '',
-            lessons: []
-            // lessons: [{ id: 1, title: '', selectedOption: '', videoLink: '', content: '', fileName: '' }]
-        }
+        // {
+        //     id: 1,
+        //     title: '',
+        //     lessons: []
+        //     // lessons: [{ id: 1, title: '', selectedOption: '', videoLink: '', content: '', fileName: '' }]
+        // }
     ]);
 
     const handleSectionTitleChange = (sectionId, newTitle) => {

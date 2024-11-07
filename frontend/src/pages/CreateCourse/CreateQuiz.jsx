@@ -66,6 +66,7 @@ export const CreateQuiz = () => {
 
     const showQuizQuestions = async () => {
         try {
+            // Gửi yêu cầu API để lấy danh sách câu hỏi
             const response = await axios.get(`${API_URL}/quizzes/${quiz_id}/questions`, {
                 headers: {
                     'x-api-secret': API_KEY,
@@ -84,14 +85,47 @@ export const CreateQuiz = () => {
                     return;
                 }
 
-                // Nếu dữ liệu hợp lệ, tiếp tục xử lý
-                setQuestions(fetchedQuestions.map(q => ({
-                    id: q.question_id,
-                    question: q.question || "",
-                    type: q.question_type || "",
-                    options: q.options || ["", "", "", ""],
-                    answers: q.answers || []
-                })));
+                // Lấy dữ liệu chi tiết của các tùy chọn (options) cho từng câu hỏi
+                const updatedQuestions = await Promise.all(fetchedQuestions.map(async (q) => {
+                    try {
+                        // Gửi yêu cầu API để lấy danh sách tùy chọn của câu hỏi
+                        const optionsResponse = await axios.get(`${API_URL}/questions/${q.question_id}/options`, {
+                            headers: {
+                                'x-api-secret': API_KEY,
+                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                'Content-Type': 'application/json',
+                            }
+                        });
+
+                        const optionsData = optionsResponse.data || [];
+
+                        // Cấu trúc lại câu hỏi và tùy chọn
+                        return {
+                            id: q.question_id,
+                            question: q.question || "",
+                            type: q.question_type || "",
+                            options: optionsData.map(option => ({
+                                id: option.option_id,
+                                answer: option.answer,
+                                isCorrect: option.is_correct === 1
+                            })),
+                            answers: optionsData
+                                .filter(option => option.is_correct === 1)
+                                .map(option => optionsData.indexOf(option))
+                        };
+                    } catch (error) {
+                        console.error(`Không thể tải tùy chọn cho câu hỏi ${q.question_id}:`, error);
+                        return {
+                            id: q.question_id,
+                            question: q.question || "",
+                            type: q.question_type || "",
+                            options: ["", "", "", ""], // Giá trị mặc định nếu không thể lấy tùy chọn
+                            answers: []
+                        };
+                    }
+                }));
+
+                setQuestions(updatedQuestions);
             }
         } catch (error) {
             console.error("Không thể tải câu hỏi:", error);
@@ -105,6 +139,7 @@ export const CreateQuiz = () => {
             });
         }
     };
+
 
 
     const addQuizQuestion = async () => {
@@ -187,8 +222,6 @@ export const CreateQuiz = () => {
                 question_type: q.type,
             }));
 
-            console.log("Danh sách ID các câu hỏi:", requestData.map(q => q.id));
-
             // Gửi yêu cầu API để cập nhật nhiều câu hỏi
             const response = await axios.put(
                 `${API_URL}/quizzes/${quiz_id}/questions`,
@@ -211,6 +244,107 @@ export const CreateQuiz = () => {
                     showConfirmButton: false,
                     timer: 1500,
                 });
+
+                // Gửi yêu cầu cập nhật hoặc tạo mới đáp án cho từng câu hỏi
+                await Promise.all(questions.map(async (q) => {
+                    if (q.type === 'single_choice' || q.type === 'mutiple_choice') {
+                        if (q.options && q.options.length > 0) {
+                            const putOptions = q.options.filter(option => option.id); // Đáp án có ID để cập nhật
+                            const postOptions = q.options.filter(option => !option.id); // Đáp án không có ID để thêm mới
+
+                            // Gửi yêu cầu PUT để cập nhật đáp án có ID
+                            if (putOptions.length > 0) {
+                                await axios.put(
+                                    `${API_URL}/questions/${q.id}/options`,
+                                    {
+                                        options: putOptions.map(option => ({
+                                            id: option.id,
+                                            answer: option.answer, // Đảm bảo trả về chuỗi cho answer
+                                            is_correct: q.answers.includes(q.options.indexOf(option))
+                                        }))
+                                    },
+                                    {
+                                        headers: {
+                                            'x-api-secret': API_KEY,
+                                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                            'Content-Type': 'application/json',
+                                        },
+                                    }
+                                );
+                            }
+
+                            // Gửi yêu cầu POST để thêm mới đáp án không có ID
+                            if (postOptions.length > 0) {
+                                await axios.post(
+                                    `${API_URL}/questions/${q.id}/options`,
+                                    {
+                                        options: postOptions.map(option => ({
+                                            answer: option.answer, // Đảm bảo trả về chuỗi cho answer
+                                            is_correct: q.answers.includes(q.options.indexOf(option))
+                                        }))
+                                    },
+                                    {
+                                        headers: {
+                                            'x-api-secret': API_KEY,
+                                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                            'Content-Type': 'application/json',
+                                        },
+                                    }
+                                );
+                            }
+                        }
+                    } else if (q.type === 'true_false') {
+                        // Xử lý câu hỏi "Đúng/Sai"
+                        const answerData = {
+                            options: [
+                                { answer: "true", is_correct: q.answers[0] === "true" },
+                                { answer: "false", is_correct: q.answers[0] === "false" }
+                            ]
+                        };
+
+                        // Gửi yêu cầu PUT để cập nhật hoặc thêm mới đáp án "Đúng/Sai"
+                        await axios.put(
+                            `${API_URL}/questions/${q.id}/options`,
+                            answerData,
+                            {
+                                headers: {
+                                    'x-api-secret': API_KEY,
+                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                    'Content-Type': 'application/json',
+                                },
+                            }
+                        );
+                    } else if (q.type === 'fill_blank') {
+                        // Xử lý câu hỏi "Điền vào ô trống"
+                        const optionsData = {
+                            options: [
+                                { answer: q.answers[0], is_correct: true } // Chỉ có một đáp án đúng
+                            ]
+                        };
+
+                        // Gửi yêu cầu PUT để cập nhật hoặc thêm mới đáp án "Điền vào ô trống"
+                        await axios.put(
+                            `${API_URL}/questions/${q.id}/options`,
+                            optionsData,
+                            {
+                                headers: {
+                                    'x-api-secret': API_KEY,
+                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                    'Content-Type': 'application/json',
+                                },
+                            }
+                        );
+                    }
+                }));
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Cập nhật đáp án thành công',
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
             }
         } catch (error) {
             console.error("Không thể cập nhật câu hỏi:", error);
@@ -218,7 +352,7 @@ export const CreateQuiz = () => {
                 toast: true,
                 position: 'top-end',
                 icon: 'error',
-                title: 'Không thể cập nhật câu hỏi',
+                title: 'Không thể cập nhật câu hỏi hoặc đáp án',
                 showConfirmButton: false,
                 timer: 1500,
             });
@@ -228,12 +362,38 @@ export const CreateQuiz = () => {
 
 
 
+
+
     const handleTypeChange = (index, value) => {
         const updatedQuestions = [...questions];
         updatedQuestions[index].type = value;
-        updatedQuestions[index].answers = [];
+
+        // Đảm bảo luôn có 4 tùy chọn cho các loại "single_choice" và "mutiple_choice"
+        if (value === 'single_choice' || value === 'mutiple_choice') {
+            // Nếu số lượng tùy chọn ít hơn 4, thêm vào cho đủ
+            if (updatedQuestions[index].options.length < 4) {
+                const additionalOptions = Array(4 - updatedQuestions[index].options.length).fill({ answer: "", isCorrect: false });
+                updatedQuestions[index].options = [
+                    ...updatedQuestions[index].options,
+                    ...additionalOptions
+                ];
+            }
+        } else if (value === 'true_false') {
+            // Nếu chuyển sang loại "Đúng/Sai", thiết lập 2 tùy chọn
+            updatedQuestions[index].options = [
+                { answer: "Đúng", isCorrect: false },
+                { answer: "Sai", isCorrect: false }
+            ];
+        } else if (value === 'fill_blank') {
+            // Reset các tùy chọn khi chuyển sang loại "Điền vào ô trống"
+            updatedQuestions[index].options = [];
+        }
+
+        updatedQuestions[index].answers = []; // Reset đáp án khi loại câu hỏi thay đổi
         setQuestions(updatedQuestions);
     };
+
+
 
     const handleQuestionChange = (index, value) => {
         const updatedQuestions = [...questions];
@@ -243,7 +403,15 @@ export const CreateQuiz = () => {
 
     const handleOptionChange = (qIndex, optIndex, value) => {
         const updatedQuestions = [...questions];
-        updatedQuestions[qIndex].options[optIndex] = value;
+        // Ensure the options array exists
+        if (!updatedQuestions[qIndex].options) {
+            updatedQuestions[qIndex].options = [];
+        }
+        // Update the specific option
+        updatedQuestions[qIndex].options[optIndex] = {
+            ...updatedQuestions[qIndex].options[optIndex], // Keep the existing object
+            answer: value // Update the answer field
+        };
         setQuestions(updatedQuestions);
     };
 
@@ -258,11 +426,13 @@ export const CreateQuiz = () => {
                 question.answers.push(optionIndex);
             }
         } else {
-            question.answers = [optionIndex];
+            question.answers = [optionIndex]; // For single choice and true/false
         }
 
         setQuestions(updatedQuestions);
     };
+
+
 
     const deleteQuestion = async (index, question_id) => {
         const { isConfirmed } = await Swal.fire({
@@ -377,7 +547,7 @@ export const CreateQuiz = () => {
                                                 <div
                                                     key={optionIndex}
                                                     className={`flex items-center gap-3 p-4 border rounded-lg transition-colors cursor-pointer
-                                                            ${q.type === 'single_choice'
+                                                    ${q.type === 'single_choice'
                                                             ? q.answers[0] === optionIndex
                                                                 ? 'bg-yellow-50 border-yellow-300'
                                                                 : 'bg-gray-50 hover:bg-gray-100'
@@ -403,7 +573,7 @@ export const CreateQuiz = () => {
                                                     <Input
                                                         type="text"
                                                         placeholder={`Tùy chọn ${optionIndex + 1}`}
-                                                        value={option}
+                                                        value={option.answer || ""}
                                                         onChange={(e) => handleOptionChange(questionIndex, optionIndex, e.target.value)}
                                                         className="flex-1 border-0 bg-transparent focus:ring-0 placeholder-gray-400"
                                                         onClick={(e) => e.stopPropagation()}
@@ -412,6 +582,7 @@ export const CreateQuiz = () => {
                                             ))}
                                         </div>
                                     )}
+
 
                                     {q.type === 'true_false' && (
                                         <div className="flex gap-4">
@@ -458,7 +629,6 @@ export const CreateQuiz = () => {
                 Thêm câu hỏi
             </Button>
 
-
             <Button
                 onClick={update}
                 className="mt-4 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
@@ -474,4 +644,6 @@ export const CreateQuiz = () => {
             </Button>
         </div>
     );
+
+
 };
