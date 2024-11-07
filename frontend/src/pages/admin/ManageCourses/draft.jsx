@@ -48,6 +48,9 @@ export default function Draft() {
     const [statusFilter, setStatusFilter] = useState('pending');
     const pendingCount = courses.filter(course => course.status === 'pending').length;
     const [searchTerm, setSearchTerm] = useState('');
+    const [quizContent, setQuizContent] = useState([]);
+    const [contentLesson, setContentLesson] = useState([]);
+
     const navigate = useNavigate();
 
 
@@ -62,11 +65,11 @@ export default function Draft() {
 
             const pendingCourses = data.filter(course => course.status === 'pending');
             setCourses(pendingCourses);
-            setStats({
-                totalCourses: pendingCourses.length,
-                totalStudents: pendingCourses.reduce((sum, course) => sum + (course.enrolled_count || 0), 0),
-                activeCourses: pendingCourses.length,
-            });
+
+            if (pendingCourses.length > 0) {
+                const courseId = pendingCourses[0].course_id;
+                fetchContentLesson(courseId);
+            }
         } catch (error) {
             console.error('Lỗi khi tải danh sách khóa học:', error);
         } finally {
@@ -74,11 +77,6 @@ export default function Draft() {
         }
     };
 
-    useEffect(() => {
-        fetchCourses();
-    }, []);
-
-    const [contentLesson, setContentLesson] = useState([]);
     const fetchContentLesson = async (courseId) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -87,7 +85,7 @@ export default function Draft() {
             return;
         }
         try {
-            const res = await axios.get(`${API_URL}/contents`, {
+            const res = await axios.get(`${API_URL}/admin/pending-contents`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
@@ -96,8 +94,19 @@ export default function Draft() {
                     course_id: courseId
                 }
             });
-            if (res.data && res.data.success && Array.isArray(res.data.data)) {
-                setContentLesson(res.data.data.filter(content => content.course_id === courseId));
+
+            console.log("Dữ liệu nhận được:", res.data);
+            console.log("Giá trị courseId:", courseId);
+
+            if (res.data && res.data.success && Array.isArray(res.data.contents)) {
+                console.log("Contents:", res.data.contents); 
+                setContentLesson(res.data.contents); 
+
+                // Gọi fetchQuiz với content_id từ nội dung bài học đầu tiên
+                if (res.data.contents.length > 0) {
+                    const contentId = res.data.contents[0].content_id;
+                    fetchQuiz(contentId); // Gọi fetchQuiz với contentId
+                }
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
@@ -106,29 +115,43 @@ export default function Draft() {
         }
     };
 
-
-    const [titleContent, setTitleContent] = useState([]);
-    const fetchTitleContent = async (contentId) => {
+    const fetchQuiz = async (contentId) => {
         const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
         try {
-            const res = await axios.get(`${API_URL}/title-contents/${contentId}`, {
+            const res = await axios.get(`${API_URL}/admin/pending-quizzes`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
                 },
+                params: {
+                    content_id: contentId
+                }
             });
-            if (res.data && res.data.success) {
-                setTitleContent(prev => ({ ...prev, [contentId]: res.data.data }));
+
+            console.log("Dữ liệu nhận được từ quizzes:", res.data);
+            console.log("Giá trị contentId:", contentId);
+
+            if (res.data && res.data.success && Array.isArray(res.data.quizzes)) {
+                console.log("Quizzes:", res.data.quizzes); 
+                setQuizContent(res.data.quizzes); 
             } else {
-                console.error("Dữ liệu không hợp lệ:", res.data);
+                console.error("Dữ liệu không phải là mảng:", res.data);
             }
         } catch (error) {
-            console.error("Lỗi khi lấy chi tiết title_content:", error);
+            console.error("Lỗi khi lấy nội dung quiz:", error);
         }
     };
 
+    useEffect(() => {
+        fetchCourses();
+    }, []);
+    
 
-    // Filter courses
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             course.instructor?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -288,48 +311,31 @@ export default function Draft() {
                                                     <Tabs value={activeLessonTab} onValueChange={setActiveLessonTab}>
                                                         <TabsList>
                                                             <TabsTrigger value="content">Nội dung bài học</TabsTrigger>
-                                                            <TabsTrigger value="video">Video bài giảng</TabsTrigger>
                                                             <TabsTrigger value="quiz">Câu hỏi Quiz</TabsTrigger>
                                                         </TabsList>
 
-                                                        {/* Nội dung bài học */}
                                                         <TabsContent value="content" className="mt-4">
-                                                            {contentLesson.map((lesson) => (
-                                                                <Dialog key={lesson.id}>
-                                                                    <DialogTrigger>{lesson.name_content}</DialogTrigger>
-                                                                    <DialogContent>
-                                                                        <DialogHeader>
-                                                                            <DialogTitle>{lesson.name_content}</DialogTitle>
-                                                                            <DialogDescription>
-                                                                                {lesson.body_content || "Nội dung không có sẵn."}
-                                                                            </DialogDescription>
-                                                                        </DialogHeader>
-                                                                    </DialogContent>
-                                                                </Dialog>
-                                                            ))}
-                                                        </TabsContent>
-
-                                                        {/* Video bài giảng */}
-                                                        <TabsContent value="video" className="mt-4">
-                                                            {contentLesson.map((lesson) =>
-                                                                lesson.video_link ? (
-                                                                    <div key={lesson.id} className="aspect-video bg-gray-100 rounded-lg">
-                                                                        <iframe
-                                                                            className="w-full h-64 md:h-80"
-                                                                            src={lesson.video_link}
-                                                                            title={`Video bài giảng ${lesson.name_content}`}
-                                                                            frameBorder="0"
-                                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                                            allowFullScreen
-                                                                        ></iframe>
+                                                            {contentLesson.length > 0 ? (
+                                                                contentLesson.map((lesson) => (
+                                                                    <div key={lesson.content_id}> {/* Sử dụng content_id làm key */}
+                                                                        <Dialog>
+                                                                            <DialogTrigger>{lesson.name_content}</DialogTrigger>
+                                                                            <DialogContent>
+                                                                                <DialogHeader>
+                                                                                    <DialogTitle>{lesson.name_content}</DialogTitle>
+                                                                                    <DialogDescription>
+                                                                                        {lesson.body_content || "Nội dung không có sẵn."}
+                                                                                    </DialogDescription>
+                                                                                </DialogHeader>
+                                                                            </DialogContent>
+                                                                        </Dialog>
                                                                     </div>
-                                                                ) : (
-                                                                    <p key={lesson.id} className="text-gray-500">
-                                                                        Video không có sẵn.
-                                                                    </p>
-                                                                )
+                                                                ))
+                                                            ) : (
+                                                                <p>Không có nội dung nào để hiển thị.</p>
                                                             )}
                                                         </TabsContent>
+
 
                                                         {/* Câu hỏi Quiz */}
                                                         <TabsContent value="quiz" className="mt-4">

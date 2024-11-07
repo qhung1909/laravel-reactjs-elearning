@@ -534,11 +534,15 @@ class AdminController extends Controller
         }
     }
 
-    public function getPendingQuizzes()
+    public function getPendingQuizzes(Request $request)
     {
         try {
-            $quizzes = Quiz::where('status', 'pending')->get();
-
+            $content_id = $request->input('content_id');
+    
+            $quizzes = Quiz::where('status', 'pending')
+                            ->where('content_id', $content_id)
+                            ->get();
+    
             return response()->json([
                 'success' => true,
                 'quizzes' => $quizzes
@@ -551,5 +555,6 @@ class AdminController extends Controller
             ], 500);
         }
     }
+    
 
 }
