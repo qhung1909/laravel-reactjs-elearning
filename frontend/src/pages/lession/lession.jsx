@@ -19,6 +19,8 @@ import { Progress } from "@/components/ui/progress";
 import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import { Calendar } from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -478,12 +480,44 @@ export const Lesson = () => {
                                     >
                                         📅
                                     </button>
-                                    <button className="p-2 md:p-3 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20">
-                                        <MessageCircle className="h-4 w-4 md:h-5 md:w-5 text-white" />
-                                    </button>
-                                    <button className="p-2 md:p-3 bg-green-600 rounded-lg hover:bg-green-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/20">
-                                        <MessageSquare className="h-4 w-4 md:h-5 md:w-5 text-white" />
-                                    </button>
+
+                                    {/* Trigger mở Sheet chat */}
+                                    <Sheet>
+                                        <SheetTrigger asChild>
+                                            <button className="p-2 md:p-3 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                                                <MessageCircle className="h-4 w-4 md:h-5 md:w-5 text-white" />
+                                            </button>
+                                        </SheetTrigger>
+
+                                        <SheetContent
+                                            side="right"
+                                            className="w-80 h-full p-4 bg-gray-900 text-white rounded-l-2xl shadow-2xl"
+                                        >
+                                            <h2 className="text-lg font-semibold mb-1">Chat với AI</h2>
+                                            <p className="text-sm mb-4 text-gray-400">Nhập tin nhắn để bắt đầu cuộc trò chuyện.</p>
+
+                                            <div className="overflow-auto h-[70%] mb-4 border border-gray-700 rounded-lg p-3 bg-gray-800">
+                                                <div className="p-2 space-y-2 text-sm">
+                                                    <p><strong>Bạn:</strong> Giúp tôi giải bài quiz này</p>
+                                                    <p><strong>Bot:</strong> Mua gói vip đi tôi giải</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Nhập tin nhắn của bạn..."
+                                                    className="flex-grow p-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring focus:ring-blue-300"
+                                                />
+                                                <Button
+                                                    onClick={() => console.log("Gửi tin nhắn")}
+                                                    className="bg-blue-600 text-white hover:bg-blue-700 rounded-lg px-4 py-2"
+                                                >
+                                                    Gửi
+                                                </Button>
+                                            </div>
+                                        </SheetContent>
+                                    </Sheet>
                                 </div>
 
                                 {/* Hiển thị lịch nếu isCalendarOpen là true */}
@@ -503,12 +537,10 @@ export const Lesson = () => {
                                         {lastStudyDate && (
                                             <div className="mt-2 text-sm text-gray-600 text-center flex items-center justify-center">
                                                 <div className="inline-block w-5 h-5 bg-blue-200 mr-2 rounded"></div>
-                                                <span >Ngày học gần nhất</span>
+                                                <span>Ngày học gần nhất</span>
                                             </div>
                                         )}
                                     </div>
-
-
                                 )}
                             </div>
 
