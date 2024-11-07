@@ -117,6 +117,86 @@ export const Contact = () =>{
           </div>
         </div>
       </div>
+      <div className="w-full max-w-4xl mx-auto p-8 relative">
+      {/* Certificate Container */}
+      <div className="bg-white rounded-lg shadow-xl p-8 relative overflow-hidden">
+        {/* Top-right pattern - reduced by 30% */}
+        <div className="absolute top-0 right-0 w-32 h-32">
+          <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-blue-500 to-yellow-400 rounded-bl-full opacity-10" />
+          <div className="absolute top-0 right-0 w-3/4 h-3/4 bg-gradient-to-bl from-yellow-400 to-blue-500 rounded-bl-full opacity-10" />
+        </div>
+
+        {/* Bottom-left pattern - reduced by 30% */}
+        <div className="absolute bottom-0 left-0 w-32 h-32">
+          <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-tr from-blue-500 to-yellow-400 rounded-tr-full opacity-10" />
+          <div className="absolute bottom-0 left-0 w-3/4 h-3/4 bg-gradient-to-tr from-yellow-400 to-blue-500 rounded-tr-full opacity-10" />
+        </div>
+
+        {/* New top-left decorative pattern */}
+        <div className="absolute top-0 left-0 w-24 h-24">
+        <img src="/src/assets/images/topleftpattern.png" alt="" />
+
+        </div>
+
+        {/* New bottom-right decorative pattern */}
+        <div className="absolute bottom-0 right-0 w-24 h-24">
+        <img src="/src/assets/images/toprightpattern.png" alt="" />
+
+        </div>
+
+        {/* Content Container */}
+        <div className="relative z-10">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="text-slate-800 font-serif">
+              <h2 className="text-xl font-semibold">Hanoistar Primary School</h2>
+              <p className="text-sm mt-1">Lo T1, khu Do thi Trung Hoa, Nhan Chinh,</p>
+              <p className="text-sm">Thanh Xuan, Ha Noi</p>
+            </div>
+          </div>
+
+          {/* Title */}
+          <div className="text-center mb-12">
+            <h1 className="text-6xl font-bold mb-4">Certificate</h1>
+            <p className="text-xl text-amber-700 tracking-wide">OF ACHIEVEMENT</p>
+          </div>
+
+          {/* Recipient */}
+          <div className="text-center mb-12">
+            <p className="text-lg mb-6">THIS CERTIFICATE IS PROUDLY PRESENTED TO</p>
+            <h2 className="text-4xl text-amber-700 font-serif font-bold mb-8">Nguyen Van A</h2>
+            <p className="text-xl mb-2">For achieving the GOLD MEDAL</p>
+            <p className="text-xl">NATIONAL LEVEL In .....</p>
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-between items-center mt-16 px-12">
+            <div className="text-center">
+              <p className="text-xl font-serif mb-2">16.04.2022</p>
+              <p className="text-sm text-slate-600">DATE</p>
+            </div>
+
+            {/* Medal Icon */}
+            <div className="w-24 h-24 flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-amber-100 border-4 border-amber-300 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-amber-200 flex items-center justify-center">
+                  <span className="text-amber-700 text-xs text-center font-bold">
+                    BEST
+                    <br />
+                    AWARD
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <p className="text-xl font-serif mb-2">Hanoistar</p>
+              <p className="text-sm text-slate-600">SIGNATURE</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     </div>
   </section>
 </>
