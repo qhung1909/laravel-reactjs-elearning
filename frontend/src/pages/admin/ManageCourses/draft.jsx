@@ -99,8 +99,8 @@ export default function Draft() {
             console.log("Giá trị courseId:", courseId);
 
             if (res.data && res.data.success && Array.isArray(res.data.contents)) {
-                console.log("Contents:", res.data.contents); 
-                setContentLesson(res.data.contents); 
+                console.log("Contents:", res.data.contents);
+                setContentLesson(res.data.contents);
 
                 // Gọi fetchQuiz với content_id từ nội dung bài học đầu tiên
                 if (res.data.contents.length > 0) {
@@ -137,8 +137,8 @@ export default function Draft() {
             console.log("Giá trị contentId:", contentId);
 
             if (res.data && res.data.success && Array.isArray(res.data.quizzes)) {
-                console.log("Quizzes:", res.data.quizzes); 
-                setQuizContent(res.data.quizzes); 
+                console.log("Quizzes:", res.data.quizzes);
+                setQuizContent(res.data.quizzes);
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
@@ -150,7 +150,7 @@ export default function Draft() {
     useEffect(() => {
         fetchCourses();
     }, []);
-    
+
 
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -339,19 +339,24 @@ export default function Draft() {
 
                                                         {/* Câu hỏi Quiz */}
                                                         <TabsContent value="quiz" className="mt-4">
-                                                            <div className="space-y-4">
-                                                                <p className="font-medium">Câu hỏi 1: React được phát triển bởi công ty nào?</p>
-                                                                <div className="space-y-2">
-                                                                    <div className="flex items-center">
-                                                                        <input type="radio" name="q1" id="q1a" className="mr-2" />
-                                                                        <label htmlFor="q1a">Facebook (Meta)</label>
-                                                                    </div>
-                                                                    <div className="flex items-center">
-                                                                        <input type="radio" name="q1" id="q1b" className="mr-2" />
-                                                                        <label htmlFor="q1b">Google</label>
+                                                            {quizContent.map((quiz, index) => (
+                                                                <div key={quiz.quiz_id} className="space-y-4">
+                                                                    <p className="font-medium">{`Câu hỏi ${index + 1}: ${quiz.title}`}</p>
+                                                                    <div className="space-y-2">
+                                                                        {/* Giả sử có nhiều đáp án, bạn sẽ cần render các input radio tương ứng */}
+                                                                        {/* Chỉnh sửa dữ liệu đáp án dựa trên quiz */}
+                                                                        <div className="flex items-center">
+                                                                            <input type="radio" name={`q${index}`} id={`q${index}a`} className="mr-2" />
+                                                                            <label htmlFor={`q${index}a`}>Đáp án 1</label>
+                                                                        </div>
+                                                                        <div className="flex items-center">
+                                                                            <input type="radio" name={`q${index}`} id={`q${index}b`} className="mr-2" />
+                                                                            <label htmlFor={`q${index}b`}>Đáp án 2</label>
+                                                                        </div>
+                                                                        {/* Thêm các đáp án khác nếu cần */}
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            ))}
                                                         </TabsContent>
                                                     </Tabs>
                                                 </div>
