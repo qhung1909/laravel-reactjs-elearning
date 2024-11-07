@@ -68,6 +68,7 @@ export default function Draft() {
     const [searchTerm, setSearchTerm] = useState('');
     const [quizContent, setQuizContent] = useState([]);
     const [contentLesson, setContentLesson] = useState([]);
+    const [titleContents, setTitleContents] = useState([]);
 
     const navigate = useNavigate();
 
@@ -203,16 +204,48 @@ export default function Draft() {
                 console.log("Contents:", res.data.contents);
                 setContentLesson(res.data.contents);
 
-                // Gọi fetchQuiz với content_id từ nội dung bài học đầu tiên
                 if (res.data.contents.length > 0) {
                     const contentId = res.data.contents[0].content_id;
-                    fetchQuiz(contentId); // Gọi fetchQuiz với contentId
+                    fetchQuiz(contentId);
+                    fetchPendingTitleContents(contentId);
                 }
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
         } catch (error) {
             console.error("Lỗi khi lấy nội dung bài học:", error);
+        }
+    };
+
+    const fetchPendingTitleContents = async (contentId) => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/admin/pending-title-contents`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+                params: {
+                    content_id: contentId
+                }
+            });
+
+            console.log("Dữ liệu nhận được từ title contents:", res.data);
+            console.log("Giá trị contentId:", contentId);
+
+            if (res.data && res.data.success && Array.isArray(res.data.titleContents)) {
+                console.log("Title Contents:", res.data.titleContents);
+                setTitleContents(res.data.titleContents);
+            } else {
+                console.error("Dữ liệu không phải là mảng:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy nội dung tiêu đề:", error);
         }
     };
 
@@ -248,9 +281,11 @@ export default function Draft() {
         }
     };
 
+
     useEffect(() => {
         fetchCourses();
     }, []);
+
 
 
     const filteredCourses = courses.filter(course => {
@@ -442,19 +477,40 @@ export default function Draft() {
                                                             {contentLesson.length > 0 ? (
                                                                 contentLesson.map((lesson) => (
                                                                     <div key={lesson.content_id}>
-                                                                        <Dialog >
-                                                                            <DialogTrigger className="py-5 ">{lesson.name_content}</DialogTrigger>
+                                                                        <Dialog>
+                                                                            <DialogTrigger
+                                                                                className="py-5"
+                                                                                onClick={() => {
+                                                                                    fetchPendingTitleContents(lesson.content_id);
+                                                                                }}
+                                                                            >
+                                                                                {lesson.name_content}
+                                                                            </DialogTrigger>
                                                                             <hr />
                                                                             <DialogContent>
                                                                                 <DialogHeader>
                                                                                     <DialogTitle>{lesson.name_content}</DialogTitle>
 
-                                                                                    <DialogDescription>
-                                                                                        {lesson.body_content || "Nội dung không có sẵn."}
-                                                                                    </DialogDescription>
-                                                                                    <DialogDescription>
-                                                                                        {lesson.video_link || "Nội dung không có sẵn."}
-                                                                                    </DialogDescription>
+                                                                                    {titleContents.length > 0 ? (
+                                                                                        <div className="mt-4">
+                                                                                            <h5 className="font-semibold">Tiêu đề Nội dung:</h5>
+                                                                                            {titleContents.map((title, index) => (
+                                                                                                <div key={index}>
+                                                                                                    <p>{title.body_content}</p>
+                                                                                                    <DialogDescription>
+                                                                                                        {title.body_content || "Nội dung không có sẵn."}
+                                                                                                    </DialogDescription>
+                                                                                                    <DialogDescription>
+                                                                                                        {title.video_link || "Nội dung không có sẵn."}
+                                                                                                    </DialogDescription>
+                                                                                                </div>
+                                                                                            ))}
+                                                                                        </div>
+                                                                                    ) : (
+                                                                                        <p className="mt-4">Không có tiêu đề nào để hiển thị.</p>
+                                                                                    )}
+
+
                                                                                 </DialogHeader>
                                                                             </DialogContent>
                                                                         </Dialog>
@@ -471,8 +527,7 @@ export default function Draft() {
                                                                 <div key={quiz.quiz_id} className="space-y-4">
                                                                     <p className="font-medium">{`Câu hỏi ${index + 1}: ${quiz.title}`}</p>
                                                                     <div className="space-y-2">
-                                                                        {/* Giả sử có nhiều đáp án, bạn sẽ cần render các input radio tương ứng */}
-                                                                        {/* Chỉnh sửa dữ liệu đáp án dựa trên quiz */}
+
                                                                         <div className="flex items-center">
                                                                             <input type="radio" name={`q${index}`} id={`q${index}a`} className="mr-2" />
                                                                             <label htmlFor={`q${index}a`}>Đáp án 1</label>
