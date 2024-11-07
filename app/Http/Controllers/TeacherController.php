@@ -10,6 +10,7 @@ use App\Models\Course;
 use Illuminate\Support\Facades\DB;
 use App\Models\TitleContent;
 use Illuminate\Support\Facades\Log;
+use App\Models\Quiz;
 class TeacherController extends Controller
 {   
     public function getCoursesByTeacher()
@@ -558,5 +559,7 @@ class TeacherController extends Controller
             ], 500);
         }
     }
+
+
 
 }

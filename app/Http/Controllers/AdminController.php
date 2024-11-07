@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Aws\S3\S3Client;
 use App\Models\Category;
+use App\Models\Content;
 use App\Models\Coupon;
+use App\Models\Quiz;
+use App\Models\TitleContent;
 use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
@@ -494,4 +497,64 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+    public function getPendingContents()
+    {
+        try {
+            $contents = Content::where('status', 'pending')->get();
+
+            return response()->json([
+                'success' => true,
+                'contents' => $contents
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching pending contents',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getPendingTitleContents()
+    {
+        try {
+            $titleContents = TitleContent::where('status', 'pending')->get();
+
+            return response()->json([
+                'success' => true,
+                'titleContents' => $titleContents
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching pending title contents',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getPendingQuizzes(Request $request)
+    {
+        try {
+            $content_id = $request->input('content_id');
+    
+            $quizzes = Quiz::where('status', 'pending')
+                            ->where('content_id', $content_id)
+                            ->get();
+    
+            return response()->json([
+                'success' => true,
+                'quizzes' => $quizzes
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching pending quizzes',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+
 }

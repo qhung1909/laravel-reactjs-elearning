@@ -21,7 +21,7 @@ export const UserOrderHistory = () => {
     const [searchQuery, setSearchQuery] = useState("");
 
     const fetchOrderHistory = async () => {
-        const token = localStorage.getItem("access_token");
+        const token = localStorage.getItem("acce    ss_token");
         try {
             const response = await axios.get(`${API_URL}/auth/orders/history`, {
                 headers: {
@@ -70,7 +70,7 @@ export const UserOrderHistory = () => {
         if (orderHistory.length === 0) {
             return (
                 <TableRow>
-                    <TableCell colSpan={5} className="text-center py-4">
+                    <TableCell colSpan={6} className="text-center py-4">
                         <div className="flex flex-col items-center">
                             <svg width="100%" height="177" viewBox="0 0 139 142" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M71.5016 125.45C104.302 125.45 130.902 99.0496 130.902 66.4496C130.902 33.8496 104.302 7.44958 71.5016 7.44958C38.7016 7.44958 12.1016 33.8496 12.1016 66.4496C12.1016 99.0496 38.7016 125.45 71.5016 125.45Z" fill="#EAEEF9">

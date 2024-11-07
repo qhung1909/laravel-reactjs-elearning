@@ -455,10 +455,11 @@ class QuizOptionController extends Controller
 
         $validator = Validator::make($request->all(), [
             'options' => 'required|array',
-            'options.*.id' => 'required|exists:quiz_options,id',
+            'options.*.id' => 'required|exists:quiz_options,option_id', 
             'options.*.answer' => 'sometimes|required|string|max:255',
             'options.*.is_correct' => 'sometimes|required|boolean',
         ]);
+        
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
@@ -473,6 +474,7 @@ class QuizOptionController extends Controller
                 ]);
             }
         }
+        
 
         return response()->json(['message' => 'Options updated successfully']);
     }
