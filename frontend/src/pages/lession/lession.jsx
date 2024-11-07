@@ -494,30 +494,31 @@ export const Lesson = () => {
                             <div className="p-6 text-gray-800">
                                 {currentBodyContent ? (
                                     <div className="flex flex-col items-center mb-4">
-                                        <h2 className="text-2xl font-bold mb-2 text-center md:text-start">
+                                        <h2 className="text-2xl mb-2 text-center md:text-start">
                                             {currentBodyContent.body_content}
                                         </h2>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center mb-4">
-                                        <h2 className="text-2xl font-bold mb-2 text-center md:text-start">
+                                        <h2 className="text-2xl font-bold mb-2 text-center md:text-start uppercase">
                                             {lesson && lesson.name ? lesson.name : "Đang tải..."}
                                         </h2>
                                         <p className="text-gray-500 text-sm text-center md:text-start">
                                             Cập nhật ngày: {lesson ? formatDateNoTime(lesson.updated_at) : "Cập nhật: Đang tải..."}
                                         </p>
                                     </div>
+
                                 )}
 
                                 {/* Link Facebook */}
-                                <div className="flex flex-col ">
+                                <div className="flex flex-col w-80">
                                     <a
                                         href="https://www.facebook.com/profile.php?id=100079303916866"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="group relative overflow-hidden rounded-lg transition-all duration-300"
                                     >
-                                        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-r  from-yellow-400 to-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                                         <div className="relative flex items-center gap-3 bg-gradient-to-r from-yellow-50 to-yellow-100 p-3 group-hover:bg-yellow-200 transition-all duration-300">
                                             {/* Icon Container */}
@@ -540,14 +541,13 @@ export const Lesson = () => {
                                             </div>
                                             {/* Arrow Indicator */}
                                             <div className="w-5 h-5 flex items-center justify-center">
-                                                <span className="text-yellow-600 group-hover:text-white transform translate-x-0 group-hover:translate-x-1 transition-all duration-300">
+                                                <span className="text-yellow-600 group-hover:text-black transform translate-x-0 group-hover:translate-x-1 transition-all duration-300">
                                                     →
                                                 </span>
                                             </div>
                                         </div>
                                     </a>
                                 </div>
-
 
                             </div>
 
