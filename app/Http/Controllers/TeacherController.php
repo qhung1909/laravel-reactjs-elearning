@@ -11,7 +11,31 @@ use Illuminate\Support\Facades\DB;
 use App\Models\TitleContent;
 use Illuminate\Support\Facades\Log;
 class TeacherController extends Controller
-{
+{   
+    public function getCoursesByTeacher()
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'message' => 'Người dùng chưa đăng nhập.',
+            ], 401);
+        }
+    
+        $user = Auth::user();
+    
+        if ($user->role !== 'teacher') {
+            return response()->json([
+                'message' => 'Người dùng không có quyền truy cập.',
+            ], 403);
+        }
+    
+        $courses = Course::where('user_id', $user->user_id)->get();
+    
+        return response()->json([
+            'message' => 'Courses retrieved successfully',
+            'courses' => $courses
+        ]);
+    }
+
     public function showContent($courseId)
     {
         try {
