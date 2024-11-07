@@ -61,8 +61,8 @@ import ClassifyUsers from "./pages/admin/ManageAcount/ClassifyUsers.jsx";
 import { ThemeProvider } from "./components/ui/theme-provider.jsx";
 import PersonalInformation from "./pages/admin/ManageAcount/PersonalInformation.jsx";
 import { ManageHeader } from "./pages/admin/ManageHeaderFooter/ManageHeader.jsx";
-import { ManageFooter } from "./pages/admin/ManageHeaderFooter/ManageFooter.jsx";
 import Draft from "./pages/admin/ManageCourses/draft.jsx";
+import ManageFooter from "./pages/admin/ManageHeaderFooter/ManageFooter.jsx";
 
 
 

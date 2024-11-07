@@ -61,7 +61,7 @@ export default function ListStudents() {
                     role: user.role,
                     status: user.status
                 }));
-
+                console.log(data.status);
                 setStudents(filteredData);
             } catch (error) {
                 console.error('Error fetching Users:', error);
@@ -174,13 +174,13 @@ export default function ListStudents() {
                                                         <TableCell className="font-medium text-center">{student.name}</TableCell>
                                                         <TableCell className="text-center">{student.email}</TableCell>
                                                         <TableCell className="text-center">
-                                                            <span className={`px-2 py-1 w-full rounded-full text-xs text-center ${
-                                                                student.status === 1
-                                                                    ? "bg-green-100 text-green-800"
-                                                                    : "bg-red-100 text-red-800"
-                                                            }`}>
-                                                                {student.status === 1 ? "Đang hoạt động" : "Bị khóa"}
-                                                            </span>
+                                                                <span className={`px-2 py-1 w-full rounded-full text-xs text-center ${
+                                                                    student.status === 1
+                                                                        ? "bg-green-100 text-green-800"
+                                                                        : "bg-red-100 text-red-800"
+                                                                }`}>
+                                                                    {student.status === 1 ? "Đang hoạt động" : "Bị khóa"}
+                                                                </span>
                                                         </TableCell>
                                                         <TableCell className="text-center">
                                                             {new Date(student.created_at).toLocaleDateString('vi-VN')}

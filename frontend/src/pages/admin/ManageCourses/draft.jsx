@@ -12,6 +12,15 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
 
 import {
     Breadcrumb,
@@ -33,6 +42,15 @@ import { Separator } from '@radix-ui/react-context-menu';
 import axios from 'axios';
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
 
 
 export default function Draft() {
@@ -48,7 +66,94 @@ export default function Draft() {
     const [statusFilter, setStatusFilter] = useState('pending');
     const pendingCount = courses.filter(course => course.status === 'pending').length;
     const [searchTerm, setSearchTerm] = useState('');
+    const [quizContent, setQuizContent] = useState([]);
+    const [contentLesson, setContentLesson] = useState([]);
+    const [titleContents, setTitleContents] = useState([]);
+
     const navigate = useNavigate();
+
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 3;
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+    const totalPages = Math.ceil(courses.length / itemsPerPage);
+    const indexOfLastCourse = currentPage * itemsPerPage;
+    const indexOfFirstCourse = indexOfLastCourse - itemsPerPage;
+    const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
+
+    const renderPaginationItems = () => {
+        const items = [];
+
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) {
+                items.push(
+                    <PaginationItem key={i}>
+                        <PaginationLink
+                            href="#"
+                            isActive={currentPage === i}
+                            onClick={() => handlePageChange(i)}
+                        >
+                            {i}
+                        </PaginationLink>
+                    </PaginationItem>
+                );
+            }
+        } else {
+            items.push(
+                <PaginationItem key={1}>
+                    <PaginationLink
+                        href="#"
+                        isActive={currentPage === 1}
+                        onClick={() => handlePageChange(1)}
+                    >
+                        1
+                    </PaginationLink>
+                </PaginationItem>
+            );
+
+            if (currentPage > 3) {
+                items.push(<PaginationItem key="left-ellipsis">...</PaginationItem>);
+            }
+
+            const startPage = Math.max(2, currentPage - 1);
+            const endPage = Math.min(totalPages - 1, currentPage + 1);
+
+            for (let i = startPage; i <= endPage; i++) {
+                items.push(
+                    <PaginationItem key={i}>
+                        <PaginationLink
+                            href="#"
+                            isActive={currentPage === i}
+                            onClick={() => handlePageChange(i)}
+                        >
+                            {i}
+                        </PaginationLink>
+                    </PaginationItem>
+                );
+            }
+
+            if (currentPage < totalPages - 2) {
+                items.push(<PaginationItem key="right-ellipsis">...</PaginationItem>);
+            }
+
+            items.push(
+                <PaginationItem key={totalPages}>
+                    <PaginationLink
+                        href="#"
+                        isActive={currentPage === totalPages}
+                        onClick={() => handlePageChange(totalPages)}
+                    >
+                        {totalPages}
+                    </PaginationLink>
+                </PaginationItem>
+            );
+        }
+
+        return items;
+    };
 
 
     const fetchCourses = async () => {
@@ -62,11 +167,11 @@ export default function Draft() {
 
             const pendingCourses = data.filter(course => course.status === 'pending');
             setCourses(pendingCourses);
-            setStats({
-                totalCourses: pendingCourses.length,
-                totalStudents: pendingCourses.reduce((sum, course) => sum + (course.enrolled_count || 0), 0),
-                activeCourses: pendingCourses.length,
-            });
+
+            if (pendingCourses.length > 0) {
+                const courseId = pendingCourses[0].course_id;
+                fetchContentLesson(courseId);
+            }
         } catch (error) {
             console.error('Lỗi khi tải danh sách khóa học:', error);
         } finally {
@@ -74,11 +179,6 @@ export default function Draft() {
         }
     };
 
-    useEffect(() => {
-        fetchCourses();
-    }, []);
-
-    const [contentLesson, setContentLesson] = useState([]);
     const fetchContentLesson = async (courseId) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -87,7 +187,7 @@ export default function Draft() {
             return;
         }
         try {
-            const res = await axios.get(`${API_URL}/contents`, {
+            const res = await axios.get(`${API_URL}/admin/pending-contents`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
@@ -96,8 +196,19 @@ export default function Draft() {
                     course_id: courseId
                 }
             });
-            if (res.data && res.data.success && Array.isArray(res.data.data)) {
-                setContentLesson(res.data.data.filter(content => content.course_id === courseId));
+
+            console.log("Dữ liệu nhận được:", res.data);
+            console.log("Giá trị courseId:", courseId);
+
+            if (res.data && res.data.success && Array.isArray(res.data.contents)) {
+                console.log("Contents:", res.data.contents);
+                setContentLesson(res.data.contents);
+
+                if (res.data.contents.length > 0) {
+                    const contentId = res.data.contents[0].content_id;
+                    fetchQuiz(contentId);
+                    fetchPendingTitleContents(contentId);
+                }
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
@@ -106,29 +217,77 @@ export default function Draft() {
         }
     };
 
-
-    const [titleContent, setTitleContent] = useState([]);
-    const fetchTitleContent = async (contentId) => {
+    const fetchPendingTitleContents = async (contentId) => {
         const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
         try {
-            const res = await axios.get(`${API_URL}/title-contents/${contentId}`, {
+            const res = await axios.get(`${API_URL}/admin/pending-title-contents`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
                 },
+                params: {
+                    content_id: contentId
+                }
             });
-            if (res.data && res.data.success) {
-                setTitleContent(prev => ({ ...prev, [contentId]: res.data.data }));
+
+            console.log("Dữ liệu nhận được từ title contents:", res.data);
+            console.log("Giá trị contentId:", contentId);
+
+            if (res.data && res.data.success && Array.isArray(res.data.titleContents)) {
+                console.log("Title Contents:", res.data.titleContents);
+                setTitleContents(res.data.titleContents);
             } else {
-                console.error("Dữ liệu không hợp lệ:", res.data);
+                console.error("Dữ liệu không phải là mảng:", res.data);
             }
         } catch (error) {
-            console.error("Lỗi khi lấy chi tiết title_content:", error);
+            console.error("Lỗi khi lấy nội dung tiêu đề:", error);
+        }
+    };
+
+    const fetchQuiz = async (contentId) => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/admin/pending-quizzes`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+                params: {
+                    content_id: contentId
+                }
+            });
+
+            console.log("Dữ liệu nhận được từ quizzes:", res.data);
+            console.log("Giá trị contentId:", contentId);
+
+            if (res.data && res.data.success && Array.isArray(res.data.quizzes)) {
+                console.log("Quizzes:", res.data.quizzes);
+                setQuizContent(res.data.quizzes);
+            } else {
+                console.error("Dữ liệu không phải là mảng:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy nội dung quiz:", error);
         }
     };
 
 
-    // Filter courses
+    useEffect(() => {
+        fetchCourses();
+    }, []);
+
+
+
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             course.instructor?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -208,20 +367,20 @@ export default function Draft() {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-4">
-                                    <ScrollArea className="h-full pr-4">
+                                    <ScrollArea className="h-min pr-4">
                                         <div className="space-y-3">
-                                            {filteredCourses.map((course, index) => (
+                                            {currentCourses.map((course, index) => (
                                                 <div
                                                     key={course.id}
                                                     className={`group relative p-4 rounded-xl border cursor-pointer transition-all duration-200
-                                                    ${activeCourse?.id === course.id
+                                                        ${activeCourse?.id === course.id
                                                             ? 'bg-blue-50 border-blue-200 shadow-sm'
                                                             : 'hover:bg-gray-50 hover:border-gray-300'
                                                         }`}
                                                     onClick={() => setActiveCourse(course)}
                                                 >
                                                     <div className="flex items-center gap-3 mb-2">
-                                                        <div className="font-semibold">{index + 1}</div>
+                                                        <div className="font-semibold">{index + 1 + indexOfFirstCourse}</div> {/* Cập nhật chỉ số hiển thị */}
                                                         <h4 className="font-medium text-gray-900">{course.title}</h4>
                                                     </div>
                                                     <div className="text-sm text-gray-600">
@@ -232,6 +391,28 @@ export default function Draft() {
                                         </div>
                                     </ScrollArea>
                                 </CardContent>
+
+                                <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <button
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                            >
+                                            </button>
+                                        </PaginationItem>
+                                        {renderPaginationItems()} {/* Gọi hàm để hiển thị các trang */}
+                                        <PaginationItem>
+                                            <button
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage === totalPages}
+                                            >
+                                            </button>
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+
+
                             </Card>
                         </div>
 
@@ -288,64 +469,77 @@ export default function Draft() {
                                                     <Tabs value={activeLessonTab} onValueChange={setActiveLessonTab}>
                                                         <TabsList>
                                                             <TabsTrigger value="content">Nội dung bài học</TabsTrigger>
-                                                            <TabsTrigger value="video">Video bài giảng</TabsTrigger>
                                                             <TabsTrigger value="quiz">Câu hỏi Quiz</TabsTrigger>
                                                         </TabsList>
 
                                                         {/* Nội dung bài học */}
                                                         <TabsContent value="content" className="mt-4">
-                                                            {contentLesson.map((lesson) => (
-                                                                <Dialog key={lesson.id}>
-                                                                    <DialogTrigger>{lesson.name_content}</DialogTrigger>
-                                                                    <DialogContent>
-                                                                        <DialogHeader>
-                                                                            <DialogTitle>{lesson.name_content}</DialogTitle>
-                                                                            <DialogDescription>
-                                                                                {lesson.body_content || "Nội dung không có sẵn."}
-                                                                            </DialogDescription>
-                                                                        </DialogHeader>
-                                                                    </DialogContent>
-                                                                </Dialog>
-                                                            ))}
-                                                        </TabsContent>
+                                                            {contentLesson.length > 0 ? (
+                                                                contentLesson.map((lesson) => (
+                                                                    <div key={lesson.content_id}>
+                                                                        <Dialog>
+                                                                            <DialogTrigger
+                                                                                className="py-5"
+                                                                                onClick={() => {
+                                                                                    fetchPendingTitleContents(lesson.content_id);
+                                                                                }}
+                                                                            >
+                                                                                {lesson.name_content}
+                                                                            </DialogTrigger>
+                                                                            <hr />
+                                                                            <DialogContent>
+                                                                                <DialogHeader>
+                                                                                    <DialogTitle>{lesson.name_content}</DialogTitle>
 
-                                                        {/* Video bài giảng */}
-                                                        <TabsContent value="video" className="mt-4">
-                                                            {contentLesson.map((lesson) =>
-                                                                lesson.video_link ? (
-                                                                    <div key={lesson.id} className="aspect-video bg-gray-100 rounded-lg">
-                                                                        <iframe
-                                                                            className="w-full h-64 md:h-80"
-                                                                            src={lesson.video_link}
-                                                                            title={`Video bài giảng ${lesson.name_content}`}
-                                                                            frameBorder="0"
-                                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                                            allowFullScreen
-                                                                        ></iframe>
+                                                                                    {titleContents.length > 0 ? (
+                                                                                        <div className="mt-4">
+                                                                                            <h5 className="font-semibold">Tiêu đề Nội dung:</h5>
+                                                                                            {titleContents.map((title, index) => (
+                                                                                                <div key={index}>
+                                                                                                    <p>{title.body_content}</p>
+                                                                                                    <DialogDescription>
+                                                                                                        {title.body_content || "Nội dung không có sẵn."}
+                                                                                                    </DialogDescription>
+                                                                                                    <DialogDescription>
+                                                                                                        {title.video_link || "Nội dung không có sẵn."}
+                                                                                                    </DialogDescription>
+                                                                                                </div>
+                                                                                            ))}
+                                                                                        </div>
+                                                                                    ) : (
+                                                                                        <p className="mt-4">Không có tiêu đề nào để hiển thị.</p>
+                                                                                    )}
+
+
+                                                                                </DialogHeader>
+                                                                            </DialogContent>
+                                                                        </Dialog>
                                                                     </div>
-                                                                ) : (
-                                                                    <p key={lesson.id} className="text-gray-500">
-                                                                        Video không có sẵn.
-                                                                    </p>
-                                                                )
+                                                                ))
+                                                            ) : (
+                                                                <p>Không có nội dung nào để hiển thị.</p>
                                                             )}
                                                         </TabsContent>
 
                                                         {/* Câu hỏi Quiz */}
                                                         <TabsContent value="quiz" className="mt-4">
-                                                            <div className="space-y-4">
-                                                                <p className="font-medium">Câu hỏi 1: React được phát triển bởi công ty nào?</p>
-                                                                <div className="space-y-2">
-                                                                    <div className="flex items-center">
-                                                                        <input type="radio" name="q1" id="q1a" className="mr-2" />
-                                                                        <label htmlFor="q1a">Facebook (Meta)</label>
-                                                                    </div>
-                                                                    <div className="flex items-center">
-                                                                        <input type="radio" name="q1" id="q1b" className="mr-2" />
-                                                                        <label htmlFor="q1b">Google</label>
+                                                            {quizContent.map((quiz, index) => (
+                                                                <div key={quiz.quiz_id} className="space-y-4">
+                                                                    <p className="font-medium">{`Câu hỏi ${index + 1}: ${quiz.title}`}</p>
+                                                                    <div className="space-y-2">
+
+                                                                        <div className="flex items-center">
+                                                                            <input type="radio" name={`q${index}`} id={`q${index}a`} className="mr-2" />
+                                                                            <label htmlFor={`q${index}a`}>Đáp án 1</label>
+                                                                        </div>
+                                                                        <div className="flex items-center">
+                                                                            <input type="radio" name={`q${index}`} id={`q${index}b`} className="mr-2" />
+                                                                            <label htmlFor={`q${index}b`}>Đáp án 2</label>
+                                                                        </div>
+                                                                        {/* Thêm các đáp án khác nếu cần */}
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            ))}
                                                         </TabsContent>
                                                     </Tabs>
                                                 </div>

@@ -10,13 +10,15 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
 import { formatDateNoTime } from "@/components/FormatDay/Formatday";
+import { Calendar } from "react-calendar";
+import 'react-calendar/dist/Calendar.css';
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -25,6 +27,8 @@ export const Lesson = () => {
     const navigate = useNavigate();
     const [lesson, setLesson] = useState(null);
     const { slug } = useParams();
+    //respon
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     useEffect(() => {
         const fetchLesson = async () => {
             if (!slug) return;
@@ -404,64 +408,157 @@ export const Lesson = () => {
         }
     }, [user, lesson]);
 
-
+    //celendar
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const lastStudyDate = progressData.length > 0 ? new Date(progressData[0].updated_at) : null;
+    const handleDateChange = (date) => {
+        setSelectedDate(date);
+        setIsCalendarOpen(false); // Đóng lịch sau khi chọn ngày
+    };
     return (
         <>
             <body className="bg-gray-100">
-                <nav className="bg-gray-800 fixed z-20 w-full shadow-md">
+                <nav className="bg-gradient-to-r from-gray-900 to-gray-800 fixed z-20 w-full">
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex items-center justify-between h-16">
-                            {/* Left Section - Back Button */}
-                            <div className="flex items-center">
+                        {/* Desktop Navigation */}
+                        <div className="flex items-center justify-between h-16 md:h-20">
+                            {/* Left Section */}
+                            <div className="flex items-center space-x-4">
                                 <Link
                                     to={`/detail/${slug}`}
-                                    className="p-2 rounded-md hover:bg-gray-700 transition-all duration-200 ease-in-out"
+                                    className="p-2 md:p-2.5 rounded-lg bg-gray-700/50 hover:bg-gray-700 transition-all duration-300 ease-in-out transform hover:scale-105"
                                 >
-                                    <ChevronLeft className="h-6 w-6 text-white" />
+                                    <ChevronLeft className="h-5 w-5 md:h-6 md:w-6 text-gray-100" />
                                 </Link>
                             </div>
 
-                            {/* Center Section - Logo & Title */}
-                            <div className="flex items-center flex-1 justify-center space-x-4">
+                            {/* Center Section */}
+                            <div className="hidden md:flex items-center flex-1 justify-center space-x-6">
                                 <Link
                                     to="/"
-                                    className="flex items-center hover:scale-105 transition-transform duration-300 ease-in-out"
+                                    className="flex items-center group"
                                 >
+                                    <div className="relative">
+                                        <img
+                                            alt="Logo"
+                                            className="w-10 h-10 md:w-14 md:h-14 object-contain transform transition-all duration-300 group-hover:scale-110"
+                                            src="/src/assets/images/antlearn.png"
+                                        />
+                                        <div className="absolute -inset-1 bg-white/20 rounded-full blur-md group-hover:blur-lg transition-all duration-300 opacity-0 group-hover:opacity-100" />
+                                    </div>
+                                </Link>
+                                <div className="flex flex-col items-center">
+                                    <h1 className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white truncate max-w-[200px] sm:max-w-[300px] md:max-w-[400px] lg:max-w-[500px]">
+                                        {lesson ? lesson.name : "Đang tải..."}
+                                    </h1>
+                                </div>
+                            </div>
+
+                            {/* Mobile Center */}
+                            <div className="flex md:hidden items-center">
+                                <Link to="/" className="flex items-center">
                                     <img
                                         alt="Logo"
-                                        className="w-12 h-12 object-contain"
+                                        className="w-8 h-8 object-contain"
                                         src="/src/assets/images/antlearn.png"
                                     />
                                 </Link>
-                                <h1 className="text-2xl font-semibold text-white truncate max-w-md">
+                                <h1 className="ml-3 text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white truncate max-w-[150px]">
                                     {lesson ? lesson.name : "Đang tải..."}
                                 </h1>
                             </div>
 
-                            {/* Right Section - Date & Buttons */}
-                            <div className="flex items-center space-x-6">
-                                {progressData.length > 0 && (
-                                    <span className="ml-2 text-sm text-teal-400">
-                                        Lần học gần nhất: {formatDate(progressData[0].updated_at)}
-                                    </span>
-                                )}
-
-                                <div className="flex items-center space-x-4">
-                                    <button className="p-2 bg-blue-600 rounded-full hover:bg-blue-700 transition-colors duration-200 text-white">
-                                        <MessageCircle className="h-5 w-5" />
+                            {/* Right Section - Desktop */}
+                            <div className="hidden md:flex items-center space-x-6 relative">
+                                <div className="flex items-center space-x-3">
+                                    <button
+                                        onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+                                        className="p-2 md:p-3 bg-gray-600 rounded-lg hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-gray-500/20"
+                                    >
+                                        📅
                                     </button>
-                                    <button className="p-2 bg-green-600 rounded-full hover:bg-green-700 transition-colors duration-200 text-white">
-                                        <MessageSquare className="h-5 w-5" />
+                                    <button className="p-2 md:p-3 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20">
+                                        <MessageCircle className="h-4 w-4 md:h-5 md:w-5 text-white" />
+                                    </button>
+                                    <button className="p-2 md:p-3 bg-green-600 rounded-lg hover:bg-green-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/20">
+                                        <MessageSquare className="h-4 w-4 md:h-5 md:w-5 text-white" />
                                     </button>
                                 </div>
+
+                                {/* Hiển thị lịch nếu isCalendarOpen là true */}
+                                {isCalendarOpen && (
+                                    <div className="absolute right-0 mt-[415px] bg-white p-4 rounded-lg shadow-lg border border-gray-300 z-50 overflow-x-hidden">
+                                        <Calendar
+                                            onChange={handleDateChange}
+                                            value={selectedDate}
+                                            tileClassName={({ date, view }) => {
+                                                return lastStudyDate && date.toDateString() === lastStudyDate.toDateString()
+                                                    ? 'bg-blue-200 text-blue-600 font-bold'
+                                                    : null;
+                                            }}
+                                            className="rounded-lg shadow-md"
+                                        />
+                                        {/* Chú thích cho ngày học gần nhất */}
+                                        {lastStudyDate && (
+                                            <div className="mt-2 text-sm text-gray-600 text-center flex items-center justify-center">
+                                                <div className="inline-block w-5 h-5 bg-blue-200 mr-2 rounded"></div>
+                                                <span >Ngày học gần nhất</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+
+                                )}
+                            </div>
+
+
+                            {/* Mobile Menu Button */}
+                            <div className="flex md:hidden">
+                                <button
+                                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                    className="p-2 rounded-lg bg-gray-700/50 hover:bg-gray-700 transition-all duration-300"
+                                >
+                                    {isMenuOpen ? (
+                                        <X className="h-5 w-5 text-white" />
+                                    ) : (
+                                        <Menu className="h-5 w-5 text-white" />
+                                    )}
+                                </button>
                             </div>
                         </div>
+
+                        {/* Mobile Menu */}
+                        {isMenuOpen && (
+                            <div className="md:hidden bg-gray-800 rounded-b-lg shadow-lg">
+                                <div className="px-4 pt-2 pb-4 space-y-3">
+                                    {progressData.length > 0 && (
+                                        <div className="px-3 py-2 bg-gray-700/50 rounded-lg">
+                                            <span className="text-xs text-gray-300">
+                                                Lần học gần nhất:{' '}
+                                                <span className="text-blue-300 font-medium">
+                                                    {formatDate(progressData[0].updated_at)}
+                                                </span>
+                                            </span>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-center space-x-3">
+                                        <button className="p-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all duration-300">
+                                            <MessageCircle className="h-4 w-4 text-white" />
+                                        </button>
+                                        <button className="p-2 bg-green-600 rounded-lg hover:bg-green-700 transition-all duration-300">
+                                            <MessageSquare className="h-4 w-4 text-white" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </nav>
 
 
                 <div className="content-main py-16">
-                    <div className="flex flex-col md:flex-row lg:gap-5 md:gap-2">
+                    <div className="flex flex-col md:flex-row lg:gap-5 md:gap-2 mt-1">
                         {/* left site - content chính */}
                         <div className="flex-1 bg-white rounded-lg shadow-md p-4">
                             {/* Phần video */}
@@ -494,9 +591,15 @@ export const Lesson = () => {
                             <div className="p-6 text-gray-800">
                                 {currentBodyContent ? (
                                     <div className="flex flex-col items-center mb-4">
-                                        <h2 className="text-2xl mb-2 text-center md:text-start">
+                                        <h2 className="text-xl mb-2 text-center md:text-start">
                                             {currentBodyContent.body_content}
                                         </h2>
+                                        <h4 className="text-gray-600 text-base text-center md:text-start">
+                                            {currentBodyContent.description ? currentBodyContent.description : ' '}
+                                        </h4>
+                                        <h5 className="text-gray-600 text-base text-center md:text-start">
+                                            {currentBodyContent.document_link ? currentBodyContent.document_link : ' '}
+                                        </h5>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center mb-4">
@@ -507,8 +610,8 @@ export const Lesson = () => {
                                             Cập nhật ngày: {lesson ? formatDateNoTime(lesson.updated_at) : "Cập nhật: Đang tải..."}
                                         </p>
                                     </div>
-
                                 )}
+
 
                                 {/* Link Facebook */}
                                 <div className="flex flex-col w-80">
