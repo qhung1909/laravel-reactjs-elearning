@@ -267,34 +267,49 @@ class UserController extends Controller
         if (!Auth::check()) {
             return response()->json(['message' => 'Bạn cần đăng nhập để thực hiện hành động này.'], 401);
         }
-
+    
         $user = Auth::user();
-
+    
+        if ($user->locked_until && \Carbon\Carbon::parse($user->locked_until)->isFuture()) {
+            return response()->json(['message' => 'Tài khoản của bạn đã bị khóa. Vui lòng thử lại sau.'], 403);
+        }
+    
         $validator = Validator::make($request->all(), [
             'current_password' => 'required|string',
             'password' => 'required|string|min:6|confirmed',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Cập nhật mật khẩu không thành công.',
                 'errors' => $validator->errors()
             ], 422);
         }
-
+    
         if (!Hash::check($request->current_password, $user->password)) {
+            $user->failed_attempts = $user->failed_attempts + 1;
+            
+            if ($user->failed_attempts >= 5) {
+                $user->locked_until = \Carbon\Carbon::now()->addMinutes(15); 
+                $user->failed_attempts = 0; 
+            }
+            $user->save();
+    
             return response()->json(['message' => 'Mật khẩu cũ không đúng.'], 400);
         }
-
+    
         if (Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Mật khẩu mới không được trùng với mật khẩu hiện tại.'], 400);
         }
-
+    
         $user->password = Hash::make($request->password);
+        $user->failed_attempts = 0;
+        $user->locked_until = null; 
         $user->save();
-
+    
         return response()->json(['message' => 'Cập nhật mật khẩu thành công!'], 200);
     }
+    
 
 
 
