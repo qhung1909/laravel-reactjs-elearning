@@ -46,70 +46,70 @@ export const InstructorLesson = () => {
     const navigate = useNavigate();
     const [course, setCourse] = useState([]);
 
-    // const fetchUserCourses = async (userId) => {
-    //     const token = localStorage.getItem("access_token");
-    //     try {
-    //         const response = await axios.get(`${API_URL}/userCourses/${userId}`, {
-    //             headers: {
-    //                 'x-api-secret': `${API_KEY}`,
-    //                 Authorization: `Bearer ${token}`,
-    //             },
-    //         });
-    //         console.log(response.data)
-    //         setUserCourses(response.data)
-    //     } catch (error) {
-    //         console.log('Error fetching users Courses', error)
-    //     }
-    // }
-    // const renderUserCourses = loading ? (
-    //     <>
-    //         {Array.from({ length: 4 }).map((_, index) => (
-    //             <TableRow key={index}>
-    //                 <TableCell>
-    //                     <Skeleton className="h-[125px] w-11/12 rounded-xl" />
-    //                 </TableCell>
-    //                 <TableCell>
-    //                     <div className="flex flex-col space-y-2">
-    //                         <Skeleton className="h-4 w-8/12 md:w-11/12" />
-    //                         <Skeleton className="h-4 w-5/12 md:w-9/12" />
-    //                     </div>
-    //                 </TableCell>
-    //                 <TableCell>
-    //                     <Skeleton className="h-4 w-20" />
-    //                 </TableCell>
-    //                 <TableCell>
-    //                     <Skeleton className="h-4 w-16" />
-    //                 </TableCell>
-    //                 <TableCell>
-    //                     <Skeleton className="h-4 w-16" />
-    //                 </TableCell>
-    //                 <TableCell>
-    //                     <Skeleton className="h-4 w-24" />
-    //                 </TableCell>
-    //             </TableRow>
+    const fetchTeacherCourse = async () => {
+        const token = localStorage.getItem("access_token");
+        try {
+            const response = await axios.get(`${API_URL}/teacher/course`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                },
+            });
+            console.log(response.data)
+            setUserCourses(response.data)
+        } catch (error) {
+            console.log('Error fetching users Courses', error)
+        }
+    }
+    const renderTeacherCourse = loading ? (
+        <>
+            {Array.from({ length: 4 }).map((_, index) => (
+                <TableRow key={index}>
+                    <TableCell>
+                        <Skeleton className="h-[125px] w-11/12 rounded-xl" />
+                    </TableCell>
+                    <TableCell>
+                        <div className="flex flex-col space-y-2">
+                            <Skeleton className="h-4 w-8/12 md:w-11/12" />
+                            <Skeleton className="h-4 w-5/12 md:w-9/12" />
+                        </div>
+                    </TableCell>
+                    <TableCell>
+                        <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                    <TableCell>
+                        <Skeleton className="h-4 w-16" />
+                    </TableCell>
+                    <TableCell>
+                        <Skeleton className="h-4 w-16" />
+                    </TableCell>
+                    <TableCell>
+                        <Skeleton className="h-4 w-24" />
+                    </TableCell>
+                </TableRow>
 
-    //         ))}
-    //     </>
-    // ) :
-    //     Array.isArray(userCourses) && userCourses.length > 0 ? (
-    //         userCourses.map((item, index) => (
-    //             <TableRow key={index}>
-    //                 <TableCell className="font-medium sm:p-4 p-0">
-    //                     <img src={`${item.img}`} className="rounded-sm " alt="" />
-    //                 </TableCell>
-    //                 <TableCell className="lg:text-sm sm:text-sm text-xs md:line-clamp-none line-clamp-2">{item.title}</TableCell>
-    //                 <TableCell className="font-medium sm:text-sm text-xs">1.290.000đ</TableCell>
-    //                 <TableCell className="font-medium sm:text-sm text-xs">1200</TableCell>
-    //                 <TableCell className="font-medium sm:text-sm text-xs">1200</TableCell>
-    //                 <TableCell className="font-medium sm:text-sm text-xs">24-10-2024</TableCell>
-    //             </TableRow>
-    //         ))
-    //     ) : (
-    //         <p> chưa có dữ liệu</p>
-    //     )
-    //     useEffect(()=>{
-    //         fetchUserCourses();
-    //     },[])
+            ))}
+        </>
+    ) :
+        Array.isArray(userCourses) && userCourses.length > 0 ? (
+            userCourses.map((item, index) => (
+                <TableRow key={index}>
+                    <TableCell className="font-medium sm:text-sm text-xs">{item.status}</TableCell>
+                    <TableCell className="font-medium sm:p-4 p-0">
+                        <img src={`${item.img}`} className="rounded-sm " alt="" />
+                    </TableCell>
+                    <TableCell className="lg:text-sm sm:text-sm text-xs md:line-clamp-none line-clamp-2">{item.title}</TableCell>
+                    <TableCell className="font-medium sm:text-sm text-xs">{item.price}</TableCell>
+                    <TableCell className="font-medium sm:text-sm text-xs">{item.is_buy}</TableCell>
+                    <TableCell className="font-medium sm:text-sm text-xs">{item.views}</TableCell>
+                    <TableCell className="font-medium sm:text-sm text-xs">{item.created_at}</TableCell>
+                </TableRow>
+            ))
+        ) : (
+            <p> chưa có dữ liệu</p>
+        )
+    useEffect(() => {
+        fetchTeacherCourse();
+    }, [])
     // hàm xử lý đăng xuất
     const handleLogout = () => {
         setLoadingLogout(true);
@@ -129,10 +129,10 @@ export const InstructorLesson = () => {
 
 
 
-    const addCourse = async ()=>{
+    const addCourse = async () => {
         const token = localStorage.getItem("access_token");
         try {
-            const response = await axios.post(`${API_URL}/course`,{}, {
+            const response = await axios.post(`${API_URL}/course`, {}, {
                 headers: {
                     'x-api-secret': `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
@@ -346,6 +346,7 @@ export const InstructorLesson = () => {
                                     </TableCaption>
                                     <TableHeader>
                                         <TableRow>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs">Trạng thái</TableHead>
                                             <TableHead className="xl:w-[250px] lg:w-[250px] md:w-[200px] w-[150px] text-cyan-950 md:text-sm text-xs">Hình ảnh</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs xl:w-[200px] lg:w-[150px] md:w-[150px] sm:w-[200px] w-[200px]">Tên</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs">Giá</TableHead>
@@ -355,7 +356,7 @@ export const InstructorLesson = () => {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {/* {renderUserCourses} */}
+                                        {renderTeacherCourse}
 
                                     </TableBody>
                                 </Table>
