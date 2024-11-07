@@ -140,7 +140,7 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('questions/{questionId}/options', [QuizOptionController::class, 'index']);
     Route::post('questions/{questionId}/options', [QuizOptionController::class, 'store']);
-    Route::put('questions/{questionId}/options/{id}', [QuizOptionController::class, 'update']);
+    Route::put('questions/{questionId}/options', [QuizOptionController::class, 'update']);
     Route::delete('questions/{questionId}/options/{id}', [QuizOptionController::class, 'destroy']);
 
     Route::get('/users', [UserController::class, 'getAllUsers']);

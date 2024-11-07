@@ -423,24 +423,29 @@ class QuizOptionController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'answer' => 'required|string|max:255',
-            'is_correct' => 'required|boolean',
+            'options' => 'required|array',
+            'options.*.answer' => 'required|string|max:255',
+            'options.*.is_correct' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
-        $option = QuizOption::create([
-            'question_id' => $questionId,
-            'answer' => $request->answer,
-            'is_correct' => $request->is_correct,
-        ]);
+        $optionsData = array_map(function ($option) use ($questionId) {
+            return [
+                'question_id' => $questionId,
+                'answer' => $option['answer'],
+                'is_correct' => $option['is_correct'],
+            ];
+        }, $request->options);
 
-        return response()->json($option, 201);
+        $options = QuizOption::insert($optionsData);
+
+        return response()->json($options, 201);
     }
 
-    public function update(Request $request, $questionId, $id)
+    public function update(Request $request, $questionId)
     {
         if (!Auth::check()) {
             return response()->json([
@@ -448,22 +453,28 @@ class QuizOptionController extends Controller
             ], 401);
         }
 
-        $option = QuizOption::where('question_id', $questionId)->find($id);
-        if (!$option) {
-            return response()->json(['message' => 'Option not found'], 404);
-        }
-
         $validator = Validator::make($request->all(), [
-            'answer' => 'sometimes|required|string|max:255',
-            'is_correct' => 'sometimes|required|boolean',
+            'options' => 'required|array',
+            'options.*.id' => 'required|exists:quiz_options,id',
+            'options.*.answer' => 'sometimes|required|string|max:255',
+            'options.*.is_correct' => 'sometimes|required|boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
-        $option->update($request->all());
-        return response()->json($option);
+        foreach ($request->options as $optionData) {
+            $option = QuizOption::where('question_id', $questionId)->find($optionData['id']);
+            if ($option) {
+                $option->update([
+                    'answer' => $optionData['answer'] ?? $option->answer,
+                    'is_correct' => $optionData['is_correct'] ?? $option->is_correct,
+                ]);
+            }
+        }
+
+        return response()->json(['message' => 'Options updated successfully']);
     }
 
     public function destroy($questionId, $id)
