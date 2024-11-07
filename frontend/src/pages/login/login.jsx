@@ -4,7 +4,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-
+import axios from 'axios';
+axios
 const API_URL = import.meta.env.VITE_API_URL;
 
 const notify = (message, type) => {
@@ -132,7 +133,6 @@ export const Login = () => {
                 });
             }
 
-
             return response;
         } catch (error) {
             console.error('API request error:', error);
@@ -153,7 +153,6 @@ export const Login = () => {
     };
 
     const debouncedLogin = useCallback(debounce(async () => {
-        setLoading(false);
         if (!email || !password) {
             setError('Vui lòng nhập đầy đủ thông tin');
             return;
@@ -164,39 +163,36 @@ export const Login = () => {
             setError("");
             setSuccess("");
 
-            const res = await fetch(`${API_URL}/auth/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ email, password })
+            // Thực hiện yêu cầu POST bằng axios
+            const res = await axios.post(`${API_URL}/auth/login`, {
+                email,
+                password
             });
 
-            const data = await res.json();
-
+            const data = res.data; // Lấy dữ liệu từ phản hồi
             if (res.status === 401) {
                 setError('Tài khoản hoặc mật khẩu chưa chính xác!');
                 return;
             }
 
-            if (!res.ok) {
-                if (data.message === 'Email not verified') {
-                    notify('Vui lòng xác thực email!');
-                    return;
-                }
-                throw new Error(data.message || 'Đăng nhập thất bại');
+            if (res.status === 403) {
+                const errorMessage = res.data.error || 'Tài khoản của bạn đã bị khóa. Vui lòng thử lại sau.'; // Lấy thông báo lỗi từ API
+                setError(errorMessage); // Hiển thị thông báo từ API
+                notify(errorMessage, 'error'); // Gọi notify để hiển thị thông báo
+                return;
             }
 
+            // Kiểm tra dữ liệu trả về
             if (!data.access_token || !data.refresh_token) {
                 throw new Error('Invalid token data received');
             }
 
+            // Lưu token vào localStorage
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('refresh_token', data.refresh_token);
 
             notify('Đăng nhập thành công', 'success');
             setSuccess('Đăng nhập thành công');
-
             await getUserInfo();
 
             const previousPage = sessionStorage.getItem('previousPage');
@@ -206,14 +202,20 @@ export const Login = () => {
                 navigate(previousPage);
             } else {
                 navigate('/');
+                window.location.reload();
+
             }
         } catch (error) {
             console.error('Login error:', error);
-            setError('Đã xảy ra lỗi: ' + error.message);
-            notify('Đăng nhập thất bại');
+
+            const errorMessage = error.response && error.response.data && error.response.data.error
+                ? error.response.data.error
+                : 'Đã xảy ra lỗi: ' + error.message;
+
+            setError(errorMessage);
+            notify(errorMessage, 'error');
         } finally {
             setLoading(false);
-            window.location.reload()
         }
     }, 300), [email, password, navigate]);
 
@@ -332,6 +334,11 @@ export const Login = () => {
 
     const submit = (e) => {
         e.preventDefault();
+        if (!email || !password) {
+            setError('Vui lòng nhập đầy đủ thông tin'); // Thiết lập thông báo lỗi
+            notify('Vui lòng nhập đầy đủ thông tin', 'error'); // Hiển thị thông báo lỗi
+            return; // Dừng lại nếu không có thông tin đầy đủ
+        }
         debouncedLogin();
     };
 
@@ -412,8 +419,6 @@ export const Login = () => {
                             <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600" disabled={loading}>
                                 Đăng nhập
                             </Button>
-                            {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
-
                             <Button
                                 type="button"
                                 variant="outline"
