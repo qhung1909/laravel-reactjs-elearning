@@ -109,17 +109,12 @@ export const Detail = () => {
     }, [slug]);
 
     const [contentLesson, setContentLesson] = useState([]);
-    const fetchContentLesson = async (courseId) => {  // Đổi lessonId thành courseId
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            toast.error("Bạn chưa đăng nhập.");
-            return;
-        }
+    const fetchContentLesson = async (courseId) => {  
+
         try {
             const res = await axios.get(`${API_URL}/contents`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
                 },
                 params: {
                     course_id: courseId
