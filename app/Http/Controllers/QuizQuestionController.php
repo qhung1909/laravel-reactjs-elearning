@@ -41,9 +41,9 @@ class QuizQuestionController extends Controller
         $validator = Validator::make($request->all(), [
             'questions' => 'array',
             'questions.*.question' => 'string|max:255',
-            'questions.*.question_type' => 'required|string|in:single_choice,true_false,mutiple_choice,fill_blank',
+            'questions.*.question_type' => 'string|in:single_choice,true_false,mutiple_choice,fill_blank',
             'question' => 'string|max:255',
-            'question_type' => 'required_with:question|string|in:single_choice,true_false,mutiple_choice,fill_blank'
+            'question_type' => 'string|in:single_choice,true_false,mutiple_choice,fill_blank'
         ]);
     
         if ($validator->fails()) {
