@@ -12,6 +12,15 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
 
 import {
     Breadcrumb,
@@ -33,6 +42,15 @@ import { Separator } from '@radix-ui/react-context-menu';
 import axios from 'axios';
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
 
 
 export default function Draft() {
@@ -52,6 +70,89 @@ export default function Draft() {
     const [contentLesson, setContentLesson] = useState([]);
 
     const navigate = useNavigate();
+
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 3;
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+    const totalPages = Math.ceil(courses.length / itemsPerPage);
+    const indexOfLastCourse = currentPage * itemsPerPage;
+    const indexOfFirstCourse = indexOfLastCourse - itemsPerPage;
+    const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
+
+    const renderPaginationItems = () => {
+        const items = [];
+
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) {
+                items.push(
+                    <PaginationItem key={i}>
+                        <PaginationLink
+                            href="#"
+                            isActive={currentPage === i}
+                            onClick={() => handlePageChange(i)}
+                        >
+                            {i}
+                        </PaginationLink>
+                    </PaginationItem>
+                );
+            }
+        } else {
+            items.push(
+                <PaginationItem key={1}>
+                    <PaginationLink
+                        href="#"
+                        isActive={currentPage === 1}
+                        onClick={() => handlePageChange(1)}
+                    >
+                        1
+                    </PaginationLink>
+                </PaginationItem>
+            );
+
+            if (currentPage > 3) {
+                items.push(<PaginationItem key="left-ellipsis">...</PaginationItem>);
+            }
+
+            const startPage = Math.max(2, currentPage - 1);
+            const endPage = Math.min(totalPages - 1, currentPage + 1);
+
+            for (let i = startPage; i <= endPage; i++) {
+                items.push(
+                    <PaginationItem key={i}>
+                        <PaginationLink
+                            href="#"
+                            isActive={currentPage === i}
+                            onClick={() => handlePageChange(i)}
+                        >
+                            {i}
+                        </PaginationLink>
+                    </PaginationItem>
+                );
+            }
+
+            if (currentPage < totalPages - 2) {
+                items.push(<PaginationItem key="right-ellipsis">...</PaginationItem>);
+            }
+
+            items.push(
+                <PaginationItem key={totalPages}>
+                    <PaginationLink
+                        href="#"
+                        isActive={currentPage === totalPages}
+                        onClick={() => handlePageChange(totalPages)}
+                    >
+                        {totalPages}
+                    </PaginationLink>
+                </PaginationItem>
+            );
+        }
+
+        return items;
+    };
 
 
     const fetchCourses = async () => {
@@ -231,20 +332,20 @@ export default function Draft() {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-4">
-                                    <ScrollArea className="h-full pr-4">
+                                    <ScrollArea className="h-min pr-4">
                                         <div className="space-y-3">
-                                            {filteredCourses.map((course, index) => (
+                                            {currentCourses.map((course, index) => (
                                                 <div
                                                     key={course.id}
                                                     className={`group relative p-4 rounded-xl border cursor-pointer transition-all duration-200
-                                                    ${activeCourse?.id === course.id
+                                                        ${activeCourse?.id === course.id
                                                             ? 'bg-blue-50 border-blue-200 shadow-sm'
                                                             : 'hover:bg-gray-50 hover:border-gray-300'
                                                         }`}
                                                     onClick={() => setActiveCourse(course)}
                                                 >
                                                     <div className="flex items-center gap-3 mb-2">
-                                                        <div className="font-semibold">{index + 1}</div>
+                                                        <div className="font-semibold">{index + 1 + indexOfFirstCourse}</div> {/* Cập nhật chỉ số hiển thị */}
                                                         <h4 className="font-medium text-gray-900">{course.title}</h4>
                                                     </div>
                                                     <div className="text-sm text-gray-600">
@@ -255,6 +356,28 @@ export default function Draft() {
                                         </div>
                                     </ScrollArea>
                                 </CardContent>
+
+                                <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <button
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                            >
+                                            </button>
+                                        </PaginationItem>
+                                        {renderPaginationItems()} {/* Gọi hàm để hiển thị các trang */}
+                                        <PaginationItem>
+                                            <button
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage === totalPages}
+                                            >
+                                            </button>
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+
+
                             </Card>
                         </div>
 
@@ -314,17 +437,23 @@ export default function Draft() {
                                                             <TabsTrigger value="quiz">Câu hỏi Quiz</TabsTrigger>
                                                         </TabsList>
 
+                                                        {/* Nội dung bài học */}
                                                         <TabsContent value="content" className="mt-4">
                                                             {contentLesson.length > 0 ? (
                                                                 contentLesson.map((lesson) => (
-                                                                    <div key={lesson.content_id}> {/* Sử dụng content_id làm key */}
-                                                                        <Dialog>
-                                                                            <DialogTrigger>{lesson.name_content}</DialogTrigger>
+                                                                    <div key={lesson.content_id}>
+                                                                        <Dialog >
+                                                                            <DialogTrigger className="py-5 ">{lesson.name_content}</DialogTrigger>
+                                                                            <hr />
                                                                             <DialogContent>
                                                                                 <DialogHeader>
                                                                                     <DialogTitle>{lesson.name_content}</DialogTitle>
+
                                                                                     <DialogDescription>
                                                                                         {lesson.body_content || "Nội dung không có sẵn."}
+                                                                                    </DialogDescription>
+                                                                                    <DialogDescription>
+                                                                                        {lesson.video_link || "Nội dung không có sẵn."}
                                                                                     </DialogDescription>
                                                                                 </DialogHeader>
                                                                             </DialogContent>
@@ -335,7 +464,6 @@ export default function Draft() {
                                                                 <p>Không có nội dung nào để hiển thị.</p>
                                                             )}
                                                         </TabsContent>
-
 
                                                         {/* Câu hỏi Quiz */}
                                                         <TabsContent value="quiz" className="mt-4">

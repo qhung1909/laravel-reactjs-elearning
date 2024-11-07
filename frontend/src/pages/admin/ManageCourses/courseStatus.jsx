@@ -132,6 +132,7 @@ export default function CourseStatus() {
         }
     };
 
+
     useEffect(() => {
         fetchCourses();
     }, []);
@@ -193,7 +194,7 @@ export default function CourseStatus() {
     };
 
     const openStatusDialog = (course) => {
-        console.log('Opening status dialog for course:', course); // Kiểm tra khóa học
+        console.log('Opening status dialog for course:', course); 
 
         setSelectedCourse(course);
         setNewStatus(course.status);
@@ -253,7 +254,6 @@ export default function CourseStatus() {
                                                     >
                                                         <div className="flex items-center">
                                                             <Badge className={option.color}>
-                                                                {/* {option.value} */}
                                                                 {`${getStatusText(option.value)}`}
                                                             </Badge>
                                                         </div>
@@ -397,7 +397,6 @@ export default function CourseStatus() {
                                             >
                                                 <div className="flex items-center">
                                                     <Badge className={option.color}>
-                                                        {/* {option.value} */}
                                                         {`${getStatusText(option.value)}`}
                                                     </Badge>
                                                 </div>
