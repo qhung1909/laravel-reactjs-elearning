@@ -103,7 +103,7 @@ class QuizQuestionController extends Controller
             'questions' => 'required|array',
             'questions.*.id' => 'required|integer|exists:quizzes_questions,question_id',
             'questions.*.question' => 'sometimes|required|string|max:255',
-            'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank'
+            'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,multiple_choice,fill_blank'
         ]);
     
         if ($validator->fails()) {
@@ -112,13 +112,35 @@ class QuizQuestionController extends Controller
     
         $updatedQuestions = [];
         foreach ($request->questions as $questionData) {
-            $question = QuizQuestion::where('quiz_id', $quizId)
-                ->where('question_id', $questionData['id'])
-                ->first();
+            // Xử lý cho các loại câu hỏi true_false và fill_blank
+            if (in_array($questionData['question_type'], ['true_false', 'fill_blank'])) {
+                // Tạo 4 question_id cho các câu hỏi này
+                for ($i = 1; $i <= 4; $i++) {
+                    $question = QuizQuestion::where('quiz_id', $quizId)
+                        ->where('question_id', $questionData['id'])
+                        ->first();
     
-            if ($question) {
-                $question->update($questionData);
-                $updatedQuestions[] = $question;
+                    if ($question) {
+                        // Tạo bản sao của question cho mỗi question_id
+                        $newQuestionData = $questionData;
+                        $newQuestionData['id'] = $questionData['id'] . '_' . $i; // Giả định tạo ID mới bằng cách thêm suffix
+                        $newQuestionData['question'] .= ' ' . $i; // Có thể thêm thông tin để phân biệt các câu hỏi
+    
+                        $newQuestion = new QuizQuestion($newQuestionData);
+                        $newQuestion->save();
+                        $updatedQuestions[] = $newQuestion;
+                    }
+                }
+            } else {
+                // Cập nhật cho các loại câu hỏi khác
+                $question = QuizQuestion::where('quiz_id', $quizId)
+                    ->where('question_id', $questionData['id'])
+                    ->first();
+    
+                if ($question) {
+                    $question->update($questionData);
+                    $updatedQuestions[] = $question;
+                }
             }
         }
     
@@ -127,6 +149,7 @@ class QuizQuestionController extends Controller
             'questions' => $updatedQuestions
         ]);
     }
+    
 
     public function destroy($quizId, $id)
     {
