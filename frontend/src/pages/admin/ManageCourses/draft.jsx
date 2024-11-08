@@ -194,13 +194,13 @@ export default function Draft() {
                 }
             });
 
-            console.log("API Response Data:", res.data);
-            console.log("courseId:", courseId);
+            // console.log("API Response Data:", res.data);
+            // console.log("courseId:", courseId);
 
             if (res.data && res.data.success && Array.isArray(res.data.contents)) {
                 // Chuyển đổi courseId sang số để đảm bảo so sánh đúng kiểu dữ liệu
                 const filteredContents = res.data.contents.filter(content => content.course_id === Number(courseId));
-                console.log("Filtered Contents:", filteredContents);
+                // console.log("Filtered Contents:", filteredContents);
 
                 setContentLesson(filteredContents);
 
@@ -244,11 +244,11 @@ export default function Draft() {
                 }
             });
 
-            console.log("Dữ liệu nhận được từ title contents:", res.data);
-            console.log("Giá trị contentId:", contentId);
+            // console.log("Dữ liệu nhận được từ title contents:", res.data);
+            // console.log("Giá trị contentId:", contentId);
 
             if (res.data && res.data.success && Array.isArray(res.data.titleContents)) {
-                console.log("Title Contents:", res.data.titleContents);
+                // console.log("Title Contents:", res.data.titleContents);
                 setTitleContents(res.data.titleContents);
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
@@ -265,6 +265,8 @@ export default function Draft() {
             navigate('/');
             return;
         }
+        console.log("Token hợp lệ:", token); // Kiểm tra token
+
         try {
             const res = await axios.get(`${API_URL}/admin/pending-quizzes`, {
                 headers: {
@@ -276,19 +278,20 @@ export default function Draft() {
                 }
             });
 
-            console.log("Dữ liệu nhận được từ quizzes:", res.data);
-            console.log("Giá trị contentId:", contentId);
+            console.log("Dữ liệu nhận được từ API:", res.data); // Kiểm tra dữ liệu từ API
 
             if (res.data && res.data.success && Array.isArray(res.data.quizzes)) {
                 console.log("Quizzes:", res.data.quizzes);
                 setQuizContent(res.data.quizzes);
             } else {
-                console.error("Dữ liệu không phải là mảng:", res.data);
+                console.error("Dữ liệu không đúng:", res.data);
             }
         } catch (error) {
             console.error("Lỗi khi lấy nội dung quiz:", error);
+            toast.error("Có lỗi xảy ra khi tải quiz.");
         }
     };
+
 
 
     useEffect(() => {
@@ -589,26 +592,12 @@ export default function Draft() {
                                                         <TabsContent value="quiz" className="mt-4">
                                                             {quizContent.map((quiz, index) => (
                                                                 <div key={quiz.quiz_id} className="space-y-4">
-                                                                    <p className="font-medium">Đề: {`${quiz.title}`}</p>
+                                                                    <p className="font-medium my-2">Đề: {quiz.title || 'Không có tiêu đề'}</p>
                                                                     <div className="space-y-2">
-                                                                        {/* Câu hỏi - questions */}
-                                                                        <div>{`Câu hỏi ${index + 1}: ${quiz.question}`}</div>
-                                                                        {/* Câu trả lời - answer */}
+                                                                        <div>Câu hỏi {index + 1}: {quiz.question || 'Không có câu hỏi'}</div>
                                                                         <div className="flex items-center">
                                                                             <input type="radio" name={`q${index}`} id={`q${index}a`} className="mr-2" />
-                                                                            <label htmlFor={`q${index}a`}>Đáp án 1</label>
-                                                                        </div>
-                                                                        <div className="flex items-center">
-                                                                            <input type="radio" name={`q${index}`} id={`q${index}a`} className="mr-2" />
-                                                                            <label htmlFor={`q${index}a`}>Đáp án 2</label>
-                                                                        </div>
-                                                                        <div className="flex items-center">
-                                                                            <input type="radio" name={`q${index}`} id={`q${index}a`} className="mr-2" />
-                                                                            <label htmlFor={`q${index}a`}>Đáp án 3</label>
-                                                                        </div>
-                                                                        <div className="flex items-center">
-                                                                            <input type="radio" name={`q${index}`} id={`q${index}a`} className="mr-2" />
-                                                                            <label htmlFor={`q${index}a`}>Đáp án 4</label>
+                                                                            <label htmlFor={`q${index}a`}>{quiz.option || 'Không có lựa chọn'}</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
