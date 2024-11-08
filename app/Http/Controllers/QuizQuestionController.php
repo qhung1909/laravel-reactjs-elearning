@@ -115,7 +115,68 @@ class QuizQuestionController extends Controller
             $question = QuizQuestion::find($questionData['id']);
     
             if ($question) {
+                // Xóa các lựa chọn liên quan đến câu hỏi trước khi cập nhật
+                $question->choices()->delete();
+    
                 $question->update($questionData);
+    
+                // Tạo lại các lựa chọn dựa trên loại câu hỏi mới
+                switch ($questionData['question_type']) {
+                    case 'single_choice':
+                        $question->choices()->create([
+                            'text' => 'Option 1',
+                            'is_correct' => 0
+                        ]);
+                        $question->choices()->create([
+                            'text' => 'Option 2',
+                            'is_correct' => 0
+                        ]);
+                        $question->choices()->create([
+                            'text' => 'Option 3',
+                            'is_correct' => 0
+                        ]);
+                        $question->choices()->create([
+                            'text' => 'Option 4',
+                            'is_correct' => 0
+                        ]);
+                        break;
+                    case 'true_false':
+                        $question->choices()->create([
+                            'text' => 'True',
+                            'is_correct' => 0
+                        ]);
+                        $question->choices()->create([
+                            'text' => 'False',
+                            'is_correct' => 0
+                        ]);
+                        break;
+                    case 'mutiple_choice':
+                        $question->choices()->create([
+                            'text' => 'Option 1',
+                            'is_correct' => 0
+                        ]);
+                        $question->choices()->create([
+                            'text' => 'Option 2',
+                            'is_correct' => 0
+                        ]);
+                        $question->choices()->create([
+                            'text' => 'Option 3',
+                            'is_correct' => 0
+                        ]);
+                        $question->choices()->create([
+                            'text' => 'Option 4',
+                            'is_correct' => 0
+                        ]);
+                        break;
+                    case 'fill_blank':
+                        // No choices needed for fill-in-the-blank questions
+                        break;
+                    default:
+                        return response()->json([
+                            'message' => 'Invalid question type.',
+                        ], 400);
+                }
+    
                 $updatedQuestions[] = $question;
             }
         }
