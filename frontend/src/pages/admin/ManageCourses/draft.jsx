@@ -325,13 +325,13 @@ export default function Draft() {
                 </header>
                 <div className="absolute top-14 px-6 bg-gray-50 w-full">
                     <div className="flex items-center justify-between space-y-0">
-                        <h2 className="text-3xl font-bold tracking-tight mb-0">Quản lý duyệt nội dung</h2>
+                        <h2 className="text-3xl font-bold tracking-tight mb-4">Quản lý duyệt nội dung</h2>
                         <div className="relative flex-1 md:flex-initial">
                             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                             <input
                                 type="text"
                                 placeholder="Tìm kiếm khóa học..."
-                                className="pl-9 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="pl-9 mb-4 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -397,7 +397,7 @@ export default function Draft() {
                                             >
                                             </button>
                                         </PaginationItem>
-                                        {renderPaginationItems()} {/* Gọi hàm để hiển thị các trang */}
+                                        {renderPaginationItems()}
                                         <PaginationItem>
                                             <button
                                                 onClick={() => handlePageChange(currentPage + 1)}
