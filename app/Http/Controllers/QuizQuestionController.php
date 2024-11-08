@@ -117,21 +117,7 @@ class QuizQuestionController extends Controller
                 ->first();
     
             if ($question) {
-                if ($question->question_type != $questionData['question_type']) {
-                    $question->options()->delete(); 
-    
-                    if (in_array($questionData['question_type'], ['true_false', 'fill_blank'])) {
-                        if ($questionData['question_type'] == 'true_false') {
-                            $question->options()->create(['answer' => 'True', 'is_correct' => null]);
-                            $question->options()->create(['answer' => 'False', 'is_correct' => null]);
-                        } elseif ($questionData['question_type'] == 'fill_blank') {
-                            $question->options()->create(['answer' => '', 'is_correct' => null]);
-                        }
-                    }
-                }
-
                 $question->update($questionData);
-    
                 $updatedQuestions[] = $question;
             }
         }
@@ -141,7 +127,6 @@ class QuizQuestionController extends Controller
             'questions' => $updatedQuestions
         ]);
     }
-    
 
     public function destroy($quizId, $id)
     {
