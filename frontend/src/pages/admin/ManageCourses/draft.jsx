@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, Book, Filter, Search } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, Book, Search, Filter } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import ReactPlayer from "react-player";
@@ -12,9 +12,10 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Separator } from '@radix-ui/react-context-menu';
 import axios from 'axios';
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast, Toaster } from "react-hot-toast";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationPrevious } from "@/components/ui/pagination"
+import { useNavigate, } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, } from "@/components/ui/pagination"
+import { formatCurrency } from '@/components/Formatcurrency/formatCurrency';
 
 
 export default function Draft() {
@@ -68,7 +69,7 @@ export default function Draft() {
     const totalPages = Math.ceil(courses.length / itemsPerPage);
     const indexOfLastCourse = currentPage * itemsPerPage;
     const indexOfFirstCourse = indexOfLastCourse - itemsPerPage;
-    const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
+    // const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
 
 
     /* Video */
@@ -286,10 +287,11 @@ export default function Draft() {
 
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            course.instructor?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = course.status === statusFilter;
+            course.user.name?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus = statusFilter ? course.status === statusFilter : true; // Cải thiện cho trạng thái
         return matchesSearch && matchesStatus;
     });
+    const currentCourses = filteredCourses;
 
 
 
@@ -326,18 +328,23 @@ export default function Draft() {
                 <div className="absolute top-14 px-6 bg-gray-50 w-full">
                     <div className="flex items-center justify-between space-y-0">
                         <h2 className="text-3xl font-bold tracking-tight mb-4">Quản lý duyệt nội dung</h2>
-                        <div className="relative flex-1 md:flex-initial">
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm khóa học..."
-                                className="pl-9 mb-4 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                        <div className="flex flex-wrap gap-4 w-full md:w-auto">
+                            <Button variant="outline" className="flex items-center gap-2">
+                                <Filter size={16} />
+                                Lọc
+                            </Button>
+                            <div className="relative flex-1 md:flex-initial">
+                                <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Tìm kiếm khóa học..."
+                                    className="pl-9 mb-4 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
                         </div>
                     </div>
-
 
                     <div className="flex flex-col md:flex-row gap-4">
                         {/* Left Sidebar */}
@@ -370,7 +377,7 @@ export default function Draft() {
                                                     key={course.id}
                                                     className={`group relative p-4 rounded-xl border cursor-pointer transition-all duration-200
                                                         ${activeCourse?.id === course.id
-                                                            ? 'bg-blue-50 border-blue-200 shadow-sm'
+                                                            ? 'bg-yellow-50 border-yellow-200 shadow-sm'
                                                             : 'hover:bg-gray-50 hover:border-gray-300'
                                                         }`}
                                                     onClick={() => setActiveCourse(course)}
@@ -442,27 +449,32 @@ export default function Draft() {
                                         <TabsContent value="info">
                                             {activeCourse ? (
                                                 <div className="space-y-4">
-                                                    <div>
-                                                        <label className="font-semibold">Giảng viên:</label>
-                                                        <p>{activeCourse.instructor}</p>
-                                                    </div>
-                                                    <div>
-                                                        <label className="font-semibold">Mô tả:</label>
-                                                        <p>{activeCourse.description}</p>
-                                                    </div>
-                                                    <div>
-                                                        <label className="font-semibold">Thời lượng:</label>
-                                                        <p>{activeCourse.duration}</p>
-                                                    </div>
-                                                    <div>
-                                                        <label className="font-semibold">Cấp độ:</label>
-                                                        <p>{activeCourse.level}</p>
-                                                    </div>
-                                                    <div>
-                                                        <label className="font-semibold">Yêu cầu tiên quyết:</label>
-                                                        <p>{activeCourse.prerequisites}</p>
-                                                    </div>
+                                                <div className="flex items-center">
+                                                    <label className="font-semibold mr-2">Giảng viên:</label>
+                                                    <p>{activeCourse.user.name}</p>
                                                 </div>
+                                                <div className="flex items-center w-full">
+                                                    <label className="font-semibold mr-2">Mô tả:</label>
+                                                    <p className="break-words">{activeCourse.description}</p>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <label className="font-semibold mr-2">Thời lượng: </label>
+                                                    <p>{activeCourse.duration}10 giờ</p>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <label className="font-semibold mr-2">Cấp độ:</label>
+                                                    <p>{activeCourse.level}Khá</p>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <label className="font-semibold mr-2">Giá:</label>
+                                                    <p>{formatCurrency(activeCourse.price)}</p>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <label className="font-semibold mr-2">Yêu cầu tiên quyết:</label>
+                                                    <p className="break-words">{activeCourse.prerequisites}</p>
+                                                </div>
+                                            </div>
+
                                             ) : (
                                                 <p>Thông tin khóa học sẽ xuất hiện ở đây.</p>
                                             )}
@@ -484,7 +496,7 @@ export default function Draft() {
                                                         <TabsContent value="content" className="mt-4">
                                                             {contentLesson.length > 0 ? (
                                                                 contentLesson.map((lesson, index) => (
-                                                                    <div className="hover:bg-slate-200 rounded-sm" key={lesson.content_id}>
+                                                                    <div className="hover:bg-amber-50 rounded-sm" key={lesson.content_id}>
                                                                         <Dialog >
                                                                             <DialogTrigger
                                                                                 className="py-5 "
