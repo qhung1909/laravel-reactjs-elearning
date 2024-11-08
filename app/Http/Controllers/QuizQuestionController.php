@@ -93,40 +93,69 @@ class QuizQuestionController extends Controller
     
     public function update(Request $request, $quizId)
     {
-        if (!Auth::check()) {
-            return response()->json([
-                'message' => 'Người dùng chưa đăng nhập.',
-            ], 401);
-        }
-    
-        $validator = Validator::make($request->all(), [
-            'questions' => 'required|array',
-            'questions.*.id' => 'required|integer|exists:quizzes_questions,question_id',
-            'questions.*.question' => 'sometimes|required|string|max:255',
-            'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank'
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
-    
-        $updatedQuestions = [];
-        foreach ($request->questions as $questionData) {
-            $question = QuizQuestion::where('quiz_id', $quizId)
-                ->where('question_id', $questionData['id'])
-                ->first();
-    
-            if ($question) {
-                $question->update($questionData);
-                $updatedQuestions[] = $question;
+        try {
+            if (!Auth::check()) {
+                return response()->json([
+                    'message' => 'Người dùng chưa đăng nhập.',
+                ], 401);
             }
-        }
     
-        return response()->json([
-            'message' => 'Questions updated successfully',
-            'questions' => $updatedQuestions
-        ]);
+            $validator = Validator::make($request->all(), [
+                'questions' => 'required|array',
+                'questions.*.question_id' => 'required|integer|exists:quizzes_questions,question_id',
+                'questions.*.question' => 'sometimes|required|string|max:255',
+                'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,multiple_choice,fill_blank'
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
+    
+            $updatedQuestions = [];
+            foreach ($request->questions as $questionData) {
+                $question = QuizQuestion::where('quiz_id', $quizId)
+                    ->where('question_id', $questionData['question_id'])
+                    ->first();
+    
+                if ($question) {
+                    // Kiểm tra xem loại câu hỏi có thay đổi không
+                    if ($question->question_type !== $questionData['question_type']) {
+                        // Lưu ID của câu hỏi cũ
+                        $oldQuestionId = $question->question_id;
+    
+                        // Xóa câu hỏi cũ
+                        $question->delete();
+    
+                        // Tạo mới câu hỏi với dữ liệu mới
+                        $newQuestion = new QuizQuestion($questionData);
+                        $newQuestion->quiz_id = $quizId; // Gán quiz_id cho câu hỏi mới
+                        $newQuestion->save();
+    
+                        $updatedQuestions[] = $newQuestion;
+                    } else {
+                        // Nếu loại câu hỏi không thay đổi, chỉ cần cập nhật
+                        $question->update($questionData);
+                        $updatedQuestions[] = $question;
+                    }
+                } else {
+                    return response()->json([
+                        'message' => "Không tìm thấy câu hỏi với ID {$questionData['question_id']}.",
+                    ], 404);
+                }
+            }
+    
+            return response()->json([
+                'message' => 'Cập nhật câu hỏi thành công',
+                'questions' => $updatedQuestions
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Đã xảy ra lỗi khi cập nhật câu hỏi.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+    
 
     public function destroy($quizId, $id)
     {
