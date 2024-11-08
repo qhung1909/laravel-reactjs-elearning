@@ -101,7 +101,7 @@ class QuizQuestionController extends Controller
     
         $validator = Validator::make($request->all(), [
             'questions' => 'required|array',
-            'questions.*.id' => 'required|integer|exists:quizzes_questions,question_id',
+            'questions.*.id' => 'required|integer|exists:quizzes_questions,id',
             'questions.*.question' => 'sometimes|required|string|max:255',
             'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank'
         ]);
@@ -112,9 +112,7 @@ class QuizQuestionController extends Controller
     
         $updatedQuestions = [];
         foreach ($request->questions as $questionData) {
-            $question = QuizQuestion::where('quiz_id', $quizId)
-                ->where('question_id', $questionData['id'])
-                ->first();
+            $question = QuizQuestion::find($questionData['id']);
     
             if ($question) {
                 $question->update($questionData);
