@@ -101,9 +101,9 @@ class QuizQuestionController extends Controller
     
         $validator = Validator::make($request->all(), [
             'questions' => 'required|array',
-            'questions.*.question_id' => 'required|integer|exists:quizzes_questions,question_id', // Sửa 'id' thành 'question_id'
+            'questions.*.id' => 'required|integer|exists:quizzes_questions,question_id',
             'questions.*.question' => 'sometimes|required|string|max:255',
-            'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank',
+            'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank'
         ]);
     
         if ($validator->fails()) {
@@ -114,48 +114,53 @@ class QuizQuestionController extends Controller
     
         foreach ($request->questions as $questionData) {
             $question = QuizQuestion::where('quiz_id', $quizId)
-                ->where('question_id', $questionData['question_id']) // Sửa 'id' thành 'question_id'
+                ->where('question_id', $questionData['id'])
                 ->first();
     
             if ($question) {
-                // Xử lý các loại câu hỏi và cập nhật dữ liệu
-                if (isset($questionData['question_type'])) {
-                    $questionType = $questionData['question_type'];
-                    
-                    // Xóa tất cả các lựa chọn cũ
-                    $question->answers()->delete();
+                // Cập nhật các thông tin câu hỏi
+                $question->question = $questionData['question'] ?? $question->question;
+                $question->question_type = $questionData['question_type'] ?? $question->question_type;
     
-                    switch ($questionType) {
-                        case 'true_false':
-                            $question->answers()->createMany([
-                                ['option_text' => 'True', 'is_correct' => true],
-                                ['option_text' => 'False', 'is_correct' => false],
-                            ]);
-                            break;
-                        case 'single_choice':
-                            if (isset($questionData['options']) && count($questionData['options']) === 4) {
-                                $question->answers()->createMany($questionData['options']);
-                            } else {
-                                return response()->json([
-                                    'message' => 'Câu hỏi Single Choice phải có 4 lựa chọn.',
-                                ], 400);
-                            }
-                            break;
-                        case 'mutiple_choice':
-                            if (isset($questionData['options']) && count($questionData['options']) >= 2) {
-                                $question->answers()->createMany($questionData['options']);
-                            } else {
-                                return response()->json([
-                                    'message' => 'Câu hỏi Multiple Choice phải có ít nhất 2 lựa chọn.',
-                                ], 400);
-                            }
-                            break;
-                        case 'fill_blank':
-                            break;
-                    }
+                // Xóa các lựa chọn cũ nếu có
+                $question->answers()->delete();
+    
+                // Thêm các lựa chọn mới theo loại câu hỏi
+                switch ($question->question_type) {
+                    case 'true_false':
+                        $question->answers()->createMany([
+                            ['option_text' => 'True', 'is_correct' => true],
+                            ['option_text' => 'False', 'is_correct' => false],
+                        ]);
+                        break;
+    
+                    case 'single_choice':
+                        if (isset($questionData['options']) && count($questionData['options']) === 4) {
+                            $question->answers()->createMany($questionData['options']);
+                        } else {
+                            return response()->json([
+                                'message' => 'Câu hỏi Single Choice phải có 4 lựa chọn.',
+                            ], 400);
+                        }
+                        break;
+    
+                    case 'mutiple_choice':
+                        if (isset($questionData['options']) && count($questionData['options']) >= 2) {
+                            $question->answers()->createMany($questionData['options']);
+                        } else {
+                            return response()->json([
+                                'message' => 'Câu hỏi Multiple Choice phải có ít nhất 2 lựa chọn.',
+                            ], 400);
+                        }
+                        break;
+    
+                    case 'fill_blank':
+                        // Không cần thêm lựa chọn nào cho câu hỏi Fill in the Blank
+                        break;
                 }
     
-                $question->update($questionData);
+                // Lưu cập nhật câu hỏi
+                $question->save();
                 $updatedQuestions[] = $question;
             }
         }
@@ -165,6 +170,7 @@ class QuizQuestionController extends Controller
             'questions' => $updatedQuestions
         ]);
     }
+    
     
 
     public function destroy($quizId, $id)
