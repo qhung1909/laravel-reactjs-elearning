@@ -163,8 +163,10 @@ export default function Draft() {
             setCourses(pendingCourses);
 
             if (pendingCourses.length > 0) {
-                const courseId = pendingCourses[0].course_id;
-                fetchContentLesson(courseId);
+                const courseId = pendingCourses[0].course_id; // Lấy course_id từ khóa học đầu tiên
+                fetchContentLesson(courseId); // Truyền courseId vào hàm
+            } else {
+                console.warn("Không có khóa học nào đang chờ phê duyệt."); // Thông báo nếu không có khóa học nào
             }
         } catch (error) {
             console.error('Lỗi khi tải danh sách khóa học:', error);
@@ -172,6 +174,7 @@ export default function Draft() {
             setIsLoading(false);
         }
     };
+
 
     const fetchContentLesson = async (courseId) => {
         const token = localStorage.getItem("access_token");
@@ -187,30 +190,40 @@ export default function Draft() {
                     Authorization: `Bearer ${token}`,
                 },
                 params: {
-                    course_id: courseId // Chỉ fetch nội dung cho khóa học đã chọn
+                    course_id: courseId // Fetch nội dung cho khóa học được chọn
                 }
             });
 
-            if (res.data && res.data.success && Array.isArray(res.data.contents)) {
-                setContentLesson(res.data.contents);
+            console.log("API Response Data:", res.data);
+            console.log("courseId:", courseId);
 
-                // Tính số lượng nội dung chờ duyệt
-                const pendingCount = res.data.contents.filter(content => content.status === 'pending').length;
+            if (res.data && res.data.success && Array.isArray(res.data.contents)) {
+                // Chuyển đổi courseId sang số để đảm bảo so sánh đúng kiểu dữ liệu
+                const filteredContents = res.data.contents.filter(content => content.course_id === Number(courseId));
+                console.log("Filtered Contents:", filteredContents);
+
+                setContentLesson(filteredContents);
+
+                const pendingCount = filteredContents.filter(content => content.status === 'pending').length;
                 setPendingCountContents(pendingCount);
 
-                if (res.data.contents.length > 0) {
-                    const contentId = res.data.contents[0].content_id;
+                if (filteredContents.length > 0) {
+                    const contentId = filteredContents[0].content_id;
                     fetchQuiz(contentId);
                     fetchPendingTitleContents(contentId);
                 }
             } else {
-                console.error("Dữ liệu không phải là mảng:", res.data);
+                console.error("Dữ liệu không phải là mảng hoặc không có thành công:", res.data);
             }
         } catch (error) {
             console.error("Lỗi khi lấy nội dung bài học:", error);
         }
     };
 
+
+    useEffect(() => {
+        fetchCourses();
+    }, []);
 
 
     const fetchPendingTitleContents = async (contentId) => {
@@ -379,7 +392,7 @@ export default function Draft() {
                                                         }`}
                                                     onClick={() => {
                                                         setActiveCourse(course);
-                                                        fetchContentLesson(course.id); 
+                                                        fetchContentLesson(course.course_id);
                                                     }}
                                                 >
                                                     <div className="flex items-center gap-3 mb-2">
@@ -392,6 +405,7 @@ export default function Draft() {
                                                 </div>
                                             ))}
                                         </div>
+
                                     </ScrollArea>
                                 </CardContent>
 
@@ -437,13 +451,20 @@ export default function Draft() {
                                                 className="h-8 px-3"
                                                 onClick={() => setStatusFilter('pending')}
                                             >
-                                                {pendingCountContents > 0 && (
-                                                    <div className="px-2 py-0.5 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
-                                                        {pendingCountContents}
-                                                    </div>
-                                                )}
+                                                <div className="flex items-center">
+                                                    {pendingCountContents > 0 ? (
+                                                        <div className="px-2 py-0.5 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                                            {pendingCountContents}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="px-2 py-0.5 text-sm font-medium rounded-full text-gray-500">
+                                                            0
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </button>
                                         </TabsList>
+
 
 
                                         <TabsContent value="info">
