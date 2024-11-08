@@ -103,9 +103,7 @@ class QuizQuestionController extends Controller
             'questions' => 'required|array',
             'questions.*.id' => 'required|integer|exists:quizzes_questions,question_id',
             'questions.*.question' => 'sometimes|required|string|max:255',
-            'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank',
-            'questions.*.options' => 'required_if:questions.*.question_type,true_false|array', // Chắc chắn có options cho loại true_false
-            'questions.*.options.*.text' => 'required|string|max:255' // Tùy chọn phải có văn bản
+            'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank'
         ]);
     
         if ($validator->fails()) {
@@ -114,33 +112,13 @@ class QuizQuestionController extends Controller
     
         $updatedQuestions = [];
         foreach ($request->questions as $questionData) {
-            // Cập nhật câu hỏi
             $question = QuizQuestion::where('quiz_id', $quizId)
                 ->where('question_id', $questionData['id'])
                 ->first();
     
             if ($question) {
-                // Cập nhật thông tin câu hỏi
                 $question->update($questionData);
                 $updatedQuestions[] = $question;
-    
-                // Xử lý thêm hoặc cập nhật các tùy chọn
-                if (in_array($questionData['question_type'], ['true_false', 'fill_blank'])) {
-                    // Xóa các tùy chọn cũ
-                    $question->options()->delete();
-    
-                    // Tạo 4 tùy chọn mới
-                    for ($i = 1; $i <= 4; $i++) {
-                        // Tạo tùy chọn mới cho câu hỏi
-                        $optionData = [
-                            'question_id' => $question->question_id,
-                            'text' => $questionData['options'][$i - 1]['text'], // Giả sử có 4 tùy chọn được cung cấp
-                            'order' => $i // Nếu cần sắp xếp tùy chọn
-                        ];
-    
-                        $question->options()->create($optionData);
-                    }
-                }
             }
         }
     
@@ -149,9 +127,6 @@ class QuizQuestionController extends Controller
             'questions' => $updatedQuestions
         ]);
     }
-    
-    
-    
 
     public function destroy($quizId, $id)
     {
