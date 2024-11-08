@@ -7,51 +7,14 @@ import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, Book, Filt
 import { SideBarUI } from '../sidebarUI';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import ReactPlayer from "react-player";
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion"
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from "@/components/ui/alert-dialog"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator, } from '@/components/ui/breadcrumb';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Separator } from '@radix-ui/react-context-menu';
 import axios from 'axios';
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination"
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationPrevious } from "@/components/ui/pagination"
 
 
 export default function Draft() {
@@ -66,14 +29,36 @@ export default function Draft() {
     const [activeLessonTab, setActiveLessonTab] = useState('content');
     const [statusFilter, setStatusFilter] = useState('pending');
     const pendingCount = courses.filter(course => course.status === 'pending').length;
+    const [pendingCountContents, setPendingCountContents] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [quizContent, setQuizContent] = useState([]);
     const [contentLesson, setContentLesson] = useState([]);
     const [titleContents, setTitleContents] = useState([]);
-
     const navigate = useNavigate();
 
+    const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editNote, setEditNote] = useState('');
 
+    const handleApprove = () => {
+        toast.success("Khóa học đã được phê duyệt");
+        setIsApproveModalOpen(false);
+    };
+
+    const handleReject = () => {
+        toast.success("Khóa học đã bị từ chối");
+        setIsRejectModalOpen(false);
+    };
+
+    const handleEditRequest = () => {
+        toast.success("Yêu cầu chỉnh sửa đã được gửi");
+        setIsEditModalOpen(false);
+        setEditNote('');
+    };
+
+
+    /* Phân trang  */
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 3;
 
@@ -84,11 +69,14 @@ export default function Draft() {
     const indexOfLastCourse = currentPage * itemsPerPage;
     const indexOfFirstCourse = indexOfLastCourse - itemsPerPage;
     const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
-    const [isVideoLayerOpen, setVideoLayerOpen] = useState(false);
 
+
+    /* Video */
+    const [isVideoLayerOpen, setVideoLayerOpen] = useState(false);
     const handleVideoOpen = () => {
         setVideoLayerOpen(true);
     };
+
     const renderPaginationItems = () => {
         const items = [];
 
@@ -209,6 +197,10 @@ export default function Draft() {
                 console.log("Contents:", res.data.contents);
                 setContentLesson(res.data.contents);
 
+                // Tính toán số lượng nội dung chờ duyệt
+                const pendingCount = res.data.contents.filter(content => content.status === 'pending').length;
+                setPendingCountContents(pendingCount); // Cập nhật giá trị vào state
+
                 if (res.data.contents.length > 0) {
                     const contentId = res.data.contents[0].content_id;
                     fetchQuiz(contentId);
@@ -221,6 +213,7 @@ export default function Draft() {
             console.error("Lỗi khi lấy nội dung bài học:", error);
         }
     };
+
 
     const fetchPendingTitleContents = async (contentId) => {
         const token = localStorage.getItem("access_token");
@@ -291,8 +284,6 @@ export default function Draft() {
         fetchCourses();
     }, []);
 
-
-
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             course.instructor?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -321,7 +312,7 @@ export default function Draft() {
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
                                     <BreadcrumbLink
-                                        href="/admin/courses"
+                                        href="/admin/draft"
                                         className="flex items-center gap-1 text-blue-600"
                                     >
                                         <GraduationCap size={16} />
@@ -434,7 +425,19 @@ export default function Draft() {
                                         <TabsList className="mb-4">
                                             <TabsTrigger value="info">Thông tin khóa học</TabsTrigger>
                                             <TabsTrigger value="lessons">Danh sách bài học</TabsTrigger>
+                                            <button
+                                                size="sm"
+                                                className="h-8 px-3"
+                                                onClick={() => setStatusFilter('pending')}
+                                            >
+                                                {pendingCountContents > 0 && (
+                                                    <div className="px-2 py-0.5 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                                        {pendingCountContents}
+                                                    </div>
+                                                )}
+                                            </button>
                                         </TabsList>
+
 
                                         <TabsContent value="info">
                                             {activeCourse ? (
@@ -492,26 +495,26 @@ export default function Draft() {
                                                                                 <span className="mx-2">Bài {index + 1}: </span>{lesson.name_content}
                                                                             </DialogTrigger>
                                                                             <hr />
-                                                                            <DialogContent className="max-w-3xl max-h-[80vh] p-6 bg-gradient-to-r from-blue-200 to-green-200 text-gray-800 rounded-lg shadow-lg">                                                                            <DialogHeader>
+                                                                            <DialogContent className="max-w-3xl max-h-[80vh] p-6 bg-[#fbf9c2] text-gray-800 rounded-lg shadow-lg">                                                                            <DialogHeader>
                                                                                 <DialogTitle className="text-2xl font-bold text-center">{lesson.name_content}</DialogTitle>
                                                                                 {titleContents.length > 0 ? (
                                                                                     <div className="mt-4">
-                                                                                        <h5 className="font-semibold text-lg">Tiêu đề Nội dung:</h5>
+                                                                                        <h5 className="font-semibold text-lg my-2">Tiêu đề nội dung:</h5>
                                                                                         {titleContents.map((title, index) => (
                                                                                             <div key={index} className="mb-4 p-4 bg-white rounded-lg shadow-md text-gray-900">
                                                                                                 <div className="flex flex-col space-y-4">
                                                                                                     <div className="flex items-center">
-                                                                                                        <DialogDescription className="flex-1 font-medium text-md">
-                                                                                                            <span>{index + 1}. </span>
-                                                                                                            {title.body_content || "Nội dung không có sẵn."}
+                                                                                                        <DialogDescription className="flex-1 text-md ">
+                                                                                                            <span className="font-bold">{index + 1}. </span>
+                                                                                                            <span className="font-medium ">{title.body_content || "Nội dung không có sẵn."}</span>
                                                                                                         </DialogDescription>
                                                                                                         <Dialog>
-                                                                                                            <DialogTrigger className="bg-orange-400 text-white p-2 rounded-md ml-3 my-2 hover:bg-orange-500 transition">
+                                                                                                            <DialogTrigger className="bg-[#6a4a3b] hover:bg-[#fbf9c2] text-white font-medium p-2 rounded-md ml-3 my-2  transition">
                                                                                                                 Xem video
                                                                                                             </DialogTrigger>
                                                                                                             <DialogContent className="p-0 bg-white rounded-lg shadow-md w-full">
                                                                                                                 <DialogDescription className="text-center mb-4">
-                                                                                                                    <h2 className="text-xl font-semibold mb-2">Xem Video</h2>
+                                                                                                                    <h2 className="text-xl font-semibold my-2">Xem Video</h2>
                                                                                                                     {title.video_link ? (
                                                                                                                         <div className="relative" style={{ paddingTop: '56.25%' }}>
                                                                                                                             <ReactPlayer
@@ -553,18 +556,27 @@ export default function Draft() {
                                                         <TabsContent value="quiz" className="mt-4">
                                                             {quizContent.map((quiz, index) => (
                                                                 <div key={quiz.quiz_id} className="space-y-4">
-                                                                    <p className="font-medium">{`Câu hỏi ${index + 1}: ${quiz.title}`}</p>
+                                                                    <p className="font-medium">Đề: {`${quiz.title}`}</p>
                                                                     <div className="space-y-2">
-
+                                                                        {/* Câu hỏi - questions */}
+                                                                        <div>{`Câu hỏi ${index + 1}: ${quiz.question}`}</div>
+                                                                        {/* Câu trả lời - answer */}
                                                                         <div className="flex items-center">
                                                                             <input type="radio" name={`q${index}`} id={`q${index}a`} className="mr-2" />
                                                                             <label htmlFor={`q${index}a`}>Đáp án 1</label>
                                                                         </div>
                                                                         <div className="flex items-center">
-                                                                            <input type="radio" name={`q${index}`} id={`q${index}b`} className="mr-2" />
-                                                                            <label htmlFor={`q${index}b`}>Đáp án 2</label>
+                                                                            <input type="radio" name={`q${index}`} id={`q${index}a`} className="mr-2" />
+                                                                            <label htmlFor={`q${index}a`}>Đáp án 2</label>
                                                                         </div>
-                                                                        {/* Thêm các đáp án khác nếu cần */}
+                                                                        <div className="flex items-center">
+                                                                            <input type="radio" name={`q${index}`} id={`q${index}a`} className="mr-2" />
+                                                                            <label htmlFor={`q${index}a`}>Đáp án 3</label>
+                                                                        </div>
+                                                                        <div className="flex items-center">
+                                                                            <input type="radio" name={`q${index}`} id={`q${index}a`} className="mr-2" />
+                                                                            <label htmlFor={`q${index}a`}>Đáp án 4</label>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             ))}
@@ -580,18 +592,74 @@ export default function Draft() {
 
                                     {/* Action Buttons */}
                                     <div className="flex gap-4 mt-6">
-                                        <Button className="bg-green-500 hover:bg-green-600">
-                                            <CheckCircle className="mr-2 h-4 w-4" />
-                                            Phê duyệt Bài học
-                                        </Button>
-                                        <Button variant="destructive">
-                                            <XCircle className="mr-2 h-4 w-4" />
-                                            Từ chối Bài học
-                                        </Button>
-                                        <Button variant="outline" className="bg-yellow-500 hover:bg-yellow-600 text-white border-none">
-                                            <Clock className="mr-2 h-4 w-4" />
-                                            Yêu cầu chỉnh sửa
-                                        </Button>
+                                        <AlertDialog open={isApproveModalOpen} onOpenChange={setIsApproveModalOpen}>
+                                            <AlertDialogTrigger asChild>
+                                                <Button className="bg-green-500 hover:bg-green-600 text-white">
+                                                    <CheckCircle className="mr-2 h-4 w-4" />
+                                                    Phê duyệt Bài học
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Xác nhận Phê duyệt</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Bạn có chắc chắn muốn phê duyệt bài học này không?
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel onClick={() => setIsApproveModalOpen(false)}>Hủy</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={handleApprove}>Phê duyệt</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+
+                                        <AlertDialog open={isRejectModalOpen} onOpenChange={setIsRejectModalOpen}>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="destructive">
+                                                    <XCircle className="mr-2 h-4 w-4" />
+                                                    Từ chối Bài học
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Xác nhận Từ chối</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Bạn có chắc chắn muốn từ chối bài học này không?
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel onClick={() => setIsRejectModalOpen(false)}>Hủy</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={handleReject}>Từ chối</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+
+                                        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+                                            <DialogTrigger asChild>
+                                                <Button variant="outline" className="bg-yellow-500 hover:bg-yellow-600 text-white border-none">
+                                                    <Clock className="mr-2 h-4 w-4" />
+                                                    Yêu cầu chỉnh sửa
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>Yêu cầu chỉnh sửa</DialogTitle>
+                                                    <DialogDescription>
+                                                        Vui lòng nhập ghi chú cho yêu cầu chỉnh sửa của bạn.
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <textarea
+                                                    value={editNote}
+                                                    onChange={(e) => setEditNote(e.target.value)}
+                                                    placeholder="Nhập ghi chú của bạn ở đây..."
+                                                    className="w-full h-32 p-2 border rounded mb-4"
+                                                />
+                                                <DialogFooter>
+                                                    <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>Hủy</Button>
+                                                    <Button onClick={handleEditRequest}>Gửi yêu cầu</Button>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
                                     </div>
                                 </CardContent>
                             </Card>
