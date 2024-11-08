@@ -125,6 +125,7 @@ class QuizQuestionController extends Controller
                         $newQuestionData = $questionData;
                         $newQuestionData['id'] = $questionData['id'] . '_' . $i; // Giả định tạo ID mới bằng cách thêm suffix
                         $newQuestionData['question'] .= ' ' . $i; // Có thể thêm thông tin để phân biệt các câu hỏi
+                        $newQuestionData['quiz_id'] = $quizId; // Thêm giá trị cho quiz_id
     
                         $newQuestion = new QuizQuestion($newQuestionData);
                         $newQuestion->save();
@@ -149,6 +150,7 @@ class QuizQuestionController extends Controller
             'questions' => $updatedQuestions
         ]);
     }
+    
     
 
     public function destroy($quizId, $id)
