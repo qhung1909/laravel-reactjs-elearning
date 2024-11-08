@@ -19,7 +19,7 @@ class Quiz extends Model
     ];
     public function questions()
     {
-        return $this->hasMany(QuizQuestion::class);
+        return $this->hasMany(QuizQuestion::class, 'quiz_id', 'quiz_id'); // Đảm bảo 'quiz_id' đúng
     }
     public function course()
     {
