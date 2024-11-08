@@ -187,20 +187,16 @@ export default function Draft() {
                     Authorization: `Bearer ${token}`,
                 },
                 params: {
-                    course_id: courseId
+                    course_id: courseId // Chỉ fetch nội dung cho khóa học đã chọn
                 }
             });
 
-            console.log("Dữ liệu nhận được:", res.data);
-            console.log("Giá trị courseId:", courseId);
-
             if (res.data && res.data.success && Array.isArray(res.data.contents)) {
-                console.log("Contents:", res.data.contents);
                 setContentLesson(res.data.contents);
 
-                // Tính toán số lượng nội dung chờ duyệt
+                // Tính số lượng nội dung chờ duyệt
                 const pendingCount = res.data.contents.filter(content => content.status === 'pending').length;
-                setPendingCountContents(pendingCount); // Cập nhật giá trị vào state
+                setPendingCountContents(pendingCount);
 
                 if (res.data.contents.length > 0) {
                     const contentId = res.data.contents[0].content_id;
@@ -214,6 +210,7 @@ export default function Draft() {
             console.error("Lỗi khi lấy nội dung bài học:", error);
         }
     };
+
 
 
     const fetchPendingTitleContents = async (contentId) => {
@@ -288,7 +285,7 @@ export default function Draft() {
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             course.user.name?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter ? course.status === statusFilter : true; 
+        const matchesStatus = statusFilter ? course.status === statusFilter : true;
         return matchesSearch && matchesStatus;
     });
     const currentCourses = filteredCourses;
@@ -380,7 +377,10 @@ export default function Draft() {
                                                             ? 'bg-yellow-50 border-yellow-200 shadow-sm'
                                                             : 'hover:bg-gray-50 hover:border-gray-300'
                                                         }`}
-                                                    onClick={() => setActiveCourse(course)}
+                                                    onClick={() => {
+                                                        setActiveCourse(course);
+                                                        fetchContentLesson(course.id); 
+                                                    }}
                                                 >
                                                     <div className="flex items-center gap-3 mb-2">
                                                         <div className="font-semibold">{index + 1 + indexOfFirstCourse}</div> {/* Cập nhật chỉ số hiển thị */}
@@ -449,31 +449,31 @@ export default function Draft() {
                                         <TabsContent value="info">
                                             {activeCourse ? (
                                                 <div className="space-y-4">
-                                                <div className="flex items-center">
-                                                    <label className="font-semibold mr-2">Giảng viên:</label>
-                                                    <p>{activeCourse.user.name}</p>
+                                                    <div className="flex items-center">
+                                                        <label className="font-semibold mr-2">Giảng viên:</label>
+                                                        <p>{activeCourse.user.name}</p>
+                                                    </div>
+                                                    <div className="flex items-center w-full">
+                                                        <label className="font-semibold mr-2">Mô tả:</label>
+                                                        <p className="break-words">{activeCourse.description}</p>
+                                                    </div>
+                                                    <div className="flex items-center">
+                                                        <label className="font-semibold mr-2">Thời lượng: </label>
+                                                        <p>{activeCourse.duration}10 giờ</p>
+                                                    </div>
+                                                    <div className="flex items-center">
+                                                        <label className="font-semibold mr-2">Cấp độ:</label>
+                                                        <p>{activeCourse.level}Khá</p>
+                                                    </div>
+                                                    <div className="flex items-center">
+                                                        <label className="font-semibold mr-2">Giá:</label>
+                                                        <p>{formatCurrency(activeCourse.price)}</p>
+                                                    </div>
+                                                    <div className="flex items-center">
+                                                        <label className="font-semibold mr-2">Yêu cầu tiên quyết:</label>
+                                                        <p className="break-words">{activeCourse.prerequisites}</p>
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center w-full">
-                                                    <label className="font-semibold mr-2">Mô tả:</label>
-                                                    <p className="break-words">{activeCourse.description}</p>
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <label className="font-semibold mr-2">Thời lượng: </label>
-                                                    <p>{activeCourse.duration}10 giờ</p>
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <label className="font-semibold mr-2">Cấp độ:</label>
-                                                    <p>{activeCourse.level}Khá</p>
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <label className="font-semibold mr-2">Giá:</label>
-                                                    <p>{formatCurrency(activeCourse.price)}</p>
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <label className="font-semibold mr-2">Yêu cầu tiên quyết:</label>
-                                                    <p className="break-words">{activeCourse.prerequisites}</p>
-                                                </div>
-                                            </div>
 
                                             ) : (
                                                 <p>Thông tin khóa học sẽ xuất hiện ở đây.</p>
