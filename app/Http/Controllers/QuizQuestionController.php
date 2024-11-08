@@ -111,56 +111,13 @@ class QuizQuestionController extends Controller
         }
     
         $updatedQuestions = [];
-    
         foreach ($request->questions as $questionData) {
             $question = QuizQuestion::where('quiz_id', $quizId)
                 ->where('question_id', $questionData['id'])
                 ->first();
     
             if ($question) {
-                // Cập nhật các thông tin câu hỏi
-                $question->question = $questionData['question'] ?? $question->question;
-                $question->question_type = $questionData['question_type'] ?? $question->question_type;
-    
-                // Xóa các lựa chọn cũ nếu có
-                $question->answers()->delete();
-    
-                // Thêm các lựa chọn mới theo loại câu hỏi
-                switch ($question->question_type) {
-                    case 'true_false':
-                        $question->answers()->createMany([
-                            ['option_text' => 'True', 'is_correct' => true],
-                            ['option_text' => 'False', 'is_correct' => false],
-                        ]);
-                        break;
-    
-                    case 'single_choice':
-                        if (isset($questionData['options']) && count($questionData['options']) === 4) {
-                            $question->answers()->createMany($questionData['options']);
-                        } else {
-                            return response()->json([
-                                'message' => 'Câu hỏi Single Choice phải có 4 lựa chọn.',
-                            ], 400);
-                        }
-                        break;
-    
-                    case 'mutiple_choice':
-                        if (isset($questionData['options']) && count($questionData['options']) >= 2) {
-                            $question->answers()->createMany($questionData['options']);
-                        } else {
-                            return response()->json([
-                                'message' => 'Câu hỏi Multiple Choice phải có ít nhất 2 lựa chọn.',
-                            ], 400);
-                        }
-                        break;
-    
-                    case 'fill_blank':
-                        // Không cần thêm lựa chọn nào cho câu hỏi Fill in the Blank
-                        break;
-                }
-    
-                // Lưu cập nhật câu hỏi
-                $question->save();
+                $question->update($questionData);
                 $updatedQuestions[] = $question;
             }
         }
@@ -170,8 +127,6 @@ class QuizQuestionController extends Controller
             'questions' => $updatedQuestions
         ]);
     }
-    
-    
 
     public function destroy($quizId, $id)
     {
