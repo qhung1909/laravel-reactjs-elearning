@@ -542,11 +542,12 @@ class AdminController extends Controller
     {
         try {
             $content_id = $request->input('content_id');
-
-            $quizzes = Quiz::where('status', 'pending')
+    
+            $quizzes = Quiz::with(['questions.options']) 
+                ->where('status', 'pending')
                 ->where('content_id', $content_id)
                 ->get();
-
+    
             return response()->json([
                 'success' => true,
                 'quizzes' => $quizzes
@@ -559,4 +560,5 @@ class AdminController extends Controller
             ], 500);
         }
     }
+    
 }
