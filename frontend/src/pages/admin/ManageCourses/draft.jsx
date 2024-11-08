@@ -265,7 +265,6 @@ export default function Draft() {
             navigate('/');
             return;
         }
-        console.log("Token hợp lệ:", token); // Kiểm tra token
 
         try {
             const res = await axios.get(`${API_URL}/admin/pending-quizzes`, {
@@ -594,15 +593,34 @@ export default function Draft() {
                                                                 <div key={quiz.quiz_id} className="space-y-4">
                                                                     <p className="font-medium my-2">Đề: {quiz.title || 'Không có tiêu đề'}</p>
                                                                     <div className="space-y-2">
-                                                                        <div>Câu hỏi {index + 1}: {quiz.question || 'Không có câu hỏi'}</div>
-                                                                        <div className="flex items-center">
-                                                                            <input type="radio" name={`q${index}`} id={`q${index}a`} className="mr-2" />
-                                                                            <label htmlFor={`q${index}a`}>{quiz.option || 'Không có lựa chọn'}</label>
-                                                                        </div>
+                                                                        {quiz.questions && quiz.questions.length > 0 ? (
+                                                                            quiz.questions.map((question, qIndex) => (
+                                                                                <div key={question.question_id}>
+                                                                                    <div>Câu hỏi {qIndex + 1}: {question.question || 'Không có câu hỏi'}</div>
+                                                                                    {question.options && question.options.map((option, oIndex) => (
+                                                                                        <div key={option.option_id} className="flex items-center">
+                                                                                            <input
+                                                                                                type="radio"
+                                                                                                name={`q${index}_${qIndex}`}
+                                                                                                id={`q${index}_${qIndex}o${oIndex}`}
+                                                                                                className="mr-2"
+                                                                                                readOnly
+                                                                                                checked={option.is_correct === 1} 
+                                                                                                onClick={(e) => e.preventDefault()} 
+                                                                                            />
+                                                                                            <label htmlFor={`q${index}_${qIndex}o${oIndex}`}>{option.answer || 'Không có lựa chọn'}</label>
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            ))
+                                                                        ) : (
+                                                                            <div>Không có câu hỏi</div>
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                             ))}
                                                         </TabsContent>
+
                                                     </Tabs>
                                                 </div>
                                             ) : (
