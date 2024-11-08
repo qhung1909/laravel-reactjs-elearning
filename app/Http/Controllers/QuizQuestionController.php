@@ -103,7 +103,9 @@ class QuizQuestionController extends Controller
             'questions' => 'required|array',
             'questions.*.id' => 'required|integer|exists:quizzes_questions,question_id',
             'questions.*.question' => 'sometimes|required|string|max:255',
-            'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,multiple_choice,fill_blank'
+            'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank',
+            'questions.*.options' => 'required_if:questions.*.question_type,true_false|array', // Chắc chắn có options cho loại true_false
+            'questions.*.options.*.text' => 'required|string|max:255' // Tùy chọn phải có văn bản
         ]);
     
         if ($validator->fails()) {
@@ -112,35 +114,32 @@ class QuizQuestionController extends Controller
     
         $updatedQuestions = [];
         foreach ($request->questions as $questionData) {
-            // Xử lý cho các loại câu hỏi true_false và fill_blank
-            if (in_array($questionData['question_type'], ['true_false', 'fill_blank'])) {
-                // Tạo 4 question_id cho các câu hỏi này
-                for ($i = 1; $i <= 4; $i++) {
-                    $question = QuizQuestion::where('quiz_id', $quizId)
-                        ->where('question_id', $questionData['id'])
-                        ->first();
+            // Cập nhật câu hỏi
+            $question = QuizQuestion::where('quiz_id', $quizId)
+                ->where('question_id', $questionData['id'])
+                ->first();
     
-                    if ($question) {
-                        // Tạo bản sao của question cho mỗi question_id
-                        $newQuestionData = $questionData;
-                        $newQuestionData['id'] = $questionData['id'] . '_' . $i; // Giả định tạo ID mới bằng cách thêm suffix
-                        $newQuestionData['question'] .= ' ' . $i; // Có thể thêm thông tin để phân biệt các câu hỏi
-                        $newQuestionData['quiz_id'] = $quizId; // Thêm giá trị cho quiz_id
+            if ($question) {
+                // Cập nhật thông tin câu hỏi
+                $question->update($questionData);
+                $updatedQuestions[] = $question;
     
-                        $newQuestion = new QuizQuestion($newQuestionData);
-                        $newQuestion->save();
-                        $updatedQuestions[] = $newQuestion;
+                // Xử lý thêm hoặc cập nhật các tùy chọn
+                if (in_array($questionData['question_type'], ['true_false', 'fill_blank'])) {
+                    // Xóa các tùy chọn cũ
+                    $question->options()->delete();
+    
+                    // Tạo 4 tùy chọn mới
+                    for ($i = 1; $i <= 4; $i++) {
+                        // Tạo tùy chọn mới cho câu hỏi
+                        $optionData = [
+                            'question_id' => $question->question_id,
+                            'text' => $questionData['options'][$i - 1]['text'], // Giả sử có 4 tùy chọn được cung cấp
+                            'order' => $i // Nếu cần sắp xếp tùy chọn
+                        ];
+    
+                        $question->options()->create($optionData);
                     }
-                }
-            } else {
-                // Cập nhật cho các loại câu hỏi khác
-                $question = QuizQuestion::where('quiz_id', $quizId)
-                    ->where('question_id', $questionData['id'])
-                    ->first();
-    
-                if ($question) {
-                    $question->update($questionData);
-                    $updatedQuestions[] = $question;
                 }
             }
         }
@@ -150,6 +149,7 @@ class QuizQuestionController extends Controller
             'questions' => $updatedQuestions
         ]);
     }
+    
     
     
 
