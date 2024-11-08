@@ -63,11 +63,11 @@ export const CourseOverview = () => {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setCourseImage(reader.result); // Lưu URL base64
+                setCourseImage(reader.result);
             };
-            reader.readAsDataURL(file); // Đọc tệp dưới dạng URL
+            reader.readAsDataURL(file);
         } else {
-            setCourseImage(null); // Đặt lại nếu không có tệp
+            setCourseImage(null);
         }
     };
 
@@ -79,18 +79,6 @@ export const CourseOverview = () => {
         const isLanguageSelected = selectedLanguage !== "";
         const isCategorySelected = selectedCategory !== "";
         const isImageUploaded = courseImage !== null;
-
-        if (isCourseTitleValid || isDescriptionValid || isCurrencyValid || isPriceValid || isLanguageSelected || isCategorySelected || isImageUploaded) {
-            const dataToStore = {
-                courseTitle,
-                courseDescriptionText,
-                currency,
-                price,
-                selectedLanguage,
-                selectedCategory,
-                courseImage
-            };
-        }
 
         if (isCourseTitleValid && isDescriptionValid && isCurrencyValid && isPriceValid && isLanguageSelected && isCategorySelected && isImageUploaded) {
             localStorage.setItem('FA-CO', 'done');
@@ -186,7 +174,7 @@ export const CourseOverview = () => {
 
     return (
         <>
-            <header className="bg-yellow-500 py-3">
+            <header className="fixed top-0 w-full z-10 bg-yellow-500 py-3">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center">
                         <Link
@@ -222,7 +210,7 @@ export const CourseOverview = () => {
             </header>
 
 
-            <div className="flex max-w-7xl m-auto pt-10 pb-36">
+            <div className="flex max-w-7xl m-auto pt-16 pb-36">
                 <SideBarCreateCoure course_id={course_id} />
                 <div className="w-full lg:w-10/12 shadow-lg">
                     <div>
