@@ -93,40 +93,79 @@ class QuizQuestionController extends Controller
     
     public function update(Request $request, $quizId)
     {
-        if (!Auth::check()) {
-            return response()->json([
-                'message' => 'Người dùng chưa đăng nhập.',
-            ], 401);
-        }
-    
-        $validator = Validator::make($request->all(), [
-            'questions' => 'required|array',
-            'questions.*.id' => 'required|integer|exists:quizzes_questions,question_id',
-            'questions.*.question' => 'sometimes|required|string|max:255',
-            'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank'
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
-    
-        $updatedQuestions = [];
-        foreach ($request->questions as $questionData) {
-            $question = QuizQuestion::where('quiz_id', $quizId)
-                ->where('question_id', $questionData['id'])
-                ->first();
-    
-            if ($question) {
-                $question->update($questionData);
-                $updatedQuestions[] = $question;
+        try {
+            if (!Auth::check()) {
+                return response()->json([
+                    'message' => 'Người dùng chưa đăng nhập.',
+                ], 401);
             }
-        }
     
-        return response()->json([
-            'message' => 'Questions updated successfully',
-            'questions' => $updatedQuestions
-        ]);
+            $validator = Validator::make($request->all(), [
+                'questions' => 'required|array',
+                'questions.*.question_id' => 'required|integer|exists:quizzes_questions,question_id',
+                'questions.*.question' => 'sometimes|required|string|max:255',
+                'questions.*.question_type' => 'sometimes|required|string|in:single_choice,true_false,mutiple_choice,fill_blank',
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
+    
+            $updatedQuestions = [];
+    
+            foreach ($request->questions as $questionData) {
+                $question = QuizQuestion::where('quiz_id', $quizId)
+                    ->where('question_id', $questionData['question_id'])
+                    ->first();
+    
+                if ($question) {
+                    // Xử lý các loại câu hỏi
+                    if ($questionData['question_type'] === 'true_false') {
+                        // Đảm bảo chỉ có 2 lựa chọn cho câu hỏi True/False
+                        $questionData['options'] = [
+                            ['option_text' => 'True', 'is_correct' => true],
+                            ['option_text' => 'False', 'is_correct' => false],
+                        ];
+                    } elseif ($questionData['question_type'] === 'single_choice') {
+                        // Đảm bảo có 4 lựa chọn cho câu hỏi Single Choice
+                        if (!isset($questionData['options']) || count($questionData['options']) !== 4) {
+                            return response()->json([
+                                'message' => 'Câu hỏi Single Choice phải có 4 lựa chọn.',
+                            ], 400);
+                        }
+                    } elseif ($questionData['question_type'] === 'mutiple_choice') {
+                        // Đảm bảo có ít nhất 2 lựa chọn cho câu hỏi Multiple Choice
+                        if (!isset($questionData['options']) || count($questionData['options']) < 2) {
+                            return response()->json([
+                                'message' => 'Câu hỏi Multiple Choice phải có ít nhất 2 lựa chọn.',
+                            ], 400);
+                        }
+                    } elseif ($questionData['question_type'] === 'fill_blank') {
+                        // Xử lý Fill in the Blank nếu cần (tùy vào yêu cầu)
+                        $questionData['options'] = []; // Loại bỏ mọi lựa chọn vì câu hỏi Fill in the Blank không có lựa chọn
+                    }
+    
+                    $question->update($questionData);
+                    $updatedQuestions[] = $question;
+                } else {
+                    return response()->json([
+                        'message' => "Không tìm thấy câu hỏi với ID {$questionData['question_id']}.",
+                    ], 404);
+                }
+            }
+    
+            return response()->json([
+                'message' => 'Cập nhật câu hỏi thành công',
+                'questions' => $updatedQuestions
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Đã xảy ra lỗi khi cập nhật câu hỏi.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+    
 
     public function destroy($quizId, $id)
     {
