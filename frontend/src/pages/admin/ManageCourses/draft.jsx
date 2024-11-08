@@ -288,7 +288,7 @@ export default function Draft() {
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             course.user.name?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter ? course.status === statusFilter : true; // Cải thiện cho trạng thái
+        const matchesStatus = statusFilter ? course.status === statusFilter : true; 
         return matchesSearch && matchesStatus;
     });
     const currentCourses = filteredCourses;
