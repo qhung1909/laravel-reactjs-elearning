@@ -240,11 +240,11 @@ export default function CourseList() {
 
                             <div className="overflow-x-auto rounded-lg border border-gray-200">
                                 <table className="w-full">
-                                    <thead>
+                                    <thead className="text-md font-bold">
                                         <tr className="bg-yellow-100">
-                                            <th className="text-left py-4 px-6 font-bold text-sm text-gray-600" style={{ width: '10%' }}>ID</th>
+                                            <th className="text-left py-4 px-6 font-bold text-gray-600" style={{ width: '10%' }}>ID</th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('title')}
                                                 style={{ width: '40%' }}
                                             >
@@ -254,7 +254,7 @@ export default function CourseList() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('user?.name')}
                                                 style={{ width: '20%' }}
                                             >
@@ -264,7 +264,7 @@ export default function CourseList() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('status')}
                                                 style={{ width: '15%' }}
                                             >
@@ -274,7 +274,7 @@ export default function CourseList() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('price')}
                                                 style={{ width: '20%' }}
                                             >
@@ -283,7 +283,7 @@ export default function CourseList() {
                                                     {getSortIcon('price')}
                                                 </div>
                                             </th>
-                                            <th className="text-center py-4 px-6 font-bold text-sm text-gray-600" style={{ width: '10%' }}>Hành động</th>
+                                            <th className="text-center py-4 px-6 font-bold text-gray-600" style={{ width: '10%' }}>Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody>

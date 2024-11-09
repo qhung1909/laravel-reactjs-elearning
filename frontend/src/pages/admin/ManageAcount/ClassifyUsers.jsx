@@ -56,7 +56,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Search, ChevronDown, FileDown } from 'lucide-react';
+import { Search, ChevronDown, FileDown, Trash, Pencil } from 'lucide-react';
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import axios from "axios";
@@ -171,140 +171,190 @@ export default function ClassifyUsers() {
                 <div className="absolute top-16 px-6 bg-gray-50 w-full font-sans">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Phân loại người dùng</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex justify-between items-center mb-6">
-                                <div className="flex flex-wrap gap-4 w-full md:w-auto">
-                                    <div className="relative flex-1 md:flex-initial">
-                                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                                <CardTitle className="text-xl font-semibold mb-0">Phân loại người dùng</CardTitle>
+
+                                <div className="flex items-center flex-wrap gap-4 w-full md:w-auto">
+                                    <div className="relative w-full md:w-64">
+                                        <Search className="absolute left-3 top-1/2 h-4 w-4 text-gray-400 transform -translate-y-1/2" />
                                         <Input
                                             type="text"
                                             placeholder="Tìm kiếm người dùng..."
-                                            className="pl-9 pr-4 py-2 w-full md:w-64"
+                                            className="pl-9 pr-4 w-full"
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                         />
                                     </div>
 
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="outline" className="flex items-center gap-2">
-                                                {getCurrentFilterLabel()}
-                                                <ChevronDown className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-[200px]">
-                                            {filterOptions.map((option) => (
-                                                <DropdownMenuItem
-                                                    key={option.value}
-                                                    onClick={() => setFilterCriteria(option.value)}
+                                    <div className="flex items-center gap-2">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className="flex items-center gap-2 whitespace-nowrap"
                                                 >
-                                                    {option.label}
-                                                </DropdownMenuItem>
-                                            ))}
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                                    {getCurrentFilterLabel()}
+                                                    <ChevronDown className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-[200px]">
+                                                {filterOptions.map((option) => (
+                                                    <DropdownMenuItem
+                                                        key={option.value}
+                                                        onClick={() => setFilterCriteria(option.value)}
+                                                    >
+                                                        {option.label}
+                                                    </DropdownMenuItem>
+                                                ))}
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
 
-                                    <Button variant="outline" className="flex items-center gap-2">
-                                        <FileDown className="h-4 w-4" />
-                                        Xuất
-                                    </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 whitespace-nowrap"
+                                        >
+                                            <FileDown className="h-4 w-4" />
+                                            Xuất
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
+                        </CardHeader>
+                        <CardContent>
+
 
                             <div className="rounded-md border">
                                 <Table>
                                     <TableHeader>
                                         <TableRow >
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">STT</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Avatar</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Tên</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Email</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Ngày tạo</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Trạng thái</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Quyền</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Hành động</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">STT</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Avatar</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Tên</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Email</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Ngày tạo</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Trạng thái</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Quyền</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Hành động</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {!isLoading && getFilteredData().map((user, index) => (
-                                            <TableRow key={user.id}>
-                                                <TableCell className="font-medium text-center">{index + 1}</TableCell>
+                                            <TableRow
+                                                key={user.id}
+                                                className="hover:bg-gray-50 transition-colors duration-150"
+                                            >
+                                                <TableCell className="font-medium text-center text-gray-600">{index + 1}</TableCell>
                                                 <TableCell className="text-center">
-                                                    <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full mx-auto" />
+                                                    <div className="relative inline-block">
+                                                        <img
+                                                            src={user.avatar}
+                                                            alt={user.name}
+                                                            className="w-10 h-10 rounded-full object-cover ring-2 ring-offset-2 ring-yellow-100"
+                                                        />
+                                                        <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${user.status === 1 ? "bg-green-500" : "bg-red-500"
+                                                            }`}></span>
+                                                    </div>
                                                 </TableCell>
-                                                <TableCell className="text-center">{user.name}</TableCell>
-                                                <TableCell className="text-center">{user.email}</TableCell>
-                                                <TableCell className="text-center">
+                                                <TableCell className="text-center font-medium">{user.name}</TableCell>
+                                                <TableCell className="text-center text-gray-600">{user.email}</TableCell>
+                                                <TableCell className="text-center text-gray-600">
                                                     {new Date(user.created_at).toLocaleDateString()}
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    {user.status === 1 ? (
-                                                        <span className="bg-green-600 text-white texxt-sm p-2 rounded-full">Hoạt động</span>
-                                                    ) : (
-                                                        <span className="bg-red-500 text-white texxt-sm p-2 rounded-full">Không hoạt động</span>
-                                                    )}
+                                                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${user.status === 1
+                                                        ? "bg-green-50 text-green-700 ring-1 ring-green-600/20"
+                                                        : "bg-red-50 text-red-700 ring-1 ring-red-600/20"
+                                                        }`}>
+                                                        {user.status === 1 ? "Hoạt động" : "Không hoạt động"}
+                                                    </span>
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    {user.role === "teacher" ? "Giảng viên" : "Học viên"}
+                                                    <span className="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium ring-1 ring-yellow-600/20">
+                                                        {user.role === "teacher" ? "Giảng viên" : "Học viên"}
+                                                    </span>
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                <Dialog>
-                                                    <DialogTrigger asChild>
-                                                        <Button variant="outline" size="sm" className="mr-2">
-                                                            Thay đổi
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent className="sm:max-w-[425px]">
-                                                        <DialogHeader>
-                                                            <DialogTitle>Chỉnh sửa người dùng</DialogTitle>
-                                                            <DialogDescription>
-                                                                Thay đổi thông tin người dùng tại đây. Nhấn lưu khi hoàn tất.
-                                                            </DialogDescription>
-                                                        </DialogHeader>
-                                                        <div className="grid gap-4 py-4">
-                                                            <div className="grid grid-cols-4 items-center gap-4">
-                                                                <Label htmlFor="role" className="text-right">
-                                                                    Quyền
-                                                                </Label>
-                                                                <select
-                                                                    id="role"
-                                                                    defaultValue={user.role}
-                                                                    className="col-span-3 border rounded px-2 py-1"
+                                                    <div className="flex justify-center items-center gap-2">
+                                                        <Dialog>
+                                                            <DialogTrigger asChild>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="hover:bg-yellow-50 hover:text-yellow-700 transition-colors"
                                                                 >
-                                                                    <option value="user">Học viên</option>
-                                                                    <option value="teacher">Giảng viên</option>
-                                                                    <option value="viewer">Quản trị viên</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                        <DialogFooter>
-                                                            <Button type="submit" onClick={() => handleEditUser(user.id)}>
-                                                                Lưu thay đổi
-                                                            </Button>
-                                                        </DialogFooter>
-                                                    </DialogContent>
-                                                </Dialog>
-                                                    <AlertDialog>
-                                                        <AlertDialogTrigger asChild>
-                                                            <Button variant="outline" size="sm">
-                                                                Xóa
-                                                            </Button>
-                                                        </AlertDialogTrigger>
-                                                        <AlertDialogContent>
-                                                            <AlertDialogHeader>
-                                                                <AlertDialogTitle>Bạn có chắc chắn muốn xóa?</AlertDialogTitle>
-                                                                <AlertDialogDescription>
-                                                                    Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn tài khoản người dùng và loại bỏ nó khỏi hệ thống của chúng tôi.
-                                                                </AlertDialogDescription>
-                                                            </AlertDialogHeader>
-                                                            <AlertDialogFooter>
-                                                                <AlertDialogCancel>Hủy</AlertDialogCancel>
-                                                                <AlertDialogAction onClick={() => handleDeleteUser(user.id)}>Tiếp tục</AlertDialogAction>
-                                                            </AlertDialogFooter>
-                                                        </AlertDialogContent>
-                                                    </AlertDialog>
+                                                                    <Pencil className="h-4 w-4 mr-1" />
+                                                                    Thay đổi
+                                                                </Button>
+                                                            </DialogTrigger>
+                                                            <DialogContent className="sm:max-w-[425px]">
+                                                                <DialogHeader>
+                                                                    <DialogTitle className="text-lg font-semibold">Chỉnh sửa người dùng</DialogTitle>
+                                                                    <DialogDescription className="text-gray-500">
+                                                                        Thay đổi thông tin người dùng tại đây. Nhấn lưu khi hoàn tất.
+                                                                    </DialogDescription>
+                                                                </DialogHeader>
+                                                                <div className="grid gap-4 py-4">
+                                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                                        <Label htmlFor="role" className="text-right text-gray-600">
+                                                                            Quyền
+                                                                        </Label>
+                                                                        <select
+                                                                            id="role"
+                                                                            defaultValue={user.role}
+                                                                            className="col-span-3 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                                                        >
+                                                                            <option value="user">Học viên</option>
+                                                                            <option value="teacher">Giảng viên</option>
+                                                                            <option value="viewer">Quản trị viên</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <DialogFooter>
+                                                                    <Button
+                                                                        type="submit"
+                                                                        onClick={() => handleEditUser(user.id)}
+                                                                        className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                                                                    >
+                                                                        Lưu thay đổi
+                                                                    </Button>
+                                                                </DialogFooter>
+                                                            </DialogContent>
+                                                        </Dialog>
+
+                                                        <AlertDialog>
+                                                            <AlertDialogTrigger asChild>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="hover:bg-red-50 hover:text-red-600 transition-colors"
+                                                                >
+                                                                    <Trash className="h-4 w-4 mr-1" />
+                                                                    Xóa
+                                                                </Button>
+                                                            </AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader>
+                                                                    <AlertDialogTitle className="text-lg font-semibold">
+                                                                        Bạn có chắc chắn muốn xóa?
+                                                                    </AlertDialogTitle>
+                                                                    <AlertDialogDescription className="text-gray-500">
+                                                                        Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn tài khoản người dùng và loại bỏ nó khỏi hệ thống của chúng tôi.
+                                                                    </AlertDialogDescription>
+                                                                </AlertDialogHeader>
+                                                                <AlertDialogFooter className="gap-2">
+                                                                    <AlertDialogCancel className="hover:bg-gray-100">
+                                                                        Hủy
+                                                                    </AlertDialogCancel>
+                                                                    <AlertDialogAction
+                                                                        onClick={() => handleDeleteUser(user.id)}
+                                                                        className="bg-red-600 hover:bg-red-700 text-white"
+                                                                    >
+                                                                        Tiếp tục
+                                                                    </AlertDialogAction>
+                                                                </AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         ))}

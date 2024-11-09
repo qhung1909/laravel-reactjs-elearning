@@ -30,7 +30,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Search, UserPlus, Filter, FileDown } from 'lucide-react';
+import { Search, UserPlus, Filter, FileDown, Eye } from 'lucide-react';
 
 export default function ListStudents() {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -109,48 +109,46 @@ export default function ListStudents() {
                     <div className="absolute top-16 px-6 bg-gray-50 w-full font-sans">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Danh sách học viên</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex justify-between items-center mb-6">
-                                    <div className="flex flex-wrap gap-4 w-full md:w-auto">
-                                        <div className="relative flex-1 md:flex-initial">
+                                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                                    <CardTitle className="mb-0">Danh sách học viên</CardTitle>
+
+                                    <div className="flex items-center gap-4 w-full md:w-auto">
+                                        <div className="relative w-full md:w-64">
                                             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                                             <input
                                                 type="text"
                                                 placeholder="Tìm kiếm học viên..."
-                                                className="pl-9 pr-4 py-2 border border-gray-200 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="pl-9 pr-4 py-2 border border-gray-200 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
                                             />
                                         </div>
-                                        <Button variant="outline" className="flex items-center gap-2">
-                                            <Filter size={16} />
-                                            Lọc
-                                        </Button>
-                                        <Button variant="outline" className="flex items-center gap-2">
-                                            <FileDown size={16} />
-                                            Xuất
-                                        </Button>
+                                        <div className="flex items-center gap-4">
+                                            <Button variant="outline" className="flex items-center gap-2 whitespace-nowrap">
+                                                <Filter size={16} />
+                                                Lọc
+                                            </Button>
+                                            <Button variant="outline" className="flex items-center gap-2 whitespace-nowrap">
+                                                <FileDown size={16} />
+                                                Xuất
+                                            </Button>
+                                        </div>
                                     </div>
-                                    {/* <Button>
-                                        <UserPlus className="mr-2 h-4 w-4" />
-                                        Thêm học viên
-                                    </Button> */}
                                 </div>
-
+                            </CardHeader>
+                            <CardContent>
                                 <div className="rounded-md border">
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">STT</TableHead>
-                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Avatar</TableHead>
-                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Họ và tên</TableHead>
-                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Email</TableHead>
-                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Trạng thái</TableHead>
-                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Ngày</TableHead>
-                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Quyền</TableHead>
-                                                <TableHead className="bg-yellow-100 text-gray-600 font-bold text-center">Thao tác</TableHead>
+                                                <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">STT</TableHead>
+                                                <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Avatar</TableHead>
+                                                <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Họ và tên</TableHead>
+                                                <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Email</TableHead>
+                                                <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Trạng thái</TableHead>
+                                                <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Ngày</TableHead>
+                                                <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Quyền</TableHead>
+                                                <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Thao tác</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -174,22 +172,31 @@ export default function ListStudents() {
                                                         <TableCell className="font-medium text-center">{student.name}</TableCell>
                                                         <TableCell className="text-center">{student.email}</TableCell>
                                                         <TableCell className="text-center">
-                                                                <span className={`px-2 py-1 w-full rounded-full text-xs text-center ${
-                                                                    student.status === 1
-                                                                        ? "bg-green-100 text-green-800"
-                                                                        : "bg-red-100 text-red-800"
+                                                            <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${student.status === 1
+                                                                ? "bg-green-50 text-green-700 ring-1 ring-green-600/20"
+                                                                : "bg-red-50 text-red-700 ring-1 ring-red-600/20"
                                                                 }`}>
-                                                                    {student.status === 1 ? "Đang hoạt động" : "Bị khóa"}
-                                                                </span>
+                                                                {student.status === 1 ? "Đang hoạt động" : "Bị khóa"}
+                                                            </span>
                                                         </TableCell>
                                                         <TableCell className="text-center">
                                                             {new Date(student.created_at).toLocaleDateString('vi-VN')}
                                                         </TableCell>
-                                                        <TableCell className="text-center">
-                                                            {student.role === "user" ? "Học viên" : student.role}
+                                                        <TableCell className="text-center ">
+                                                            <span className="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
+                                                                {student.role === "user" ? "Học viên" : student.role}
+                                                            </span>
                                                         </TableCell>
                                                         <TableCell className="text-center; cursor-pointer">
-                                                            <Button variant="ghost" size="sm">
+                                                            {/* <Button variant="ghost" size="sm">
+                                                                Chi tiết
+                                                            </Button> */}
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="hover:bg-yellow-50 hover:text-yellow-700 transition-colors"
+                                                            >
+                                                                <Eye className="h-4 w-4 mr-1" />
                                                                 Chi tiết
                                                             </Button>
                                                         </TableCell>
