@@ -138,7 +138,6 @@ const data = {
             items: [
                 { title: "Quản lý Header", url: "/admin/manage-header" },
                 { title: "Quản lý Footer", url: "/admin/manage-footer" },
-                { title: "Quản lý Footer", url: "/admin/draft" },
             ],
         },
     ],
