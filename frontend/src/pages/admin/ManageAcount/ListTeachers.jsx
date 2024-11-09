@@ -91,7 +91,7 @@ export default function ListTeachers() {
         <SidebarProvider>
             <SideBarUI />
             <SidebarInset>
-                <header className="absolute left-1 top-3">
+                <header className="absolute left-1 top-3 font-sans">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -109,7 +109,7 @@ export default function ListTeachers() {
                     </div>
                 </header>
 
-                <div className="absolute top-16 px-6 bg-gray-50 w-full">
+                <div className="absolute top-16 px-6 bg-gray-50 w-full font-sans">
                     <Card>
                         <CardHeader>
                             <CardTitle>Danh sách giảng viên</CardTitle>

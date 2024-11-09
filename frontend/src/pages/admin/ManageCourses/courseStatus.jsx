@@ -194,7 +194,7 @@ export default function CourseStatus() {
     };
 
     const openStatusDialog = (course) => {
-        console.log('Opening status dialog for course:', course); 
+        console.log('Opening status dialog for course:', course);
 
         setSelectedCourse(course);
         setNewStatus(course.status);
@@ -212,7 +212,7 @@ export default function CourseStatus() {
         <SidebarProvider>
             <SideBarUI />
             <SidebarInset>
-                <div className="w-full">
+                <div className="w-full font-sans">
                     <div className="absolute top-16 px-6 bg-gray-50 w-full min-h-screen">
                         <div className="mb-4">
                             <Breadcrumb>

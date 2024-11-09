@@ -291,7 +291,7 @@ export const CategoryCrud = () => {
         <SidebarProvider>
             <SideBarUI />
             <SidebarInset>
-                <header className="absolute left-1 top-3">
+                <header className="absolute left-1 top-3 font-sans">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -317,7 +317,7 @@ export const CategoryCrud = () => {
                         <div className='loading-spin'></div>
                     </div>
                 )}
-                <div className="absolute top-12 w-full p-4">
+                <div className="absolute top-12 w-full p-4 font-sans">
                     <div className="mb-4 flex items-center justify-between">
                         <div className="relative flex-1 max-w-md">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />

@@ -91,7 +91,7 @@ export default function ClassifyCourse() {
             <Toaster />
             <SideBarUI />
             <SidebarInset>
-                <header className="z-10 absolute left-1 top-3">
+                <header className="z-10 absolute left-1 top-3 font-sans">
                     <div className="flex items-center gap-2 px-4 py-3">
                         <SidebarTrigger className="ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -109,7 +109,7 @@ export default function ClassifyCourse() {
                     </div>
                 </header>
 
-                <div className="absolute top-16 px-6 bg-gray-50 w-full">
+                <div className="absolute top-16 px-6 bg-gray-50 w-full my-5 font-sans">
                     <h1 className="text-3xl font-bold mb-4 text-gray-800">Phân loại khóa học</h1>
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 bg-white p-4 rounded-lg shadow-sm">
                         <DropdownMenu>

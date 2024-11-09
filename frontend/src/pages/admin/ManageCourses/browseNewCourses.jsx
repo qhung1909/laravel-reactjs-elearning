@@ -444,7 +444,7 @@ export default function BrowseNewCourses() {
         <SidebarProvider>
             <SideBarUI />
             <SidebarInset>
-                <header className="z-10 absolute left-1 top-3">
+                <header className="z-10 absolute left-1 top-3 font-sans">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -470,8 +470,8 @@ export default function BrowseNewCourses() {
                         </Breadcrumb>
                     </div>
                 </header>
-                <div className="absolute top-14 px-6 bg-gray-50 w-full">
-                    <div className="flex items-center justify-between space-y-0">
+                <div className="absolute top-14 px-6 bg-gray-50 w-full font-sans">
+                    <div className="flex items-center justify-between space-y-0 my-5">
                         <h2 className="text-3xl font-bold tracking-tight mb-4">Quản lý duyệt nội dung</h2>
                         <div className="flex flex-wrap gap-4 w-full md:w-auto">
                             <Button variant="outline" className="flex items-center gap-2">

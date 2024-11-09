@@ -59,7 +59,7 @@ export default function ManageFooter() {
         <SidebarProvider>
             <SideBarUI />
             <SidebarInset>
-                <header className="z-10 absolute left-1 top-3">
+                <header className="z-10 absolute left-1 top-3 font-sans">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -86,7 +86,7 @@ export default function ManageFooter() {
                     </div>
                 </header>
 
-                <div className="absolute top-14 px-6 bg-gray-50 w-full">
+                <div className="absolute top-14 px-6 bg-gray-50 w-full font-sans">
                     <div className="container mx-auto px-4">
                         <div className="flex flex-wrap justify-between items-start">
                             {footerItems.map((item) => (

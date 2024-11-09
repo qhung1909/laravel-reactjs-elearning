@@ -25,7 +25,7 @@ export const ManageHeader = () => {
             <SidebarProvider>
                 <SideBarUI />
                 <SidebarInset>
-                    <header className="absolute left-1 top-3">
+                    <header className="absolute left-1 top-3 font-sans">
                         <div className="flex items-center gap-2 px-4">
                             <SidebarTrigger className="-ml-1" />
                             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -42,7 +42,7 @@ export const ManageHeader = () => {
                         </div>
                     </header>
 
-                    <div className="absolute top-14 px-6 bg-gray-50 w-full">
+                    <div className="absolute top-14 px-6 bg-gray-50 w-full font-sans">
                         <h1 className="text-2xl font-bold mb-4">Bảng Điều Khiển Quản Trị</h1>
 
                         <Card>
