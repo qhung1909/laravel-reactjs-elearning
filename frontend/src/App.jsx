@@ -13,7 +13,7 @@ import { Courses } from "./pages/courses/course.jsx";
 import { Blog } from "./pages/blog/blog.jsx";
 import { Blogdetail } from "./pages/blogdetail/blogdetail.jsx";
 import { Terms } from "./pages/terms/terms.jsx";
-import { Aboutus } from "./pages/terms/abourus.jsx";
+import { Aboutus } from "./pages/terms/aboutus.jsx";
 import { Contact } from "./pages/contact/contact.jsx";
 import { Home } from "./pages/home/home.jsx";
 import { Header } from "./pages/header/header.jsx";
