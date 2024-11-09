@@ -56,12 +56,13 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Search, ChevronDown, FileDown } from 'lucide-react';
+import { Search, ChevronDown, FileDown, UserCircle, XCircle, School, CheckCircle, Trash } from 'lucide-react';
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 
-export default function PersonalInformation () {
+
+export default function PersonalInformation() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
 
@@ -137,10 +138,6 @@ export default function PersonalInformation () {
         return filterOptions.find(option => option.value === filterCriteria)?.label || 'Tất cả người dùng';
     };
 
-    // const handleEditUser = async (userId) => {
-    //     console.log("Editing user:", userId);
-    //     setEditingUser(null);
-    // };
 
     const handleDeleteUser = async (userId) => {
         console.log("Deleting user:", userId);
@@ -245,54 +242,41 @@ export default function PersonalInformation () {
                                                 </TableCell>
                                                 <TableCell className="text-center">
                                                     {user.status === 1 ? (
-                                                        <span className="bg-green-600 text-white texxt-sm p-2 rounded-full">Hoạt động</span>
+                                                        <div className="inline-flex items-center space-x-1 p-1 rounded-full bg-green-50 text-green-700 font-medium border border-green-200 shadow-sm">
+                                                            <CheckCircle className="w-4 h-4" />
+                                                            <span className="text-sm">Hoạt động</span>
+                                                        </div>
                                                     ) : (
-                                                        <span className="bg-red-500 text-white texxt-sm p-2 rounded-full">Không hoạt động</span>
+                                                        <div className="inline-flex items-center space-x-1 p-1.5 rounded-full bg-red-50 text-red-700 font-medium border border-red-200 shadow-sm">
+                                                            <XCircle className="w-4 h-4" />
+                                                            <span className="text-sm">Không hoạt động</span>
+                                                        </div>
+                                                    )}
+                                                </TableCell>
+
+
+                                                <TableCell className="text-center">
+                                                    {user.role === "teacher" ? (
+                                                        <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 font-medium border border-blue-200 shadow-sm">
+                                                            <School className="w-4 h-4" />
+                                                            <span className="text-sm">Giảng viên</span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 font-medium border border-purple-200 shadow-sm">
+                                                            <UserCircle className="w-4 h-4" />
+                                                            <span className="text-sm">Học viên</span>
+                                                        </div>
                                                     )}
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    {user.role === "teacher" ? "Giảng viên" : "Học viên"}
-                                                </TableCell>
-                                                <TableCell className="text-center">
-                                                {/* <Dialog>
-                                                    <DialogTrigger asChild>
-                                                        <Button variant="outline" size="sm" className="mr-2">
-                                                            Thay đổi
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent className="sm:max-w-[425px]">
-                                                        <DialogHeader>
-                                                            <DialogTitle>Chỉnh sửa người dùng</DialogTitle>
-                                                            <DialogDescription>
-                                                                Thay đổi thông tin người dùng tại đây. Nhấn lưu khi hoàn tất.
-                                                            </DialogDescription>
-                                                        </DialogHeader>
-                                                        <div className="grid gap-4 py-4">
-                                                            <div className="grid grid-cols-4 items-center gap-4">
-                                                                <Label htmlFor="role" className="text-right">
-                                                                    Quyền
-                                                                </Label>
-                                                                <select
-                                                                    id="role"
-                                                                    defaultValue={user.role}
-                                                                    className="col-span-3 border rounded px-2 py-1"
-                                                                >
-                                                                    <option value="user">Học viên</option>
-                                                                    <option value="teacher">Giảng viên</option>
-                                                                    <option value="viewer">Quản trị viên</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                        <DialogFooter>
-                                                            <Button type="submit" onClick={() => handleEditUser(user.id)}>
-                                                                Lưu thay đổi
-                                                            </Button>
-                                                        </DialogFooter>
-                                                    </DialogContent>
-                                                </Dialog> */}
                                                     <AlertDialog className="cursor-pointer">
                                                         <AlertDialogTrigger asChild>
-                                                            <Button variant="outline" size="sm">
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="hover:bg-red-50 hover:text-red-600 transition-colors"
+                                                            >
+                                                                <Trash className="h-4 w-4 mr-1" />
                                                                 Xóa
                                                             </Button>
                                                         </AlertDialogTrigger>
@@ -305,7 +289,7 @@ export default function PersonalInformation () {
                                                             </AlertDialogHeader>
                                                             <AlertDialogFooter>
                                                                 <AlertDialogCancel>Hủy</AlertDialogCancel>
-                                                                <AlertDialogAction onClick={() => handleDeleteUser(user.id)}>Tiếp tục</AlertDialogAction>
+                                                                <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-red-600 hover:bg-red-700 text-white">Tiếp tục</AlertDialogAction>
                                                             </AlertDialogFooter>
                                                         </AlertDialogContent>
                                                     </AlertDialog>
