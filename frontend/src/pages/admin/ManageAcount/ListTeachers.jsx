@@ -162,8 +162,8 @@ export default function ListTeachers() {
                                         ) : (
                                             filteredTeachers.map((teacher, index) => (
                                                 <TableRow key={teacher.id}>
-                                                        <TableCell className="text-center">{index + 1}</TableCell>
-                                                        <TableCell className="flex justify-center items-center gap-3">
+                                                    <TableCell className="text-center">{index + 1}</TableCell>
+                                                    <TableCell className="flex justify-center items-center gap-3">
                                                         <img
                                                             src={teacher.avatar}
                                                             alt={`Avatar of ${teacher.name}`}
@@ -173,11 +173,10 @@ export default function ListTeachers() {
                                                     <TableCell className="font-medium text-center">{teacher.name}</TableCell>
                                                     <TableCell className="text-center">{teacher.email}</TableCell>
                                                     <TableCell className="text-center">
-                                                        <span className={`px-2 py-1 w-full rounded-full text-xs text-center ${
-                                                            teacher.status === 1
+                                                        <span className={`px-2 py-1 w-full rounded-full text-xs text-center ${teacher.status === 1
                                                                 ? "bg-green-100 text-green-800"
                                                                 : "bg-red-100 text-red-800"
-                                                        }`}>
+                                                            }`}>
                                                             {teacher.status === 1 ? "Đang hoạt động" : "Bị khóa"}
                                                         </span>
                                                     </TableCell>
@@ -185,7 +184,9 @@ export default function ListTeachers() {
                                                         {new Date(teacher.created_at).toLocaleDateString('vi-VN')}
                                                     </TableCell>
                                                     <TableCell className="text-center">
-                                                        {teacher.role === "teacher" ? "Giảng viên" : teacher.role}
+                                                        <span className="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
+                                                            {teacher.role === "teacher" ? "Giảng viên" : teacher.role}
+                                                        </span>
                                                     </TableCell>
                                                     <TableCell className="text-center; cursor-pointer">
                                                         <Button variant="ghost" size="sm">
