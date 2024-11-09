@@ -12,6 +12,7 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
+
 import { SideBarUI } from "../sidebarUI";
 import {
     Breadcrumb,
@@ -49,7 +50,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Loader2, BookOpen, Users, Filter } from "lucide-react";
+import { Search, Loader2, BookOpen, Users, Filter, GraduationCap, LayoutDashboard } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import toast, { Toaster } from 'react-hot-toast';
 import axios from "axios";
@@ -212,26 +213,35 @@ export default function CourseStatus() {
         <SidebarProvider>
             <SideBarUI />
             <SidebarInset>
+                <header className="z-10 absolute left-1 top-3 font-sans">
+                    <div className="flex items-center gap-2 px-4">
+                        <SidebarTrigger className="-ml-1" />
+                        <Separator orientation="vertical" className="mr-2 h-4" />
+                        <Breadcrumb>
+                            <BreadcrumbList>
+                                <BreadcrumbItem className="hidden md:block">
+                                    <BreadcrumbLink href="/" className="flex items-center gap-1">
+                                        <LayoutDashboard size={16} />
+                                        Dashboard
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator className="hidden md:block" />
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink
+                                        href="/admin/draft"
+                                        className="flex items-center gap-1 text-blue-600"
+                                    >
+                                        <GraduationCap size={16} />
+                                        Quản lý khóa học
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                            </BreadcrumbList>
+                        </Breadcrumb>
+                    </div>
+                </header>
+
                 <div className="w-full font-sans">
                     <div className="absolute top-16 px-6 bg-gray-50 w-full min-h-screen">
-                        <div className="mb-4">
-                            <Breadcrumb>
-                                <BreadcrumbList>
-                                    <BreadcrumbItem>
-                                        <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
-                                    </BreadcrumbItem>
-                                    <BreadcrumbSeparator />
-                                    <BreadcrumbItem>
-                                        <BreadcrumbLink href="/admin/courses">Khóa học</BreadcrumbLink>
-                                    </BreadcrumbItem>
-                                    <BreadcrumbSeparator />
-                                    <BreadcrumbItem>
-                                        <BreadcrumbLink>Trạng thái</BreadcrumbLink>
-                                    </BreadcrumbItem>
-                                </BreadcrumbList>
-                            </Breadcrumb>
-                        </div>
-
                         <Card>
                             <CardHeader>
                                 <CardTitle>Trạng thái khóa học</CardTitle>
@@ -282,12 +292,12 @@ export default function CourseStatus() {
                                     <div className="rounded-md border">
                                         <Table>
                                             <TableHeader>
-                                                <TableRow className="bg-yellow-100">
-                                                    <TableHead className="font-semibold text-center">ID</TableHead>
-                                                    <TableHead className="font-semibold text-center">Tên khóa học</TableHead>
-                                                    <TableHead className="font-semibold text-center">Giảng viên</TableHead>
-                                                    <TableHead className="font-semibold text-center">Trạng thái</TableHead>
-                                                    <TableHead className="font-semibold text-center">Thao tác</TableHead>
+                                                <TableRow>
+                                                    <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">ID</TableHead>
+                                                    <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Tên khóa học</TableHead>
+                                                    <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Giảng viên</TableHead>
+                                                    <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Trạng thái</TableHead>
+                                                    <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Thao tác</TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
@@ -405,15 +415,6 @@ export default function CourseStatus() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            {/* Ghi chú */}
-                            {/* <div className="grid gap-2">
-                                <Label>Ghi chú</Label>
-                                <Textarea
-                                    value={statusNote}
-                                    onChange={(e) => setStatusNote(e.target.value)}
-                                    placeholder="Nhập ghi chú về việc thay đổi trạng thái (không bắt buộc)"
-                                />
-                            </div> */}
                         </div>
                         <DialogFooter>
                             <Button

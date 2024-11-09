@@ -217,14 +217,14 @@ export default function ClassifyUsers() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow >
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">STT</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Avatar</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Tên</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Email</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Ngày tạo</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Trạng thái</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Quyền</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Hành động</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">STT</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Avatar</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Tên</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Email</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Ngày tạo</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Trạng thái</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Quyền</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Hành động</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -241,9 +241,9 @@ export default function ClassifyUsers() {
                                                 </TableCell>
                                                 <TableCell className="text-center">
                                                     {user.status === 1 ? (
-                                                        <span className="bg-green-600 text-white texxt-sm p-2 rounded-full">Hoạt động</span>
+                                                        <span className="bg-green-500 text-white text-sm p-2 rounded-xl">Hoạt động</span>
                                                     ) : (
-                                                        <span className="bg-red-500 text-white texxt-sm p-2 rounded-full">Không hoạt động</span>
+                                                        <span className="bg-red-500 text-white text-sm p-2 rounded-xl">Không hoạt động</span>
                                                     )}
                                                 </TableCell>
                                                 <TableCell className="text-center">

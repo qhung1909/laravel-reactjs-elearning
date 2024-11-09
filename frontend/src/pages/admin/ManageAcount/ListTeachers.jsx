@@ -142,14 +142,14 @@ export default function ListTeachers() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">STT</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Avatar</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Họ và tên</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Email</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Trạng thái</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Ngày</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Quyền</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Thao tác</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">STT</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Avatar</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Họ và tên</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Email</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Trạng thái</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Ngày</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Quyền</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Thao tác</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
