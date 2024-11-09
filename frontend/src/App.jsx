@@ -12,6 +12,7 @@ import Dashboard from "./pages/admin/Dashboard/admin.jsx";
 import { Courses } from "./pages/courses/course.jsx";
 import { Blog } from "./pages/blog/blog.jsx";
 import { Blogdetail } from "./pages/blogdetail/blogdetail.jsx";
+import { Terms } from "./pages/terms/terms.jsx";
 import { Contact } from "./pages/contact/contact.jsx";
 import { Home } from "./pages/home/home.jsx";
 import { Header } from "./pages/header/header.jsx";
@@ -84,6 +85,7 @@ function AppContent() {
             "/user/orderhistory",
             "/user/noti",
             "/user/noti/:id",
+            "/terms"
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/") &&
         !location.pathname.startsWith("/user/noti/") &&
@@ -139,6 +141,7 @@ function AppContent() {
                 <Route path="/lessons/:slug" element={<Lesson />}></Route>
                 <Route path="/blogs/:slug" element={<Blogdetail />}></Route>
                 <Route path="/blog" element={<Blog />}></Route>
+                <Route path="/terms" element={<Terms />}></Route>
                 <Route path="/detail" element={<Detail />}></Route>
                 <Route path="*" element={<PageNotFound />}></Route>
                 <Route path="/404" element={<PageNotFound />}></Route>
