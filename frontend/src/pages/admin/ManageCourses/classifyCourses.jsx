@@ -144,12 +144,12 @@ export default function ClassifyCourse() {
                         <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="bg-yellow-100">
-                                        <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">ID</th>
-                                        <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Tên khóa học</th>
-                                        <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Giá</th>
-                                        <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Danh mục</th>
-                                        <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Hành động</th>
+                                    <tr className="bg-yellow-50">
+                                        <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">ID</th>
+                                        <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-800">Tên khóa học</th>
+                                        <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-800">Giá</th>
+                                        <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-800">Danh mục</th>
+                                        <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-800">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
