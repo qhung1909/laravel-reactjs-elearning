@@ -803,18 +803,14 @@ export default function Draft() {
                                     <div className="flex gap-4 mt-6">
                                         <AlertDialog open={isApproveModalOpen} onOpenChange={setIsApproveModalOpen}>
                                             <AlertDialogTrigger>
-                                                {courses.map(course => (
-                                                    <Button
-                                                        key={course.course_id} // Sử dụng key để xác định phần tử duy nhất trong danh sách
-                                                        className="bg-green-500 hover:bg-green-600 text-white"
-                                                        onClick={() => openApproveModal(course.course_id)} // Chỉ mở modal và lưu courseId
-                                                    >
-                                                        <CheckCircle className="mr-2 h-4 w-4" />
-                                                        Phê duyệt Bài học
-                                                    </Button>
-                                                ))}
+                                                <Button
+                                                    className="bg-green-500 hover:bg-green-600 text-white"
+                                                    onClick={() => openApproveModal(activeCourse?.course_id)} // Chỉ mở modal và lưu course_id của khóa học đang được chọn
+                                                >
+                                                    <CheckCircle className="mr-2 h-4 w-4" />
+                                                    Phê duyệt Bài học
+                                                </Button>
                                             </AlertDialogTrigger>
-
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
                                                     <AlertDialogTitle>Xác nhận Phê duyệt</AlertDialogTitle>
@@ -831,13 +827,13 @@ export default function Draft() {
 
                                         <AlertDialog open={isRejectModalOpen} onOpenChange={setIsRejectModalOpen}>
                                             <AlertDialogTrigger>
-
-                                                {courses.map(course => (
-                                                    <Button variant="destructive" key={course.course_id} onClick={() => openRejectModal(course.course_id)}>
-                                                        <XCircle className="mr-2 h-4 w-4" />
-                                                        Từ chối Bài học
-                                                    </Button>
-                                                ))}
+                                                <Button
+                                                    variant="destructive"
+                                                    onClick={() => openRejectModal(activeCourse?.course_id)} // Gọi hàm khi click và lưu course_id
+                                                >
+                                                    <XCircle className="mr-2 h-4 w-4" />
+                                                    Từ chối Bài học
+                                                </Button>
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
@@ -860,21 +856,16 @@ export default function Draft() {
                                             </AlertDialogContent>
                                         </AlertDialog>
 
-
                                         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                                            <DialogTrigger >
-                                                {courses.map((course) => (
-                                                    <Button
-                                                        key={course.course_id}
-                                                        variant="outline"
-                                                        className="bg-yellow-500 hover:bg-yellow-600 text-white border-none"
-                                                        onClick={() => openEditModal(course.course_id)} // Gọi openEditModal và truyền course.id
-                                                    >
-                                                        <Clock className="mr-2 h-4 w-4" />
-                                                        Yêu cầu chỉnh sửa
-                                                    </Button>
-                                                ))}
-
+                                            <DialogTrigger>
+                                                <Button
+                                                    variant="outline"
+                                                    className="bg-yellow-500 hover:bg-yellow-600 text-white border-none"
+                                                    onClick={() => openEditModal(activeCourse?.course_id)} // Chỉ gọi hàm cho khóa học đang được chọn
+                                                >
+                                                    <Clock className="mr-2 h-4 w-4" />
+                                                    Yêu cầu chỉnh sửa
+                                                </Button>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
