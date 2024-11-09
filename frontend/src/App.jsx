@@ -43,7 +43,6 @@ import { CategoryCrud } from "./pages/admin/ManageCategories/categoryCrud.jsx";
 import { CategoryList } from "./pages/admin/ManageCategories/CategoryList.jsx";
 import { PriorityCategory } from "./pages/admin/ManageCategories/PriorityCategory.jsx";
 import CourseStatus from "./pages/admin/ManageCourses/courseStatus.jsx";
-import NewExample from "./pages/admin/ManageCourses/newExample.jsx";
 import { CoursesOfCategory } from "./pages/admin/ManageCategories/CoursesOfCategory.jsx";
 import ClassifyCourse from "./pages/admin/ManageCourses/classifyCourses.jsx";
 import PageCoupons from "./pages/admin/ManageCourses/pageCoupons.jsx";
@@ -115,7 +114,6 @@ function AppContent() {
                 <Route path="/admin/example" element={<Example />}></Route>
                 <Route path="/admin/course-list" element={<CourseList />}></Route>
                 <Route path="/admin/browse-new-courses" element={<BrowseNewCourses />}></Route>
-                <Route path="/admin/browse-new-courses/:id" element={<NewExample />}></Route>
                 <Route path="/admin/course-status" element={<CourseStatus />}></Route>
                 <Route path="/admin/classify-course" element={<ClassifyCourse />}></Route>
                 <Route path="/admin/page-coupons" element={<PageCoupons/>}></Route>
