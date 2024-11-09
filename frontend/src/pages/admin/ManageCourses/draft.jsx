@@ -36,21 +36,61 @@ export default function Draft() {
     const [contentLesson, setContentLesson] = useState([]);
     const [titleContents, setTitleContents] = useState([]);
     const navigate = useNavigate();
+    const [selectedCourseId, setSelectedCourseId] = useState(null);
 
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editNote, setEditNote] = useState('');
 
-    const handleApprove = () => {
-        toast.success("Khóa học đã được phê duyệt");
-        setIsApproveModalOpen(false);
+    const [selectedContentId, setSelectedContentId] = useState(null);
+    const [reason, setReason] = useState('');
+
+    const openRejectModal = (courseId) => {
+        setSelectedCourseId(courseId);
+        setIsRejectModalOpen(true);
     };
 
-    const handleReject = () => {
-        toast.success("Khóa học đã bị từ chối");
-        setIsRejectModalOpen(false);
+    const handleReject = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+
+        if (!reason.trim()) {
+            toast.error("Vui lòng nhập lý do từ chối.");
+            return;
+        }
+
+        try {
+            const res = await axios.post(
+                `${API_URL}/admin/reject`,
+                { course_id: selectedCourseId, reason },
+                {
+                    headers: {
+                        "x-api-secret": API_KEY,
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (res.data && res.data.success) {
+                toast.success("Khóa học đã bị từ chối thành công.");
+                fetchCourses();
+            } else {
+                console.error("Lỗi khi từ chối khóa học:", res.data);
+                toast.error("Có lỗi xảy ra khi từ chối khóa học.");
+            }
+        } catch (error) {
+            console.error("Lỗi khi gửi yêu cầu từ chối:", error);
+            toast.error("Có lỗi xảy ra khi gửi yêu cầu từ chối.");
+        } finally {
+            setIsRejectModalOpen(false);
+        }
     };
+
 
     const handleEditRequest = () => {
         toast.success("Yêu cầu chỉnh sửa đã được gửi");
@@ -149,6 +189,54 @@ export default function Draft() {
         return items;
     };
 
+    const openApproveModal = (courseId) => {
+        setSelectedCourseId(courseId);
+        setIsApproveModalOpen(true);
+    };
+
+    const handleApprove = () => {
+        if (selectedCourseId) {
+            approveCourse(selectedCourseId); // Gọi approveCourse với courseId đã được chọn
+        }
+        setIsApproveModalOpen(false);
+    };
+
+
+    const approveCourse = async (courseId) => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+
+        try {
+            const res = await axios.post(
+                `${API_URL}/admin/approve`,
+                { course_id: courseId }, // Truyền giá trị course_id vào body
+                {
+                    headers: {
+                        "x-api-secret": API_KEY,
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (res.data && res.data.success) {
+                toast.success("Khóa học đã được phê duyệt thành công.");
+                // Cập nhật danh sách các khóa học sau khi phê duyệt
+                fetchCourses();
+            } else {
+                console.error("Lỗi khi phê duyệt khóa học:", res.data);
+                toast.error("Có lỗi xảy ra khi phê duyệt khóa học.");
+            }
+        } catch (error) {
+            console.error("Lỗi khi gửi yêu cầu phê duyệt:", error);
+            toast.error("Có lỗi xảy ra khi gửi yêu cầu phê duyệt.");
+        }
+    };
+
 
     const fetchCourses = async () => {
         try {
@@ -163,10 +251,10 @@ export default function Draft() {
             setCourses(pendingCourses);
 
             if (pendingCourses.length > 0) {
-                const courseId = pendingCourses[0].course_id; // Lấy course_id từ khóa học đầu tiên
-                fetchContentLesson(courseId); // Truyền courseId vào hàm
+                const courseId = pendingCourses[0].course_id;
+                fetchContentLesson(courseId);
             } else {
-                console.warn("Không có khóa học nào đang chờ phê duyệt."); // Thông báo nếu không có khóa học nào
+                console.warn("Không có khóa học nào đang chờ phê duyệt.");
             }
         } catch (error) {
             console.error('Lỗi khi tải danh sách khóa học:', error);
@@ -219,12 +307,6 @@ export default function Draft() {
             console.error("Lỗi khi lấy nội dung bài học:", error);
         }
     };
-
-
-    useEffect(() => {
-        fetchCourses();
-    }, []);
-
 
     const fetchPendingTitleContents = async (contentId) => {
         const token = localStorage.getItem("access_token");
@@ -669,14 +751,17 @@ export default function Draft() {
                                     {/* Action Buttons */}
                                     <div className="flex gap-4 mt-6">
                                         <AlertDialog open={isApproveModalOpen} onOpenChange={setIsApproveModalOpen}>
-                                            <AlertDialogTrigger asChild>
-                                                <Button
-                                                    className="bg-green-500 hover:bg-green-600 text-white"
-                                                    onClick={handleApprove}
-                                                >
-                                                    <CheckCircle className="mr-2 h-4 w-4" />
-                                                    Phê duyệt Bài học
-                                                </Button>
+                                            <AlertDialogTrigger>
+                                                {courses.map(course => (
+                                                    <Button
+                                                        key={course.course_id} // Sử dụng key để xác định phần tử duy nhất trong danh sách
+                                                        className="bg-green-500 hover:bg-green-600 text-white"
+                                                        onClick={() => openApproveModal(course.course_id)} // Chỉ mở modal và lưu courseId
+                                                    >
+                                                        <CheckCircle className="mr-2 h-4 w-4" />
+                                                        Phê duyệt Bài học
+                                                    </Button>
+                                                ))}
                                             </AlertDialogTrigger>
 
                                             <AlertDialogContent>
@@ -694,11 +779,14 @@ export default function Draft() {
                                         </AlertDialog>
 
                                         <AlertDialog open={isRejectModalOpen} onOpenChange={setIsRejectModalOpen}>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="destructive">
-                                                    <XCircle className="mr-2 h-4 w-4" />
-                                                    Từ chối Bài học
-                                                </Button>
+                                            <AlertDialogTrigger>
+
+                                                {courses.map(course => (
+                                                    <Button variant="destructive" key={course.course_id} onClick={() => openRejectModal(course.course_id)}>
+                                                        <XCircle className="mr-2 h-4 w-4" />
+                                                        Từ chối Bài học
+                                                    </Button>
+                                                ))}
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
@@ -707,12 +795,20 @@ export default function Draft() {
                                                         Bạn có chắc chắn muốn từ chối bài học này không?
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Nhập lý do từ chối"
+                                                    value={reason}
+                                                    onChange={(e) => setReason(e.target.value)}
+                                                    className="w-full p-2 border rounded"
+                                                />
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel onClick={() => setIsRejectModalOpen(false)}>Hủy</AlertDialogCancel>
                                                     <AlertDialogAction onClick={handleReject}>Từ chối</AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
                                         </AlertDialog>
+
 
                                         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                                             <DialogTrigger asChild>

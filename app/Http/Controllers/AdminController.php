@@ -20,6 +20,8 @@ use App\Models\TitleContent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CourseStatusNotification;
+use App\Models\User;
+
 class AdminController extends Controller
 {
     protected $course;
@@ -37,7 +39,7 @@ class AdminController extends Controller
     {
         $cacheKey = 'admin_courses_all';
 
-        $courses = Cache::remember($cacheKey, 120, function () {
+        $courses = Cache::remember($cacheKey, 1, function () {
             return $this->course
                 ->with(['user:user_id,name', 'comments:course_id,rating'])
                 ->get();
@@ -606,7 +608,22 @@ class AdminController extends Controller
             $courseId = $request->course_id;
             $reason = $request->reason;
 
-            $course = Course::with('instructor')->findOrFail($courseId);
+            $course = Course::find($courseId);
+            if (!$course) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Khóa học không tồn tại'
+                ], 404);
+            }
+
+            $instructor = User::where('user_id', $course->user_id)->where('role', 'teacher')->first();
+            if (!$instructor) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Giảng viên không tồn tại hoặc không có vai trò hợp lệ'
+                ], 404);
+            }
+
             $course->update([
                 'status' => 'failed',
                 'reject_reason' => $reason
@@ -632,7 +649,7 @@ class AdminController extends Controller
                     'reject_reason' => $reason
                 ]);
 
-            Mail::to($course->instructor->email)
+            Mail::to($instructor->email)
                 ->queue(new CourseStatusNotification($course, $reason, 'rejected'));
 
             DB::commit();
@@ -658,7 +675,22 @@ class AdminController extends Controller
             $courseId = $request->course_id;
             $reason = $request->reason;
 
-            $course = Course::with('instructor')->findOrFail($courseId);
+            $course = Course::find($courseId);
+            if (!$course) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Khóa học không tồn tại'
+                ], 404);
+            }
+
+            $instructor = User::where('user_id', $course->user_id)->where('role', 'teacher')->first();
+            if (!$instructor) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Giảng viên không tồn tại hoặc không có vai trò hợp lệ'
+                ], 404);
+            }
+
             $course->update([
                 'status' => 'failed',
                 'revision_reason' => $reason
@@ -684,7 +716,7 @@ class AdminController extends Controller
                     'revision_reason' => $reason
                 ]);
 
-            Mail::to($course->instructor->email)
+            Mail::to($instructor->email)
                 ->queue(new CourseStatusNotification($course, $reason, 'revision'));
 
             DB::commit();

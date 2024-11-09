@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $type === 'rejected' ? 'Khóa học của bạn đã bị từ chối' : 'Yêu cầu chỉnh sửa khóa học' }}</title>
 </head>
+<style>
+    .text-custom-yellow {
+        color: #e9b308;
+    }
+</style>
 
 <body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif;">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4;">
@@ -19,16 +25,20 @@
 
                     <tr>
                         <td style="padding: 40px;">
-                            <h1 style="margin: 0 0 20px; color: #111827; font-size: 24px; font-weight: 700; text-align: center;">
+                            <h1 class="{{ $type === 'rejected' ? 'text-red-600' : 'text-custom-yellow' }} font-bold text-2xl text-center mb-5">
                                 {{ $type === 'rejected' ? 'Khóa học của bạn đã bị từ chối' : 'Yêu cầu chỉnh sửa khóa học' }}
                             </h1>
 
+
+
                             <div style="background-color: #f8fafc; border-radius: 8px; padding: 25px; margin: 30px 0;">
                                 <div style="margin: 0 0 25px; color: #374151; font-size: 16px; line-height: 24px;">
-                                    <p>Xin chào bạn,</p>
-                                    
-                                    <p>{{ $type === 'rejected' ? 'Chúng tôi rất tiếc phải thông báo khóa học của bạn đã bị từ chối' : 'Khóa học của bạn cần được chỉnh sửa' }}.</p>
-                                    
+                                    <p>Xin chào bạn, </p>
+
+                                    <p class="{{ $type === 'rejected' ? 'text-red-500' : 'text-custom-yellow' }}">
+                                        {{ $type === 'rejected' ? 'Chúng tôi rất tiếc phải thông báo khóa học của bạn đã bị từ chối' : 'Khóa học của bạn cần được chỉnh sửa' }}.
+                                    </p>
+
                                     <h3>Thông tin khóa học:</h3>
                                     <ul>
                                         <li>Tên khóa học: {{ $course->title }}</li>
@@ -71,4 +81,5 @@
         </tr>
     </table>
 </body>
+
 </html>
