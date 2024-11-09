@@ -172,9 +172,9 @@ export default function ListStudents() {
                                                         <TableCell className="font-medium text-center">{student.name}</TableCell>
                                                         <TableCell className="text-center">{student.email}</TableCell>
                                                         <TableCell className="text-center">
-                                                            <span className={`px-2 py-1 w-full rounded-full text-xs text-center ${student.status === 1
-                                                                ? "bg-green-100 text-green-800"
-                                                                : "bg-red-100 text-red-800"
+                                                            <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${student.status === 1
+                                                                ? "bg-green-50 text-green-700 ring-1 ring-green-600/20"
+                                                                : "bg-red-50 text-red-700 ring-1 ring-red-600/20"
                                                                 }`}>
                                                                 {student.status === 1 ? "Đang hoạt động" : "Bị khóa"}
                                                             </span>
