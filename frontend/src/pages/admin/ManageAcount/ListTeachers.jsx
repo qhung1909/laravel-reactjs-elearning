@@ -29,7 +29,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Search, Filter, FileDown } from 'lucide-react';
+import { Search, Filter, FileDown, Eye } from 'lucide-react';
 
 export default function ListTeachers() {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -173,9 +173,9 @@ export default function ListTeachers() {
                                                     <TableCell className="font-medium text-center">{teacher.name}</TableCell>
                                                     <TableCell className="text-center">{teacher.email}</TableCell>
                                                     <TableCell className="text-center">
-                                                        <span className={`px-2 py-1 w-full rounded-full text-xs text-center ${teacher.status === 1
-                                                                ? "bg-green-100 text-green-800"
-                                                                : "bg-red-100 text-red-800"
+                                                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${teacher.status === 1
+                                                            ? "bg-green-50 text-green-700 ring-1 ring-green-600/20"
+                                                            : "bg-red-50 text-red-700 ring-1 ring-red-600/20"
                                                             }`}>
                                                             {teacher.status === 1 ? "Đang hoạt động" : "Bị khóa"}
                                                         </span>
@@ -189,7 +189,12 @@ export default function ListTeachers() {
                                                         </span>
                                                     </TableCell>
                                                     <TableCell className="text-center; cursor-pointer">
-                                                        <Button variant="ghost" size="sm">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="hover:bg-yellow-50 hover:text-yellow-700 transition-colors"
+                                                        >
+                                                            <Eye className="h-4 w-4 mr-1" />
                                                             Chi tiết
                                                         </Button>
                                                     </TableCell>
