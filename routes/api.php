@@ -213,7 +213,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::get('/pending-title-contents', [AdminController::class, 'getPendingTitleContents']);
     Route::get('/pending-quizzes', [AdminController::class, 'getPendingQuizzes']);
 
-
+    Route::post('/approve', [AdminController::class, 'approveAll'])->name('admin.courses.approve');
+    Route::post('/reject', [AdminController::class, 'rejectAll'])->name('admin.courses.reject');
+    Route::post('/revision', [AdminController::class, 'requestRevision'])->name('admin.courses.revision');
 
 });
 Route::prefix('teacher')->middleware('admin')->group(function () {
