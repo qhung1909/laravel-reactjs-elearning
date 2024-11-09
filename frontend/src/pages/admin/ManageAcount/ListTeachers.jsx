@@ -29,7 +29,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Search, Filter, FileDown } from 'lucide-react';
+import { Search, Filter, FileDown, Eye } from 'lucide-react';
 
 export default function ListTeachers() {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -91,7 +91,7 @@ export default function ListTeachers() {
         <SidebarProvider>
             <SideBarUI />
             <SidebarInset>
-                <header className="absolute left-1 top-3">
+                <header className="absolute left-1 top-3 font-sans">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -109,7 +109,7 @@ export default function ListTeachers() {
                     </div>
                 </header>
 
-                <div className="absolute top-16 px-6 bg-gray-50 w-full">
+                <div className="absolute top-16 px-6 bg-gray-50 w-full font-sans">
                     <Card>
                         <CardHeader>
                             <CardTitle>Danh sách giảng viên</CardTitle>
@@ -142,14 +142,14 @@ export default function ListTeachers() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">STT</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Avatar</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Họ và tên</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Email</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Trạng thái</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Ngày</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Quyền</TableHead>
-                                            <TableHead className="text-gray-600 font-bold text-center bg-yellow-100 ">Thao tác</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">STT</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Avatar</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Họ và tên</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Email</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Trạng thái</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Ngày</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Quyền</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Thao tác</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -162,8 +162,8 @@ export default function ListTeachers() {
                                         ) : (
                                             filteredTeachers.map((teacher, index) => (
                                                 <TableRow key={teacher.id}>
-                                                        <TableCell className="text-center">{index + 1}</TableCell>
-                                                        <TableCell className="flex justify-center items-center gap-3">
+                                                    <TableCell className="text-center">{index + 1}</TableCell>
+                                                    <TableCell className="flex justify-center items-center gap-3">
                                                         <img
                                                             src={teacher.avatar}
                                                             alt={`Avatar of ${teacher.name}`}
@@ -173,11 +173,10 @@ export default function ListTeachers() {
                                                     <TableCell className="font-medium text-center">{teacher.name}</TableCell>
                                                     <TableCell className="text-center">{teacher.email}</TableCell>
                                                     <TableCell className="text-center">
-                                                        <span className={`px-2 py-1 w-full rounded-full text-xs text-center ${
-                                                            teacher.status === 1
-                                                                ? "bg-green-100 text-green-800"
-                                                                : "bg-red-100 text-red-800"
-                                                        }`}>
+                                                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${teacher.status === 1
+                                                            ? "bg-green-50 text-green-700 ring-1 ring-green-600/20"
+                                                            : "bg-red-50 text-red-700 ring-1 ring-red-600/20"
+                                                            }`}>
                                                             {teacher.status === 1 ? "Đang hoạt động" : "Bị khóa"}
                                                         </span>
                                                     </TableCell>
@@ -185,10 +184,17 @@ export default function ListTeachers() {
                                                         {new Date(teacher.created_at).toLocaleDateString('vi-VN')}
                                                     </TableCell>
                                                     <TableCell className="text-center">
-                                                        {teacher.role === "teacher" ? "Giảng viên" : teacher.role}
+                                                        <span className="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
+                                                            {teacher.role === "teacher" ? "Giảng viên" : teacher.role}
+                                                        </span>
                                                     </TableCell>
                                                     <TableCell className="text-center; cursor-pointer">
-                                                        <Button variant="ghost" size="sm">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="hover:bg-yellow-50 hover:text-yellow-700 transition-colors"
+                                                        >
+                                                            <Eye className="h-4 w-4 mr-1" />
                                                             Chi tiết
                                                         </Button>
                                                     </TableCell>

@@ -18,6 +18,9 @@ use App\Models\Coupon;
 use App\Models\Quiz;
 use App\Models\TitleContent;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\CourseStatusNotification;
+use App\Models\User;
 
 class AdminController extends Controller
 {
@@ -36,7 +39,7 @@ class AdminController extends Controller
     {
         $cacheKey = 'admin_courses_all';
 
-        $courses = Cache::remember($cacheKey, 120, function () {
+        $courses = Cache::remember($cacheKey, 1, function () {
             return $this->course
                 ->with(['user:user_id,name', 'comments:course_id,rating'])
                 ->get();
@@ -542,12 +545,12 @@ class AdminController extends Controller
     {
         try {
             $content_id = $request->input('content_id');
-    
-            $quizzes = Quiz::with(['questions.options']) 
+
+            $quizzes = Quiz::with(['questions.options'])
                 ->where('status', 'pending')
                 ->where('content_id', $content_id)
                 ->get();
-    
+
             return response()->json([
                 'success' => true,
                 'quizzes' => $quizzes
@@ -560,5 +563,174 @@ class AdminController extends Controller
             ], 500);
         }
     }
-    
+
+    public function approveAll(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $courseId = $request->course_id;
+
+            $course = Course::findOrFail($courseId);
+            $course->update(['status' => 'published']);
+
+            $contents = Content::where('course_id', $courseId)->get();
+            foreach ($contents as $content) {
+                $content->update(['status' => 'published']);
+
+                TitleContent::where('content_id', $content->content_id)
+                    ->update(['status' => 'published']);
+            }
+
+            Quiz::where('course_id', $courseId)
+                ->update(['status' => 'published']);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã duyệt và xuất bản tất cả nội dung'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function rejectAll(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $courseId = $request->course_id;
+            $reason = $request->reason;
+
+            $course = Course::find($courseId);
+            if (!$course) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Khóa học không tồn tại'
+                ], 404);
+            }
+
+            $instructor = User::where('user_id', $course->user_id)->where('role', 'teacher')->first();
+            if (!$instructor) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Giảng viên không tồn tại hoặc không có vai trò hợp lệ'
+                ], 404);
+            }
+
+            $course->update([
+                'status' => 'failed',
+                'reject_reason' => $reason
+            ]);
+
+            $contents = Content::where('course_id', $courseId)->get();
+            foreach ($contents as $content) {
+                $content->update([
+                    'status' => 'failed',
+                    'reject_reason' => $reason
+                ]);
+
+                TitleContent::where('content_id', $content->content_id)
+                    ->update([
+                        'status' => 'failed',
+                        'reject_reason' => $reason
+                    ]);
+            }
+
+            Quiz::where('course_id', $courseId)
+                ->update([
+                    'status' => 'failed',
+                    'reject_reason' => $reason
+                ]);
+
+            Mail::to($instructor->email)
+                ->queue(new CourseStatusNotification($course, $reason, 'rejected'));
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã từ chối và gửi thông báo cho giảng viên'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function requestRevision(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $courseId = $request->course_id;
+            $reason = $request->reason;
+
+            $course = Course::find($courseId);
+            if (!$course) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Khóa học không tồn tại'
+                ], 404);
+            }
+
+            $instructor = User::where('user_id', $course->user_id)->where('role', 'teacher')->first();
+            if (!$instructor) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Giảng viên không tồn tại hoặc không có vai trò hợp lệ'
+                ], 404);
+            }
+
+            $course->update([
+                'status' => 'revision_requested',
+                'revision_reason' => $reason
+            ]);
+
+            $contents = Content::where('course_id', $courseId)->get();
+            foreach ($contents as $content) {
+                $content->update([
+                    'status' => 'revision_requested',
+                    'revision_reason' => $reason
+                ]);
+
+                TitleContent::where('content_id', $content->content_id)
+                    ->update([
+                        'status' => 'revision_requested',
+                        'revision_reason' => $reason
+                    ]);
+            }
+
+            Quiz::where('course_id', $courseId)
+                ->update([
+                    'status' => 'revision_requested',
+                    'revision_reason' => $reason
+                ]);
+
+            Mail::to($instructor->email)
+                ->queue(new CourseStatusNotification($course, $reason, 'revision'));
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã yêu cầu chỉnh sửa và gửi thông báo cho giảng viên'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

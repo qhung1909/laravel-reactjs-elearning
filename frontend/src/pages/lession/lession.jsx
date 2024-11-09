@@ -23,7 +23,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
-
+const GPT_KEY = import.meta.env.VITE_GPT_KEY;
 export const Lesson = () => {
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
@@ -418,6 +418,43 @@ export const Lesson = () => {
         setSelectedDate(date);
         setIsCalendarOpen(false); // Đóng lịch sau khi chọn ngày
     };
+
+
+    const [userMessage, setUserMessage] = useState('');
+    const [chatHistory, setChatHistory] = useState([
+        { role: 'system', content: 'Bạn là một trợ lý AI.' },
+    ]);
+    const sendMessageToChatGPT = async (message) => {
+        try {
+            const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+                model: 'gpt-3.5-turbo',
+                messages: [...chatHistory, { role: 'user', content: message }],
+            }, {
+                headers: {
+                    Authorization: `Bearer ${GPT_KEY}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const botResponse = response.data.choices[0].message.content;
+
+            // Cập nhật lại lịch sử trò chuyện
+            setChatHistory([
+                ...chatHistory,
+                { role: 'user', content: message },
+                { role: 'assistant', content: botResponse },
+            ]);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const handleSendMessage = () => {
+        if (userMessage.trim()) {
+            sendMessageToChatGPT(userMessage);
+            setUserMessage('');
+        }
+    };
     return (
         <>
             <body className="bg-gray-100">
@@ -495,19 +532,24 @@ export const Lesson = () => {
 
                                             <div className="overflow-auto h-[70%] mb-4 border border-gray-700 rounded-lg p-3 bg-gray-800">
                                                 <div className="p-2 space-y-2 text-sm">
-                                                    <p><strong>Bạn:</strong> Giúp tôi giải bài quiz này</p>
-                                                    <p><strong>Bot:</strong> Mua gói VIP đi, tôi sẽ giải cho bạn.</p>
+                                                    {chatHistory.map((message, index) => (
+                                                        <p key={index} className={message.role === 'user' ? 'text-blue-400' : 'text-green-400'}>
+                                                            <strong>{message.role === 'user' ? 'Bạn' : 'Bot'}:</strong> {message.content}
+                                                        </p>
+                                                    ))}
                                                 </div>
                                             </div>
 
                                             <div className="flex items-center space-x-2">
                                                 <input
                                                     type="text"
+                                                    value={userMessage}
+                                                    onChange={(e) => setUserMessage(e.target.value)}
                                                     placeholder="Nhập tin nhắn của bạn..."
                                                     className="flex-grow p-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring focus:ring-blue-500"
                                                 />
                                                 <Button
-                                                    onClick={() => console.log("Gửi tin nhắn")}
+                                                    onClick={handleSendMessage}
                                                     className="bg-blue-600 text-white hover:bg-blue-700 rounded-lg px-4 py-2"
                                                 >
                                                     Gửi

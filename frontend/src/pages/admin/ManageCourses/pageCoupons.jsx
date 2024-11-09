@@ -341,7 +341,7 @@ export default function PageCoupons() {
             <Toaster position="top-right" />
             <SideBarUI />
             <SidebarInset>
-                <header className="z-10 absolute left-1 top-3">
+                <header className="z-10 absolute left-1 top-3 font-sans">
                     <div className="flex items-center gap-2 px-4 py-3">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -359,7 +359,7 @@ export default function PageCoupons() {
                     </div>
                 </header>
 
-                <div className="absolute top-16 px-6 bg-gray-50 w-full">
+                <div className="absolute top-16 px-6 bg-gray-50 w-full font-sans">
                     <Card>
                         <CardContent className="p-6">
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -471,9 +471,9 @@ export default function PageCoupons() {
                                 <table className="w-full">
                                     <thead>
                                         <tr className=" bg-yellow-100 ">
-                                            <th className="text-center py-4 px-6 font-bold text-sm text-gray-600">ID</th>
+                                            <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 cursor-pointer group">ID</th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 cursor-pointer group"
                                                 onClick={() => handleSort('name_coupon')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -482,7 +482,7 @@ export default function PageCoupons() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 cursor-pointer group"
                                                 onClick={() => handleSort('discount_price')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -491,7 +491,7 @@ export default function PageCoupons() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 cursor-pointer group"
                                                 onClick={() => handleSort('start_discount')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -501,7 +501,7 @@ export default function PageCoupons() {
 
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-sm text-gray-600 cursor-pointer group"
+                                                className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 cursor-pointer group"
                                                 onClick={() => handleSort('end_discount')}
                                             >
                                                 <div className="flex items-center gap-2">
@@ -510,8 +510,8 @@ export default function PageCoupons() {
                                                 </div>
 
                                             </th>
-                                            <th className="text-center py-4 px-6 font-bold text-sm text-gray-600">Thời hạn</th>
-                                            <th className="text-center py-4 px-6 font-bold text-sm text-gray-600">Hành động</th>
+                                            <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Thời hạn</th>
+                                            <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody>

@@ -15,8 +15,11 @@ export const Footer = () => {
                             <img
                                 src="/src/assets/images/antlearn.png"
                                 alt=""
-                                className="w-20 md:w-32 "
+                                className="w-20 md:w-32 mb-5"
                             />
+                            <a href="https://www.facebook.com/profile.php?id=100079303916866">
+                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/faecbooklogo.svg" className="w-7" alt="" />
+                            </a>
                         </div>
 
                         {/* grid - right */}
@@ -40,9 +43,18 @@ export const Footer = () => {
                                         Chính sách chung & Hỗ trợ
                                     </span>
                                     <ul className="mt-2">
-                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9sm:leading-7 leading-loose">Điều khoản dịch vụ</li>
-                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9sm:leading-7 leading-loose">Bài viết</li>
-                                        <li className="md:text-[16px] font-semibold text-[16px] md:leading-9sm:leading-7 leading-loose">Chính sách bảo mật thông tin</li>
+                                        {/* term */}
+                                        <Link to="/terms">
+                                            <li className="md:text-[16px] font-semibold text-[16px] md:leading-9sm:leading-7 leading-loose">Điều khoản dịch vụ</li>
+                                        </Link>
+                                        {/* blog */}
+                                        {/* <Link to="/blog">
+                                            <li className="md:text-[16px] font-semibold text-[16px] md:leading-9sm:leading-7 leading-loose">Bài viết</li>
+                                        </Link> */}
+                                        {/* about us */}
+                                        <Link to="/aboutus">
+                                            <li className="md:text-[16px] font-semibold text-[16px] md:leading-9sm:leading-7 leading-loose">Về chúng tôi</li>
+                                        </Link>
                                     </ul>
                                 </div>
                             </div>

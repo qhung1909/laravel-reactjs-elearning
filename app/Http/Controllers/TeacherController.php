@@ -543,6 +543,9 @@ class TeacherController extends Controller
                     ->update(['status' => 'pending']);
             }
             
+            Quiz::where('course_id', $courseId)
+                ->update(['status' => 'pending']);
+            
             DB::commit();
             
             return response()->json([

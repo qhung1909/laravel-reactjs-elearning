@@ -150,7 +150,7 @@ export default function PersonalInformation () {
         <SidebarProvider>
             <SideBarUI />
             <SidebarInset>
-                <header className="absolute left-1 top-3">
+                <header className="absolute left-1 top-3 font-sans">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -168,7 +168,7 @@ export default function PersonalInformation () {
                     </div>
                 </header>
 
-                <div className="absolute top-16 px-6 bg-gray-50 w-full">
+                <div className="absolute top-16 px-6 bg-gray-50 w-full font-sans">
                     <Card>
                         <CardHeader>
                             <CardTitle>Thông tin & hồ sơ người dùng</CardTitle>
@@ -217,15 +217,15 @@ export default function PersonalInformation () {
                                 <Table>
                                     <TableHeader>
                                         <TableRow >
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">STT</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Avatar</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Tên</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Email</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Ngày tạo</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Ngày cập nhật</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Trạng thái</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Quyền</TableHead>
-                                            <TableHead className="bg-yellow-100 text-center text-gray-600 font-bold">Hành động</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">STT</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Avatar</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Tên</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Email</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Ngày tạo</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Ngày cập nhật</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Trạng thái</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Quyền</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Hành động</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>

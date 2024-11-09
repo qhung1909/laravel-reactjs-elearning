@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, Book, Search, Filter } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, Book, Search, Filter, BadgeHelp } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import ReactPlayer from "react-player";
@@ -36,27 +36,118 @@ export default function Draft() {
     const [contentLesson, setContentLesson] = useState([]);
     const [titleContents, setTitleContents] = useState([]);
     const navigate = useNavigate();
+    const [selectedCourseId, setSelectedCourseId] = useState(null);
 
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editNote, setEditNote] = useState('');
 
-    const handleApprove = () => {
-        toast.success("Khóa học đã được phê duyệt");
-        setIsApproveModalOpen(false);
+    const [selectedContentId, setSelectedContentId] = useState(null);
+    const [reason, setReason] = useState('');
+
+    const openRejectModal = (courseId) => {
+        setSelectedCourseId(courseId);
+        setIsRejectModalOpen(true);
     };
 
-    const handleReject = () => {
-        toast.success("Khóa học đã bị từ chối");
-        setIsRejectModalOpen(false);
+    const openEditModal = (courseId) => {
+        setSelectedCourseId(courseId); // Lưu courseId vào state
+        setIsEditModalOpen(true); // Mở modal
     };
 
-    const handleEditRequest = () => {
-        toast.success("Yêu cầu chỉnh sửa đã được gửi");
-        setIsEditModalOpen(false);
-        setEditNote('');
+
+    const handleEditRequest = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+
+        if (!editNote.trim()) {
+            toast.error("Vui lòng nhập ghi chú chỉnh sửa.");
+            return;
+        }
+
+        console.log("Selected Course ID:", selectedCourseId);
+        console.log("Edit Note:", editNote);
+
+        try {
+            const response = await axios.post(
+                `${API_URL}/admin/revision`,
+                {
+                    course_id: selectedCourseId, // Sử dụng selectedCourseId từ state
+                    reason: editNote,
+                },
+                {
+                    headers: {
+                        "x-api-secret": API_KEY,
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.data && response.data.success) {
+                toast.success("Yêu cầu chỉnh sửa đã được gửi thành công.");
+                fetchCourses(); // Cập nhật danh sách khóa học nếu cần
+            } else {
+                console.error("Lỗi khi gửi yêu cầu chỉnh sửa:", response.data);
+                toast.error("Có lỗi xảy ra khi gửi yêu cầu chỉnh sửa.");
+            }
+        } catch (error) {
+            console.error("Lỗi khi gửi yêu cầu chỉnh sửa:", error);
+            toast.error("Có lỗi xảy ra khi gửi yêu cầu chỉnh sửa.");
+        } finally {
+            setIsEditModalOpen(false); // Đóng modal sau khi xử lý
+            setEditNote(''); // Xóa ghi chú chỉnh sửa
+        }
     };
+
+
+
+    const handleReject = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+
+        if (!reason.trim()) {
+            toast.error("Vui lòng nhập lý do từ chối.");
+            return;
+        }
+
+        try {
+            const res = await axios.post(
+                `${API_URL}/admin/reject`,
+                { course_id: selectedCourseId, reason },
+                {
+                    headers: {
+                        "x-api-secret": API_KEY,
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (res.data && res.data.success) {
+                toast.success("Khóa học đã bị từ chối thành công.");
+                fetchCourses();
+            } else {
+                console.error("Lỗi khi từ chối khóa học:", res.data);
+                toast.error("Có lỗi xảy ra khi từ chối khóa học.");
+            }
+        } catch (error) {
+            console.error("Lỗi khi gửi yêu cầu từ chối:", error);
+            toast.error("Có lỗi xảy ra khi gửi yêu cầu từ chối.");
+        } finally {
+            setIsRejectModalOpen(false);
+        }
+    };
+
+
 
 
     /* Phân trang  */
@@ -149,6 +240,54 @@ export default function Draft() {
         return items;
     };
 
+    const openApproveModal = (courseId) => {
+        setSelectedCourseId(courseId);
+        setIsApproveModalOpen(true);
+    };
+
+    const handleApprove = () => {
+        if (selectedCourseId) {
+            approveCourse(selectedCourseId); // Gọi approveCourse với courseId đã được chọn
+        }
+        setIsApproveModalOpen(false);
+    };
+
+
+    const approveCourse = async (courseId) => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+
+        try {
+            const res = await axios.post(
+                `${API_URL}/admin/approve`,
+                { course_id: courseId }, // Truyền giá trị course_id vào body
+                {
+                    headers: {
+                        "x-api-secret": API_KEY,
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (res.data && res.data.success) {
+                toast.success("Khóa học đã được phê duyệt thành công.");
+                // Cập nhật danh sách các khóa học sau khi phê duyệt
+                fetchCourses();
+            } else {
+                console.error("Lỗi khi phê duyệt khóa học:", res.data);
+                toast.error("Có lỗi xảy ra khi phê duyệt khóa học.");
+            }
+        } catch (error) {
+            console.error("Lỗi khi gửi yêu cầu phê duyệt:", error);
+            toast.error("Có lỗi xảy ra khi gửi yêu cầu phê duyệt.");
+        }
+    };
+
 
     const fetchCourses = async () => {
         try {
@@ -163,10 +302,10 @@ export default function Draft() {
             setCourses(pendingCourses);
 
             if (pendingCourses.length > 0) {
-                const courseId = pendingCourses[0].course_id; // Lấy course_id từ khóa học đầu tiên
-                fetchContentLesson(courseId); // Truyền courseId vào hàm
+                const courseId = pendingCourses[0].course_id;
+                fetchContentLesson(courseId);
             } else {
-                console.warn("Không có khóa học nào đang chờ phê duyệt."); // Thông báo nếu không có khóa học nào
+                console.warn("Không có khóa học nào đang chờ phê duyệt.");
             }
         } catch (error) {
             console.error('Lỗi khi tải danh sách khóa học:', error);
@@ -220,12 +359,6 @@ export default function Draft() {
         }
     };
 
-
-    useEffect(() => {
-        fetchCourses();
-    }, []);
-
-
     const fetchPendingTitleContents = async (contentId) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -277,10 +410,10 @@ export default function Draft() {
                 }
             });
 
-            console.log("Dữ liệu nhận được từ API:", res.data); // Kiểm tra dữ liệu từ API
+            // console.log("Dữ liệu nhận được từ API:", res.data);
 
             if (res.data && res.data.success && Array.isArray(res.data.quizzes)) {
-                console.log("Quizzes:", res.data.quizzes);
+                // console.log("Quizzes:", res.data.quizzes);
                 setQuizContent(res.data.quizzes);
             } else {
                 console.error("Dữ liệu không đúng:", res.data);
@@ -381,8 +514,8 @@ export default function Draft() {
                                         </button>
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="p-4">
-                                    <ScrollArea className="h-min pr-4">
+                                <CardContent className=" p-4">
+                                    <ScrollArea className="max-h-96 pr-4">
                                         <div className="space-y-3">
                                             {currentCourses.map((course, index) => (
                                                 <div
@@ -430,7 +563,6 @@ export default function Draft() {
                                         </PaginationItem>
                                     </PaginationContent>
                                 </Pagination>
-
 
                             </Card>
                         </div>
@@ -588,39 +720,76 @@ export default function Draft() {
                                                         </TabsContent>
 
                                                         {/* Câu hỏi Quiz */}
-                                                        <TabsContent value="quiz" className="mt-4">
+                                                        <TabsContent value="quiz" className="mt-2 space-y-4">
                                                             {quizContent.map((quiz, index) => (
-                                                                <div key={quiz.quiz_id} className="space-y-4">
-                                                                    <p className="font-medium my-2">Đề: {quiz.title || 'Không có tiêu đề'}</p>
-                                                                    <div className="space-y-2">
+                                                                <Card key={quiz.quiz_id} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+                                                                    <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 py-3">
+                                                                        <CardTitle className="text-lg font-bold text-gray-800 flex items-center">
+                                                                            <BadgeHelp variant="secondary" className="mr-2" />
+                                                                            <span>{quiz.title || 'Không có tiêu đề'}</span>
+                                                                        </CardTitle>
+                                                                    </CardHeader>
+                                                                    <CardContent className="pt-4">
                                                                         {quiz.questions && quiz.questions.length > 0 ? (
                                                                             quiz.questions.map((question, qIndex) => (
-                                                                                <div key={question.question_id}>
-                                                                                    <div>Câu hỏi {qIndex + 1}: {question.question || 'Không có câu hỏi'}</div>
-                                                                                    {question.options && question.options.map((option, oIndex) => (
-                                                                                        <div key={option.option_id} className="flex items-center">
-                                                                                            <input
-                                                                                                type="radio"
-                                                                                                name={`q${index}_${qIndex}`}
-                                                                                                id={`q${index}_${qIndex}o${oIndex}`}
-                                                                                                className="mr-2"
-                                                                                                readOnly
-                                                                                                checked={option.is_correct === 1} 
-                                                                                                onClick={(e) => e.preventDefault()} 
-                                                                                            />
-                                                                                            <label htmlFor={`q${index}_${qIndex}o${oIndex}`}>{option.answer || 'Không có lựa chọn'}</label>
-                                                                                        </div>
-                                                                                    ))}
+                                                                                <div
+                                                                                    key={question.question_id}
+                                                                                    className="mb-4 last:mb-0"
+                                                                                >
+                                                                                    <div className="flex items-center gap-2 mb-2">
+                                                                                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-semibold text-sm">
+                                                                                            {qIndex + 1}
+                                                                                        </span>
+                                                                                        <h3 className="text-base font-medium text-gray-800">
+                                                                                            {question.question || 'Không có câu hỏi'}
+                                                                                        </h3>
+                                                                                    </div>
+
+                                                                                    <div className="space-y-2 pl-8">
+                                                                                        {question.options && question.options.map((option, oIndex) => (
+                                                                                            <div
+                                                                                                key={option.option_id}
+                                                                                                className={`
+                                                                                                flex items-center p-2 rounded-lg transition-colors duration-200
+                                                                                                ${option.is_correct === 1
+                                                                                                        ? 'bg-green-50 border border-green-200'
+                                                                                                        : 'hover:bg-gray-100 border border-gray-200'
+                                                                                                    }
+                                                                                            `}
+                                                                                            >
+
+                                                                                                <input
+                                                                                                    type="radio"
+                                                                                                    name={`q${index}_${qIndex}`}
+                                                                                                    id={`q${index}_${qIndex}o${oIndex}`}
+                                                                                                    className="w-4 h-4 text-blue-600 mr-2"
+                                                                                                    defaultChecked={option.is_correct === 1}
+                                                                                                    readOnly
+                                                                                                    onClick={(e) => e.preventDefault()}
+                                                                                                />
+                                                                                                <label
+                                                                                                    htmlFor={`q${index}_${qIndex}o${oIndex}`}
+                                                                                                    className="flex-1 cursor-pointer text-sm"
+                                                                                                >
+                                                                                                    {option.answer || 'Không có lựa chọn'}
+                                                                                                </label>
+                                                                                                {option.is_correct === 1 && (
+                                                                                                    <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
+                                                                                                )}
+                                                                                            </div>
+                                                                                        ))}
+                                                                                    </div>
                                                                                 </div>
                                                                             ))
                                                                         ) : (
-                                                                            <div>Không có câu hỏi</div>
+                                                                            <div className="text-center text-gray-500 py-4">
+                                                                                Không có câu hỏi
+                                                                            </div>
                                                                         )}
-                                                                    </div>
-                                                                </div>
+                                                                    </CardContent>
+                                                                </Card>
                                                             ))}
                                                         </TabsContent>
-
                                                     </Tabs>
                                                 </div>
                                             ) : (
@@ -633,8 +802,11 @@ export default function Draft() {
                                     {/* Action Buttons */}
                                     <div className="flex gap-4 mt-6">
                                         <AlertDialog open={isApproveModalOpen} onOpenChange={setIsApproveModalOpen}>
-                                            <AlertDialogTrigger asChild>
-                                                <Button className="bg-green-500 hover:bg-green-600 text-white">
+                                            <AlertDialogTrigger>
+                                                <Button
+                                                    className="bg-green-500 hover:bg-green-600 text-white"
+                                                    onClick={() => openApproveModal(activeCourse?.course_id)} // Chỉ mở modal và lưu course_id của khóa học đang được chọn
+                                                >
                                                     <CheckCircle className="mr-2 h-4 w-4" />
                                                     Phê duyệt Bài học
                                                 </Button>
@@ -654,8 +826,11 @@ export default function Draft() {
                                         </AlertDialog>
 
                                         <AlertDialog open={isRejectModalOpen} onOpenChange={setIsRejectModalOpen}>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="destructive">
+                                            <AlertDialogTrigger>
+                                                <Button
+                                                    variant="destructive"
+                                                    onClick={() => openRejectModal(activeCourse?.course_id)} // Gọi hàm khi click và lưu course_id
+                                                >
                                                     <XCircle className="mr-2 h-4 w-4" />
                                                     Từ chối Bài học
                                                 </Button>
@@ -667,6 +842,13 @@ export default function Draft() {
                                                         Bạn có chắc chắn muốn từ chối bài học này không?
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Nhập lý do từ chối"
+                                                    value={reason}
+                                                    onChange={(e) => setReason(e.target.value)}
+                                                    className="w-full p-2 border rounded"
+                                                />
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel onClick={() => setIsRejectModalOpen(false)}>Hủy</AlertDialogCancel>
                                                     <AlertDialogAction onClick={handleReject}>Từ chối</AlertDialogAction>
@@ -675,8 +857,12 @@ export default function Draft() {
                                         </AlertDialog>
 
                                         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                                            <DialogTrigger asChild>
-                                                <Button variant="outline" className="bg-yellow-500 hover:bg-yellow-600 text-white border-none">
+                                            <DialogTrigger>
+                                                <Button
+                                                    variant="outline"
+                                                    className="bg-yellow-500 hover:bg-yellow-600 text-white border-none"
+                                                    onClick={() => openEditModal(activeCourse?.course_id)} // Chỉ gọi hàm cho khóa học đang được chọn
+                                                >
                                                     <Clock className="mr-2 h-4 w-4" />
                                                     Yêu cầu chỉnh sửa
                                                 </Button>

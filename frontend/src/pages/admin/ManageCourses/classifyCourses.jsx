@@ -91,7 +91,7 @@ export default function ClassifyCourse() {
             <Toaster />
             <SideBarUI />
             <SidebarInset>
-                <header className="z-10 absolute left-1 top-3">
+                <header className="z-10 absolute left-1 top-3 font-sans">
                     <div className="flex items-center gap-2 px-4 py-3">
                         <SidebarTrigger className="ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -109,7 +109,7 @@ export default function ClassifyCourse() {
                     </div>
                 </header>
 
-                <div className="absolute top-16 px-6 bg-gray-50 w-full">
+                <div className="absolute top-16 px-6 bg-gray-50 w-full my-5 font-sans">
                     <h1 className="text-3xl font-bold mb-4 text-gray-800">Phân loại khóa học</h1>
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 bg-white p-4 rounded-lg shadow-sm">
                         <DropdownMenu>
@@ -144,12 +144,12 @@ export default function ClassifyCourse() {
                         <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="bg-yellow-100">
-                                        <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">ID</th>
-                                        <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Tên khóa học</th>
-                                        <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Giá</th>
-                                        <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Danh mục</th>
-                                        <th className="text-center py-4 px-6 font-semibold text-sm text-gray-600">Hành động</th>
+                                    <tr className="bg-yellow-50">
+                                        <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">ID</th>
+                                        <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-800">Tên khóa học</th>
+                                        <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-800">Giá</th>
+                                        <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-800">Danh mục</th>
+                                        <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-800">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>

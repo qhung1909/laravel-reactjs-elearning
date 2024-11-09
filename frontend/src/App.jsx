@@ -12,6 +12,8 @@ import Dashboard from "./pages/admin/Dashboard/admin.jsx";
 import { Courses } from "./pages/courses/course.jsx";
 import { Blog } from "./pages/blog/blog.jsx";
 import { Blogdetail } from "./pages/blogdetail/blogdetail.jsx";
+import { Terms } from "./pages/terms/terms.jsx";
+import { Aboutus } from "./pages/aboutus/aboutus.jsx";
 import { Contact } from "./pages/contact/contact.jsx";
 import { Home } from "./pages/home/home.jsx";
 import { Header } from "./pages/header/header.jsx";
@@ -43,7 +45,6 @@ import { CategoryCrud } from "./pages/admin/ManageCategories/categoryCrud.jsx";
 import { CategoryList } from "./pages/admin/ManageCategories/CategoryList.jsx";
 import { PriorityCategory } from "./pages/admin/ManageCategories/PriorityCategory.jsx";
 import CourseStatus from "./pages/admin/ManageCourses/courseStatus.jsx";
-import NewExample from "./pages/admin/ManageCourses/newExample.jsx";
 import { CoursesOfCategory } from "./pages/admin/ManageCategories/CoursesOfCategory.jsx";
 import ClassifyCourse from "./pages/admin/ManageCourses/classifyCourses.jsx";
 import PageCoupons from "./pages/admin/ManageCourses/pageCoupons.jsx";
@@ -63,6 +64,7 @@ import PersonalInformation from "./pages/admin/ManageAcount/PersonalInformation.
 import { ManageHeader } from "./pages/admin/ManageHeaderFooter/ManageHeader.jsx";
 import Draft from "./pages/admin/ManageCourses/draft.jsx";
 import ManageFooter from "./pages/admin/ManageHeaderFooter/ManageFooter.jsx";
+import Ourteam from "./pages/ourteam/ourteam.jsx";
 
 
 
@@ -85,6 +87,7 @@ function AppContent() {
             "/user/orderhistory",
             "/user/noti",
             "/user/noti/:id",
+            "/terms"
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/") &&
         !location.pathname.startsWith("/user/noti/") &&
@@ -115,7 +118,6 @@ function AppContent() {
                 <Route path="/admin/example" element={<Example />}></Route>
                 <Route path="/admin/course-list" element={<CourseList />}></Route>
                 <Route path="/admin/browse-new-courses" element={<BrowseNewCourses />}></Route>
-                <Route path="/admin/browse-new-courses/:id" element={<NewExample />}></Route>
                 <Route path="/admin/course-status" element={<CourseStatus />}></Route>
                 <Route path="/admin/classify-course" element={<ClassifyCourse />}></Route>
                 <Route path="/admin/page-coupons" element={<PageCoupons/>}></Route>
@@ -141,9 +143,12 @@ function AppContent() {
                 <Route path="/lessons/:slug" element={<Lesson />}></Route>
                 <Route path="/blogs/:slug" element={<Blogdetail />}></Route>
                 <Route path="/blog" element={<Blog />}></Route>
+                <Route path="/terms" element={<Terms />}></Route>
+                <Route path="/aboutus" element={<Aboutus />}></Route>
                 <Route path="/detail" element={<Detail />}></Route>
                 <Route path="*" element={<PageNotFound />}></Route>
                 <Route path="/404" element={<PageNotFound />}></Route>
+                <Route path="/ourteam" element={<Ourteam />}></Route>
                 <Route path="/detail/:slug" element={<Detail />}></Route>
                 <Route path="/payment-result" element={<PaymentResult />}></Route>
                 <Route path="/payment" element={<Payment />}></Route>
