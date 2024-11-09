@@ -169,7 +169,7 @@ export const Curriculum = () => {
             return;
         }
         try {
-            setLoading(true);
+            // setLoading(true);
             const response = await axios.get(
                 `${API_URL}/teacher/content/${course_id}`,
                 {
