@@ -619,9 +619,9 @@ export default function Draft() {
                                                                                                 className={`
                                                                                                 flex items-center p-2 rounded-lg transition-colors duration-200
                                                                                                 ${option.is_correct === 1
-                                                                                                    ? 'bg-green-50 border border-green-200'
-                                                                                                    : 'hover:bg-gray-100 border border-gray-200'
-                                                                                                }
+                                                                                                        ? 'bg-green-50 border border-green-200'
+                                                                                                        : 'hover:bg-gray-100 border border-gray-200'
+                                                                                                    }
                                                                                             `}
                                                                                             >
 
@@ -670,11 +670,15 @@ export default function Draft() {
                                     <div className="flex gap-4 mt-6">
                                         <AlertDialog open={isApproveModalOpen} onOpenChange={setIsApproveModalOpen}>
                                             <AlertDialogTrigger asChild>
-                                                <Button className="bg-green-500 hover:bg-green-600 text-white">
+                                                <Button
+                                                    className="bg-green-500 hover:bg-green-600 text-white"
+                                                    onClick={handleApprove}
+                                                >
                                                     <CheckCircle className="mr-2 h-4 w-4" />
                                                     Phê duyệt Bài học
                                                 </Button>
                                             </AlertDialogTrigger>
+
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
                                                     <AlertDialogTitle>Xác nhận Phê duyệt</AlertDialogTitle>
