@@ -51,6 +51,62 @@ export default function Draft() {
         setIsRejectModalOpen(true);
     };
 
+    const openEditModal = (courseId) => {
+        setSelectedCourseId(courseId); // Lưu courseId vào state
+        setIsEditModalOpen(true); // Mở modal
+    };
+
+
+    const handleEditRequest = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+
+        if (!editNote.trim()) {
+            toast.error("Vui lòng nhập ghi chú chỉnh sửa.");
+            return;
+        }
+
+        console.log("Selected Course ID:", selectedCourseId);
+        console.log("Edit Note:", editNote);
+        
+        try {
+            const response = await axios.post(
+                `${API_URL}/admin/revision`,
+                {
+                    course_id: selectedCourseId, // Sử dụng selectedCourseId từ state
+                    reason: editNote,
+                },
+                {
+                    headers: {
+                        "x-api-secret": API_KEY,
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.data && response.data.success) {
+                toast.success("Yêu cầu chỉnh sửa đã được gửi thành công.");
+                fetchCourses(); // Cập nhật danh sách khóa học nếu cần
+            } else {
+                console.error("Lỗi khi gửi yêu cầu chỉnh sửa:", response.data);
+                toast.error("Có lỗi xảy ra khi gửi yêu cầu chỉnh sửa.");
+            }
+        } catch (error) {
+            console.error("Lỗi khi gửi yêu cầu chỉnh sửa:", error);
+            toast.error("Có lỗi xảy ra khi gửi yêu cầu chỉnh sửa.");
+        } finally {
+            setIsEditModalOpen(false); // Đóng modal sau khi xử lý
+            setEditNote(''); // Xóa ghi chú chỉnh sửa
+        }
+    };
+
+
+
     const handleReject = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -92,11 +148,6 @@ export default function Draft() {
     };
 
 
-    const handleEditRequest = () => {
-        toast.success("Yêu cầu chỉnh sửa đã được gửi");
-        setIsEditModalOpen(false);
-        setEditNote('');
-    };
 
 
     /* Phân trang  */
@@ -811,11 +862,19 @@ export default function Draft() {
 
 
                                         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                                            <DialogTrigger asChild>
-                                                <Button variant="outline" className="bg-yellow-500 hover:bg-yellow-600 text-white border-none">
-                                                    <Clock className="mr-2 h-4 w-4" />
-                                                    Yêu cầu chỉnh sửa
-                                                </Button>
+                                            <DialogTrigger >
+                                                {courses.map((course) => (
+                                                    <Button
+                                                        key={course.course_id}
+                                                        variant="outline"
+                                                        className="bg-yellow-500 hover:bg-yellow-600 text-white border-none"
+                                                        onClick={() => openEditModal(course.course_id)} // Gọi openEditModal và truyền course.id
+                                                    >
+                                                        <Clock className="mr-2 h-4 w-4" />
+                                                        Yêu cầu chỉnh sửa
+                                                    </Button>
+                                                ))}
+
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>

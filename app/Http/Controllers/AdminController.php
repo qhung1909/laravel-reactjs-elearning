@@ -692,27 +692,27 @@ class AdminController extends Controller
             }
 
             $course->update([
-                'status' => 'failed',
+                'status' => 'revision_requested',
                 'revision_reason' => $reason
             ]);
 
             $contents = Content::where('course_id', $courseId)->get();
             foreach ($contents as $content) {
                 $content->update([
-                    'status' => 'failed',
+                    'status' => 'revision_requested',
                     'revision_reason' => $reason
                 ]);
 
                 TitleContent::where('content_id', $content->content_id)
                     ->update([
-                        'status' => 'failed',
+                        'status' => 'revision_requested',
                         'revision_reason' => $reason
                     ]);
             }
 
             Quiz::where('course_id', $courseId)
                 ->update([
-                    'status' => 'failed',
+                    'status' => 'revision_requested',
                     'revision_reason' => $reason
                 ]);
 
