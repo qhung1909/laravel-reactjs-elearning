@@ -19,7 +19,9 @@ export const Aboutus = () => {
 
             {/* Aboutus */}
             <section className="aboutus">
-                
+                <div>
+                    he
+                </div>
             </section>
         </>
     )
