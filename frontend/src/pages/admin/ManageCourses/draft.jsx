@@ -803,12 +803,16 @@ export default function Draft() {
                                     <div className="flex gap-4 mt-6">
                                         <AlertDialog open={isApproveModalOpen} onOpenChange={setIsApproveModalOpen}>
                                             <AlertDialogTrigger>
-                                                <Button
-                                                    className="bg-green-500 hover:bg-green-600 text-white"
-                                                >
-                                                    <CheckCircle className="mr-2 h-4 w-4" />
-                                                    Phê duyệt Bài học
-                                                </Button>
+                                                {courses.map(course => (
+                                                    <Button
+                                                        key={course.course_id} // Sử dụng key để xác định phần tử duy nhất trong danh sách
+                                                        className="bg-green-500 hover:bg-green-600 text-white"
+                                                        onClick={() => openApproveModal(course.course_id)} // Chỉ mở modal và lưu courseId
+                                                    >
+                                                        <CheckCircle className="mr-2 h-4 w-4" />
+                                                        Phê duyệt Bài học
+                                                    </Button>
+                                                ))}
                                             </AlertDialogTrigger>
 
                                             <AlertDialogContent>
@@ -820,17 +824,20 @@ export default function Draft() {
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel onClick={() => setIsApproveModalOpen(false)}>Hủy</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => onApprove(selectedCourseId)}>Phê duyệt</AlertDialogAction>
+                                                    <AlertDialogAction onClick={handleApprove}>Phê duyệt</AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
                                         </AlertDialog>
 
                                         <AlertDialog open={isRejectModalOpen} onOpenChange={setIsRejectModalOpen}>
                                             <AlertDialogTrigger>
-                                                <Button variant="destructive">
-                                                    <XCircle className="mr-2 h-4 w-4" />
-                                                    Từ chối Bài học
-                                                </Button>
+
+                                                {courses.map(course => (
+                                                    <Button variant="destructive" key={course.course_id} onClick={() => openRejectModal(course.course_id)}>
+                                                        <XCircle className="mr-2 h-4 w-4" />
+                                                        Từ chối Bài học
+                                                    </Button>
+                                                ))}
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
@@ -848,20 +855,26 @@ export default function Draft() {
                                                 />
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel onClick={() => setIsRejectModalOpen(false)}>Hủy</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => onReject(selectedCourseId)}>Từ chối</AlertDialogAction>
+                                                    <AlertDialogAction onClick={handleReject}>Từ chối</AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
                                         </AlertDialog>
 
+
                                         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                                            <DialogTrigger>
-                                                <Button
-                                                    variant="outline"
-                                                    className="bg-yellow-500 hover:bg-yellow-600 text-white border-none"
-                                                >
-                                                    <Clock className="mr-2 h-4 w-4" />
-                                                    Yêu cầu chỉnh sửa
-                                                </Button>
+                                            <DialogTrigger >
+                                                {courses.map((course) => (
+                                                    <Button
+                                                        key={course.course_id}
+                                                        variant="outline"
+                                                        className="bg-yellow-500 hover:bg-yellow-600 text-white border-none"
+                                                        onClick={() => openEditModal(course.course_id)} // Gọi openEditModal và truyền course.id
+                                                    >
+                                                        <Clock className="mr-2 h-4 w-4" />
+                                                        Yêu cầu chỉnh sửa
+                                                    </Button>
+                                                ))}
+
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -878,12 +891,11 @@ export default function Draft() {
                                                 />
                                                 <DialogFooter>
                                                     <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>Hủy</Button>
-                                                    <Button onClick={() => onEdit(selectedCourseId)}>Gửi yêu cầu</Button>
+                                                    <Button onClick={handleEditRequest}>Gửi yêu cầu</Button>
                                                 </DialogFooter>
                                             </DialogContent>
                                         </Dialog>
                                     </div>
-
                                 </CardContent>
                             </Card>
                         </div>
