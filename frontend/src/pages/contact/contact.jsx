@@ -118,30 +118,30 @@ export const Contact = () => {
                             </div>
                         </div>
 
-                        <div className="max-w-screen-md mx-auto relative bg-gradient-to-br from-orange-400 to-blue-600 rounded-xl p-6 overflow-hidden">
+                        <div className="max-w-screen-lg mx-auto relative bg-gradient-to-br from-yellow-400 to-orange-600 rounded-xl p-6 overflow-hidden">
                             {/* Certificate Container */}
                             <div className="bg-white rounded-lg shadow-xl p-8 relative overflow-hidden">
-                                {/* Top-right pattern - reduced by 30% */}
-                                <div className="absolute top-0 right-0 w-32 h-32">
-                                    <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-blue-500 to-yellow-400 rounded-bl-full opacity-10" />
-                                    <div className="absolute top-0 right-0 w-3/4 h-3/4 bg-gradient-to-bl from-yellow-400 to-blue-500 rounded-bl-full opacity-10" />
-                                </div>
 
-                                {/* Bottom-left pattern - reduced by 30% */}
-                                <div className="absolute bottom-0 left-0 w-32 h-32">
-                                    <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-tr from-blue-500 to-yellow-400 rounded-tr-full opacity-10" />
-                                    <div className="absolute bottom-0 left-0 w-3/4 h-3/4 bg-gradient-to-tr from-yellow-400 to-blue-500 rounded-tr-full opacity-10" />
-                                </div>
-
-                                {/* New top-left decorative pattern */}
-                                <div className="absolute top-0 left-0 w-24 h-24">
+                                 {/* Top-left*/}
+                                 <div className="absolute top-0 left-0 w-40">
                                     <img src="/src/assets/images/topleftpattern.png" alt="" />
+                                </div>
+
+                                {/* Top - right */}
+                                <div className="absolute top-0 right-0 w-40">
+                                    <img src="/src/assets/images/toprightpattern.png" alt="" />
+                                </div>
+
+
+                                {/* Bot - left */}
+                                <div className="absolute bottom-0 left-0 w-40">
+                                    <img src="/src/assets/images/botleftpattern.png" alt="" />
 
                                 </div>
 
-                                {/* New bottom-right decorative pattern */}
-                                <div className="absolute bottom-0 right-0 w-24 h-24">
-                                    <img src="/src/assets/images/toprightpattern.png" alt="" />
+                                {/* Bot - right */}
+                                <div className="absolute bottom-0 right-0 w-40">
+                                    <img src="/src/assets/images/botrightpattern.png" alt="" />
 
                                 </div>
 
@@ -153,14 +153,14 @@ export const Contact = () => {
                                             <p className="flex justify-center">
                                                 <img src="/src/assets/images/antlearn.png" className="w-28" alt="" />
                                             </p>
-                                            <p className="text-xl font-medium mt-1 text-center">
+                                            <p className="text-2xl font-medium mt-1 text-center font-title uppercase">
                                                 Ứng dụng học trực tuyến số 1 Việt Nam.
                                             </p>
                                         </div>
                                     </div>
 
                                     {/* Tên chứng nhận - tên người hoàn thành */}
-                                    <div className="text-center space-y-4">
+                                    <div className="text-center space-y-4 font-title">
                                         <h1 className="text-6xl font-bold mb-4">Chứng nhận</h1>
                                         <h2 className="text-4xl text-amber-700 font-serif font-bold">Hoàng dâm tặc</h2>
                                         <p className="text-xl text-amber-700 tracking-wide">Đã hoàn thành khóa học</p>
@@ -179,16 +179,8 @@ export const Contact = () => {
                                         </div>
 
                                         {/* Medal Icon */}
-                                        <div className="w-24 h-24 flex items-center justify-center">
-                                            <div className="w-20 h-20 rounded-full bg-amber-100 border-4 border-amber-300 flex items-center justify-center">
-                                                <div className="w-16 h-16 rounded-full bg-amber-200 flex items-center justify-center">
-                                                    <span className="text-amber-700 text-xs text-center font-bold">
-                                                        10 điểm
-                                                        <br />
-                                                        vcl
-                                                    </span>
-                                                </div>
-                                            </div>
+                                        <div className="w-40 flex items-center justify-center">
+                                            <img src="/src/assets/images/certificate.jpg" alt="" />
                                         </div>
                                         {/* Medal Icon */}
                                         <div className="text-center">
@@ -200,9 +192,6 @@ export const Contact = () => {
                                 </div>
                             </div>
 
-                            {/* Hiệu ứng cong viền bên góc */}
-                            <div className="absolute top-0 left-0 w-40 h-40 bg-gradient-to-br from-blue-600 to-orange-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 opacity-70"></div>
-                            <div className="absolute bottom-0 right-0 w-40 h-40 bg-gradient-to-bl from-blue-600 to-orange-400 rounded-full transform translate-x-1/2 translate-y-1/2 opacity-70"></div>
                         </div>
 
 
