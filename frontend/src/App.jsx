@@ -13,7 +13,7 @@ import { Courses } from "./pages/courses/course.jsx";
 import { Blog } from "./pages/blog/blog.jsx";
 import { Blogdetail } from "./pages/blogdetail/blogdetail.jsx";
 import { Terms } from "./pages/terms/terms.jsx";
-import { Aboutus } from "./pages/terms/terms.jsx";
+import { Aboutus } from "./pages/terms/abourus.jsx";
 import { Contact } from "./pages/contact/contact.jsx";
 import { Home } from "./pages/home/home.jsx";
 import { Header } from "./pages/header/header.jsx";
@@ -144,7 +144,7 @@ function AppContent() {
                 <Route path="/blogs/:slug" element={<Blogdetail />}></Route>
                 <Route path="/blog" element={<Blog />}></Route>
                 <Route path="/terms" element={<Terms />}></Route>
-                <Route path="/aboutus" element={<Terms />}></Route>
+                <Route path="/aboutus" element={<Aboutus />}></Route>
                 <Route path="/detail" element={<Detail />}></Route>
                 <Route path="*" element={<PageNotFound />}></Route>
                 <Route path="/404" element={<PageNotFound />}></Route>
