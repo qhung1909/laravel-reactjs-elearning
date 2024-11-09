@@ -86,7 +86,8 @@ function AppContent() {
             "/user/orderhistory",
             "/user/noti",
             "/user/noti/:id",
-            "/terms"
+            "/terms",
+            "/aboutus",
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/") &&
         !location.pathname.startsWith("/user/noti/") &&
