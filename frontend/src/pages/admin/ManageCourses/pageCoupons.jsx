@@ -36,10 +36,12 @@ import { toast, Toaster } from 'react-hot-toast';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import * as XLSX from 'xlsx';
 
 export default function PageCoupons() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
+    const [isExporting, setIsExporting] = useState(false);
 
     const [coupons, setCoupons] = useState([]);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -128,12 +130,105 @@ export default function PageCoupons() {
             };
         }
     };
+    const exportToExcel = () => {
+        if (isExporting) return;
+
+        try {
+            setIsExporting(true);
+            let dataToExport = [...coupons];
+
+            if (filterStatus !== 'all') {
+                dataToExport = dataToExport.filter(coupon => {
+                    const now = new Date();
+                    const startDate = new Date(coupon.start_discount);
+                    const endDate = new Date(coupon.end_discount);
+
+                    switch (filterStatus) {
+                        case 'active':
+                            return now >= startDate && now <= endDate;
+                        case 'expired':
+                            return now > endDate;
+                        case 'upcoming':
+                            return now < startDate;
+                        default:
+                            return true;
+                    }
+                });
+            }
+
+            // Lọc theo searchTerm nếu có
+            if (searchTerm) {
+                dataToExport = dataToExport.filter(coupon =>
+                    coupon.name_coupon.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+
+            // Chuẩn bị dữ liệu cho Excel
+            const excelData = [
+                ['STT', 'Mã giảm giá', 'Số tiền giảm', 'Ngày bắt đầu', 'Ngày kết thúc', 'Ngày tạo', 'Ngày cập nhật', 'Trạng thái'],
+                ...dataToExport.map((coupon, index) => {
+                    const now = new Date();
+                    const startDate = new Date(coupon.start_discount);
+                    const endDate = new Date(coupon.end_discount);
+                    let status;
+
+                    if (now < startDate) {
+                        status = 'Sắp diễn ra';
+                    } else if (now > endDate) {
+                        status = 'Đã hết hạn';
+                    } else {
+                        status = 'Đang hoạt động';
+                    }
+
+                    return [
+                        index + 1,
+                        coupon.name_coupon,
+                        new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(coupon.discount_price),
+                        new Date(coupon.start_discount).toLocaleString('vi-VN'),
+                        new Date(coupon.end_discount).toLocaleString('vi-VN'),
+                        new Date(coupon.created_at).toLocaleString('vi-VN'),
+                        new Date(coupon.updated_at).toLocaleString('vi-VN'),
+                        status
+                    ];
+                })
+            ];
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+            ws['!cols'] = [
+                { wch: 5 },
+                { wch: 20 },
+                { wch: 15 },
+                { wch: 20 },
+                { wch: 20 },
+                { wch: 20 },
+                { wch: 20 },
+                { wch: 15 }
+            ];
+
+            XLSX.utils.book_append_sheet(wb, ws, "Danh sách mã giảm giá");
+
+            const timestamp = new Date().toISOString().slice(0, 10);
+            XLSX.writeFile(wb, `danh_sach_ma_giam_gia_${timestamp}.xlsx`);
+
+            toast.success('Xuất file Excel thành công!');
+        } catch (error) {
+            console.error('Lỗi khi xuất file:', error);
+            toast.error('Có lỗi xảy ra khi xuất file!');
+        } finally {
+            setTimeout(() => {
+                setIsExporting(false);
+            }, 4000);
+        }
+    };
 
     const fetchCoupons = async () => {
         try {
             const { data } = await axios.get(`${API_URL}/admin/coupons`, {
                 headers: { 'x-api-secret': API_KEY },
             });
+            console.log(data);
             setCoupons(data);
         } catch (error) {
             console.error('Error fetching Coupons:', error);
@@ -401,9 +496,39 @@ export default function PageCoupons() {
                                             </div>
                                         )}
                                     </div>
-                                    <Button variant="outline" className="flex items-center gap-2">
-                                        <FileDown size={16} />
-                                        Xuất
+                                    <Button
+                                        variant="outline"
+                                        className="flex items-center gap-2"
+                                        onClick={exportToExcel}
+                                        disabled={isExporting}
+                                    >
+                                        {isExporting ? (
+                                            <>
+                                                <span className="animate-spin">
+                                                    <svg className="h-4 w-4" viewBox="0 0 24 24">
+                                                        <circle
+                                                            className="opacity-25"
+                                                            cx="12"
+                                                            cy="12"
+                                                            r="10"
+                                                            stroke="currentColor"
+                                                            strokeWidth="4"
+                                                        />
+                                                        <path
+                                                            className="opacity-75"
+                                                            fill="currentColor"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                        />
+                                                    </svg>
+                                                </span>
+                                                Đang xuất...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FileDown size={16} />
+                                                Xuất
+                                            </>
+                                        )}
                                     </Button>
                                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                         <DialogTrigger asChild>
