@@ -35,7 +35,7 @@ import {
 import { SideBarUI } from '../sidebarUI';
 import { useEffect, useState } from 'react';
 import axios from "axios";
-
+import * as XLSX from 'xlsx';
 export default function CourseList() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
@@ -49,8 +49,18 @@ export default function CourseList() {
     });
 
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 6;
-
+    const itemsPerPage = 10;
+    const exportToExcel = () => {
+        // Create a worksheet from the filtered courses
+        const worksheet = XLSX.utils.json_to_sheet(currentFilteredCourses);
+    
+        // Create a new workbook and append the worksheet
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, worksheet, 'Courses');
+    
+        // Export the workbook to a file
+        XLSX.writeFile(wb, 'courses_data.xlsx');
+    };
     const fetchCourses = async () => {
         try {
             const res = await axios.get(`${API_URL}/admin/courses`, {
@@ -59,6 +69,8 @@ export default function CourseList() {
                 }
             });
             const data = res.data;
+            console.log(data);
+            
             setCourses(data);
             setStats({
                 totalCourses: data.length,
@@ -231,7 +243,7 @@ export default function CourseList() {
                                         <Filter size={16} />
                                         Lọc
                                     </Button>
-                                    <Button variant="outline" className="flex items-center gap-2">
+                                    <Button variant="outline" className="flex items-center gap-2" onClick={exportToExcel}>
                                         <FileDown size={16} />
                                         Xuất
                                     </Button>
