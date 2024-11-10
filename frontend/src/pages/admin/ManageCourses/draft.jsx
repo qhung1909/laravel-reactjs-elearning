@@ -37,119 +37,12 @@ export default function Draft() {
     const [titleContents, setTitleContents] = useState([]);
     const navigate = useNavigate();
     const [selectedCourseId, setSelectedCourseId] = useState(null);
-
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editNote, setEditNote] = useState('');
-
     const [selectedContentId, setSelectedContentId] = useState(null);
     const [reason, setReason] = useState('');
-
-    const openRejectModal = (courseId) => {
-        setSelectedCourseId(courseId);
-        setIsRejectModalOpen(true);
-    };
-
-    const openEditModal = (courseId) => {
-        setSelectedCourseId(courseId); // Lưu courseId vào state
-        setIsEditModalOpen(true); // Mở modal
-    };
-
-
-    const handleEditRequest = async () => {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            toast.error("Bạn chưa đăng nhập.");
-            navigate('/');
-            return;
-        }
-
-        if (!editNote.trim()) {
-            toast.error("Vui lòng nhập ghi chú chỉnh sửa.");
-            return;
-        }
-
-        console.log("Selected Course ID:", selectedCourseId);
-        console.log("Edit Note:", editNote);
-
-        try {
-            const response = await axios.post(
-                `${API_URL}/admin/revision`,
-                {
-                    course_id: selectedCourseId, // Sử dụng selectedCourseId từ state
-                    reason: editNote,
-                },
-                {
-                    headers: {
-                        "x-api-secret": API_KEY,
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-
-            if (response.data && response.data.success) {
-                toast.success("Yêu cầu chỉnh sửa đã được gửi thành công.");
-                fetchCourses(); // Cập nhật danh sách khóa học nếu cần
-            } else {
-                console.error("Lỗi khi gửi yêu cầu chỉnh sửa:", response.data);
-                toast.error("Có lỗi xảy ra khi gửi yêu cầu chỉnh sửa.");
-            }
-        } catch (error) {
-            console.error("Lỗi khi gửi yêu cầu chỉnh sửa:", error);
-            toast.error("Có lỗi xảy ra khi gửi yêu cầu chỉnh sửa.");
-        } finally {
-            setIsEditModalOpen(false); // Đóng modal sau khi xử lý
-            setEditNote(''); // Xóa ghi chú chỉnh sửa
-        }
-    };
-
-
-
-    const handleReject = async () => {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            toast.error("Bạn chưa đăng nhập.");
-            navigate('/');
-            return;
-        }
-
-        if (!reason.trim()) {
-            toast.error("Vui lòng nhập lý do từ chối.");
-            return;
-        }
-
-        try {
-            const res = await axios.post(
-                `${API_URL}/admin/reject`,
-                { course_id: selectedCourseId, reason },
-                {
-                    headers: {
-                        "x-api-secret": API_KEY,
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-            if (res.data && res.data.success) {
-                toast.success("Khóa học đã bị từ chối thành công.");
-                fetchCourses();
-            } else {
-                console.error("Lỗi khi từ chối khóa học:", res.data);
-                toast.error("Có lỗi xảy ra khi từ chối khóa học.");
-            }
-        } catch (error) {
-            console.error("Lỗi khi gửi yêu cầu từ chối:", error);
-            toast.error("Có lỗi xảy ra khi gửi yêu cầu từ chối.");
-        } finally {
-            setIsRejectModalOpen(false);
-        }
-    };
-
-
-
-
     /* Phân trang  */
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 3;
@@ -240,6 +133,7 @@ export default function Draft() {
         return items;
     };
 
+        
     const openApproveModal = (courseId) => {
         setSelectedCourseId(courseId);
         setIsApproveModalOpen(true);
@@ -247,11 +141,103 @@ export default function Draft() {
 
     const handleApprove = () => {
         if (selectedCourseId) {
-            approveCourse(selectedCourseId); // Gọi approveCourse với courseId đã được chọn
+            approveCourse(selectedCourseId); 
         }
         setIsApproveModalOpen(false);
     };
 
+    const openRejectModal = (courseId) => {
+        setSelectedCourseId(courseId);
+        setIsRejectModalOpen(true);
+    };
+
+    const openEditModal = (courseId) => {
+        setSelectedCourseId(courseId); 
+        setIsEditModalOpen(true);
+    };
+
+    const handleEditRequest = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+
+        if (!editNote.trim()) {
+            toast.error("Vui lòng nhập ghi chú chỉnh sửa.");
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+                `${API_URL}/admin/revision`,
+                {
+                    course_id: selectedCourseId, 
+                    reason: editNote,
+                },
+                {
+                    headers: {
+                        "x-api-secret": API_KEY,
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.data && response.data.success) {
+                toast.success("Yêu cầu chỉnh sửa đã được gửi thành công.");
+                fetchCourses(); 
+            } else {
+                toast.error("Có lỗi xảy ra khi gửi yêu cầu chỉnh sửa.");
+            }
+        } catch (error) {
+            toast.error("Có lỗi xảy ra khi gửi yêu cầu chỉnh sửa.");
+        } finally {
+            setIsEditModalOpen(false); 
+            setEditNote(''); 
+        }
+    };
+
+    const handleReject = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+
+        if (!reason.trim()) {
+            toast.error("Vui lòng nhập lý do từ chối.");
+            return;
+        }
+
+        try {
+            const res = await axios.post(
+                `${API_URL}/admin/reject`,
+                { course_id: selectedCourseId, reason },
+                {
+                    headers: {
+                        "x-api-secret": API_KEY,
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (res.data && res.data.success) {
+                toast.success("Khóa học đã bị từ chối thành công.");
+                fetchCourses();
+            } else {
+                console.error("Lỗi khi từ chối khóa học:", res.data);
+                toast.error("Có lỗi xảy ra khi từ chối khóa học.");
+            }
+        } catch (error) {
+            console.error("Lỗi khi gửi yêu cầu từ chối:", error);
+            toast.error("Có lỗi xảy ra khi gửi yêu cầu từ chối.");
+        } finally {
+            setIsRejectModalOpen(false);
+        }
+    };
 
     const approveCourse = async (courseId) => {
         const token = localStorage.getItem("access_token");
@@ -264,7 +250,7 @@ export default function Draft() {
         try {
             const res = await axios.post(
                 `${API_URL}/admin/approve`,
-                { course_id: courseId }, // Truyền giá trị course_id vào body
+                { course_id: courseId },
                 {
                     headers: {
                         "x-api-secret": API_KEY,
@@ -276,7 +262,6 @@ export default function Draft() {
 
             if (res.data && res.data.success) {
                 toast.success("Khóa học đã được phê duyệt thành công.");
-                // Cập nhật danh sách các khóa học sau khi phê duyệt
                 fetchCourses();
             } else {
                 console.error("Lỗi khi phê duyệt khóa học:", res.data);
@@ -287,7 +272,6 @@ export default function Draft() {
             toast.error("Có lỗi xảy ra khi gửi yêu cầu phê duyệt.");
         }
     };
-
 
     const fetchCourses = async () => {
         try {
@@ -314,7 +298,6 @@ export default function Draft() {
         }
     };
 
-
     const fetchContentLesson = async (courseId) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -329,17 +312,13 @@ export default function Draft() {
                     Authorization: `Bearer ${token}`,
                 },
                 params: {
-                    course_id: courseId // Fetch nội dung cho khóa học được chọn
+                    course_id: courseId 
                 }
             });
 
-            // console.log("API Response Data:", res.data);
-            // console.log("courseId:", courseId);
 
             if (res.data && res.data.success && Array.isArray(res.data.contents)) {
-                // Chuyển đổi courseId sang số để đảm bảo so sánh đúng kiểu dữ liệu
                 const filteredContents = res.data.contents.filter(content => content.course_id === Number(courseId));
-                // console.log("Filtered Contents:", filteredContents);
 
                 setContentLesson(filteredContents);
 
@@ -377,11 +356,8 @@ export default function Draft() {
                 }
             });
 
-            // console.log("Dữ liệu nhận được từ title contents:", res.data);
-            // console.log("Giá trị contentId:", contentId);
 
             if (res.data && res.data.success && Array.isArray(res.data.titleContents)) {
-                // console.log("Title Contents:", res.data.titleContents);
                 setTitleContents(res.data.titleContents);
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
@@ -410,10 +386,8 @@ export default function Draft() {
                 }
             });
 
-            // console.log("Dữ liệu nhận được từ API:", res.data);
 
             if (res.data && res.data.success && Array.isArray(res.data.quizzes)) {
-                // console.log("Quizzes:", res.data.quizzes);
                 setQuizContent(res.data.quizzes);
             } else {
                 console.error("Dữ liệu không đúng:", res.data);
