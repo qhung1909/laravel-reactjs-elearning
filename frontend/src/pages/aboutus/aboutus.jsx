@@ -49,27 +49,27 @@ export const Aboutus = () => {
         {
             name: 'Quốc Hưng',
             role: 'Leader / Backend Developer',
-            image: "/src/assets/images/QH.png",
+            image: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/uploads/QH.png",
         },
         {
             name: 'Chấn Toàn',
             role: 'Frontend Developer',
-            image: "/src/assets/images/CT.jpg",
+            image: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/uploads/CT.jpg",
         },
         {
             name: 'Bảo Hưng',
             role: 'Frontend Developer',
-            image: "/src/assets/images/BH.jpg",
+            image: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/uploads/BH.jpg",
         },
         {
             name: 'Huy Hoàng',
             role: 'Frontend Developer',
-            image: "/src/assets/images/HH.jpg",
+            image: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/uploads/HH.jpg",
         },
         {
             name: 'Ngọc Phương',
             role: 'Frontend Developer',
-            image: "/src/assets/images/NP.png",
+            image: "https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/uploads/NP.png",
         },
         // More people...
     ];
@@ -141,23 +141,23 @@ export const Aboutus = () => {
 
             {/* Aboutus */}
             <section className="aboutus">
-                <div className="max-w-screen-xl mx-auto bg-white font-roboto ">
+                <div className="xl:max-w-screen-xl lg:max-w-screen-lg md:max-w-screen-md max-w-screen-sm mx-auto bg-white font-roboto ">
 
                     {/* describe */}
                     <div className="my-10">
                         {/* title */}
                         <div className="text-center mb-12">
-                            <h1 className="text-4xl font-bold text-navy-900 mb-4">Giới thiệu</h1>
-                            <p className="text-xl text-gray-600">Nhìn qua những thành viên trong nhóm chúng tôi</p>
+                            <h1 className="md:text-4xl text-2xl font-bold text-navy-900 mb-4">Giới thiệu</h1>
+                            <p className="md:text-xl text-lg text-gray-600">Nhìn qua những thành viên trong nhóm chúng tôi</p>
                             <div className="w-24 h-1 bg-yellow-500 mx-auto mt-4"></div>
                         </div>
 
                         {/* list */}
-                        <div className="grid grid-cols-3 gap-10 my-10">
+                        <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-10 my-10 sm:px-0 px-10">
                             {team.map((item, index) => (
                                 <div className="" key={index}>
                                     <div className="border-black border-2">
-                                        <img src={`${item.image}`} className='w-full h-[450px] object-cover' alt="" />
+                                        <img src={`${item.image}`} className='w-full sm:h-[450px] h-96 object-cover' alt="" />
                                     </div>
                                     <div className="mt-3 space-y-1">
                                         <div className="text-2xl font-bold">
@@ -173,18 +173,18 @@ export const Aboutus = () => {
                     </div>
 
                     {/* slider */}
-                    <div className="my-10">
+                    <div className="my-10 ">
                         <div className=" mx-auto ">
 
                             {/* title */}
                             <div className="text-center mb-12">
-                                <h1 className="text-4xl font-bold text-navy-900 mb-4">Hành trình</h1>
-                                <p className="text-xl text-gray-600">Những cột mốc đánh dấu kỉ niệm của chúng tôi</p>
+                                <h1 className="md:text-4xl text-2xl font-bold text-navy-900 mb-4">Hành trình</h1>
+                                <p className="md:text-xl text-lg text-gray-600">Những cột mốc đánh dấu kỉ niệm của chúng tôi</p>
                                 <div className="w-24 h-1 bg-yellow-500 mx-auto mt-4"></div>
                             </div>
 
                             {/* slider */}
-                            <div className="relative h-[600px] overflow-hidden">
+                            <div className="relative h-[600px] overflow-hidden px-10 sm:px-0">
                                 <div className="absolute w-full h-full">
                                     {slides.map((slide, index) => (
                                         <div key={index} className="absolute top-0 left-1/2 w-[600px] transition-all duration-500" style={{ ...getSlideStyle(index), transformOrigin: 'center center', }}>
@@ -223,31 +223,31 @@ export const Aboutus = () => {
                     <div className="my-10">
                         {/* title */}
                         <div className="text-center ">
-                            <h1 className="text-4xl font-bold text-navy-900 mb-4">Đôi lời</h1>
-                            <p className="text-xl text-gray-600">Những cảm xúc mà chúng tôi đã và đang có</p>
+                            <h1 className="md:text-4xl text-2xl font-bold text-navy-900 mb-4">Đôi lời</h1>
+                            <p className="md:text-xl text-lg text-gray-600">Những cảm xúc mà chúng tôi đã và đang có</p>
                             <div className="w-24 h-1 bg-yellow-500 mx-auto mt-4"></div>
                         </div>
                         {/* Nhũng gì chúng tôi làm */}
                         <div className=" shadow-lg px-10 py-16 rounded-xl">
 
                             {/* first grid */}
-                            <div className="grid grid-cols-2 gap-5">
+                            <div className="grid md:grid-cols-2 grid-cols-1 gap-5">
 
                                 {/* grid left */}
                                 <div className="mt-10">
 
                                     {/* left header */}
                                     <div className="">
-                                        <div className="text-lg font-semibold text-yellow-600">
+                                        <div className="lg:text-lg text-base md:text-start text-center font-semibold text-yellow-600">
                                             <span>Antlearn team</span>
                                         </div>
-                                        <div className="text-7xl font-bold leading-tight mt-10">
+                                        <div className="xl:text-7xl lg:text-6xl md:text-4xl md:text-start text-center font-bold leading-tight md:mt-10 my-4">
                                             <h1>Khi mọi giấc mơ cùng hội tụ chung một con đường</h1>
                                         </div>
                                     </div>
 
                                     {/* left footer */}
-                                    <div className="mt-28 leading-8">
+                                    <div className="xl:mt-28 lg:mt-10 md:mt-16 lg:leading-8 md:leading-7 leading-6 lg:text-base md:text-start text-center text-sm">
                                         <p>Từ những công đoạn chuẩn bị sớm trước vài tuần cho dự án, từ khâu thiết kế, nêu ý tưởng, định kiến kế hoạch và kết quả đạt được. cho đến những buổi họp mặt online và các thảo luận qua tin nhắn. Cùng với những nỗ lực không ngừng của team, dự án được thực hiện vượt quá mong đợi của cả nhóm. Chúng tôi học hỏi được nhiều thứ, cùng nhau tiến bộ, cùng nhau hỗ trợ, giúp đỡ nhau khi gặp khó khăn. Chúng tôi tự hào vì chúng tôi đã có một hành trình đầy thử thách nhưng mọi công sức của đã được đền đáp. Chúng tôi tin rằng cả nhóm đã có một hành trình không ít gian nan những thành quả thì vô cùng xứng đáng.</p>
                                     </div>
                                 </div>
@@ -262,29 +262,29 @@ export const Aboutus = () => {
 
                                     {/* right footer */}
                                     <div className="mt-10">
-                                        <div className="grid grid-cols-2 gap-3">
+                                        <div className="grid md:grid-cols-2 grid-cols-1 gap-3">
                                             <div className="bg-gray-100 rounded-xl ">
-                                                <div className="space-y-2 p-8">
-                                                    <span className='text-3xl font-bold'>3 tháng +</span>
-                                                    <p>Thời gian thực hiện</p>
+                                                <div className="space-y-2 lg:p-8 p-6">
+                                                    <span className='lg:text-3xl text-2xl font-bold'>3 tháng +</span>
+                                                    <p className='lg:text-base text-sm'>Thời gian thực hiện</p>
                                                 </div>
                                             </div>
                                             <div className="bg-gray-100 rounded-xl ">
-                                                <div className="space-y-2 p-8">
-                                                    <span className='text-3xl font-bold'>20 +</span>
-                                                    <p>Cuộc họp / gặp mặt</p>
+                                                <div className="space-y-2 lg:p-8 p-6">
+                                                    <span className='lg:text-3xl text-2xl font-bold'>20 +</span>
+                                                    <p className='lg:text-base text-sm'>Cuộc họp / gặp mặt</p>
                                                 </div>
                                             </div>
                                             <div className="bg-gray-100 rounded-xl ">
-                                                <div className="space-y-2 p-8">
-                                                    <span className='text-3xl font-bold'>1500 +</span>
-                                                    <p>Số lần commit</p>
+                                                <div className="space-y-2 lg:p-8 p-6">
+                                                    <span className='lg:text-3xl text-2xl font-bold'>1500 +</span>
+                                                    <p className='lg:text-base text-sm'>Số lần commit</p>
                                                 </div>
                                             </div>
                                             <div className="bg-gray-100 rounded-xl ">
-                                                <div className="space-y-2 p-8">
-                                                    <span className='text-3xl font-bold'>1</span>
-                                                    <p>Mục tiêu</p>
+                                                <div className="space-y-2 lg:p-8 p-6">
+                                                    <span className='lg:text-3xl text-2xl font-bold'>1</span>
+                                                    <p className='lg:text-base text-sm'>Mục tiêu</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -295,29 +295,29 @@ export const Aboutus = () => {
                             {/* Truyền cảm hứng */}
                             <div className="flex justify-center my-20 font-polite">
                                 <div className="">
-                                    <div className="text-center font-medium w-[700px] text-3xl " >
+                                    <div className="text-center font-medium md:w-[700px] lg:text-3xl md:text-2xl " >
                                         &quot;Đừng quan tâm ước mơ của bạn lớn lao như thế nào, hay là bạn nhỏ nhoi như thế nào, bởi vì
                                         <br />Ai cũng phải bắt đầu từ đâu đó&quot;
                                     </div>
                                     <div className="text-right mt-5">
-                                        <p>~HIEUTHUHAI</p>
+                                        <p className='md:text-base text-sm'>~HIEUTHUHAI</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* second grid */}
-                            <div className="grid grid-cols-2 gap-10">
+                            <div className="grid xl:grid-cols-2 grid-cols-1 gap-10">
 
                                 {/* grid left */}
-                                <div className="bg-gray-100 p-3  w-full">
-                                    <img src="/src/assets/images/aboutus.png" className='rounded-xl object-cover h-96' alt="" />
+                                <div className="bg-gray-100 p-3 w-full flex justify-center">
+                                    <img src="/src/assets/images/aboutus.png" className='rounded-xl object-cover xl:h-96 h-auto' alt="" />
                                 </div>
 
                                 {/* grid right */}
                                 <div className="space-y-10 mt-5">
-                                    <span className='text-yellow-600 font-bold text-7xl'>From zero to hero</span>
-                                    <p className='text-xl leading-relaxed'>Chúng tôi chỉ đặt những tiêu chí đơn giản khi bắt đầu dự án, những gì khó quá có thể bỏ qua. Nhưng sau những gì chúng tôi thảo luận và lên ý tưởng, cùng nhau xây dựng, đến bây giờ chúng tôi đã đạt được những thành quả mà chúng tôi không ngờ đến.</p>
-                                    <p className='text-xl leading-relaxed'>Đứa con tinh thần Antlearn này sẽ là bàn đạp và bước tiến nối tiếp những thành công sau này của từng thành viên trong nhóm.</p>
+                                    <span className='text-yellow-600 font-bold lg:text-7xl md:text-5xl text-2xl'>From zero to hero</span>
+                                    <p className='lg:text-xl md:text-lg leading-relaxed text-base'>Chúng tôi chỉ đặt những tiêu chí đơn giản khi bắt đầu dự án, những gì khó quá có thể bỏ qua. Nhưng sau những gì chúng tôi thảo luận và lên ý tưởng, cùng nhau xây dựng, đến bây giờ chúng tôi đã đạt được những thành quả mà chúng tôi không ngờ đến.</p>
+                                    <p className='lg:text-xl md:text-lg leading-relaxed text-base'>Đứa con tinh thần Antlearn này sẽ là bàn đạp và bước tiến nối tiếp những thành công sau này của từng thành viên trong nhóm.</p>
                                 </div>
                             </div>
                         </div>
@@ -328,15 +328,15 @@ export const Aboutus = () => {
 
                         {/* title */}
                         <div className="text-center ">
-                            <h1 className="text-4xl font-bold text-navy-900 mb-4">Những liên kết</h1>
-                            <p className="text-xl text-gray-600">Biết thêm nhiều hơn về chúng tôi</p>
+                            <h1 className="md:text-4xl text-2xl font-bold text-navy-900 mb-4">Những liên kết</h1>
+                            <p className="md:text-xl text-lg text-gray-600">Biết thêm nhiều hơn về chúng tôi</p>
                             <div className="w-24 h-1 bg-yellow-500 mx-auto mt-4"></div>
                         </div>
 
                         {/* Button */}
-                        <div className="flex justify-center mt-10 ">
+                        <div className="flex justify-center mt-10 md:px-0 px-5">
                             <div className="grid grid-cols-2 gap-5 ">
-                                <div className="bg-gray-100 p-10 text-center  rounded-lg hover:bg-black duration-300 hover:text-white cursor-pointer">
+                                <div className="bg-gray-100 md:p-10 p-5 text-center rounded-lg hover:bg-black duration-300 hover:text-white cursor-pointer">
                                     <Link  className='space-y-3'>
                                         <div className="flex justify-center">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/facebook.svg" className='w-8' alt="" />
@@ -350,7 +350,7 @@ export const Aboutus = () => {
                                     </Link>
 
                                 </div>
-                                <div className="bg-gray-100 p-10 text-center  rounded-lg hover:bg-black duration-300 hover:text-white cursor-pointer">
+                                <div className="bg-gray-100 md:p-10 p-5 text-center  rounded-lg hover:bg-black duration-300 hover:text-white cursor-pointer">
                                     <Link className='space-y-3'>
                                         <div className="flex justify-center">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/github.svg" className='w-8' alt="" />
