@@ -60,6 +60,7 @@ import { Search, ChevronDown, FileDown, Trash, Pencil } from 'lucide-react';
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import * as XLSX from 'xlsx';
 
 export default function ClassifyUsers() {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -77,6 +78,55 @@ export default function ClassifyUsers() {
         { value: 'teacher', label: 'Giảng viên' },
         { value: 'user', label: 'Học viên' },
     ];
+
+    const exportToExcel = () => {
+        let dataToExport = [];
+
+        if (filterCriteria === 'all' || filterCriteria === 'teacher') {
+            dataToExport = [...dataToExport, ...teachers];
+        }
+        if (filterCriteria === 'all' || filterCriteria === 'user') {
+            dataToExport = [...dataToExport, ...students];
+        }
+
+        if (searchTerm) {
+            dataToExport = dataToExport.filter(user =>
+                user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.phone?.includes(searchTerm)
+            );
+        }
+
+        const excelData = [
+            ['STT', 'Họ và tên', 'Email', 'Vai trò', 'Ngày tạo', 'Trạng thái'],
+            ...dataToExport.map((user, index) => [
+                index + 1,
+                user.name,
+                user.email,
+                user.role === 'teacher' ? 'Giảng viên' : 'Học viên',
+                new Date(user.created_at).toLocaleString('vi-VN'),
+                user.status ? 'Hoạt động' : 'Không hoạt động'
+            ])
+        ];
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+        ws['!cols'] = [
+            { wch: 10 },
+            { wch: 25 },
+            { wch: 30 },
+            { wch: 12 },
+            { wch: 20 },
+            { wch: 15 }
+        ];
+
+        XLSX.utils.book_append_sheet(wb, ws, "Danh sách người dùng");
+
+        const timestamp = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(wb, `danh_sach_nguoi_dung_${timestamp}.xlsx`);
+    };
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -212,6 +262,7 @@ export default function ClassifyUsers() {
                                         <Button
                                             variant="outline"
                                             className="flex items-center gap-2 whitespace-nowrap"
+                                            onClick={exportToExcel}
                                         >
                                             <FileDown className="h-4 w-4" />
                                             Xuất
