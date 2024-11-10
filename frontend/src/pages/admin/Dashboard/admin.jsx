@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TrendingUp } from "lucide-react"
-import { CartesianGrid, XAxis, YAxis, Line, LineChart, Tooltip } from "recharts"; // Added YAxis and Tooltip to imports
+import { CartesianGrid, XAxis, YAxis, Line, LineChart, Tooltip, ResponsiveContainer } from "recharts"; // Added YAxis and Tooltip to imports
 import {
     Card,
     CardContent,
@@ -43,6 +43,8 @@ import {
 import { SideBarUI } from "../sidebarUI"
 import { Link } from "react-router-dom"
 import { Input } from "@/components/ui/input"
+import PropTypes from 'prop-types'; // Import PropTypes
+
 
 const API_KEY = import.meta.env.VITE_API_KEY
 const API_URL = import.meta.env.VITE_API_URL
@@ -159,6 +161,29 @@ export default function Dashboard() {
     };
 
     // Component hiển thị xu hướng
+    // const GrowthTrendDisplay = ({ chartData }) => {
+    //     const growth = calculateRevenueGrowth(chartData);
+
+    //     // Xác định màu sắc dựa trên xu hướng
+    //     const trendColors = {
+    //         increase: 'text-green-500',
+    //         decrease: 'text-red-500',
+    //         neutral: 'text-gray-500'
+    //     };
+
+    //     // Chỉ hiển thị phần trăm nếu có sự thay đổi
+    //     const displayText = growth.trend === 'neutral'
+    //         ? growth.message
+    //         : `${growth.message} ${Math.abs(growth.growthPercentage)}% trong tháng này`;
+
+    //     return (
+    //         <div className="flex items-center gap-2 font-medium leading-none">
+    //             Doanh thu tháng này: {formatCurrency(chartData[chartData.length - 1]?.revenue || 0)}
+    //             <TrendingUp className={`h-4 w-4 ${trendColors[growth.trend]}`} />
+    //         </div>
+    //     );
+    // };
+
     const GrowthTrendDisplay = ({ chartData }) => {
         const growth = calculateRevenueGrowth(chartData);
 
@@ -166,13 +191,14 @@ export default function Dashboard() {
         const trendColors = {
             increase: 'text-green-500',
             decrease: 'text-red-500',
-            neutral: 'text-gray-500'
+            neutral: 'text-gray-500',
         };
 
         // Chỉ hiển thị phần trăm nếu có sự thay đổi
-        const displayText = growth.trend === 'neutral'
-            ? growth.message
-            : `${growth.message} ${Math.abs(growth.growthPercentage)}% trong tháng này`;
+        const displayText =
+            growth.trend === 'neutral'
+                ? growth.message
+                : `${growth.message} ${Math.abs(growth.growthPercentage)}% trong tháng này`;
 
         return (
             <div className="flex items-center gap-2 font-medium leading-none">
@@ -181,6 +207,17 @@ export default function Dashboard() {
             </div>
         );
     };
+
+    // Thêm PropTypes để xác thực kiểu dữ liệu của chartData
+    GrowthTrendDisplay.propTypes = {
+        chartData: PropTypes.arrayOf(
+            PropTypes.shape({
+                month: PropTypes.string.isRequired,
+                revenue: PropTypes.number.isRequired,
+            })
+        ).isRequired,
+    };
+
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
@@ -198,10 +235,8 @@ export default function Dashboard() {
         <SidebarProvider className="">
             <SideBarUI />
             <SidebarInset className='relative'>
-
                 {/* header */}
                 <header className="absolute left-0 top-3 font-sans">
-                    {/* <header className="flex top-0 h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12"> */}
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -310,67 +345,84 @@ export default function Dashboard() {
                         </div>
                     </div>
                     <div className="xl:flex w-full gap-4 px-4 mb-10">
-                        <Card className="xl:w-3/5">
-                            <CardHeader>
-                                <CardTitle>Biểu đồ Doanh thu</CardTitle>
-                                <CardDescription>Tháng 1 - Tháng 12 2024</CardDescription>
+                        <Card className="xl:w-4/5 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                            <CardHeader className="pb-2">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <CardTitle className="text-2xl font-bold text-gray-800">Biểu đồ Doanh thu</CardTitle>
+                                        <CardDescription className="text-gray-600">Tháng 1 - Tháng 12 2024</CardDescription>
+                                    </div>
+                                </div>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="pt-4">
                                 {!isLoading && (
-                                    <div className="w-full h-[300px]">
-                                        <LineChart
-                                            width={800}
-                                            height={300}
-                                            data={chartData}
-                                            margin={{
-                                                top: 5,
-                                                right: 30,
-                                                left: 20,
-                                                bottom: 5,
-                                            }}
-                                        >
-                                            <CartesianGrid strokeDasharray="3 3" />
-                                            <XAxis
-                                                dataKey="month"
-                                                tickLine={false}
-                                                axisLine={false}
-                                                tickMargin={8}
-                                            />
-                                            <YAxis
-                                                tickLine={false}
-                                                axisLine={false}
-                                                tickMargin={8}
-                                                domain={[0, 'dataMax + 10000']}
-                                                tickFormatter={(value) => new Intl.NumberFormat('vi-VN', {
-                                                    style: 'currency',
-                                                    currency: 'VND',
-                                                }).format(value)}
-                                                interval={0} // Đảm bảo hiển thị tất cả các ticks
-                                            />
-
-                                            <Tooltip formatter={(value) => new Intl.NumberFormat('vi-VN', {
-                                                style: 'currency',
-                                                currency: 'VND',
-                                            }).format(value)} />
-                                            <Line
-                                                type="monotone"
-                                                dataKey="revenue"
-                                                stroke="#4CAF50"
-                                                strokeWidth={2}
-                                                dot={false}
-                                            />
-                                        </LineChart>
+                                    <div className="w-full h-[400px]">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <LineChart
+                                                data={chartData}
+                                                margin={{
+                                                    top: 20,
+                                                    right: 30,
+                                                    left: 20,
+                                                    bottom: 20,
+                                                }}
+                                            >
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                                <XAxis
+                                                    dataKey="month"
+                                                    tickLine={false}
+                                                    axisLine={false}
+                                                    tickMargin={12}
+                                                    stroke="#888888"
+                                                />
+                                                <YAxis
+                                                    tickLine={false}
+                                                    axisLine={false}
+                                                    tickMargin={12}
+                                                    stroke="#888888"
+                                                    domain={[0, 'dataMax + 10000']}
+                                                    tickFormatter={(value) =>
+                                                        new Intl.NumberFormat('vi-VN', {
+                                                            style: 'currency',
+                                                            currency: 'VND',
+                                                            notation: 'compact',
+                                                        }).format(value)
+                                                    }
+                                                />
+                                                <Tooltip
+                                                    contentStyle={{
+                                                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                                        border: 'none',
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                                    }}
+                                                    formatter={(value) => [
+                                                        new Intl.NumberFormat('vi-VN', {
+                                                            style: 'currency',
+                                                            currency: 'VND',
+                                                        }).format(value),
+                                                        "Doanh thu"
+                                                    ]}
+                                                    labelStyle={{ color: '#666' }}
+                                                />
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="revenue"
+                                                    stroke="#4CAF50"
+                                                    strokeWidth={3}
+                                                    dot={{ r: 4, strokeWidth: 2, fill: '#fff' }}
+                                                    activeDot={{ r: 6, strokeWidth: 2 }}
+                                                />
+                                            </LineChart>
+                                        </ResponsiveContainer>
                                     </div>
                                 )}
                             </CardContent>
-                            <CardFooter>
-                                <div className="flex w-full items-start gap-2 text-sm">
-                                    <div className="grid gap-2">
-                                        <GrowthTrendDisplay chartData={chartData} />
-
-                                        <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                                            Hiển thị doanh thu trong 12 tháng qua
-                                        </div>
+                            <CardFooter className="border-t pt-4">
+                                <div className="flex flex-col w-full gap-3">
+                                    <GrowthTrendDisplay chartData={chartData} />
+                                    <div className="text-sm text-muted-foreground">
+                                        Hiển thị doanh thu trong 12 tháng qua
                                     </div>
                                 </div>
                             </CardFooter>
