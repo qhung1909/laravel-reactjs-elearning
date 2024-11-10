@@ -1,4 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +40,7 @@ export const CreateQuiz = () => {
     const showQuizQuestions = async () => {
         setLoading(true);
         try {
+            // Gửi yêu cầu API để lấy danh sách câu hỏi
             const response = await axios.get(`${API_URL}/quizzes/${quiz_id}/questions`, {
                 headers: {
                     'x-api-secret': API_KEY,
@@ -43,14 +52,17 @@ export const CreateQuiz = () => {
             if (response.status === 200) {
                 const fetchedQuestions = response.data;
 
+                // Kiểm tra nếu fetchedQuestions không phải là một mảng, đặt nó thành một mảng rỗng
                 if (!Array.isArray(fetchedQuestions)) {
                     console.error("Dữ liệu trả về không phải là một mảng:", fetchedQuestions);
-                    setQuestions([]);
+                    setQuestions([]); // Đặt thành mảng rỗng nếu dữ liệu không hợp lệ
                     return;
                 }
 
+                // Lấy dữ liệu chi tiết của các tùy chọn (options) cho từng câu hỏi
                 const updatedQuestions = await Promise.all(fetchedQuestions.map(async (q) => {
                     try {
+                        // Gửi yêu cầu API để lấy danh sách tùy chọn của câu hỏi
                         const optionsResponse = await axios.get(`${API_URL}/questions/${q.question_id}/options`, {
                             headers: {
                                 'x-api-secret': API_KEY,
@@ -59,27 +71,15 @@ export const CreateQuiz = () => {
                             }
                         });
 
-                        let optionsData = optionsResponse.data || [];
+                        const optionsData = optionsResponse.data || [];
 
-                        if (q.question_type === "single_choice" || q.question_type === "mutiple_choice") {
-                            const defaultOptionsCount = 4;
-                            const currentOptionsCount = optionsData.length;
-
-                            if (currentOptionsCount < defaultOptionsCount) {
-                                const additionalOptions = Array(defaultOptionsCount - currentOptionsCount).fill().map(() => ({
-                                    id: null,
-                                    answer: "",
-                                    is_correct: false
-                                }));
-                                optionsData = [...optionsData, ...additionalOptions];
-                            }
-                        }
-
-                        // Xử lý đáp án
+                        // Cấu trúc lại câu hỏi và tùy chọn
                         let answers;
                         if (q.question_type === 'fill_blank') {
+                            // Xử lý riêng cho "Fill in the Blank"
                             answers = optionsData.length > 0 ? [optionsData[0].answer] : [""];
                         } else {
+                            // Logic không thay đổi cho ba loại câu hỏi kia
                             answers = optionsData
                                 .filter(option => option.is_correct === 1)
                                 .map(option => optionsData.indexOf(option));
@@ -128,14 +128,13 @@ export const CreateQuiz = () => {
 
 
 
-
-    const addQuizQuestion = async (type) => {
+    const addQuizQuestion = async () => {
         try {
             const requestData = {
                 questions: [
                     {
                         question: "",
-                        question_type: type,
+                        question_type: "",
                     }
                 ]
             };
@@ -154,34 +153,13 @@ export const CreateQuiz = () => {
 
             if (response.status === 201) {
                 const newQuestionId = response.data.questionId;
-                let newQuestion = {
+                setQuestions([...questions, {
                     id: newQuestionId,
                     question: "",
-                    type: type,
-                    options: [],
+                    type: "",
+                    options: ["", "", "", ""],
                     answers: []
-                };
-
-                // Khởi tạo `options` cho `single_choice` và `mutiple_choice`
-                if (type === "single_choice" || type === "mutiple_choice") {
-                    newQuestion.options = [
-                        { id: null, answer: "", isCorrect: false },
-                        { id: null, answer: "", isCorrect: false },
-                        { id: null, answer: "", isCorrect: false },
-                        { id: null, answer: "", isCorrect: false }
-                    ];
-                } else if (type === "true_false") {
-                    newQuestion.options = [
-                        { id: null, answer: "true", isCorrect: false },
-                        { id: null, answer: "false", isCorrect: false }
-                    ];
-                } else if (type === "fill_blank") {
-                    newQuestion.options = [];
-                    newQuestion.answers = [""];
-                }
-
-                // Cập nhật danh sách `questions` mà không làm mất dữ liệu của các câu hỏi trước
-                setQuestions((prevQuestions) => [...prevQuestions, newQuestion]);
+                }]);
 
                 Swal.fire({
                     toast: true,
@@ -192,6 +170,7 @@ export const CreateQuiz = () => {
                     timer: 1500
                 });
             }
+            await showQuizQuestions()
         } catch (error) {
             Swal.fire({
                 toast: true,
@@ -201,14 +180,9 @@ export const CreateQuiz = () => {
                 showConfirmButton: false,
                 timer: 1500
             });
-            console.error(error);
-        } finally {
-            await showQuizQuestions(true);
+            console.log(error);
         }
     };
-
-
-
 
 
 
@@ -228,23 +202,11 @@ export const CreateQuiz = () => {
 
         try {
             // Chuẩn bị dữ liệu để cập nhật tất cả các câu hỏi
-            const requestData = questions.map(q => {
-                const questionData = {
-                    id: q.id,
-                    question: q.question,
-                    question_type: q.type,
-                };
-
-                // Thêm `options` cho `single_choice` và `mutiple_choice`
-                if (q.type === 'single_choice' || q.type === 'mutiple_choice') {
-                    questionData.options = q.options.map(option => ({
-                        id: option.id,
-                        answer: option.answer,
-                        is_correct: option.isCorrect
-                    }));
-                }
-                return questionData;
-            });
+            const requestData = questions.map(q => ({
+                id: q.id,
+                question: q.question,
+                question_type: q.type,
+            }));
 
             // Gửi yêu cầu API để cập nhật nhiều câu hỏi
             const response = await axios.put(
@@ -271,6 +233,7 @@ export const CreateQuiz = () => {
 
                 // Gửi yêu cầu cập nhật hoặc tạo mới đáp án cho từng câu hỏi
                 await Promise.all(questions.map(async (q) => {
+                    // Gửi yêu cầu GET để kiểm tra đáp án hiện có
                     let hasExistingOptions = false;
                     try {
                         const response = await axios.get(`${API_URL}/questions/${q.id}/options`, {
@@ -289,14 +252,15 @@ export const CreateQuiz = () => {
 
                     if (q.type === 'single_choice' || q.type === 'mutiple_choice') {
                         if (q.options && q.options.length > 0) {
-                            const putOptions = q.options.filter(option => option.id);
-                            const postOptions = q.options.filter(option => !option.id);
+                            const putOptions = q.options.filter(option => option.id); // Đáp án có ID để cập nhật
+                            const postOptions = q.options.filter(option => !option.id); // Đáp án không có ID để thêm mới
 
+                            // Cấu trúc dữ liệu để tạo mới hoặc cập nhật
                             if (putOptions.length > 0) {
                                 optionsData = {
                                     options: putOptions.map(option => ({
                                         id: option.id,
-                                        answer: option.answer,
+                                        answer: option.answer, // Đảm bảo trả về chuỗi cho answer
                                         is_correct: q.answers.includes(q.options.indexOf(option))
                                     }))
                                 };
@@ -304,18 +268,19 @@ export const CreateQuiz = () => {
                             if (postOptions.length > 0) {
                                 optionsData = {
                                     options: postOptions.map(option => ({
-                                        answer: option.answer,
+                                        answer: option.answer, // Đảm bảo trả về chuỗi cho answer
                                         is_correct: q.answers.includes(q.options.indexOf(option))
                                     }))
                                 };
                             }
                         }
                     } else if (q.type === 'true_false') {
+                        // Sử dụng dữ liệu từ q.options để lấy id
                         const trueOption = q.options.find(option => option.answer === "true") || {};
                         const falseOption = q.options.find(option => option.answer === "false") || {};
 
                         if (!q.answers || !Array.isArray(q.answers) || q.answers.length === 0) {
-                            q.answers = ["true"];
+                            q.answers = ["true"]; // Giá trị mặc định
                         }
 
                         optionsData = {
@@ -333,25 +298,29 @@ export const CreateQuiz = () => {
                             ]
                         };
                     } else if (q.type === 'fill_blank') {
-                        const blankOption = q.options[0] || {};
+                        // Sử dụng dữ liệu từ q.options để lấy đáp án
+                        const blankOption = q.options[0] || {}; // Giả sử chỉ có một tùy chọn cho "Fill in the Blank"
 
                         if (!q.answers || !Array.isArray(q.answers) || q.answers.length === 0) {
-                            q.answers = [blankOption.answer || ""];
+                            q.answers = [blankOption.answer || ""]; // Khởi tạo từ blankOption.answer nếu có, hoặc giá trị mặc định
                         }
 
                         optionsData = {
                             options: [
                                 {
-                                    id: blankOption.id || null,
+                                    id: blankOption.id || null, // Lấy id từ tùy chọn hoặc null nếu không có
                                     answer: q.answers[0],
-                                    is_correct: true
+                                    is_correct: true // Chỉ có một đáp án đúng
                                 }
                             ]
                         };
                     }
 
+
+                    // Gửi yêu cầu POST hoặc PUT dựa trên dữ liệu đã tồn tại hay chưa
                     if (optionsData) {
                         if (!hasExistingOptions) {
+                            // Gửi yêu cầu POST để tạo mới đáp án
                             await axios.post(`${API_URL}/questions/${q.id}/options`, optionsData, {
                                 headers: {
                                     'x-api-secret': API_KEY,
@@ -360,6 +329,7 @@ export const CreateQuiz = () => {
                                 },
                             });
                         } else {
+                            // Gửi yêu cầu PUT để cập nhật đáp án
                             await axios.put(`${API_URL}/questions/${q.id}/options`, optionsData, {
                                 headers: {
                                     'x-api-secret': API_KEY,
@@ -370,6 +340,8 @@ export const CreateQuiz = () => {
                         }
                     }
                 }));
+
+
 
                 Swal.fire({
                     toast: true,
@@ -391,8 +363,40 @@ export const CreateQuiz = () => {
                 timer: 1500,
             });
         } finally {
-            await showQuizQuestions(true);
+            await showQuizQuestions(true)
         }
+    };
+
+
+
+
+
+
+    const handleTypeChange = (index, value) => {
+        const updatedQuestions = [...questions];
+        updatedQuestions[index].type = value;
+
+        // Đảm bảo luôn có 4 tùy chọn cho các loại "single_choice" và "mutiple_choice"
+        if (value === 'single_choice' || value === 'mutiple_choice') {
+            // Nếu số lượng tùy chọn ít hơn 4, thêm vào cho đủ
+            if (updatedQuestions[index].options.length < 4) {
+                const additionalOptions = Array(4 - updatedQuestions[index].options.length).fill({ answer: "", isCorrect: false });
+                updatedQuestions[index].options = [
+                    ...updatedQuestions[index].options,
+                    ...additionalOptions
+                ];
+            }
+        } else if (value === 'true_false') {
+            updatedQuestions[index].options = [
+                { answer: "Đúng", isCorrect: false },
+                { answer: "Sai", isCorrect: false }
+            ];
+        } else if (value === 'fill_blank') {
+            updatedQuestions[index].options = [];
+        }
+
+        updatedQuestions[index].answers = []; // Reset đáp án khi loại câu hỏi thay đổi
+        setQuestions(updatedQuestions);
     };
 
 
@@ -417,37 +421,22 @@ export const CreateQuiz = () => {
         setQuestions(updatedQuestions);
     };
 
-    const handleAnswerChange = (questionIndex, selectedAnswer) => {
+    const handleAnswerChange = (questionIndex, optionIndex) => {
         const updatedQuestions = [...questions];
         const question = updatedQuestions[questionIndex];
 
-        // Kiểm tra loại câu hỏi để xử lý phù hợp
         if (question.type === 'mutiple_choice') {
-            if (question.answers.includes(selectedAnswer)) {
-                question.answers = question.answers.filter(ans => ans !== selectedAnswer);
+            if (question.answers.includes(optionIndex)) {
+                question.answers = question.answers.filter(ans => ans !== optionIndex);
             } else {
-                question.answers.push(selectedAnswer);
+                question.answers.push(optionIndex);
             }
-        } else if (question.type === 'single_choice' || question.type === 'true_false') {
-            question.answers = [selectedAnswer]; // Chỉ lưu một đáp án
-        } else if (question.type === 'fill_blank') {
-            question.answers = [selectedAnswer]; // Cập nhật giá trị của đáp án
+        } else {
+            question.answers = [optionIndex]; // For single choice and true/false
         }
 
-        // Cập nhật lại giá trị `isCorrect` cho các lựa chọn trong câu hỏi True/False
-        if (question.type === 'true_false') {
-            question.options = question.options.map(option => ({
-                ...option,
-                isCorrect: option.answer === selectedAnswer
-            }));
-        }
-
-        // Cập nhật lại state với danh sách câu hỏi đã thay đổi
         setQuestions(updatedQuestions);
     };
-
-
-
 
 
 
@@ -512,51 +501,67 @@ export const CreateQuiz = () => {
             {loading ? (
                 <QuizCreatorSkeleton />
 
-            ) : (
+            ):(
                 <div className="max-w-4xl mx-auto p-6 space-y-6">
-                    <div className="fixed top-0 left-0 w-full bg-white shadow-lg z-50 p-4">
-                        <div className="max-w-4xl mx-auto flex items-center justify-between">
-                            <h2 className="text-2xl font-bold text-gray-800">
-                                Tạo Quiz cho Lesson {lessonId}
-                            </h2>
-                            <div className="flex space-x-4">
-                                <Button
-                                    onClick={update}
-                                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded shadow-md transition duration-300"
-                                >
-                                    Cập nhật tất cả câu hỏi
-                                </Button>
+                <div className="fixed top-0 left-0 w-full bg-white shadow-lg z-50 p-4">
+                    <div className="max-w-4xl mx-auto flex items-center justify-between">
+                        <h2 className="text-2xl font-bold text-gray-800">
+                            Tạo Quiz cho Lesson {lessonId}
+                        </h2>
+                        <div className="flex space-x-4">
+                            <Button
+                                onClick={update}
+                                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded shadow-md transition duration-300"
+                            >
+                                Cập nhật tất cả câu hỏi
+                            </Button>
 
-                                <Button
-                                    onClick={back}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow-md transition duration-300"
-                                >
-                                    Quay lại
-                                </Button>
-                            </div>
+                            <Button
+                                onClick={back}
+                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow-md transition duration-300"
+                            >
+                                Quay lại
+                            </Button>
                         </div>
                     </div>
+                </div>
 
-                    <div className="pt-16 space-y-6">
-                        <div className="pt-16 space-y-6">
-                            {questions.map((q, questionIndex) => (
-                                <Card key={questionIndex} className="p-8 relative shadow-md hover:shadow-lg transition-shadow">
-                                    <div className="absolute top-4 right-4">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-                                            onClick={() => deleteQuestion(questionIndex, q.id)}
-                                        >
-                                            <Trash2 size={20} />
-                                        </Button>
-                                    </div>
+                <div className="pt-16 space-y-6">
+                    {questions.map((q, questionIndex) => (
+                        <Card key={questionIndex} className="p-8 relative shadow-md hover:shadow-lg transition-shadow">
+                            <div className="absolute top-4 right-4">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                    onClick={() => deleteQuestion(questionIndex, q.id)}
+                                >
+                                    <Trash2 size={20} />
+                                </Button>
+                            </div>
 
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <span className="text-lg font-semibold text-gray-700">Câu hỏi {questionIndex + 1}</span>
+                                </div>
+
+                                <Select
+                                    value={q.type}
+                                    onValueChange={(value) => handleTypeChange(questionIndex, value)}
+                                >
+                                    <SelectTrigger className="w-full p-3 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 hover:border-yellow-400 transition-colors cursor-pointer text-gray-700">
+                                        <SelectValue placeholder="Chọn loại câu hỏi" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="single_choice">Một lựa chọn</SelectItem>
+                                        <SelectItem value="mutiple_choice">Nhiều lựa chọn</SelectItem>
+                                        <SelectItem value="true_false">Đúng/Sai</SelectItem>
+                                        <SelectItem value="fill_blank">Điền vào ô trống</SelectItem>
+                                    </SelectContent>
+                                </Select>
+
+                                {q.type && (
                                     <div className="space-y-6">
-                                        <div className="flex items-center gap-2 mb-6">
-                                            <span className="text-lg font-semibold text-gray-700">Câu hỏi {questionIndex + 1}</span>
-                                        </div>
-
                                         <div className="relative">
                                             <Type className="absolute top-3 left-3 text-yellow-500" size={20} />
                                             <Input
@@ -568,20 +573,19 @@ export const CreateQuiz = () => {
                                             />
                                         </div>
 
-                                        {/* Phần giao diện đáp án cho từng loại quiz */}
-                                        {q.type === 'single_choice' || q.type === 'mutiple_choice' ? (
+                                        {(q.type === 'single_choice' || q.type === 'mutiple_choice') && (
                                             <div className="grid grid-cols-2 gap-4">
                                                 {q.options.map((option, optionIndex) => (
                                                     <div
                                                         key={optionIndex}
                                                         className={`flex items-center gap-3 p-4 border rounded-lg transition-colors cursor-pointer
-                                                            ${q.type === 'single_choice'
+                                                    ${q.type === 'single_choice'
                                                                 ? q.answers[0] === optionIndex
-                                                                    ? 'bg-yellow-100 border-yellow-400'
-                                                                    : 'bg-gray-100 hover:bg-gray-200'
+                                                                    ? 'bg-yellow-50 border-yellow-300'
+                                                                    : 'bg-gray-50 hover:bg-gray-100'
                                                                 : q.answers.includes(optionIndex)
-                                                                    ? 'bg-yellow-100 border-yellow-400'
-                                                                    : 'bg-gray-100 hover:bg-gray-200'
+                                                                    ? 'bg-yellow-50 border-yellow-300'
+                                                                    : 'bg-gray-50 hover:bg-gray-100'
                                                             }`}
                                                         onClick={() => handleAnswerChange(questionIndex, optionIndex)}
                                                     >
@@ -609,105 +613,71 @@ export const CreateQuiz = () => {
                                                     </div>
                                                 ))}
                                             </div>
-                                        ) : null}
+                                        )}
 
-                                        {q.type === 'true_false' ? (
+
+                                        {q.type === 'true_false' && (
                                             <div className="flex gap-4">
                                                 <Button
                                                     type="button"
-                                                    className={`flex-1 ${q.options.find(option => option.answer === 'true' && option.isCorrect) ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
+                                                    variant={q.options.find(option => option.answer === 'true' && option.isCorrect) ? 'default' : 'outline'}
                                                     onClick={() => {
-                                                        // Cập nhật câu trả lời và isCorrect
                                                         handleAnswerChange(questionIndex, 'true');
-                                                        const updatedOptions = q.options.map(option => ({
-                                                            ...option,
-                                                            isCorrect: option.answer === 'true'
-                                                        }));
-
-                                                        const updatedQuestions = [...questions];
-                                                        updatedQuestions[questionIndex].options = updatedOptions;
-                                                        updatedQuestions[questionIndex].answers = ['true']; // Cập nhật answers
-                                                        setQuestions(updatedQuestions);
+                                                        q.options.forEach(option => option.isCorrect = option.answer === 'true'); // Cập nhật trạng thái isCorrect
                                                     }}
+                                                    className={`flex-1 ${q.options.find(option => option.answer === 'true' && option.isCorrect) ? 'bg-yellow-500 hover:bg-yellow-600' : 'hover:bg-gray-100'}`}
                                                 >
                                                     Đúng
                                                 </Button>
                                                 <Button
                                                     type="button"
-                                                    className={`flex-1 ${q.options.find(option => option.answer === 'false' && option.isCorrect) ? 'bg-red-500 text-white' : 'bg-gray-200'}`}
+                                                    variant={q.options.find(option => option.answer === 'false' && option.isCorrect) ? 'default' : 'outline'}
                                                     onClick={() => {
-                                                        // Cập nhật câu trả lời và isCorrect
                                                         handleAnswerChange(questionIndex, 'false');
-                                                        const updatedOptions = q.options.map(option => ({
-                                                            ...option,
-                                                            isCorrect: option.answer === 'false'
-                                                        }));
-
-                                                        const updatedQuestions = [...questions];
-                                                        updatedQuestions[questionIndex].options = updatedOptions;
-                                                        updatedQuestions[questionIndex].answers = ['false']; // Cập nhật answers
-                                                        setQuestions(updatedQuestions);
+                                                        q.options.forEach(option => option.isCorrect = option.answer === 'false'); // Cập nhật trạng thái isCorrect
                                                     }}
+                                                    className={`flex-1 ${q.options.find(option => option.answer === 'false' && option.isCorrect) ? 'bg-yellow-500 hover:bg-yellow-600' : 'hover:bg-gray-100'}`}
                                                 >
                                                     Sai
                                                 </Button>
                                             </div>
-                                        ) : null}
+                                        )}
 
 
-                                        {q.type === 'fill_blank' ? (
+
+                                        {q.type === 'fill_blank' && (
                                             <Input
                                                 type="text"
                                                 placeholder="Nhập đáp án"
                                                 value={q.answers[0] || ''}
                                                 onChange={(e) => handleAnswerChange(questionIndex, e.target.value)}
-                                                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                className="w-full focus:ring-yellow-500 focus:border-yellow-500"
                                             />
-                                        ) : null}
+                                        )}
                                     </div>
-                                </Card>
-                            ))}
-                        </div>
-
-                    </div>
-
-                    <div className="flex flex-wrap gap-4 mb-6 justify-center">
-                        <Button
-                            onClick={() => addQuizQuestion("single_choice")}
-                            className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold transition duration-300 shadow-md hover:shadow-lg"
-                        >
-                            Thêm Một Lựa Chọn
-                        </Button>
-                        <Button
-                            onClick={() => addQuizQuestion("mutiple_choice")}
-                            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition duration-300 shadow-md hover:shadow-lg"
-                        >
-                            Thêm Nhiều Lựa Chọn
-                        </Button>
-                        <Button
-                            onClick={() => addQuizQuestion("true_false")}
-                            className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition duration-300 shadow-md hover:shadow-lg"
-                        >
-                            Thêm Đúng/Sai
-                        </Button>
-                        <Button
-                            onClick={() => addQuizQuestion("fill_blank")}
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition duration-300 shadow-md hover:shadow-lg"
-                        >
-                            Thêm Điền Vào Ô Trống
-                        </Button>
-                    </div>
-
-
-
-
-                    <Button
-                        onClick={() => console.log(JSON.stringify(questions, null, 2))}
-                        className="ml-2 mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                    >
-                        Xuất JSON
-                    </Button>
+                                )}
+                            </div>
+                        </Card>
+                    ))}
                 </div>
+
+                <Button
+                    onClick={addQuizQuestion}
+                    className="w-full p-4 border-2 border-dashed border-yellow-400 bg-yellow-50 rounded-lg text-yellow-600 hover:bg-yellow-100 hover:border-yellow-500 transition-colors"
+                >
+                    <Plus size={20} className="mr-2" />
+                    Thêm câu hỏi
+                </Button>
+
+
+
+                <Button
+                    onClick={() => console.log(JSON.stringify(questions, null, 2))}
+                    className="ml-2 mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                    Xuất JSON
+                </Button>
+            </div>
             )}
 
         </>

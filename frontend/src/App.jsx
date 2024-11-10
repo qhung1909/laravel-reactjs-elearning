@@ -13,7 +13,7 @@ import { Courses } from "./pages/courses/course.jsx";
 import { Blog } from "./pages/blog/blog.jsx";
 import { Blogdetail } from "./pages/blogdetail/blogdetail.jsx";
 import { Terms } from "./pages/terms/terms.jsx";
-import { Aboutus } from "./pages/terms/aboutus.jsx";
+import { Aboutus } from "./pages/aboutus/aboutus.jsx";
 import { Contact } from "./pages/contact/contact.jsx";
 import { Home } from "./pages/home/home.jsx";
 import { Header } from "./pages/header/header.jsx";
@@ -64,7 +64,6 @@ import PersonalInformation from "./pages/admin/ManageAcount/PersonalInformation.
 import { ManageHeader } from "./pages/admin/ManageHeaderFooter/ManageHeader.jsx";
 import Draft from "./pages/admin/ManageCourses/draft.jsx";
 import ManageFooter from "./pages/admin/ManageHeaderFooter/ManageFooter.jsx";
-import Ourteam from "./pages/ourteam/ourteam.jsx";
 
 
 
@@ -87,7 +86,8 @@ function AppContent() {
             "/user/orderhistory",
             "/user/noti",
             "/user/noti/:id",
-            "/terms"
+            "/terms",
+            "/aboutus",
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/") &&
         !location.pathname.startsWith("/user/noti/") &&
@@ -148,7 +148,6 @@ function AppContent() {
                 <Route path="/detail" element={<Detail />}></Route>
                 <Route path="*" element={<PageNotFound />}></Route>
                 <Route path="/404" element={<PageNotFound />}></Route>
-                <Route path="/ourteam" element={<Ourteam />}></Route>
                 <Route path="/detail/:slug" element={<Detail />}></Route>
                 <Route path="/payment-result" element={<PaymentResult />}></Route>
                 <Route path="/payment" element={<Payment />}></Route>
