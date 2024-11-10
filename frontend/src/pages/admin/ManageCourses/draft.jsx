@@ -43,10 +43,9 @@ export default function Draft() {
     const [editNote, setEditNote] = useState('');
     const [selectedContentId, setSelectedContentId] = useState(null);
     const [reason, setReason] = useState('');
-    /* Phân trang  */
+    const [isVideoLayerOpen, setVideoLayerOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 3;
-
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
@@ -55,12 +54,6 @@ export default function Draft() {
     const indexOfFirstCourse = indexOfLastCourse - itemsPerPage;
     // const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
 
-
-    /* Video */
-    const [isVideoLayerOpen, setVideoLayerOpen] = useState(false);
-    const handleVideoOpen = () => {
-        setVideoLayerOpen(true);
-    };
 
     const renderPaginationItems = () => {
         const items = [];
@@ -133,7 +126,12 @@ export default function Draft() {
         return items;
     };
 
-        
+    /* Video */
+    const handleVideoOpen = () => {
+        setVideoLayerOpen(true);
+    };
+
+
     const openApproveModal = (courseId) => {
         setSelectedCourseId(courseId);
         setIsApproveModalOpen(true);
@@ -141,7 +139,7 @@ export default function Draft() {
 
     const handleApprove = () => {
         if (selectedCourseId) {
-            approveCourse(selectedCourseId); 
+            approveCourse(selectedCourseId);
         }
         setIsApproveModalOpen(false);
     };
@@ -152,7 +150,7 @@ export default function Draft() {
     };
 
     const openEditModal = (courseId) => {
-        setSelectedCourseId(courseId); 
+        setSelectedCourseId(courseId);
         setIsEditModalOpen(true);
     };
 
@@ -173,7 +171,7 @@ export default function Draft() {
             const response = await axios.post(
                 `${API_URL}/admin/revision`,
                 {
-                    course_id: selectedCourseId, 
+                    course_id: selectedCourseId,
                     reason: editNote,
                 },
                 {
@@ -187,15 +185,15 @@ export default function Draft() {
 
             if (response.data && response.data.success) {
                 toast.success("Yêu cầu chỉnh sửa đã được gửi thành công.");
-                fetchCourses(); 
+                fetchCourses();
             } else {
                 toast.error("Có lỗi xảy ra khi gửi yêu cầu chỉnh sửa.");
             }
         } catch (error) {
             toast.error("Có lỗi xảy ra khi gửi yêu cầu chỉnh sửa.");
         } finally {
-            setIsEditModalOpen(false); 
-            setEditNote(''); 
+            setIsEditModalOpen(false);
+            setEditNote('');
         }
     };
 
@@ -312,7 +310,7 @@ export default function Draft() {
                     Authorization: `Bearer ${token}`,
                 },
                 params: {
-                    course_id: courseId 
+                    course_id: courseId
                 }
             });
 
