@@ -43,29 +43,67 @@ export const CourseOverview = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
 
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const { course_id } = useParams();
 
-
+    // Trạng thái dữ liệu hiện tại
     const [courseTitle, setCourseTitle] = useState("");
     const [courseDescriptionText, setCourseDescriptionText] = useState("");
     const [currency, setCurrency] = useState("");
     const [price, setPrice] = useState("");
     const [selectedLanguage, setSelectedLanguage] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
-
     const [courseImage, setCourseImage] = useState(null);
-    const { course_id } = useParams();
 
+    // Trạng thái dữ liệu ban đầu
+    const [initialCourseTitle, setInitialCourseTitle] = useState("");
+    const [initialCourseDescriptionText, setInitialCourseDescriptionText] = useState("");
+    const [initialCurrency, setInitialCurrency] = useState("");
+    const [initialPrice, setInitialPrice] = useState("");
+    const [initialSelectedLanguage, setInitialSelectedLanguage] = useState("");
+    const [initialSelectedCategory, setInitialSelectedCategory] = useState("");
+    const [initialCourseImage, setInitialCourseImage] = useState(null);
 
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [isUpdated, setIsUpdated] = useState(false);
+    const [hasChanges, setHasChanges] = useState(false); // Theo dõi thay đổi
 
-    
 
     const wordCount = courseDescriptionText.trim().split(/\s+/).filter(word => word).length;
-    const [isUpdated, setIsUpdated] = useState(false);
 
     console.log(isUpdated, 'clickUpdate-courseOverview');
 
+
+    useEffect(() => {
+        if (
+            courseTitle !== initialCourseTitle ||
+            courseDescriptionText !== initialCourseDescriptionText ||
+            currency !== initialCurrency ||
+            price !== initialPrice ||
+            selectedLanguage !== initialSelectedLanguage ||
+            selectedCategory !== initialSelectedCategory ||
+            courseImage !== initialCourseImage
+        ) {
+            setHasChanges(true);
+        } else {
+            setHasChanges(false);
+        }
+    }, [
+        courseTitle,
+        courseDescriptionText,
+        currency,
+        price,
+        selectedLanguage,
+        selectedCategory,
+        courseImage,
+        initialCourseTitle,
+        initialCourseDescriptionText,
+        initialCurrency,
+        initialPrice,
+        initialSelectedLanguage,
+        initialSelectedCategory,
+        initialCourseImage
+    ]);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -114,33 +152,40 @@ export const CourseOverview = () => {
     }, [API_KEY, API_URL])
     // console.log(course_id);
 
+    // Fetch dữ liệu ban đầu từ API
     useEffect(() => {
         const fetchCourse = async () => {
-            const response = await axios.get(`${API_URL}/teacher/courses/${course_id}`, {
-                headers: {
-                    'x-api-secret': API_KEY,
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
+            try {
+                const response = await axios.get(`${API_URL}/teacher/courses/${course_id}`, {
+                    headers: {
+                        'x-api-secret': API_KEY,
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
+                });
 
-            if (response.data) {
-                const courseData = response.data.data;
-                // console.log(courseData);
-                setCourseTitle(courseData.title || '');
-                setCourseDescriptionText(courseData.description || '');
-                setPrice(courseData.price || '');
-                setCourseImage(courseData.img || '');
-                setSelectedCategory(courseData.course_category_id || '');
-
-            } else {
-                console.error('Error fetching course:', response.data.message);
-                alert('Failed to fetch course');
+                if (response.data) {
+                    const courseData = response.data.data;
+                    setCourseTitle(courseData.title || '');
+                    setInitialCourseTitle(courseData.title || ''); // Lưu dữ liệu ban đầu
+                    setCourseDescriptionText(courseData.description || '');
+                    setInitialCourseDescriptionText(courseData.description || ''); // Lưu dữ liệu ban đầu
+                    setCurrency(courseData.currency || '');
+                    setInitialCurrency(courseData.currency || ''); // Lưu dữ liệu ban đầu
+                    setPrice(courseData.price || '');
+                    setInitialPrice(courseData.price || ''); // Lưu dữ liệu ban đầu
+                    setSelectedLanguage(courseData.language || '');
+                    setInitialSelectedLanguage(courseData.language || ''); // Lưu dữ liệu ban đầu
+                    setSelectedCategory(courseData.course_category_id || '');
+                    setInitialSelectedCategory(courseData.course_category_id || ''); // Lưu dữ liệu ban đầu
+                    setCourseImage(courseData.img || null);
+                    setInitialCourseImage(courseData.img || null); // Lưu dữ liệu ban đầu
+                }
+            } catch (error) {
+                console.error('Error fetching course data:', error);
             }
-            // console.log(course_id);
-
         };
-        fetchCourse()
-    }, [API_KEY, API_URL, course_id])
+        fetchCourse();
+    }, [API_KEY, API_URL, course_id]);
 
 
 
@@ -148,10 +193,8 @@ export const CourseOverview = () => {
         const courseData = {
             course_category_id: selectedCategory,
             price: price,
-            // price_discount: price,
             description: courseDescriptionText,
             title: courseTitle,
-            // img: courseImage, // Base64 image string
         };
 
         try {
@@ -165,15 +208,20 @@ export const CourseOverview = () => {
 
             if (response.data.success) {
                 notify('Khóa học đã được cập nhật', 'success');
-
+                setIsUpdated(true);
+                // Cập nhật dữ liệu ban đầu sau khi lưu thành công
+                setInitialCourseTitle(courseTitle);
+                setInitialCourseDescriptionText(courseDescriptionText);
+                setInitialCurrency(currency);
+                setInitialPrice(price);
+                setInitialSelectedLanguage(selectedLanguage);
+                setInitialSelectedCategory(selectedCategory);
+                setInitialCourseImage(courseImage);
             } else {
-                console.error('Error:', response.data.message);
-                alert('Failed to add course', 'success');
+                notify('Failed to add course', 'error');
             }
         } catch {
             notify('Lỗi cập nhật khóa học', 'error');
-        } finally {
-            setIsUpdated(true);
         }
     };
 
@@ -218,7 +266,7 @@ export const CourseOverview = () => {
 
 
             <div className="flex max-w-7xl m-auto pt-16 pb-36">
-                <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated}/>
+                <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated} hasChanges={hasChanges}/>
                 <div className="w-full lg:w-10/12 shadow-lg">
                     <div>
                         <div className="m-2">

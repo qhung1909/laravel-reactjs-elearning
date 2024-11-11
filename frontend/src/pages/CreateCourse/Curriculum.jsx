@@ -15,7 +15,21 @@ import { SideBarCreateCoure } from './SideBarCreateCoure';
 import { Footer } from '../footer/footer';
 import { Textarea } from '@/components/ui/textarea';
 import { SkeletonLoaderCurriculum } from '../skeletonEffect/skeleton';
-
+const notify = (message, type) => {
+    if (type === 'success') {
+        toast.success(message, {
+            style: {
+                padding: '16px'
+            }
+        });
+    } else {
+        toast.error(message, {
+            style: {
+                padding: '16px'
+            }
+        })
+    }
+}
 export const Curriculum = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
@@ -30,29 +44,36 @@ export const Curriculum = () => {
     const [isUpdated, setIsUpdated] = useState(false);
 
     console.log(isUpdated, 'clickUpdate-curriculum');
+    const [hasChanges, setHasChanges] = useState(false);
 
+    // Function to handle section title change
     const handleSectionTitleChange = (sectionId, newTitle) => {
-        setSections(sections.map(section =>
-            section.id === sectionId ? { ...section, title: newTitle } : section
-        ));
+        setSections(prevSections => {
+            const updatedSections = prevSections.map(section =>
+                section.id === sectionId ? { ...section, title: newTitle } : section
+            );
+            setHasChanges(true); // Mark as having changes
+            return updatedSections;
+        });
     };
 
-
-
-
-
+    // Function to handle lesson title change
     const handleLessonTitleChange = (sectionId, lessonId, newTitle) => {
-        setSections(sections.map(section => {
-            if (section.id === sectionId) {
-                return {
-                    ...section,
-                    lessons: section.lessons.map(lesson =>
-                        lesson.id === lessonId ? { ...lesson, title: newTitle } : lesson
-                    )
-                };
-            }
-            return section;
-        }));
+        setSections(prevSections => {
+            const updatedSections = prevSections.map(section => {
+                if (section.id === sectionId) {
+                    return {
+                        ...section,
+                        lessons: section.lessons.map(lesson =>
+                            lesson.id === lessonId ? { ...lesson, title: newTitle } : lesson
+                        )
+                    };
+                }
+                return section;
+            });
+            setHasChanges(true); // Mark as having changes
+            return updatedSections;
+        });
     };
 
     const handleSelectChange = (sectionId, lessonId, value) => {
@@ -208,7 +229,7 @@ export const Curriculum = () => {
 
 
     const addSection = async () => {
-        if (sections.length > 0 && !sections[sections.length - 1].title.trim()) {
+        if (sections.length > 0 && (!sections[sections.length - 1].title || !sections[sections.length - 1].title.trim())) {
             toast.error("Vui lòng nhập tiêu đề cho Bài học trước khi thêm Bài học mới.");
             return;
         }
@@ -353,7 +374,7 @@ export const Curriculum = () => {
 
             if (response.data.success) {
                 // Cập nhật state sau khi xóa thành công
-                const updatedSections = sections.filter(section => section.id !== contentId);
+                const updatedSections = sections.filter(section => section.content_id !== contentId);
                 const resetSections = resetIds(updatedSections);
                 setSections(resetSections);
                 await fetchContent(true);
@@ -438,6 +459,10 @@ export const Curriculum = () => {
 
 
     const openPageQuiz = async (sectionId) => {
+        if (!isUpdated) {
+            notify('Bạn cần Cập nhật trước khi chuyển trang!', 'error');
+            return;
+        }
         try {
             // Gửi yêu cầu POST để thêm quiz
             const response = await axios.post(
@@ -511,13 +536,15 @@ export const Curriculum = () => {
 
 
     const handleSubmit = async () => {
-        const validSections = sections.filter(section => section.title.trim() !== '');
-
-        if (validSections.length === 0) {
-            toast.error('Vui lòng nhập ít nhất một tiêu đề bài học!');
+        toast.dismiss();
+        // Kiểm tra nếu có tiêu đề trống hoặc chỉ có khoảng trắng
+        const invalidSections = sections.filter(section => !section.title.trim());
+        if (invalidSections.length > 0) {
+            toast.error('Vui lòng nhập tiêu đề hợp lệ cho tất cả các bài học!');
             return;
         }
 
+        const validSections = sections.filter(section => section.title.trim() !== '');
         const sectionsToUpdate = validSections.filter(section => section.content_id);
 
         const loadingToast = toast.loading('Đang xử lý...');
@@ -597,6 +624,7 @@ export const Curriculum = () => {
             if (!hasError) {
                 toast.success('Đã lưu thành nội dung thành công!');
             }
+            setHasChanges(false);
 
         } catch (error) {
             if (error.response?.status === 401) {
@@ -615,10 +643,16 @@ export const Curriculum = () => {
             console.error('Error:', error);
         } finally {
             toast.dismiss(loadingToast);
-            fetchContent();
+            await fetchContent();
             setIsUpdated(true);
         }
     };
+
+    useEffect(() => {
+        return () => {
+            toast.dismiss();
+        };
+    }, []);
 
 
 
@@ -715,7 +749,7 @@ export const Curriculum = () => {
             </header>
 
             <div className="flex max-w-7xl m-auto pt-16 pb-36">
-                <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated}/>
+                <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated} hasChanges={hasChanges} />
 
                 <div className="w-full lg:w-10/12 shadow-lg">
 
