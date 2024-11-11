@@ -53,11 +53,11 @@ export default function CourseList() {
     const exportToExcel = () => {
         // Create a worksheet from the filtered courses
         const worksheet = XLSX.utils.json_to_sheet(currentFilteredCourses);
-    
+
         // Create a new workbook and append the worksheet
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, worksheet, 'Courses');
-    
+
         // Export the workbook to a file
         XLSX.writeFile(wb, 'courses_data.xlsx');
     };
@@ -70,7 +70,7 @@ export default function CourseList() {
             });
             const data = res.data;
             console.log(data);
-            
+
             setCourses(data);
             setStats({
                 totalCourses: data.length,
@@ -88,18 +88,65 @@ export default function CourseList() {
         fetchCourses();
     }, []);
 
+    const [categories, setCategories] = useState([]);
+    const fetchCategories = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/categories`, {
+                headers: { 'x-api-secret': API_KEY }
+            });
+            setCategories([{ course_category_id: 'all', name: 'Tất cả' }, ...res.data]);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    }
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            await Promise.all([fetchCourses(), fetchCategories()]);
+            setLoading(false);
+        };
+        fetchData();
+    }, []);
+
+    const [showOptions, setShowOptions] = useState(false);
+    const toggleOptions = () => {
+        setShowOptions(!showOptions);
+    };
+
     const [sortConfig, setSortConfig] = useState({
         key: null,
         direction: 'asc'
     });
     const [searchTerm, setSearchTerm] = useState('');
 
-    const handleSort = (key) => {
-        let direction = 'asc';
-        if (sortConfig.key === key && sortConfig.direction === 'asc') {
-            direction = 'desc';
-        }
-        setSortConfig({ key, direction });
+    // Hàm sắp xếp theo giá
+    const handleSort = (direction) => {
+        const sortedCourses = [...courses].sort((a, b) => {
+            if (direction === 'asc') {
+                return a.price - b.price;
+            } else {
+                return b.price - a.price;
+            }
+        });
+        setCourses(sortedCourses);
+        setSortConfig({ key: 'price', direction });
+        setShowOptions(false);
+    };
+
+    // Hàm sắp xếp theo ngày
+    const handleDateSort = () => {
+        const sortedCourses = [...courses].sort((a, b) => {
+            return new Date(b.created_at) - new Date(a.created_at);
+        });
+        setCourses(sortedCourses);
+        setShowOptions(false);
+    };
+
+    // Hàm lọc theo trạng thái
+    const handleStatusFilter = () => {
+        // Thêm logic lọc theo trạng thái ở đây
+        setShowOptions(false);
     };
 
     const filteredCourses = courses.filter(course =>
@@ -155,6 +202,9 @@ export default function CourseList() {
             setCurrentPage(page);
         }
     };
+
+
+
 
     return (
         <SidebarProvider>
@@ -239,10 +289,46 @@ export default function CourseList() {
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                         />
                                     </div>
-                                    <Button variant="outline" className="flex items-center gap-2">
-                                        <Filter size={16} />
-                                        Lọc
-                                    </Button>
+                                    <div className="relative">
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2"
+                                            onClick={toggleOptions}
+                                        >
+                                            <Filter size={16} />
+                                            Lọc
+                                        </Button>
+                                        {showOptions && (
+                                            <div className="absolute mt-2 w-48 bg-white border border-gray-200 rounded shadow-md z-10">
+                                                <ul className="py-2">
+                                                    <li
+                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                        onClick={handleStatusFilter}
+                                                    >
+                                                        Theo trạng thái
+                                                    </li>
+                                                    <li
+                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                        onClick={() => handleSort('desc')}
+                                                    >
+                                                        Giá giảm dần
+                                                    </li>
+                                                    <li
+                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                        onClick={() => handleSort('asc')}
+                                                    >
+                                                        Giá tăng dần
+                                                    </li>
+                                                    <li
+                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                        onClick={handleDateSort}
+                                                    >
+                                                        Ngày tạo mới nhất
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
                                     <Button variant="outline" className="flex items-center gap-2" onClick={exportToExcel}>
                                         <FileDown size={16} />
                                         Xuất
@@ -277,6 +363,16 @@ export default function CourseList() {
                                             </th>
                                             <th
                                                 className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group"
+                                                onClick={() => handleSort('created_at')}
+                                                style={{ width: '15%' }}
+                                            >
+                                                <div className="flex items-center justify-center gap-2">
+                                                    Ngày tạo
+                                                    {getSortIcon('created_at')}
+                                                </div>
+                                            </th>
+                                            <th
+                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group"
                                                 onClick={() => handleSort('status')}
                                                 style={{ width: '15%' }}
                                             >
@@ -293,6 +389,16 @@ export default function CourseList() {
                                                 <div className="flex items-center justify-center gap-2">
                                                     Giá
                                                     {getSortIcon('price')}
+                                                </div>
+                                            </th>
+                                            <th
+                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group"
+                                                onClick={() => handleSort('categories')}
+                                                style={{ width: '15%' }}
+                                            >
+                                                <div className="flex items-center justify-center gap-2">
+                                                    Danh mục
+                                                    {getSortIcon('categories')}
                                                 </div>
                                             </th>
                                             <th className="text-center py-4 px-6 font-bold text-gray-600" style={{ width: '10%' }}>Hành động</th>
@@ -321,6 +427,12 @@ export default function CourseList() {
                                                         <td className="py-4 px-6">
                                                             <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
                                                         </td>
+                                                        <td className="py-4 px-6">
+                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
+                                                        </td>
+                                                        <td className="py-4 px-6">
+                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
+                                                        </td>
                                                     </tr>
                                                 ))}
                                             </>
@@ -341,6 +453,11 @@ export default function CourseList() {
                                                         </div>
                                                     </td>
                                                     <td className="py-4 px-6">
+                                                        <div className="flex items-center">
+                                                            <span className="text-sm text-gray-900">{new Date(course.created_at).toLocaleDateString()}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 px-6">
                                                         <Badge className={`${getStatusColor(course.status)}`}>
                                                             {getStatusText(course.status)}
                                                         </Badge>
@@ -351,9 +468,19 @@ export default function CourseList() {
                                                         </span>
                                                     </td>
                                                     <td className="py-4 px-6">
+                                                        {course.course_category_id ? (
+                                                            categories.find(c => c.course_category_id === course.course_category_id)?.name || 'Chưa có danh mục'
+                                                        ) : (
+                                                            <span className="text-red-500">Chưa có danh mục</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="py-4 px-6">
                                                         <div className="flex justify-end gap-2">
                                                             <Button variant="outline" size="sm" className="text-bold text-amber-400 hover:text-amber-700">
-                                                                Xem chi tiết
+                                                                Sửa
+                                                            </Button>
+                                                            <Button variant="outline" size="sm" className="text-bold text-amber-400 hover:text-amber-700">
+                                                                Chi tiết
                                                             </Button>
                                                         </div>
                                                     </td>
