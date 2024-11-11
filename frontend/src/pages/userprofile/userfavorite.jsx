@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch"
 import { Checkbox } from "@/components/ui/checkbox"
 import TaskList from "../notifications/notification";
-export const UserNoti = () => {
+export const UserFavorite = () => {
     return (
         <>
             <section className="usernoti my-10 mx-auto  px-4 lg:px-10 xl:px-20">
@@ -28,20 +28,25 @@ export const UserNoti = () => {
                                         <p>Lịch sử mua hàng</p>
                                     </Link>
                                 </li>
-                                <li className=" bg-gray-100 py-3 lg:py-2 px-3 rounded-md">
-                                    <Link to="/user/noti">
+
+                                <li className="py-3 lg:py-2 px-3 rounded-md">
+                                    <Link className="hover:underline" to="/user/noti">
                                         <p>Thông báo</p>
                                     </Link>
                                 </li>
-                                <li className="py-3 lg:py-2 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/user/favorite">
+                                <li className=" bg-gray-100 py-3 lg:py-2 px-3 rounded-md">
+                                    <Link to="/user/noti">
                                         <p>Yêu thích</p>
                                     </Link>
                                 </li>
                             </ul>
                         </div>
                         <div className="col-span-3 my-3 lg:my-5">
-                           <TaskList></TaskList>
+                            <div className="border-b pb-5">
+                                <span className="font-medium">Yêu thích của bạn:</span>
+                                <p className="text-sm text-gray-500 ">Người khác sẽ nhìn ra bạn với những thông tin dưới đây</p>
+                            </div>
+
                         </div>
                     </div>
                 </div>

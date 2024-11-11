@@ -70,7 +70,7 @@ export const UserProfile = () => {
             password,
             password_confirmation
         );
-        setIsSubmitting(false); 
+        setIsSubmitting(false);
 
         if (isUpdated) {
             setCurrentPassword("");
@@ -110,6 +110,11 @@ export const UserProfile = () => {
                                 <li className="py-3 lg:py-2 px-3 rounded-md">
                                     <Link className="hover:underline" to="/user/noti">
                                         <p>Thông báo</p>
+                                    </Link>
+                                </li>
+                                <li className="py-3 lg:py-2 px-3 rounded-md">
+                                    <Link className="hover:underline" to="/user/favorite">
+                                        <p>Yêu thích</p>
                                     </Link>
                                 </li>
                             </ul>
