@@ -14,14 +14,15 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { SideBarUI } from '../sidebarUI';
-import { GraduationCap, LayoutDashboard, BookOpenText  } from 'lucide-react';
+import { GraduationCap, LayoutDashboard, BookOpenText, School } from 'lucide-react';
 import { Separator } from '@radix-ui/react-context-menu';
+import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 
 export default function DetailCourse() {
     const { course_id } = useParams();
-console.log("Course ID from URL:", course_id);
+    console.log("Course ID from URL:", course_id);
 
-        const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
 
     const [courses, setCourses] = useState([]);
@@ -44,15 +45,20 @@ console.log("Course ID from URL:", course_id);
             });
             const data = res.data;
 
-            console.log("Dữ liệu khóa học nhận được từ API:", data); // Kiểm tra toàn bộ dữ liệu trả về từ API
+            console.log("Dữ liệu trả về từ API:", data);
 
+            const courseId = Number(course_id);  // Chuyển đổi course_id từ URL thành số
             const selectedCourse = data.find(course => {
-                console.log("So sánh course_id từ URL:", course_id, "với course.course_id trong dữ liệu:", course.course_id);
-                return course.course_id === Number(course_id); // Sử dụng đúng trường course_id
+                console.log("So sánh course_id từ URL:", courseId, "với course.course_id trong dữ liệu:", course.course_id);
+                return course.course_id === courseId;
             });
 
+            if (!selectedCourse) {
+                setError('Không tìm thấy khóa học');
+                return;
+            }
 
-            console.log("Khóa học được chọn từ API:", selectedCourse); // Kiểm tra khóa học đã được chọn đúng
+            console.log("Khóa học được chọn từ API:", selectedCourse);
 
             setCourses(data);
             setStats({
@@ -70,6 +76,7 @@ console.log("Course ID from URL:", course_id);
             setIsLoading(false);
         }
     };
+
 
 
 
@@ -94,31 +101,31 @@ console.log("Course ID from URL:", course_id);
             <SideBarUI />
             <SidebarInset>
                 <div className="absolute left-1 top-3 px-4">
-                    {/* Breadcrumb section */}
                     <div className="flex items-center gap-2 pb-6">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink href="/">
+                                    <BreadcrumbLink href="/" className="flex items-center gap-1">
                                         <LayoutDashboard size={16} />
                                         Dashboard
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator />
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink href="/admin/course-list">
-                                        <BookOpenText  size={16} />
-                                            Danh sách khóa học
+                                    <BreadcrumbLink href="/admin/course-list" className="flex items-center gap-1">
+                                        <BookOpenText size={16} />
+                                        Danh sách khóa học
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator />
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink href="/admin/courses" className="text-blue-600">
+                                    <BreadcrumbLink href="/admin/courses" className="text-blue-600 flex items-center gap-1">
                                         <GraduationCap size={16} />
-                                        Chi tiết khóa học
+                                        Chi tiết khóa học: {course?.title || 'Khóa học không tồn tại'}
                                     </BreadcrumbLink>
+
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
@@ -152,7 +159,12 @@ console.log("Course ID from URL:", course_id);
                                                 {course.title}
                                             </h1>
                                             <div className="text-sm text-gray-600 mb-4">
-                                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                                <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded inline-flex items-center gap-1">
+                                                    <School className="w-4 h-4" />{course.user.name}
+                                                </span>
+                                            </div>
+                                            <div className="text-sm text-gray-600 mb-4">
+                                                <span className="bg-blue-100 text-yellow-500 px-2 py-1 rounded">
                                                     {categories.find(c => c.course_category_id === course.course_category_id)?.name || 'Chưa có danh mục'}
                                                 </span>
                                             </div>
@@ -161,8 +173,8 @@ console.log("Course ID from URL:", course_id);
                                             </p>
                                         </div>
                                         <div className="mt-4">
-                                            <div className="text-xl font-bold text-blue-600">
-                                                {course.price?.toLocaleString('vi-VN')} đ
+                                            <div className="text-xl font-bold">
+                                                {formatCurrency(course.price)}
                                             </div>
                                         </div>
                                     </div>

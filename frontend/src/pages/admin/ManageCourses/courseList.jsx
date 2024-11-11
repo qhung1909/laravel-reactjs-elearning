@@ -77,7 +77,7 @@ export default function CourseList() {
             setStats({
                 totalCourses: data.length,
                 totalStudents: data.reduce((sum, course) => sum + (course.enrolled_count || 0), 0),
-                activeCourses: data.filter(course => course.status === "pending").length
+                activeCourses: data.filter(course => course.status === "published" && course.status !== "hide").length
             });
         } catch (error) {
             console.error('Error fetching Courses:', error);
@@ -173,12 +173,8 @@ export default function CourseList() {
         switch (status) {
             case "published":
                 return "bg-green-100 text-green-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
-            case "draft":
-                return "bg-blue-100 text-blue-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
-            case "pending":
-                return "bg-yellow-100 text-yellow-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
-            case "unpublished":
-                return "bg-red-500 text-white w-full text-center flex justify-center items-center p-1 rounded-lg";
+            case "hide":
+                return "bg-gray-400 text-white w-full text-center flex justify-center items-center p-1 rounded-lg";
             default:
                 return '';
         }
@@ -186,14 +182,10 @@ export default function CourseList() {
 
     const getStatusText = (status) => {
         switch (status) {
-            case "draft":
-                return "Nháp";
             case "published":
                 return "Hoàn thành";
-            case "pending":
-                return "Đang chờ";
-            case "unpublished":
-                return "Thất bại";
+            case "hide":
+                return "Ẩn";
             default:
                 return '';
         }
@@ -471,19 +463,24 @@ export default function CourseList() {
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         {course.course_category_id ? (
-                                                            categories.find(c => c.course_category_id === course.course_category_id)?.name || 'Chưa có danh mục'
+                                                            <div className="flex items-center gap-2">
+                                                                <Badge className="w-full px-2 py-1 justify-center text-xs font-semibold text-white bg-orange-400 rounded-full">
+                                                                    {categories.find(c => c.course_category_id === course.course_category_id)?.name || 'Chưa có danh mục'}
+                                                                </Badge>
+                                                            </div>
                                                         ) : (
-                                                            <span className="text-red-500">Chưa có danh mục</span>
+                                                            <Badge className="text-red-500">Chưa có danh mục</Badge>
                                                         )}
                                                     </td>
+
                                                     <td className="py-4 px-6">
                                                         <div className="flex justify-end gap-2">
                                                             <Button variant="outline" size="sm" className="text-bold text-amber-400 hover:text-amber-700">
                                                                 Sửa
                                                             </Button>
                                                             <Link to={`/admin/courses/${course.course_id}`}>                                                                <Button variant="outline" size="sm" className="text-bold text-amber-400 hover:text-amber-700">
-                                                                    Chi tiết
-                                                                </Button>
+                                                                Chi tiết
+                                                            </Button>
                                                             </Link>
                                                         </div>
                                                     </td>
