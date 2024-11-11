@@ -56,7 +56,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Search, ChevronDown, FileDown, Trash, Pencil } from 'lucide-react';
+import { Search, ChevronDown, FileDown, Trash, Pencil, UserCircle, School } from 'lucide-react';
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import axios from "axios";
@@ -187,13 +187,29 @@ export default function ClassifyUsers() {
         return filterOptions.find(option => option.value === filterCriteria)?.label || 'Tất cả người dùng';
     };
 
-    const handleEditUser = async (userId) => {
-        console.log("Editing user:", userId);
-        setEditingUser(null);
+    const handleEditUser = async (user_id) => {
+        try {
+            const res = await axios.put(`${API_URL}/admin/users/${user_id}`, {
+                headers: {
+                    'x-api-secret': API_KEY
+                }
+            });
+            const data = res.data;
+
+            console.log("Dữ liệu từ API:", data);
+            console.log(data.status);
+        } catch (error) {
+            console.error('Error fetching Users:', error);
+        } finally {
+            setIsLoading(false);
+        }
+
+        setEditingUser(null);  // Đóng modal sau khi hoàn thành
     };
 
-    const handleDeleteUser = async (userId) => {
-        console.log("Deleting user:", userId);
+
+    const handleDeleteUser = async (user_id) => {
+        console.log("Deleting user:", user_id);
     };
 
     return (
@@ -320,8 +336,20 @@ export default function ClassifyUsers() {
                                                     </span>
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    <span className="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium ring-1 ring-yellow-600/20">
-                                                        {user.role === "teacher" ? "Giảng viên" : "Học viên"}
+                                                    {/* <span className="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium ring-1 ring-yellow-600/20"> */}
+                                                    <span className="text-center">
+                                                        {/* {user.role === "teacher" ? "Giảng viên" : "Học viên"} */}
+                                                        {user.role === "teacher" ? (
+                                                            <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 font-medium border border-blue-200 shadow-sm">
+                                                                <School className="w-4 h-4" />
+                                                                <span className="text-sm">Giảng viên</span>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 font-medium border border-purple-200 shadow-sm">
+                                                                <UserCircle className="w-4 h-4" />
+                                                                <span className="text-sm">Học viên</span>
+                                                            </div>
+                                                        )}
                                                     </span>
                                                 </TableCell>
                                                 <TableCell className="text-center">
@@ -356,7 +384,6 @@ export default function ClassifyUsers() {
                                                                         >
                                                                             <option value="user">Học viên</option>
                                                                             <option value="teacher">Giảng viên</option>
-                                                                            <option value="viewer">Quản trị viên</option>
                                                                         </select>
                                                                     </div>
                                                                 </div>
