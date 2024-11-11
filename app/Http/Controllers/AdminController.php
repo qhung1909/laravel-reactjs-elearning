@@ -24,8 +24,9 @@ use App\Models\User;
 use App\Models\OrderDetail;
 class AdminController extends Controller
 {   
-    const ADMIN_SHARE = 5; 
-    const TEACHER_SHARE = 95; 
+    const ADMIN_SHARE = 10; 
+    const TEACHER_SHARE = 90; 
+
     protected $course;
     protected $category;
 

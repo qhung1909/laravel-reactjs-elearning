@@ -93,16 +93,16 @@ class BlogController extends Controller
                 'message' => 'Bạn phải đăng nhập để cập nhật blog'
             ], 401);
         }
-
+    
         try {
             $validator = Validator::make($request->all(), [
                 'title' => 'required|max:255',
                 'content' => 'required',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'status' => 'required|in:draft,success,hide',
+                'status' => 'nullable|in:draft,success,hide',
                 'slug' => 'nullable|max:255|unique:blogs,slug',
             ]);
-
+    
             if ($validator->fails()) {
                 return response()->json([
                     'status' => false,
@@ -110,24 +110,26 @@ class BlogController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-
+    
             $blog = Blog::where('slug', $slug)->firstOrFail();
             $data = $request->all();
             $data['slug'] = Str::slug($request->title);
-
+    
+            $data['status'] = $data['status'] ?? 'success';
+    
             if ($request->hasFile('image')) {
                 if ($blog->image) {
                     Storage::delete('public/blogs/' . $blog->image);
                 }
-
+    
                 $image = $request->file('image');
                 $filename = time() . '.' . $image->getClientOriginalExtension();
                 $path = $image->storeAs('public/blogs', $filename);
                 $data['image'] = $filename;
             }
-
+    
             $blog->update($data);
-
+    
             return response()->json([
                 'status' => true,
                 'message' => 'Cập nhật blog thành công',
@@ -141,6 +143,7 @@ class BlogController extends Controller
             ], 500);
         }
     }
+    
 
     public function show($slug)
     {

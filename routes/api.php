@@ -181,7 +181,6 @@ Route::middleware(['admin'])->group(function () {
     //Progress
     Route::get('/progress', [ProgressController::class, 'index']);
     Route::post('/progress/complete-content', [ProgressController::class, 'completeContent']);
-
 });
 
 Route::prefix('admin')->middleware('admin')->group(function () {
@@ -220,12 +219,11 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::get('/overview', [AdminController::class, 'getAdminOverview']);
 
     Route::get('/revenue/teachers', [AdminController::class, 'getTeacherRevenues']);
-
 });
 Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::get('/courses/{courseId}', [AdminController::class, 'showCoursesTeacher']);
     Route::put('/courses/{courseId}', [AdminController::class, 'updateCoursesTeacher']);
-    
+
     Route::get('/course', [TeacherController::class, 'getCoursesByTeacher']);
     Route::get('/content/{courseId}', [TeacherController::class, 'showContent']);
     Route::post('/content/', [TeacherController::class, 'storeContent']);
@@ -234,17 +232,13 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
 
     Route::get('/title-content/{contentId}', [TeacherController::class, 'showTitleContent']);
 
-    // Route để tạo mới title_content
     Route::post('/title-content', [TeacherController::class, 'storeTitleContent']);
 
-    // Route để cập nhật title_content theo content_id
     Route::post('/title-content/update/{contentId}', [TeacherController::class, 'updateTitleContent']);
 
-    // Route để xóa title_content theo title_content_id
     Route::delete('/title-content/delete/{titleContentId}', [TeacherController::class, 'deleteTitleContent']);
 
     Route::post('/update-pending/{course_id}', [TeacherController::class, 'updateToPending']);
 
     Route::get('/revenue', [AdminController::class, 'getTeacherRevenue']);
-
 });
