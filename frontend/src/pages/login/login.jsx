@@ -194,13 +194,13 @@ export const Login = () => {
             notify('Đăng nhập thành công', 'success');
             setSuccess('Đăng nhập thành công');
             await getUserInfo();
-            window.location.reload();
 
             const previousPage = sessionStorage.getItem('previousPage');
             sessionStorage.removeItem('previousPage');
 
             if (previousPage) {
                 navigate(previousPage);
+                window.location.reload();
             } else {
                 navigate('/');
                 window.location.reload();
