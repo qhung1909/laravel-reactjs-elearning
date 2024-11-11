@@ -64,7 +64,7 @@ import PersonalInformation from "./pages/admin/ManageAcount/PersonalInformation.
 import { ManageHeader } from "./pages/admin/ManageHeaderFooter/ManageHeader.jsx";
 import Draft from "./pages/admin/ManageCourses/draft.jsx";
 import ManageFooter from "./pages/admin/ManageHeaderFooter/ManageFooter.jsx";
-
+import DetailCourse from "./pages/admin/ManageCourses/detailCourse.jsx";
 
 
 
@@ -120,18 +120,21 @@ function AppContent() {
                 <Route path="/admin/browse-new-courses" element={<BrowseNewCourses />}></Route>
                 <Route path="/admin/course-status" element={<CourseStatus />}></Route>
                 <Route path="/admin/classify-course" element={<ClassifyCourse />}></Route>
-                <Route path="/admin/page-coupons" element={<PageCoupons/>}></Route>
-                <Route path="/admin/category-list" element={<CategoryList/>}></Route>
-                <Route path="/admin/category-crud" element={<CategoryCrud/>}></Route>
+                <Route path="/admin/page-coupons" element={<PageCoupons />}></Route>
+                <Route path="/admin/category-list" element={<CategoryList />}></Route>
+                <Route path="/admin/category-crud" element={<CategoryCrud />}></Route>
                 <Route path="/admin/priority-category" element={<PriorityCategory />}></Route>
                 <Route path="/admin/courses-of-category" element={<CoursesOfCategory />}></Route>
-                <Route path="/admin/list-students" element={<ListStudents/>}></Route>
-                <Route path="/admin/list-teachers" element={<ListTeachers/>}></Route>
-                <Route path="/admin/classify-users" element={<ClassifyUsers/>}></Route>
-                <Route path="/admin/personal-information" element={<PersonalInformation/>}></Route>
-                <Route path="/admin/manage-footer" element={<ManageFooter/>}></Route>
-                <Route path="/admin/manage-header" element={<ManageHeader/>}></Route>
-                <Route path="/admin/draft" element={<Draft/>}></Route>
+                <Route path="/admin/list-students" element={<ListStudents />}></Route>
+                <Route path="/admin/list-teachers" element={<ListTeachers />}></Route>
+                <Route path="/admin/classify-users" element={<ClassifyUsers />}></Route>
+                <Route path="/admin/personal-information" element={<PersonalInformation />}></Route>
+                <Route path="/admin/manage-footer" element={<ManageFooter />}></Route>
+                <Route path="/admin/manage-header" element={<ManageHeader />}></Route>
+
+                <Route path="/admin/draft" element={<Draft />}></Route>
+                <Route path="/admin/courses/:course_id" element={<DetailCourse />} />
+
 
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/login" element={<Login />}></Route>
@@ -166,15 +169,15 @@ function AppContent() {
 function App() {
     return (
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <Router>
-            <UserProvider>
-                <CoursesProvider>
-                    <CategoriesProvider>
-                        <AppContent />
-                    </CategoriesProvider>
-                </CoursesProvider>
-            </UserProvider>
-        </Router>
+            <Router>
+                <UserProvider>
+                    <CoursesProvider>
+                        <CategoriesProvider>
+                            <AppContent />
+                        </CategoriesProvider>
+                    </CoursesProvider>
+                </UserProvider>
+            </Router>
         </ThemeProvider>
 
 
