@@ -21,9 +21,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CourseStatusNotification;
 use App\Models\User;
-
+use App\Models\OrderDetail;
 class AdminController extends Controller
-{
+{   
+    const ADMIN_SHARE = 5; 
+    const TEACHER_SHARE = 95; 
     protected $course;
     protected $category;
 
@@ -733,4 +735,148 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+
+
+    public function getAdminOverview(Request $request)
+    {
+        try {
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date', now());
+
+            $revenue = OrderDetail::join('orders', 'order_detail.order_id', '=', 'orders.order_id')
+                ->join('courses', 'order_detail.course_id', '=', 'courses.course_id')
+                ->join('users', 'courses.user_id', '=', 'users.user_id')
+                ->where('orders.status', 'success')
+                ->where('users.role', 'teacher')
+                ->when($startDate, function ($query) use ($startDate, $endDate) {
+                    return $query->whereBetween('orders.created_at', [$startDate, $endDate]);
+                })
+                ->select([
+                    DB::raw('SUM(order_detail.price) as total_revenue'),
+                    DB::raw('SUM(order_detail.price * ' . self::ADMIN_SHARE . ' / 100) as admin_revenue'),
+                    DB::raw('COUNT(DISTINCT orders.order_id) as total_orders'),
+                    DB::raw('COUNT(DISTINCT courses.course_id) as total_courses_sold')
+                ])
+                ->first();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'total_revenue' => round($revenue->total_revenue, 2),
+                    'admin_revenue' => round($revenue->admin_revenue, 2),
+                    'total_orders' => $revenue->total_orders,
+                    'total_courses_sold' => $revenue->total_courses_sold
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching admin overview',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getTeacherRevenues(Request $request)
+    {
+        try {
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date', now());
+
+            $revenues = OrderDetail::join('orders', 'order_detail.order_id', '=', 'orders.order_id')
+                ->join('courses', 'order_detail.course_id', '=', 'courses.course_id')
+                ->join('users', 'courses.user_id', '=', 'users.user_id')
+                ->where('orders.status', 'success')
+                ->where('users.role', 'teacher')
+                ->when($startDate, function ($query) use ($startDate, $endDate) {
+                    return $query->whereBetween('orders.created_at', [$startDate, $endDate]);
+                })
+                ->select([
+                    'users.user_id as teacher_id',
+                    'users.name as teacher_name',
+                    DB::raw('SUM(order_detail.price) as total_revenue'),
+                    DB::raw('SUM(order_detail.price * ' . self::TEACHER_SHARE . ' / 100) as teacher_revenue'),
+                    DB::raw('SUM(order_detail.price * ' . self::ADMIN_SHARE . ' / 100) as admin_revenue'),
+                    DB::raw('COUNT(DISTINCT orders.order_id) as total_orders'),
+                    DB::raw('COUNT(DISTINCT order_detail.course_id) as total_courses')
+                ])
+                ->groupBy('users.user_id', 'users.name')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $revenues
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching teacher revenues',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getTeacherRevenue(Request $request)
+    {
+        try {
+            $teacherId = auth()->id();
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date', now());
+
+            if (auth()->user()->role !== 'teacher') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access'
+                ], 403);
+            }
+
+            $revenue = OrderDetail::join('orders', 'order_detail.order_id', '=', 'orders.order_id')
+                ->join('courses', 'order_detail.course_id', '=', 'courses.course_id')
+                ->where('orders.status', 'success')
+                ->where('courses.user_id', $teacherId)
+                ->when($startDate, function ($query) use ($startDate, $endDate) {
+                    return $query->whereBetween('orders.created_at', [$startDate, $endDate]);
+                })
+                ->select([
+                    DB::raw('SUM(order_detail.price) as total_revenue'),
+                    DB::raw('SUM(order_detail.price * ' . self::TEACHER_SHARE . ' / 100) as teacher_revenue'),
+                    DB::raw('COUNT(DISTINCT orders.order_id) as total_orders'),
+                    DB::raw('COUNT(DISTINCT order_detail.course_id) as total_courses')
+                ])
+                ->first();
+
+            $courseRevenues = OrderDetail::join('orders', 'order_detail.order_id', '=', 'orders.order_id')
+                ->join('courses', 'order_detail.course_id', '=', 'courses.course_id')
+                ->where('orders.status', 'success')
+                ->where('courses.user_id', $teacherId)
+                ->when($startDate, function ($query) use ($startDate, $endDate) {
+                    return $query->whereBetween('orders.created_at', [$startDate, $endDate]);
+                })
+                ->select([
+                    'courses.course_id as course_id',
+                    'courses.title as course_name',
+                    DB::raw('SUM(order_detail.price) as course_revenue'),
+                    DB::raw('SUM(order_detail.price * ' . self::TEACHER_SHARE . ' / 100) as teacher_share'),
+                    DB::raw('COUNT(*) as sales_count')
+                ])
+                ->groupBy('courses.course_id', 'courses.title')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'summary' => $revenue,
+                    'courses' => $courseRevenues
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching teacher revenue',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

@@ -217,6 +217,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::post('/reject', [AdminController::class, 'rejectAll'])->name('admin.courses.reject');
     Route::post('/revision', [AdminController::class, 'requestRevision'])->name('admin.courses.revision');
 
+    Route::get('/overview', [AdminController::class, 'getAdminOverview']);
+
+    Route::get('/revenue/teachers', [AdminController::class, 'getTeacherRevenues']);
+
 });
 Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::get('/courses/{courseId}', [AdminController::class, 'showCoursesTeacher']);
@@ -241,5 +245,6 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
 
     Route::post('/update-pending/{course_id}', [TeacherController::class, 'updateToPending']);
 
+    Route::get('/revenue', [AdminController::class, 'getTeacherRevenue']);
 
 });
