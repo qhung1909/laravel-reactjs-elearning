@@ -41,14 +41,15 @@ class AdminController extends Controller
     public function getAllCourses()
     {
         $cacheKey = 'admin_courses_all';
-
+    
         $courses = Cache::remember($cacheKey, 1, function () {
             return $this->course
                 ->with(['user:user_id,name', 'comments:course_id,rating'])
+                ->whereIn('status', ['published', 'hide'])
                 ->get();
         });
-
-        return response()->json($courses);
+    
+        return $courses;
     }
 
 
