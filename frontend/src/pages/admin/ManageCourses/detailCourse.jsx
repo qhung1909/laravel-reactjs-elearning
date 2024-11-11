@@ -1,50 +1,181 @@
+import { useParams } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import axios from "axios";
 import {
     SidebarInset,
     SidebarProvider,
     SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { SideBarUI } from "../sidebarUI"
+} from "@/components/ui/sidebar";
 import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/breadcrumb";
+import { SideBarUI } from '../sidebarUI';
+import { GraduationCap, LayoutDashboard, BookOpenText  } from 'lucide-react';
+import { Separator } from '@radix-ui/react-context-menu';
 
-export default function DetailCourse () {
+export default function DetailCourse() {
+    const { course_id } = useParams();
+console.log("Course ID from URL:", course_id);
+
+        const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    const [courses, setCourses] = useState([]);
+    const [course, setCourse] = useState(null);
+    const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [categories, setCategories] = useState([]);
+    const [stats, setStats] = useState({
+        totalCourses: 0,
+        totalStudents: 0,
+        activeCourses: 0
+    });
+
+    const fetchCourses = async () => {
+        try {
+            setIsLoading(true);
+            setError(null);
+            const res = await axios.get(`${API_URL}/admin/courses`, {
+                headers: { 'x-api-secret': API_KEY }
+            });
+            const data = res.data;
+
+            console.log("Dữ liệu khóa học nhận được từ API:", data); // Kiểm tra toàn bộ dữ liệu trả về từ API
+
+            const selectedCourse = data.find(course => {
+                console.log("So sánh course_id từ URL:", course_id, "với course.course_id trong dữ liệu:", course.course_id);
+                return course.course_id === Number(course_id); // Sử dụng đúng trường course_id
+            });
+
+
+            console.log("Khóa học được chọn từ API:", selectedCourse); // Kiểm tra khóa học đã được chọn đúng
+
+            setCourses(data);
+            setStats({
+                totalCourses: data.length,
+                totalStudents: data.reduce((sum, course) => sum + (course.enrolled_count || 0), 0),
+                activeCourses: data.filter(course => course.status === "pending").length
+            });
+
+            setCourse(selectedCourse);
+
+        } catch (error) {
+            setError('Không thể tải thông tin khóa học');
+            console.error('Lỗi khi tải khóa học:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
+
+    const fetchCategories = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/categories`, {
+                headers: { 'x-api-secret': API_KEY }
+            });
+            setCategories([{ course_category_id: 'all', name: 'Tất cả' }, ...res.data]);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCourses();
+        fetchCategories();
+    }, [course_id]);
+
     return (
-        <>
-            <SidebarProvider>
-                <SideBarUI />
-                <SidebarInset>
-                    <div className="absolute left-1 top-3 px-4">
-                        {/* <header className="flex top-0 h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12"> */}
-                        <div className="flex items-center gap-2 pb-6">
-                            <SidebarTrigger className="-ml-1" />
-                            <Separator orientation="vertical" className="mr-2 h-4" />
-                            <Breadcrumb>
-                                <BreadcrumbList>
-                                    <BreadcrumbItem className="hidden md:block">
-                                        <BreadcrumbLink href="/">
-                                            Trang chủ
-                                        </BreadcrumbLink>
-                                    </BreadcrumbItem>
-                                    <BreadcrumbSeparator className="hidden md:block" />
-                                </BreadcrumbList>
-                            </Breadcrumb>
-                        </div>
-
-                        <div>
-                            Thêm nội dung
-                        </div>
-
+        <SidebarProvider>
+            <SideBarUI />
+            <SidebarInset>
+                <div className="absolute left-1 top-3 px-4">
+                    {/* Breadcrumb section */}
+                    <div className="flex items-center gap-2 pb-6">
+                        <SidebarTrigger className="-ml-1" />
+                        <Separator orientation="vertical" className="mr-2 h-4" />
+                        <Breadcrumb>
+                            <BreadcrumbList>
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink href="/">
+                                        <LayoutDashboard size={16} />
+                                        Dashboard
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator />
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink href="/admin/course-list">
+                                        <BookOpenText  size={16} />
+                                            Danh sách khóa học
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator />
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink href="/admin/courses" className="text-blue-600">
+                                        <GraduationCap size={16} />
+                                        Chi tiết khóa học
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                            </BreadcrumbList>
+                        </Breadcrumb>
                     </div>
 
+                    {/* Content section */}
+                    <div className=" bg-gray-50 w-full font-sans">
+                        {isLoading ? (
+                            <div className="flex justify-center items-center ">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            </div>
+                        ) : error ? (
+                            <div className="text-red-600 text-center py-4">
+                                {error}
+                            </div>
+                        ) : course ? (
+                            <div className="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto mt-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Hình ảnh */}
+                                    <div className="relative h-64 md:h-full rounded-lg overflow-hidden">
+                                        <img
+                                            src={course.img}
+                                            className="object-cover w-full h-full"
+                                        />
+                                    </div>
 
-                </SidebarInset>
-            </SidebarProvider>
-        </>
-    )
+                                    {/* Thông tin */}
+                                    <div className="justify-between w-full">
+                                        <div>
+                                            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                                                {course.title}
+                                            </h1>
+                                            <div className="text-sm text-gray-600 mb-4">
+                                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                                    {categories.find(c => c.course_category_id === course.course_category_id)?.name || 'Chưa có danh mục'}
+                                                </span>
+                                            </div>
+                                            <p className="text-gray-600">
+                                                {course.description}
+                                            </p>
+                                        </div>
+                                        <div className="mt-4">
+                                            <div className="text-xl font-bold text-blue-600">
+                                                {course.price?.toLocaleString('vi-VN')} đ
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="text-center text-gray-500 py-8">
+                                Không tìm thấy khóa học
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </SidebarInset>
+        </SidebarProvider>
+    );
 }

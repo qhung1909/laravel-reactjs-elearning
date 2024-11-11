@@ -133,7 +133,8 @@ function AppContent() {
                 <Route path="/admin/manage-header" element={<ManageHeader />}></Route>
 
                 <Route path="/admin/draft" element={<Draft />}></Route>
-                <Route path="/admin/course-list/detail-course" element={<DetailCourse />}></Route>
+                <Route path="/admin/courses/:course_id" element={<DetailCourse />} />
+
 
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/login" element={<Login />}></Route>

@@ -481,8 +481,7 @@ export default function CourseList() {
                                                             <Button variant="outline" size="sm" className="text-bold text-amber-400 hover:text-amber-700">
                                                                 Sửa
                                                             </Button>
-                                                            <Link to="/admin/course-list/detail-course">
-                                                                <Button variant="outline" size="sm" className="text-bold text-amber-400 hover:text-amber-700">
+                                                            <Link to={`/admin/courses/${course.course_id}`}>                                                                <Button variant="outline" size="sm" className="text-bold text-amber-400 hover:text-amber-700">
                                                                     Chi tiết
                                                                 </Button>
                                                             </Link>
