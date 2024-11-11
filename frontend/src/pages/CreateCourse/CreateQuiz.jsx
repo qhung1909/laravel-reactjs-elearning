@@ -21,6 +21,8 @@ export const CreateQuiz = () => {
     const { course_id, quiz_id } = useParams();
     const navigate = useNavigate();
 
+    const [focusedAnswers, setFocusedAnswers] = useState({});
+
     const back = () => {
         navigate(`/course/manage/${course_id}/curriculum`)
     }
@@ -311,28 +313,32 @@ export const CreateQuiz = () => {
                             }
                         }
                     } else if (q.type === 'true_false') {
-                        const trueOption = q.options.find(option => option.answer === "true") || {};
-                        const falseOption = q.options.find(option => option.answer === "false") || {};
+                        // Tìm các tùy chọn hiện tại hoặc khởi tạo nếu không tồn tại
+                        const trueOption = q.options.find(option => option.answer === "true") || { id: null, is_correct: false };
+                        const falseOption = q.options.find(option => option.answer === "false") || { id: null, is_correct: false };
 
+                        // Nếu không có câu trả lời nào được chọn, mặc định chọn "true"
                         if (!q.answers || !Array.isArray(q.answers) || q.answers.length === 0) {
                             q.answers = ["true"];
                         }
 
+                        // Xử lý trường hợp thêm mới và giữ trạng thái khi cập nhật
                         optionsData = {
                             options: [
                                 {
-                                    id: trueOption.id || null,
+                                    id: trueOption.id, // Dùng id hiện tại hoặc null nếu thêm mới
                                     answer: "true",
-                                    is_correct: q.answers[0] === "true"
+                                    is_correct: trueOption.id ? (q.answers[0] === "true" ? true : trueOption.is_correct) : q.answers[0] === "true"
                                 },
                                 {
-                                    id: falseOption.id || null,
+                                    id: falseOption.id, // Dùng id hiện tại hoặc null nếu thêm mới
                                     answer: "false",
-                                    is_correct: q.answers[0] === "false"
+                                    is_correct: falseOption.id ? (q.answers[0] === "false" ? true : falseOption.is_correct) : q.answers[0] === "false"
                                 }
                             ]
                         };
-                    } else if (q.type === 'fill_blank') {
+                    }
+                    else if (q.type === 'fill_blank') {
                         const blankOption = q.options[0] || {};
 
                         if (!q.answers || !Array.isArray(q.answers) || q.answers.length === 0) {
@@ -441,6 +447,11 @@ export const CreateQuiz = () => {
                 isCorrect: option.answer === selectedAnswer
             }));
         }
+
+        setFocusedAnswers(prev => ({
+            ...prev,
+            [questionIndex]: selectedAnswer
+        }));
 
         // Cập nhật lại state với danh sách câu hỏi đã thay đổi
         setQuestions(updatedQuestions);
@@ -615,44 +626,33 @@ export const CreateQuiz = () => {
                                             <div className="flex gap-4">
                                                 <Button
                                                     type="button"
-                                                    className={`flex-1 ${q.options.find(option => option.answer === 'true' && option.isCorrect) ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
-                                                    onClick={() => {
-                                                        // Cập nhật câu trả lời và isCorrect
-                                                        handleAnswerChange(questionIndex, 'true');
-                                                        const updatedOptions = q.options.map(option => ({
-                                                            ...option,
-                                                            isCorrect: option.answer === 'true'
-                                                        }));
-
-                                                        const updatedQuestions = [...questions];
-                                                        updatedQuestions[questionIndex].options = updatedOptions;
-                                                        updatedQuestions[questionIndex].answers = ['true']; // Cập nhật answers
-                                                        setQuestions(updatedQuestions);
-                                                    }}
+                                                    className={`flex-1 ${q.options.find(option => option.answer === 'true' && option.isCorrect)
+                                                            ? 'bg-green-500 text-white'
+                                                            : 'bg-gray-200'
+                                                        } ${focusedAnswers[questionIndex] === 'true'
+                                                            ? 'shadow-lg transform scale-105 bg-green-600' // Thêm hiệu ứng shadow và scale khi focus
+                                                            : ''
+                                                        }`}
+                                                    onClick={() => handleAnswerChange(questionIndex, 'true')}
                                                 >
                                                     Đúng
                                                 </Button>
                                                 <Button
                                                     type="button"
-                                                    className={`flex-1 ${q.options.find(option => option.answer === 'false' && option.isCorrect) ? 'bg-red-500 text-white' : 'bg-gray-200'}`}
-                                                    onClick={() => {
-                                                        // Cập nhật câu trả lời và isCorrect
-                                                        handleAnswerChange(questionIndex, 'false');
-                                                        const updatedOptions = q.options.map(option => ({
-                                                            ...option,
-                                                            isCorrect: option.answer === 'false'
-                                                        }));
-
-                                                        const updatedQuestions = [...questions];
-                                                        updatedQuestions[questionIndex].options = updatedOptions;
-                                                        updatedQuestions[questionIndex].answers = ['false']; // Cập nhật answers
-                                                        setQuestions(updatedQuestions);
-                                                    }}
+                                                    className={`flex-1 ${q.options.find(option => option.answer === 'false' && option.isCorrect)
+                                                            ? 'bg-red-500 text-white'
+                                                            : 'bg-gray-200'
+                                                        } ${focusedAnswers[questionIndex] === 'false'
+                                                            ? 'shadow-lg transform scale-105 bg-red-600' // Thêm hiệu ứng shadow và scale khi focus
+                                                            : ''
+                                                        }`}
+                                                    onClick={() => handleAnswerChange(questionIndex, 'false')}
                                                 >
                                                     Sai
                                                 </Button>
                                             </div>
                                         ) : null}
+
 
 
                                         {q.type === 'fill_blank' ? (
