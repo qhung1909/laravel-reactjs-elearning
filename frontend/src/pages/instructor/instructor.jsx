@@ -35,12 +35,30 @@ const notify = (message, type) => {
 }
 import { UserContext } from "../context/usercontext";
 export const Instructor = () => {
+    const API_URL = import.meta.env.VITE_API_URL;
+    const API_KEY = import.meta.env.VITE_API_KEY;
     const { instructor, logout, refreshToken } = useContext(UserContext);
     const [loadingLogout, setLoadingLogout] = useState(false);
     const [_success, setSuccess] = useState("");
     const navigate = useNavigate();
-
-
+    const [teacherCourses,setTeacherCourses] = useState([]);
+    const fetchTeacherCourse = async () => {
+        const token = localStorage.getItem("access_token");
+        try {
+            const response = await axios.get(`${API_URL}/teacher/course`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setTeacherCourses(response.data.courses)
+        } catch (error) {
+            console.log('Error fetching users Courses', error)
+        }
+    }
+    const fetchOrders = async () =>{
+        
+    }
     // hàm xử lý đăng xuất
     const handleLogout = () => {
         setLoadingLogout(true);
@@ -57,6 +75,9 @@ export const Instructor = () => {
             alert('Failed to refresh token. Please log in again.');
         }
     };
+    useEffect(()=>{
+        fetchTeacherCourse();
+    },[])
     return (
         <>
             <section className="instructor-home">
@@ -134,7 +155,7 @@ export const Instructor = () => {
                                             <p className="text-slate-600">Trang chủ</p>
                                         </div>
 
-                                    </Link> 
+                                    </Link>
                                 </h1>
                                 <div className="flex items-center space-x-4">
                                     {/* <button className="p-1 rounded-full hover:bg-gray-100">
@@ -250,7 +271,9 @@ export const Instructor = () => {
                                     <div className="bg-red-100 rounded-full p-3 mr-4 text-2xl">📚</div>
                                     <div>
                                         <p className="text-sm text-gray-600">Tổng khóa học</p>
-                                        <p className="text-2xl font-semibold">0</p>
+                                        <p className="text-2xl font-semibold">
+                                            {teacherCourses.length}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="bg-white rounded-lg shadow-lg p-4 flex items-center">
@@ -263,7 +286,7 @@ export const Instructor = () => {
                                 <div className="bg-white rounded-lg shadow-lg p-4 flex items-center">
                                     <div className="bg-gray-100 rounded-full p-3 mr-4 text-2xl">⏱️</div>
                                     <div>
-                                        <p className="text-sm text-gray-600">Tổng giờ học</p>
+                                        <p className="text-sm text-gray-600">Tổng doanh thu:</p>
                                         <p className="text-2xl font-semibold">0</p>
                                     </div>
                                 </div>
