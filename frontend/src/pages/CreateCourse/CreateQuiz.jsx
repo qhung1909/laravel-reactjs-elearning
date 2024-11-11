@@ -21,6 +21,8 @@ export const CreateQuiz = () => {
     const { course_id, quiz_id } = useParams();
     const navigate = useNavigate();
 
+    const [focusedAnswers, setFocusedAnswers] = useState({});
+
     const back = () => {
         navigate(`/course/manage/${course_id}/curriculum`)
     }
@@ -446,6 +448,11 @@ export const CreateQuiz = () => {
             }));
         }
 
+        setFocusedAnswers(prev => ({
+            ...prev,
+            [questionIndex]: selectedAnswer
+        }));
+
         // Cập nhật lại state với danh sách câu hỏi đã thay đổi
         setQuestions(updatedQuestions);
     };
@@ -619,44 +626,33 @@ export const CreateQuiz = () => {
                                             <div className="flex gap-4">
                                                 <Button
                                                     type="button"
-                                                    className={`flex-1 ${q.options.find(option => option.answer === 'true' && option.isCorrect) ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
-                                                    onClick={() => {
-                                                        // Cập nhật câu trả lời và isCorrect
-                                                        handleAnswerChange(questionIndex, 'true');
-                                                        const updatedOptions = q.options.map(option => ({
-                                                            ...option,
-                                                            isCorrect: option.answer === 'true'
-                                                        }));
-
-                                                        const updatedQuestions = [...questions];
-                                                        updatedQuestions[questionIndex].options = updatedOptions;
-                                                        updatedQuestions[questionIndex].answers = ['true']; // Cập nhật answers
-                                                        setQuestions(updatedQuestions);
-                                                    }}
+                                                    className={`flex-1 ${q.options.find(option => option.answer === 'true' && option.isCorrect)
+                                                            ? 'bg-green-500 text-white'
+                                                            : 'bg-gray-200'
+                                                        } ${focusedAnswers[questionIndex] === 'true'
+                                                            ? 'shadow-lg transform scale-105 bg-green-600' // Thêm hiệu ứng shadow và scale khi focus
+                                                            : ''
+                                                        }`}
+                                                    onClick={() => handleAnswerChange(questionIndex, 'true')}
                                                 >
                                                     Đúng
                                                 </Button>
                                                 <Button
                                                     type="button"
-                                                    className={`flex-1 ${q.options.find(option => option.answer === 'false' && option.isCorrect) ? 'bg-red-500 text-white' : 'bg-gray-200'}`}
-                                                    onClick={() => {
-                                                        // Cập nhật câu trả lời và isCorrect
-                                                        handleAnswerChange(questionIndex, 'false');
-                                                        const updatedOptions = q.options.map(option => ({
-                                                            ...option,
-                                                            isCorrect: option.answer === 'false'
-                                                        }));
-
-                                                        const updatedQuestions = [...questions];
-                                                        updatedQuestions[questionIndex].options = updatedOptions;
-                                                        updatedQuestions[questionIndex].answers = ['false']; // Cập nhật answers
-                                                        setQuestions(updatedQuestions);
-                                                    }}
+                                                    className={`flex-1 ${q.options.find(option => option.answer === 'false' && option.isCorrect)
+                                                            ? 'bg-red-500 text-white'
+                                                            : 'bg-gray-200'
+                                                        } ${focusedAnswers[questionIndex] === 'false'
+                                                            ? 'shadow-lg transform scale-105 bg-red-600' // Thêm hiệu ứng shadow và scale khi focus
+                                                            : ''
+                                                        }`}
+                                                    onClick={() => handleAnswerChange(questionIndex, 'false')}
                                                 >
                                                     Sai
                                                 </Button>
                                             </div>
                                         ) : null}
+
 
 
                                         {q.type === 'fill_blank' ? (
