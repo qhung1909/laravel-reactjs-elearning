@@ -459,7 +459,7 @@ export const Curriculum = () => {
 
 
     const openPageQuiz = async (sectionId) => {
-        if (!isUpdated) {
+        if (!isUpdated && hasChanges) {
             notify('Bạn cần Cập nhật trước khi chuyển trang!', 'error');
             return;
         }
