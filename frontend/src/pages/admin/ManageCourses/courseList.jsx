@@ -36,6 +36,8 @@ import { SideBarUI } from '../sidebarUI';
 import { useEffect, useState } from 'react';
 import axios from "axios";
 import * as XLSX from 'xlsx';
+import { Link } from "react-router-dom";
+
 export default function CourseList() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
@@ -479,9 +481,11 @@ export default function CourseList() {
                                                             <Button variant="outline" size="sm" className="text-bold text-amber-400 hover:text-amber-700">
                                                                 Sửa
                                                             </Button>
-                                                            <Button variant="outline" size="sm" className="text-bold text-amber-400 hover:text-amber-700">
-                                                                Chi tiết
-                                                            </Button>
+                                                            <Link to="/admin/course-list/detail-course">
+                                                                <Button variant="outline" size="sm" className="text-bold text-amber-400 hover:text-amber-700">
+                                                                    Chi tiết
+                                                                </Button>
+                                                            </Link>
                                                         </div>
                                                     </td>
                                                 </tr>
