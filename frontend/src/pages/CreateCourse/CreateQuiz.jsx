@@ -10,7 +10,23 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 import { QuizCreatorSkeleton } from "../skeletonEffect/skeleton";
+import toast, { Toaster } from "react-hot-toast";
 
+const notify = (message, type) => {
+    if (type === 'success') {
+        toast.success(message, {
+            style: {
+                padding: '16px'
+            }
+        });
+    } else {
+        toast.error(message, {
+            style: {
+                padding: '16px'
+            }
+        })
+    }
+}
 export const CreateQuiz = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
@@ -20,12 +36,35 @@ export const CreateQuiz = () => {
     const [loading, setLoading] = useState(false);
     const { course_id, quiz_id } = useParams();
     const navigate = useNavigate();
+    const [isUpdated, setIsUpdated] = useState(false);
 
     const [focusedAnswers, setFocusedAnswers] = useState({});
 
-    const back = () => {
-        navigate(`/course/manage/${course_id}/curriculum`)
-    }
+    const handleNavigate = (path) => {
+        console.log("isUpdated:", isUpdated); // Kiểm tra giá trị của isUpdated
+        if (location.pathname === path) {
+            return;
+        }
+        if (!isUpdated) {
+            notify("Vui lòng Cập nhật trước khi chuyển trang!");
+            return; // Ngăn không cho chuyển route
+        }
+        navigate(path);
+    };
+    useEffect(() => {
+        const handleBeforeUnload = (event) => {
+            if (!isUpdated) {
+                event.preventDefault();
+                event.returnValue = "";
+            }
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, [isUpdated]);
+
 
     useEffect(() => {
         showQuizQuestions();
@@ -398,6 +437,7 @@ export const CreateQuiz = () => {
             });
         } finally {
             await showQuizQuestions(true);
+            setIsUpdated(true);
         }
     };
 
@@ -539,7 +579,7 @@ export const CreateQuiz = () => {
                                 </Button>
 
                                 <Button
-                                    onClick={back}
+                                    onClick={() => handleNavigate(`/course/manage/${course_id}/curriculum`)}
                                     className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow-md transition duration-300"
                                 >
                                     Quay lại
@@ -709,6 +749,7 @@ export const CreateQuiz = () => {
                     </Button>
                 </div>
             )}
+            <Toaster />
 
         </>
 
