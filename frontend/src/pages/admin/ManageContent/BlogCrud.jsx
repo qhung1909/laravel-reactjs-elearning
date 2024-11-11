@@ -1,5 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-
 
 import {
     Pagination,
@@ -7,6 +5,8 @@ import {
     PaginationEllipsis,
     PaginationItem,
     PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
 } from "@/components/ui/pagination"
 
 import {
@@ -43,6 +43,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import ReactQuill from 'react-quill';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from 'axios'
@@ -68,6 +69,8 @@ const notify = (message, type) => {
 }
 
 export const BlogCrud = () => {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
     const [sortConfig, setSortConfig] = useState({
         key: null,
         direction: 'asc'
@@ -81,19 +84,13 @@ export const BlogCrud = () => {
     const [error, setError] = useState('')
     const [editCategoryName, setEditCategoryName] = useState('');
     const [editCategoryImage, setEditCategoryImage] = useState(null);
-    const [selectedImage, setSelectedImage] = useState(null);
 
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const [loadingCategory, setLoadingCategory] = useState(false);
 
-
-
-    const API_KEY = import.meta.env.VITE_API_KEY
-    const API_URL = import.meta.env.VITE_API_URL
     const [loading, setLoading] = useState(false);
-    const [blogs, setBlogs] = useState([]);
     const [categories, setCategory] = useState([]);
     const token = localStorage.getItem('access_token');
     const [pagination, setPagination] = useState({
@@ -101,6 +98,16 @@ export const BlogCrud = () => {
         lastPage: 1,
         total: 0
     })
+    const [blogs, setBlogs] = useState([]);
+    const [newBlogTitle, setNewBlogTitle] = useState('');
+    const [newBlogContent, setNewBlogContent] = useState('');
+    const [newBlogImage, setNewBlogImage] = useState('');
+    const [editBlogId, setEditBlogId] = useState(null);
+    const [editBlogTitle, setEditBlogTitle] = useState('');
+    const [editBlogContent, setEditBlogContent] = useState(null);
+    const [editBlogImage, setEditBlogImage] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);
+
     const fetchBlogs = async (page = 1) => {
         try {
 
@@ -129,9 +136,6 @@ export const BlogCrud = () => {
         }
     }
 
-    useEffect(() => {
-        fetchBlogs()
-    }, [])
 
     const handlePageChange = (page) => {
         fetchBlogs(page)
@@ -172,7 +176,7 @@ export const BlogCrud = () => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setEditCategoryImage(file);
+            setEditBlogImage(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -182,96 +186,39 @@ export const BlogCrud = () => {
     };
 
 
-
-    // const openDialog = () => {
-    //     setIsDialogOpen(true);
-    // };
-
     const exportToExcel = () => {
-        const worksheet = XLSX.utils.json_to_sheet(sortedCategories);
+        const worksheet = XLSX.utils.json_to_sheet(sortedBlogs);
 
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, worksheet, 'Courses');
 
-        XLSX.writeFile(wb, 'categories_data.xlsx');
-    };
-
-
-    const fetchCategory = async () => {
-        try {
-            setLoadingCategory(true)
-            const res = await axios.get(`${API_URL}/categories`, {
-                headers: {
-                    'x-api-secret': API_KEY
-                }
-            })
-            const data = res.data;
-
-            setCategory(data)
-        } catch (error) {
-            console.error('Error fetching Categories:', error)
-        } finally {
-            setLoadingCategory(false)
-        }
-    }
-
-
-
-    useEffect(() => {
-        fetchCategory()
-    }, [])
-
-    const addCategory = async (e) => {
-        e.preventDefault();
-
-        const formData = new FormData();
-        formData.append('name', newCategoryName);
-        formData.append('image', newCategoryImage);
-
-        try {
-            setLoading(true);
-            const res = await axios.post(`${API_URL}/categories`, formData, {
-                headers: {
-                    'x-api-secret': API_KEY,
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-            const data = res.data;
-            console.log('Category added:', data);
-            setIsDialogOpen(false);
-            notify('Thêm danh mục thành công', 'success');
-        } catch (error) {
-            if (error.response) {
-                console.error('Server error:', error.response.data.errors);
-            } else {
-                console.error('Error adding category:', error.message);
-            }
-        } finally {
-            setLoading(false);
-            await fetchCategory();
-        }
+        XLSX.writeFile(wb, 'blogs.xlsx');
     };
 
     const addBlog = async (e) => {
         e.preventDefault();
-
+        const cleanContent = newBlogContent
+            .replace(/<p><br><\/p>/g, '')
+            .replace(/<(.|\n)*?>/g, '')
+            .trim();
         const formData = new FormData();
-        formData.append('title', newCategoryName);
-        formData.append('content', newCategoryName);
-        formData.append('image', newCategoryImage);
+        formData.append('title', newBlogTitle);
+        formData.append('content', newBlogContent);
+        formData.append('image', newBlogImage);
 
         try {
             setLoading(true);
-            const res = await axios.post(`${API_URL}/categories`, formData, {
+            const res = await axios.post(`${API_URL}/blogs`, formData, {
                 headers: {
-                    'x-api-secret': API_KEY,
+                    'Authorization': `Bearer ${token}`,
+                    'x-api-secret': `${API_KEY}`,
                     'Content-Type': 'multipart/form-data'
                 }
             });
             const data = res.data;
-            console.log('Category added:', data);
+            console.log('Blog added:', data);
             setIsDialogOpen(false);
-            notify('Thêm danh mục thành công', 'success');
+            notify('Thêm bài viết thành công', 'success');
         } catch (error) {
             if (error.response) {
                 console.error('Server error:', error.response.data.errors);
@@ -280,48 +227,43 @@ export const BlogCrud = () => {
             }
         } finally {
             setLoading(false);
-            await fetchCategory();
+            await fetchBlogs();
         }
     };
 
-    const editCategory = async (courseCategoryId) => {
+    const editBlog = async () => {
         const formData = new FormData();
-        formData.append('name', editCategoryName);
-        formData.append('image', editCategoryImage);
-
-        if (!editCategoryName || !editCategoryImage) {
-            setError('Vui lòng nhập đầy đủ thông tin');
+        formData.append('title', editBlogTitle);
+        formData.append('content', editBlogContent);
+        formData.append('status', 'success');
+        if (editBlogImage) {
+            formData.append('image', editBlogImage);
         }
-
-        console.log('id danhmuc: ', courseCategoryId);
-
 
         try {
             setLoading(true);
-            const res = await axios.post(`${API_URL}/admin/categories/${courseCategoryId}`, formData, {
+            const res = await axios.put(`${API_URL}/blogs/${editBlogId}`, formData, {
                 headers: {
-                    'x-api-secret': API_KEY
+                    'Authorization': `Bearer ${token}`,
+                    'x-api-secret': API_KEY,
+                    'Content-Type': 'multipart/form-data'
                 }
             });
             const data = res.data;
-            console.log('Category updated:', data);
-            setEditCategoryName('');
-            setEditCategoryImage(null);
-            setSelectedImage(null);
+            console.log('Blog updated:', data);
+            notify('Cập nhật bài viết thành công', 'success');
             setShowEditDialog(false);
-            window.location.reload()
-
+            await fetchBlogs();
         } catch (error) {
-            setError('Lỗi khi sửa', error)
-            console.error('Error updating category:', error);
+            setError('Lỗi khi sửa bài viết');
+            console.error('Error updating blog:', error);
         } finally {
             setLoading(false);
-            await fetchCategory()
         }
     };
 
 
-    const deleteCategory = async (slug) => {
+    const deleteBlog = async (slug) => {
         const { isConfirmed } = await Swal.fire({
             title: "Xác nhận xóa",
             text: "Bạn có chắc chắn muốn xóa danh mục này? Hành động này không thể hoàn tác.",
@@ -337,24 +279,19 @@ export const BlogCrud = () => {
         }
         try {
             setLoading(true)
-            await axios.delete(`${API_URL}/categories/${slug}`, {
+            await axios.delete(`${API_URL}/blogs/${slug}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
             window.location.reload()
         } catch (error) {
-            console.error('Error delete category:', error)
+            console.error('Error delete blog:', error)
         } finally {
             setLoading(false);
-            await fetchCategory();
+            await fetchBlogs();
         }
     }
-
-
-
-
-
 
     const handleSort = (key) => {
         let direction = 'asc';
@@ -364,11 +301,12 @@ export const BlogCrud = () => {
         setSortConfig({ key, direction });
     };
 
-    const filteredCategories = categories.filter(category =>
-        category.name.toLowerCase().includes(searchTerm.toLowerCase())
+
+    const filteredBlogs = blogs.filter(blog =>
+        blog.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const sortedCategories = [...filteredCategories].sort((a, b) => {
+    const sortedBlogs = [...filteredBlogs].sort((a, b) => {
         if (!sortConfig.key) return 0;
 
         const aValue = a[sortConfig.key];
@@ -381,23 +319,18 @@ export const BlogCrud = () => {
         }
     });
 
-    const getSortIcon = (key) => {
-        if (sortConfig.key === key) {
-            return sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />;
-        }
-        return <ChevronUp className="h-4 w-4 opacity-0 group-hover:opacity-50" />;
-    };
-
-
-
-    const openEditDialog = (category) => {
-        setEditCategoryId(category.slug);
-        setEditCategoryName(category.name);
-        setEditCategoryImage(null);
+    const openEditDialog = (blog) => {
+        setEditBlogId(blog.slug);
+        setEditBlogTitle(blog.title);
+        setEditBlogContent(blog.content);
+        setEditBlogImage(null);
         setSelectedImage(null);
         setShowEditDialog(true);
     };
 
+    useEffect(() => {
+        fetchBlogs()
+    }, [])
 
     return (
         <SidebarProvider>
@@ -452,42 +385,69 @@ export const BlogCrud = () => {
                                         Thêm bài viết
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
+                                <DialogContent className="w-full pb-10">
                                     <DialogHeader>
-                                        <DialogTitle>Thêm danh mục</DialogTitle>
+                                        <DialogTitle>Thêm bài viết</DialogTitle>
                                         <DialogDescription>
-                                            Nhập thông tin danh mục mới ở đây. Nhấn thêm khi bạn hoàn tất.
+                                            Nhập thông tin bài viết mới tại đây
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <div className="grid gap-4 py-4">
-                                        <div className="grid grid-cols-4 items-center gap-4">
+                                    <div className="space-y-5">
+
+                                        {/* title */}
+                                        <div className="space-y-2">
                                             <Label htmlFor="newCategoryName" className="text-right">
                                                 Tên
                                             </Label>
                                             <Input
-                                                // id="newCategoryName"
-                                                value={newCategoryName}
-                                                onChange={(e) => setNewCategoryName(e.target.value)}
+                                                value={newBlogTitle}
+                                                onChange={(e) => setNewBlogTitle(e.target.value)}
                                                 className="col-span-3"
                                                 required
                                             />
                                         </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
+
+                                        {/* image */}
+                                        <div className="space-y-2">
                                             <Label htmlFor="newCategoryImage" className="text-right">
                                                 File ảnh
                                             </Label>
                                             <Input
-                                                // id="newCategoryImage"
                                                 type='file'
-                                                // value={newCategoryImage}
-                                                onChange={(e) => setNewCategoryImage(e.target.files[0])}
+                                                onChange={(e) => setNewBlogImage(e.target.files[0])}
                                                 className="col-span-3"
                                                 required
                                             />
                                         </div>
+
+                                        {/* content */}
+                                        <div className="space-y-2 h-40">
+                                            <Label htmlFor="newCategoryName" className="text-right">
+                                                Nội dung
+                                            </Label>
+                                            <ReactQuill
+                                                value={newBlogContent}
+                                                onChange={setNewBlogContent}
+                                                className="w-full h-full"
+                                                modules={{
+                                                    toolbar: [
+                                                        [{ 'header': [1, 2, 3, false] }],
+                                                        ['bold', 'italic', 'underline'],
+                                                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                                        ['link', 'image', 'code-block'],
+                                                        ['clean']
+                                                    ],
+                                                }}
+                                                formats={[
+                                                    'header', 'bold', 'italic', 'underline',
+                                                    'list', 'bullet', 'link', 'image', 'code-block'
+                                                ]}
+                                            />
+                                        </div>
+
                                     </div>
                                     <DialogFooter>
-                                        <Button className='bg-yellow-500 hover:bg-yellow-600' type="submit" onClick={addCategory}>
+                                        <Button className='bg-yellow-500 hover:bg-yellow-600 mt-20' type="submit" onClick={addBlog}>
                                             Thêm
                                         </Button>
                                     </DialogFooter>
@@ -588,16 +548,17 @@ export const BlogCrud = () => {
                                                     {blog.image ? (
                                                         <img src={blog.image} alt={`${blog.name} icon`} className="w-1/2" />
                                                     ) : (
-                                                        <>null</>
+                                                        <>Chưa có ảnh</>
                                                     )}
                                                 </td>
 
                                                 {/* content */}
                                                 <td className="py-4 px-6">
                                                     <div className="flex items-center gap-2 w-40">
-                                                        <span className="text-sm text-gray-600  line-clamp-3">
-                                                            {blog.content}
-                                                        </span>
+                                                        <span
+                                                            className="text-sm text-gray-600 line-clamp-3"
+                                                            dangerouslySetInnerHTML={{ __html: blog.content }}
+                                                        />
                                                     </div>
                                                 </td>
 
@@ -607,6 +568,8 @@ export const BlogCrud = () => {
                                                 </td>
 
                                                 {/* action */}
+
+                                                {/* sửa blog */}
                                                 <td className="py-4 px-6">
                                                     <div className="flex justify-start gap-2">
                                                         <Dialog>
@@ -623,30 +586,57 @@ export const BlogCrud = () => {
                                                             </DialogTrigger>
                                                             <DialogContent className="sm:max-w-[425px]">
                                                                 <DialogHeader>
-                                                                    <DialogTitle>Sửa danh mục</DialogTitle>
+                                                                    <DialogTitle>Sửa bài viết</DialogTitle>
                                                                     <DialogDescription>
-                                                                        Thay đổi thông tin danh mục ở đây. Nhấn lưu khi bạn hoàn tất.
+                                                                        Thay đổi thông tin bài viết tại đây. Nhấn lưu khi bạn hoàn tất.
                                                                     </DialogDescription>
                                                                 </DialogHeader>
-                                                                <div className="grid gap-4 py-4">
-                                                                    <div className="grid grid-cols-4 items-center gap-4">
-                                                                        <Label htmlFor="editCategoryName" className="text-right">
+                                                                <div className="space-y-3 py-4">
+
+                                                                    {/* title */}
+                                                                    <div className="space-y-2">
+                                                                        <Label htmlFor="editBlogTitle" className="text-right">
                                                                             Tên
                                                                         </Label>
                                                                         <Input
-                                                                            id="editCategoryName"
-                                                                            value={editCategoryName}
-                                                                            onChange={(e) => setEditCategoryName(e.target.value)}
+                                                                            id="editBlogTitle"
+                                                                            value={editBlogTitle}
+                                                                            onChange={(e) => setEditBlogTitle(e.target.value)}
                                                                             className="col-span-3"
                                                                             required
                                                                         />
                                                                     </div>
 
+                                                                    {/* content */}
+                                                                    <div className="space-y-2">
+                                                                        <Label htmlFor="editBlogContent" className="text-right">
+                                                                            Nội dung
+                                                                        </Label>
+                                                                        <ReactQuill
+                                                                            value={editBlogContent}
+                                                                            onChange={setEditBlogContent}
+                                                                            className="w-full max-h-40 overflow-y-auto"
+                                                                            modules={{
+                                                                                toolbar: [
+                                                                                    [{ 'header': [1, 2, 3, false] }],
+                                                                                    ['bold', 'italic', 'underline'],
+                                                                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                                                                    ['link', 'image', 'code-block'],
+                                                                                    ['clean']
+                                                                                ],
+                                                                            }}
+                                                                            formats={[
+                                                                                'header', 'bold', 'italic', 'underline',
+                                                                                'list', 'bullet', 'link', 'image', 'code-block'
+                                                                            ]}
+                                                                        />
+                                                                    </div>
+                                                                    {/* ảnh */}
 
                                                                     {blog.image ? (
-                                                                        <div className="grid grid-cols-4 items-center gap-4">
-                                                                            <Label>Icon hiện tại</Label>
-                                                                            <img src={blog.image} alt="Current Icon" />
+                                                                        <div className="space-y-2">
+                                                                            <Label>Ảnh hiện tại</Label>
+                                                                            <img src={blog.image} className="w-40" alt="Current Icon" />
                                                                         </div>
                                                                     ) : (
                                                                         <></>
@@ -654,10 +644,9 @@ export const BlogCrud = () => {
 
                                                                     }
 
-
-                                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                                    <div className="space-y-2">
                                                                         <Label htmlFor="editCategoryImage" className="text-right">
-                                                                            Tạo icon mới
+                                                                            Tạo ảnh  mới
                                                                         </Label>
                                                                         <Input
                                                                             type='file'
@@ -667,24 +656,30 @@ export const BlogCrud = () => {
                                                                             required
                                                                         />
                                                                     </div>
-
                                                                     {selectedImage && (
-                                                                        <div className="grid grid-cols-4 items-center gap-4">
+                                                                        <div className="space-y-2">
                                                                             <Label>Hình ảnh đã chọn:</Label>
-                                                                            <img src={selectedImage} onChange={((e) => setEditCategoryImage(e.target.value))} alt="Selected" className="col-span-3" />
+                                                                            <img src={selectedImage} onChange={((e) => setEditBlogImage(e.target.value))} alt="Selected" className="col-span-3" />
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
                                                                 <DialogFooter>
-                                                                    <Button className='bg-yellow-500 hover:bg-yellow-600' type="submit" onClick={() => editCategory(blog.course_blog_id)}>
+                                                                    <Button
+                                                                        className="bg-yellow-500 hover:bg-yellow-600"
+                                                                        type="submit"
+                                                                        onClick={editBlog}
+                                                                    >
                                                                         Cập nhật
                                                                     </Button>
                                                                 </DialogFooter>
                                                             </DialogContent>
                                                         </Dialog>
+
+
+                                                        {/* xóa blog */}
                                                         <Button
-                                                            onClick={() => deleteCategory(blog.slug)}
+                                                            onClick={() => deleteBlog(blog.slug)}
                                                             variant="destructive"
                                                             size="sm"
                                                             className="bg-red-500 hover:bg-red-600"
@@ -706,20 +701,68 @@ export const BlogCrud = () => {
                         <Pagination>
                             <PaginationContent>
                                 <PaginationItem>
-                                    <PaginationLink href="#" isActive>
-                                        1
-                                    </PaginationLink>
+                                    <PaginationPrevious
+                                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                        disabled={pagination.currentPage === 1}
+                                        className="cursor-pointer"
+                                    />
                                 </PaginationItem>
+
+                                {pagination.lastPage <= 3 ? (
+                                    [...Array(pagination.lastPage)].map((_, index) => (
+                                        <PaginationItem key={index + 1} className="cursor-pointer">
+                                            <PaginationLink
+                                                onClick={() => handlePageChange(index + 1)}
+                                                isActive={pagination.currentPage === index + 1}
+                                            >
+                                                {index + 1}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    ))
+                                ) : (
+                                    <>
+                                        <PaginationItem>
+                                            <PaginationLink
+                                                onClick={() => handlePageChange(1)}
+                                                isActive={pagination.currentPage === 1}
+                                            >
+                                                1
+                                            </PaginationLink>
+                                        </PaginationItem>
+
+                                        {pagination.currentPage > 2 && <PaginationEllipsis />}
+
+                                        {pagination.currentPage !== 1 && pagination.currentPage !== pagination.lastPage && (
+                                            <PaginationItem>
+                                                <PaginationLink
+                                                    onClick={() => handlePageChange(pagination.currentPage)}
+                                                    isActive
+                                                >
+                                                    {pagination.currentPage}
+                                                </PaginationLink>
+                                            </PaginationItem>
+                                        )}
+
+                                        {pagination.currentPage < pagination.lastPage - 1 && <PaginationEllipsis />}
+
+                                        <PaginationItem>
+                                            <PaginationLink
+                                                onClick={() => handlePageChange(pagination.lastPage)}
+                                                isActive={pagination.currentPage === pagination.lastPage}
+                                            >
+                                                {pagination.lastPage}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    </>
+                                )}
+
                                 <PaginationItem>
-                                    <PaginationLink href="#" >
-                                        2
-                                    </PaginationLink>
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationLink href="#">3</PaginationLink>
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationEllipsis />
+                                    <PaginationNext
+                                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                        disabled={pagination.currentPage === pagination.lastPage}
+                                        className="cursor-pointer"
+
+                                    />
                                 </PaginationItem>
                             </PaginationContent>
                         </Pagination>
