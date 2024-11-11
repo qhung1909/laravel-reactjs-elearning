@@ -27,6 +27,9 @@ export const Curriculum = () => {
     const { course_id } = useParams();
 
     const [sections, setSections] = useState([]);
+    const [isUpdated, setIsUpdated] = useState(false);
+
+    console.log(isUpdated, 'clickUpdate-curriculum');
 
     const handleSectionTitleChange = (sectionId, newTitle) => {
         setSections(sections.map(section =>
@@ -613,6 +616,7 @@ export const Curriculum = () => {
         } finally {
             toast.dismiss(loadingToast);
             fetchContent();
+            setIsUpdated(true);
         }
     };
 
@@ -711,7 +715,7 @@ export const Curriculum = () => {
             </header>
 
             <div className="flex max-w-7xl m-auto pt-16 pb-36">
-                <SideBarCreateCoure course_id={course_id} />
+                <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated}/>
 
                 <div className="w-full lg:w-10/12 shadow-lg">
 

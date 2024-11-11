@@ -55,8 +55,17 @@ export const CourseOverview = () => {
     const [selectedCategory, setSelectedCategory] = useState("");
 
     const [courseImage, setCourseImage] = useState(null);
+    const { course_id } = useParams();
+
+
+
+    
 
     const wordCount = courseDescriptionText.trim().split(/\s+/).filter(word => word).length;
+    const [isUpdated, setIsUpdated] = useState(false);
+
+    console.log(isUpdated, 'clickUpdate-courseOverview');
+
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -103,7 +112,6 @@ export const CourseOverview = () => {
         };
         fetchCategories()
     }, [API_KEY, API_URL])
-    const { course_id } = useParams();
     // console.log(course_id);
 
     useEffect(() => {
@@ -117,7 +125,7 @@ export const CourseOverview = () => {
 
             if (response.data) {
                 const courseData = response.data.data;
-                console.log(courseData);
+                // console.log(courseData);
                 setCourseTitle(courseData.title || '');
                 setCourseDescriptionText(courseData.description || '');
                 setPrice(courseData.price || '');
@@ -128,7 +136,7 @@ export const CourseOverview = () => {
                 console.error('Error fetching course:', response.data.message);
                 alert('Failed to fetch course');
             }
-            console.log(course_id);
+            // console.log(course_id);
 
         };
         fetchCourse()
@@ -162,11 +170,10 @@ export const CourseOverview = () => {
                 console.error('Error:', response.data.message);
                 alert('Failed to add course', 'success');
             }
-        } catch (error) {
-            // console.error('Error submitting course:', error);
-            alert('Error submitting course');
-            console.log(error);
-
+        } catch {
+            notify('Lỗi cập nhật khóa học', 'error');
+        } finally {
+            setIsUpdated(true);
         }
     };
 
@@ -211,7 +218,7 @@ export const CourseOverview = () => {
 
 
             <div className="flex max-w-7xl m-auto pt-16 pb-36">
-                <SideBarCreateCoure course_id={course_id} />
+                <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated}/>
                 <div className="w-full lg:w-10/12 shadow-lg">
                     <div>
                         <div className="m-2">
