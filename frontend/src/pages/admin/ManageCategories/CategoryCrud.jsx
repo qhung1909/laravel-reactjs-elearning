@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 
 
 import {
@@ -26,12 +27,9 @@ import {
     Trash2,
     Plus,
     PenLine,
-    BookOpen,
     ChevronUp,
     ChevronDown,
     Search,
-    X,
-    Filter,
     FileDown
 } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
@@ -50,6 +48,7 @@ import { Label } from "@/components/ui/label";
 import axios from 'axios'
 import toast, { Toaster } from 'react-hot-toast';
 import Swal from "sweetalert2";
+import * as XLSX from 'xlsx';
 
 
 const notify = (message, type) => {
@@ -74,7 +73,7 @@ export const CategoryCrud = () => {
         direction: 'asc'
     });
     const [searchTerm, setSearchTerm] = useState('');
-    const [showAddCategory, setShowAddCategory] = useState(false);
+    // const [showAddCategory, setShowAddCategory] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
     const [newCategoryImage, setNewCategoryImage] = useState('');
 
@@ -84,12 +83,19 @@ export const CategoryCrud = () => {
     const [editCategoryImage, setEditCategoryImage] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
 
+    const [showEditDialog, setShowEditDialog] = useState(false);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-    // useEffect(() => {
-    //     setEditCategoryName(category.name); // Giả định category là đối tượng chứa dữ liệu
-    //     setEditCategoryImage(null); // Đặt lại hình ảnh
-    //     setSelectedImage(null); // Đặt lại hình ảnh đã chọn
-    // }, [category]);
+    const [loadingCategory, setLoadingCategory] = useState(false);
+
+
+
+    const API_KEY = import.meta.env.VITE_API_KEY
+    const API_URL = import.meta.env.VITE_API_URL
+    const [loading, setLoading] = useState(false);
+
+    const [categories, setCategory] = useState([]);
+    const token = localStorage.getItem('access_token');
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -103,44 +109,47 @@ export const CategoryCrud = () => {
         }
     };
 
-    const [showEditDialog, setShowEditDialog] = useState(false);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-    const [loadingCategory, setLoadingCategory] = useState(false)
 
-    const openDialog = () => {
-        setIsDialogOpen(true);
+    // const openDialog = () => {
+    //     setIsDialogOpen(true);
+    // };
+
+    const exportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(sortedCategories);
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, worksheet, 'Courses');
+
+        XLSX.writeFile(wb, 'categories_data.xlsx');
     };
 
-    const API_KEY = import.meta.env.VITE_API_KEY
-    const API_URL = import.meta.env.VITE_API_URL
-    const [loading, setLoading] = useState(false);
 
-    const [categories, setCategory] = useState([]);
-    const token = localStorage.getItem('access_token');
+    const fetchCategory = async () => {
+        try {
+            setLoadingCategory(true)
+            const res = await axios.get(`${API_URL}/categories`, {
+                headers: {
+                    'x-api-secret': API_KEY
+                }
+            })
+            const data = res.data;
+
+            setCategory(data)
+        } catch (error) {
+            console.error('Error fetching Categories:', error)
+        } finally {
+            setLoadingCategory(false)
+        }
+    }
+
 
 
     useEffect(() => {
 
-        const fetchCategory = async () => {
-            try {
-                setLoadingCategory(true)
-                const res = await axios.get(`${API_URL}/categories`, {
-                    headers: {
-                        'x-api-secret': API_KEY
-                    }
-                })
-                const data = res.data;
 
-                setCategory(data)
-            } catch (error) {
-                console.error('Error fetching Categories:', error)
-            } finally {
-                setLoadingCategory(false)
-            }
-        }
         fetchCategory()
-    }, [API_KEY, API_URL])
+    }, [])
 
     const addCategory = async (e) => {
         e.preventDefault();
@@ -169,6 +178,7 @@ export const CategoryCrud = () => {
             }
         } finally {
             setLoading(false);
+            await fetchCategory();
         }
     };
 
@@ -183,7 +193,7 @@ export const CategoryCrud = () => {
             setError('Vui lòng nhập đầy đủ thông tin');
         }
 
-        console.log('id danhmuc: ',courseCategoryId);
+        console.log('id danhmuc: ', courseCategoryId);
 
 
         try {
@@ -206,6 +216,7 @@ export const CategoryCrud = () => {
             console.error('Error updating category:', error);
         } finally {
             setLoading(false);
+            await fetchCategory()
         }
     };
 
@@ -236,6 +247,7 @@ export const CategoryCrud = () => {
             console.error('Error delete category:', error)
         } finally {
             setLoading(false);
+            await fetchCategory();
         }
     }
 
@@ -379,7 +391,7 @@ export const CategoryCrud = () => {
                                 </DialogContent>
                             </Dialog>
 
-                            <Button variant="outline" className="flex items-center">
+                            <Button variant="outline" className="flex items-center" onClick={exportToExcel}>
                                 <FileDown size={16} />
                                 Xuất
                             </Button>
