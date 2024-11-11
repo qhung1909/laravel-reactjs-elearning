@@ -1,8 +1,25 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import toast, { Toaster } from "react-hot-toast";
+
+const notify = (message, type) => {
+    if (type === 'success') {
+        toast.success(message, {
+            style: {
+                padding: '16px'
+            }
+        });
+    } else {
+        toast.error(message, {
+            style: {
+                padding: '16px'
+            }
+        })
+    }
+}
 
 const useLocalStorage = (key) => {
 
@@ -35,29 +52,41 @@ const useLocalStorage = (key) => {
     return [isChecked, setChecked];
 };
 
-export const SideBarCreateCoure = () => {
+// eslint-disable-next-line react/prop-types
+export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
-    const { course_id } = useParams(); // Lấy course_id từ URL
+    const { course_id } = useParams();
     const [isCheckedCO, setCheckedCO] = useLocalStorage("FA-CO");
     const [isCheckedCU, setCheckedCU] = useLocalStorage("FA-CU");
     const [loading, setLoading] = useState(false);
-
+    const location = useLocation();
     const navigate = useNavigate();
 
-    // Hàm xử lý trước khi rời khỏi trang
-    const handleBeforeUnload = (event) => {
-        const message = "Bạn có chắc chắn muốn rời khỏi trang? Tất cả nội dung đã nhập sẽ bị mất!";
-        event.returnValue = message;
-        return message;
+    const handleNavigate = (path) => {
+        if (location.pathname === path) {
+            return; // Không làm gì nếu người dùng đã ở đúng route
+        }
+        if (hasChanges && !isUpdated) {
+            notify("Vui lòng cập nhật trước khi chuyển trang!");
+            return; // Ngăn không cho chuyển route nếu có thay đổi
+        }
+        navigate(path);
     };
 
     useEffect(() => {
+        const handleBeforeUnload = (event) => {
+            if (hasChanges) {
+                event.preventDefault();
+                event.returnValue = ""; // Hiển thị cảnh báo trước khi tải lại
+            }
+        };
+
         window.addEventListener("beforeunload", handleBeforeUnload);
         return () => {
             window.removeEventListener("beforeunload", handleBeforeUnload);
         };
-    }, []);
+    }, [hasChanges]);
 
     // Hàm gửi khóa học để xem xét
     const handleSentDone = async () => {
@@ -74,7 +103,7 @@ export const SideBarCreateCoure = () => {
         });
 
         if (result.isConfirmed) {
-            setLoading(true); // Bật trạng thái loading
+            setLoading(true);
 
             try {
                 const response = await axios.post(`${API_URL}/teacher/update-pending/${course_id}`, null, {
@@ -102,12 +131,11 @@ export const SideBarCreateCoure = () => {
                     confirmButtonText: "Đóng",
                 });
             } finally {
-                navigate('/instructor/lessson')
-                setLoading(false); // Tắt trạng thái loading
+                navigate('/instructor/lessson');
+                setLoading(false);
             }
         }
     };
-
 
     return (
         <div className="w-3/12 mr-4 hidden lg:block">
@@ -117,39 +145,34 @@ export const SideBarCreateCoure = () => {
                     <div className="flex items-center space-x-2 my-4">
                         <Checkbox checked={isCheckedCO} onCheckedChange={setCheckedCO} disabled />
                         <label className="cursor-pointer">
-                            <Link to={`/course/manage/${course_id}/course-overview`}>
+                            <div onClick={() => handleNavigate(`/course/manage/${course_id}/course-overview`)}>
                                 Trang tổng quan khóa học
-                            </Link>
+                            </div>
                         </label>
                     </div>
                     <div className="flex items-center space-x-2 mt-4 mb-8">
                         <Checkbox checked={isCheckedCU} onCheckedChange={setCheckedCU} disabled />
                         <label className="cursor-pointer">
-                            <Link to={`/course/manage/${course_id}/curriculum`}>
+                            <div onClick={() => handleNavigate(`/course/manage/${course_id}/curriculum`)}>
                                 Chương trình giảng dạy
-                            </Link>
+                            </div>
                         </label>
                     </div>
                 </div>
                 <div className="space-y-3">
-                    {/* Nút Lưu - secondary button */}
-                    {/* <button className="w-full px-4 py-3 bg-white border-2 border-yellow-500 hover:bg-yellow-50 focus:ring-4 focus:outline-none focus:ring-yellow-300 text-yellow-600 font-semibold rounded-lg text-sm transition-all duration-200">
-                        Lưu bản nháp
-                    </button> */}
-                    {/* Nút Gửi đi để xem xét - primary button */}
                     <button
                         onClick={handleSentDone}
-                        className={`w-full px-4 py-3 ${
-                            loading
-                                ? "bg-gray-300 cursor-not-allowed"
-                                : "bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 hover:bg-gradient-to-bl"
-                        } focus:ring-4 focus:outline-none focus:ring-yellow-300 text-white font-semibold rounded-lg text-sm transition-all duration-200 shadow-lg hover:shadow-xl`}
+                        className={`w-full px-4 py-3 ${loading
+                            ? "bg-gray-300 cursor-not-allowed"
+                            : "bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 hover:bg-gradient-to-bl"
+                            } focus:ring-4 focus:outline-none focus:ring-yellow-300 text-white font-semibold rounded-lg text-sm transition-all duration-200 shadow-lg hover:shadow-xl`}
                         disabled={loading}
                     >
                         {loading ? "Đang gửi..." : "Gửi đi để xem xét"}
                     </button>
                 </div>
             </div>
+            <Toaster />
         </div>
     );
 };
