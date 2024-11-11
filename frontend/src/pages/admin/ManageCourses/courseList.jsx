@@ -5,6 +5,7 @@ import {
     PaginationNext,
     PaginationItem,
     PaginationLink,
+    PaginationEllipsis
 } from "@/components/ui/pagination";
 import {
     SidebarInset,
@@ -51,7 +52,7 @@ export default function CourseList() {
     });
 
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 8;
     const exportToExcel = () => {
         // Create a worksheet from the filtered courses
         const worksheet = XLSX.utils.json_to_sheet(currentFilteredCourses);
@@ -495,35 +496,83 @@ export default function CourseList() {
                                 <Pagination>
                                     <PaginationContent>
                                         <PaginationItem>
-                                            <button
+                                            <PaginationPrevious
                                                 onClick={() => handlePageChange(currentPage - 1)}
                                                 disabled={currentPage === 1}
-                                            >
-                                                <box-icon name='left-arrow-alt'></box-icon>
-                                            </button>
+                                            />
                                         </PaginationItem>
-                                        {[...Array(totalFilteredPages)].map((_, index) => (
-                                            <PaginationItem key={index}>
-                                                <PaginationLink
-                                                    href="#"
-                                                    isActive={currentPage === index + 1}
-                                                    onClick={() => handlePageChange(index + 1)}
-                                                >
-                                                    {index + 1}
-                                                </PaginationLink>
-                                            </PaginationItem>
-                                        ))}
+
+                                        {totalFilteredPages > 3 && currentPage > 3 && (
+                                            <>
+                                                <PaginationItem>
+                                                    <PaginationLink href="#" onClick={() => handlePageChange(1)}>
+                                                        1
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                                <PaginationItem>
+                                                    <PaginationEllipsis />
+                                                </PaginationItem>
+                                            </>
+                                        )}
+
+                                        {[...Array(Math.min(5, totalFilteredPages))].map((_, index) => {
+                                            let pageNumber;
+
+                                            if (totalFilteredPages <= 5) {
+                                                pageNumber = index + 1;
+                                            } else if (currentPage <= 3) {
+                                                pageNumber = index + 1;
+                                            } else if (currentPage >= totalFilteredPages - 2) {
+                                                pageNumber = totalFilteredPages - 4 + index;
+                                            } else {
+                                                pageNumber = currentPage - 2 + index;
+                                            }
+
+                                            // Tránh việc lặp lại số trang 1
+                                            if (pageNumber === 1 && currentPage !== 1) {
+                                                return null; // Không hiển thị lại số 1 khi đã được hiển thị ở phần trên
+                                            }
+
+                                            return (
+                                                <PaginationItem key={pageNumber}>
+                                                    <PaginationLink
+                                                        href="#"
+                                                        isActive={currentPage === pageNumber}
+                                                        onClick={() => handlePageChange(pageNumber)}
+                                                    >
+                                                        {pageNumber}
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                            );
+                                        })}
+
+                                        {totalFilteredPages > 3 && currentPage < totalFilteredPages - 2 && (
+                                            <>
+                                                <PaginationItem>
+                                                    <PaginationEllipsis />
+                                                </PaginationItem>
+                                                <PaginationItem>
+                                                    <PaginationLink
+                                                        href="#"
+                                                        onClick={() => handlePageChange(totalFilteredPages)}
+                                                    >
+                                                        {totalFilteredPages}
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                            </>
+                                        )}
+
                                         <PaginationItem>
-                                            <button
+                                            <PaginationNext
                                                 onClick={() => handlePageChange(currentPage + 1)}
                                                 disabled={currentPage === totalFilteredPages}
-                                            >
-                                                <box-icon name='right-arrow-alt'></box-icon>
-                                            </button>
+                                            />
                                         </PaginationItem>
                                     </PaginationContent>
                                 </Pagination>
                             </div>
+
+
                         </CardContent>
                     </Card>
                 </div>
