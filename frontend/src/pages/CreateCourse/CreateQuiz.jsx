@@ -311,28 +311,32 @@ export const CreateQuiz = () => {
                             }
                         }
                     } else if (q.type === 'true_false') {
-                        const trueOption = q.options.find(option => option.answer === "true") || {};
-                        const falseOption = q.options.find(option => option.answer === "false") || {};
+                        // Tìm các tùy chọn hiện tại hoặc khởi tạo nếu không tồn tại
+                        const trueOption = q.options.find(option => option.answer === "true") || { id: null, is_correct: false };
+                        const falseOption = q.options.find(option => option.answer === "false") || { id: null, is_correct: false };
 
+                        // Nếu không có câu trả lời nào được chọn, mặc định chọn "true"
                         if (!q.answers || !Array.isArray(q.answers) || q.answers.length === 0) {
                             q.answers = ["true"];
                         }
 
+                        // Xử lý trường hợp thêm mới và giữ trạng thái khi cập nhật
                         optionsData = {
                             options: [
                                 {
-                                    id: trueOption.id || null,
+                                    id: trueOption.id, // Dùng id hiện tại hoặc null nếu thêm mới
                                     answer: "true",
-                                    is_correct: q.answers[0] === "true"
+                                    is_correct: trueOption.id ? (q.answers[0] === "true" ? true : trueOption.is_correct) : q.answers[0] === "true"
                                 },
                                 {
-                                    id: falseOption.id || null,
+                                    id: falseOption.id, // Dùng id hiện tại hoặc null nếu thêm mới
                                     answer: "false",
-                                    is_correct: q.answers[0] === "false"
+                                    is_correct: falseOption.id ? (q.answers[0] === "false" ? true : falseOption.is_correct) : q.answers[0] === "false"
                                 }
                             ]
                         };
-                    } else if (q.type === 'fill_blank') {
+                    }
+                    else if (q.type === 'fill_blank') {
                         const blankOption = q.options[0] || {};
 
                         if (!q.answers || !Array.isArray(q.answers) || q.answers.length === 0) {
