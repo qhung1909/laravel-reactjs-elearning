@@ -43,6 +43,7 @@ import { Example } from "./pages/admin/example.jsx";
 import CourseList from "./pages/admin/ManageCourses/courseList.jsx";
 import { CategoryCrud } from "./pages/admin/ManageCategories/categoryCrud.jsx";
 import { CategoryList } from "./pages/admin/ManageCategories/CategoryList.jsx";
+import { BlogCrud } from "./pages/admin/ManageContent/BlogCrud.jsx";
 import { PriorityCategory } from "./pages/admin/ManageCategories/PriorityCategory.jsx";
 import CourseStatus from "./pages/admin/ManageCourses/courseStatus.jsx";
 import { CoursesOfCategory } from "./pages/admin/ManageCategories/CoursesOfCategory.jsx";
@@ -58,7 +59,6 @@ import { CreateQuiz } from "./pages/CreateCourse/CreateQuiz.jsx";
 import ListStudents from "./pages/admin/ManageAcount/ListStudents.jsx";
 import ListTeachers from "./pages/admin/ManageAcount/ListTeachers.jsx";
 import ClassifyUsers from "./pages/admin/ManageAcount/ClassifyUsers.jsx";
-
 import { ThemeProvider } from "./components/ui/theme-provider.jsx";
 import PersonalInformation from "./pages/admin/ManageAcount/PersonalInformation.jsx";
 import { ManageHeader } from "./pages/admin/ManageHeaderFooter/ManageHeader.jsx";
@@ -125,6 +125,8 @@ function AppContent() {
                 <Route path="/admin/category-crud" element={<CategoryCrud />}></Route>
                 <Route path="/admin/priority-category" element={<PriorityCategory />}></Route>
                 <Route path="/admin/courses-of-category" element={<CoursesOfCategory />}></Route>
+                <Route path="/admin/blogs" element={<BlogCrud />}></Route>
+
                 <Route path="/admin/list-students" element={<ListStudents />}></Route>
                 <Route path="/admin/list-teachers" element={<ListTeachers />}></Route>
                 <Route path="/admin/classify-users" element={<ClassifyUsers />}></Route>

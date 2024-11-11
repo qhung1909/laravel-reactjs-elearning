@@ -124,7 +124,7 @@ const data = {
             url: "#",
             icon: Settings2,
             items: [
-                { title: "Bài viết/Blog", url: "#" },
+                { title: "Bài viết/Blog", url: "/admin/blogs" },
                 { title: "Banner quảng cáo", url: "#" },
                 { title: "Billing", url: "#" },
                 { title: "Thông báo hệ thống", url: "#" },
