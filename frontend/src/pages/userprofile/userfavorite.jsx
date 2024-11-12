@@ -6,6 +6,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch"
 import { Checkbox } from "@/components/ui/checkbox"
 import TaskList from "../notifications/notification";
+import './userprofile.css'
 export const UserFavorite = () => {
     return (
         <>
@@ -43,8 +44,63 @@ export const UserFavorite = () => {
                         </div>
                         <div className="col-span-3 my-3 lg:my-5">
                             <div className="border-b pb-5">
-                                <span className="font-medium">Yêu thích của bạn:</span>
-                                <p className="text-sm text-gray-500 ">Người khác sẽ nhìn ra bạn với những thông tin dưới đây</p>
+                                <span className="font-medium">Khóa học yêu thích của bạn</span>
+                                <p className="text-sm text-gray-500 ">Những khóa học bạn thích nhưng vẫn chưa có dịp mua, chúng tôi sẽ giúp bạn lưu lại.</p>
+                            </div>
+                            <div className="mt-5">
+                                <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-5">
+                                    <div className="space-y-3 py-3 px-5 rounded-lg hover:shadow-lg duration-300 parent">
+                                        <div className="flex justify-center">
+                                            <img
+                                                src="/src/assets/images/doremon.jpg"
+                                                className="w-60 h-60 object-cover"
+                                                alt=""
+                                            />
+                                        </div>
+                                        <div className="lg:text-lg text-base font-semibold text-start line-clamp-2">
+                                            <span>Tên sản phẩm của sản phẩm này có thể dài 2 dòng, dài quá sẽ bị 3 chấm</span>
+                                        </div>
+                                        <div className="child">
+                                            <div className="flex justify-center">
+                                                <Button className="bg-yellow-600">Xem chi tiết</Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3 py-3 px-5 rounded-lg hover:shadow-lg duration-300 parent">
+                                        <div className="flex justify-center">
+                                            <img
+                                                src="/src/assets/images/doremon.jpg"
+                                                className="w-60 h-60 object-cover"
+                                                alt=""
+                                            />
+                                        </div>
+                                        <div className="text-lg font-semibold text-start line-clamp-2">
+                                            <span>Tên sản phẩm của sản phẩm này có thể dài 2 dòng, dài quá sẽ bị 3 chấm</span>
+                                        </div>
+                                        <div className="child">
+                                            <div className="flex justify-center">
+                                                <Button className="bg-yellow-600">Xem chi tiết</Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3 py-3 px-5 rounded-lg hover:shadow-lg duration-300 parent">
+                                        <div className="flex justify-center">
+                                            <img
+                                                src="/src/assets/images/doremon.jpg"
+                                                className="w-60 h-60 object-cover"
+                                                alt=""
+                                            />
+                                        </div>
+                                        <div className="text-lg font-semibold text-start line-clamp-2">
+                                            <span>Tên sản phẩm của sản phẩm này có thể dài 2 dòng, dài quá sẽ bị 3 chấm</span>
+                                        </div>
+                                        <div className="child">
+                                            <div className="flex justify-center">
+                                                <Button className="bg-yellow-600">Xem chi tiết</Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                         </div>
