@@ -767,8 +767,8 @@ export const Detail = () => {
                                 <Star
                                     key={i}
                                     className={`w-5 h-5 cursor-pointer ${i < editingRating
-                                            ? "text-yellow-500"
-                                            : "text-gray-300"
+                                        ? "text-yellow-500"
+                                        : "text-gray-300"
                                         }`}
                                     fill="currentColor"
                                     onClick={() => setEditingRating(i + 1)}
@@ -806,8 +806,8 @@ export const Detail = () => {
                                     key={i}
                                     fill="currentColor"
                                     className={`w-4 h-4 ${i < parseFloat(comment.rating)
-                                            ? "text-yellow-500"
-                                            : "text-gray-300"
+                                        ? "text-yellow-500"
+                                        : "text-gray-300"
                                         }`}
                                 />
                             ))}
@@ -1367,7 +1367,7 @@ export const Detail = () => {
                                                 >
                                                     {showAllComments ? (
                                                         <>
-                                                            <ChevronUp className="w-2 h-2" /> 
+                                                            <ChevronUp className="w-2 h-2" />
                                                             <span className="text-xs">Thu gọn</span>
                                                         </>
                                                     ) : (
