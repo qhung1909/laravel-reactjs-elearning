@@ -422,7 +422,7 @@ export const Lesson = () => {
 
     const [userMessage, setUserMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([
-        { role: 'system', content: 'Bạn là một trợ lý AI.' },
+        { role: 'system', content: 'Tôi có thể giúp gì cho bạn.' },
     ]);
     const sendMessageToChatGPT = async (message) => {
         try {
