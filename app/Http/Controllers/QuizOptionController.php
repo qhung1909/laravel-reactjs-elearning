@@ -409,12 +409,14 @@ class QuizOptionController extends Controller
     }
     public function index($questionId)
     {
-        $options = QuizOption::with('question')  
-                             ->where('question_id', $questionId)
+        // Tải trước quan hệ 'question' để tránh vấn đề n+1
+        $options = QuizOption::where('question_id', $questionId)
+                             ->with('question') // Eager load quan hệ 'question'
                              ->get();
     
         return response()->json($options);
     }
+    
     
     
 

@@ -291,13 +291,14 @@ export default function BrowseNewCourses() {
 
     const fetchCourses = async () => {
         try {
-            const res = await axios.get(`${API_URL}/admin/courses`, {
+            const res = await axios.get(`${API_URL}/admin/pending-courses`, {
                 headers: {
                     'x-api-secret': API_KEY,
                 },
             });
             const data = res.data;
-
+            console.log(data);
+            
             const pendingCourses = data.filter(course => course.status === 'pending');
             setCourses(pendingCourses);
 

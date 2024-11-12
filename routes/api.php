@@ -212,6 +212,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::get('/pending-contents', [AdminController::class, 'getPendingContents']);
     Route::get('/pending-title-contents', [AdminController::class, 'getPendingTitleContents']);
     Route::get('/pending-quizzes', [AdminController::class, 'getPendingQuizzes']);
+    Route::get('/pending-courses', [AdminController::class, 'getPendingCourses']);
 
     Route::post('/approve', [AdminController::class, 'approveAll'])->name('admin.courses.approve');
     Route::post('/reject', [AdminController::class, 'rejectAll'])->name('admin.courses.reject');
@@ -221,6 +222,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     Route::get('/revenue/teachers', [AdminController::class, 'getTeacherRevenues']);
 });
+
+
 Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::get('/courses/{courseId}', [AdminController::class, 'showCoursesTeacher']);
     Route::put('/courses/{courseId}', [AdminController::class, 'updateCoursesTeacher']);
