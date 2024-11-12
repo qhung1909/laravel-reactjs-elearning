@@ -152,7 +152,7 @@ export default function BrowseNewCourses() {
 
     /* Phân trang  */
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 3;
+    const itemsPerPage = 5;
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -160,8 +160,6 @@ export default function BrowseNewCourses() {
     const totalPages = Math.ceil(courses.length / itemsPerPage);
     const indexOfLastCourse = currentPage * itemsPerPage;
     const indexOfFirstCourse = indexOfLastCourse - itemsPerPage;
-    // const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
-
 
     /* Video */
     const [isVideoLayerOpen, setVideoLayerOpen] = useState(false);
@@ -298,7 +296,7 @@ export default function BrowseNewCourses() {
             });
             const data = res.data;
             console.log(data);
-            
+
             const pendingCourses = data.filter(course => course.status === 'pending');
             setCourses(pendingCourses);
 
@@ -437,8 +435,18 @@ export default function BrowseNewCourses() {
         const matchesStatus = statusFilter ? course.status === statusFilter : true;
         return matchesSearch && matchesStatus;
     });
-    const currentCourses = filteredCourses;
 
+    const handleDateSort = () => {
+        const sortedCourses = [...courses].sort((a, b) => {
+            // Kiểm tra xem created_at có hợp lệ hay không trước khi tạo đối tượng Date
+            const dateA = a.created_at ? new Date(a.created_at) : new Date(0); // Nếu không hợp lệ, dùng ngày 1/1/1970
+            const dateB = b.created_at ? new Date(b.created_at) : new Date(0); // Nếu không hợp lệ, dùng ngày 1/1/1970
+
+            return dateB - dateA; // Sắp xếp từ ngày mới nhất đến cũ nhất
+        });
+
+        setCourses(sortedCourses);
+    };
 
 
     return (
@@ -475,7 +483,7 @@ export default function BrowseNewCourses() {
                     <div className="flex items-center justify-between space-y-0 my-5">
                         <h2 className="text-3xl font-bold tracking-tight mb-4">Quản lý duyệt nội dung</h2>
                         <div className="flex flex-wrap gap-4 w-full md:w-auto">
-                            <Button variant="outline" className="flex items-center gap-2">
+                            <Button variant="outline" onClick={handleDateSort} className="flex items-center gap-2">
                                 <Filter size={16} />
                                 Lọc
                             </Button>
@@ -515,14 +523,14 @@ export default function BrowseNewCourses() {
                                         </button>
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className=" p-4">
-                                    <ScrollArea className="max-h-96 pr-4">
+                                <CardContent className="p-4">
+                                    <ScrollArea className="h-auto pr-4">
                                         <div className="space-y-3">
-                                            {currentCourses.map((course, index) => (
+                                            {filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse).map((course, index) => (
                                                 <div
                                                     key={course.id}
                                                     className={`group relative p-4 rounded-xl border cursor-pointer transition-all duration-200
-                                                        ${activeCourse?.id === course.id
+                                                    ${activeCourse?.id === course.id
                                                             ? 'bg-yellow-50 border-yellow-200 shadow-sm'
                                                             : 'hover:bg-gray-50 hover:border-gray-300'
                                                         }`}
@@ -532,18 +540,23 @@ export default function BrowseNewCourses() {
                                                     }}
                                                 >
                                                     <div className="flex items-center gap-3 mb-2">
-                                                        <div className="font-semibold">{index + 1 + indexOfFirstCourse}</div> {/* Cập nhật chỉ số hiển thị */}
-                                                        <h4 className="font-medium text-gray-900">{course.title}</h4>
+                                                        <div className="font-semibold">{index + 1 + indexOfFirstCourse}</div>
+                                                        <h4 className="font-medium text-gray-900  break-words">{course.title}</h4>
+                                                        {/*<h4 className="font-medium text-gray-900 break-words overflow-hidden text-ellipsis whitespace-nowrap">*/}
                                                     </div>
                                                     <div className="text-sm text-gray-600">
                                                         Giảng viên: {course.user.name || 'Không rõ'}
                                                     </div>
+                                                    <div className="text-sm text-gray-600">
+    Ngày: {course.created_at ? new Date(course.created_at).toLocaleDateString() : 'Không rõ'}
+</div>
+
                                                 </div>
                                             ))}
                                         </div>
-
                                     </ScrollArea>
                                 </CardContent>
+
 
                                 <Pagination>
                                     <PaginationContent>
@@ -602,7 +615,7 @@ export default function BrowseNewCourses() {
 
 
 
-                                        <TabsContent value="info">
+                                        {/* <TabsContent value="info">
                                             {activeCourse ? (
                                                 <div className="space-y-4">
                                                     <div className="flex items-center">
@@ -634,7 +647,52 @@ export default function BrowseNewCourses() {
                                             ) : (
                                                 <p>Thông tin khóa học sẽ xuất hiện ở đây.</p>
                                             )}
+                                        </TabsContent> */}
+                                        <TabsContent value="info">
+                                            {activeCourse ? (
+                                                <div className="grid grid-cols-2 gap-8">
+                                                    {/* Left Content */}
+                                                    <div className="space-y-4">
+                                                        <div className="flex items-center">
+                                                            <label className="font-semibold mr-2">Giảng viên:</label>
+                                                            <p>{activeCourse.user.name}</p>
+                                                        </div>
+                                                        <div className="flex items-start gap-2 w-full">
+                                                            <label className="font-semibold mr-2 mt-1 shrink-0">Mô tả:</label>
+                                                            <p className="break-words">{activeCourse.description}</p>
+                                                        </div>
+                                                        <div className="flex items-center">
+                                                            <label className="font-semibold mr-2">Thời lượng:</label>
+                                                            <p>{activeCourse.duration} 10 giờ</p>
+                                                        </div>
+                                                        <div className="flex items-center">
+                                                            <label className="font-semibold mr-2">Cấp độ:</label>
+                                                            <p>{activeCourse.level}</p>
+                                                        </div>
+                                                        <div className="flex items-center">
+                                                            <label className="font-semibold mr-2">Giá:</label>
+                                                            <p>{formatCurrency(activeCourse.price)}</p>
+                                                        </div>
+                                                        <div className="flex items-start">
+                                                            <label className="font-semibold mr-2 mt-1">Yêu cầu tiên quyết:</label>
+                                                            <p className="break-words">{activeCourse.prerequisites}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Right Content (Image) */}
+                                                    <div className="w-full p-2">
+                                                        <img
+                                                            src={activeCourse.img}
+                                                            alt="Course image"
+                                                            className="w-full h-auto object-cover rounded-lg"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <p>Course information will appear here.</p>
+                                            )}
                                         </TabsContent>
+
 
                                         <TabsContent value="lessons">
                                             {activeCourse ? (
