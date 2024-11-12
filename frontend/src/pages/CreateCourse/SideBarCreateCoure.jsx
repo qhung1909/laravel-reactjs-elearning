@@ -142,16 +142,16 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
             <div className="mx-3 my-5">
                 <div className="px-5">
                     <h2 className="font-medium">Tạo nội dung của bạn</h2>
-                    <div className="flex items-center space-x-2 my-4">
-                        <Checkbox checked={isCheckedCO} onCheckedChange={setCheckedCO} disabled />
+                    <div className="flex items-center space-x-2 my-4 ml-2">
+                        {/* <Checkbox checked={isCheckedCO} onCheckedChange={setCheckedCO} disabled /> */}
                         <label className="cursor-pointer">
                             <div onClick={() => handleNavigate(`/course/manage/${course_id}/course-overview`)}>
                                 Trang tổng quan khóa học
                             </div>
                         </label>
                     </div>
-                    <div className="flex items-center space-x-2 mt-4 mb-8">
-                        <Checkbox checked={isCheckedCU} onCheckedChange={setCheckedCU} disabled />
+                    <div className="flex items-center space-x-2 mt-4 mb-8  ml-2">
+                        {/* <Checkbox checked={isCheckedCU} onCheckedChange={setCheckedCU} disabled /> */}
                         <label className="cursor-pointer">
                             <div onClick={() => handleNavigate(`/course/manage/${course_id}/curriculum`)}>
                                 Chương trình giảng dạy

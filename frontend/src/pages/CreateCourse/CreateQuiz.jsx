@@ -10,7 +10,7 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-import { QuizCreatorSkeleton } from "../skeletonEffect/skeleton";
+import { SkeletonQuizCreator } from "../skeletonEffect/skeleton";
 import toast, { Toaster } from "react-hot-toast";
 
 const notify = (message, type) => {
@@ -561,192 +561,203 @@ export const CreateQuiz = () => {
 
     return (
         <>
-          <div className="max-w-4xl mx-auto p-6 space-y-6">
-            {/* Header */}
-            <div className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-sm shadow-sm z-50 p-4">
-              <div className="max-w-4xl mx-auto flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <BookOpen className="text-gray-600" size={24} />
-                  <h2 className="text-2xl font-semibold text-gray-700">
-                    Tạo Quiz cho Lesson {lessonId || '...'}
-                  </h2>
-                </div>
-                <div className="flex space-x-3">
-                  <Button
-                    onClick={update}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition-colors flex items-center space-x-2"
-                  >
-                    <Save size={18} />
-                    <span>Lưu Quiz</span>
-                  </Button>
+            {
+                loading ? (
+                    <>
+                        <SkeletonQuizCreator />
+                    </>
+                ) : (
+                    <>
+                        <div className="max-w-4xl mx-auto p-6 space-y-6">
+                            {/* Header */}
+                            <div className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-sm shadow-sm z-50 p-4">
+                                <div className="max-w-4xl mx-auto flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                        <BookOpen className="text-gray-600" size={24} />
+                                        <h2 className="text-2xl font-semibold text-gray-700">
+                                            Tạo Quiz cho Lesson {lessonId || '...'}
+                                        </h2>
+                                    </div>
+                                    <div className="flex space-x-3">
+                                        <Button
+                                            onClick={update}
+                                            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition-colors flex items-center space-x-2"
+                                        >
+                                            <Save size={18} />
+                                            <span>Lưu Quiz</span>
+                                        </Button>
 
-                  <Button
-                    onClick={() => handleNavigate(`/course/manage/${course_id}/curriculum`)}
-                    variant="outline"
-                    className="border-gray-300 text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-md transition-colors flex items-center space-x-2"
-                  >
-                    <ArrowLeft size={18} />
-                    <span>Quay lại</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Questions List */}
-            <div className="pt-20 space-y-6">
-              {questions?.length > 0 ? (
-                questions.map((q, questionIndex) => (
-                  <Card key={questionIndex} className="p-8 relative shadow-sm hover:shadow transition-shadow border-l-4 border-l-gray-800">
-                    <div className="absolute top-4 right-4">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-gray-400 hover:text-red-400 hover:bg-gray-50 transition-colors"
-                        onClick={() => deleteQuestion(questionIndex, q.id)}
-                      >
-                        <Trash2 size={20} />
-                      </Button>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div className="flex items-center gap-2 mb-6">
-                        <span className="text-base font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                          Câu hỏi {questionIndex + 1}
-                        </span>
-                      </div>
-
-                      <div className="relative">
-                        <Type className="absolute top-3 left-3 text-gray-400" size={20} />
-                        <Input
-                          type="text"
-                          placeholder="Nhập câu hỏi của bạn"
-                          value={q.question}
-                          onChange={(e) => handleQuestionChange(questionIndex, e.target.value)}
-                          className="pl-10 py-3 focus:ring-gray-400 focus:border-gray-400 text-base"
-                        />
-                      </div>
-
-                      {/* Answer Options */}
-                      {(q.type === 'single_choice' || q.type === 'mutiple_choice') && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {q.options.map((option, optionIndex) => (
-                            <div
-                              key={optionIndex}
-                              className={`flex items-center gap-3 p-4 border rounded-md transition-all duration-200 cursor-pointer
-                                ${q.type === 'single_choice'
-                                  ? q.answers[0] === optionIndex
-                                    ? 'bg-gray-100 border-gray-300 shadow-sm'
-                                    : 'bg-white hover:bg-gray-50'
-                                  : q.answers.includes(optionIndex)
-                                    ? 'bg-gray-100 border-gray-300 shadow-sm'
-                                    : 'bg-white hover:bg-gray-50'
-                                }`}
-                              onClick={() => handleAnswerChange(questionIndex, optionIndex)}
-                            >
-                              <div className="flex-shrink-0">
-                                {q.type === 'single_choice' ? (
-                                  <Circle
-                                    size={20}
-                                    className={`${q.answers[0] === optionIndex ? 'text-gray-800 fill-gray-800' : 'text-gray-400'}`}
-                                  />
-                                ) : (
-                                  <CheckCircle2
-                                    size={20}
-                                    className={`${q.answers.includes(optionIndex) ? 'text-gray-800' : 'text-gray-400'}`}
-                                  />
-                                )}
-                              </div>
-                              <Input
-                                type="text"
-                                placeholder={`Tùy chọn ${optionIndex + 1}`}
-                                value={option.answer || ""}
-                                onChange={(e) => handleOptionChange(questionIndex, optionIndex, e.target.value)}
-                                className="flex-1 border-0 bg-transparent focus:ring-0 placeholder-gray-400"
-                                onClick={(e) => e.stopPropagation()}
-                              />
+                                        <Button
+                                            onClick={() => handleNavigate(`/course/manage/${course_id}/curriculum`)}
+                                            variant="outline"
+                                            className="border-gray-300 text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-md transition-colors flex items-center space-x-2"
+                                        >
+                                            <ArrowLeft size={18} />
+                                            <span>Quay lại</span>
+                                        </Button>
+                                    </div>
+                                </div>
                             </div>
-                          ))}
-                        </div>
-                      )}
 
-                      {q.type === 'true_false' && (
-                        <div className="flex gap-4">
-                          <Button
-                            type="button"
-                            className={`flex-1 p-4 text-base transition-colors ${
-                              q.options.find(option => option.answer === 'true' && option.isCorrect)
-                                ? 'bg-gray-800 text-white'
-                                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                            }`}
-                            onClick={() => handleAnswerChange(questionIndex, 'true')}
-                          >
-                            Đúng
-                          </Button>
-                          <Button
-                            type="button"
-                            className={`flex-1 p-4 text-base transition-colors ${
-                              q.options.find(option => option.answer === 'false' && option.isCorrect)
-                                ? 'bg-gray-800 text-white'
-                                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                            }`}
-                            onClick={() => handleAnswerChange(questionIndex, 'false')}
-                          >
-                            Sai
-                          </Button>
-                        </div>
-                      )}
+                            {/* Questions List */}
+                            <div className="pt-20 space-y-6">
+                                {questions?.length > 0 ? (
+                                    questions.map((q, questionIndex) => (
+                                        <Card key={questionIndex} className="p-8 relative shadow-sm hover:shadow transition-shadow border-l-4 border-l-yellow-700">
+                                            <div className="absolute top-4 right-4">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="text-gray-400 hover:text-red-400 hover:bg-gray-50 transition-colors"
+                                                    onClick={() => deleteQuestion(questionIndex, q.id)}
+                                                >
+                                                    <Trash2 size={20} />
+                                                </Button>
+                                            </div>
 
-                      {q.type === 'fill_blank' && (
-                        <Input
-                          type="text"
-                          placeholder="Nhập đáp án"
-                          value={q.answers[0] || ''}
-                          onChange={(e) => handleAnswerChange(questionIndex, e.target.value)}
-                          className="w-full border-gray-300 p-4 rounded-md focus:ring-1 focus:ring-gray-400 text-base"
-                        />
-                      )}
-                    </div>
-                  </Card>
-                ))
-              ) : (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                  <div className="flex flex-col items-center space-y-4">
-                    <Plus size={48} className="text-gray-400" />
-                    <p className="text-gray-600 text-base">Chưa có câu hỏi nào. Hãy thêm câu hỏi mới!</p>
-                  </div>
-                </div>
-              )}
-            </div>
+                                            <div className="space-y-6">
+                                                <div className="flex items-center gap-2 mb-6">
+                                                    <span className="text-base font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                                                        Câu hỏi {questionIndex + 1}
+                                                    </span>
+                                                </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 justify-center py-6 bg-gray-50 rounded-lg">
-              <Button
-                onClick={() => addQuizQuestion("single_choice")}
-                className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                + Một Lựa Chọn
-              </Button>
-              <Button
-                onClick={() => addQuizQuestion("mutiple_choice")}
-                className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                + Nhiều Lựa Chọn
-              </Button>
-              <Button
-                onClick={() => addQuizQuestion("true_false")}
-                className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                + Đúng/Sai
-              </Button>
-              <Button
-                onClick={() => addQuizQuestion("fill_blank")}
-                className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                + Điền Vào Ô Trống
-              </Button>
-            </div>
+                                                <div className="relative">
+                                                    <Type className="absolute top-3 left-3 text-gray-400" size={20} />
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="Nhập câu hỏi của bạn"
+                                                        value={q.question}
+                                                        onChange={(e) => handleQuestionChange(questionIndex, e.target.value)}
+                                                        className="pl-10 py-3 focus:ring-gray-400 focus:border-gray-400 text-base"
+                                                    />
+                                                </div>
 
-            {/* <div className="flex justify-end">
+                                                {/* Answer Options */}
+                                                {(q.type === 'single_choice' || q.type === 'mutiple_choice') && (
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        {q.options.map((option, optionIndex) => (
+                                                            <div
+                                                                key={optionIndex}
+                                                                className={`flex items-center gap-3 p-4 border rounded-md transition-all duration-200 cursor-pointer
+                                                        ${q.type === 'single_choice'
+                                                                        ? q.answers[0] === optionIndex
+                                                                            ? 'bg-gray-100 border-gray-300 shadow-sm'
+                                                                            : 'bg-white hover:bg-gray-50'
+                                                                        : q.answers.includes(optionIndex)
+                                                                            ? 'bg-gray-100 border-gray-300 shadow-sm'
+                                                                            : 'bg-white hover:bg-gray-50'
+                                                                    }`}
+                                                                onClick={() => handleAnswerChange(questionIndex, optionIndex)}
+                                                            >
+                                                                <div className="flex-shrink-0">
+                                                                    {q.type === 'single_choice' ? (
+                                                                        <Circle
+                                                                            size={20}
+                                                                            className={`${q.answers[0] === optionIndex ? 'text-yellow-700 fill-yellow-600' : 'text-gray-400'}`}
+                                                                        />
+                                                                    ) : (
+                                                                        <CheckCircle2
+                                                                            size={20}
+                                                                            className={`${q.answers.includes(optionIndex) ? 'text-yellow-600' : 'text-gray-400'}`}
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                                <Input
+                                                                    type="text"
+                                                                    placeholder={`Tùy chọn ${optionIndex + 1}`}
+                                                                    value={option.answer || ""}
+                                                                    onChange={(e) => handleOptionChange(questionIndex, optionIndex, e.target.value)}
+                                                                    className="flex-1 border-0 bg-transparent focus:ring-0 placeholder-gray-400"
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {q.type === 'true_false' ? (
+                                                    <div className="flex gap-4">
+                                                        <Button
+                                                            type="button"
+                                                            className={`flex-1 ${q.options.find(option => option.answer === 'true' && option.isCorrect)
+                                                                ? 'bg-green-500 text-white hover:bg-green-600'
+                                                                : 'bg-gray-200 hover:bg-green-500'
+                                                                } ${focusedAnswers[questionIndex] === 'true'
+                                                                    ? 'shadow-lg transform scale-105 bg-green-600' // Thêm hiệu ứng shadow và scale khi focus
+                                                                    : ''
+                                                                }`}
+                                                            onClick={() => handleAnswerChange(questionIndex, 'true')}
+                                                        >
+                                                            Đúng
+                                                        </Button>
+                                                        <Button
+                                                            type="button"
+                                                            className={`flex-1 ${q.options.find(option => option.answer === 'false' && option.isCorrect)
+                                                                ? 'bg-red-500 text-white hover:bg-red-600'
+                                                                : 'bg-gray-200 hover:bg-red-500'
+                                                                } ${focusedAnswers[questionIndex] === 'false'
+                                                                    ? 'shadow-lg transform scale-105 bg-red-600' // Thêm hiệu ứng shadow và scale khi focus
+                                                                    : ''
+                                                                }`}
+                                                            onClick={() => handleAnswerChange(questionIndex, 'false')}
+                                                        >
+                                                            Sai
+                                                        </Button>
+                                                    </div>
+                                                ) : null}
+
+                                                {q.type === 'fill_blank' && (
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="Nhập đáp án"
+                                                        value={q.answers[0] || ''}
+                                                        onChange={(e) => handleAnswerChange(questionIndex, e.target.value)}
+                                                        className="w-full border-gray-300 p-4 rounded-md focus:ring-1 focus:ring-gray-400 text-base"
+                                                    />
+                                                )}
+                                            </div>
+                                        </Card>
+                                    ))
+                                ) : (
+                                    <div className="text-center py-12 bg-gray-50 rounded-lg">
+                                        <div className="flex flex-col items-center space-y-4">
+                                            <Plus size={48} className="text-gray-400" />
+                                            <p className="text-gray-600 text-base">Chưa có câu hỏi nào. Hãy thêm câu hỏi mới!</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex flex-wrap gap-3 justify-center py-6 bg-gray-50 rounded-lg">
+                                <Button
+                                    onClick={() => addQuizQuestion("single_choice")}
+                                    className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                                >
+                                    + Một Lựa Chọn
+                                </Button>
+                                <Button
+                                    onClick={() => addQuizQuestion("mutiple_choice")}
+                                    className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                                >
+                                    + Nhiều Lựa Chọn
+                                </Button>
+                                <Button
+                                    onClick={() => addQuizQuestion("true_false")}
+                                    className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                                >
+                                    + Đúng/Sai
+                                </Button>
+                                <Button
+                                    onClick={() => addQuizQuestion("fill_blank")}
+                                    className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                                >
+                                    + Điền Vào Ô Trống
+                                </Button>
+                            </div>
+
+                            {/* <div className="flex justify-end">
               <Button
                 onClick={() => console.log(JSON.stringify(questions, null, 2))}
                 variant="outline"
@@ -755,10 +766,14 @@ export const CreateQuiz = () => {
                 Xuất JSON
               </Button>
             </div> */}
-          </div>
-          <Toaster />
+                        </div>
+                    </>
+                )
+            }
+
+            <Toaster />
         </>
-      );
+    );
 
 
 };
