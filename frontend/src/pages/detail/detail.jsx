@@ -4,7 +4,7 @@ import { formatDate } from "@/components/FormatDay/Formatday";
 import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import { Edit, Trash, User } from "lucide-react";
+import { ChevronDown, ChevronUp, Edit, Trash, User } from "lucide-react";
 import { Calendar, Globe, BookOpen, Star } from "lucide-react";
 import { Play, Users, Book, Clock, Eye } from "lucide-react";
 import {
@@ -109,7 +109,7 @@ export const Detail = () => {
     }, [slug]);
 
     const [contentLesson, setContentLesson] = useState([]);
-    const fetchContentLesson = async (courseId) => {  
+    const fetchContentLesson = async (courseId) => {
 
         try {
             const res = await axios.get(`${API_URL}/contents`, {
@@ -664,7 +664,8 @@ export const Detail = () => {
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editingRating, setEditingRating] = useState(0);
     const [editingContent, setEditingContent] = useState("");
-
+    const [showAllComments, setShowAllComments] = useState(false);
+    const displayComments = showAllComments ? comments : comments.slice(0, 3);
     const editComment = (comment) => {
         setEditingCommentId(comment.comment_id);
         setEditingRating(comment.rating);
@@ -718,134 +719,105 @@ export const Detail = () => {
         }
     };
 
-    const renderComments = (
-        <div className="space-y-3">
-            {comments.length > 0
-                ? comments.map((comment) => (
-                    <div
-                        key={comment.comment_id}
-                        className="flex items-start"
-                    >
-                        <Avatar>
-                            <AvatarFallback>Avatar</AvatarFallback>
-                            <AvatarImage
-                                src={
-                                    users[comment.user_id]?.avatar ||
-                                    "default_avatar_url"
-                                }
-                            />
-                        </Avatar>
-                        <div className="ml-3 w-full">
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center">
-                                    <span className="font-semibold">
-                                        {users[comment.user_id]?.name ||
-                                            "Người dùng"}
-                                    </span>
-                                    <span className="text-gray-500 text-sm ml-2">
-                                        {formatDate(comment.updated_at)}
-                                    </span>
-                                </div>
+    const renderComment = (comment) => (
+        <div
+            key={comment.comment_id}
+            className="flex items-start space-x-3 p-3 bg-white rounded-md shadow-sm"
+        >
+            <Avatar className="w-10 h-10"> {/* Kích thước vừa phải cho avatar */}
+                <AvatarFallback>Avatar</AvatarFallback>
+                <AvatarImage
+                    src={users[comment.user_id]?.avatar || "default_avatar_url"}
+                />
+            </Avatar>
 
-                                {user && user.user_id === comment.user_id && (
-                                    <div className="flex space-x-2">
-                                        <button
-                                            onClick={() =>
-                                                editComment(comment)
-                                            }
-                                            className="text-blue-500"
-                                        >
-                                            <Edit className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() =>
-                                                deleteComment(
-                                                    comment.comment_id
-                                                )
-                                            }
-                                            className="text-red-500"
-                                        >
-                                            <Trash className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+            <div className="flex-1">
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                        <span className="font-semibold text-base">
+                            {users[comment.user_id]?.name || "Người dùng"}
+                        </span>
+                        <span className="text-gray-500 text-sm ml-2">
+                            {formatDate(comment.updated_at)}
+                        </span>
+                    </div>
 
-                            {editingCommentId === comment.comment_id ? (
-                                <div>
-                                    <div className="flex items-center space-x-1 mt-2">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                className={`w-6 h-6 cursor-pointer ${i < editingRating
-                                                    ? "text-yellow-500"
-                                                    : "text-gray-300"
-                                                    }`}
-                                                fill="currentColor"
-                                                onClick={() =>
-                                                    setEditingRating(i + 1)
-                                                }
-                                            />
-                                        ))}
-                                    </div>
+                    {user && user.user_id === comment.user_id && (
+                        <div className="flex space-x-2">
+                            <button
+                                onClick={() => editComment(comment)}
+                                className="text-blue-500 hover:text-blue-600"
+                            >
+                                <Edit className="w-4 h-4" /> {/* Icon trung bình */}
+                            </button>
+                            <button
+                                onClick={() => deleteComment(comment.comment_id)}
+                                className="text-red-500 hover:text-red-600"
+                            >
+                                <Trash className="w-4 h-4" /> {/* Icon trung bình */}
+                            </button>
+                        </div>
+                    )}
+                </div>
 
-                                    <textarea
-                                        value={editingContent}
-                                        onChange={(e) =>
-                                            setEditingContent(e.target.value)
-                                        }
-                                        className="w-full border rounded p-2 mt-1"
-                                    />
-                                    <div className="mt-2">
-                                        <button
-                                            onClick={() =>
-                                                updateComment(
-                                                    comment.comment_id
-                                                )
-                                            }
-                                            className="bg-blue-500 text-white px-3 py-1 rounded"
-                                        >
-                                            Lưu
-                                        </button>
-                                        <button
-                                            onClick={cancelEdit}
-                                            className="bg-gray-500 text-white px-3 py-1 rounded ml-2"
-                                        >
-                                            Hủy
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div>
-                                    <div className="text-yellow-500 flex">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                fill="currentColor"
-                                                className={`w-3 h-3 ${i <
-                                                    parseFloat(comment.rating)
-                                                    ? "text-yellow-500"
-                                                    : "text-gray-300"
-                                                    }`}
-                                            />
-                                        ))}
-                                    </div>
-                                    <p className="mt-1 text-sm">
-                                        {comment.content}
-                                    </p>
-                                </div>
-                            )}
+                {editingCommentId === comment.comment_id ? (
+                    <div className="mt-2">
+                        <div className="flex items-center space-x-1">
+                            {[...Array(5)].map((_, i) => (
+                                <Star
+                                    key={i}
+                                    className={`w-5 h-5 cursor-pointer ${i < editingRating
+                                            ? "text-yellow-500"
+                                            : "text-gray-300"
+                                        }`}
+                                    fill="currentColor"
+                                    onClick={() => setEditingRating(i + 1)}
+                                />
+                            ))}
+                        </div>
+
+                        <textarea
+                            value={editingContent}
+                            onChange={(e) => setEditingContent(e.target.value)}
+                            className="w-full border rounded-md p-2 mt-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+
+                        <div className="flex space-x-2 mt-2">
+                            <Button
+                                onClick={() => updateComment(comment.comment_id)}
+                                className="bg-blue-500 hover:bg-blue-600 text-white text-sm"
+                            >
+                                Lưu
+                            </Button>
+                            <Button
+                                onClick={cancelEdit}
+                                variant="secondary"
+                                className="text-sm"
+                            >
+                                Hủy
+                            </Button>
                         </div>
                     </div>
-                ))
-                : (
-                    <div className="flex flex-col items-center p-6 border border-dashed border-gray-300 rounded-lg bg-gray-50">
-                        <p className="text-gray-600 text-center">
-                            Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nhận của bạn!
+                ) : (
+                    <div>
+                        <div className="flex space-x-1 mt-1">
+                            {[...Array(5)].map((_, i) => (
+                                <Star
+                                    key={i}
+                                    fill="currentColor"
+                                    className={`w-4 h-4 ${i < parseFloat(comment.rating)
+                                            ? "text-yellow-500"
+                                            : "text-gray-300"
+                                        }`}
+                                />
+                            ))}
+                        </div>
+                        <p className="mt-2 text-sm text-gray-700">
+                            {comment.content}
                         </p>
                     </div>
                 )}
-            <Toaster />
+            </div>
         </div>
     );
 
@@ -1380,7 +1352,43 @@ export const Detail = () => {
                                         </>
                                     )}
                                 </div>
-                                {renderComments}
+                                <div className="space-y-2">
+                                    {comments.length > 0 ? (
+                                        <>
+                                            <div className="space-y-2">
+                                                {displayComments.map(renderComment)}
+                                            </div>
+
+                                            {comments.length > 3 && (
+                                                <Button
+                                                    onClick={() => setShowAllComments(!showAllComments)}
+                                                    variant="outline"
+                                                    className="w-full mt-2 flex items-center justify-center space-x-1 text-xs"
+                                                >
+                                                    {showAllComments ? (
+                                                        <>
+                                                            <ChevronUp className="w-2 h-2" /> 
+                                                            <span className="text-xs">Thu gọn</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <ChevronDown className="w-2 h-2" />
+                                                            <span className="text-xs">
+                                                                Xem thêm {comments.length - 3} bình luận
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="flex flex-col items-center p-2 border border-dashed border-gray-300 rounded-lg bg-gray-50"> {/* Giảm padding */}
+                                            <p className="text-gray-600 text-center text-xs">
+                                                Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nhận của bạn!
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
