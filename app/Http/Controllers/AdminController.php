@@ -837,7 +837,6 @@ class AdminController extends Controller
 
 
 
-
     public function getTeacherRevenue(Request $request)
     {
         try {
@@ -899,4 +898,6 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+    
 }

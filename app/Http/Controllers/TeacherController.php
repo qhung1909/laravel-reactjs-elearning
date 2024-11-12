@@ -11,8 +11,10 @@ use Illuminate\Support\Facades\DB;
 use App\Models\TitleContent;
 use Illuminate\Support\Facades\Log;
 use App\Models\Quiz;
+use App\Models\OrderDetail;
+
 class TeacherController extends Controller
-{   
+{
     public function getCoursesByTeacher()
     {
         if (!Auth::check()) {
@@ -20,17 +22,17 @@ class TeacherController extends Controller
                 'message' => 'Người dùng chưa đăng nhập.',
             ], 401);
         }
-    
+
         $user = Auth::user();
-    
+
         if ($user->role !== 'teacher') {
             return response()->json([
                 'message' => 'Người dùng không có quyền truy cập.',
             ], 403);
         }
-    
+
         $courses = Course::where('user_id', $user->user_id)->get();
-    
+
         return response()->json([
             'message' => 'Courses retrieved successfully',
             'courses' => $courses
@@ -410,16 +412,16 @@ class TeacherController extends Controller
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-    
+
             $content = Content::where('content_id', $contentId)->first();
-    
+
             if (!$content) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Không tìm thấy nội dung'
                 ], 404);
             }
-    
+
             $validator = Validator::make($request->all(), [
                 'title_contents' => 'nullable|array',
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
@@ -430,45 +432,45 @@ class TeacherController extends Controller
             ], [
                 'title_contents.*.body_content.required' => 'Nội dung không được để trống'
             ]);
-    
+
             if ($validator->fails()) {
                 Log::error('Validation failed', [
                     'errors' => $validator->errors(),
                     'input' => request()->all()
                 ]);
-            
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Dữ liệu không hợp lệ',
                     'errors' => $validator->errors()
                 ], 422);
             }
-    
+
             DB::beginTransaction();
-    
+
             try {
                 foreach ($request->title_contents as $titleContentData) {
                     $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
                         ->where('content_id', $contentId)
                         ->first();
-    
+
                     if (!$titleContent) {
                         throw new \Exception("TitleContent ID {$titleContentData['title_content_id']} không thuộc về nội dung này");
                     }
-    
+
                     $updateData = [
-                        'body_content' => $titleContentData['body_content'], 
+                        'body_content' => $titleContentData['body_content'],
                         'video_link' => array_key_exists('video_link', $titleContentData) ? $titleContentData['video_link'] : $titleContent->video_link,
                         'document_link' => array_key_exists('document_link', $titleContentData) ? $titleContentData['document_link'] : $titleContent->document_link,
                         'description' => array_key_exists('description', $titleContentData) ? $titleContentData['description'] : $titleContent->description,
                         'status' => 'draft'
                     ];
-    
+
                     $titleContent->update($updateData);
                 }
-    
+
                 DB::commit();
-    
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Cập nhật tiêu đề nội dung thành công'
@@ -529,33 +531,32 @@ class TeacherController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             $courseId = $request->course_id;
-            
+
             $course = Course::findOrFail($courseId);
             $course->update(['status' => 'pending']);
-            
+
             $contents = Content::where('course_id', $courseId)->get();
             foreach ($contents as $content) {
                 $content->update(['status' => 'pending']);
-                
+
                 TitleContent::where('content_id', $content->content_id)
                     ->update(['status' => 'pending']);
             }
-            
+
             Quiz::where('course_id', $courseId)
                 ->update(['status' => 'pending']);
-            
+
             DB::commit();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Đã cập nhật tất cả status thành pending'
             ]);
-            
         } catch (\Exception $e) {
             DB::rollback();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
@@ -563,6 +564,34 @@ class TeacherController extends Controller
         }
     }
 
+    public function getSalesRank()
+    {
+        $orderDetails = OrderDetail::where('status', 'success')
+            ->with('course.user')
+            ->get();
 
+        $salesData = $orderDetails->groupBy('order_id')
+            ->map(function ($group) {
+                $totalRevenue = $group->sum('price');
+                $courseId = $group->first()->course_id;
+                $instructorName = $group->first()->course->user->name;
 
+                return [
+                    'order_id' => $group->first()->order_id,
+                    'course_id' => $courseId,
+                    'instructor_name' => $instructorName,
+                    'total_revenue' => $totalRevenue,
+                ];
+            })
+            ->sortByDesc('total_revenue')
+            ->values()
+            ->toArray();
+
+        $rank = 1;
+        foreach ($salesData as &$data) {
+            $data['rank'] = $rank++;
+        }
+
+        return response()->json($salesData);
+    }
 }

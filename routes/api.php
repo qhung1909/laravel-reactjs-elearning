@@ -245,4 +245,5 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::post('/update-pending/{course_id}', [TeacherController::class, 'updateToPending']);
 
     Route::get('/revenue', [AdminController::class, 'getTeacherRevenue']);
+    Route::get('/rank', [TeacherController::class, 'getSalesRank']);
 });
