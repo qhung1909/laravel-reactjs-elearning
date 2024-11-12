@@ -409,9 +409,13 @@ class QuizOptionController extends Controller
     }
     public function index($questionId)
     {
-        $options = QuizOption::where('question_id', $questionId)->get();
+        $options = QuizOption::with('question')  
+                             ->where('question_id', $questionId)
+                             ->get();
+    
         return response()->json($options);
     }
+    
     
 
     public function store(Request $request, $questionId)
