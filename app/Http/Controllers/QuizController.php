@@ -118,4 +118,35 @@ class QuizController extends Controller
         $quiz->delete();
         return response()->json(['message' => 'Quiz deleted successfully']);
     }
+    public function checkContentQuiz(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'content_id' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+
+        $quiz = Quiz::where('content_id', $request->content_id)->first();
+
+        if ($quiz) {
+            return response()->json([
+                'exists' => true,
+                'data' => [
+                    'quiz_id' => $quiz->quiz_id,
+                    'status' => $quiz->status,
+                    'title' => $quiz->title
+                ]
+            ]);
+        }
+
+        return response()->json([
+            'exists' => false
+        ]);
+    }
+    
 }

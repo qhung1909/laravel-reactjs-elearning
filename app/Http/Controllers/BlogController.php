@@ -95,8 +95,8 @@ class BlogController extends Controller
     
         try {
             $validator = Validator::make($request->all(), [
-                'title' => 'required|max:255',
-                'content' => 'required',
+                'title' => 'nullable|max:255',
+                'content' => 'nullable',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'status' => 'nullable|in:draft,success,hide',
                 'slug' => 'nullable|max:255|unique:blogs,slug',

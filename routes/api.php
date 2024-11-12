@@ -122,6 +122,7 @@ Route::middleware(['admin'])->group(function () {
     Route::get('quizzes/{id}', [QuizController::class, 'show']);
     Route::put('quizzes/{id}', [QuizController::class, 'update']);
     Route::delete('quizzes/{id}', [QuizController::class, 'destroy']);
+    Route::post('quiz/check-content', [QuizController::class, 'checkContentQuiz']);
 
 
 
