@@ -67,6 +67,22 @@ class AdminController extends Controller
         return $courses;
     }
 
+    public function getPendingCourseDetail($courseId)
+    {
+        $cacheKey = 'admin_pending_course_detail_' . $courseId;
+
+        $courseDetail = Cache::remember($cacheKey, 1, function () use ($courseId) {
+            return $this->course
+                ->with(['user:user_id,name', 'comments:course_id,rating'])
+                ->where('course_id', $courseId)
+                ->where('status', 'pending')
+                ->first();
+        });
+
+        return $courseDetail;
+    }
+
+
     public function showCourses($slug)
     {
         $course = Cache::remember("admin_course_{$slug}", 120, function () use ($slug) {
@@ -898,6 +914,4 @@ class AdminController extends Controller
             ], 500);
         }
     }
-
-    
 }

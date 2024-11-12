@@ -21,7 +21,8 @@ import { formatCurrency } from '@/components/Formatcurrency/formatCurrency';
 export default function BrowseNewCourses() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
-
+    const API_URL_GPT = 'https://api.openai.com/v1/chat/completions';
+    const API_KEY_GPT = import.meta.env.VITE_API_AI_KEY;
     const [courses, setCourses] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [stats, setStats] = useState({});
@@ -52,8 +53,8 @@ export default function BrowseNewCourses() {
     };
 
     const openEditModal = (courseId) => {
-        setSelectedCourseId(courseId); // Lưu courseId vào state
-        setIsEditModalOpen(true); // Mở modal
+        setSelectedCourseId(courseId);
+        setIsEditModalOpen(true);
     };
 
 
@@ -77,7 +78,7 @@ export default function BrowseNewCourses() {
             const response = await axios.post(
                 `${API_URL}/admin/revision`,
                 {
-                    course_id: selectedCourseId, // Sử dụng selectedCourseId từ state
+                    course_id: selectedCourseId,
                     reason: editNote,
                 },
                 {
@@ -91,7 +92,7 @@ export default function BrowseNewCourses() {
 
             if (response.data && response.data.success) {
                 toast.success("Yêu cầu chỉnh sửa đã được gửi thành công.");
-                fetchCourses(); // Cập nhật danh sách khóa học nếu cần
+                fetchCourses();
             } else {
                 console.error("Lỗi khi gửi yêu cầu chỉnh sửa:", response.data);
                 toast.error("Có lỗi xảy ra khi gửi yêu cầu chỉnh sửa.");
@@ -328,17 +329,12 @@ export default function BrowseNewCourses() {
                     Authorization: `Bearer ${token}`,
                 },
                 params: {
-                    course_id: courseId // Fetch nội dung cho khóa học được chọn
+                    course_id: courseId
                 }
             });
 
-            // console.log("API Response Data:", res.data);
-            // console.log("courseId:", courseId);
-
             if (res.data && res.data.success && Array.isArray(res.data.contents)) {
-                // Chuyển đổi courseId sang số để đảm bảo so sánh đúng kiểu dữ liệu
                 const filteredContents = res.data.contents.filter(content => content.course_id === Number(courseId));
-                // console.log("Filtered Contents:", filteredContents);
 
                 setContentLesson(filteredContents);
 
@@ -376,11 +372,8 @@ export default function BrowseNewCourses() {
                 }
             });
 
-            // console.log("Dữ liệu nhận được từ title contents:", res.data);
-            // console.log("Giá trị contentId:", contentId);
 
             if (res.data && res.data.success && Array.isArray(res.data.titleContents)) {
-                // console.log("Title Contents:", res.data.titleContents);
                 setTitleContents(res.data.titleContents);
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
@@ -409,10 +402,8 @@ export default function BrowseNewCourses() {
                 }
             });
 
-            // console.log("Dữ liệu nhận được từ API:", res.data);
 
             if (res.data && res.data.success && Array.isArray(res.data.quizzes)) {
-                // console.log("Quizzes:", res.data.quizzes);
                 setQuizContent(res.data.quizzes);
             } else {
                 console.error("Dữ liệu không đúng:", res.data);
@@ -423,11 +414,134 @@ export default function BrowseNewCourses() {
         }
     };
 
-
-
     useEffect(() => {
         fetchCourses();
     }, []);
+
+    const calculateCourseScore = async (courseId) => {
+        try {
+            // Fetch course data
+            const courseResponse = await axios.get(`${API_URL}/admin/pending-courses/${courseId}`, {
+                headers: { 'x-api-secret': API_KEY },
+            });
+            const courseData = courseResponse.data[0]; // Đảm bảo dữ liệu đúng là một object
+            console.log('Dữ liệu khóa học:', courseData);
+    
+            // Updated criteria bao gồm các tiêu chí mới
+            const criteria = {
+                price: 10,          // Giá: 10 điểm
+                attractiveness: 20, // Đánh giá tiêu đề và mô tả dựa vào GPT: tối đa 20 điểm
+                detailLevel: 20,    // Độ chi tiết của mô tả: tối đa 20 điểm
+            };
+    
+            let totalScore = 0;
+            let reasons = [];
+    
+            // Function to use GPT for content analysis and scoring
+            const analyzeContentWithGPT = async (content, type) => {
+                try {
+                    const response = await axios.post(
+                        'https://api.openai.com/v1/chat/completions',
+                        {
+                            model: 'gpt-3.5-turbo',
+                            messages: [
+                                {
+                                    role: 'user',
+                                    content: `Hãy đánh giá nội dung sau đây. Đánh giá dựa vào mức độ hấp dẫn, rõ ràng và phù hợp. Cho điểm từ 0 đến 20 nếu là tiêu đề và từ 0 đến 20 nếu là mô tả: "${content}". Nội dung này là ${type}.`,
+                                },
+                            ],
+                        },
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${API_KEY_GPT}`,
+                            },
+                        }
+                    );
+    
+                    const result = response.data.choices[0].message.content;
+                    const scoreMatch = result.match(/(\d+)/); // Tìm số điểm trong phản hồi
+                    if (scoreMatch) {
+                        const score = parseInt(scoreMatch[0], 10);
+                        console.log(`Điểm GPT đánh giá cho ${type}: ${score}`);
+                        return score;
+                    } else {
+                        console.log(`Không tìm thấy điểm trong phản hồi của GPT cho ${type}`);
+                        return 0;
+                    }
+                } catch (error) {
+                    console.error(`Lỗi khi chấm điểm ${type} bằng GPT:`, error);
+                    return 0; // Trả về 0 nếu có lỗi
+                }
+            };
+    
+            // Chấm điểm tiêu đề
+            if (courseData.title && courseData.title.trim().length > 0) {
+                const titleScore = await analyzeContentWithGPT(courseData.title, "tiêu đề");
+                totalScore += titleScore;
+            } else {
+                reasons.push('Thiếu tiêu đề hấp dẫn');
+                console.log('Không thêm điểm cho tiêu đề vì thiếu tiêu đề');
+            }
+    
+            // Chấm điểm mô tả
+            if (courseData.description && courseData.description.trim().length > 0) {
+                const descriptionScore = await analyzeContentWithGPT(courseData.description, "mô tả");
+                totalScore += descriptionScore;
+            } else {
+                reasons.push('Thiếu mô tả rõ ràng');
+                console.log('Không thêm điểm cho mô tả vì thiếu mô tả');
+            }
+    
+            // Chấm điểm cho giá
+            if (courseData.price && parseFloat(courseData.price) > 0) {
+                totalScore += criteria.price;
+                console.log(`Đã thêm ${criteria.price} điểm cho giá: ${courseData.price}`);
+            } else {
+                reasons.push('Không có giá hoặc giá không hợp lý');
+                console.log('Không thêm điểm cho giá vì không có giá hoặc giá không hợp lý');
+            }
+    
+            // Tổng điểm tối đa là 50 (20 + 20 + 10)
+            totalScore = Math.min(totalScore, 50);
+            totalScore = Math.max(totalScore, 0);
+    
+            console.log(`Tổng điểm: ${totalScore}`);
+    
+            // Tạo giải thích chi tiết
+            const explanation = `Điểm số của khóa học là ${totalScore}. Lý do: ${reasons.join(', ')}.`;
+    
+            return { finalScore: totalScore, explanation };
+        } catch (error) {
+            console.error('Lỗi khi tính điểm khóa học:', error);
+            toast.error('Có lỗi xảy ra khi tính điểm khóa học.');
+            return null;
+        }
+    };
+    
+    
+    const handleCalculateScore = async (courseId) => {
+        try {
+            // Gọi hàm calculateCourseScore và lấy kết quả
+            const courseScore = await calculateCourseScore(courseId);
+    
+            if (courseScore && courseScore.finalScore !== null) {
+                const { finalScore, explanation } = courseScore;
+                console.log(`Điểm số của khóa học: ${finalScore}`);
+                console.log(`Giải thích: ${explanation}`);
+                toast.success(`Điểm số của khóa học: ${finalScore}`);
+            } else {
+                throw new Error('Không thể tính điểm khóa học');
+            }
+        } catch (error) {
+            console.error('Lỗi khi tính điểm khóa học:', error.message || error);
+            toast.error('Có lỗi xảy ra khi tính điểm khóa học.');
+        }
+    };
+    
+
+
+
+
 
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -548,8 +662,8 @@ export default function BrowseNewCourses() {
                                                         Giảng viên: {course.user.name || 'Không rõ'}
                                                     </div>
                                                     <div className="text-sm text-gray-600">
-    Ngày: {course.created_at ? new Date(course.created_at).toLocaleDateString() : 'Không rõ'}
-</div>
+                                                        Ngày: {course.created_at ? new Date(course.created_at).toLocaleDateString() : 'Không rõ'}
+                                                    </div>
 
                                                 </div>
                                             ))}
@@ -869,6 +983,15 @@ export default function BrowseNewCourses() {
                                                     <CheckCircle className="mr-2 h-4 w-4" />
                                                     Phê duyệt Bài học
                                                 </Button>
+
+                                                <Button
+                                                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                                                    onClick={() => handleCalculateScore(activeCourse?.course_id)}
+                                                >
+                                                    <CheckCircle className="mr-2 h-4 w-4" />
+                                                    Tính điểm
+                                                </Button>
+
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
@@ -945,6 +1068,8 @@ export default function BrowseNewCourses() {
                                                 </DialogFooter>
                                             </DialogContent>
                                         </Dialog>
+
+
                                     </div>
                                 </CardContent>
                             </Card>
