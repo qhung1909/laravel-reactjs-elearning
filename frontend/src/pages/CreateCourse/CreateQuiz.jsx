@@ -168,10 +168,26 @@ export const CreateQuiz = () => {
     };
 
 
-
+    console.log('====================================');
+    console.log(isUpdated);
+    console.log('====================================');
 
 
     const addQuizQuestion = async (type) => {
+        if (!isUpdated) {
+            const { isConfirmed } = await Swal.fire({
+                title: "Cảnh báo",
+                text: "Bạn có thay đổi chưa được lưu. Bạn có muốn tiếp tục mà không lưu không?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Tiếp tục",
+                cancelButtonText: "Hủy",
+            });
+
+            if (!isConfirmed) {
+                return; // Hủy thêm quiz mới nếu người dùng chọn "Hủy"
+            }
+        }
         try {
             const requestData = {
                 questions: [
@@ -448,6 +464,7 @@ export const CreateQuiz = () => {
         const updatedQuestions = [...questions];
         updatedQuestions[index].question = value;
         setQuestions(updatedQuestions);
+        setIsUpdated(false);
     };
 
     const handleOptionChange = (qIndex, optIndex, value) => {
@@ -462,6 +479,7 @@ export const CreateQuiz = () => {
             answer: value // Update the answer field
         };
         setQuestions(updatedQuestions);
+        setIsUpdated(false);
     };
 
     const handleAnswerChange = (questionIndex, selectedAnswer) => {
