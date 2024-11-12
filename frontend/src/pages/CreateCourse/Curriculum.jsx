@@ -52,7 +52,7 @@ export const Curriculum = () => {
     const [sections, setSections] = useState([]);
     const [isUpdated, setIsUpdated] = useState(false);
 
-    console.log(isUpdated, 'clickUpdate-curriculum');
+    // console.log(isUpdated, 'clickUpdate-curriculum');
     const [hasChanges, setHasChanges] = useState(false);
 
     // Function to handle section title change
@@ -198,7 +198,7 @@ export const Curriculum = () => {
     }, []);
     const fetchContent = async (force = false) => {
         if (!force && isDataFetched) {
-            console.log("Dữ liệu đã được tải, không cần fetch lại");
+            // console.log("Dữ liệu đã được tải, không cần fetch lại");
             return;
         }
         try {
@@ -676,7 +676,7 @@ export const Curriculum = () => {
             console.log("Dữ liệu đã được tải, không cần fetch lại");
             return;
         }
-        console.log(contentId);
+        // console.log(contentId);
 
         const fetchData = async () => {
             try {

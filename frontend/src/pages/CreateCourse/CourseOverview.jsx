@@ -71,7 +71,7 @@ export const CourseOverview = () => {
 
     const wordCount = courseDescriptionText.trim().split(/\s+/).filter(word => word).length;
 
-    console.log(isUpdated, 'clickUpdate-courseOverview');
+    // console.log(isUpdated, 'clickUpdate-courseOverview');
 
 
     useEffect(() => {
