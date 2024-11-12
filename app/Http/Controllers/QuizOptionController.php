@@ -410,11 +410,20 @@ class QuizOptionController extends Controller
 
     public function index($questionId) 
     {
-        $options = QuizOption::with(['question'])
-            ->where('question_id', $questionId)
-            ->get();
-        
-        return response()->json($options);
+        return response()->json(
+            cache()->tags(['quiz_options'])->remember(
+                'quiz_options_' . $questionId, 
+                now()->addMinutes(5),
+                fn() => QuizOption::select([
+                    'option_id',
+                    'question_id', 
+                    'answer',
+                    'is_correct'
+                ])
+                ->where('question_id', $questionId)
+                ->get()
+            )
+        );
     }
 
     public function store(Request $request, $questionId)
