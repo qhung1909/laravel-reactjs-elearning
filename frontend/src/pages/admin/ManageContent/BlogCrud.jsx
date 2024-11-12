@@ -108,6 +108,8 @@ export const BlogCrud = () => {
     const [editBlogImage, setEditBlogImage] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
 
+
+    // API get blogs
     const fetchBlogs = async (page = 1) => {
         try {
 
@@ -136,43 +138,13 @@ export const BlogCrud = () => {
         }
     }
 
-
+    // phân trang
     const handlePageChange = (page) => {
         fetchBlogs(page)
     }
 
-    const renderBlogs = () => {
-        if (loading) {
-            return <p>Đang tải...</p>
-        }
 
-        if (!blogs.length) {
-            return <p>Không có bài viết nào.</p>
-        }
-
-        return (
-            <div className="grid grid-cols-3 gap-5">
-                {blogs.map((blog) => (
-                    <div key={blog.blog_id} className="blog-list-content mb-5">
-                        <div className="blog-img">
-                            <div>
-                                <img
-                                    src={blog.image || './src/assets/images/blog-1.png'}
-                                    className="rounded-xl xl:h-[240px] lg:h-[210px] md:h-[180px] sm:h-[150px] h-[120px] object-cover w-full"
-                                    alt={blog.title}
-                                />
-                            </div>
-                        </div>
-                        <div className="blog-title">
-                            <p className="xl:text-xl lg:text-base md:text-sm sm:text-xs text-[10px] font-semibold pt-2">
-                                {blog.title}
-                            </p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        )
-    }
+    // change ảnh
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -185,7 +157,7 @@ export const BlogCrud = () => {
         }
     };
 
-
+    // xuất exel
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(sortedBlogs);
 
@@ -195,6 +167,7 @@ export const BlogCrud = () => {
         XLSX.writeFile(wb, 'blogs.xlsx');
     };
 
+    // add blog
     const addBlog = async (e) => {
         e.preventDefault();
         const cleanContent = newBlogContent
@@ -231,28 +204,41 @@ export const BlogCrud = () => {
         }
     };
 
+    // edit blog
     const editBlog = async () => {
-        const formData = new FormData();
-        formData.append('title', editBlogTitle);
-        formData.append('content', editBlogContent);
-        formData.append('status', 'success');
-        if (editBlogImage) {
-            formData.append('image', editBlogImage);
-        }
+        const payload = {
+            title: editBlogTitle,
+            content: editBlogContent,
+        };
 
         try {
             setLoading(true);
-            const res = await axios.put(`${API_URL}/blogs/${editBlogId}`, formData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'x-api-secret': API_KEY,
-                    'Content-Type': 'multipart/form-data'
-                }
+            let headers = {
+                'Authorization': `Bearer ${token}`,
+                'x-api-secret': API_KEY,
+            };
+            let requestBody;
+            if (editBlogImage) {
+                const formData = new FormData();
+                formData.append('title', editBlogTitle);
+                formData.append('content', editBlogContent);
+                formData.append('image', editBlogImage);
+                requestBody = formData;
+                headers['Content-Type'] = 'multipart/form-data';
+            } else {
+                requestBody = payload;
+                headers['Content-Type'] = 'application/json';
+            }
+
+            const res = await axios.put(`${API_URL}/blogs/${editBlogId}`, requestBody, {
+                headers: headers,
             });
+
             const data = res.data;
             console.log('Blog updated:', data);
             notify('Cập nhật bài viết thành công', 'success');
             setShowEditDialog(false);
+            window.location.reload();
             await fetchBlogs();
         } catch (error) {
             setError('Lỗi khi sửa bài viết');
@@ -262,7 +248,7 @@ export const BlogCrud = () => {
         }
     };
 
-
+    // delete blog
     const deleteBlog = async (slug) => {
         const { isConfirmed } = await Swal.fire({
             title: "Xác nhận xóa",
@@ -293,6 +279,7 @@ export const BlogCrud = () => {
         }
     }
 
+    // sắp xếp
     const handleSort = (key) => {
         let direction = 'asc';
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -319,6 +306,7 @@ export const BlogCrud = () => {
         }
     });
 
+    // mở nút Edit, lấy data từng slug
     const openEditDialog = (blog) => {
         setEditBlogId(blog.slug);
         setEditBlogTitle(blog.title);
@@ -584,7 +572,7 @@ export const BlogCrud = () => {
                                                                     Sửa
                                                                 </Button>
                                                             </DialogTrigger>
-                                                            <DialogContent className="sm:max-w-[425px]">
+                                                            <DialogContent className="sm:max-w-[425px] max-h-[500px] overflow-y-auto">
                                                                 <DialogHeader>
                                                                     <DialogTitle>Sửa bài viết</DialogTitle>
                                                                     <DialogDescription>
@@ -696,7 +684,7 @@ export const BlogCrud = () => {
                         </table>
                     </div>
 
-
+                    {/* phân trang */}
                     <div className="mt-3">
                         <Pagination>
                             <PaginationContent>

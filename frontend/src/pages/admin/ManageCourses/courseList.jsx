@@ -52,7 +52,7 @@ export default function CourseList() {
     });
 
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 4;
+    const itemsPerPage = 8;
     const exportToExcel = () => {
         // Create a worksheet from the filtered courses
         const worksheet = XLSX.utils.json_to_sheet(currentFilteredCourses);

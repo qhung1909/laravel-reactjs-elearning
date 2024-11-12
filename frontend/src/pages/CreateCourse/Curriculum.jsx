@@ -1,4 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { useEffect, useState } from 'react';
 import { Video, X, FileText, ArrowLeft, Menu } from 'lucide-react';
 import { Card } from "@/components/ui/card";
@@ -230,7 +239,7 @@ export const Curriculum = () => {
 
     const addSection = async () => {
         if (sections.length > 0 && (!sections[sections.length - 1].title || !sections[sections.length - 1].title.trim())) {
-            toast.error("Vui lòng nhập tiêu đề cho Bài học trước khi thêm Bài học mới.");
+            toast.error("Vui lòng nhập tiêu đề cho Bài học trước khi Thêm Bài học mới.");
             return;
         }
 
@@ -277,16 +286,20 @@ export const Curriculum = () => {
 
     const addLesson = async (sectionId) => {
         const section = sections.find(section => section.id === sectionId);
-
+        // if()
+        const lastLesson = section.lessons[section.lessons.length - 1];
+        if (!lastLesson.title || !lastLesson.title.trim()) {
+            toast.error("Vui lòng nhập tiêu đề nội dung của bài trước khi '+ Thêm nội dung mới' ");
+            return;
+        }
         try {
-            // Gửi request với nội dung trống để chỉ lấy ID mới
             const requestData = {
                 content_id: section.content_id,
                 title_contents: [{
-                    body_content: "",        // Để trống title
-                    video_link: null,        // Để trống video
-                    document_link: null,     // Để trống document
-                    description: ""          // Để trống description
+                    body_content: "",
+                    video_link: null,
+                    document_link: null,
+                    description: ""
                 }]
             };
 
@@ -308,7 +321,6 @@ export const Curriculum = () => {
 
             const newTitleContentId = response.data.data[0].title_content_id;
 
-            // Thêm bài học mới với nội dung trống
             setSections(sections.map(section => {
                 if (section.id === sectionId) {
                     return {
@@ -317,13 +329,13 @@ export const Curriculum = () => {
                             ...section.lessons,
                             {
                                 id: section.lessons.length + 1,
-                                title: '',                    // Trống
-                                selectedOption: '',           // Trống
-                                videoLink: '',                // Trống
-                                content: '',                  // Trống
-                                fileName: '',                 // Trống
-                                description: '',              // Trống
-                                title_content_id: newTitleContentId  // Chỉ lấy ID mới
+                                title: '',
+                                selectedOption: '',
+                                videoLink: '',
+                                content: '',
+                                fileName: '',
+                                description: '',
+                                title_content_id: newTitleContentId
                             }
                         ]
                     };
@@ -464,7 +476,6 @@ export const Curriculum = () => {
             return;
         }
         try {
-            // Gửi yêu cầu POST để thêm quiz
             const response = await axios.post(
                 `${API_URL}/quizzes`,
                 {
@@ -481,9 +492,7 @@ export const Curriculum = () => {
             );
 
 
-
-            // Kiểm tra và xử lý phản hồi khi quiz được thêm thành công
-            if (response.data && response.data.quiz_id) {
+            if (response.status === 201 && response.data) {
                 Swal.fire({
                     title: 'Thành công!',
                     text: 'Quiz đã được thêm thành công. Chuyển đến trang tạo quiz.',
@@ -491,14 +500,27 @@ export const Curriculum = () => {
                     confirmButtonText: 'Đóng',
                 });
 
-                // Chuyển hướng đến trang tạo quiz
                 navigate(`/course/manage/${course_id}/create-quiz/${sectionId}/quiz/${response.quiz_id}`);
-            } else {
-                throw new Error('Có lỗi xảy ra khi thêm quiz.');
             }
+
+
+
+            // Kiểm tra và xử lý phản hồi khi quiz được thêm thành công
+            // if (response.data && response.data.quiz_id) {
+            //     Swal.fire({
+            //         title: 'Thành công!',
+            //         text: 'Quiz đã được thêm thành công. Chuyển đến trang tạo quiz.',
+            //         icon: 'success',
+            //         confirmButtonText: 'Đóng',
+            //     });
+
+            //     // Chuyển hướng đến trang tạo quiz
+            //     navigate(`/course/manage/${course_id}/create-quiz/${sectionId}/quiz/${response.quiz_id}`);
+            // } else {
+            //     throw new Error('Có lỗi xảy ra khi thêm quiz.');
+            // }
         } catch (error) {
             if (error.response) {
-                // Kiểm tra mã lỗi từ phản hồi
                 if (error.response.status === 400) {
                     // Lỗi 400, quiz đã tồn tại
                     Swal.fire({
@@ -508,19 +530,9 @@ export const Curriculum = () => {
                         confirmButtonText: 'Đóng',
                     });
 
-                    // Chuyển hướng đến trang tạo quiz
                     navigate(`/course/manage/${course_id}/create-quiz/${sectionId}/quiz/${error.response?.data?.data?.quiz_id}`);
-                } else {
-                    // Xử lý lỗi khác (ví dụ 401, 500, v.v.)
-                    Swal.fire({
-                        title: 'Thất bại!',
-                        text: error.response?.data?.message || error.message || 'Không thể thêm quiz.',
-                        icon: 'error',
-                        confirmButtonText: 'Đóng',
-                    });
                 }
             } else {
-                // Nếu không có phản hồi từ máy chủ
                 Swal.fire({
                     title: 'Lỗi!',
                     text: error.message || 'Không thể kết nối với máy chủ.',
@@ -535,9 +547,8 @@ export const Curriculum = () => {
 
 
 
-    const handleSubmit = async () => {
+    const update = async () => {
         toast.dismiss();
-        // Kiểm tra nếu có tiêu đề trống hoặc chỉ có khoảng trắng
         const invalidSections = sections.filter(section => !section.title.trim());
         if (invalidSections.length > 0) {
             toast.error('Vui lòng nhập tiêu đề hợp lệ cho tất cả các bài học!');
@@ -576,9 +587,8 @@ export const Curriculum = () => {
                 updatePromise,
             ]);
 
-            let hasError = false; // Biến để kiểm tra nếu có lỗi
+            let hasError = false;
 
-            // Kiểm tra kết quả của các yêu cầu thêm
 
 
             // Kiểm tra kết quả của yêu cầu cập nhật
@@ -625,7 +635,8 @@ export const Curriculum = () => {
                 toast.success('Đã lưu thành nội dung thành công!');
             }
             setHasChanges(false);
-
+            await fetchContent();
+            // window.location.reload();
         } catch (error) {
             if (error.response?.status === 401) {
                 toast.error('Phiên làm việc đã hết hạn, vui lòng đăng nhập lại!');
@@ -641,9 +652,10 @@ export const Curriculum = () => {
             const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi xử lý nội dung!';
             toast.error(errorMessage);
             console.error('Error:', error);
+
         } finally {
             toast.dismiss(loadingToast);
-            await fetchContent();
+            // await fetchContent();
             setIsUpdated(true);
         }
     };
@@ -726,7 +738,7 @@ export const Curriculum = () => {
 
                         <div className="flex items-center gap-4">
                             <Button
-                                onClick={handleSubmit}
+                                onClick={update}
                                 className="hidden sm:inline-flex items-center px-6 py-3 bg-white text-yellow-600 font-semibold rounded-lg border-2 border-yellow-600 hover:bg-yellow-600 hover:text-white transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
                             >
                                 <span>Cập nhật Nội Dung</span>
@@ -827,16 +839,32 @@ export const Curriculum = () => {
                                                                         className="w-full"
                                                                     />
 
-                                                                    <select
+                                                                    {/* <select
                                                                         onChange={(e) => handleSelectChange(section.id, lesson.id, e.target.value)}
                                                                         value={lesson.selectedOption}
                                                                         className="border p-2 rounded-md mb-4"
                                                                     >
                                                                         <option value="">Chọn loại nội dung</option>
-                                                                        {/* <option value="videoUrl">Dạng video URL</option> */}
                                                                         <option value="videoFile">Dạng Video file</option>
                                                                         <option value="content">Dạng Nội dung</option>
-                                                                    </select>
+                                                                    </select> */}
+
+                                                                    <Select
+                                                                        className="border p-2 rounded-md mb-4"
+                                                                        value={lesson.selectedOption}
+                                                                        onValueChange={(value) => handleSelectChange(section.id, lesson.id, value)} // Đảm bảo sử dụng onValueChange
+                                                                    >
+                                                                        <SelectTrigger className="w-full">
+                                                                            <SelectValue placeholder="-- Chọn loại nội dung --" />
+                                                                        </SelectTrigger>
+                                                                        <SelectContent>
+                                                                            <SelectGroup>
+                                                                                <SelectLabel>Chọn loại nội dung</SelectLabel>
+                                                                                <SelectItem value="videoFile">Dạng Video file</SelectItem>
+                                                                                <SelectItem value="content">Dạng Nội dung</SelectItem>
+                                                                            </SelectGroup>
+                                                                        </SelectContent>
+                                                                    </Select>
 
                                                                     {lesson.selectedOption === "videoFile" && (
                                                                         <div>

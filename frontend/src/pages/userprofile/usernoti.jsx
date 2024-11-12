@@ -33,6 +33,11 @@ export const UserNoti = () => {
                                         <p>Thông báo</p>
                                     </Link>
                                 </li>
+                                <li className="py-3 lg:py-2 px-3 rounded-md">
+                                    <Link className="hover:underline" to="/user/favorite">
+                                        <p>Yêu thích</p>
+                                    </Link>
+                                </li>
                             </ul>
                         </div>
                         <div className="col-span-3 my-3 lg:my-5">

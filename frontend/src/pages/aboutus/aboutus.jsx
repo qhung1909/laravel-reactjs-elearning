@@ -247,7 +247,7 @@ export const Aboutus = () => {
                                     </div>
 
                                     {/* left footer */}
-                                    <div className="xl:mt-28 lg:mt-10 md:mt-16 lg:leading-8 md:leading-7 leading-6 lg:text-base md:text-start text-center text-sm">
+                                    <div className="xl:mt-40 lg:mt-10 md:mt-16 lg:leading-8 md:leading-7 leading-6 lg:text-base md:text-start text-center text-sm">
                                         <p>Từ những công đoạn chuẩn bị sớm trước vài tuần cho dự án, từ khâu thiết kế, nêu ý tưởng, định kiến kế hoạch và kết quả đạt được. cho đến những buổi họp mặt online và các thảo luận qua tin nhắn. Cùng với những nỗ lực không ngừng của team, dự án được thực hiện vượt quá mong đợi của cả nhóm. Chúng tôi học hỏi được nhiều thứ, cùng nhau tiến bộ, cùng nhau hỗ trợ, giúp đỡ nhau khi gặp khó khăn. Chúng tôi tự hào vì chúng tôi đã có một hành trình đầy thử thách nhưng mọi công sức của đã được đền đáp. Chúng tôi tin rằng cả nhóm đã có một hành trình không ít gian nan những thành quả thì vô cùng xứng đáng.</p>
                                     </div>
                                 </div>
