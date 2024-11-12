@@ -164,6 +164,7 @@ export const CreateQuiz = () => {
             });
         } finally {
             setLoading(false);
+            setIsUpdated(true);
         }
     };
 
