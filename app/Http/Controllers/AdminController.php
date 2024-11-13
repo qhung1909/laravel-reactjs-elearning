@@ -22,10 +22,11 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\CourseStatusNotification;
 use App\Models\User;
 use App\Models\OrderDetail;
+
 class AdminController extends Controller
-{   
-    const ADMIN_SHARE = 10; 
-    const TEACHER_SHARE = 90; 
+{
+    const ADMIN_SHARE = 10;
+    const TEACHER_SHARE = 90;
 
     protected $course;
     protected $category;
@@ -41,15 +42,44 @@ class AdminController extends Controller
     public function getAllCourses()
     {
         $cacheKey = 'admin_courses_all';
-    
+
         $courses = Cache::remember($cacheKey, 1, function () {
             return $this->course
                 ->with(['user:user_id,name', 'comments:course_id,rating'])
                 ->whereIn('status', ['published', 'hide'])
                 ->get();
         });
-    
+
         return $courses;
+    }
+
+    public function getPendingCourses()
+    {
+        $cacheKey = 'admin_courses_all_2';
+
+        $courses = Cache::remember($cacheKey, 1, function () {
+            return $this->course
+                ->with(['user:user_id,name', 'comments:course_id,rating'])
+                ->whereIn('status', ['pending'])
+                ->get();
+        });
+
+        return $courses;
+    }
+
+    public function getPendingCourseDetail($courseId)
+    {
+        $cacheKey = 'admin_pending_course_detail_' . $courseId;
+
+        $courseDetail = Cache::remember($cacheKey, 1, function () use ($courseId) {
+            return $this->course
+                ->with(['user:user_id,name', 'comments:course_id,rating'])
+                ->where('course_id', $courseId)
+                ->where('status', 'pending')
+                ->first();
+        });
+
+        return $courseDetail;
     }
 
 
@@ -819,6 +849,10 @@ class AdminController extends Controller
         }
     }
 
+
+
+
+
     public function getTeacherRevenue(Request $request)
     {
         try {
@@ -880,5 +914,4 @@ class AdminController extends Controller
             ], 500);
         }
     }
-
 }

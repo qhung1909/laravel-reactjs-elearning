@@ -42,7 +42,7 @@ export const CreateQuiz = () => {
     const [focusedAnswers, setFocusedAnswers] = useState({});
 
     const handleNavigate = (path) => {
-        console.log("isUpdated:", isUpdated); // Kiểm tra giá trị của isUpdated
+        // console.log("isUpdated:", isUpdated); // Kiểm tra giá trị của isUpdated
         if (location.pathname === path) {
             return;
         }
@@ -164,13 +164,14 @@ export const CreateQuiz = () => {
             });
         } finally {
             setLoading(false);
+            setIsUpdated(true);
         }
     };
 
 
-    console.log('====================================');
-    console.log(isUpdated);
-    console.log('====================================');
+    // console.log('====================================');
+    // console.log(isUpdated);
+    // console.log('====================================');
 
 
     const addQuizQuestion = async (type) => {

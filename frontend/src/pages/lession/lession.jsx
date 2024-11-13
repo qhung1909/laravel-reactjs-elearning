@@ -287,12 +287,6 @@ export const Lesson = () => {
                 },
             });
 
-            if (res.data && res.data.message === 'Tiến trình đã được cập nhật.') {
-                toast.success("Tiến độ đã được cập nhật!");
-            } else {
-                console.error("Lỗi khi cập nhật tiến độ:", res.data);
-                toast.error("Có lỗi xảy ra khi cập nhật tiến độ.");
-            }
         } catch (error) {
             console.error("Lỗi khi cập nhật tiến độ:", error);
             toast.error("Có lỗi xảy ra khi cập nhật tiến độ.");
@@ -422,7 +416,7 @@ export const Lesson = () => {
 
     const [userMessage, setUserMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([
-        { role: 'system', content: 'Bạn là một trợ lý AI.' },
+        { role: 'system', content: 'Tôi có thể giúp gì cho bạn.' },
     ]);
     const sendMessageToChatGPT = async (message) => {
         try {
@@ -545,6 +539,11 @@ export const Lesson = () => {
                                                     type="text"
                                                     value={userMessage}
                                                     onChange={(e) => setUserMessage(e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            handleSendMessage();
+                                                        }
+                                                    }}
                                                     placeholder="Nhập tin nhắn của bạn..."
                                                     className="flex-grow p-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring focus:ring-blue-500"
                                                 />
@@ -557,7 +556,6 @@ export const Lesson = () => {
                                             </div>
                                         </SheetContent>
                                     </Sheet>
-
                                 </div>
 
                                 {/* Hiển thị lịch nếu isCalendarOpen là true */}
@@ -630,19 +628,24 @@ export const Lesson = () => {
 
                                                 <div className="overflow-auto h-[60vh] md:h-[70%] mb-4 border border-gray-700 rounded-lg p-3 bg-gray-800">
                                                     <div className="p-2 space-y-2 text-sm">
-                                                        <p><strong>Bạn:</strong> Giúp tôi giải bài quiz này</p>
-                                                        <p><strong>Bot:</strong> Mua gói VIP đi, tôi sẽ giải cho bạn.</p>
+                                                        {chatHistory.map((message, index) => (
+                                                            <p key={index} className={message.role === 'user' ? 'text-blue-400' : 'text-green-400'}>
+                                                                <strong>{message.role === 'user' ? 'Bạn' : 'Bot'}:</strong> {message.content}
+                                                            </p>
+                                                        ))}
                                                     </div>
                                                 </div>
 
                                                 <div className="flex items-center space-x-2">
                                                     <input
                                                         type="text"
+                                                        value={userMessage}
+                                                        onChange={(e) => setUserMessage(e.target.value)}
                                                         placeholder="Nhập tin nhắn của bạn..."
                                                         className="flex-grow p-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring focus:ring-blue-500"
                                                     />
                                                     <Button
-                                                        onClick={() => console.log("Gửi tin nhắn")}
+                                                        onClick={handleSendMessage}
                                                         className="bg-blue-600 text-white hover:bg-blue-700 rounded-lg px-4 py-2"
                                                     >
                                                         Gửi
@@ -650,7 +653,6 @@ export const Lesson = () => {
                                                 </div>
                                             </SheetContent>
                                         </Sheet>
-
 
                                     </div>
                                 </div>
@@ -756,8 +758,6 @@ export const Lesson = () => {
                                 </div>
 
                             </div>
-
-
                             {/* Hiển thị quiz nếu đã bắt đầu, nằm bên trong div video */}
                             {showQuiz && currentQuizId && (
                                 <Quizzes

@@ -52,7 +52,7 @@ export const Curriculum = () => {
     const [sections, setSections] = useState([]);
     const [isUpdated, setIsUpdated] = useState(false);
 
-    console.log(isUpdated, 'clickUpdate-curriculum');
+    // console.log(isUpdated, 'clickUpdate-curriculum');
     const [hasChanges, setHasChanges] = useState(false);
 
     // Function to handle section title change
@@ -198,7 +198,7 @@ export const Curriculum = () => {
     }, []);
     const fetchContent = async (force = false) => {
         if (!force && isDataFetched) {
-            console.log("Dữ liệu đã được tải, không cần fetch lại");
+            // console.log("Dữ liệu đã được tải, không cần fetch lại");
             return;
         }
         try {
@@ -238,10 +238,10 @@ export const Curriculum = () => {
 
 
     const addSection = async () => {
-        if (sections.length > 0 && (!sections[sections.length - 1].title || !sections[sections.length - 1].title.trim())) {
-            toast.error("Vui lòng nhập tiêu đề cho Bài học trước khi Thêm Bài học mới.");
-            return;
-        }
+        // if (sections.length > 0 && (!sections[sections.length - 1].title || !sections[sections.length - 1].title.trim())) {
+        //     toast.error("Vui lòng nhập tiêu đề cho Bài học trước khi Thêm Bài học mới.");
+        //     return;
+        // }
 
         // Tạo đối tượng phần mới
         const newSection = {
@@ -287,11 +287,11 @@ export const Curriculum = () => {
     const addLesson = async (sectionId) => {
         const section = sections.find(section => section.id === sectionId);
         // if()
-        const lastLesson = section.lessons[section.lessons.length - 1];
-        if (!lastLesson.title || !lastLesson.title.trim()) {
-            toast.error("Vui lòng nhập tiêu đề nội dung của bài trước khi '+ Thêm nội dung mới' ");
-            return;
-        }
+        // const lastLesson = section.lessons[section.lessons.length - 1];
+        // if (!lastLesson.title || !lastLesson.title.trim()) {
+        //     toast.error("Vui lòng nhập tiêu đề nội dung của bài trước khi '+ Thêm nội dung mới' ");
+        //     return;
+        // }
         try {
             const requestData = {
                 content_id: section.content_id,
@@ -676,7 +676,7 @@ export const Curriculum = () => {
             console.log("Dữ liệu đã được tải, không cần fetch lại");
             return;
         }
-        console.log(contentId);
+        // console.log(contentId);
 
         const fetchData = async () => {
             try {
