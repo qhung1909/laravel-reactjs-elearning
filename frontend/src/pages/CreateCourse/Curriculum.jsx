@@ -767,7 +767,7 @@ export const Curriculum = () => {
 
 
                             <div className="max-w-4xl mx-auto p-6">
-                                <form method="POST" encType="multipart/form-data" className="space-y-4">
+                                <form method="POST" encType="multipart/form-data" onSubmit={(e) => e.preventDefault()} className="space-y-4">
                                     <h2 className="text-xl font-semibold">Nội dung khóa học</h2>
                                     <Accordion type="multiple" collapsible="true" className="space-y-4 relative">
                                         {sections.map((section, sectionIndex) => (
