@@ -54,16 +54,15 @@ export default function CourseList() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8;
     const exportToExcel = () => {
-        // Create a worksheet from the filtered courses
         const worksheet = XLSX.utils.json_to_sheet(currentFilteredCourses);
 
-        // Create a new workbook and append the worksheet
+
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, worksheet, 'Courses');
 
-        // Export the workbook to a file
         XLSX.writeFile(wb, 'courses_data.xlsx');
     };
+
     const fetchCourses = async () => {
         try {
             const res = await axios.get(`${API_URL}/admin/courses`, {

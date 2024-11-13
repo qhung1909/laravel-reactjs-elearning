@@ -60,6 +60,7 @@ import { Search, ChevronDown, FileDown, UserCircle, XCircle, School, CheckCircle
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import * as XLSX from 'xlsx';
 
 export default function PersonalInformation() {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -161,6 +162,38 @@ export default function PersonalInformation() {
         console.log("Deleting user:", userId);
     };
 
+    const exportToExcel = () => {
+        const filteredData = getFilteredData();
+
+        const formattedData = filteredData.map((user, index) => ({
+            STT: index + 1,
+            Avatar: user.avatar,
+            Name: user.name,
+            Email: user.email,
+            CreatedAt: new Date(user.created_at).toLocaleDateString(),
+            UpdatedAt: new Date(user.updated_at).toLocaleDateString(),
+            Status: user.status === 1 ? 'Hoạt động' : 'Không hoạt động',
+            Role: user.role === "teacher" ? 'Giảng viên' : 'Học viên'
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(formattedData);
+        ws['!cols'] = [
+            { wpx: 50 }, // STT
+            { wpx: 100 }, // Avatar
+            { wpx: 150 }, // Name
+            { wpx: 200 }, // Email
+            { wpx: 120 }, // CreatedAt
+            { wpx: 120 }, // UpdatedAt
+            { wpx: 100 }, // Status
+            { wpx: 100 }, // Role
+        ];
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'User Data');
+
+        XLSX.writeFile(wb, 'user_data.xlsx');
+    };
+
     return (
         <SidebarProvider>
             <SideBarUI />
@@ -220,7 +253,7 @@ export default function PersonalInformation() {
                                     </DropdownMenuContent>
                                 </DropdownMenu>
 
-                                <Button variant="outline" className="flex items-center gap-2">
+                                <Button variant="outline" className="flex items-center gap-2" onClick={exportToExcel}>
                                     <FileDown className="h-4 w-4" />
                                     Xuất
                                 </Button>
@@ -247,7 +280,7 @@ export default function PersonalInformation() {
                                             <TableRow key={user.id}>
                                                 <TableCell className="font-medium text-center">{index + 1}</TableCell>
                                                 <TableCell className="text-center">
-                                                <div className="relative inline-block">
+                                                    <div className="relative inline-block">
                                                         <img
                                                             src={user.avatar}
                                                             alt={user.name}
@@ -266,7 +299,7 @@ export default function PersonalInformation() {
                                                     {new Date(user.updated_at).toLocaleDateString()}
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                <div className={`inline-flex items-center justify-center space-x-1 p-1 rounded-full ${user.status === 1 ? 'bg-green-50 text-green-700 border-green-200 shadow-sm' : 'bg-red-50 text-red-700 border-red-200 shadow-sm'} font-medium ring-1 ${user.status === 1 ? 'ring-green-600/20' : 'ring-red-600/20'} whitespace-nowrap w-full`}>
+                                                    <div className={`inline-flex items-center justify-center space-x-1 p-1 rounded-full ${user.status === 1 ? 'bg-green-50 text-green-700 border-green-200 shadow-sm' : 'bg-red-50 text-red-700 border-red-200 shadow-sm'} font-medium ring-1 ${user.status === 1 ? 'ring-green-600/20' : 'ring-red-600/20'} whitespace-nowrap w-full`}>
                                                         {user.status === 1 ? (
                                                             <>
                                                                 <CheckCircle className="w-4 h-4" />
