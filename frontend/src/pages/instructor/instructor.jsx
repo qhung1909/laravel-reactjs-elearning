@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/sheet"
 import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom"
+import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import axios from "axios";
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -41,7 +42,10 @@ export const Instructor = () => {
     const [loadingLogout, setLoadingLogout] = useState(false);
     const [_success, setSuccess] = useState("");
     const navigate = useNavigate();
-    const [teacherCourses,setTeacherCourses] = useState([]);
+    const [teacherCourses, setTeacherCourses] = useState([]);
+    const [teacherRevenue, setTeacherRevenue] = useState([]);
+    const [teacherRank, setTeacherRank] = useState([]);
+
     const fetchTeacherCourse = async () => {
         const token = localStorage.getItem("access_token");
         try {
@@ -53,11 +57,37 @@ export const Instructor = () => {
             });
             setTeacherCourses(response.data.courses)
         } catch (error) {
-            console.log('Error fetching users Courses', error)
+            console.log('Error fetching teacher Courses', error)
         }
     }
-    const fetchOrders = async () =>{
-        
+    const fetchTeacherRevenue = async () => {
+        const token = localStorage.getItem("access_token");
+        try {
+            const response = await axios.get(`${API_URL}/teacher/revenue`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setTeacherRevenue(response.data.data.summary.total_revenue)
+        } catch (error) {
+            console.log('Error fetching teacher revenue', error)
+        }
+    }
+    const fetchTeacherRank = async () => {
+        const token = localStorage.getItem("access_token");
+        try {
+            const response = await axios.get(`${API_URL}/teacher/rank`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setTeacherRank(response.data[0].rank)
+
+        } catch (error) {
+            console.log('Error fetching teacher revenue', error)
+        }
     }
     // hàm xử lý đăng xuất
     const handleLogout = () => {
@@ -75,9 +105,11 @@ export const Instructor = () => {
             alert('Failed to refresh token. Please log in again.');
         }
     };
-    useEffect(()=>{
+    useEffect(() => {
         fetchTeacherCourse();
-    },[])
+        fetchTeacherRevenue();
+        fetchTeacherRank();
+    }, [])
     return (
         <>
             <section className="instructor-home">
@@ -266,12 +298,12 @@ export const Instructor = () => {
                             <h2 className="text-2xl font-semibold mb-6">Xin chào, Chấn Toàn! 👋</h2>
 
                             {/* Mini section */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
                                 <div className="bg-white rounded-lg shadow-lg p-4 flex items-center">
                                     <div className="bg-red-100 rounded-full p-3 mr-4 text-2xl">📚</div>
                                     <div>
                                         <p className="text-sm text-gray-600">Tổng khóa học</p>
-                                        <p className="text-2xl font-semibold">
+                                        <p className="text-xl font-semibold">
                                             {teacherCourses.length}
                                         </p>
                                     </div>
@@ -280,21 +312,26 @@ export const Instructor = () => {
                                     <div className="bg-green-100 rounded-full p-3 mr-4 text-2xl">✅</div>
                                     <div>
                                         <p className="text-sm text-gray-600">Số khóa học đã hoàn thành</p>
-                                        <p className="text-2xl font-semibold">0</p>
+                                        <p className="text-xl font-semibold">0</p>
                                     </div>
                                 </div>
                                 <div className="bg-white rounded-lg shadow-lg p-4 flex items-center">
                                     <div className="bg-gray-100 rounded-full p-3 mr-4 text-2xl">⏱️</div>
                                     <div>
                                         <p className="text-sm text-gray-600">Tổng doanh thu:</p>
-                                        <p className="text-2xl font-semibold">0</p>
+
+                                        <p className="text-xl font-semibold">
+                                            {formatCurrency(teacherRevenue)}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="bg-white rounded-lg shadow-lg p-4 flex items-center">
                                     <div className="bg-yellow-100 rounded-full p-3 mr-4 text-2xl">🏆</div>
                                     <div>
                                         <p className="text-sm text-gray-600">Xếp hạng</p>
-                                        <p className="text-2xl font-semibold">0</p>
+                                        <p className="text-xl font-semibold">
+                                            {teacherRank}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
