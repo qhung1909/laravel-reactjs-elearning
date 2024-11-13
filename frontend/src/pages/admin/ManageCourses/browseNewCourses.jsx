@@ -21,7 +21,8 @@ import { formatCurrency } from '@/components/Formatcurrency/formatCurrency';
 export default function BrowseNewCourses() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
-
+    const API_URL_GPT = 'https://api.openai.com/v1/chat/completions';
+    const API_KEY_GPT = import.meta.env.VITE_API_AI_KEY;
     const [courses, setCourses] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [stats, setStats] = useState({});
@@ -52,8 +53,8 @@ export default function BrowseNewCourses() {
     };
 
     const openEditModal = (courseId) => {
-        setSelectedCourseId(courseId); // Lưu courseId vào state
-        setIsEditModalOpen(true); // Mở modal
+        setSelectedCourseId(courseId);
+        setIsEditModalOpen(true);
     };
 
 
@@ -77,7 +78,7 @@ export default function BrowseNewCourses() {
             const response = await axios.post(
                 `${API_URL}/admin/revision`,
                 {
-                    course_id: selectedCourseId, // Sử dụng selectedCourseId từ state
+                    course_id: selectedCourseId,
                     reason: editNote,
                 },
                 {
@@ -91,7 +92,7 @@ export default function BrowseNewCourses() {
 
             if (response.data && response.data.success) {
                 toast.success("Yêu cầu chỉnh sửa đã được gửi thành công.");
-                fetchCourses(); // Cập nhật danh sách khóa học nếu cần
+                fetchCourses();
             } else {
                 console.error("Lỗi khi gửi yêu cầu chỉnh sửa:", response.data);
                 toast.error("Có lỗi xảy ra khi gửi yêu cầu chỉnh sửa.");
@@ -152,7 +153,7 @@ export default function BrowseNewCourses() {
 
     /* Phân trang  */
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 3;
+    const itemsPerPage = 5;
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -160,8 +161,6 @@ export default function BrowseNewCourses() {
     const totalPages = Math.ceil(courses.length / itemsPerPage);
     const indexOfLastCourse = currentPage * itemsPerPage;
     const indexOfFirstCourse = indexOfLastCourse - itemsPerPage;
-    // const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
-
 
     /* Video */
     const [isVideoLayerOpen, setVideoLayerOpen] = useState(false);
@@ -298,7 +297,7 @@ export default function BrowseNewCourses() {
             });
             const data = res.data;
             console.log(data);
-            
+
             const pendingCourses = data.filter(course => course.status === 'pending');
             setCourses(pendingCourses);
 
@@ -330,17 +329,12 @@ export default function BrowseNewCourses() {
                     Authorization: `Bearer ${token}`,
                 },
                 params: {
-                    course_id: courseId // Fetch nội dung cho khóa học được chọn
+                    course_id: courseId
                 }
             });
 
-            // console.log("API Response Data:", res.data);
-            // console.log("courseId:", courseId);
-
             if (res.data && res.data.success && Array.isArray(res.data.contents)) {
-                // Chuyển đổi courseId sang số để đảm bảo so sánh đúng kiểu dữ liệu
                 const filteredContents = res.data.contents.filter(content => content.course_id === Number(courseId));
-                // console.log("Filtered Contents:", filteredContents);
 
                 setContentLesson(filteredContents);
 
@@ -378,11 +372,8 @@ export default function BrowseNewCourses() {
                 }
             });
 
-            // console.log("Dữ liệu nhận được từ title contents:", res.data);
-            // console.log("Giá trị contentId:", contentId);
 
             if (res.data && res.data.success && Array.isArray(res.data.titleContents)) {
-                // console.log("Title Contents:", res.data.titleContents);
                 setTitleContents(res.data.titleContents);
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
@@ -411,10 +402,8 @@ export default function BrowseNewCourses() {
                 }
             });
 
-            // console.log("Dữ liệu nhận được từ API:", res.data);
 
             if (res.data && res.data.success && Array.isArray(res.data.quizzes)) {
-                // console.log("Quizzes:", res.data.quizzes);
                 setQuizContent(res.data.quizzes);
             } else {
                 console.error("Dữ liệu không đúng:", res.data);
@@ -425,11 +414,134 @@ export default function BrowseNewCourses() {
         }
     };
 
-
-
     useEffect(() => {
         fetchCourses();
     }, []);
+
+    const calculateCourseScore = async (courseId) => {
+        try {
+            // Fetch course data
+            const courseResponse = await axios.get(`${API_URL}/admin/pending-courses/${courseId}`, {
+                headers: { 'x-api-secret': API_KEY },
+            });
+            const courseData = courseResponse.data[0]; // Đảm bảo dữ liệu đúng là một object
+            console.log('Dữ liệu khóa học:', courseData);
+    
+            // Updated criteria bao gồm các tiêu chí mới
+            const criteria = {
+                price: 10,          // Giá: 10 điểm
+                attractiveness: 20, // Đánh giá tiêu đề và mô tả dựa vào GPT: tối đa 20 điểm
+                detailLevel: 20,    // Độ chi tiết của mô tả: tối đa 20 điểm
+            };
+    
+            let totalScore = 0;
+            let reasons = [];
+    
+            // Function to use GPT for content analysis and scoring
+            const analyzeContentWithGPT = async (content, type) => {
+                try {
+                    const response = await axios.post(
+                        'https://api.openai.com/v1/chat/completions',
+                        {
+                            model: 'gpt-3.5-turbo',
+                            messages: [
+                                {
+                                    role: 'user',
+                                    content: `Hãy đánh giá nội dung sau đây. Đánh giá dựa vào mức độ hấp dẫn, rõ ràng và phù hợp. Cho điểm từ 0 đến 20 nếu là tiêu đề và từ 0 đến 20 nếu là mô tả: "${content}". Nội dung này là ${type}.`,
+                                },
+                            ],
+                        },
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${API_KEY_GPT}`,
+                            },
+                        }
+                    );
+    
+                    const result = response.data.choices[0].message.content;
+                    const scoreMatch = result.match(/(\d+)/); // Tìm số điểm trong phản hồi
+                    if (scoreMatch) {
+                        const score = parseInt(scoreMatch[0], 10);
+                        console.log(`Điểm GPT đánh giá cho ${type}: ${score}`);
+                        return score;
+                    } else {
+                        console.log(`Không tìm thấy điểm trong phản hồi của GPT cho ${type}`);
+                        return 0;
+                    }
+                } catch (error) {
+                    console.error(`Lỗi khi chấm điểm ${type} bằng GPT:`, error);
+                    return 0; // Trả về 0 nếu có lỗi
+                }
+            };
+    
+            // Chấm điểm tiêu đề
+            if (courseData.title && courseData.title.trim().length > 0) {
+                const titleScore = await analyzeContentWithGPT(courseData.title, "tiêu đề");
+                totalScore += titleScore;
+            } else {
+                reasons.push('Thiếu tiêu đề hấp dẫn');
+                console.log('Không thêm điểm cho tiêu đề vì thiếu tiêu đề');
+            }
+    
+            // Chấm điểm mô tả
+            if (courseData.description && courseData.description.trim().length > 0) {
+                const descriptionScore = await analyzeContentWithGPT(courseData.description, "mô tả");
+                totalScore += descriptionScore;
+            } else {
+                reasons.push('Thiếu mô tả rõ ràng');
+                console.log('Không thêm điểm cho mô tả vì thiếu mô tả');
+            }
+    
+            // Chấm điểm cho giá
+            if (courseData.price && parseFloat(courseData.price) > 0) {
+                totalScore += criteria.price;
+                console.log(`Đã thêm ${criteria.price} điểm cho giá: ${courseData.price}`);
+            } else {
+                reasons.push('Không có giá hoặc giá không hợp lý');
+                console.log('Không thêm điểm cho giá vì không có giá hoặc giá không hợp lý');
+            }
+    
+            // Tổng điểm tối đa là 50 (20 + 20 + 10)
+            totalScore = Math.min(totalScore, 50);
+            totalScore = Math.max(totalScore, 0);
+    
+            console.log(`Tổng điểm: ${totalScore}`);
+    
+            // Tạo giải thích chi tiết
+            const explanation = `Điểm số của khóa học là ${totalScore}. Lý do: ${reasons.join(', ')}.`;
+    
+            return { finalScore: totalScore, explanation };
+        } catch (error) {
+            console.error('Lỗi khi tính điểm khóa học:', error);
+            toast.error('Có lỗi xảy ra khi tính điểm khóa học.');
+            return null;
+        }
+    };
+    
+    
+    const handleCalculateScore = async (courseId) => {
+        try {
+            // Gọi hàm calculateCourseScore và lấy kết quả
+            const courseScore = await calculateCourseScore(courseId);
+    
+            if (courseScore && courseScore.finalScore !== null) {
+                const { finalScore, explanation } = courseScore;
+                console.log(`Điểm số của khóa học: ${finalScore}`);
+                console.log(`Giải thích: ${explanation}`);
+                toast.success(`Điểm số của khóa học: ${finalScore}`);
+            } else {
+                throw new Error('Không thể tính điểm khóa học');
+            }
+        } catch (error) {
+            console.error('Lỗi khi tính điểm khóa học:', error.message || error);
+            toast.error('Có lỗi xảy ra khi tính điểm khóa học.');
+        }
+    };
+    
+
+
+
+
 
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -437,8 +549,18 @@ export default function BrowseNewCourses() {
         const matchesStatus = statusFilter ? course.status === statusFilter : true;
         return matchesSearch && matchesStatus;
     });
-    const currentCourses = filteredCourses;
 
+    const handleDateSort = () => {
+        const sortedCourses = [...courses].sort((a, b) => {
+            // Kiểm tra xem created_at có hợp lệ hay không trước khi tạo đối tượng Date
+            const dateA = a.created_at ? new Date(a.created_at) : new Date(0); // Nếu không hợp lệ, dùng ngày 1/1/1970
+            const dateB = b.created_at ? new Date(b.created_at) : new Date(0); // Nếu không hợp lệ, dùng ngày 1/1/1970
+
+            return dateB - dateA; // Sắp xếp từ ngày mới nhất đến cũ nhất
+        });
+
+        setCourses(sortedCourses);
+    };
 
 
     return (
@@ -475,7 +597,7 @@ export default function BrowseNewCourses() {
                     <div className="flex items-center justify-between space-y-0 my-5">
                         <h2 className="text-3xl font-bold tracking-tight mb-4">Quản lý duyệt nội dung</h2>
                         <div className="flex flex-wrap gap-4 w-full md:w-auto">
-                            <Button variant="outline" className="flex items-center gap-2">
+                            <Button variant="outline" onClick={handleDateSort} className="flex items-center gap-2">
                                 <Filter size={16} />
                                 Lọc
                             </Button>
@@ -515,14 +637,14 @@ export default function BrowseNewCourses() {
                                         </button>
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className=" p-4">
-                                    <ScrollArea className="max-h-96 pr-4">
+                                <CardContent className="p-4">
+                                    <ScrollArea className="h-auto pr-4">
                                         <div className="space-y-3">
-                                            {currentCourses.map((course, index) => (
+                                            {filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse).map((course, index) => (
                                                 <div
                                                     key={course.id}
                                                     className={`group relative p-4 rounded-xl border cursor-pointer transition-all duration-200
-                                                        ${activeCourse?.id === course.id
+                                                    ${activeCourse?.id === course.id
                                                             ? 'bg-yellow-50 border-yellow-200 shadow-sm'
                                                             : 'hover:bg-gray-50 hover:border-gray-300'
                                                         }`}
@@ -532,18 +654,23 @@ export default function BrowseNewCourses() {
                                                     }}
                                                 >
                                                     <div className="flex items-center gap-3 mb-2">
-                                                        <div className="font-semibold">{index + 1 + indexOfFirstCourse}</div> {/* Cập nhật chỉ số hiển thị */}
-                                                        <h4 className="font-medium text-gray-900">{course.title}</h4>
+                                                        <div className="font-semibold">{index + 1 + indexOfFirstCourse}</div>
+                                                        <h4 className="font-medium text-gray-900  break-words">{course.title}</h4>
+                                                        {/*<h4 className="font-medium text-gray-900 break-words overflow-hidden text-ellipsis whitespace-nowrap">*/}
                                                     </div>
                                                     <div className="text-sm text-gray-600">
                                                         Giảng viên: {course.user.name || 'Không rõ'}
                                                     </div>
+                                                    <div className="text-sm text-gray-600">
+                                                        Ngày: {course.created_at ? new Date(course.created_at).toLocaleDateString() : 'Không rõ'}
+                                                    </div>
+
                                                 </div>
                                             ))}
                                         </div>
-
                                     </ScrollArea>
                                 </CardContent>
+
 
                                 <Pagination>
                                     <PaginationContent>
@@ -602,7 +729,7 @@ export default function BrowseNewCourses() {
 
 
 
-                                        <TabsContent value="info">
+                                        {/* <TabsContent value="info">
                                             {activeCourse ? (
                                                 <div className="space-y-4">
                                                     <div className="flex items-center">
@@ -634,7 +761,52 @@ export default function BrowseNewCourses() {
                                             ) : (
                                                 <p>Thông tin khóa học sẽ xuất hiện ở đây.</p>
                                             )}
+                                        </TabsContent> */}
+                                        <TabsContent value="info">
+                                            {activeCourse ? (
+                                                <div className="grid grid-cols-2 gap-8">
+                                                    {/* Left Content */}
+                                                    <div className="space-y-4">
+                                                        <div className="flex items-center">
+                                                            <label className="font-semibold mr-2">Giảng viên:</label>
+                                                            <p>{activeCourse.user.name}</p>
+                                                        </div>
+                                                        <div className="flex items-start gap-2 w-full">
+                                                            <label className="font-semibold mr-2 mt-1 shrink-0">Mô tả:</label>
+                                                            <p className="break-words">{activeCourse.description}</p>
+                                                        </div>
+                                                        <div className="flex items-center">
+                                                            <label className="font-semibold mr-2">Thời lượng:</label>
+                                                            <p>{activeCourse.duration} 10 giờ</p>
+                                                        </div>
+                                                        <div className="flex items-center">
+                                                            <label className="font-semibold mr-2">Cấp độ:</label>
+                                                            <p>{activeCourse.level}</p>
+                                                        </div>
+                                                        <div className="flex items-center">
+                                                            <label className="font-semibold mr-2">Giá:</label>
+                                                            <p>{formatCurrency(activeCourse.price)}</p>
+                                                        </div>
+                                                        <div className="flex items-start">
+                                                            <label className="font-semibold mr-2 mt-1">Yêu cầu tiên quyết:</label>
+                                                            <p className="break-words">{activeCourse.prerequisites}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Right Content (Image) */}
+                                                    <div className="w-full p-2">
+                                                        <img
+                                                            src={activeCourse.img}
+                                                            alt="Course image"
+                                                            className="w-full h-auto object-cover rounded-lg"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <p>Course information will appear here.</p>
+                                            )}
                                         </TabsContent>
+
 
                                         <TabsContent value="lessons">
                                             {activeCourse ? (
@@ -811,6 +983,15 @@ export default function BrowseNewCourses() {
                                                     <CheckCircle className="mr-2 h-4 w-4" />
                                                     Phê duyệt Bài học
                                                 </Button>
+
+                                                <Button
+                                                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                                                    onClick={() => handleCalculateScore(activeCourse?.course_id)}
+                                                >
+                                                    <CheckCircle className="mr-2 h-4 w-4" />
+                                                    Tính điểm
+                                                </Button>
+
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
@@ -887,6 +1068,8 @@ export default function BrowseNewCourses() {
                                                 </DialogFooter>
                                             </DialogContent>
                                         </Dialog>
+
+
                                     </div>
                                 </CardContent>
                             </Card>

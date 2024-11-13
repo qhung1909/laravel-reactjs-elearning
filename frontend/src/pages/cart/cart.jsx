@@ -189,7 +189,7 @@ export const Cart = () => {
             </div>
         ) : (
             cart.length > 0 ? (
-                <div className="p-10 md:my-5 my-2 max-w-screen-xl mx-auto">
+                <div className="p-10 md:my-5 my-2 max-w-screen-xl mx-auto min-h-[500px]">
                     <div className="container mx-auto">
                         <h1 className="lg:text-5xl md:text-4xl text-3xl text-center md:text-left font-bold md:mb-6 mb-3">Giỏ hàng</h1>
                         <div className="bg-white ">

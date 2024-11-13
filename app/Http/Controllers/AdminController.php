@@ -67,6 +67,22 @@ class AdminController extends Controller
         return $courses;
     }
 
+    public function getPendingCourseDetail($courseId)
+    {
+        $cacheKey = 'admin_pending_course_detail_' . $courseId;
+
+        $courseDetail = Cache::remember($cacheKey, 1, function () use ($courseId) {
+            return $this->course
+                ->with(['user:user_id,name', 'comments:course_id,rating'])
+                ->where('course_id', $courseId)
+                ->where('status', 'pending')
+                ->first();
+        });
+
+        return $courseDetail;
+    }
+
+
     public function showCourses($slug)
     {
         $course = Cache::remember("admin_course_{$slug}", 120, function () use ($slug) {
@@ -582,40 +598,47 @@ class AdminController extends Controller
         }
     }
 
-    public function approveAll(Request $request)
-    {
-        try {
-            DB::beginTransaction();
-
-            $courseId = $request->course_id;
-
-            $course = Course::findOrFail($courseId);
-            $course->update(['status' => 'published']);
-
-            $contents = Content::where('course_id', $courseId)->get();
-            foreach ($contents as $content) {
-                $content->update(['status' => 'published']);
-
-                TitleContent::where('content_id', $content->content_id)
-                    ->update(['status' => 'published']);
-            }
-
-            Quiz::where('course_id', $courseId)
-                ->update(['status' => 'published']);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Đã duyệt và xuất bản tất cả nội dung'
-            ]);
-        } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json([
-                'success' => false,
-                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
-            ], 500);
-        }
+    public function approveAll(Request $request) 
+    { 
+        try { 
+            DB::beginTransaction(); 
+    
+            $courseId = $request->course_id; 
+    
+            $course = Course::findOrFail($courseId); 
+            $instructor = User::where('user_id', $course->user_id)
+                             ->where('role', 'teacher')
+                             ->firstOrFail();
+                             
+            $course->update(['status' => 'published']); 
+    
+            $contents = Content::where('course_id', $courseId)->get(); 
+            foreach ($contents as $content) { 
+                $content->update(['status' => 'published']); 
+    
+                TitleContent::where('content_id', $content->content_id) 
+                    ->update(['status' => 'published']); 
+            } 
+    
+            Quiz::where('course_id', $courseId) 
+                ->update(['status' => 'published']); 
+    
+            Mail::to($instructor->email)
+                ->queue(new CourseStatusNotification($course, null, 'approved'));
+    
+            DB::commit(); 
+    
+            return response()->json([ 
+                'success' => true, 
+                'message' => 'Đã duyệt, xuất bản tất cả nội dung và gửi thông báo cho giảng viên' 
+            ]); 
+        } catch (\Exception $e) { 
+            DB::rollback(); 
+            return response()->json([ 
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage() 
+            ], 500); 
+        } 
     }
 
     public function rejectAll(Request $request)
@@ -832,7 +855,6 @@ class AdminController extends Controller
             ], 500);
         }
     }
-
 
 
 

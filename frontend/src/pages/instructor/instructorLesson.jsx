@@ -21,11 +21,24 @@ import {
     TableRow,
     TableCell,
 } from "@/components/ui/table"
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
+import { badgeVariants } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge"
+
 import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios";
 import toast, { Toaster } from 'react-hot-toast';
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 const notify = (message, type) => {
     if (type === 'success') {
         toast.success(message);
@@ -35,6 +48,8 @@ const notify = (message, type) => {
 }
 import { UserContext } from "../context/usercontext";
 import { Button } from "@/components/ui/button";
+import * as XLSX from 'xlsx';
+
 export const InstructorLesson = () => {
     const { instructor, logout, refreshToken } = useContext(UserContext);
     const API_URL = import.meta.env.VITE_API_URL;
@@ -45,6 +60,16 @@ export const InstructorLesson = () => {
     const [teacherCourses, setTeacherCourses] = useState([]);
     const navigate = useNavigate();
     const [course, setCourse] = useState([]);
+
+    // phân trang
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 4;
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = teacherCourses.slice(indexOfFirstItem, indexOfLastItem);
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
 
     const fetchTeacherCourse = async () => {
         const token = localStorage.getItem("access_token");
@@ -61,6 +86,30 @@ export const InstructorLesson = () => {
             console.log('Error fetching users Courses', error)
         }
     }
+
+    const getStatusBadge = (status) => {
+        switch (status) {
+            case "published":
+                return "bg-yellow-500 text-white px-3 py-1 text-sm";
+            case "hide":
+                return "bg-gray-400 text-black px-3 py-1 text-sm";
+            case "draft":
+                return "bg-black text-white px-3 py-1 text-sm";
+            default:
+                return "bg-gray-500 text-white";
+        }
+    }
+
+    // xuất exel
+    const exportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(currentItems);
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, worksheet, 'TeacherCourses');
+
+        XLSX.writeFile(wb, 'teacher_courses.xlsx');
+    };
+
     const renderTeacherCourse = loading ? (
         <>
             {Array.from({ length: 4 }).map((_, index) => (
@@ -91,15 +140,19 @@ export const InstructorLesson = () => {
             ))}
         </>
     ) :
-        teacherCourses.length > 0 ? (
-            teacherCourses.map((item, index) => (
+        currentItems.length > 0 ? (
+            currentItems.map((item, index) => (
                 <TableRow key={index}>
-                    <TableCell className="font-medium sm:text-sm text-xs">{item.status}</TableCell>
+                    <TableCell className="font-medium sm:text-sm text-xs">
+                        <Badge className={getStatusBadge(item.status)}>
+                            {item.status}
+                        </Badge>
+                    </TableCell>
                     <TableCell className="font-medium sm:p-4 p-0">
                         <img src={`${item.img}`} className="rounded-sm object-cover w-20 sm:w-auto" alt="" />
                     </TableCell>
                     <TableCell className="lg:text-sm sm:text-sm text-xs md:line-clamp-none line-clamp-2">{item.title}</TableCell>
-                    <TableCell className="font-medium sm:text-sm text-xs">{item.price}</TableCell>
+                    <TableCell className="font-medium sm:text-sm text-xs">{formatCurrency(item.price)}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs hidden md:table-cell">{item.is_buy}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs hidden md:table-cell">{item.views}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs">
@@ -108,7 +161,8 @@ export const InstructorLesson = () => {
                             month: '2-digit',
                             year: 'numeric'
                         })}
-                    </TableCell>                </TableRow>
+                    </TableCell>
+                </TableRow>
             ))
         ) : (
             <TableRow>
@@ -171,7 +225,7 @@ export const InstructorLesson = () => {
             <section className="instructor-lesson">
                 <div className="flex bg-gray-100 h-sc">
                     {/* Sidebar */}
-                    <div className="h-screen w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
+                    <div className="min-h-[750px] w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
                         <div className="p-3">
                             {/* logo */}
                             <div className="p-4 flex justify-between items-center">
@@ -349,13 +403,35 @@ export const InstructorLesson = () => {
                         {/* Lesson content */}
                         <div className="md:p-6 p-2 max-lg:h-screen">
 
+                            {/* Thêm khóa học - xuất */}
+                            <div className="flex gap-2 items-center my-5 justify-end">
+                                <div className="">
+                                    <Button onClick={addCourse} className="bg-gray-500 text-white">Thêm khóa học</Button>
+                                </div>
+                                <div className="">
+                                    <Button className="bg-white text-black border hover:bg-blue-500" onClick={exportToExcel}>
+                                        <div className="">
+                                            <img src="/src/assets/images/download.svg" className="w-5" alt="" />
+                                        </div>
+                                        <div className="">
+                                            <p>Xuất</p>
+                                        </div>
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* tìm kiếm */}
+                            <div className=" flex justify-center p-3 md:p-0">
+                                <input type="text" placeholder="Nhập 1 từ khóa bất kỳ muốn tìm kiếm" className="md:w-full w-[80%] p-3 rounded-tl-lg rounded-bl-lg" />
+                                <button className="w-28 bg-yellow-400 p-2 rounded-tr-lg rounded-br-lg font-semibold xl:text-base md:text-sm text-sm">
+                                    <p className="">Tìm kiếm</p>
+                                </button>
+                            </div>
+
+                            {/* Table sản phẩm */}
                             <div className="my-5 bg-white rounded-3xl p-3">
                                 <Table>
-                                    <TableCaption>
 
-                                        <Button onClick={addCourse}>Thêm khóa học</Button>
-
-                                    </TableCaption>
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs">Trạng thái</TableHead>
@@ -371,8 +447,41 @@ export const InstructorLesson = () => {
                                         {renderTeacherCourse}
 
                                     </TableBody>
-                                </Table>
 
+                                </Table>
+                                <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious
+                                                href="#"
+                                                onClick={() => handlePageChange(currentPage > 1 ? currentPage - 1 : 1)}
+                                            />
+                                        </PaginationItem>
+                                        {Array.from({ length: Math.ceil(teacherCourses.length / itemsPerPage) }).map((_, index) => (
+                                            <PaginationItem key={index}>
+                                                <PaginationLink
+                                                    href="#"
+                                                    onClick={() => handlePageChange(index + 1)}
+                                                    className={currentPage === index + 1 ? "active" : ""}
+                                                >
+                                                    {index + 1}
+                                                </PaginationLink>
+                                            </PaginationItem>
+                                        ))}
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                href="#"
+                                                onClick={() =>
+                                                    handlePageChange(
+                                                        currentPage < Math.ceil(teacherCourses.length / itemsPerPage)
+                                                            ? currentPage + 1
+                                                            : currentPage
+                                                    )
+                                                }
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
                             </div>
                         </div>
                     </div>

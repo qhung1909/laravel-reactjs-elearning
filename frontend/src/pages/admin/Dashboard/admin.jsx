@@ -231,6 +231,55 @@ export default function Dashboard() {
         fetchRevenueData();
     }, []);
 
+
+    /* Quản lí tài chính */
+    const revenue = 500000;
+    const expenses = 200000;
+    const profit = revenue - expenses;
+    const profitMargin = ((profit / revenue) * 100).toFixed(2);
+
+    // Mock data for transactions
+    const transactions = [
+        { id: 1, date: '2024-11-10', amount: 150000, status: 'Success' },
+        { id: 2, date: '2024-11-09', amount: 200000, status: 'Success' },
+        { id: 3, date: '2024-11-08', amount: 250000, status: 'Success' },
+        { id: 4, date: '2024-11-10', amount: 150000, status: 'Success' },
+        { id: 5, date: '2024-11-09', amount: 200000, status: 'Success' },
+        { id: 6, date: '2024-11-08', amount: 250000, status: 'Success' },
+    ];
+
+    const revenueData = [
+        { month: "Tháng 1", revenue: 800 },
+        { month: "Tháng 2", revenue: 950 },
+        { month: "Tháng 3", revenue: 850 },
+        { month: "Tháng 4", revenue: 1000 },
+        { month: "Tháng 5", revenue: 1200 },
+        { month: "Tháng 6", revenue: 1300 },
+        { month: "Tháng 7", revenue: 800 },
+        { month: "Tháng 8", revenue: 950 },
+        { month: "Tháng 9", revenue: 850 },
+        { month: "Tháng 10", revenue: 1000 },
+        { month: "Tháng 11", revenue: 1200 },
+        { month: "Tháng 12", revenue: 1300 },
+    ]
+
+    const expenseData = [
+        { month: "Tháng 1", expense: 800 },
+        { month: "Tháng 2", expense: 950 },
+        { month: "Tháng 3", expense: 850 },
+        { month: "Tháng 4", expense: 1000 },
+        { month: "Tháng 5", expense: 1200 },
+        { month: "Tháng 6", expense: 1300 },
+        { month: "Tháng 7", expense: 800 },
+        { month: "Tháng 8", expense: 950 },
+        { month: "Tháng 9", expense: 850 },
+        { month: "Tháng 10", expense: 1000 },
+        { month: "Tháng 11", expense: 1200 },
+        { month: "Tháng 12", expense: 1300 },
+    ]
+    const maxRevenue = Math.max(...revenueData.map(item => item.revenue));
+    /* ------------------------- */
+
     return (
         <SidebarProvider className="">
             <SideBarUI />
@@ -427,6 +476,88 @@ export default function Dashboard() {
                                 </div>
                             </CardFooter>
                         </Card>
+                    </div>
+                    <div>
+                        {/* Tổng quan tài chính */}
+                        <section className="bg-white p-5 rounded-lg shadow-md">
+                            <h2 className="text-2xl font-semibold mb-4">Tổng quan tài chính</h2>
+                            <div className="grid grid-cols-3 gap-4">
+                                <div className="bg-gray-100 p-4 rounded-lg">
+                                    <h3 className="font-semibold">Doanh thu</h3>
+                                    <p>{revenue.toLocaleString()} VND</p>
+                                </div>
+                                <div className="bg-gray-100 p-4 rounded-lg">
+                                    <h3 className="font-semibold">Chi phí</h3>
+                                    <p>{expenses.toLocaleString()} VND</p>
+                                </div>
+                                <div className="bg-gray-100 p-4 rounded-lg">
+                                    <h3 className="font-semibold">Lợi nhuận</h3>
+                                    <p>{profit.toLocaleString()} VND</p>
+                                    <p className="text-green-600">Lợi nhuận gộp: {profitMargin}%</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Danh sách giao dịch */}
+                        <section className="mt-6 bg-white p-5 rounded-lg shadow-md">
+                            <h2 className="text-2xl font-semibold mb-4">Danh sách giao dịch</h2>
+                            <table className="min-w-full table-auto">
+                                <thead className="bg-gray-200">
+                                    <tr>
+                                        <th className="px-2 py-2 text-center">Mã giao dịch</th>
+                                        <th className="px-4 py-2 text-center">Ngày</th>
+                                        <th className="px-4 py-2 text-center">Số tiền</th>
+                                        <th className="px-4 py-2 text-center">Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {transactions.map(transaction => (
+                                        <tr key={transaction.id}>
+                                            <td className="px-2 py-2 text-center">{transaction.id}</td>
+                                            <td className="px-4 py-2 text-center">{transaction.date}</td>
+                                            <td className="px-4 py-2 text-center">{transaction.amount.toLocaleString()} VND</td>
+                                            <td className={`px-4 py-2 text-center ${transaction.status === 'Success' ? 'text-green-600' : 'text-yellow-600'}`}>
+                                                {transaction.status}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </section>
+
+                        {/* Báo cáo tài chính */}
+                        <section className="mt-6 bg-white p-5 rounded-lg shadow-md">
+                            <h2 className="text-2xl font-semibold mb-4 text-gray-800">Báo cáo tài chính</h2>
+                            <Card className="bg-gray-100 p-4 rounded-lg shadow-lg">
+                                <CardHeader>
+                                    <CardTitle className="font-semibold text-lg text-gray-800">Doanh thu tháng</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="relative h-[300px]">
+                                        <div className="absolute inset-0 flex items-end justify-between gap-6">
+                                            {revenueData.map((item) => (
+                                                <div key={item.month} className="flex flex-col items-center flex-1">
+                                                    <div className="w-full flex flex-col items-center">
+                                                        <div
+                                                            className="w-2/3 bg-orange-500/20 hover:bg-orange-500/30 transition-colors duration-300 rounded-t-sm shadow-md"
+                                                            style={{
+                                                                height: `${(item.revenue / maxRevenue) * 240}px`, // Tính chiều cao cột
+                                                                transition: "height 0.3s ease-in-out", // Thêm hiệu ứng khi thay đổi chiều cao
+                                                            }}
+                                                        />
+                                                        <div className="mt-3 text-sm font-medium text-gray-600">{item.month}</div>
+                                                        <div className="mt-1 text-sm font-semibold text-gray-800">
+                                                            {item.revenue.toLocaleString()} VND
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </section>
+
                     </div>
 
                 </div>

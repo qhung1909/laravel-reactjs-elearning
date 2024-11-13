@@ -69,6 +69,15 @@ export default function DetailCourse() {
 
             setCourse(selectedCourse);
 
+            const uniqueStatuses = [...new Set(data.map(course => course.status))];
+            const statusOptionsWithColors = uniqueStatuses.map(status => ({
+                value: status,
+                color: getStatusColorByValue(status)
+            }));
+            setStatusOptions(statusOptionsWithColors);
+
+
+
         } catch (error) {
             setError('Không thể tải thông tin khóa học');
             console.error('Lỗi khi tải khóa học:', error);
@@ -76,8 +85,36 @@ export default function DetailCourse() {
             setIsLoading(false);
         }
     };
+    const [statusOptions, setStatusOptions] = useState([]);
 
-
+    const getStatusColorByValue = (status) => {
+        switch (status.toLowerCase()) {
+            case "published":
+                return "bg-green-100 text-green-800 w-full text-center flex justify-center items-center p-1 rounded-lg  ";
+            case "draft":
+                return "bg-blue-100 text-blue-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
+            case "pending":
+                return "bg-yellow-100 text-yellow-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
+            case "unpublished":
+                return "bg-red-500 text-white w-full text-center flex justify-center items-center p-1 rounded-lg ";
+        }
+    };
+    const getStatusText = (status) => {
+        switch (status) {
+            case "draft":
+                return "Nháp";
+            case "published":
+                return "Hoàn thành";
+            case "pending":
+                return "Đang chờ";
+            case "unpublished":
+                return "Thất bại";
+        }
+    };
+    const getStatusColor = (status) => {
+        const statusOption = statusOptions.find(opt => opt.value === status);
+        return statusOption ? statusOption.color : "bg-gray-300";
+    };
 
 
     const fetchCategories = async () => {
@@ -125,57 +162,64 @@ export default function DetailCourse() {
                                         <GraduationCap size={16} />
                                         Chi tiết khóa học: {course?.title || 'Khóa học không tồn tại'}
                                     </BreadcrumbLink>
-
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
                     </div>
 
                     {/* Content section */}
-                    <div className=" bg-gray-50 w-full font-sans">
+                    <div className="bg-gray-50 w-full font-sans">
                         {isLoading ? (
-                            <div className="flex justify-center items-center ">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            <div className="flex justify-center items-center">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
                             </div>
                         ) : error ? (
                             <div className="text-red-600 text-center py-4">
                                 {error}
                             </div>
                         ) : course ? (
-                            <div className="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto mt-8">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {/* Hình ảnh */}
-                                    <div className="relative h-64 md:h-full rounded-lg overflow-hidden">
+                            <div className="bg-white rounded-lg shadow-lg p-8 w-full mx-auto mt-8 ">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8  pr-5">
+                                    {/* Image Section */}
+                                    <div className="relative h-full md:h-full rounded-lg overflow-hidden shadow-md">
                                         <img
                                             src={course.img}
-                                            className="object-cover w-full h-full"
+                                            alt="Course"
+                                            className="object-cover w-full h-full transition-opacity duration-300 ease-in-out hover:opacity-90"
                                         />
                                     </div>
 
-                                    {/* Thông tin */}
-                                    <div className="justify-between w-full">
-                                        <div>
-                                            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                                                {course.title}
-                                            </h1>
-                                            <div className="text-sm text-gray-600 mb-4">
-                                                <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded inline-flex items-center gap-1">
-                                                    <School className="w-4 h-4" />{course.user.name}
-                                                </span>
-                                            </div>
-                                            <div className="text-sm text-gray-600 mb-4">
-                                                <span className="bg-blue-100 text-yellow-500 px-2 py-1 rounded">
-                                                    {categories.find(c => c.course_category_id === course.course_category_id)?.name || 'Chưa có danh mục'}
-                                                </span>
-                                            </div>
-                                            <p className="text-gray-600">
-                                                {course.description}
-                                            </p>
+                                    {/* Information Section */}
+                                    <div className="flex flex-col justify-between w-full space-y-4 ">
+                                        <h1 className="text-3xl font-extrabold text-gray-900 mb-3">
+                                            {course.title}
+                                        </h1>
+                                        <div className="text-md text-gray-900 mb-4 flex items-center space-x-2">
+                                            <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded inline-flex items-center gap-1 font-medium">
+                                                <School className="w-4 h-4" />{course.user.name}
+                                            </span>
                                         </div>
-                                        <div className="mt-4">
-                                            <div className="text-xl font-bold">
+                                        <div className="text-md text-gray-900 mb-4">
+                                            <span className="gap-1 font-bold">Danh mục: </span>
+                                            <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-md shadow-sm font-medium">
+                                                {categories.find(c => c.course_category_id === course.course_category_id)?.name || 'Chưa có danh mục'}
+                                            </span>
+                                        </div>
+                                        <div className="text-gray-900 text-justify leading-relaxed">
+                                            <span className="gap-1 font-bold">Mô tả:</span>
+                                            <span> {course.description}</span>
+                                        </div>
+                                        <div className="text-md mt-4">
+                                            <span className="font-bold mr-2 text-gray-900 ">Giá:</span>
+                                            <span className="text-blue-700 font-medium">
                                                 {formatCurrency(course.price)}
-                                            </div>
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center space-x-3">
+                                            <span className="font-bold ">Trạng thái khóa học:</span>
+                                            <span className={`${getStatusColor(course?.status)} font-medium text-md px-1 py-1 rounded-lg`}>
+                                                {getStatusText(course.status)}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -185,9 +229,12 @@ export default function DetailCourse() {
                                 Không tìm thấy khóa học
                             </div>
                         )}
+
+
                     </div>
                 </div>
             </SidebarInset>
         </SidebarProvider>
     );
+
 }

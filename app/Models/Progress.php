@@ -15,8 +15,12 @@ class Progress extends Model
         'course_id',
         'content_id',
         'is_complete',
+        'title_content_id',
         'complete_at',
         'progress_percent',
-        'complete_update'
+        'complete_update',
+        'reject_reason',
+        'revision_reason',
+        'is_video_complete',
     ];
 }
