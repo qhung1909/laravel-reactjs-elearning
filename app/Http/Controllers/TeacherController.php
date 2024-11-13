@@ -408,87 +408,155 @@ class TeacherController extends Controller
     public function updateTitleContent(Request $request, $contentId)
     {
         try {
+            // Log request data
+            Log::info('Update title content request:', [
+                'content_id' => $contentId,
+                'request_data' => $request->all(),
+                'is_authenticated' => Auth::check()
+            ]);
+    
             if (!Auth::check()) {
+                Log::warning('Unauthorized access attempt');
                 return response()->json([
                     'success' => false,
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-
+    
             $content = Content::where('content_id', $contentId)->first();
-
+            Log::info('Content found:', ['content' => $content]);
+    
             if (!$content) {
+                Log::warning('Content not found:', ['content_id' => $contentId]);
                 return response()->json([
                     'success' => false,
                     'message' => 'Không tìm thấy nội dung'
                 ], 404);
             }
-
+    
+            // Log PHP configurations
+            Log::info('PHP configurations:', [
+                'upload_max_filesize' => ini_get('upload_max_filesize'),
+                'post_max_size' => ini_get('post_max_size'),
+                'max_file_uploads' => ini_get('max_file_uploads')
+            ]);
+    
+            // Log file information if present
+            if ($request->hasFile('title_contents.*.video_link')) {
+                foreach ($request->title_contents as $index => $content) {
+                    if (isset($content['video_link']) && $content['video_link'] instanceof UploadedFile) {
+                        Log::info("File details for index {$index}:", [
+                            'original_name' => $content['video_link']->getClientOriginalName(),
+                            'mime_type' => $content['video_link']->getMimeType(),
+                            'size' => $content['video_link']->getSize(),
+                            'extension' => $content['video_link']->getClientOriginalExtension(),
+                            'error' => $content['video_link']->getError()
+                        ]);
+                    }
+                }
+            }
+    
             $validator = Validator::make($request->all(), [
                 'title_contents' => 'nullable|array',
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
                 'title_contents.*.body_content' => 'required|string',
-                'title_contents.*.video_link' => 'nullable|file|mimes:mp4,mov,avi,wmv|max:102400', // 100MB max
+                'title_contents.*.video_link' => 'nullable|file|mimes:mp4,mov,avi,wmv|max:102400',
                 'title_contents.*.document_link' => 'nullable|string',
                 'title_contents.*.description' => 'nullable|string'
             ], [
                 'title_contents.*.body_content.required' => 'Nội dung không được để trống',
                 'title_contents.*.video_link.max' => 'File video không được vượt quá 100MB'
             ]);
-
+    
             if ($validator->fails()) {
                 Log::error('Validation failed', [
-                    'errors' => $validator->errors(),
-                    'input' => request()->all()
+                    'errors' => $validator->errors()->toArray(),
+                    'rules' => $validator->getRules(),
+                    'data' => $request->all(),
+                    'files' => $request->allFiles()
                 ]);
-
+    
                 return response()->json([
                     'success' => false,
                     'message' => 'Dữ liệu không hợp lệ',
                     'errors' => $validator->errors()
                 ], 422);
             }
-
+    
             DB::beginTransaction();
-
+    
             try {
-                foreach ($request->title_contents as $titleContentData) {
+                foreach ($request->title_contents as $index => $titleContentData) {
+                    Log::info("Processing title content at index {$index}", [
+                        'title_content_data' => $titleContentData
+                    ]);
+    
                     $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
                         ->where('content_id', $contentId)
                         ->first();
-
+    
+                    Log::info("Found title content", ['title_content' => $titleContent]);
+    
                     if (!$titleContent) {
+                        Log::error("TitleContent not found or doesn't belong to content", [
+                            'title_content_id' => $titleContentData['title_content_id'],
+                            'content_id' => $contentId
+                        ]);
                         throw new \Exception("TitleContent ID {$titleContentData['title_content_id']} không thuộc về nội dung này");
                     }
-
+    
                     $updateData = [
                         'body_content' => $titleContentData['body_content'],
                         'document_link' => array_key_exists('document_link', $titleContentData) ? $titleContentData['document_link'] : $titleContent->document_link,
                         'description' => array_key_exists('description', $titleContentData) ? $titleContentData['description'] : $titleContent->description,
                         'status' => 'draft'
                     ];
-
-                    // Xử lý upload video nếu có
+    
+                    // Log update data before video processing
+                    Log::info('Update data before video processing:', ['update_data' => $updateData]);
+    
                     if (isset($titleContentData['video_link']) && $titleContentData['video_link'] instanceof UploadedFile) {
+                        Log::info('Processing video upload:', [
+                            'file_info' => [
+                                'original_name' => $titleContentData['video_link']->getClientOriginalName(),
+                                'mime_type' => $titleContentData['video_link']->getMimeType(),
+                                'size' => $titleContentData['video_link']->getSize()
+                            ]
+                        ]);
                         $updateData['video_link'] = $this->handleVideoUpload($titleContentData['video_link'], $titleContent);
                     } elseif (array_key_exists('video_link', $titleContentData)) {
+                        Log::info('Using provided video link:', [
+                            'video_link' => $titleContentData['video_link']
+                        ]);
                         $updateData['video_link'] = $titleContentData['video_link'];
                     }
-
+    
+                    // Log final update data
+                    Log::info('Final update data:', ['update_data' => $updateData]);
+    
                     $titleContent->update($updateData);
                 }
-
+    
                 DB::commit();
-
+                Log::info('Successfully updated title content');
+    
                 return response()->json([
                     'success' => true,
                     'message' => 'Cập nhật tiêu đề nội dung thành công'
                 ]);
             } catch (\Exception $e) {
                 DB::rollBack();
+                Log::error('Error in transaction:', [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
                 throw $e;
             }
         } catch (\Exception $e) {
+            Log::error('Error in updateTitleContent:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi: ' . $e->getMessage()
