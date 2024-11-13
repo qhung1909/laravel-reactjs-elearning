@@ -433,7 +433,6 @@ class TeacherController extends Controller
                 'title_contents.*.description' => 'nullable|string'
             ], [
                 'title_contents.*.body_content.required' => 'Nội dung không được để trống',
-                'title_contents.*.video_link.mimes' => 'File video phải có định dạng: mp4, mov, avi, wmv',
                 'title_contents.*.video_link.max' => 'File video không được vượt quá 100MB'
             ]);
 
