@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\CourseStatusNotification;
 use App\Models\User;
 use App\Models\OrderDetail;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -917,6 +918,45 @@ class AdminController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error fetching teacher revenue',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateRole(Request $request, $userId)
+    {
+        try {
+            $request->validate([
+                'role' => ['required', Rule::in(['user', 'teacher', 'admin'])]
+            ]);
+
+            $user = User::find($userId);
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            $user->role = $request->role;
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User role updated successfully',
+                'data' => [
+                    'user_id' => $user->user_id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update user role',
                 'error' => $e->getMessage()
             ], 500);
         }

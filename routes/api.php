@@ -222,6 +222,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::get('/overview', [AdminController::class, 'getAdminOverview']);
 
     Route::get('/revenue/teachers', [AdminController::class, 'getTeacherRevenues']);
+    Route::put('/user/{userId}/role', [AdminController::class, 'updateRole']);
 });
 
 
