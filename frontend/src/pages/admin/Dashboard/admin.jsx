@@ -504,19 +504,19 @@ export default function Dashboard() {
                             <table className="min-w-full table-auto">
                                 <thead className="bg-gray-200">
                                     <tr>
-                                        <th className="px-4 py-2 text-left">Mã giao dịch</th>
-                                        <th className="px-4 py-2 text-left">Ngày</th>
-                                        <th className="px-4 py-2 text-left">Số tiền</th>
-                                        <th className="px-4 py-2 text-left">Trạng thái</th>
+                                        <th className="px-2 py-2 text-center">Mã giao dịch</th>
+                                        <th className="px-4 py-2 text-center">Ngày</th>
+                                        <th className="px-4 py-2 text-center">Số tiền</th>
+                                        <th className="px-4 py-2 text-center">Trạng thái</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {transactions.map(transaction => (
                                         <tr key={transaction.id}>
-                                            <td className="px-4 py-2">{transaction.id}</td>
-                                            <td className="px-4 py-2">{transaction.date}</td>
-                                            <td className="px-4 py-2">{transaction.amount.toLocaleString()} VND</td>
-                                            <td className={`px-4 py-2 ${transaction.status === 'Success' ? 'text-green-600' : 'text-yellow-600'}`}>
+                                            <td className="px-2 py-2 text-center">{transaction.id}</td>
+                                            <td className="px-4 py-2 text-center">{transaction.date}</td>
+                                            <td className="px-4 py-2 text-center">{transaction.amount.toLocaleString()} VND</td>
+                                            <td className={`px-4 py-2 text-center ${transaction.status === 'Success' ? 'text-green-600' : 'text-yellow-600'}`}>
                                                 {transaction.status}
                                             </td>
                                         </tr>
