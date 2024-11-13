@@ -29,7 +29,7 @@ import { Separator } from '@radix-ui/react-context-menu';
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 
 import ReactPlayer from 'react-player';
-import { Toast } from '@radix-ui/react-toast';
+import toast, { Toaster } from 'react-hot-toast';
 export default function DetailCourse() {
     const { course_id } = useParams();
     console.log("Course ID from URL:", course_id);
@@ -153,7 +153,7 @@ export default function DetailCourse() {
     const fetchContentLesson = async (courseId) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
-            Toast.error("Bạn chưa đăng nhập.");
+            toast.error("Bạn chưa đăng nhập.");
             navigate('/');
             return;
         }
@@ -198,14 +198,14 @@ export default function DetailCourse() {
                 setContentLesson(lessonsWithTitles);
 
                 if (lessonsWithTitles.length === 0) {
-                    Toast.info("Không có bài học đã xuất bản.");
+                    toast.info("Không có bài học đã xuất bản.");
                 }
             } else {
                 console.error("Dữ liệu không phải là mảng hoặc không có thành công:", res.data);
             }
         } catch (error) {
             console.error("Lỗi khi lấy nội dung bài học:", error);
-            Toast.error("Có lỗi xảy ra khi tải nội dung bài học.");
+            toast.error("Có lỗi xảy ra khi tải nội dung bài học.");
         }
     };
 
