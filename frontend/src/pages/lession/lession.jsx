@@ -413,7 +413,7 @@ export const Lesson = () => {
         setIsCalendarOpen(false); // Đóng lịch sau khi chọn ngày
     };
 
-
+    //OpenAi
     const [userMessage, setUserMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([
         { role: 'system', content: 'Tôi có thể giúp gì cho bạn.' },
