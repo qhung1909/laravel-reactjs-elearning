@@ -30,6 +30,14 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 import { badgeVariants } from "@/components/ui/badge"
 import { Badge } from "@/components/ui/badge"
 import { useEffect, useState, useContext } from "react";
@@ -59,17 +67,29 @@ export const InstructorLesson = () => {
     const [teacherCourses, setTeacherCourses] = useState([]);
     const navigate = useNavigate();
     const [course, setCourse] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
 
     // phân trang
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 4;
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = teacherCourses.slice(indexOfFirstItem, indexOfLastItem);
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
+    // tìm kiếm
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+    };
+
+    const filteredCourses = teacherCourses.filter((course) =>
+        course.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const currentItems = filteredCourses.slice(indexOfFirstItem, indexOfLastItem);
+
+    // hàm xử lý khóa học teacher
     const fetchTeacherCourse = async () => {
         const token = localStorage.getItem("access_token");
         try {
@@ -86,12 +106,13 @@ export const InstructorLesson = () => {
         }
     }
 
+    // trạng thái
     const getStatusBadge = (status) => {
         switch (status) {
             case "published":
                 return "bg-yellow-500 text-white px-3 py-1 text-sm";
             case "hide":
-                return "bg-gray-400 text-black px-3 py-1 text-sm";
+                return "bg-gray-400 text-black px-3 py-1 text-sm hover:text-white";
             case "draft":
                 return "bg-black text-white px-3 py-1 text-sm";
             default:
@@ -101,7 +122,7 @@ export const InstructorLesson = () => {
 
     // xuất exel
     const exportToExcel = () => {
-        const worksheet = XLSX.utils.json_to_sheet(currentItems);
+        const worksheet = XLSX.utils.json_to_sheet(teacherCourses);
 
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, worksheet, 'TeacherCourses');
@@ -109,6 +130,7 @@ export const InstructorLesson = () => {
         XLSX.writeFile(wb, 'teacher_courses.xlsx');
     };
 
+    // render khóa học teacher
     const renderTeacherCourse = loading ? (
         <>
             {Array.from({ length: 4 }).map((_, index) => (
@@ -161,6 +183,64 @@ export const InstructorLesson = () => {
                             year: 'numeric'
                         })}
                     </TableCell>
+                    <TableCell>
+                        <Dialog>
+                            <DialogTrigger>
+                                <button className="flex gap-2 items-center bg-yellow-300 text-black font-semibold py-2 px-1 rounded hover:bg-white hover:text-black hover:border duration-300">
+                                    <div className="">
+                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/edit.svg" className="w-5" alt="" />
+                                    </div>
+                                    <div className="">
+                                        <p>Sửa</p>
+                                    </div>
+                                </button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        <div className="">
+                                            Sửa trạng thái
+                                        </div>
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                        <div className="">
+
+                                            <div className="">
+                                                Bạn có thể tùy chỉnh trạng thái tại đây
+                                            </div>
+
+                                            <div className="mt-5 space-y-1">
+                                                <div className="">
+                                                    <p>Trạng thái:</p>
+                                                </div>
+                                                <div className="">
+                                                    <select className="w-full p-2 border rounded" id="">
+                                                        <option value="draft">Chọn trạng thái...</option>
+                                                        <option value="">
+                                                            draft
+                                                        </option>
+                                                        <option value="">
+                                                            hide
+                                                        </option>
+                                                        <option value="">
+                                                            published
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-end mt-2">
+                                                <Button>Lưu</Button>
+                                            </div>
+
+                                        </div>
+
+                                    </DialogDescription>
+                                </DialogHeader>
+                            </DialogContent>
+                        </Dialog>
+
+                    </TableCell>
                 </TableRow>
             ))
         ) : (
@@ -183,6 +263,7 @@ export const InstructorLesson = () => {
     useEffect(() => {
         fetchTeacherCourse();
     }, [])
+
     // hàm xử lý đăng xuất
     const handleLogout = () => {
         setLoadingLogout(true);
@@ -200,8 +281,7 @@ export const InstructorLesson = () => {
         }
     };
 
-
-
+    // thêm khóa học
     const addCourse = async () => {
         const token = localStorage.getItem("access_token");
         try {
@@ -403,14 +483,14 @@ export const InstructorLesson = () => {
                         <div className="md:p-6 p-2 max-lg:h-screen">
 
                             {/* Thêm khóa học - xuất */}
-                            <div className="flex gap-2 items-center my-5 justify-end">
+                            <div className="flex gap-2 items-center justify-end">
                                 <div className="">
-                                    <Button onClick={addCourse} className="bg-gray-500 text-white">Thêm khóa học</Button>
+                                    <Button onClick={addCourse} className="bg-blue-500 text-white">Thêm khóa học</Button>
                                 </div>
                                 <div className="">
-                                    <Button className="bg-white text-black border hover:bg-blue-500" onClick={exportToExcel}>
+                                    <Button className="duration-300 bg-white text-black border hover:bg-gray-100" onClick={exportToExcel}>
                                         <div className="">
-                                            <img src="/src/assets/images/download.svg" className="w-5" alt="" />
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/download.svg" className="w-5" alt="" />
                                         </div>
                                         <div className="">
                                             <p>Xuất</p>
@@ -420,8 +500,8 @@ export const InstructorLesson = () => {
                             </div>
 
                             {/* tìm kiếm */}
-                            <div className=" flex justify-center p-3 md:p-0">
-                                <input type="text" placeholder="Nhập 1 từ khóa bất kỳ muốn tìm kiếm" className="md:w-full w-[80%] p-3 rounded-tl-lg rounded-bl-lg" />
+                            <div className=" flex justify-center p-3 md:p-0 my-5">
+                                <input type="text" value={searchTerm} onChange={handleSearch} placeholder="Nhập 1 từ khóa bất kỳ muốn tìm kiếm" className="md:w-full w-[80%] p-3 rounded-tl-lg rounded-bl-lg" />
                                 <button className="w-28 bg-yellow-400 p-2 rounded-tr-lg rounded-br-lg font-semibold xl:text-base md:text-sm text-sm">
                                     <p className="">Tìm kiếm</p>
                                 </button>
@@ -440,6 +520,7 @@ export const InstructorLesson = () => {
                                             <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt bán</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt xem</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs">Ngày tạo</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs">Hành động</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>

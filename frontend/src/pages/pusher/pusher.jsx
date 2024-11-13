@@ -24,7 +24,7 @@ import { Badge } from "@/components/ui/badge";
 
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
-
+const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 const token = localStorage.getItem('access_token');
 
@@ -44,7 +44,7 @@ const echo = new Echo({
 
 const NotificationDropdown = ({ userId }) => {
     const [notifications, setNotifications] = useState([]);
-    const unreadCount = notifications.filter(notification => !notification.is_read).length;
+    const unreadCount = (notifications || []).filter(notification => !notification.is_read).length;
 
     useEffect(() => {
         const fetchNotifications = async () => {
@@ -53,13 +53,16 @@ const NotificationDropdown = ({ userId }) => {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
+                        'x-api-secret': `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
                     },
                 });
 
                 if (response.ok) {
-                    const data = await response.json();
-                    setNotifications(data.notifications);
+                    if (response.ok) {
+                        const data = await response.json();
+                        setNotifications(data.data.notifications);
+                    }
                 } else {
                     console.error('Failed to fetch notifications');
                 }
@@ -68,7 +71,7 @@ const NotificationDropdown = ({ userId }) => {
             }
         };
         const token = localStorage.getItem("access_token");
-        if (token && !userId) {
+        if (token && userId) {
             fetchNotifications();
         }
 
@@ -210,7 +213,7 @@ const NotificationDropdown = ({ userId }) => {
                     </DropdownMenuItem>
 
                     <ScrollArea className="h-auto w-full">
-                        {notifications.length === 0 ? (
+                    {notifications.length === 0 ? (
                             <div className="p-5">
                                 <p className="text-center text-blue-900 font-medium">
                                     Chưa có thông báo nào
