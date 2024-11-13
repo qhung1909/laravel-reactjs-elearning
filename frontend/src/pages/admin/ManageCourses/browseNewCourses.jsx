@@ -426,17 +426,17 @@ export default function BrowseNewCourses() {
             });
             const courseData = courseResponse.data[0]; // Đảm bảo dữ liệu đúng là một object
             console.log('Dữ liệu khóa học:', courseData);
-    
+
             // Updated criteria bao gồm các tiêu chí mới
             const criteria = {
                 price: 10,          // Giá: 10 điểm
                 attractiveness: 20, // Đánh giá tiêu đề và mô tả dựa vào GPT: tối đa 20 điểm
                 detailLevel: 20,    // Độ chi tiết của mô tả: tối đa 20 điểm
             };
-    
+
             let totalScore = 0;
             let reasons = [];
-    
+
             // Function to use GPT for content analysis and scoring
             const analyzeContentWithGPT = async (content, type) => {
                 try {
@@ -457,7 +457,7 @@ export default function BrowseNewCourses() {
                             },
                         }
                     );
-    
+
                     const result = response.data.choices[0].message.content;
                     const scoreMatch = result.match(/(\d+)/); // Tìm số điểm trong phản hồi
                     if (scoreMatch) {
@@ -473,7 +473,7 @@ export default function BrowseNewCourses() {
                     return 0; // Trả về 0 nếu có lỗi
                 }
             };
-    
+
             // Chấm điểm tiêu đề
             if (courseData.title && courseData.title.trim().length > 0) {
                 const titleScore = await analyzeContentWithGPT(courseData.title, "tiêu đề");
@@ -482,7 +482,7 @@ export default function BrowseNewCourses() {
                 reasons.push('Thiếu tiêu đề hấp dẫn');
                 console.log('Không thêm điểm cho tiêu đề vì thiếu tiêu đề');
             }
-    
+
             // Chấm điểm mô tả
             if (courseData.description && courseData.description.trim().length > 0) {
                 const descriptionScore = await analyzeContentWithGPT(courseData.description, "mô tả");
@@ -491,7 +491,7 @@ export default function BrowseNewCourses() {
                 reasons.push('Thiếu mô tả rõ ràng');
                 console.log('Không thêm điểm cho mô tả vì thiếu mô tả');
             }
-    
+
             // Chấm điểm cho giá
             if (courseData.price && parseFloat(courseData.price) > 0) {
                 totalScore += criteria.price;
@@ -500,16 +500,16 @@ export default function BrowseNewCourses() {
                 reasons.push('Không có giá hoặc giá không hợp lý');
                 console.log('Không thêm điểm cho giá vì không có giá hoặc giá không hợp lý');
             }
-    
+
             // Tổng điểm tối đa là 50 (20 + 20 + 10)
             totalScore = Math.min(totalScore, 50);
             totalScore = Math.max(totalScore, 0);
-    
+
             console.log(`Tổng điểm: ${totalScore}`);
-    
+
             // Tạo giải thích chi tiết
             const explanation = `Điểm số của khóa học là ${totalScore}. Lý do: ${reasons.join(', ')}.`;
-    
+
             return { finalScore: totalScore, explanation };
         } catch (error) {
             console.error('Lỗi khi tính điểm khóa học:', error);
@@ -517,13 +517,13 @@ export default function BrowseNewCourses() {
             return null;
         }
     };
-    
-    
+
+
     const handleCalculateScore = async (courseId) => {
         try {
             // Gọi hàm calculateCourseScore và lấy kết quả
             const courseScore = await calculateCourseScore(courseId);
-    
+
             if (courseScore && courseScore.finalScore !== null) {
                 const { finalScore, explanation } = courseScore;
                 console.log(`Điểm số của khóa học: ${finalScore}`);
@@ -537,7 +537,7 @@ export default function BrowseNewCourses() {
             toast.error('Có lỗi xảy ra khi tính điểm khóa học.');
         }
     };
-    
+
 
 
 

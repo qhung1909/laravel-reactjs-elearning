@@ -1,6 +1,9 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from "react";
+
 import axios from "axios";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+
 import {
     SidebarInset,
     SidebarProvider,
@@ -13,11 +16,19 @@ import {
     BreadcrumbList,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
+
 import { SideBarUI } from '../sidebarUI';
 import { GraduationCap, LayoutDashboard, BookOpenText, School } from 'lucide-react';
 import { Separator } from '@radix-ui/react-context-menu';
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
-
+import { toast } from 'sonner';
+import ReactPlayer from 'react-player';
 export default function DetailCourse() {
     const { course_id } = useParams();
     console.log("Course ID from URL:", course_id);
@@ -133,6 +144,56 @@ export default function DetailCourse() {
         fetchCategories();
     }, [course_id]);
 
+    const [contentLesson, setContentLesson] = useState([]);
+    const [titleContents, setTitleContents] = useState([]);
+    const navigate = useNavigate();
+
+    const fetchContentLesson = async (courseId) => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/contents`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+                params: { course_id: courseId }
+            });
+
+            if (res.data && res.data.success && Array.isArray(res.data.contents)) {
+                // Lọc các nội dung có status là "published"
+                const filteredContents = res.data.contents.filter(content => content.course_id === Number(courseId) && content.status === 'published');
+                setContentLesson(filteredContents);
+
+                // Nếu không có nội dung bài học, thông báo
+                if (filteredContents.length === 0) {
+                    toast.info("Không có bài học đã xuất bản.");
+                }
+            } else {
+                console.error("Dữ liệu không phải là mảng hoặc không có thành công:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy nội dung bài học:", error);
+            toast.error("Có lỗi xảy ra khi tải nội dung bài học.");
+        }
+    };
+
+    useEffect(() => {
+        if (course_id) {
+            fetchContentLesson(course_id); // gọi lại khi course_id thay đổi
+        }
+    }, [course_id]);
+
+    const [openIndex, setOpenIndex] = useState(null);
+
+    const toggleAccordion = (index) => {
+        setOpenIndex(openIndex === index ? null : index);
+    };
+
     return (
         <SidebarProvider>
             <SideBarUI />
@@ -230,6 +291,64 @@ export default function DetailCourse() {
                             </div>
                         )}
 
+                        {/* Bài học */}
+                        <div className="w-full max-w-3xl mx-auto p-4">
+                            <h2 className="text-2xl font-bold mb-4">Nội dung khóa học</h2>
+                            {contentLesson.length > 0 ? (
+                                <Accordion type="single" collapsible className="w-full">
+                                    {contentLesson.map((lesson, lessonIndex) => (
+                                        <AccordionItem key={lesson.content_id} value={`item-${lessonIndex}`}>
+                                            <AccordionTrigger className="text-left">
+                                                <span className="mr-2">Bài {lessonIndex + 1}:</span>
+                                                {lesson.name_content}
+                                            </AccordionTrigger>
+                                            <AccordionContent>
+                                                {lesson.titleContents && lesson.titleContents.length > 0 ? (
+                                                    <div className="space-y-4">
+                                                        {lesson.titleContents.map((title, titleIndex) => (
+                                                            <div key={titleIndex} className="bg-white rounded-lg shadow-md p-4">
+                                                                <h5 className="font-semibold text-lg mb-2">
+                                                                    {titleIndex + 1}. {title.body_content || "Nội dung không có sẵn."}
+                                                                </h5>
+                                                                <Dialog>
+                                                                    <DialogTrigger className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out">
+                                                                        Xem video
+                                                                    </DialogTrigger>
+                                                                    <DialogContent className="sm:max-w-[425px]">
+                                                                        <DialogHeader>
+                                                                            <DialogTitle>Xem Video</DialogTitle>
+                                                                            <DialogDescription>
+                                                                                {title.video_link ? (
+                                                                                    <div className="relative" style={{ paddingTop: '56.25%' }}>
+                                                                                        <ReactPlayer
+                                                                                            url={title.video_link}
+                                                                                            className="absolute top-0 left-0"
+                                                                                            width="100%"
+                                                                                            height="100%"
+                                                                                            controls
+                                                                                        />
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <p className="text-gray-500">Video không có sẵn.</p>
+                                                                                )}
+                                                                            </DialogDescription>
+                                                                        </DialogHeader>
+                                                                    </DialogContent>
+                                                                </Dialog>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-gray-500">Không có nội dung nào để hiển thị.</p>
+                                                )}
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    ))}
+                                </Accordion>
+                            ) : (
+                                <p className="text-gray-500">Không có nội dung nào để hiển thị.</p>
+                            )}
+                        </div>
 
                     </div>
                 </div>
