@@ -492,6 +492,7 @@ export const Curriculum = () => {
             );
 
 
+
             if (response.status === 201 && response.data) {
                 Swal.fire({
                     title: 'Thành công!',
@@ -500,25 +501,10 @@ export const Curriculum = () => {
                     confirmButtonText: 'Đóng',
                 });
 
-                navigate(`/course/manage/${course_id}/create-quiz/${sectionId}/quiz/${response.quiz_id}`);
+                navigate(`/course/manage/${course_id}/create-quiz/${sectionId}/quiz/${response.data.data.quiz_id}`);
             }
 
 
-
-            // Kiểm tra và xử lý phản hồi khi quiz được thêm thành công
-            // if (response.data && response.data.quiz_id) {
-            //     Swal.fire({
-            //         title: 'Thành công!',
-            //         text: 'Quiz đã được thêm thành công. Chuyển đến trang tạo quiz.',
-            //         icon: 'success',
-            //         confirmButtonText: 'Đóng',
-            //     });
-
-            //     // Chuyển hướng đến trang tạo quiz
-            //     navigate(`/course/manage/${course_id}/create-quiz/${sectionId}/quiz/${response.quiz_id}`);
-            // } else {
-            //     throw new Error('Có lỗi xảy ra khi thêm quiz.');
-            // }
         } catch (error) {
             if (error.response) {
                 if (error.response.status === 400) {
