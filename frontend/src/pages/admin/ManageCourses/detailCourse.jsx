@@ -27,8 +27,9 @@ import { SideBarUI } from '../sidebarUI';
 import { GraduationCap, LayoutDashboard, BookOpenText, School } from 'lucide-react';
 import { Separator } from '@radix-ui/react-context-menu';
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
-import { toast } from 'sonner';
+
 import ReactPlayer from 'react-player';
+import { Toast } from '@radix-ui/react-toast';
 export default function DetailCourse() {
     const { course_id } = useParams();
     console.log("Course ID from URL:", course_id);
@@ -148,10 +149,11 @@ export default function DetailCourse() {
     const [titleContents, setTitleContents] = useState([]);
     const navigate = useNavigate();
 
+
     const fetchContentLesson = async (courseId) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
-            toast.error("Bạn chưa đăng nhập.");
+            Toast.error("Bạn chưa đăng nhập.");
             navigate('/');
             return;
         }
@@ -165,20 +167,45 @@ export default function DetailCourse() {
             });
 
             if (res.data && res.data.success && Array.isArray(res.data.contents)) {
-                // Lọc các nội dung có status là "published"
-                const filteredContents = res.data.contents.filter(content => content.course_id === Number(courseId) && content.status === 'published');
-                setContentLesson(filteredContents);
+                // Fetch title contents for each lesson
+                const lessonsWithTitles = await Promise.all(
+                    res.data.contents
+                        .filter(content => content.course_id === Number(courseId) && content.status === 'published')
+                        .map(async (content) => {
+                            try {
+                                const titleRes = await axios.get(`${API_URL}/title-contents`, {
+                                    headers: {
+                                        "x-api-secret": `${API_KEY}`,
+                                        Authorization: `Bearer ${token}`,
+                                    },
+                                    params: { content_id: content.content_id }
+                                });
 
-                // Nếu không có nội dung bài học, thông báo
-                if (filteredContents.length === 0) {
-                    toast.info("Không có bài học đã xuất bản.");
+                                return {
+                                    ...content,
+                                    titleContents: titleRes.data.success ? titleRes.data.titleContents : []
+                                };
+                            } catch (error) {
+                                console.error(`Error fetching title contents for content ${content.content_id}:`, error);
+                                return {
+                                    ...content,
+                                    titleContents: []
+                                };
+                            }
+                        })
+                );
+
+                setContentLesson(lessonsWithTitles);
+
+                if (lessonsWithTitles.length === 0) {
+                    Toast.info("Không có bài học đã xuất bản.");
                 }
             } else {
                 console.error("Dữ liệu không phải là mảng hoặc không có thành công:", res.data);
             }
         } catch (error) {
             console.error("Lỗi khi lấy nội dung bài học:", error);
-            toast.error("Có lỗi xảy ra khi tải nội dung bài học.");
+            Toast.error("Có lỗi xảy ra khi tải nội dung bài học.");
         }
     };
 
