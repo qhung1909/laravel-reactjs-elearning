@@ -12,6 +12,8 @@ use App\Models\TitleContent;
 use Illuminate\Support\Facades\Log;
 use App\Models\Quiz;
 use App\Models\OrderDetail;
+use Aws\S3\S3Client;
+use Illuminate\Http\UploadedFile;
 
 class TeacherController extends Controller
 {
@@ -412,65 +414,71 @@ class TeacherController extends Controller
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-
+    
             $content = Content::where('content_id', $contentId)->first();
-
+    
             if (!$content) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Không tìm thấy nội dung'
                 ], 404);
             }
-
+    
             $validator = Validator::make($request->all(), [
                 'title_contents' => 'nullable|array',
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
                 'title_contents.*.body_content' => 'required|string',
-                'title_contents.*.video_link' => 'nullable|string',
+                'title_contents.*.video' => 'nullable|file|mimes:mp4,mov,avi,wmv|max:102400', // 100MB max
                 'title_contents.*.document_link' => 'nullable|string',
                 'title_contents.*.description' => 'nullable|string'
             ], [
-                'title_contents.*.body_content.required' => 'Nội dung không được để trống'
+                'title_contents.*.body_content.required' => 'Nội dung không được để trống',
+                'title_contents.*.video.mimes' => 'File video phải có định dạng: mp4, mov, avi, wmv',
+                'title_contents.*.video.max' => 'File video không được vượt quá 100MB'
             ]);
-
+    
             if ($validator->fails()) {
                 Log::error('Validation failed', [
                     'errors' => $validator->errors(),
                     'input' => request()->all()
                 ]);
-
+    
                 return response()->json([
                     'success' => false,
                     'message' => 'Dữ liệu không hợp lệ',
                     'errors' => $validator->errors()
                 ], 422);
             }
-
+    
             DB::beginTransaction();
-
+    
             try {
                 foreach ($request->title_contents as $titleContentData) {
                     $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
                         ->where('content_id', $contentId)
                         ->first();
-
+    
                     if (!$titleContent) {
                         throw new \Exception("TitleContent ID {$titleContentData['title_content_id']} không thuộc về nội dung này");
                     }
-
+    
                     $updateData = [
                         'body_content' => $titleContentData['body_content'],
-                        'video_link' => array_key_exists('video_link', $titleContentData) ? $titleContentData['video_link'] : $titleContent->video_link,
                         'document_link' => array_key_exists('document_link', $titleContentData) ? $titleContentData['document_link'] : $titleContent->document_link,
                         'description' => array_key_exists('description', $titleContentData) ? $titleContentData['description'] : $titleContent->description,
                         'status' => 'draft'
                     ];
-
+    
+                    // Xử lý upload video nếu có
+                    if (isset($titleContentData['video']) && $titleContentData['video'] instanceof UploadedFile) {
+                        $updateData['video_link'] = $this->handleVideoUpload($titleContentData['video'], $titleContent);
+                    }
+    
                     $titleContent->update($updateData);
                 }
-
+    
                 DB::commit();
-
+    
                 return response()->json([
                     'success' => true,
                     'message' => 'Cập nhật tiêu đề nội dung thành công'
@@ -593,5 +601,68 @@ class TeacherController extends Controller
         }
 
         return response()->json($salesData);
+    }
+
+    private function handleVideoUpload($file, $titleContent)
+    {
+        // Khởi tạo S3 client
+        $s3 = new S3Client([
+            'region'  => env('AWS_DEFAULT_REGION'),
+            'version' => 'latest',
+            'credentials' => [
+                'key'    => env('AWS_ACCESS_KEY_ID'),
+                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            ],
+            'http' => [
+                'verify' => env('VERIFY_URL'),
+            ],
+        ]);
+
+        // Xóa video cũ nếu tồn tại
+        if ($titleContent->video_link) {
+            try {
+                // Lấy key từ URL cũ
+                $oldKey = str_replace(env('AWS_URL'), '', $titleContent->video_link);
+                $s3->deleteObject([
+                    'Bucket' => env('AWS_BUCKET'),
+                    'Key'    => $oldKey,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Error deleting old video: ' . $e->getMessage());
+            }
+        }
+
+        // Chuẩn bị thông tin file mới
+        $filePath = $file->getRealPath();
+        $contentId = $titleContent->content_id;
+        $titleContentId = $titleContent->title_content_id;
+        $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $newFileName = "content_{$contentId}_title_{$titleContentId}_{$originalFileName}.{$extension}";
+        $key = 'videos/' . $newFileName;
+
+        // Xác định content type cho video
+        $contentType = match ($extension) {
+            'mp4' => 'video/mp4',
+            'mov' => 'video/quicktime',
+            'avi' => 'video/x-msvideo',
+            'wmv' => 'video/x-ms-wmv',
+            default => 'video/mp4',
+        };
+
+        try {
+            // Upload file lên S3
+            $result = $s3->putObject([
+                'Bucket' => env('AWS_BUCKET'),
+                'Key'    => $key,
+                'SourceFile' => $filePath,
+                'ContentType' => $contentType,
+                'ACL' => 'public-read',
+            ]);
+
+            return $result['ObjectURL'];
+        } catch (\Exception $e) {
+            throw new \Exception('Không thể upload video lên S3: ' . $e->getMessage());
+        }
     }
 }
