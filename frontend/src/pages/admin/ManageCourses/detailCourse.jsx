@@ -179,7 +179,7 @@ export default function DetailCourse() {
                             </div>
                         ) : course ? (
                             <div className="bg-white rounded-lg shadow-lg p-8 w-full mx-auto mt-8 ">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8  pr-5">
                                     {/* Image Section */}
                                     <div className="relative h-full md:h-full rounded-lg overflow-hidden shadow-md">
                                         <img
@@ -190,33 +190,34 @@ export default function DetailCourse() {
                                     </div>
 
                                     {/* Information Section */}
-                                    <div className="flex flex-col justify-between w-full space-y-4">
-                                        <div>
-                                            <h1 className="text-3xl font-extrabold text-gray-900 mb-3">
-                                                {course.title}
-                                            </h1>
-                                            <div className="text-md text-gray-600 mb-4 flex items-center space-x-2">
-                                                <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded inline-flex items-center gap-1">
-                                                    <School className="w-4 h-4" />{course.user.name}
-                                                </span>
-                                            </div>
-                                            <div className="text-md text-gray-600 mb-4">
-                                                <span className="gap-1 font-bold">Thuộc danh mục: </span>
-                                                <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-md shadow-sm">
-                                                    {categories.find(c => c.course_category_id === course.course_category_id)?.name || 'Chưa có danh mục'}
-                                                </span>
-                                            </div>
-                                            <p className="text-gray-600 text-justify leading-relaxed">
-                                                <span className="gap-1 font-bold">Mô tả:</span>
-                                                <span> {course.description}</span>
-                                            </p>
+                                    <div className="flex flex-col justify-between w-full space-y-4 ">
+                                        <h1 className="text-3xl font-extrabold text-gray-900 mb-3">
+                                            {course.title}
+                                        </h1>
+                                        <div className="text-md text-gray-900 mb-4 flex items-center space-x-2">
+                                            <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded inline-flex items-center gap-1 font-medium">
+                                                <School className="w-4 h-4" />{course.user.name}
+                                            </span>
                                         </div>
-                                        <div className="text-xl font-bold text-blue-700 mt-4">
-                                            {formatCurrency(course.price)}
+                                        <div className="text-md text-gray-900 mb-4">
+                                            <span className="gap-1 font-bold">Danh mục: </span>
+                                            <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-md shadow-sm font-medium">
+                                                {categories.find(c => c.course_category_id === course.course_category_id)?.name || 'Chưa có danh mục'}
+                                            </span>
                                         </div>
-                                        <div className="flex items-center space-x-3 mt-6">
-                                            <span className="text-sm font-medium">Trạng thái khóa học:</span>
-                                            <span className={`${getStatusColor(course?.status)} text-xs px-1 py-1 rounded-lg`}>
+                                        <div className="text-gray-900 text-justify leading-relaxed">
+                                            <span className="gap-1 font-bold">Mô tả:</span>
+                                            <span> {course.description}</span>
+                                        </div>
+                                        <div className="text-md mt-4">
+                                            <span className="font-bold mr-2 text-gray-900 ">Giá:</span>
+                                            <span className="text-blue-700 font-medium">
+                                                {formatCurrency(course.price)}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center space-x-3">
+                                            <span className="font-bold ">Trạng thái khóa học:</span>
+                                            <span className={`${getStatusColor(course?.status)} font-medium text-md px-1 py-1 rounded-lg`}>
                                                 {getStatusText(course.status)}
                                             </span>
                                         </div>
@@ -228,6 +229,8 @@ export default function DetailCourse() {
                                 Không tìm thấy khóa học
                             </div>
                         )}
+
+
                     </div>
                 </div>
             </SidebarInset>
