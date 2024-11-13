@@ -174,7 +174,7 @@ export const Curriculum = () => {
                 return {
                     ...section,
                     lessons: section.lessons.map(lesson =>
-                        lesson.id === lessonId ? { ...lesson, fileName: file.name } : lesson
+                        lesson.id === lessonId ? { ...lesson, fileName: file.name, file } : lesson
                     )
                 };
             }
@@ -547,8 +547,6 @@ export const Curriculum = () => {
         const loadingToast = toast.loading('Đang xử lý...');
 
         try {
-
-
             const updateContentsData = sectionsToUpdate.map(section => ({
                 content_id: section.content_id,
                 name_content: section.title.trim(),
@@ -569,60 +567,64 @@ export const Curriculum = () => {
                 );
             }
 
-            const [updateResult] = await Promise.all([
-                updatePromise,
-            ]);
+            const [updateResult] = await Promise.all([updatePromise]);
 
             let hasError = false;
 
-
-
-            // Kiểm tra kết quả của yêu cầu cập nhật
-            if (updateContentsData.length > 0 && updateResult.data.success) {
-                // Không làm gì cả, thông báo thành công sẽ hiển thị sau
-            } else if (updateContentsData.length > 0) {
+            if (updateContentsData.length > 0 && !updateResult.data.success) {
                 toast.error(updateResult.data.message || 'Không thể cập nhật nội dung khóa học!');
-                hasError = true; // Đánh dấu có lỗi
+                hasError = true;
             }
 
-            // Cập nhật title-content cho các sections
-            const titleContentPromises = validSections.map(section =>
-                axios.post(
+            // Cập nhật title-content cho các sections với file upload
+            const titleContentPromises = validSections.map(section => {
+                const formData = new FormData();
+
+                // Chuẩn bị dữ liệu cho mỗi bài học
+                section.lessons.forEach((lesson, index) => {
+                    formData.append(`title_contents[${index}][title_content_id]`, lesson.title_content_id);
+                    formData.append(`title_contents[${index}][body_content]`, lesson.title);
+                    formData.append(`title_contents[${index}][description]`, lesson.description || '');
+
+                    // Xử lý file video
+                    if (lesson.file instanceof File) {
+                        formData.append(`title_contents[${index}][video_link]`, lesson.file);
+                    } else if (lesson.fileName) {
+                        formData.append(`title_contents[${index}][video_link]`, lesson.fileName);
+                    }
+
+                    // Xử lý document link
+                    if (lesson.content) {
+                        formData.append(`title_contents[${index}][document_link]`, lesson.content);
+                    }
+                });
+
+                return axios.post(
                     `${API_URL}/teacher/title-content/update/${section.content_id}`,
-                    {
-                        title_contents: section.lessons.map(lesson => ({
-                            title_content_id: lesson.title_content_id,
-                            body_content: lesson.title,
-                            video_link: lesson.fileName,
-                            document_link: lesson.content,
-                            description: lesson.description,
-                        })),
-                    },
+                    formData,
                     {
                         headers: {
                             'x-api-secret': API_KEY,
                             'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                            'Content-Type': 'application/json',
+                            'Content-Type': 'multipart/form-data',
                         },
                     }
-                )
-            );
+                );
+            });
 
             const titleContentResults = await Promise.all(titleContentPromises);
             titleContentResults.forEach(response => {
                 if (!response.data.success) {
                     toast.error(response.data.message || 'Có lỗi xảy ra khi cập nhật chi tiết tiêu đề!');
-                    hasError = true; // Đánh dấu có lỗi
+                    hasError = true;
                 }
             });
 
-            // Hiển thị toast thành công chỉ nếu không có lỗi nào xảy ra
             if (!hasError) {
                 toast.success('Đã lưu thành nội dung thành công!');
+                setHasChanges(false);
+                await fetchContent();
             }
-            setHasChanges(false);
-            await fetchContent();
-            // window.location.reload();
         } catch (error) {
             if (error.response?.status === 401) {
                 toast.error('Phiên làm việc đã hết hạn, vui lòng đăng nhập lại!');
@@ -638,10 +640,8 @@ export const Curriculum = () => {
             const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi xử lý nội dung!';
             toast.error(errorMessage);
             console.error('Error:', error);
-
         } finally {
             toast.dismiss(loadingToast);
-            // await fetchContent();
             setIsUpdated(true);
         }
     };
@@ -767,7 +767,7 @@ export const Curriculum = () => {
 
 
                             <div className="max-w-4xl mx-auto p-6">
-                                <div className="space-y-4">
+                                <form method="POST" encType="multipart/form-data" className="space-y-4">
                                     <h2 className="text-xl font-semibold">Nội dung khóa học</h2>
                                     <Accordion type="multiple" collapsible="true" className="space-y-4 relative">
                                         {sections.map((section, sectionIndex) => (
@@ -940,7 +940,7 @@ export const Curriculum = () => {
                                 Xuất dữ liệu ra log
                             </button> */}
 
-                                </div>
+                                </form>
                                 <Toaster />
                             </div>
                         </>
