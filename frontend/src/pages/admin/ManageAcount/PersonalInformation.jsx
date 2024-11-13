@@ -61,7 +61,6 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 
-
 export default function PersonalInformation() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
@@ -72,11 +71,14 @@ export default function PersonalInformation() {
     const [isLoading, setIsLoading] = useState(true);
     const [filterCriteria, setFilterCriteria] = useState('all');
     const [editingUser, setEditingUser] = useState(null);
+    const [statusFilter, setStatusFilter] = useState('all');
 
     const filterOptions = [
         { value: 'all', label: 'Tất cả người dùng' },
         { value: 'teacher', label: 'Giảng viên' },
         { value: 'user', label: 'Học viên' },
+        { value: 'active', label: 'Hoạt động' },
+        { value: 'inactive', label: 'Không hoạt động' },
     ];
 
     useEffect(() => {
@@ -126,13 +128,29 @@ export default function PersonalInformation() {
                 user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.email.toLowerCase().includes(searchTerm.toLowerCase());
 
-            const matchesFilter =
-                filterCriteria === 'all' ||
-                user.role === filterCriteria;
+            let matchesFilter = true;
+
+            switch (filterCriteria) {
+                case 'teacher':
+                    matchesFilter = user.role === 'teacher';
+                    break;
+                case 'user':
+                    matchesFilter = user.role === 'user';
+                    break;
+                case 'active':
+                    matchesFilter = user.status === 1;
+                    break;
+                case 'inactive':
+                    matchesFilter = user.status !== 1;
+                    break;
+                default:
+                    matchesFilter = true;
+            }
 
             return matchesSearch && matchesFilter;
         });
     };
+
 
     const getCurrentFilterLabel = () => {
         return filterOptions.find(option => option.value === filterCriteria)?.label || 'Tất cả người dùng';
@@ -167,59 +185,58 @@ export default function PersonalInformation() {
 
                 <div className="absolute top-16 px-6 bg-gray-50 w-full font-sans">
                     <Card>
-                        <CardHeader>
-                            <CardTitle>Thông tin & hồ sơ người dùng</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex justify-between items-center mb-6">
-                                <div className="flex flex-wrap gap-4 w-full md:w-auto">
-                                    <div className="relative flex-1 md:flex-initial">
-                                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                                        <Input
-                                            type="text"
-                                            placeholder="Tìm kiếm người dùng..."
-                                            className="pl-9 pr-4 py-2 w-full md:w-64"
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                        />
-                                    </div>
 
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="outline" className="flex items-center gap-2">
-                                                {getCurrentFilterLabel()}
-                                                <ChevronDown className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-[200px]">
-                                            {filterOptions.map((option) => (
-                                                <DropdownMenuItem
-                                                    key={option.value}
-                                                    onClick={() => setFilterCriteria(option.value)}
-                                                >
-                                                    {option.label}
-                                                </DropdownMenuItem>
-                                            ))}
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-
-                                    <Button variant="outline" className="flex items-center gap-2">
-                                        <FileDown className="h-4 w-4" />
-                                        Xuất
-                                    </Button>
+                        <div className="flex justify-between items-center mb-2 mr-6 ml-2">
+                            <CardHeader>
+                                <CardTitle>Thông tin & hồ sơ người dùng</CardTitle>
+                            </CardHeader>
+                            <div className="flex flex-wrap gap-4 w-full md:w-auto">
+                                <div className="relative flex-1 md:flex-initial">
+                                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                                    <Input
+                                        type="text"
+                                        placeholder="Tìm kiếm người dùng..."
+                                        className="pl-9 pr-4 py-2 w-full md:w-64"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
                                 </div>
-                            </div>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline" className="flex items-center gap-2">
+                                            {filterOptions.find(option => option.value === filterCriteria)?.label || 'Tất cả người dùng'}
+                                            <ChevronDown className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-[200px]">
+                                        {filterOptions.map((option) => (
+                                            <DropdownMenuItem
+                                                key={option.value}
+                                                onClick={() => setFilterCriteria(option.value)}
+                                            >
+                                                {option.label}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
 
+                                <Button variant="outline" className="flex items-center gap-2">
+                                    <FileDown className="h-4 w-4" />
+                                    Xuất
+                                </Button>
+                            </div>
+                        </div>
+                        <CardContent>
                             <div className="rounded-md border">
                                 <Table>
                                     <TableHeader>
                                         <TableRow >
-                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">STT</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900">STT</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Avatar</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Tên</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Email</TableHead>
-                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Ngày tạo</TableHead>
-                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Ngày cập nhật</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 whitespace-nowrap">Ngày tạo</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 whitespace-nowrap">Ngày cập nhật</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Trạng thái</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Quyền</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Hành động</TableHead>
@@ -230,7 +247,15 @@ export default function PersonalInformation() {
                                             <TableRow key={user.id}>
                                                 <TableCell className="font-medium text-center">{index + 1}</TableCell>
                                                 <TableCell className="text-center">
-                                                    <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full mx-auto" />
+                                                <div className="relative inline-block">
+                                                        <img
+                                                            src={user.avatar}
+                                                            alt={user.name}
+                                                            className="w-10 h-10 rounded-full object-cover ring-2 ring-offset-2 ring-yellow-100"
+                                                        />
+                                                        <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${user.status === 1 ? "bg-green-500" : "bg-red-500"
+                                                            }`}></span>
+                                                    </div>
                                                 </TableCell>
                                                 <TableCell className="text-center">{user.name}</TableCell>
                                                 <TableCell className="text-center">{user.email}</TableCell>
@@ -241,28 +266,28 @@ export default function PersonalInformation() {
                                                     {new Date(user.updated_at).toLocaleDateString()}
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    {user.status === 1 ? (
-                                                        <div className="inline-flex items-center space-x-1 p-1 rounded-full bg-green-50 text-green-700 font-medium border border-green-200 shadow-sm">
-                                                            <CheckCircle className="w-4 h-4" />
-                                                            <span className="text-sm">Hoạt động</span>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="inline-flex items-center space-x-1 p-1.5 rounded-full bg-red-50 text-red-700 font-medium border border-red-200 shadow-sm">
-                                                            <XCircle className="w-4 h-4" />
-                                                            <span className="text-sm">Không hoạt động</span>
-                                                        </div>
-                                                    )}
+                                                <div className={`inline-flex items-center justify-center space-x-1 p-1 rounded-full ${user.status === 1 ? 'bg-green-50 text-green-700 border-green-200 shadow-sm' : 'bg-red-50 text-red-700 border-red-200 shadow-sm'} font-medium ring-1 ${user.status === 1 ? 'ring-green-600/20' : 'ring-red-600/20'} whitespace-nowrap w-full`}>
+                                                        {user.status === 1 ? (
+                                                            <>
+                                                                <CheckCircle className="w-4 h-4" />
+                                                                <span className="text-sm">Hoạt động</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <XCircle className="w-4 h-4" />
+                                                                <span className="text-sm">Không hoạt động</span>
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </TableCell>
-
-
-                                                <TableCell className="text-center">
+                                                <TableCell className=" text-center">
                                                     {user.role === "teacher" ? (
-                                                        <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 font-medium border border-blue-200 shadow-sm">
+                                                        <div className="inline-flex items-center  gap-1 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 font-medium border border-blue-200 shadow-sm whitespace-nowrap">
                                                             <School className="w-4 h-4" />
                                                             <span className="text-sm">Giảng viên</span>
                                                         </div>
                                                     ) : (
-                                                        <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 font-medium border border-purple-200 shadow-sm">
+                                                        <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 font-medium border border-purple-200 shadow-sm whitespace-nowrap">
                                                             <UserCircle className="w-4 h-4" />
                                                             <span className="text-sm">Học viên</span>
                                                         </div>

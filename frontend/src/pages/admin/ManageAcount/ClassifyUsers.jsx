@@ -56,7 +56,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Search, ChevronDown, FileDown, Trash, Pencil, UserCircle, School } from 'lucide-react';
+import { Search, ChevronDown, FileDown, Trash, Pencil, UserCircle, School, CheckCircle, XCircle } from 'lucide-react';
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import axios from "axios";
@@ -188,24 +188,51 @@ export default function ClassifyUsers() {
     };
 
     const handleEditUser = async (user_id) => {
-        try {
-            const res = await axios.put(`${API_URL}/admin/users/${user_id}`, {
-                headers: {
-                    'x-api-secret': API_KEY
-                }
-            });
-            const data = res.data;
+        if (!user_id) {
+            console.error('Invalid user ID');
+            return;
+        }
 
+        setIsLoading(true);  // Đảm bảo là loading trước khi thực hiện PUT request
+
+        try {
+            const updatedRole = document.getElementById("role").value;  // Lấy giá trị role từ select
+            if (!updatedRole) {
+                console.error('Role is not selected');
+                return;
+            }
+
+            const res = await axios.put(
+                `${API_URL}/admin/users/${user_id}`,
+                {
+                    role: updatedRole  // Truyền dữ liệu role vào body của PUT request
+                },
+                {
+                    headers: {
+                        'x-api-secret': API_KEY
+                    }
+                }
+            );
+
+            const data = res.data;
             console.log("Dữ liệu từ API:", data);
             console.log(data.status);
+
+            // Bạn có thể xử lý thêm ở đây nếu cần thông báo thành công
+            if (data.status === 'success') {
+                // Thông báo thành công nếu có
+            }
+
         } catch (error) {
             console.error('Error fetching Users:', error);
+            // Bạn có thể xử lý lỗi và thông báo cho người dùng nếu có
         } finally {
             setIsLoading(false);
         }
 
-        setEditingUser(null);  // Đóng modal sau khi hoàn thành
+        setEditingUser(null);
     };
+
 
 
     const handleDeleteUser = async (user_id) => {
@@ -294,11 +321,11 @@ export default function ClassifyUsers() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow >
-                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">STT</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900">STT</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Avatar</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Tên</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Email</TableHead>
-                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Ngày tạo</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 whitespace-nowrap">Ngày tạo</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Trạng thái</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Quyền</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Hành động</TableHead>
@@ -328,24 +355,30 @@ export default function ClassifyUsers() {
                                                     {new Date(user.created_at).toLocaleDateString()}
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${user.status === 1
-                                                        ? "bg-green-50 text-green-700 ring-1 ring-green-600/20"
-                                                        : "bg-red-50 text-red-700 ring-1 ring-red-600/20"
-                                                        }`}>
-                                                        {user.status === 1 ? "Hoạt động" : "Không hoạt động"}
-                                                    </span>
+                                                    <div className={`inline-flex items-center justify-center space-x-1 p-1 rounded-full ${user.status === 1 ? 'bg-green-50 text-green-700 border-green-200 shadow-sm' : 'bg-red-50 text-red-700 border-red-200 shadow-sm'} font-medium ring-1 ${user.status === 1 ? 'ring-green-600/20' : 'ring-red-600/20'} whitespace-nowrap w-full`}>
+                                                        {user.status === 1 ? (
+                                                            <>
+                                                                <CheckCircle className="w-4 h-4" />
+                                                                <span className="text-sm">Hoạt động</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <XCircle className="w-4 h-4" />
+                                                                <span className="text-sm">Không hoạt động</span>
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </TableCell>
+
                                                 <TableCell className="text-center">
-                                                    {/* <span className="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium ring-1 ring-yellow-600/20"> */}
                                                     <span className="text-center">
-                                                        {/* {user.role === "teacher" ? "Giảng viên" : "Học viên"} */}
                                                         {user.role === "teacher" ? (
-                                                            <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 font-medium border border-blue-200 shadow-sm">
+                                                            <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 font-medium border border-blue-200 shadow-sm whitespace-nowrap">
                                                                 <School className="w-4 h-4" />
                                                                 <span className="text-sm">Giảng viên</span>
                                                             </div>
                                                         ) : (
-                                                            <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 font-medium border border-purple-200 shadow-sm">
+                                                            <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 font-medium border border-purple-200 shadow-sm whitespace-nowrap">
                                                                 <UserCircle className="w-4 h-4" />
                                                                 <span className="text-sm">Học viên</span>
                                                             </div>
