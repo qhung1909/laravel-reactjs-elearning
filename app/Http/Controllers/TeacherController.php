@@ -414,71 +414,73 @@ class TeacherController extends Controller
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-    
+
             $content = Content::where('content_id', $contentId)->first();
-    
+
             if (!$content) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Không tìm thấy nội dung'
                 ], 404);
             }
-    
+
             $validator = Validator::make($request->all(), [
                 'title_contents' => 'nullable|array',
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
                 'title_contents.*.body_content' => 'required|string',
-                'title_contents.*.video' => 'nullable|file|mimes:mp4,mov,avi,wmv|max:102400', // 100MB max
+                'title_contents.*.video_link' => 'nullable|file|mimes:mp4,mov,avi,wmv|max:102400', // 100MB max
                 'title_contents.*.document_link' => 'nullable|string',
                 'title_contents.*.description' => 'nullable|string'
             ], [
                 'title_contents.*.body_content.required' => 'Nội dung không được để trống',
-                'title_contents.*.video.mimes' => 'File video phải có định dạng: mp4, mov, avi, wmv',
-                'title_contents.*.video.max' => 'File video không được vượt quá 100MB'
+                'title_contents.*.video_link.mimes' => 'File video phải có định dạng: mp4, mov, avi, wmv',
+                'title_contents.*.video_link.max' => 'File video không được vượt quá 100MB'
             ]);
-    
+
             if ($validator->fails()) {
                 Log::error('Validation failed', [
                     'errors' => $validator->errors(),
                     'input' => request()->all()
                 ]);
-    
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Dữ liệu không hợp lệ',
                     'errors' => $validator->errors()
                 ], 422);
             }
-    
+
             DB::beginTransaction();
-    
+
             try {
                 foreach ($request->title_contents as $titleContentData) {
                     $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
                         ->where('content_id', $contentId)
                         ->first();
-    
+
                     if (!$titleContent) {
                         throw new \Exception("TitleContent ID {$titleContentData['title_content_id']} không thuộc về nội dung này");
                     }
-    
+
                     $updateData = [
                         'body_content' => $titleContentData['body_content'],
                         'document_link' => array_key_exists('document_link', $titleContentData) ? $titleContentData['document_link'] : $titleContent->document_link,
                         'description' => array_key_exists('description', $titleContentData) ? $titleContentData['description'] : $titleContent->description,
                         'status' => 'draft'
                     ];
-    
+
                     // Xử lý upload video nếu có
-                    if (isset($titleContentData['video']) && $titleContentData['video'] instanceof UploadedFile) {
-                        $updateData['video_link'] = $this->handleVideoUpload($titleContentData['video'], $titleContent);
+                    if (isset($titleContentData['video_link']) && $titleContentData['video_link'] instanceof UploadedFile) {
+                        $updateData['video_link'] = $this->handleVideoUpload($titleContentData['video_link'], $titleContent);
+                    } elseif (array_key_exists('video_link', $titleContentData)) {
+                        $updateData['video_link'] = $titleContentData['video_link'];
                     }
-    
+
                     $titleContent->update($updateData);
                 }
-    
+
                 DB::commit();
-    
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Cập nhật tiêu đề nội dung thành công'
