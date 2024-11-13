@@ -69,6 +69,15 @@ export default function DetailCourse() {
 
             setCourse(selectedCourse);
 
+            const uniqueStatuses = [...new Set(data.map(course => course.status))];
+            const statusOptionsWithColors = uniqueStatuses.map(status => ({
+                value: status,
+                color: getStatusColorByValue(status)
+            }));
+            setStatusOptions(statusOptionsWithColors);
+
+
+
         } catch (error) {
             setError('Không thể tải thông tin khóa học');
             console.error('Lỗi khi tải khóa học:', error);
@@ -76,8 +85,36 @@ export default function DetailCourse() {
             setIsLoading(false);
         }
     };
+    const [statusOptions, setStatusOptions] = useState([]);
 
-
+    const getStatusColorByValue = (status) => {
+        switch (status.toLowerCase()) {
+            case "published":
+                return "bg-green-100 text-green-800 w-full text-center flex justify-center items-center p-1 rounded-lg  ";
+            case "draft":
+                return "bg-blue-100 text-blue-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
+            case "pending":
+                return "bg-yellow-100 text-yellow-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
+            case "unpublished":
+                return "bg-red-500 text-white w-full text-center flex justify-center items-center p-1 rounded-lg ";
+        }
+    };
+    const getStatusText = (status) => {
+        switch (status) {
+            case "draft":
+                return "Nháp";
+            case "published":
+                return "Hoàn thành";
+            case "pending":
+                return "Đang chờ";
+            case "unpublished":
+                return "Thất bại";
+        }
+    };
+    const getStatusColor = (status) => {
+        const statusOption = statusOptions.find(opt => opt.value === status);
+        return statusOption ? statusOption.color : "bg-gray-300";
+    };
 
 
     const fetchCategories = async () => {
@@ -134,8 +171,8 @@ export default function DetailCourse() {
                     {/* Content section */}
                     <div className=" bg-gray-50 w-full font-sans">
                         {isLoading ? (
-                            <div className="flex justify-center items-center ">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            <div className="flex justify-center items-center">
+                                <div className="animate-spin rounded-full text-center h-8 w-8 border-b-2 border-yellow-500"></div>
                             </div>
                         ) : error ? (
                             <div className="text-red-600 text-center py-4">
@@ -176,6 +213,12 @@ export default function DetailCourse() {
                                             <div className="text-xl font-bold">
                                                 {formatCurrency(course.price)}
                                             </div>
+                                        </div>
+                                        <div className="mt-4 flex justify-center items-center whitespace-nowrap">
+                                            Trạng thái khóa học:
+                                            <span className={`${getStatusColor(course?.status)} mr-2 text-xs px-2 py-1`}>
+                                                {getStatusText(course.status)}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
