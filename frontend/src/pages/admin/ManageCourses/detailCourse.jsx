@@ -158,6 +158,7 @@ export default function DetailCourse() {
             });
             if (res.data && res.data.success) {
                 setTitleContent(prev => ({ ...prev, [contentId]: res.data.data }));
+
             } else {
                 console.error("Dữ liệu không hợp lệ:", res.data);
             }
@@ -185,10 +186,12 @@ export default function DetailCourse() {
                 params: { course_id: courseId }
             });
 
-            if (res.data && res.data.success && Array.isArray(res.data.contents)) {
-                // Fetch title contents for each lesson
+            console.log("API response:", res.data);  // Kiểm tra cấu trúc dữ liệu trả về
+
+            // Sửa điều kiện kiểm tra dữ liệu để phù hợp với cấu trúc API mới
+            if (res.data && res.data.success && Array.isArray(res.data.data)) {
                 const lessonsWithTitles = await Promise.all(
-                    res.data.contents
+                    res.data.data
                         .filter(content => content.course_id === Number(courseId) && content.status === 'published')
                         .map(async (content) => {
                             try {
@@ -202,7 +205,7 @@ export default function DetailCourse() {
 
                                 return {
                                     ...content,
-                                    titleContents: titleRes.data.success ? titleRes.data.titleContents : []
+                                    titleContents: Array.isArray(titleRes.data.titleContents) ? titleRes.data.titleContents : []
                                 };
                             } catch (error) {
                                 console.error(`Error fetching title contents for content ${content.content_id}:`, error);
@@ -221,12 +224,14 @@ export default function DetailCourse() {
                 }
             } else {
                 console.error("Dữ liệu không phải là mảng hoặc không có thành công:", res.data);
+                toast.error("Dữ liệu không hợp lệ hoặc không thành công.");
             }
         } catch (error) {
             console.error("Lỗi khi lấy nội dung bài học:", error);
             toast.error("Có lỗi xảy ra khi tải nội dung bài học.");
         }
     };
+
 
     useEffect(() => {
         if (course_id) {
@@ -267,7 +272,7 @@ export default function DetailCourse() {
                                 <BreadcrumbItem>
                                     <BreadcrumbLink href="/admin/courses" className="text-blue-600 flex items-center gap-1">
                                         <GraduationCap size={16} />
-                                            {course?.title || 'Khóa học không tồn tại'}
+                                        {course?.title || 'Khóa học không tồn tại'}
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
