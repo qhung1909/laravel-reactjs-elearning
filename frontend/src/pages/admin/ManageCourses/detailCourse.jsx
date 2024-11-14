@@ -248,7 +248,7 @@ export default function DetailCourse() {
                                 <BreadcrumbItem>
                                     <BreadcrumbLink href="/admin/courses" className="text-blue-600 flex items-center gap-1">
                                         <GraduationCap size={16} />
-                                        Chi tiết khóa học: {course?.title || 'Khóa học không tồn tại'}
+                                            {course?.title || 'Khóa học không tồn tại'}
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                             </BreadcrumbList>

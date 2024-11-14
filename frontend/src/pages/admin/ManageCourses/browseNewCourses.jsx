@@ -984,13 +984,7 @@ export default function BrowseNewCourses() {
                                                     Phê duyệt Bài học
                                                 </Button>
 
-                                                <Button
-                                                    className="bg-blue-500 hover:bg-blue-600 text-white"
-                                                    onClick={() => handleCalculateScore(activeCourse?.course_id)}
-                                                >
-                                                    <CheckCircle className="mr-2 h-4 w-4" />
-                                                    Tính điểm
-                                                </Button>
+
 
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
@@ -1005,7 +999,16 @@ export default function BrowseNewCourses() {
                                                     <AlertDialogAction onClick={handleApprove}>Phê duyệt</AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
+
+
                                         </AlertDialog>
+                                        <Button
+                                            className="bg-blue-500 hover:bg-blue-600 text-white"
+                                            onClick={() => handleCalculateScore(activeCourse?.course_id)}
+                                        >
+                                            <CheckCircle className="mr-2 h-4 w-4" />
+                                            Tính điểm
+                                        </Button>
 
                                         <AlertDialog open={isRejectModalOpen} onOpenChange={setIsRejectModalOpen}>
                                             <AlertDialogTrigger>
