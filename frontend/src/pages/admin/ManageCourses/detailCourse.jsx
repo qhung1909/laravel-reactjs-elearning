@@ -292,7 +292,7 @@ export default function DetailCourse() {
                                 {error}
                             </div>
                         ) : course ? (
-                            <div className="bg-white rounded-lg shadow-lg p-8 w-full mx-auto mt-8 ">
+                            <div className="bg-white rounded-none shadow-sm p-8 w-full mx-auto mt-8 ">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8  pr-5">
                                     {/* Image Section */}
                                     <div className="relative h-full md:h-full rounded-lg overflow-hidden shadow-md">
@@ -345,41 +345,42 @@ export default function DetailCourse() {
                         )}
 
                         {/* Bài học */}
-                        <div className="w-full max-w-3xl mx-auto p-4">
-                            <h2 className="text-2xl font-bold mb-4">Nội dung khóa học</h2>
+                        <div className="w-full my-5 ">
+                            <h2 className="text-3xl font-bold mb-6">Nội dung khóa học</h2>
                             {contentLesson.length > 0 ? (
                                 <Accordion type="single" collapsible className="w-full">
                                     {contentLesson.map((lesson, lessonIndex) => (
                                         <AccordionItem
                                             key={lesson.content_id}
                                             value={`item-${lessonIndex}`}
+                                            className="bg-white rounded-md shadow-sm mb-4"
                                         >
                                             <AccordionTrigger
-                                                className="text-left"
+                                                className="text-left px-6 py-4 font-medium text-lg"
                                                 onClick={() => {
-                                                    // Kiểm tra nếu chưa có titleContent thì mới fetch
                                                     if (!titleContent[lesson.content_id]) {
                                                         fetchTitleContent(lesson.content_id);
                                                     }
                                                 }}
                                             >
-                                                <span className="mr-2">Bài {lessonIndex + 1}:</span>
-                                                {lesson.name_content}
+                                                <span className="font-medium hover:text-gray-700">
+                                                    Bài học {lessonIndex + 1}:&nbsp;{lesson.name_content}
+                                                </span>
                                             </AccordionTrigger>
-                                            <AccordionContent>
+                                            <AccordionContent className="px-3 py-2">
                                                 {titleContent[lesson.content_id] && titleContent[lesson.content_id].length > 0 ? (
-                                                    <div className="space-y-4">
+                                                    <div className="space-y-2">
                                                         {titleContent[lesson.content_id].map((title, titleIndex) => (
-                                                            <div key={titleIndex} className="bg-white rounded-lg shadow-md p-4">
-                                                                <h5 className="font-semibold text-lg mb-2">
-                                                                    {titleIndex + 1}. {title.body_content || "Nội dung không có sẵn."}
+                                                            <div key={titleIndex} className="bg-gray-100 rounded-lg p-3">
+                                                                <h5 className="font-medium text-base mb-2">
+                                                                    {titleIndex + 1}. {title.body_content || "Content not available."}
                                                                 </h5>
                                                                 {title.video_link && (
                                                                     <Dialog>
-                                                                        <DialogTrigger className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out">
-                                                                            Xem video
+                                                                        <DialogTrigger className="bg-yellow-400 hover:bg-yellow-700 text-white font-medium py-1 px-2 rounded-md transition duration-300 ease-in-out">
+                                                                            Xem Video
                                                                         </DialogTrigger>
-                                                                        <DialogContent className="sm:max-w-[425px]">
+                                                                        <DialogContent className="sm:max-w-[625px]">
                                                                             <DialogHeader>
                                                                                 <DialogTitle>Xem Video</DialogTitle>
                                                                                 <DialogDescription>
@@ -401,14 +402,14 @@ export default function DetailCourse() {
                                                         ))}
                                                     </div>
                                                 ) : (
-                                                    <p className="text-gray-500">Đang tải nội dung....</p>
+                                                    <p className="text-gray-500">Loading content...</p>
                                                 )}
                                             </AccordionContent>
                                         </AccordionItem>
                                     ))}
                                 </Accordion>
                             ) : (
-                                <p className="text-gray-500">Đang tải nội dung...</p>
+                                <p className="text-gray-500">Loading content...</p>
                             )}
                         </div>
 
