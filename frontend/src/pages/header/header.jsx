@@ -2,9 +2,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 
 import {
-    CreditCard,
     LogOut,
-    Settings,
     User,
     BookOpen
 } from "lucide-react"
@@ -33,7 +31,6 @@ import { UserContext } from "../context/usercontext";
 import { CategoriesContext } from "../context/categoriescontext";
 import { CoursesContext } from "../context/coursescontext";
 import axios from "axios";
-import { myCourses } from "../myCourses/myCourses";
 import NotificationDropdown from "../pusher/pusher";
 export const Header = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -46,7 +43,7 @@ export const Header = () => {
     const [loadingLogout, setLoadingLogout] = useState(false);
     const isBlogPage = location.pathname === "/blog";
     const isContactPage = location.pathname === "/contact";
-    const [loading, setLoading] = useState(false);
+    const [loading] = useState(false);
     const [myCourse, setMyCourse] = useState([]);
     const navigate = useNavigate();
 
