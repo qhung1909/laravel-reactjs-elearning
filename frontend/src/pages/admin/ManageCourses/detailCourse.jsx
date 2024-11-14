@@ -147,6 +147,10 @@ export default function DetailCourse() {
 
     const [contentLesson, setContentLesson] = useState([]);
     const [titleContent, setTitleContent] = useState([]);
+    // Sắp xếp content theo content_id
+    const sortedContent = contentLesson.sort(
+        (a, b) => a.content_id - b.content_id
+    );
     const fetchTitleContent = async (contentId) => {
         const token = localStorage.getItem("access_token");
         try {
@@ -185,8 +189,6 @@ export default function DetailCourse() {
                 },
                 params: { course_id: courseId }
             });
-
-            console.log("API response:", res.data);  // Kiểm tra cấu trúc dữ liệu trả về
 
             // Sửa điều kiện kiểm tra dữ liệu để phù hợp với cấu trúc API mới
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
@@ -348,28 +350,39 @@ export default function DetailCourse() {
                             {contentLesson.length > 0 ? (
                                 <Accordion type="single" collapsible className="w-full">
                                     {contentLesson.map((lesson, lessonIndex) => (
-                                        <AccordionItem key={lesson.content_id} value={`item-${lessonIndex}`}>
-                                            <AccordionTrigger className="text-left">
+                                        <AccordionItem
+                                            key={lesson.content_id}
+                                            value={`item-${lessonIndex}`}
+                                        >
+                                            <AccordionTrigger
+                                                className="text-left"
+                                                onClick={() => {
+                                                    // Kiểm tra nếu chưa có titleContent thì mới fetch
+                                                    if (!titleContent[lesson.content_id]) {
+                                                        fetchTitleContent(lesson.content_id);
+                                                    }
+                                                }}
+                                            >
                                                 <span className="mr-2">Bài {lessonIndex + 1}:</span>
                                                 {lesson.name_content}
                                             </AccordionTrigger>
                                             <AccordionContent>
-                                                {lesson.titleContent && lesson.titleContent.length > 0 ? (
+                                                {titleContent[lesson.content_id] && titleContent[lesson.content_id].length > 0 ? (
                                                     <div className="space-y-4">
-                                                        {lesson.titleContent.map((title, titleIndex) => (
+                                                        {titleContent[lesson.content_id].map((title, titleIndex) => (
                                                             <div key={titleIndex} className="bg-white rounded-lg shadow-md p-4">
                                                                 <h5 className="font-semibold text-lg mb-2">
                                                                     {titleIndex + 1}. {title.body_content || "Nội dung không có sẵn."}
                                                                 </h5>
-                                                                <Dialog>
-                                                                    <DialogTrigger className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out">
-                                                                        Xem video
-                                                                    </DialogTrigger>
-                                                                    <DialogContent className="sm:max-w-[425px]">
-                                                                        <DialogHeader>
-                                                                            <DialogTitle>Xem Video</DialogTitle>
-                                                                            <DialogDescription>
-                                                                                {title.video_link ? (
+                                                                {title.video_link && (
+                                                                    <Dialog>
+                                                                        <DialogTrigger className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out">
+                                                                            Xem video
+                                                                        </DialogTrigger>
+                                                                        <DialogContent className="sm:max-w-[425px]">
+                                                                            <DialogHeader>
+                                                                                <DialogTitle>Xem Video</DialogTitle>
+                                                                                <DialogDescription>
                                                                                     <div className="relative" style={{ paddingTop: '56.25%' }}>
                                                                                         <ReactPlayer
                                                                                             url={title.video_link}
@@ -379,27 +392,27 @@ export default function DetailCourse() {
                                                                                             controls
                                                                                         />
                                                                                     </div>
-                                                                                ) : (
-                                                                                    <p className="text-gray-500">Video không có sẵn.</p>
-                                                                                )}
-                                                                            </DialogDescription>
-                                                                        </DialogHeader>
-                                                                    </DialogContent>
-                                                                </Dialog>
+                                                                                </DialogDescription>
+                                                                            </DialogHeader>
+                                                                        </DialogContent>
+                                                                    </Dialog>
+                                                                )}
                                                             </div>
                                                         ))}
                                                     </div>
                                                 ) : (
-                                                    <p className="text-gray-500">Không có nội dung nào để hiển thị.</p>
+                                                    <p className="text-gray-500">Đang tải nội dung....</p>
                                                 )}
                                             </AccordionContent>
                                         </AccordionItem>
                                     ))}
                                 </Accordion>
                             ) : (
-                                <p className="text-gray-500">Không có nội dung nào để hiển thị.</p>
+                                <p className="text-gray-500">Đang tải nội dung...</p>
                             )}
                         </div>
+
+
 
                     </div>
                 </div>
