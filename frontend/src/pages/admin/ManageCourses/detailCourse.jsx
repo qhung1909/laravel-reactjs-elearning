@@ -146,7 +146,31 @@ export default function DetailCourse() {
     }, [course_id]);
 
     const [contentLesson, setContentLesson] = useState([]);
-    const [titleContents, setTitleContents] = useState([]);
+    const [titleContent, setTitleContent] = useState([]);
+    // Sắp xếp content theo content_id
+    const sortedContent = contentLesson.sort(
+        (a, b) => a.content_id - b.content_id
+    );
+    const fetchTitleContent = async (contentId) => {
+        const token = localStorage.getItem("access_token");
+        try {
+            const res = await axios.get(`${API_URL}/title-contents/${contentId}`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            if (res.data && res.data.success) {
+                setTitleContent(prev => ({ ...prev, [contentId]: res.data.data }));
+
+            } else {
+                console.error("Dữ liệu không hợp lệ:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy chi tiết title_content:", error);
+        }
+    };
+
     const navigate = useNavigate();
 
 
@@ -166,10 +190,10 @@ export default function DetailCourse() {
                 params: { course_id: courseId }
             });
 
-            if (res.data && res.data.success && Array.isArray(res.data.contents)) {
-                // Fetch title contents for each lesson
+            // Sửa điều kiện kiểm tra dữ liệu để phù hợp với cấu trúc API mới
+            if (res.data && res.data.success && Array.isArray(res.data.data)) {
                 const lessonsWithTitles = await Promise.all(
-                    res.data.contents
+                    res.data.data
                         .filter(content => content.course_id === Number(courseId) && content.status === 'published')
                         .map(async (content) => {
                             try {
@@ -183,7 +207,7 @@ export default function DetailCourse() {
 
                                 return {
                                     ...content,
-                                    titleContents: titleRes.data.success ? titleRes.data.titleContents : []
+                                    titleContents: Array.isArray(titleRes.data.titleContents) ? titleRes.data.titleContents : []
                                 };
                             } catch (error) {
                                 console.error(`Error fetching title contents for content ${content.content_id}:`, error);
@@ -202,12 +226,14 @@ export default function DetailCourse() {
                 }
             } else {
                 console.error("Dữ liệu không phải là mảng hoặc không có thành công:", res.data);
+                toast.error("Dữ liệu không hợp lệ hoặc không thành công.");
             }
         } catch (error) {
             console.error("Lỗi khi lấy nội dung bài học:", error);
             toast.error("Có lỗi xảy ra khi tải nội dung bài học.");
         }
     };
+
 
     useEffect(() => {
         if (course_id) {
@@ -248,7 +274,7 @@ export default function DetailCourse() {
                                 <BreadcrumbItem>
                                     <BreadcrumbLink href="/admin/courses" className="text-blue-600 flex items-center gap-1">
                                         <GraduationCap size={16} />
-                                        Chi tiết khóa học: {course?.title || 'Khóa học không tồn tại'}
+                                        {course?.title || 'Khóa học không tồn tại'}
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
@@ -266,7 +292,7 @@ export default function DetailCourse() {
                                 {error}
                             </div>
                         ) : course ? (
-                            <div className="bg-white rounded-lg shadow-lg p-8 w-full mx-auto mt-8 ">
+                            <div className="bg-white rounded-none shadow-sm p-8 w-full mx-auto mt-8 ">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8  pr-5">
                                     {/* Image Section */}
                                     <div className="relative h-full md:h-full rounded-lg overflow-hidden shadow-md">
@@ -319,33 +345,45 @@ export default function DetailCourse() {
                         )}
 
                         {/* Bài học */}
-                        <div className="w-full max-w-3xl mx-auto p-4">
-                            <h2 className="text-2xl font-bold mb-4">Nội dung khóa học</h2>
+                        <div className="w-full my-5 ">
+                            <h2 className="text-3xl font-bold mb-6">Nội dung khóa học</h2>
                             {contentLesson.length > 0 ? (
                                 <Accordion type="single" collapsible className="w-full">
                                     {contentLesson.map((lesson, lessonIndex) => (
-                                        <AccordionItem key={lesson.content_id} value={`item-${lessonIndex}`}>
-                                            <AccordionTrigger className="text-left">
-                                                <span className="mr-2">Bài {lessonIndex + 1}:</span>
-                                                {lesson.name_content}
+                                        <AccordionItem
+                                            key={lesson.content_id}
+                                            value={`item-${lessonIndex}`}
+                                            className="bg-white rounded-md shadow-sm mb-4"
+                                        >
+                                            <AccordionTrigger
+                                                className="text-left px-6 py-4 font-medium text-lg"
+                                                onClick={() => {
+                                                    if (!titleContent[lesson.content_id]) {
+                                                        fetchTitleContent(lesson.content_id);
+                                                    }
+                                                }}
+                                            >
+                                                <span className="font-medium hover:text-gray-700">
+                                                    Bài học {lessonIndex + 1}:&nbsp;{lesson.name_content}
+                                                </span>
                                             </AccordionTrigger>
-                                            <AccordionContent>
-                                                {lesson.titleContents && lesson.titleContents.length > 0 ? (
-                                                    <div className="space-y-4">
-                                                        {lesson.titleContents.map((title, titleIndex) => (
-                                                            <div key={titleIndex} className="bg-white rounded-lg shadow-md p-4">
-                                                                <h5 className="font-semibold text-lg mb-2">
-                                                                    {titleIndex + 1}. {title.body_content || "Nội dung không có sẵn."}
+                                            <AccordionContent className="px-3 py-2">
+                                                {titleContent[lesson.content_id] && titleContent[lesson.content_id].length > 0 ? (
+                                                    <div className="space-y-2">
+                                                        {titleContent[lesson.content_id].map((title, titleIndex) => (
+                                                            <div key={titleIndex} className="bg-gray-100 rounded-lg p-3">
+                                                                <h5 className="font-medium text-base mb-2">
+                                                                    {titleIndex + 1}. {title.body_content || "Content not available."}
                                                                 </h5>
-                                                                <Dialog>
-                                                                    <DialogTrigger className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out">
-                                                                        Xem video
-                                                                    </DialogTrigger>
-                                                                    <DialogContent className="sm:max-w-[425px]">
-                                                                        <DialogHeader>
-                                                                            <DialogTitle>Xem Video</DialogTitle>
-                                                                            <DialogDescription>
-                                                                                {title.video_link ? (
+                                                                {title.video_link && (
+                                                                    <Dialog>
+                                                                        <DialogTrigger className="bg-yellow-400 hover:bg-yellow-700 text-white font-medium py-1 px-2 rounded-md transition duration-300 ease-in-out">
+                                                                            Xem Video
+                                                                        </DialogTrigger>
+                                                                        <DialogContent className="sm:max-w-[625px]">
+                                                                            <DialogHeader>
+                                                                                <DialogTitle>Xem Video</DialogTitle>
+                                                                                <DialogDescription>
                                                                                     <div className="relative" style={{ paddingTop: '56.25%' }}>
                                                                                         <ReactPlayer
                                                                                             url={title.video_link}
@@ -355,27 +393,27 @@ export default function DetailCourse() {
                                                                                             controls
                                                                                         />
                                                                                     </div>
-                                                                                ) : (
-                                                                                    <p className="text-gray-500">Video không có sẵn.</p>
-                                                                                )}
-                                                                            </DialogDescription>
-                                                                        </DialogHeader>
-                                                                    </DialogContent>
-                                                                </Dialog>
+                                                                                </DialogDescription>
+                                                                            </DialogHeader>
+                                                                        </DialogContent>
+                                                                    </Dialog>
+                                                                )}
                                                             </div>
                                                         ))}
                                                     </div>
                                                 ) : (
-                                                    <p className="text-gray-500">Không có nội dung nào để hiển thị.</p>
+                                                    <p className="text-gray-500">Loading content...</p>
                                                 )}
                                             </AccordionContent>
                                         </AccordionItem>
                                     ))}
                                 </Accordion>
                             ) : (
-                                <p className="text-gray-500">Không có nội dung nào để hiển thị.</p>
+                                <p className="text-gray-500">Loading content...</p>
                             )}
                         </div>
+
+
 
                     </div>
                 </div>
