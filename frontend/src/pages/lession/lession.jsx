@@ -836,6 +836,7 @@ export const Lesson = () => {
                                                     <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01]">
                                                         <AccordionTrigger className="w-full hover:no-underline">
                                                             <div className="flex items-center w-full p-4">
+
                                                                 <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center text-purple-600 font-medium mr-4 shadow-sm">
                                                                     {index + 1}
                                                                 </div>
@@ -856,16 +857,21 @@ export const Lesson = () => {
                                                                             </span>
                                                                         </div>
                                                                     </div>
-                                                                    {content.quiz_id != null && content.quiz_id !== 0 && (
-                                                                        <button
-                                                                            onClick={() => handleShowQuiz(content.content_id)}
-                                                                            className="flex items-center gap-1 px-3 py-1 border border-purple-600 text-purple-600 font-medium text-xs rounded-md"
-                                                                        >
-                                                                            <span className="text-xs">Bài tập</span>
-                                                                            <ArrowRight className="w-3 h-3 mt-0.5" />
-                                                                        </button>
-                                                                    )}
                                                                 </div>
+                                                                {content.quiz_id != null && content.quiz_id !== 0 && (
+                                                                    <button
+                                                                        onClick={() => handleShowQuiz(content.content_id)}
+                                                                        className="flex items-center gap-1 px-3 py-1 border border-purple-600 text-purple-600 font-medium text-xs rounded-md"
+                                                                    >
+                                                                        <span className="text-xs">Bài tập</span>
+                                                                        <ArrowRight className="w-3 h-3 mt-0.5" />
+                                                                    </button>
+                                                                )}
+                                                                {completedVideosInSection[content.content_id] && completedVideosInSection[content.content_id] ? (
+                                                                    <CheckCircle className="text-green-600 w-4 h-4 mr-4" />
+                                                                ) : (
+                                                                    <XCircle className="text-red-600 w-4 h-4 mr-4" />
+                                                                )}
                                                             </div>
                                                         </AccordionTrigger>
                                                         <AccordionContent>
@@ -888,11 +894,6 @@ export const Lesson = () => {
                                                                                     <p className="text-sm text-gray-600 line-clamp-2 flex-1">
                                                                                         {item.body_content}
                                                                                     </p>
-                                                                                    {completedVideosInSection[content.content_id] && completedVideosInSection[content.content_id] > i ? (
-                                                                                        <CheckCircle className="text-green-600 w-4 h-4" />
-                                                                                    ) : (
-                                                                                        <XCircle className="text-red-600 w-4 h-4" />
-                                                                                    )}
                                                                                 </div>
                                                                                 <div className="flex items-center gap-2 mt-1">
                                                                                     <span className="text-xs text-gray-400 flex items-center">
@@ -915,7 +916,6 @@ export const Lesson = () => {
                                                         </AccordionContent>
                                                     </div>
                                                 </AccordionItem>
-
                                             ))
                                         ) : (
                                             <div className="text-center py-8 bg-white rounded-xl">
@@ -924,6 +924,7 @@ export const Lesson = () => {
                                             </div>
                                         )}
                                     </Accordion>
+
 
                                 </div>
 
