@@ -14,7 +14,7 @@ use App\Models\Quiz;
 use App\Models\OrderDetail;
 use Aws\S3\S3Client;
 use Illuminate\Http\UploadedFile;
-
+use Carbon\Carbon;
 class TeacherController extends Controller
 {
     public function getCoursesByTeacher()
@@ -664,6 +664,319 @@ class TeacherController extends Controller
             return $result['ObjectURL'];
         } catch (\Exception $e) {
             throw new \Exception('Không thể upload video lên S3: ' . $e->getMessage());
+        }
+    }
+
+    public function toggleCourseStatus(Request $request, $courseId)
+    {
+        try {
+            $course = Course::where('course_id', $courseId)
+                ->where('user_id', Auth::id())
+                ->first();
+
+            if (!$course) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Course not found or you do not have permission to modify this course'
+                ], 404);
+            }
+
+            $newStatus = $course->status === 'published' ? 'draft' : 'published';
+
+            if ($newStatus === 'published') {
+                $isValid = true;
+
+                if (!$isValid) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Course cannot be published. Please ensure all required content is complete.'
+                    ], 400);
+                }
+            }
+
+            $course->status = $newStatus;
+            $course->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => "Course status has been changed to {$newStatus}",
+                'data' => $course
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error toggling course status: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while updating the course status'
+            ], 500);
+        }
+    }
+
+    public function getCompletedCoursesStats()
+    {
+        try {
+            $completedCoursesByTeacher = DB::table('certificates')
+                ->join('courses', 'certificates.course_id', '=', 'courses.course_id')
+                ->join('users', 'courses.user_id', '=', 'users.user_id')
+                ->where('users.role', '=', 'teacher')
+                ->select(
+                    'users.user_id as teacher_id',
+                    'users.name as teacher_name',
+                    DB::raw('COUNT(DISTINCT certificates.course_id) as completed_courses_count'),
+                    DB::raw('COUNT(DISTINCT certificates.user_id) as total_students')
+                )
+                ->groupBy('users.user_id', 'users.name')
+                ->get();
+
+            $detailedStats = [];
+            foreach ($completedCoursesByTeacher as $teacherStats) {
+                $courseDetails = DB::table('certificates')
+                    ->join('courses', 'certificates.course_id', '=', 'courses.course_id')
+                    ->join('users', 'courses.user_id', '=', 'users.user_id')
+                    ->where('courses.user_id', $teacherStats->teacher_id)
+                    ->where('users.role', '=', 'teacher')
+                    ->select(
+                        'courses.course_id',
+                        'courses.title',
+                        DB::raw('COUNT(DISTINCT certificates.user_id) as completion_count')
+                    )
+                    ->groupBy('courses.course_id', 'courses.title')
+                    ->get();
+
+                $detailedStats[$teacherStats->teacher_id] = [
+                    'teacher_name' => $teacherStats->teacher_name,
+                    'total_completed_courses' => $teacherStats->completed_courses_count,
+                    'total_students' => $teacherStats->total_students,
+                    'courses_breakdown' => $courseDetails
+                ];
+            }
+
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'summary' => $completedCoursesByTeacher,
+                    'detailed' => $detailedStats
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error getting completed courses stats: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching completion statistics',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getTeacherCompletionStats($teacherId)
+    {
+        try {
+            $teacherExists = DB::table('users')
+                ->where('user_id', $teacherId)
+                ->where('role', '=', 'teacher')
+                ->exists();
+
+            if (!$teacherExists) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Teacher not found or user is not a teacher'
+                ], 404);
+            }
+
+            $stats = DB::table('certificates')
+                ->join('courses', 'certificates.course_id', '=', 'courses.course_id')
+                ->join('users', 'courses.user_id', '=', 'users.user_id')
+                ->where('courses.user_id', $teacherId)
+                ->where('users.role', '=', 'teacher')
+                ->select(
+                    'courses.course_id',
+                    'courses.title',
+                    DB::raw('COUNT(DISTINCT certificates.user_id) as students_completed'),
+                    DB::raw('MIN(certificates.created_at) as first_completion'),
+                    DB::raw('MAX(certificates.created_at) as latest_completion')
+                )
+                ->groupBy('courses.course_id', 'courses.title')
+                ->get();
+
+            $totalUniqueStudents = DB::table('certificates')
+                ->join('courses', 'certificates.course_id', '=', 'courses.course_id')
+                ->join('users', 'courses.user_id', '=', 'users.user_id')
+                ->where('courses.user_id', $teacherId)
+                ->where('users.role', '=', 'teacher')
+                ->distinct('certificates.user_id')
+                ->count('certificates.user_id');
+
+            $teacherInfo = DB::table('users')
+                ->select('name', 'email')
+                ->where('user_id', $teacherId)
+                ->first();
+
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'teacher_info' => $teacherInfo,
+                    'total_unique_students' => $totalUniqueStudents,
+                    'courses_completion' => $stats
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error getting teacher completion stats: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching teacher statistics',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getTeacherOrderHistory($teacherId)
+    {
+        try {
+            $teacherExists = DB::table('users')
+                ->where('user_id', $teacherId)
+                ->where('role', 'teacher')
+                ->exists();
+
+            if (!$teacherExists) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Teacher not found or user is not a teacher'
+                ], 404);
+            }
+
+            $orderHistory = DB::table('order_detail as od')
+                ->join('courses as c', 'od.course_id', '=', 'c.course_id')
+                ->join('orders as o', 'od.order_id', '=', 'o.order_id')
+                ->join('users as u', 'o.user_id', '=', 'u.user_id')
+                ->where('c.user_id', $teacherId)
+                ->where('od.status', 'success')
+                ->select(
+                    'od.order_detail_id',
+                    'od.order_id',
+                    'od.course_id',
+                    'c.title as course_title',
+                    'od.price',
+                    'od.status',
+                    'o.created_at as order_date',
+                    'u.user_id as student_id',
+                    'u.name as student_name',
+                    'u.email as student_email'
+                )
+                ->orderBy('o.created_at', 'desc')
+                ->get();
+
+            $statistics = [
+                'total_orders' => $orderHistory->count(),
+                'total_revenue' => $orderHistory->sum('price'),
+                'course_stats' => $orderHistory->groupBy('course_id')
+                    ->map(function ($orders) {
+                        return [
+                            'course_title' => $orders->first()->course_title,
+                            'total_sales' => $orders->count(),
+                            'total_revenue' => $orders->sum('price'),
+                            'average_price' => round($orders->avg('price'), 2)
+                        ];
+                    })
+            ];
+
+            $ordersByStatus = $orderHistory->groupBy('status')->map->count();
+
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'orders' => $orderHistory,
+                    'statistics' => [
+                        'summary' => [
+                            'total_orders' => $statistics['total_orders'],
+                            'total_revenue' => $statistics['total_revenue'],
+                            'orders_by_status' => $ordersByStatus
+                        ],
+                        'by_course' => $statistics['course_stats']
+                    ]
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error getting teacher order history: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching order history',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getCourseOrderHistory($courseId)
+    {
+        try {
+            $course = Course::where('course_id', $courseId)
+                ->where('user_id', Auth::id())
+                ->first();
+
+            if (!$course) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Course not found or you do not have permission to view this course'
+                ], 404);
+            }
+
+            $orderHistory = DB::table('order_detail as od')
+                ->join('orders as o', 'od.order_id', '=', 'o.order_id')
+                ->join('users as u', 'o.user_id', '=', 'u.user_id')
+                ->where('od.course_id', $courseId)
+                ->where('od.status', 'success')
+                ->select(
+                    'od.order_detail_id',
+                    'od.order_id',
+                    'od.price',
+                    'od.status',
+                    'o.created_at as order_date',
+                    'u.user_id as student_id',
+                    'u.name as student_name',
+                    'u.email as student_email'
+                )
+                ->orderBy('o.created_at', 'desc')
+                ->get();
+
+            $statistics = [
+                'total_orders' => $orderHistory->count(),
+                'total_revenue' => $orderHistory->sum('price'),
+                'average_price' => $orderHistory->avg('price'),
+                'orders_by_status' => $orderHistory->groupBy('status')->map->count(),
+                'monthly_stats' => $orderHistory
+                    ->groupBy(function ($order) {
+                        return Carbon::parse($order->order_date)->format('Y-m');
+                    })
+                    ->map(function ($orders) {
+                        return [
+                            'orders' => $orders->count(),
+                            'revenue' => $orders->sum('price')
+                        ];
+                    })
+            ];
+
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'course_info' => [
+                        'course_id' => $course->course_id,
+                        'title' => $course->title,
+                        'price' => $course->price
+                    ],
+                    'orders' => $orderHistory,
+                    'statistics' => $statistics
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error getting course order history: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching course order history',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }

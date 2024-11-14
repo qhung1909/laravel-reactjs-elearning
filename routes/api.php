@@ -248,4 +248,13 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
 
     Route::get('/revenue', [AdminController::class, 'getTeacherRevenue']);
     Route::get('/rank', [TeacherController::class, 'getSalesRank']);
+    Route::put('/courses/{courseId}/toggle-status', [TeacherController::class, 'toggleCourseStatus']);
+
+    Route::get('/courses/completion-stats', [TeacherController::class, 'getCompletedCoursesStats']);
+
+    Route::get('/{teacherId}/courses/completion-stats', [TeacherController::class, 'getTeacherCompletionStats']);
+
+    Route::get('/{teacherId}/orders', [TeacherController::class, 'getTeacherOrderHistory']);
+    
+    Route::get('/course/{courseId}/orders', [TeacherController::class, 'getCourseOrderHistory']);
 });
