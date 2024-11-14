@@ -146,7 +146,26 @@ export default function DetailCourse() {
     }, [course_id]);
 
     const [contentLesson, setContentLesson] = useState([]);
-    const [titleContents, setTitleContents] = useState([]);
+    const [titleContent, setTitleContent] = useState([]);
+    const fetchTitleContent = async (contentId) => {
+        const token = localStorage.getItem("access_token");
+        try {
+            const res = await axios.get(`${API_URL}/title-contents/${contentId}`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            if (res.data && res.data.success) {
+                setTitleContent(prev => ({ ...prev, [contentId]: res.data.data }));
+            } else {
+                console.error("Dữ liệu không hợp lệ:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy chi tiết title_content:", error);
+        }
+    };
+
     const navigate = useNavigate();
 
 
@@ -330,9 +349,9 @@ export default function DetailCourse() {
                                                 {lesson.name_content}
                                             </AccordionTrigger>
                                             <AccordionContent>
-                                                {lesson.titleContents && lesson.titleContents.length > 0 ? (
+                                                {lesson.titleContent && lesson.titleContent.length > 0 ? (
                                                     <div className="space-y-4">
-                                                        {lesson.titleContents.map((title, titleIndex) => (
+                                                        {lesson.titleContent.map((title, titleIndex) => (
                                                             <div key={titleIndex} className="bg-white rounded-lg shadow-md p-4">
                                                                 <h5 className="font-semibold text-lg mb-2">
                                                                     {titleIndex + 1}. {title.body_content || "Nội dung không có sẵn."}
