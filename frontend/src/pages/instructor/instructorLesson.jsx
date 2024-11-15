@@ -84,7 +84,7 @@ export const InstructorLesson = () => {
     };
 
     const filteredCourses = teacherCourses.filter((course) =>
-        course.title.toLowerCase().includes(searchTerm.toLowerCase())
+        course.title && course.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const currentItems = filteredCourses.slice(indexOfFirstItem, indexOfLastItem);
@@ -113,7 +113,9 @@ export const InstructorLesson = () => {
     const getStatusBadge = (status) => {
         switch (status) {
             case "published":
-                return "bg-yellow-500 text-white md:px-3 md:py-1 font-medium :text-sm text-xs";
+                return "bg-yellow-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
+            case "failed":
+                return "bg-red-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
             case "hide":
                 return "bg-gray-400 text-black md:px-3 md:py-1 font-medium sm:text-sm text-xs hover:text-white";
             case "draft":
@@ -123,6 +125,15 @@ export const InstructorLesson = () => {
         }
     }
 
+    // xử lý chuyên
+    const handleBadgeClick = (item) => {
+        if (item.status === "draft") {
+            window.location.href = `/course/manage/${item.course_id}/course-overview`;
+        }
+        if (item.status === "published") {
+            window.location.href = `/detail/${item.slug}`;
+        }
+    };
     // xuất excel
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(teacherCourses);
@@ -175,7 +186,7 @@ export const InstructorLesson = () => {
             currentItems.map((item, index) => (
                 <TableRow key={index}>
                     <TableCell>
-                        <Badge className={getStatusBadge(item.status)}>
+                        <Badge onClick={()=> handleBadgeClick(item)} style={{ cursor: item.status === "draft" || item.status === "published" ? "pointer" : "default" }} className={getStatusBadge(item.status)}>
                             {item.status}
                         </Badge>
                     </TableCell>
@@ -196,7 +207,7 @@ export const InstructorLesson = () => {
                     <TableCell>
                         <Dialog>
                             <DialogTrigger>
-                                <div className="flex gap-2 items-center bg-yellow-300 text-black font-semibold py-2 px-1 rounded hover:bg-white hover:text-black hover:border duration-300">
+                                <div className="flex gap-2 items-center bg-yellow-300 text-black font-semibold py-2 sm:px-3 px-1 rounded hover:bg-blue-500 hover:text-black duration-300">
                                     <div className="">
                                         <p>Sửa</p>
                                     </div>

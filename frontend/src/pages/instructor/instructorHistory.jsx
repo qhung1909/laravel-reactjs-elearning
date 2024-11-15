@@ -66,8 +66,8 @@ export const InstructorHistory = () => {
         setSearchTerm(event.target.value)
     }
     const filteredOrders = teacherOrders.filter((order) =>
-        order.course_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.student_name.toLowerCase().includes(searchTerm.toLowerCase())
+        order.course_title && order.course_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.student_name && order.student_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     // phân trang
