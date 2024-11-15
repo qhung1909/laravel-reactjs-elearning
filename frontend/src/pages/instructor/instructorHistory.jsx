@@ -376,7 +376,7 @@ export const InstructorHistory = () => {
                         <div className="md:p-6 p-2 max-lg:h-screen">
 
                             {/* xuất excel */}
-                            <div className="">
+                            <div className="flex justify-end">
                                 <Button className="duration-300 bg-white text-black border hover:bg-gray-100" onClick={exportToExcel}>
                                     <div className="">
                                         <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/download.svg" className="w-5" alt="" />
