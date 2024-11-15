@@ -15,7 +15,8 @@ import {
     Settings2,
     Sparkles,
     SquareTerminal,
-    Layout
+    Layout,
+    MessageCircle
 } from "lucide-react";
 
 import {
@@ -120,7 +121,7 @@ const data = {
             ],
         },
         {
-            title: "Quản lý Nội dung",
+            title: "Quản lý nội dung",
             url: "#",
             icon: Settings2,
             items: [
@@ -128,6 +129,15 @@ const data = {
                 { title: "Banner quảng cáo", url: "#" },
                 { title: "Billing", url: "#" },
                 { title: "Thông báo hệ thống", url: "#" },
+            ],
+        },
+        {
+            title: "Quản lý bình luận",
+            url: "#",
+            icon: MessageCircle,
+            items: [
+                { title: "Tất cả bình luận", url: "/admin/comments" },
+
             ],
         },
         {

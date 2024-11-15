@@ -66,6 +66,7 @@ import { ManageHeader } from "./pages/admin/ManageHeaderFooter/ManageHeader.jsx"
 import Draft from "./pages/admin/ManageCourses/draft.jsx";
 import ManageFooter from "./pages/admin/ManageHeaderFooter/ManageFooter.jsx";
 import DetailCourse from "./pages/admin/ManageCourses/detailCourse.jsx";
+import { CmtCrud } from "./pages/admin/ManageComments/cmtCrud.jsx";
 
 function AppContent() {
     const location = useLocation();
@@ -126,7 +127,7 @@ function AppContent() {
                 <Route path="/admin/priority-category" element={<PriorityCategory />}></Route>
                 <Route path="/admin/courses-of-category" element={<CoursesOfCategory />}></Route>
                 <Route path="/admin/blogs" element={<BlogCrud />}></Route>
-
+                <Route path="/admin/comments" element={<CmtCrud />}></Route>
                 <Route path="/admin/list-students" element={<ListStudents />}></Route>
                 <Route path="/admin/list-teachers" element={<ListTeachers />}></Route>
                 <Route path="/admin/classify-users" element={<ClassifyUsers />}></Route>
