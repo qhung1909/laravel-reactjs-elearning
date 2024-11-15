@@ -75,8 +75,6 @@ export const CmtCrud = () => {
             });
             if (res.data) {
                 setComments(res.data.comments);
-                console.log(res.data.comments);
-
             }
         } catch (error) {
             console.error('Error fetching comments:', error);
@@ -118,11 +116,11 @@ export const CmtCrud = () => {
             setLoading(true);
             await axios.delete(`${API_URL}/comments/${commentId}`, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`,
                 },
             });
             notify('Xóa bình luận thành công', 'success');
-            fetchComments(); // Reload the comments list
+            fetchComments();
         } catch (error) {
             console.error('Error deleting comment:', error);
             notify('Có lỗi xảy ra khi xóa bình luận', 'error');
@@ -258,7 +256,7 @@ export const CmtCrud = () => {
                                             className="border-t border-gray-100 hover:bg-gray-50 transition-colors"
                                         >
                                             {/* Comment ID */}
-                                            <td className="py-4 px-6 text-sm text-gray-600">{index + 1}</td>
+                                            <td className="py-4 px-6 text-sm text-gray-600">{comment.comment_id}</td>
 
                                             {/* Comment Content */}
                                             <td className="py-4 px-6 w-auto">
@@ -266,21 +264,21 @@ export const CmtCrud = () => {
                                                     {comment.content}
                                                 </div>
                                             </td>
+
                                             {/* Rating */}
-                                            <td className="py-4 px-6">
-                                                <div className="flex">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <Star
-                                                            key={i}
-                                                            className={`w-5 h-5 cursor-pointer ${i < Math.floor(comment.rating)
-                                                                ? "text-yellow-500"
-                                                                : "text-gray-300"
-                                                                }`}
-                                                            fill="currentColor"
-                                                        />
-                                                    ))}
-                                                </div>
+                                            <td className="py-4 px-6 flex items-center gap-1">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star
+                                                        key={i}
+                                                        className={`w-5 h-5 cursor-pointer ${i < Math.floor(comment.rating)
+                                                            ? "text-yellow-500"
+                                                            : "text-gray-300"
+                                                            }`}
+                                                        fill="currentColor"
+                                                    />
+                                                ))}
                                             </td>
+
                                             {/* Course Image */}
                                             <td className="py-4 px-6 text-sm text-gray-600">
                                                 {comment.course.img ? (
@@ -302,8 +300,6 @@ export const CmtCrud = () => {
                                                 {formatDate(comment.updated_at)}
                                             </td>
 
-
-
                                             {/* Action Buttons */}
                                             <td className="py-4 px-6">
                                                 <div className="flex justify-start gap-2">
@@ -323,6 +319,7 @@ export const CmtCrud = () => {
                                 )}
                             </tbody>
                         </table>
+
                     </div>
 
                 </div>
