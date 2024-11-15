@@ -10,7 +10,7 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,7 @@ import { Calendar } from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 const GPT_KEY = import.meta.env.VITE_GPT_KEY;
@@ -449,6 +450,81 @@ export const Lesson = () => {
             setUserMessage('');
         }
     };
+
+
+    //MiniGame - Câu Đố Kiến Thức
+    const [answer, setAnswer] = useState('');
+    const [isCorrect, setIsCorrect] = useState(null);
+    const [voucher, setVoucher] = useState([]);
+    const [randomVoucher, setRandomVoucher] = useState(null);
+
+    const correctAnswer = 'Tim';
+
+    const fetchCoupons = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
+        }
+
+        try {
+            const res = await axios.get(`${API_URL}/coupons`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (res.data) {
+                // Lấy ngày hiện tại
+                const currentDate = new Date();
+                currentDate.setHours(0, 0, 0, 0);
+
+                // Tạo ngày tiếp theo
+                const nextDate = new Date(currentDate);
+                nextDate.setDate(currentDate.getDate() + 1); // Cộng thêm 1 ngày
+
+                // Lọc các coupon hết hạn vào ngày tiếp theo
+                const validCoupons = res.data.filter(coupon => {
+                    const DateEndVoucher = new Date(coupon.end_discount);
+                    DateEndVoucher.setHours(0, 0, 0, 0);
+                    // Kiểm tra nếu ngày hết hạn trùng với ngày tiếp theo
+                    return DateEndVoucher.getTime() === nextDate.getTime();
+                });
+
+                // Cập nhật state với danh sách coupon hợp lệ
+                setVoucher(validCoupons);
+            } else {
+                console.error("Không có dữ liệu trả về:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy coupon:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCoupons();
+    }, []);
+
+    const handleInputChange = (e) => {
+        setAnswer(e.target.value);
+        setIsCorrect(null);
+    };
+
+    const handleSubmitGame = () => {
+        // Kiểm tra câu trả lời khi nhấn nút
+        if (answer.trim().toLowerCase() === correctAnswer.toLowerCase()) {
+            setIsCorrect(true);
+
+            // Random voucher từ danh sách coupon hợp lệ
+            if (voucher.length > 0) {
+                const randomCoupon = voucher[Math.floor(Math.random() * voucher.length)];
+                setRandomVoucher(randomCoupon.name_coupon); // Lưu voucher được chọn
+            }
+        } else {
+            setIsCorrect(false);
+        }
+    };
     return (
         <>
             <body className="bg-gray-100">
@@ -803,7 +879,7 @@ export const Lesson = () => {
 
                                     {/* Stats */}
                                     <div className="grid grid-cols-2 gap-3 mt-4">
-                                        <div className="bg-purple-50 rounded-xl p-3 border border-purple-100">
+                                        <div className="bg-violet-50 rounded-xl p-3 border border-violet-100 group hover:bg-violet-100 transition-colors">
                                             <div className="flex items-center text-purple-600 mb-1">
                                                 <PlayCircle className="w-4 h-4 mr-2" />
                                                 <span className="text-sm font-medium">Đã hoàn thành</span>
@@ -812,14 +888,64 @@ export const Lesson = () => {
                                                 {completedLessons.size}/{contentLesson.length}
                                             </p>
                                         </div>
-                                        <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
-                                            <div className="flex items-center text-blue-600 mb-1">
-                                                <Clock className="w-4 h-4 mr-2" />
-                                                <span className="text-sm font-medium">Thời lượng</span>
+                                        {/* MiniGame */}
+                                        <div className="bg-violet-50 rounded-xl p-3 border border-violet-100 group hover:bg-violet-100 transition-colors">
+                                            <div className="flex items-center text-violet-600 mb-1">
+                                                <GraduationCap className="w-4 h-4 mr-2" />
+                                                <span className="text-sm font-medium">Mini Game</span>
                                             </div>
+                                            <Dialog>
+                                                <DialogTrigger asChild>
+                                                    <button className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600">
+                                                        <p className="text-lg font-semibold">Chơi ngay</p>
+                                                        <Trophy className="w-5 h-5 ml-2" />
+                                                    </button>
+                                                </DialogTrigger>
+
+                                                <DialogContent className="bg-gray-100 p-6 rounded-lg shadow-lg max-w-lg mx-auto">
+                                                    <DialogTitle className="text-2xl font-bold text-gray-800 mb-4 text-center">
+                                                        Ai là người phát minh ra World Wide Web?
+                                                    </DialogTitle>
+                                                    <p className="text-gray-600 text-center mb-6">
+                                                        Gợi ý: Ai là người phát minh ra World Wide Web?
+                                                    </p>
+
+                                                    <input
+                                                        type="text"
+                                                        value={answer}
+                                                        onChange={handleInputChange}
+                                                        className="p-3 border border-gray-300 rounded-lg w-full mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        placeholder="Nhập câu trả lời..."
+                                                    />
+
+                                                    <button
+                                                        onClick={handleSubmitGame}
+                                                        className="bg-green-500 text-white px-4 py-2 rounded-lg w-full hover:bg-green-600 transition"
+                                                    >
+                                                        Xác nhận
+                                                    </button>
+
+                                                    {isCorrect === true && (
+                                                        <div className="mt-6 text-center">
+                                                            <p className="text-green-600 text-lg font-bold">🎉 Chúc mừng! Bạn đã đoán đúng! 🎉</p>
+                                                            <p className="text-md text-teal-700 mt-2">
+                                                                Phần quà của bạn là 1 voucher sử dụng trong vòng 24h: <span className="font-semibold">{randomVoucher}</span>
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                    {isCorrect === false && (
+                                                        <p className="text-center text-red-500 mt-4">Câu trả lời sai! Hãy thử lại.</p>
+                                                    )}
+
+                                                    <DialogClose asChild>
+                                                        <button className="mt-6 bg-gray-400 px-4 py-2 text-white rounded-lg hover:bg-gray-500">
+                                                            Đóng
+                                                        </button>
+                                                    </DialogClose>
+                                                </DialogContent>
+                                            </Dialog>
                                         </div>
                                     </div>
-
                                 </div>
 
                                 {/* Content List */}
