@@ -103,24 +103,16 @@ export default function DetailCourse() {
         switch (status.toLowerCase()) {
             case "published":
                 return "bg-green-100 text-green-800 w-full text-center flex justify-center items-center p-1 rounded-lg  ";
-            case "draft":
+            case "hide":
                 return "bg-blue-100 text-blue-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
-            case "pending":
-                return "bg-yellow-100 text-yellow-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
-            case "unpublished":
-                return "bg-red-500 text-white w-full text-center flex justify-center items-center p-1 rounded-lg ";
-        }
+            }
     };
     const getStatusText = (status) => {
         switch (status) {
-            case "draft":
-                return "Nháp";
+            case "hide":
+                return "Ẩn";
             case "published":
                 return "Hoàn thành";
-            case "pending":
-                return "Đang chờ";
-            case "unpublished":
-                return "Thất bại";
         }
     };
     const getStatusColor = (status) => {
@@ -194,7 +186,7 @@ export default function DetailCourse() {
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
                 const lessonsWithTitles = await Promise.all(
                     res.data.data
-                        .filter(content => content.course_id === Number(courseId) && content.status === 'published')
+                        .filter(content => content.course_id === Number(courseId) && content.status === 'published'|| content.status === 'hide')
                         .map(async (content) => {
                             try {
                                 const titleRes = await axios.get(`${API_URL}/title-contents`, {
@@ -325,13 +317,13 @@ export default function DetailCourse() {
                                         </div>
                                         <div className="text-md mt-4">
                                             <span className="font-bold mr-2 text-gray-900 ">Giá:</span>
-                                            <span className="text-blue-700 font-medium">
+                                            <span className="text-red-500 text-lg font-medium">
                                                 {formatCurrency(course.price)}
                                             </span>
                                         </div>
                                         <div className="flex items-center space-x-3">
-                                            <span className="font-bold ">Trạng thái khóa học:</span>
-                                            <span className={`${getStatusColor(course?.status)} font-medium text-md px-1 py-1 rounded-lg`}>
+                                            <span className="font-bold whitespace-nowrap">Trạng thái khóa học:</span>
+                                            <span className={`${getStatusColor(course?.status)} font-medium max-w-40 text-md px-1 py-1 rounded-lg`}>
                                                 {getStatusText(course.status)}
                                             </span>
                                         </div>
