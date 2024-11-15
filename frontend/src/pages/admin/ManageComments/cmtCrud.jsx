@@ -259,7 +259,7 @@ export const CmtCrud = () => {
                                             <td className="py-4 px-6 text-sm text-gray-600">{comment.comment_id}</td>
 
                                             {/* Comment Content */}
-                                            <td className="py-4 px-6 w-auto">
+                                            <td className="py-4 px-6 max-w-72">
                                                 <div className="font-medium text-gray-900 whitespace-normal">
                                                     {comment.content}
                                                 </div>
@@ -282,7 +282,7 @@ export const CmtCrud = () => {
                                             {/* Course Image */}
                                             <td className="py-4 px-6 text-sm text-gray-600">
                                                 {comment.course.img ? (
-                                                    <img src={comment.course.img} alt="Course" className="w-1/2" />
+                                                    <img src={comment.course.img} alt="Course" className="w-full" />
                                                 ) : (
                                                     <>Chưa có ảnh</>
                                                 )}
