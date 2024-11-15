@@ -340,7 +340,7 @@ export default function CourseList() {
                                 <table className="w-full">
                                     <thead className="text-md font-bold">
                                         <tr className="bg-yellow-100">
-                                            <th className="text-left py-4 px-6 font-bold text-gray-600" style={{ width: '10%' }}>ID</th>
+                                            <th className="text-left py-4 px-6 font-bold text-gray-600" style={{ width: '10%' }}>STT</th>
                                             <th
                                                 className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('title')}
@@ -437,9 +437,10 @@ export default function CourseList() {
                                                 ))}
                                             </>
                                         ) : (
-                                            currentFilteredCourses.map((course) => (
+                                            currentFilteredCourses.map((course, index ) => (
                                                 <tr key={course.id} className="border-t border-gray-100 hover:bg-gray-50">
-                                                    <td className="py-4 px-6 text-sm text-gray-600">{course.course_id}</td>
+                                                    {/* <td className="py-4 px-6 text-sm text-gray-600">{course.course_id}</td> */}
+                                                    <td className="py-4 px-6 text-sm text-gray-600">{index + 1}</td>
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center">
                                                             <div>
