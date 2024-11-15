@@ -146,8 +146,11 @@ export default function CourseList() {
     };
 
     // Hàm lọc theo trạng thái
-    const handleStatusFilter = () => {
-        // Thêm logic lọc theo trạng thái ở đây
+    const handleStatusFilter = (status) => {
+        console.log("Lọc theo trạng thái:", status);
+        const filteredItems = courses.filter(course => course.status === status);
+        console.log(filteredItems);
+        setCourses(filteredItems);
         setShowOptions(false);
     };
 
@@ -284,22 +287,25 @@ export default function CourseList() {
                                         />
                                     </div>
                                     <div className="relative">
-                                        <Button
-                                            variant="outline"
-                                            className="flex items-center gap-2"
-                                            onClick={toggleOptions}
-                                        >
+                                        <Button variant="outline" className="flex items-center gap-2" onClick={toggleOptions}>
                                             <Filter size={16} />
                                             Lọc
                                         </Button>
+
                                         {showOptions && (
                                             <div className="absolute mt-2 w-48 bg-white border border-gray-200 rounded shadow-md z-10">
                                                 <ul className="py-2">
                                                     <li
                                                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                        onClick={handleStatusFilter}
+                                                        onClick={() => handleStatusFilter('published')}
                                                     >
-                                                        Theo trạng thái
+                                                        Hoàn thành
+                                                    </li>
+                                                    <li
+                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                        onClick={() => handleStatusFilter('hide')}
+                                                    >
+                                                        Ẩn
                                                     </li>
                                                     <li
                                                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -334,9 +340,9 @@ export default function CourseList() {
                                 <table className="w-full">
                                     <thead className="text-md font-bold">
                                         <tr className="bg-yellow-100">
-                                            <th className="text-left py-4 px-6 font-bold text-gray-600" style={{ width: '10%' }}>ID</th>
+                                            <th className="text-left py-4 px-6 font-bold text-gray-600" style={{ width: '10%' }}>STT</th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('title')}
                                                 style={{ width: '40%' }}
                                             >
@@ -346,7 +352,7 @@ export default function CourseList() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('user?.name')}
                                                 style={{ width: '20%' }}
                                             >
@@ -356,7 +362,7 @@ export default function CourseList() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('created_at')}
                                                 style={{ width: '15%' }}
                                             >
@@ -366,7 +372,7 @@ export default function CourseList() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('status')}
                                                 style={{ width: '15%' }}
                                             >
@@ -376,7 +382,7 @@ export default function CourseList() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('price')}
                                                 style={{ width: '20%' }}
                                             >
@@ -386,7 +392,7 @@ export default function CourseList() {
                                                 </div>
                                             </th>
                                             <th
-                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group"
+                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('categories')}
                                                 style={{ width: '15%' }}
                                             >
@@ -431,9 +437,10 @@ export default function CourseList() {
                                                 ))}
                                             </>
                                         ) : (
-                                            currentFilteredCourses.map((course) => (
+                                            currentFilteredCourses.map((course, index ) => (
                                                 <tr key={course.id} className="border-t border-gray-100 hover:bg-gray-50">
-                                                    <td className="py-4 px-6 text-sm text-gray-600">{course.course_id}</td>
+                                                    {/* <td className="py-4 px-6 text-sm text-gray-600">{course.course_id}</td> */}
+                                                    <td className="py-4 px-6 text-sm text-gray-600">{index + 1}</td>
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center">
                                                             <div>
@@ -574,8 +581,8 @@ export default function CourseList() {
 
                         </CardContent>
                     </Card>
-                </div>
-            </SidebarInset>
-        </SidebarProvider>
+                </div >
+            </SidebarInset >
+        </SidebarProvider >
     );
 }

@@ -45,9 +45,10 @@ export const Instructor = () => {
     const [teacherCourses, setTeacherCourses] = useState([]);
     const [teacherRevenue, setTeacherRevenue] = useState([]);
     const [teacherRank, setTeacherRank] = useState([]);
+    const [teacherProgress,setTeacherProgress] = useState([]);
+    const token = localStorage.getItem("access_token");
 
     const fetchTeacherCourse = async () => {
-        const token = localStorage.getItem("access_token");
         try {
             const response = await axios.get(`${API_URL}/teacher/course`, {
                 headers: {
@@ -60,8 +61,22 @@ export const Instructor = () => {
             console.log('Error fetching teacher Courses', error)
         }
     }
+    const fetchTeacherProgress = async (teacherId) =>{
+        try{
+            const response = await axios.get(`${API_URL}/teacher/${teacherId}/courses/completion-stats`,{
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            if (response.data.status) {
+                setTeacherProgress(response.data.data.total_unique_students);
+            }
+        }catch(error){
+            console.log('Error fetching teacher student progress',error)
+        }
+    }
     const fetchTeacherRevenue = async () => {
-        const token = localStorage.getItem("access_token");
         try {
             const response = await axios.get(`${API_URL}/teacher/revenue`, {
                 headers: {
@@ -75,7 +90,6 @@ export const Instructor = () => {
         }
     }
     const fetchTeacherRank = async () => {
-        const token = localStorage.getItem("access_token");
         try {
             const response = await axios.get(`${API_URL}/teacher/rank`, {
                 headers: {
@@ -106,10 +120,14 @@ export const Instructor = () => {
         }
     };
     useEffect(() => {
-        fetchTeacherCourse();
-        fetchTeacherRevenue();
-        fetchTeacherRank();
-    }, [])
+        if (instructor && instructor.user_id) {
+            fetchTeacherCourse();
+            fetchTeacherRevenue();
+            fetchTeacherRank();
+            fetchTeacherProgress(instructor.user_id);
+        }
+    }, [instructor]);
+
     return (
         <>
             <section className="instructor-home">
@@ -312,7 +330,9 @@ export const Instructor = () => {
                                     <div className="bg-green-100 rounded-full p-3 mr-4 text-2xl">✅</div>
                                     <div>
                                         <p className="text-sm text-gray-600">Số khóa học đã hoàn thành</p>
-                                        <p className="text-xl font-semibold">0</p>
+                                        <p className="text-xl font-semibold">
+                                            {teacherProgress}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="bg-white rounded-lg shadow-lg p-4 flex items-center">

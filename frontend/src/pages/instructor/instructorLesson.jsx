@@ -84,13 +84,14 @@ export const InstructorLesson = () => {
     };
 
     const filteredCourses = teacherCourses.filter((course) =>
-        course.title.toLowerCase().includes(searchTerm.toLowerCase())
+        course.title && course.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const currentItems = filteredCourses.slice(indexOfFirstItem, indexOfLastItem);
 
     // hàm xử lý khóa học teacher
     const fetchTeacherCourse = async () => {
+        setLoading(true)
         const token = localStorage.getItem("access_token");
         try {
             const response = await axios.get(`${API_URL}/teacher/course`, {
@@ -103,6 +104,8 @@ export const InstructorLesson = () => {
             setTeacherCourses(response.data.courses)
         } catch (error) {
             console.log('Error fetching users Courses', error)
+        }finally{
+            setLoading(false)
         }
     }
 
@@ -110,17 +113,28 @@ export const InstructorLesson = () => {
     const getStatusBadge = (status) => {
         switch (status) {
             case "published":
-                return "bg-yellow-500 text-white px-3 py-1 text-sm";
+                return "bg-yellow-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
+            case "failed":
+                return "bg-red-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
             case "hide":
-                return "bg-gray-400 text-black px-3 py-1 text-sm hover:text-white";
+                return "bg-gray-400 text-black md:px-3 md:py-1 font-medium sm:text-sm text-xs hover:text-white";
             case "draft":
-                return "bg-black text-white px-3 py-1 text-sm";
+                return "bg-black text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
             default:
                 return "bg-gray-500 text-white";
         }
     }
 
-    // xuất exel
+    // xử lý chuyên
+    const handleBadgeClick = (item) => {
+        if (item.status === "draft") {
+            window.location.href = `/course/manage/${item.course_id}/course-overview`;
+        }
+        if (item.status === "published") {
+            window.location.href = `/detail/${item.slug}`;
+        }
+    };
+    // xuất excel
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(teacherCourses);
 
@@ -136,6 +150,9 @@ export const InstructorLesson = () => {
             {Array.from({ length: 4 }).map((_, index) => (
                 <TableRow key={index}>
                     <TableCell>
+                        <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                    <TableCell>
                         <Skeleton className="h-[125px] w-11/12 rounded-xl" />
                     </TableCell>
                     <TableCell>
@@ -144,6 +161,7 @@ export const InstructorLesson = () => {
                             <Skeleton className="h-4 w-5/12 md:w-9/12" />
                         </div>
                     </TableCell>
+
                     <TableCell>
                         <Skeleton className="h-4 w-20" />
                     </TableCell>
@@ -156,6 +174,9 @@ export const InstructorLesson = () => {
                     <TableCell>
                         <Skeleton className="h-4 w-24" />
                     </TableCell>
+                    <TableCell>
+                        <Skeleton className="h-4 w-24" />
+                    </TableCell>
                 </TableRow>
 
             ))}
@@ -164,19 +185,19 @@ export const InstructorLesson = () => {
         currentItems.length > 0 ? (
             currentItems.map((item, index) => (
                 <TableRow key={index}>
-                    <TableCell className="font-medium sm:text-sm text-xs">
-                        <Badge className={getStatusBadge(item.status)}>
+                    <TableCell>
+                        <Badge onClick={()=> handleBadgeClick(item)} style={{ cursor: item.status === "draft" || item.status === "published" ? "pointer" : "default" }} className={getStatusBadge(item.status)}>
                             {item.status}
                         </Badge>
                     </TableCell>
-                    <TableCell className="font-medium sm:p-4 p-0">
-                        <img src={`${item.img}`} className="rounded-sm object-cover w-20 sm:w-auto" alt="" />
+                    <TableCell className="sm:p-4 p-0 w-20" >
+                        <img src={`${item.img}`} className="rounded-sm object-cover" alt="" />
                     </TableCell>
-                    <TableCell className="lg:text-sm sm:text-sm text-xs md:line-clamp-none line-clamp-2">{item.title}</TableCell>
+                    <TableCell className="sMw-40 font-medium lg:text-sm sm:text-sm text-xs xl:line-clamp-none line-clamp-2">{item.title}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs">{formatCurrency(item.price)}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs hidden md:table-cell">{item.is_buy}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs hidden md:table-cell">{item.views}</TableCell>
-                    <TableCell className="font-medium sm:text-sm text-xs">
+                    <TableCell className="font-medium sm:text-sm text-xs hidden md:table-cell">
                         {(new Date(item.created_at)).toLocaleDateString('vi-VN', {
                             day: '2-digit',
                             month: '2-digit',
@@ -186,14 +207,11 @@ export const InstructorLesson = () => {
                     <TableCell>
                         <Dialog>
                             <DialogTrigger>
-                                <button className="flex gap-2 items-center bg-yellow-300 text-black font-semibold py-2 px-1 rounded hover:bg-white hover:text-black hover:border duration-300">
-                                    <div className="">
-                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/edit.svg" className="w-5" alt="" />
-                                    </div>
+                                <div className="flex gap-2 items-center bg-yellow-300 text-black font-semibold py-2 sm:px-3 px-1 rounded hover:bg-blue-500 hover:text-black duration-300">
                                     <div className="">
                                         <p>Sửa</p>
                                     </div>
-                                </button>
+                                </div>
                             </DialogTrigger>
                             <DialogContent>
                                 <DialogHeader>
@@ -245,7 +263,7 @@ export const InstructorLesson = () => {
             ))
         ) : (
             <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     <div className="py-5">
                         <svg width="100%" height="177" viewBox="0 0 139 142" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M71.5016 125.45C104.302 125.45 130.902 99.0496 130.902 66.4496C130.902 33.8496 104.302 7.44958 71.5016 7.44958C38.7016 7.44958 12.1016 33.8496 12.1016 66.4496C12.1016 99.0496 38.7016 125.45 71.5016 125.45Z" fill="#EAEEF9">
@@ -488,7 +506,7 @@ export const InstructorLesson = () => {
                                     <Button onClick={addCourse} className="bg-blue-500 text-white">Thêm khóa học</Button>
                                 </div>
                                 <div className="">
-                                    <Button className="duration-300 bg-white text-black border hover:bg-gray-100" onClick={exportToExcel}>
+                                    <Button className="duration-300  bg-white text-black border hover:bg-gray-100" onClick={exportToExcel}>
                                         <div className="">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/download.svg" className="w-5" alt="" />
                                         </div>
@@ -502,7 +520,7 @@ export const InstructorLesson = () => {
                             {/* tìm kiếm */}
                             <div className=" flex justify-center p-3 md:p-0 my-5">
                                 <input type="text" value={searchTerm} onChange={handleSearch} placeholder="Nhập 1 từ khóa bất kỳ muốn tìm kiếm" className="md:w-full w-[80%] p-3 rounded-tl-lg rounded-bl-lg" />
-                                <button className="w-28 bg-yellow-400 p-2 rounded-tr-lg rounded-br-lg font-semibold xl:text-base md:text-sm text-sm">
+                                <button className="w-28 bg-yellow-400 hover:bg-blue-500 hover:text-white duration-300  p-2 rounded-tr-lg rounded-br-lg font-semibold xl:text-base md:text-sm text-sm">
                                     <p className="">Tìm kiếm</p>
                                 </button>
                             </div>
@@ -513,13 +531,13 @@ export const InstructorLesson = () => {
 
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs">Trạng thái</TableHead>
-                                            <TableHead className="xl:w-[250px] lg:w-[250px] md:w-[200px] w-[150px] text-cyan-950 md:text-sm text-xs">Hình ảnh</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs w-16">Trạng thái</TableHead>
+                                            <TableHead className="xl:w-[250px] lg:w-[250px] md:w-[200px] w-[250px] text-cyan-950 md:text-sm text-xs">Hình ảnh</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs xl:w-[200px] lg:w-[150px] md:w-[150px] sm:w-[200px] w-[200px]">Tên</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs">Giá</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt bán</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt xem</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs">Ngày tạo</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Ngày tạo</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs">Hành động</TableHead>
                                         </TableRow>
                                     </TableHeader>
