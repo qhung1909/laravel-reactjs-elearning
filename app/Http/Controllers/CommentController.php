@@ -29,6 +29,37 @@ class CommentController extends Controller
             'comments' => $comments
         ], 200);
     }
+    
+    public function showAllComment()
+    {
+        $comments = Comment::with('course')->get();
+
+        if ($comments->isEmpty()) {
+            return response()->json(['message' => 'Không có bình luận nào.'], 200);
+        }
+
+        $formattedComments = $comments->map(function ($comment) {
+            return [
+                'comment_id' => $comment->id,
+                'content' => $comment->content,
+                'rating' => $comment->rating,
+                'user_id' => $comment->user_id,
+                'created_at' => $comment->created_at,
+                'updated_at' => $comment->updated_at,
+                'has_updated' => $comment->has_updated,
+                'course' => [
+                    'course_id' => $comment->course->course_id,
+                    'name' => $comment->course->name,
+                    'img' => $comment->course->img,
+                ]
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'comments' => $formattedComments
+        ], 200);
+    }
 
     public function store(Request $request, $slug)
     {

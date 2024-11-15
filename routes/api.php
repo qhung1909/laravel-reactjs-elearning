@@ -1,15 +1,10 @@
 <?php
 
-use App\Models\QuizAnsw;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\UserController;
-use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CheckAuthMessage;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CourseController;
@@ -18,7 +13,6 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\CategoryController;
-use Symfony\Component\Mime\MessageConverter;
 use App\Http\Controllers\QuizOptionController;
 use App\Http\Controllers\UserCourseController;
 use App\Http\Controllers\QuizQuestionController;
@@ -29,7 +23,6 @@ use App\Http\Controllers\TitleContentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ProgressController;
-use App\Events\MyEvent;
 use App\Http\Controllers\TeacherController;
 // Authentication
 Route::group([
@@ -96,6 +89,7 @@ Route::middleware(['admin'])->group(function () {
 
     //Comment
     Route::get('/comments/{course_id}', [CommentController::class, 'index']);
+    Route::get('/comment', [CommentController::class, 'showAllComment']);
     Route::post('/courses/{slug}/comments', [CommentController::class, 'store'])->middleware(CheckAuthMessage::class);
     Route::put('/comments/{commentId}', [CommentController::class, 'update'])->middleware(CheckAuthMessage::class);
     Route::delete('/comments/{commentId}', [CommentController::class, 'destroy'])->middleware(CheckAuthMessage::class);
@@ -255,6 +249,6 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::get('/{teacherId}/courses/completion-stats', [TeacherController::class, 'getTeacherCompletionStats']);
 
     Route::get('/{teacherId}/orders', [TeacherController::class, 'getTeacherOrderHistory']);
-    
+
     Route::get('/course/{courseId}/orders', [TeacherController::class, 'getCourseOrderHistory']);
 });
