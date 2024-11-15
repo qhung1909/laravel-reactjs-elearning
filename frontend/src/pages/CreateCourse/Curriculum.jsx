@@ -389,7 +389,7 @@ export const Curriculum = () => {
                 const updatedSections = sections.filter(section => section.content_id !== contentId);
                 const resetSections = resetIds(updatedSections);
                 setSections(resetSections);
-                await fetchContent(true);
+                // await fetchContent(true);
                 toast.success("Đã xóa Bài học thành công!");
 
             } else {
