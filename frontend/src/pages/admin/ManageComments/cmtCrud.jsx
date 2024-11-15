@@ -32,6 +32,7 @@ import {
     ChevronDown,
     Search,
     FileDown,
+    Star,
 } from 'lucide-react';
 
 import { SideBarUI } from '../sidebarUI';
@@ -216,6 +217,7 @@ export const CmtCrud = () => {
                                 <tr className="bg-yellow-400">
                                     <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">ID</th>
                                     <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Nội dung bình luận</th>
+                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Đánh giá</th>
                                     <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Ảnh khóa học</th>
                                     <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Tên khóa học</th>
                                     <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Bình luận ngày</th>
@@ -230,13 +232,16 @@ export const CmtCrud = () => {
                                                 <div className="bg-gray-300 rounded animate-pulse w-20 h-4"></div>
                                             </td>
                                             <td className="py-4 px-6">
-                                                <div className="bg-gray-300 rounded animate-pulse w-32 h-4"></div>
+                                                <div className="bg-gray-300 rounded animate-pulse w-48 h-4"></div>
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="bg-gray-300 rounded animate-pulse w-32 h-4"></div>
                                             </td>
                                             <td className="py-4 px-6">
-                                                <div className="bg-gray-300 rounded animate-pulse w-32 h-4"></div>
+                                                <div className="bg-gray-300 rounded animate-pulse w-24 h-4"></div>
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="bg-gray-300 rounded animate-pulse w-24 h-4"></div>
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="bg-gray-300 rounded animate-pulse w-24 h-4"></div>
@@ -248,17 +253,34 @@ export const CmtCrud = () => {
                                     ))
                                 ) : (
                                     comments.map((comment, index) => (
-                                        <tr key={index} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
+                                        <tr
+                                            key={index}
+                                            className="border-t border-gray-100 hover:bg-gray-50 transition-colors"
+                                        >
                                             {/* Comment ID */}
-                                            <td className="py-4 px-6 text-sm text-gray-600">
-                                                {index + 1}
-                                            </td>
+                                            <td className="py-4 px-6 text-sm text-gray-600">{index + 1}</td>
 
                                             {/* Comment Content */}
-                                            <td className="py-4 px-6">
-                                                <div className="font-medium text-gray-900 ">{comment.content}</div>
+                                            <td className="py-4 px-6 w-auto">
+                                                <div className="font-medium text-gray-900 whitespace-normal">
+                                                    {comment.content}
+                                                </div>
                                             </td>
-
+                                            {/* Rating */}
+                                            <td className="py-4 px-6">
+                                                <div className="flex">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            className={`w-5 h-5 cursor-pointer ${i < Math.floor(comment.rating)
+                                                                ? "text-yellow-500"
+                                                                : "text-gray-300"
+                                                                }`}
+                                                            fill="currentColor"
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </td>
                                             {/* Course Image */}
                                             <td className="py-4 px-6 text-sm text-gray-600">
                                                 {comment.course.img ? (
@@ -269,8 +291,8 @@ export const CmtCrud = () => {
                                             </td>
 
                                             {/* Course Name */}
-                                            <td className="py-4 px-6">
-                                                <div className="text-sm text-gray-600">
+                                            <td className="py-4 px-6 w-1/5">
+                                                <div className="text-sm text-gray-600 truncate">
                                                     {comment.course.title || "Chưa có tên khóa học"}
                                                 </div>
                                             </td>
@@ -280,10 +302,11 @@ export const CmtCrud = () => {
                                                 {formatDate(comment.updated_at)}
                                             </td>
 
+
+
                                             {/* Action Buttons */}
                                             <td className="py-4 px-6">
                                                 <div className="flex justify-start gap-2">
-                                                    {/* Delete Comment */}
                                                     <Button
                                                         onClick={() => deleteComment(comment.comment_id || index)}
                                                         variant="destructive"
@@ -299,11 +322,9 @@ export const CmtCrud = () => {
                                     ))
                                 )}
                             </tbody>
-
-
-
                         </table>
                     </div>
+
                 </div>
             </SidebarInset>
             <Toaster />
