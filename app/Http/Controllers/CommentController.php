@@ -40,7 +40,7 @@ class CommentController extends Controller
 
         $formattedComments = $comments->map(function ($comment) {
             return [
-                'comment_id' => $comment->id,
+                'comment_id' => $comment->comment_id,
                 'content' => $comment->content,
                 'rating' => $comment->rating,
                 'user_id' => $comment->user_id,
@@ -49,7 +49,7 @@ class CommentController extends Controller
                 'has_updated' => $comment->has_updated,
                 'course' => [
                     'course_id' => $comment->course->course_id,
-                    'name' => $comment->course->name,
+                    'title' => $comment->course->title,
                     'img' => $comment->course->img,
                 ]
             ];
