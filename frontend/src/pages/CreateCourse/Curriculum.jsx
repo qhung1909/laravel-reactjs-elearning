@@ -238,16 +238,18 @@ export const Curriculum = () => {
 
 
     const addSection = async () => {
-        // if (sections.length > 0 && (!sections[sections.length - 1].title || !sections[sections.length - 1].title.trim())) {
-        //     toast.error("Vui lòng nhập tiêu đề cho Bài học trước khi Thêm Bài học mới.");
-        //     return;
-        // }
+        if (
+            sections.length > 0 &&
+            (!sections[sections.length - 1].title || !sections[sections.length - 1].title.trim())
+        ) {
+            toast.error("Vui lòng nhập tiêu đề cho Bài học trước khi Thêm Bài học mới.");
+            return;
+        }
 
-        // Tạo đối tượng phần mới
         const newSection = {
-            course_id: course_id,  // Thêm course_id nếu cần
+            course_id: course_id,
             title: '',
-            lessons: [{ id: 1, title: '', selectedOption: '', videoLink: '', content: '', fileName: '' }]
+            lessons: []
         };
 
         try {
@@ -256,7 +258,7 @@ export const Curriculum = () => {
                 `${API_URL}/teacher/content`,
                 {
                     course_id: course_id,
-                    name_content: newSection.title,
+                    name_content: newSection.title, // Gửi tiêu đề rỗng vì người dùng sẽ nhập sau
                 },
                 {
                     headers: {
@@ -268,15 +270,19 @@ export const Curriculum = () => {
             );
 
             // Kiểm tra phản hồi từ server và thêm ID vào phần mới
-            if (response.data.success) {
-                const sectionWithId = { ...newSection, content_id: response.data.content_id };
-                setSections([...sections, sectionWithId]);
-                await fetchContent(true);
+            if (response.data.success && response.data.data.content_id) {
+                const content_id = response.data.data.content_id;
+
+                // Cập nhật phần mới với content_id từ server
+                const sectionWithId = { ...newSection, content_id };
+
+                // Thêm phần mới vào mảng sections hiện tại
+                setSections((prevSections) => [...prevSections, sectionWithId]);
+
                 toast.success("Thêm phần mới thành công!");
             } else {
                 toast.error(response.data.message || "Có lỗi xảy ra khi thêm nội dung!");
             }
-
         } catch (error) {
             console.error("Error:", error);
             toast.error("Đã xảy ra lỗi khi thêm phần mới.");
@@ -284,14 +290,16 @@ export const Curriculum = () => {
     };
 
 
+
+
     const addLesson = async (sectionId) => {
         const section = sections.find(section => section.id === sectionId);
         // if()
-        // const lastLesson = section.lessons[section.lessons.length - 1];
-        // if (!lastLesson.title || !lastLesson.title.trim()) {
-        //     toast.error("Vui lòng nhập tiêu đề nội dung của bài trước khi '+ Thêm nội dung mới' ");
-        //     return;
-        // }
+        const lastLesson = section.lessons[section.lessons.length - 1];
+        if (!lastLesson.title || !lastLesson.title.trim()) {
+            toast.error("Vui lòng nhập tiêu đề nội dung của bài trước khi '+ Thêm nội dung mới' ");
+            return;
+        }
         try {
             const requestData = {
                 content_id: section.content_id,
@@ -770,7 +778,7 @@ export const Curriculum = () => {
                                 <form method="POST" encType="multipart/form-data" onSubmit={(e) => e.preventDefault()} className="space-y-4">
                                     <h2 className="text-xl font-semibold">Nội dung khóa học</h2>
                                     <Accordion type="multiple" collapsible="true" className="space-y-4 relative">
-                                        {sections.map((section, sectionIndex) => (
+                                        {Array.isArray(sections) && sections.map((section, sectionIndex) => (
                                             <AccordionItem
                                                 value={`section-${section.id}`}
                                                 key={section.id}
@@ -800,7 +808,7 @@ export const Curriculum = () => {
                                                 )}
                                                 <AccordionContent>
                                                     <div className="space-y-4 mt-4">
-                                                        {section.lessons.map((lesson, lessonIndex) => (
+                                                    {Array.isArray(section.lessons) && section.lessons.map((lesson, lessonIndex) => (
                                                             <Card key={lesson.id} className="relative p-4 border border-yellow-400 ml-6">
                                                                 <div className="space-y-4">
                                                                     <div className="flex items-center gap-4 mt-4">
