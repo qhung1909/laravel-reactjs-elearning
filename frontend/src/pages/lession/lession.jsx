@@ -824,7 +824,7 @@ export const Lesson = () => {
 
                                 {/* Content List */}
                                 <div className="p-4 max-h-[650px] overflow-y-auto custom-scrollbar">
-                                    <Accordion type="multiple" className="space-y-3">
+                                    <Accordion type="multiple" className="space-y-3 ">
                                         {contentLesson.length > 0 ? (
                                             contentLesson.map((content, index) => {
                                                 // Tính tổng thời gian cho phần này
@@ -835,7 +835,7 @@ export const Lesson = () => {
                                                 // Chuyển tổng thời gian từ giây sang phút
                                                 const minutes = Math.floor(totalTime / 60);
                                                 const seconds = Math.floor(totalTime % 60);
-                                                const formattedTime = totalTime > 0 ? `${minutes}:${seconds < 10 ? '0' + seconds : seconds}` : "00:00";
+                                                const formattedTime = totalTime > 0 ? `${minutes}:${seconds < 10 ? '0' + seconds : seconds}` : "0:00";
                                                 return (
                                                     <AccordionItem
                                                         key={content.content_id}
@@ -845,19 +845,19 @@ export const Lesson = () => {
                                                     >
                                                         <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01]">
                                                             <AccordionTrigger className="w-full hover:no-underline">
-                                                                <div className="flex items-center w-full p-4">
+                                                                <div className="flex items-center w-full p-4 hover:bg-gray-50 transition-colors">
                                                                     <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center text-purple-600 font-medium mr-4 shadow-sm">
                                                                         {index + 1}
                                                                     </div>
-                                                                    <div className="flex-1 flex items-start justify-between">
+                                                                    <div className="flex-1 flex items-start justify-between min-w-0">
                                                                         <div className="space-y-1">
-                                                                            <h3 className="font-medium text-gray-800 text-sm line-clamp-1">
+                                                                            <h3 className="font-medium text-gray-800 text-sm truncate">
                                                                                 {content.name_content}
                                                                             </h3>
                                                                             <div className="flex items-center gap-2">
                                                                                 <span className="text-xs text-gray-500 flex items-center">
                                                                                     <Clock className="w-3 h-3 mr-1" />
-                                                                                    {formattedTime}
+                                                                                    {formattedTime || "0:00"}
                                                                                 </span>
 
                                                                                 <span className="h-4 w-[1px] bg-gray-200"></span>
@@ -865,25 +865,29 @@ export const Lesson = () => {
                                                                                     <BookOpen className="w-3 h-3 mr-1" />
                                                                                     {Array.isArray(titleContent[content.content_id]) ? titleContent[content.content_id].length : 0} phần
                                                                                 </span>
+                                                                                {content.quiz_id != null && content.quiz_id !== 0 && (
+                                                                                    <button
+                                                                                        onClick={(e) => {
+                                                                                            e.stopPropagation();
+                                                                                            handleShowQuiz(content.content_id);
+                                                                                        }}
+                                                                                        className="flex items-center gap-1 px-3 py-1 text-purple-600 font-medium text-xs rounded-md hover:bg-purple-50 transition-colors"
+                                                                                    >
+                                                                                        <span className="text-xs">Bài tập</span>
+                                                                                        <ArrowRight className="w-3 h-3 mt-0.5" />
+                                                                                    </button>
+                                                                                )}
                                                                             </div>
                                                                         </div>
+                                                                        {completedVideosInSection[content.content_id] && completedVideosInSection[content.content_id] ? (
+                                                                            <CheckCircle className="text-green-600 w-4 h-4 ml-4 mt-1" />
+                                                                        ) : (
+                                                                            <XCircle className="text-red-600 w-4 h-4 ml-4 mt-1" />
+                                                                        )}
                                                                     </div>
-                                                                    {content.quiz_id != null && content.quiz_id !== 0 && (
-                                                                        <button
-                                                                            onClick={() => handleShowQuiz(content.content_id)}
-                                                                            className="flex items-center gap-1 px-3 py-1 border border-purple-600 text-purple-600 font-medium text-xs rounded-md"
-                                                                        >
-                                                                            <span className="text-xs">Bài tập</span>
-                                                                            <ArrowRight className="w-3 h-3 mt-0.5" />
-                                                                        </button>
-                                                                    )}
-                                                                    {completedVideosInSection[content.content_id] && completedVideosInSection[content.content_id] ? (
-                                                                        <CheckCircle className="text-green-600 w-4 h-4 mr-4" />
-                                                                    ) : (
-                                                                        <XCircle className="text-red-600 w-4 h-4 mr-4" />
-                                                                    )}
                                                                 </div>
                                                             </AccordionTrigger>
+
                                                             <AccordionContent>
                                                                 <div className="px-4 pb-4">
                                                                     {Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
