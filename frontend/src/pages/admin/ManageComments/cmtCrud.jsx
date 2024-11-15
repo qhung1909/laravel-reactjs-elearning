@@ -116,13 +116,14 @@ export const CmtCrud = () => {
             setLoading(true);
             await axios.delete(`${API_URL}/comments/${commentId}`, {
                 headers: {
+                    "x-api-secret": `${API_KEY}`,
                     'Authorization': `Bearer ${token}`,
                 },
             });
             notify('Xóa bình luận thành công', 'success');
             fetchComments();
         } catch (error) {
-            console.error('Error deleting comment:', error);
+            console.error('Error deleting comment:', error.response || error);
             notify('Có lỗi xảy ra khi xóa bình luận', 'error');
         } finally {
             setLoading(false);
