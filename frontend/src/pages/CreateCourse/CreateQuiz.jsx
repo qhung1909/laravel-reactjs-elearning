@@ -72,7 +72,7 @@ export const CreateQuiz = () => {
     }, []);
 
     const showQuizQuestions = async () => {
-        setLoading(true);
+        // setLoading(true);
         try {
             const response = await axios.get(`${API_URL}/quizzes/${quiz_id}/questions`, {
                 headers: {
@@ -638,6 +638,12 @@ export const CreateQuiz = () => {
                                                 <div className="flex items-center gap-2 mb-6">
                                                     <span className="text-base font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
                                                         Câu hỏi {questionIndex + 1}
+                                                    </span>
+                                                    <span className="text-sm font-medium text-slate-900 bg-yellow-400 px-2 py-1 rounded-full">
+                                                        {q.type === 'single_choice' ? 'Một Lựa Chọn' :
+                                                            q.type === 'mutiple_choice' ? 'Nhiều Lựa Chọn' :
+                                                                q.type === 'true_false' ? 'Đúng/Sai' :
+                                                                    'Điền Vào Ô Trống'}
                                                     </span>
                                                 </div>
 
