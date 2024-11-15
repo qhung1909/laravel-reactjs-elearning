@@ -260,7 +260,7 @@ export const CmtCrud = () => {
 
                                             {/* Comment Content */}
                                             <td className="py-4 px-6 max-w-72">
-                                                <div className="font-medium text-gray-900 whitespace-normal">
+                                                <div className="font-medium text-gray-900 whitespace-normal line-clamp-3">
                                                     {comment.content}
                                                 </div>
                                             </td>
@@ -280,7 +280,7 @@ export const CmtCrud = () => {
                                             </td>
 
                                             {/* Course Image */}
-                                            <td className="py-4 px-6 text-sm text-gray-600">
+                                            <td className="xl:py-4 xl:px-6 text-sm text-gray-600">
                                                 {comment.course.img ? (
                                                     <img src={comment.course.img} alt="Course" className="w-full" />
                                                 ) : (
