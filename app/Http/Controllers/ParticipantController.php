@@ -65,7 +65,6 @@ class ParticipantController extends Controller
     }
 
 
-
     public function store(Request $request)
     {
         try {
@@ -76,23 +75,41 @@ class ParticipantController extends Controller
                 'meeting_url' => 'required|string',
                 'left_at' => 'nullable|date',
             ]);
-
+    
             Log::info('Participant request data:', $request->all());
-
+    
             $meeting = OnlineMeeting::where('meeting_url', $request->meeting_url)->first();
-
+    
             if (!$meeting) {
                 return response()->json(['error' => 'Meeting not found.'], 404);
             }
-
+    
+            $existingParticipant = Participant::where('meeting_id', $meeting->meeting_id)
+                ->where('user_id', $request->participant_id)
+                ->first();
+    
+            if ($existingParticipant) {
+                if ($existingParticipant && !$existingParticipant->left_at) {
+                    $leftAt = Carbon::parse($request->left_at)->format('Y-m-d H:i:s');
+                    $existingParticipant->update([
+                        'left_at' => $leftAt,
+                    ]);
+                    return response()->json(['message' => 'Participant left updated successfully.'], 200);
+                }
+                
+            }
+    
+            $joinedAt = Carbon::parse($request->joined_at)->format('Y-m-d H:i:s');
+            $leftAt = $request->left_at ? Carbon::parse($request->left_at)->format('Y-m-d H:i:s') : null;
+    
             $participant = Participant::create([
                 'meeting_id' => $meeting->meeting_id,
                 'user_id' => $request->participant_id,
                 'name' => $request->name,
-                'joined_at' => $request->joined_at,
-                'left_at' => $request->left_at,
+                'joined_at' => $joinedAt,
+                'left_at' => $leftAt,
             ]);
-
+    
             return response()->json([
                 'participant' => $participant,
                 'meeting_id' => $meeting->meeting_id,
@@ -102,4 +119,5 @@ class ParticipantController extends Controller
             return response()->json(['error' => 'Unable to save participant.'], 500);
         }
     }
+    
 }

@@ -14,15 +14,15 @@ const JitsiMeeting = () => {
 
   const sendParticipantToBackend = async (participant, leftAt = null, joinedAt = null) => {
     const token = localStorage.getItem('access_token');
-    const leftAtTime = leftAt || null;
-    const joinedAtTime = joinedAt || new Date().toISOString();
-
+    const leftAtTime = leftAt || null;  // Nếu không có leftAt, để giá trị null
+    const joinedAtTime = joinedAt || new Date().toISOString(); // Nếu không có joinedAt, lấy thời gian hiện tại
+  
     console.log('Sending participant:', participant);
     if (!participant || !participant.displayName) {
       console.error('Participant data is incomplete', participant);
       return;
     }
-
+  
     try {
       const response = await axios.post(
         `${API_URL}/meetings/participants`,
@@ -30,8 +30,8 @@ const JitsiMeeting = () => {
           meeting_url: meetingUrl,
           participant_id: userInfo.user_id,
           name: participant.displayName,
-          joined_at: joinedAtTime,
-          left_at: leftAtTime,
+          joined_at: joinedAtTime,  // Gửi thời gian tham gia
+          left_at: leftAtTime,      // Gửi thời gian rời đi
         },
         {
           headers: {
@@ -44,6 +44,7 @@ const JitsiMeeting = () => {
       console.error('Error sending participant info:', error);
     }
   };
+  
 
   const fetchUserInfo = async () => {
     const token = localStorage.getItem('access_token');
@@ -53,7 +54,7 @@ const JitsiMeeting = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
+        }); 
         console.log('User info:', response.data);
         setUserInfo({ name: response.data.name, user_id: response.data.user_id, role: response.data.role });
       } catch (error) {
@@ -127,22 +128,32 @@ const JitsiMeeting = () => {
         const api = new window.JitsiMeetExternalAPI(domain, options);
         jitsiApiRef.current = api;
 
+        // Gửi dữ liệu giảng viên vào backend ngay khi vào
+        sendParticipantToBackend({ displayName: userInfo.name }, null, new Date().toISOString());
+
         api.addListener('participantJoined', (participant) => {
-          console.log('Participant joined:', participant);
+          console.log('Participant joined:', participant); // Log
           sendParticipantToBackend(participant);
-          setParticipants((prevParticipants) => [
-            ...prevParticipants,
-            { participant_id: participant.id, name: participant.displayName, is_present: true },
-          ]);
+          setParticipants((prevParticipants) => {
+            const updatedParticipants = [
+              ...prevParticipants,
+              { participant_id: participant.id, name: participant.displayName, is_present: true },
+            ];
+            console.log('Updated participants list:', updatedParticipants); // Log
+            return updatedParticipants;
+          });
         });
 
         api.addListener('participantLeft', (participant) => {
-          console.log('Participant left:', participant);
-          sendParticipantToBackend(participant, new Date().toISOString());
+          console.log('Participant left:', participant); // Log
+          const leftAtTime = new Date().toISOString(); // Ghi lại thời gian rời đi
+          sendParticipantToBackend(participant, leftAtTime); // Gửi left_at với thời gian chính xác
           setParticipants((prevParticipants) =>
             prevParticipants.filter((p) => p.participant_id !== participant.id)
           );
         });
+        
+        
       }
 
       return () => {
