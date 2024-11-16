@@ -142,7 +142,9 @@ export const UserOrderHistory = () => {
                     {index + 1}
                 </TableCell>
                 <TableCell className="sm:p-4 py-2 px-0 xl:w-[400px] lg:w-[250px] md:w-[200px] w-fit font-medium lg:text-base sm:text-sm text-xs">
-                    <p className="line-clamp-2">{item.courses && item.courses[0] ? item.courses[0].course_title : "Đang tải tên khóa học"}</p>
+                    <p className="line-clamp-2">
+                        {item.order_details && item.order_details[0] ? item.order_details[0].course.title : "Đang tải tên khóa học"}
+                    </p>
                 </TableCell>
                 <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
                     <span className={`${item.status === "success" ? "bg-green-100 text-green-700 font-semibold px-3 py-1 rounded-full" : ""
