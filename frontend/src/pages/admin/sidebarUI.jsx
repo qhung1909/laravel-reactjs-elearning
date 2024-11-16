@@ -93,7 +93,7 @@ const data = {
             items: [
                 { title: "Danh sách tất cả khóa học", url: "/admin/course-list" },
                 { title: "Duyệt khóa học mới từ giảng viên", url: "/admin/browse-new-courses" },
-                { title: "Quản lý trạng thái khóa học (Draft/Published/Hidden)", url: "/admin/course-status" },
+                { title: "Quản lý trạng thái khóa học", url: "/admin/course-status" },
                 { title: "Phân loại khóa học theo danh mục", url: "/admin/classify-course" },
                 { title: "Quản lý mã voucher", url: "/admin/page-coupons" },
             ],

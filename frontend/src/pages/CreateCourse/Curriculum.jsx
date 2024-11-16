@@ -197,6 +197,7 @@ export const Curriculum = () => {
         fetchContent()
     }, []);
     const fetchContent = async (force = false) => {
+        toast.dismiss();
         if (!force && isDataFetched) {
             // console.log("Dữ liệu đã được tải, không cần fetch lại");
             return;
