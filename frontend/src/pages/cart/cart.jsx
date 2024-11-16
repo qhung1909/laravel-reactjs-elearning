@@ -36,6 +36,8 @@ export const Cart = () => {
 
                 setCourses(coursesResponse.data);
                 setCart(cartResponse.data); // Cập nhật state cho cart
+                console.log(cartResponse.data.orders);
+
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -114,23 +116,22 @@ export const Cart = () => {
     const totalPrice = calculateTotalPrice();
 
     const renderCart = () => {
-
         return cart.map((item, index) => (
             <div key={index} className="mb-6 bg-white rounded-lg  ">
                 <div className="flex items-center justify-between mb-2">
                     {/* <p className="font-semibold text-lg">Đơn hàng #{item.order_id}</p> */}
                 </div>
 
-                {item.order_details.map((detail, detailIndex) => {
+                {item.order_details.map((cart, cartIndex) => {
                     const course = courses.find(
-                        (c) => c.course_id === detail.course_id
+                        (c) => c.course_id === cart.course_id
                     );
                     return (
                         <div
-                            key={detailIndex}
+                            key={cartIndex}
                             className="flex items-center py-3 border-t last:border-b-0"
                         >
-                            <span className="mr-2 font-bold text-sm">{detailIndex + 1}</span> {/* Kích thước chữ nhỏ hơn */}
+                            <span className="mr-2 font-bold text-sm">{cartIndex + 1}</span> {/* Kích thước chữ nhỏ hơn */}
                             <input
                                 className="mr-2 h-4 w-4 flex-shrink-0 rounded border-gray-300 checked:bg-yellow-500"
                                 defaultChecked
@@ -155,14 +156,14 @@ export const Cart = () => {
                                                 : "Khóa học không tồn tại"}
                                         </p>
                                         <p className="text-sm text-black mt-1 break-words font-normal ">
-                                            bởi: <span>AntLearn</span>
+                                            <span>{cart.course.slug}</span>
                                         </p>
                                     </div>
                                     <p className="font-bold text-gray-400 text-base md:w-1/5 text-right flex justify-between sm:justify-normal md:flex-col gap-5 sm:my-3 md:my-0">
                                         <div className="pricing text-[#2F57EF] font-medium">
-                                            {formatCurrency(detail.price)}
+                                            {formatCurrency(cart.price)}
                                         </div>
-                                        <button onClick={() => deleteCourseFromCart(item.order_id, detail.course_id)}
+                                        <button onClick={() => deleteCourseFromCart(item.order_id, cart.course_id)}
                                             className="text-black hover:text-red-500 text-right"
                                             aria-label="Xóa khóa học">
                                             <box-icon name='trash-alt' color="currentColor"></box-icon>
@@ -250,7 +251,7 @@ export const Cart = () => {
                 </div>
             )
         )}
-    </>
+        </>
 
     );
 };
