@@ -294,12 +294,18 @@ export const Curriculum = () => {
 
     const addLesson = async (sectionId) => {
         const section = sections.find(section => section.id === sectionId);
-        // if()
-        // const lastLesson = section.lessons[section.lessons.length - 1];
-        // if (!lastLesson.title || !lastLesson.title.trim()) {
-        //     toast.error("Vui lòng nhập tiêu đề nội dung của bài trước khi '+ Thêm nội dung mới' ");
-        //     return;
-        // }
+
+        // Kiểm tra nếu không có bài học nào trong section
+        if (section.lessons.length === 0) {
+            // Có thể thực hiện logic khác nếu cần
+        } else {
+            // Kiểm tra bài học cuối có tiêu đề không
+            const lastLesson = section.lessons[section.lessons.length - 1];
+            if (!lastLesson.title || !lastLesson.title.trim()) {
+                toast.error("Vui lòng nhập tiêu đề nội dung của bài trước khi '+ Thêm nội dung mới'");
+                return;
+            }
+        }
         try {
             const requestData = {
                 content_id: section.content_id,
@@ -808,7 +814,7 @@ export const Curriculum = () => {
                                                 )}
                                                 <AccordionContent>
                                                     <div className="space-y-4 mt-4">
-                                                    {Array.isArray(section.lessons) && section.lessons.map((lesson, lessonIndex) => (
+                                                        {Array.isArray(section.lessons) && section.lessons.map((lesson, lessonIndex) => (
                                                             <Card key={lesson.id} className="relative p-4 border border-yellow-400 ml-6">
                                                                 <div className="space-y-4">
                                                                     <div className="flex items-center gap-4 mt-4">
