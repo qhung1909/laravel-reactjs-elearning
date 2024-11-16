@@ -45,7 +45,7 @@ export const Instructor = () => {
     const [teacherCourses, setTeacherCourses] = useState([]);
     const [teacherRevenue, setTeacherRevenue] = useState([]);
     const [teacherRank, setTeacherRank] = useState([]);
-    const [teacherProgress,setTeacherProgress] = useState([]);
+    const [teacherProgress, setTeacherProgress] = useState([]);
     const token = localStorage.getItem("access_token");
 
     const fetchTeacherCourse = async () => {
@@ -61,9 +61,9 @@ export const Instructor = () => {
             console.log('Error fetching teacher Courses', error)
         }
     }
-    const fetchTeacherProgress = async (teacherId) =>{
-        try{
-            const response = await axios.get(`${API_URL}/teacher/${teacherId}/courses/completion-stats`,{
+    const fetchTeacherProgress = async (teacherId) => {
+        try {
+            const response = await axios.get(`${API_URL}/teacher/${teacherId}/courses/completion-stats`, {
                 headers: {
                     'x-api-secret': `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
@@ -72,8 +72,8 @@ export const Instructor = () => {
             if (response.data.status) {
                 setTeacherProgress(response.data.data.total_unique_students);
             }
-        }catch(error){
-            console.log('Error fetching teacher student progress',error)
+        } catch (error) {
+            console.log('Error fetching teacher student progress', error)
         }
     }
     const fetchTeacherRevenue = async () => {
@@ -262,16 +262,16 @@ export const Instructor = () => {
                                                         <SheetTitle>
                                                             <div className="p-4 flex justify-between items-center border-b-[1px]">
                                                                 <div className="logo ">
-                                                                    <img src="./src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
+                                                                    <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                                                 </div>
                                                             </div>
                                                         </SheetTitle>
                                                         <SheetDescription>
                                                             <ul className="">
                                                                 <li className="mb-3">
-                                                                    <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 bg-gray-100">
-                                                                        <div className=" bg-yellow-400 mr-3 pt-1 px-1  rounded-full">
-                                                                            <box-icon name='sidebar' color='#ffffff' ></box-icon>
+                                                                    <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700  bg-gray-100">
+                                                                        <div className="bg-yellow-400  mr-3 px-1 rounded-full">
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
                                                                         </div>
                                                                         <p className="font-semibold text-base">Bảng điều khiển</p>
                                                                     </Link>
@@ -279,24 +279,32 @@ export const Instructor = () => {
                                                                 </li>
                                                                 <li className="mb-3">
                                                                     <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                        <div className="mr-3 pt-1 px-1 rounded-full">
-                                                                            <box-icon name='book-open'></box-icon>
+                                                                        <div className=" mr-3 px-1 rounded-full">
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
                                                                         </div>
                                                                         <p className="font-semibold text-base">Bài học của tôi</p>
                                                                     </Link>
                                                                 </li>
                                                                 <li className="mb-3">
                                                                     <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                        <div className=" mr-3 pt-1 px-1 rounded-full">
-                                                                            <box-icon name='credit-card' ></box-icon>
+                                                                        <div className=" mr-3 px-1 rounded-full">
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
                                                                         </div>
                                                                         <p className="font-semibold text-base">Lịch sử mua hàng</p>
                                                                     </Link>
                                                                 </li>
+                                                                <li className="mb-3">
+                                                                    <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                        <div className=" mr-3 px-1 rounded-full">
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
+                                                                        </div>
+                                                                        <p className="font-semibold text-base">Thông báo</p>
+                                                                    </Link>
+                                                                </li>
                                                                 <li>
                                                                     <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                        <div className=" mr-3 pt-1 px-1 rounded-full">
-                                                                            <box-icon type='solid' name='user-circle'></box-icon>
+                                                                        <div className=" mr-3 px-1 rounded-full">
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
                                                                         </div>
                                                                         <p className="font-semibold text-base">Thông tin tài khoản</p>
                                                                     </Link>
