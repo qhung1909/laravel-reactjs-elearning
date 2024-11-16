@@ -6,32 +6,115 @@ import { formatCurrency } from '@/components/Formatcurrency/formatCurrency';
 import './userprofile.css';
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
+
 export const UserFavorite = () => {
+    const [user, setUser] = useState({});
+    // Fetch thông tin user đang đăng nhập
+    const fetchUser = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}/auth/me`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            // Kiểm tra cấu trúc dữ liệu trả về
+            if (res.data && res.data) {
+                setUser(res.data);
+            } else {
+                console.error(
+                    "Không tìm thấy thông tin người dùng trong phản hồi."
+                );
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy thông tin người dùng:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+                console.error("Trạng thái lỗi:", error.response.status);
+            } else {
+                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
+            }
+        }
+    };
+    useEffect(() => {
+        fetchUser();
+    }, []);
+
     const [favorites, setFavorites] = useState([]);
+    // Hàm lấy danh sách yêu thích
+    const fetchFavorites = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
+        }
+        try {
+            const response = await axios.get(`${API_URL}/favorites`, {
+                headers: {
+                    "x-api-secret": API_KEY,
+                    "Accept": "application/json",
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+
+            // Kiểm tra và xử lý dữ liệu trả về
+            if (response.data && Array.isArray(response.data)) {
+                setFavorites(response.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi tải danh sách yêu thích:", error);
+        }
+    };
 
     useEffect(() => {
-        const token = localStorage.getItem("access_token");
-        const fetchFavorites = async () => {
-            try {
-                const response = await axios.get(`${API_URL}/favorites`, {
-                    headers: {
-                        "x-api-secret": API_KEY,
-                        "Accept": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    }
-                });
-
-                // Kiểm tra và xử lý dữ liệu trả về
-                if (response.data && Array.isArray(response.data)) {
-                    setFavorites(response.data);
-                }
-            } catch (error) {
-                console.error("Lỗi khi tải danh sách yêu thích:", error);
-            }
-        };
-
+        fetchUser();
         fetchFavorites();
     }, []);
+
+    // Hàm để xóa khóa học yêu thích
+    const deleteFavorite = async (favorites_id, courseId) => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Token không hợp lệ.");
+            return;
+        }
+
+        try {
+            const response = await axios.delete(`${API_URL}/favorites`, {
+                headers: {
+                    "x-api-secret": API_KEY,
+                    "Accept": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                data: {
+                    course_id: courseId,
+                    user_id: user.user_id
+                }
+            });
+
+            if (response.data) {
+                setFavorites((prevFavorites) =>
+                    prevFavorites.filter(favorite => favorite.favorites_id !== favorites_id)
+                );
+                fetchFavorites();
+            } else {
+                console.error("Không có dữ liệu trả về từ API.");
+            }
+        } catch (error) {
+            // Log chi tiết lỗi
+            console.error("Lỗi khi xóa khóa học yêu thích:", error.response || error);
+            if (error.response) {
+                console.error("Lỗi từ API:", error.response.data);
+            }
+        }
+    };
+
+
 
     return (
         <>
@@ -74,37 +157,44 @@ export const UserFavorite = () => {
                             <div className="mt-8">
                                 <div className="grid xl:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
                                     {favorites.length > 0 ? (
-                                        favorites.map(favorites => {
+                                        favorites.map(favorite => {
                                             return (
                                                 <div
-                                                    key={favorites.favorites_id}
+                                                    key={favorite.favorites_id}
                                                     className="group bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100"
                                                 >
                                                     <div className="relative overflow-hidden">
                                                         <img
-                                                            src={favorites.course.img}
+                                                            src={favorite.course.img}
                                                             className="w-full h-48 object-cover transform transition-transform duration-500 ease-out group-hover:scale-110"
-                                                            alt={favorites.course.title}
+                                                            alt={favorite.course.title}
                                                         />
                                                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                                     </div>
                                                     <div className="p-4 space-y-3">
                                                         <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 min-h-[3.5rem] hover:text-yellow-600 transition-colors duration-300">
-                                                            {favorites.course.title}
+                                                            {favorite.course.title}
                                                         </h3>
                                                         <p className="text-sm font-medium text-gray-600 flex items-center">
                                                             <span className="text-yellow-600 mr-1">Giá:</span>
-                                                            {formatCurrency(favorites.course.price_discount)}
+                                                            {formatCurrency(favorite.course.price_discount)}
                                                         </p>
                                                         <div className="pt-3 flex justify-center">
                                                             <Link
-                                                                to={`/detail/${favorites.course.slug}`}
+                                                                to={`/detail/${favorite.course.slug}`}
                                                                 className="block"
                                                             >
                                                                 <Button className="bg-yellow-600 hover:bg-yellow-700 text-white font-medium px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50">
                                                                     Xem chi tiết
                                                                 </Button>
                                                             </Link>
+                                                            <Button
+                                                                onClick={() => deleteFavorite(favorite.favorites_id, favorite.course.course_id)}
+                                                                className="bg-red-600 text-white font-medium px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+                                                            >
+                                                                Bỏ thích
+                                                            </Button>
+
                                                         </div>
                                                     </div>
                                                 </div>
@@ -117,7 +207,6 @@ export const UserFavorite = () => {
                                         </div>
                                     )}
                                 </div>
-
                             </div>
                         </div>
                     </div>
