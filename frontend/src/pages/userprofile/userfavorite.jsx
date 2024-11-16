@@ -172,7 +172,7 @@ export const UserFavorite = () => {
                                                         />
                                                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                                     </div>
-                                                    <div className="p-4 space-y-3">
+                                                    <div className="p-4 space-y-3 flex flex-col">
                                                         <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 min-h-[3.5rem] hover:text-yellow-600 transition-colors duration-300">
                                                             {favorite.course.title}
                                                         </h3>
@@ -180,23 +180,31 @@ export const UserFavorite = () => {
                                                             <span className="text-yellow-600 mr-1">Giá:</span>
                                                             {formatCurrency(favorite.course.price_discount)}
                                                         </p>
-                                                        <div className="pt-3 flex justify-center gap-6">
+                                                        <div className="pt-3 flex flex-col justify-center gap-4">
                                                             {/* View Details Button */}
                                                             <Link
                                                                 to={`/detail/${favorite.course.slug}`}
-                                                                className="relative group"
+                                                                className="group flex items-center gap-2 px-3 py-1 rounded-lg bg-gradient-to-r from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 border border-amber-200 transition-all duration-300"
                                                             >
-                                                                <ExternalLink className="relative w-5 h-5 text-blue-500 group-hover:text-blue-600 transition-all duration-300" />
+                                                                <Eye className="w-5 h-5 text-amber-600" />
+                                                                <span className="text-xs font-medium text-amber-700 text-center w-full">
+                                                                    Xem chi tiết
+                                                                </span>
                                                             </Link>
 
                                                             {/* Remove Button */}
                                                             <button
                                                                 onClick={() => deleteFavorite(favorite.favorites_id, favorite.course.course_id)}
-                                                                className="relative group"
+                                                                className="group flex items-center gap-2 px-3 py-1 rounded-lg bg-gradient-to-r from-rose-50 to-pink-50 hover:from-rose-100 hover:to-pink-100 border border-rose-200 transition-all duration-300"
                                                             >
-                                                                <Trash2 className="relative w-5 h-5 text-red-500 group-hover:text-red-600 transition-all duration-300" />
+                                                                <Heart className="w-5 h-5 text-rose-600" />
+                                                                <span className="text-xs font-medium text-rose-700 text-center w-full">
+                                                                    Bỏ thích
+                                                                </span>
                                                             </button>
                                                         </div>
+
+
                                                     </div>
                                                 </div>
                                             );
