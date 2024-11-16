@@ -10,7 +10,7 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy, Gamepad2 } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
@@ -891,20 +891,19 @@ export const Lesson = () => {
                                         {/* MiniGame */}
                                         <div className="bg-violet-50 rounded-xl p-3 border border-violet-100 group hover:bg-violet-100 transition-colors">
                                             <div className="flex items-center text-violet-600 mb-1">
-                                                <GraduationCap className="w-4 h-4 mr-2" />
+                                                <Gamepad2 className="w-4 h-4 mr-2" />
                                                 <span className="text-sm font-medium">Mini Game</span>
                                             </div>
                                             <Dialog>
                                                 <DialogTrigger asChild>
-                                                    <button className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600">
-                                                        <p className="text-lg font-semibold">Chơi ngay</p>
-                                                        <Trophy className="w-5 h-5 ml-2" />
+                                                    <button className="ml-10 flex justify-center items-center bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 rounded-lg shadow-lg hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-300">
+                                                        <Gamepad2 className="w-8 h-8" />
+
                                                     </button>
                                                 </DialogTrigger>
-
-                                                <DialogContent className="bg-gray-100 p-6 rounded-lg shadow-lg max-w-lg mx-auto">
-                                                    <DialogTitle className="text-2xl font-bold text-gray-800 mb-4 text-center">
-                                                        Ai là người phát minh ra World Wide Web?
+                                                <DialogContent className="bg-gray-100 p-8 rounded-lg shadow-xl max-w-lg mx-auto">
+                                                    <DialogTitle className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                                                        Câu Đố Kiến Thức
                                                     </DialogTitle>
                                                     <p className="text-gray-600 text-center mb-6">
                                                         Gợi ý: Ai là người phát minh ra World Wide Web?
@@ -914,13 +913,13 @@ export const Lesson = () => {
                                                         type="text"
                                                         value={answer}
                                                         onChange={handleInputChange}
-                                                        className="p-3 border border-gray-300 rounded-lg w-full mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        className="p-4 border border-gray-300 rounded-lg w-full mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                         placeholder="Nhập câu trả lời..."
                                                     />
 
                                                     <button
                                                         onClick={handleSubmitGame}
-                                                        className="bg-green-500 text-white px-4 py-2 rounded-lg w-full hover:bg-green-600 transition"
+                                                        className="bg-green-600 text-white px-6 py-3 rounded-lg w-full hover:bg-green-700 transition-all duration-300"
                                                     >
                                                         Xác nhận
                                                     </button>
@@ -938,12 +937,13 @@ export const Lesson = () => {
                                                     )}
 
                                                     <DialogClose asChild>
-                                                        <button className="mt-6 bg-gray-400 px-4 py-2 text-white rounded-lg hover:bg-gray-500">
+                                                        <button className="mt-6 bg-gray-400 px-5 py-3 text-white rounded-lg hover:bg-gray-500 transition-all">
                                                             Đóng
                                                         </button>
                                                     </DialogClose>
                                                 </DialogContent>
                                             </Dialog>
+
                                         </div>
                                     </div>
                                 </div>

@@ -295,11 +295,11 @@ export const Curriculum = () => {
     const addLesson = async (sectionId) => {
         const section = sections.find(section => section.id === sectionId);
         // if()
-        const lastLesson = section.lessons[section.lessons.length - 1];
-        if (!lastLesson.title || !lastLesson.title.trim()) {
-            toast.error("Vui lòng nhập tiêu đề nội dung của bài trước khi '+ Thêm nội dung mới' ");
-            return;
-        }
+        // const lastLesson = section.lessons[section.lessons.length - 1];
+        // if (!lastLesson.title || !lastLesson.title.trim()) {
+        //     toast.error("Vui lòng nhập tiêu đề nội dung của bài trước khi '+ Thêm nội dung mới' ");
+        //     return;
+        // }
         try {
             const requestData = {
                 content_id: section.content_id,
