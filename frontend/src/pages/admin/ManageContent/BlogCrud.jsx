@@ -451,7 +451,7 @@ export const BlogCrud = () => {
 
                     {/* Phần bảng danh mục không thay đổi */}
                     <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-                        <table className="w-full">
+                        <table className="w-full min-w-[1200px]">
                             <thead>
                                 <tr className="bg-yellow-400">
                                     <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">ID</th>

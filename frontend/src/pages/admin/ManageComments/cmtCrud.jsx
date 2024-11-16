@@ -211,7 +211,7 @@ export const CmtCrud = () => {
 
                     {/* Table */}
                     <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-                        <table className="w-full">
+                        <table className="w-full min-w-[1200px]">
                             <thead>
                                 <tr className="bg-yellow-400">
                                     <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">ID</th>
@@ -286,7 +286,7 @@ export const CmtCrud = () => {
                                             </td>
 
                                             {/* Course Image */}
-                                            <td className="xl:py-4 xl:px-6 text-sm text-gray-600">
+                                            <td className="py-4 px-6 text-sm text-gray-600">
                                                 {comment.course.img ? (
                                                     <img src={comment.course.img} alt="Course" className="w-full" />
                                                 ) : (

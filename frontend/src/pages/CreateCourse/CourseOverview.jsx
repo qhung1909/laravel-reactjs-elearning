@@ -80,6 +80,25 @@ export const CourseOverview = () => {
 
     const [selectedExtension, setSelectedExtension] = useState("");
     const [selectedDate, setSelectedDate] = useState("");
+    const [backupDate, setBackupDate] = useState('');
+
+    const handleSelectedDateChange = (e) => {
+        const date = e.target.value;
+        setSelectedDate(date);
+
+        // Tính ngày backup (ngày sau ngày cuối cùng của khai giảng online)
+        if (date) {
+            const selectedDateObj = new Date(date);
+            const backupDateObj = new Date(selectedDateObj);
+            backupDateObj.setDate(backupDateObj.getDate() + 1); // Thêm 1 ngày để làm ngày backup
+
+            // Cập nhật ngày backup
+            const backupDateStr = backupDateObj.toISOString().split('T')[0]; // Định dạng lại ngày
+            setBackupDate(backupDateStr);
+        }
+    };
+
+
 
     // console.log(isUpdated, 'clickUpdate-courseOverview');
     const exportToJsonLog = () => {
@@ -93,6 +112,7 @@ export const CourseOverview = () => {
             courseImage, // Hình ảnh khóa học
             selectedExtension, // Phần mở rộng khóa học
             selectedDate, // Ngày học nếu chọn online
+            backupDate
         };
 
         // Chuyển đối tượng dữ liệu thành JSON
@@ -539,7 +559,7 @@ export const CourseOverview = () => {
                         </div>
                         <div className="pb-6">
                             <div className="flex">
-                                <div className="w-1/2">
+                                <div className="w-1/3">
                                     <h2 className="pb-1 text-lg font-medium">Chọn mở rộng khóa học</h2>
                                     {/* Chọn phần mở rộng */}
 
@@ -562,16 +582,38 @@ export const CourseOverview = () => {
 
                                 {/* Hiển thị phần lịch bên phải khi chọn "online" */}
                                 {selectedExtension === "online" && (
-                                    <div className="w-1/2 ml-4">
-                                        <h3 className="text-lg font-medium">Lịch khai giảng học online</h3>
-                                        <input
-                                            type="date"
-                                            className="w-full py-2 px-4 border border-gray-300 rounded-md"
-                                            min={new Date().toISOString().split("T")[0]}
-                                            max={new Date(new Date().setDate(new Date().getDate() + 10)).toISOString().split("T")[0]}
-                                            onChange={(e) => setSelectedDate(e.target.value)} 
-                                        />
-                                    </div>
+                                    <>
+                                        <div className="w-1/3 ml-4">
+                                            <h3 className="text-lg font-medium">Ngày khai giảng học online</h3>
+                                            <input
+                                                type="date"
+                                                className="w-full py-2 px-4 border border-gray-300 rounded-md"
+                                                min={new Date().toISOString().split("T")[0]}  // Ngày bắt đầu không được nhỏ hơn ngày hiện tại
+                                                max={new Date(new Date().setDate(new Date().getDate() + 10)).toISOString().split("T")[0]}  // Ngày cuối cùng không được quá 10 ngày kể từ hôm nay
+                                                onChange={handleSelectedDateChange}  // Cập nhật ngày khai giảng
+                                                value={selectedDate}  // Đảm bảo hiển thị ngày đã chọn
+                                            />
+                                        </div>
+
+                                        {/* Lịch khai giảng học online backup */}
+                                        <div className="w-1/3 ml-4">
+                                            <h3 className="text-lg font-medium">Backup: Lịch khai giảng học online </h3>
+                                            <input
+                                                type="date"
+                                                className="w-full py-2 px-4 border border-gray-300 rounded-md"
+                                                min={backupDate}  // Chỉ cho phép chọn ngày sau ngày khai giảng online
+                                                value={backupDate}  // Giá trị của lịch backup sẽ được hiển thị
+                                                onChange={(e) => setBackupDate(e.target.value)} // Cho phép người dùng chọn ngày backup
+                                                disabled={!selectedDate}
+                                            />
+                                            {!selectedDate && (
+                                                <p className="text-gray-500 text-sm mt-2">
+                                                    Chọn ngày khai giảng trước
+                                                </p>
+                                            )}
+                                        </div>
+                                    </>
+
                                 )}
                             </div>
                         </div>
