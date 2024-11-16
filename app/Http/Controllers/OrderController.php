@@ -54,9 +54,6 @@ class OrderController extends Controller
     }
 
 
-
-
-
     public function show($user_id, $order_id)
     {
         try {
