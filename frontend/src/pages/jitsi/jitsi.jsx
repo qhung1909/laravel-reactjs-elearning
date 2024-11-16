@@ -127,17 +127,24 @@ const JitsiMeeting = () => {
         const api = new window.JitsiMeetExternalAPI(domain, options);
         jitsiApiRef.current = api;
 
+        // Gửi dữ liệu giảng viên vào backend ngay khi vào
+        sendParticipantToBackend({ displayName: userInfo.name }, null, new Date().toISOString());
+
         api.addListener('participantJoined', (participant) => {
-          console.log('Participant joined:', participant);
+          console.log('Participant joined:', participant); // Log
           sendParticipantToBackend(participant);
-          setParticipants((prevParticipants) => [
-            ...prevParticipants,
-            { participant_id: participant.id, name: participant.displayName, is_present: true },
-          ]);
+          setParticipants((prevParticipants) => {
+            const updatedParticipants = [
+              ...prevParticipants,
+              { participant_id: participant.id, name: participant.displayName, is_present: true },
+            ];
+            console.log('Updated participants list:', updatedParticipants); // Log
+            return updatedParticipants;
+          });
         });
 
         api.addListener('participantLeft', (participant) => {
-          console.log('Participant left:', participant);
+          console.log('Participant left:', participant); // Log
           sendParticipantToBackend(participant, new Date().toISOString());
           setParticipants((prevParticipants) =>
             prevParticipants.filter((p) => p.participant_id !== participant.id)
