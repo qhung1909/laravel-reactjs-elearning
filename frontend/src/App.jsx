@@ -162,7 +162,7 @@ function AppContent() {
                 <Route path="/quizzes" element={<Quizzes />}></Route>
                 <Route path="/quizzes/:quiz_id" element={<Quizzes />}></Route>
                 <Route path="/notifications" element={<TaskList />}></Route>
-                <Route path="/jitsitest/:id" element={<JitsiMeeting />}></Route>
+                <Route path="/lesson/meeting/:id" element={<JitsiMeeting />}></Route>
                 
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}

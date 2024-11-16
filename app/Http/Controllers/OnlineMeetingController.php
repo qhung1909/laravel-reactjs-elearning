@@ -46,7 +46,7 @@ class OnlineMeetingController extends Controller
         }
 
         try {
-            $meetingUrl = 'https://meet.jit.si/' . Str::uuid();
+            $meetingUrl = 'http://localhost:5173/jitsitest/' . Str::uuid();
 
             $onlineMeeting = new OnlineMeeting([
                 'content_id' => $content_id,
@@ -68,6 +68,8 @@ class OnlineMeetingController extends Controller
             ], 500);
         }
     }
+
+    
     public function getMeetingByUuid($uuid)
     {
         $onlineMeeting = OnlineMeeting::where('meeting_url', 'like', "%$uuid")->first();
