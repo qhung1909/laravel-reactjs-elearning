@@ -24,6 +24,10 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\OnlineMeetingController;
+use App\Http\Controllers\TeachingScheduleController;
+use App\Http\Controllers\ParticipantController;
+
 // Authentication
 Route::group([
     'middleware' => 'api',
@@ -252,3 +256,8 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
 
     Route::get('/course/{courseId}/orders', [TeacherController::class, 'getCourseOrderHistory']);
 });
+
+
+Route::post('/create-meeting/{content_id}', [OnlineMeetingController::class, 'createMeeting']);
+Route::get('/meeting/{uuid}', [OnlineMeetingController::class, 'getMeetingByUuid']);
+Route::post('/mark-attendance', [ParticipantController::class, 'markAttendance']);

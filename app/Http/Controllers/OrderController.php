@@ -30,24 +30,37 @@ class OrderController extends Controller
     }
 
     public function getAllOrdersByUserId($user_id)
-    {
-        try {
-            return DB::transaction(function () use ($user_id) {
-                $orders = Order::query()
-                    ->where('user_id', $user_id) 
-                    ->with(['user:user_id,name,email', 'coupon:coupon_id,name_coupon,discount_price'])
-                    ->select('orders.*')
-                    ->paginate(10); 
+{
+    try {
+        return DB::transaction(function () use ($user_id) {
+            $orders = Order::query()
+                ->where('user_id', $user_id)
+                ->with(['user:user_id,name,email', 'coupon:coupon_id,name_coupon,discount_price'])
+                ->select('orders.*')
+                ->paginate(10);
+            
+            $orders->getCollection()->transform(function ($order) {
+                $orderDetails = DB::table('order_detail')
+                    ->join('course', 'order_detail.course_id', '=', 'course.course_id')
+                    ->where('order_detail.order_id', $order->order_id)
+                    ->select('order_detail.course_id', 'course.title')
+                    ->get();
 
-                return OrderResource::collection($orders);
+                $order->course_details = $orderDetails;
+
+                return $order;
             });
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error fetching orders',
-                'error' => $e->getMessage()
-            ], 500); 
-        }
+
+            return OrderResource::collection($orders);
+        });
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Error fetching orders',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
 
     public function show($user_id, $order_id)
