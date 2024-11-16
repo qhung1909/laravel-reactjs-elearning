@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\UserCourse;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ThankYouEmail;
+use App\Models\User;
 class CartController extends Controller
 {
     public function vnpay_payment(Request $request)
@@ -189,19 +190,30 @@ class CartController extends Controller
     
         $user_id = Auth::id();
         
+        $user = User::find($user_id);
+        if (!$user) {
+            return response()->json([
+                'message' => 'Không tìm thấy người dùng.',
+            ], 404);
+        }
+    
         $orders = Order::with('orderDetails')
             ->where('user_id', $user_id)
-            ->where('status', 'pending') 
+            ->where('status', 'pending')
             ->get();
-        
+    
         if ($orders->isEmpty()) {
             return response()->json([
                 'message' => 'Không có đơn hàng nào.',
             ], 404);
         }
         
-        return response()->json($orders, 200);
+        return response()->json([
+            'user_name' => $user->name, 
+            'orders' => $orders
+        ], 200);
     }
+    
     
 
     public function addToCart(Request $request)

@@ -11,7 +11,7 @@ class TeachingSchedule extends Model
     protected $table = 'teaching_schedule';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'course_id',
+        'content_id',
         'user_id',
         'proposed_start',
         'notes',

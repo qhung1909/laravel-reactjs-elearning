@@ -33,11 +33,15 @@ class OrderController extends Controller
     {
         try {
             return DB::transaction(function () use ($user_id) {
-                $orders = Order::query()
-                    ->where('user_id', $user_id) 
-                    ->with(['user:user_id,name,email', 'coupon:coupon_id,name_coupon,discount_price'])
+                // Eager load user, coupon và courses
+                $orders = Order::with([
+                    'user:user_id,name,email',
+                    'coupon:coupon_id,name_coupon,discount_price',
+                    'orderDetails.course'  // Đảm bảo eager load mối quan hệ với courses qua orderDetails
+                ])
+                    ->where('user_id', $user_id)
                     ->select('orders.*')
-                    ->paginate(10); 
+                    ->paginate(10);
 
                 return OrderResource::collection($orders);
             });
@@ -45,9 +49,12 @@ class OrderController extends Controller
             return response()->json([
                 'message' => 'Error fetching orders',
                 'error' => $e->getMessage()
-            ], 500); 
+            ], 500);
         }
     }
+
+
+
 
 
     public function show($user_id, $order_id)
