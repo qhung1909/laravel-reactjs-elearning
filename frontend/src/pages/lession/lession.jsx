@@ -927,15 +927,19 @@ export const Lesson = () => {
                                                                     onChange={handleInputChange}
                                                                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition-colors"
                                                                     placeholder="Nhập câu trả lời..."
+                                                                    disabled={isCorrect === true}
                                                                 />
 
+                                                            </div>
+
+                                                            {isCorrect === null && (
                                                                 <button
                                                                     onClick={handleSubmitGame}
                                                                     className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium py-3 px-4 rounded-xl hover:opacity-90 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                                                                 >
                                                                     Xác nhận đáp án
                                                                 </button>
-                                                            </div>
+                                                            )}
 
                                                             {isCorrect === true && (
                                                                 <div className="animate-fadeIn bg-green-50 rounded-xl p-4 space-y-2">
@@ -956,7 +960,6 @@ export const Lesson = () => {
                                                                 </div>
                                                             )}
 
-
                                                             {isCorrect === false && (
                                                                 <div className="animate-fadeIn bg-red-50 rounded-xl p-4">
                                                                     <p className="text-red-500 text-center font-medium">
@@ -964,6 +967,7 @@ export const Lesson = () => {
                                                                     </p>
                                                                 </div>
                                                             )}
+
                                                         </div>
                                                     </div>
                                                 </DialogContent>
