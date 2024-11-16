@@ -4,7 +4,7 @@ import { formatDate } from "@/components/FormatDay/Formatday";
 import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import { ChevronDown, ChevronUp, Edit, Trash, User } from "lucide-react";
+import { ChevronDown, ChevronUp, Edit, Heart, HeartOff, Trash, User } from "lucide-react";
 import { Calendar, Globe, BookOpen, Star } from "lucide-react";
 import { Play, Users, Book, Clock, Eye } from "lucide-react";
 import {
@@ -924,6 +924,84 @@ export const Detail = () => {
 
     useEffect(() => { }, [currentVideoUrl]);
 
+
+    // Yêu thích khóa học
+    const [favorites, setFavorites] = useState({});
+    useEffect(() => {
+        const token = localStorage.getItem("access_token");
+        const fetchFavorites = async () => {
+            try {
+                const response = await axios.get(`${API_URL}/favorites`, {
+                    headers: {
+                        "x-api-secret": API_KEY,
+                        "Accept": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    }
+                });
+
+                // Kiểm tra và xử lý dữ liệu trả về
+                if (response.data && Array.isArray(response.data)) {
+                    const favoritesObj = {};
+                    response.data.forEach(fav => {
+                        favoritesObj[fav.course_id] = true;
+                    });
+                    setFavorites(favoritesObj);
+                }
+            } catch (error) {
+                console.error("Lỗi khi tải danh sách yêu thích:", error);
+            }
+        };
+        fetchFavorites();
+    }, []);
+
+    const handleLike = async (courseId) => {
+        const token = localStorage.getItem("access_token");
+        try {
+            const isFavorited = favorites[courseId];
+            const newFavorites = { ...favorites };
+            newFavorites[courseId] = !newFavorites[courseId];
+            setFavorites(newFavorites);
+            if (!isFavorited) {
+                // Thêm vào yêu thích
+                const response = await axios.post(
+                    `${API_URL}/favorites`,
+                    {
+                        course_id: courseId,
+                        user_id: user.user_id
+                    },
+                    {
+                        headers: {
+                            "x-api-secret": API_KEY,
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+            } else {
+                // Xóa khỏi yêu thích
+                const response = await axios.delete(
+                    `${API_URL}/favorites`,
+                    {
+                        headers: {
+                            "x-api-secret": API_KEY,
+                            "Accept": "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
+                        data: {
+                            course_id: courseId,
+                            user_id: user.user_id
+                        }
+                    }
+                );
+            }
+        } catch (error) {
+            const revertFavorites = { ...favorites };
+            revertFavorites[courseId] = !revertFavorites[courseId];
+            setFavorites(revertFavorites);
+            console.error("Lỗi khi cập nhật yêu thích:", error.response ? error.response.data : error.message);
+        }
+    };
+
     return (
         <>
             {/* Banner */}
@@ -1119,15 +1197,9 @@ export const Detail = () => {
                                         <div className="space-y-4">
                                             {courseRelated && courseRelated.length > 0 ? (
                                                 courseRelated.map((course) => (
-                                                    <div
-                                                        key={course.course_id}
-                                                        className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl"
-                                                    >
+                                                    <div key={course.course_id} className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl">
                                                         <div className="flex flex-col sm:flex-row">
-                                                            <Link
-                                                                to={`/detail/${course.slug}`}
-                                                                className="relative group flex-shrink-0 sm:w-64"
-                                                            >
+                                                            <Link to={`/detail/${course.slug}`} className="relative group flex-shrink-0 sm:w-64">
                                                                 <img
                                                                     src={course.img}
                                                                     alt={course.title}
@@ -1139,7 +1211,7 @@ export const Detail = () => {
                                                             <div className="flex-grow p-5">
                                                                 <div className="h-full flex flex-col">
                                                                     <Link to={`/detail/${course.slug}`}>
-                                                                        <h3 className="font-bold text-lg mb-3  line-clamp-2">
+                                                                        <h3 className="font-bold text-lg mb-3 line-clamp-2">
                                                                             {course.title}
                                                                         </h3>
                                                                     </Link>
@@ -1181,6 +1253,26 @@ export const Detail = () => {
                                                                             </div>
                                                                         </div>
                                                                     </div>
+
+                                                                    <div className="mt-3">
+                                                                        <button
+                                                                            onClick={() => handleLike(course.course_id)}
+                                                                            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${favorites[course.course_id]
+                                                                                ? 'bg-red-50 text-red-500'
+                                                                                : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                                                                                }`}
+                                                                        >
+                                                                            <Heart
+                                                                                className={`w-5 h-5 transition-all duration-300 ${favorites[course.course_id]
+                                                                                    ? 'fill-current'
+                                                                                    : ''
+                                                                                    }`}
+                                                                            />
+                                                                            <span className="text-sm font-medium">
+                                                                                {favorites[course.course_id] ? 'Đã yêu thích' : 'Yêu thích'}
+                                                                            </span>
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1197,6 +1289,7 @@ export const Detail = () => {
                                 </div>
                             </div>
                         </div>
+
 
                         {/* Kết thúc Section 4 */}
                         {/* Section 5 */}

@@ -29,7 +29,7 @@ class FavoriteController extends Controller
         $user = Auth::user();
 
         $favorite = Favorite::firstOrCreate([
-            'user_id' => $user->id,
+            'user_id' => $user->user_id,
             'course_id' => $request->course_id,
         ]);
 
@@ -61,7 +61,7 @@ class FavoriteController extends Controller
         $user = Auth::user();
 
         $favorites = Favorite::with('course')
-            ->where('user_id', $user->id)
+            ->where('user_id', $user->user_id)
             ->get();
 
         return response()->json($favorites, 200);
@@ -87,7 +87,7 @@ class FavoriteController extends Controller
 
         $user = Auth::user();
 
-        $favorite = Favorite::where('user_id', $user->id)
+        $favorite = Favorite::where('user_id', $user->user_id)
             ->where('course_id', $request->course_id)
             ->first();
 
