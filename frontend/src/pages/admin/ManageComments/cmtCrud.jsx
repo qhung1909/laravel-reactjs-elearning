@@ -267,17 +267,22 @@ export const CmtCrud = () => {
                                             </td>
 
                                             {/* Rating */}
-                                            <td className="py-4 px-6 flex items-center gap-1">
-                                                {[...Array(5)].map((_, i) => (
-                                                    <Star
-                                                        key={i}
-                                                        className={`w-5 h-5 cursor-pointer ${i < Math.floor(comment.rating)
-                                                            ? "text-yellow-500"
-                                                            : "text-gray-300"
-                                                            }`}
-                                                        fill="currentColor"
-                                                    />
-                                                ))}
+                                            <td className="py-4 px-6 max-w-72">
+                                                <div className="font-medium text-gray-900 whitespace-normal line-clamp-3">
+                                                    <div className="flex">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <Star
+                                                                key={i}
+                                                                className={`w-5 h-5 cursor-pointer flex justify-center ${i < Math.floor(comment.rating)
+                                                                    ? "text-yellow-500"
+                                                                    : "text-gray-300"
+                                                                    }`}
+                                                                fill="currentColor"
+                                                            />
+                                                        ))}
+                                                    </div>
+
+                                                </div>
                                             </td>
 
                                             {/* Course Image */}
