@@ -13,6 +13,7 @@ export const Cart = () => {
     const [cart, setCart] = useState([]);
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(false)
+    const token = localStorage.getItem("access_token");
 
     useEffect(() => {
         const fetchAllData = async () => {
