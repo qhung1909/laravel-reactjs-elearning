@@ -263,7 +263,7 @@ export default function PersonalInformation() {
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 whitespace-nowrap">Ngày cập nhật</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Trạng thái</TableHead>
                                             <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Quyền</TableHead>
-                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900">Hành động</TableHead>
+                                            <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 whitespace-nowrap">Hành động</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>

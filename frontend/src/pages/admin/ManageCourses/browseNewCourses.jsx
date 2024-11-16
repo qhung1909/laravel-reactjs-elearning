@@ -417,7 +417,7 @@ export default function BrowseNewCourses() {
     useEffect(() => {
         fetchCourses();
     }, []);
-
+    //tính điểm gpt
     const calculateCourseScore = async (courseId) => {
         try {
             // Fetch course data
@@ -517,8 +517,6 @@ export default function BrowseNewCourses() {
             return null;
         }
     };
-
-
     const handleCalculateScore = async (courseId) => {
         try {
             // Gọi hàm calculateCourseScore và lấy kết quả
@@ -537,11 +535,6 @@ export default function BrowseNewCourses() {
             toast.error('Có lỗi xảy ra khi tính điểm khóa học.');
         }
     };
-
-
-
-
-
 
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1007,7 +1000,27 @@ export default function BrowseNewCourses() {
                                             onClick={() => handleCalculateScore(activeCourse?.course_id)}
                                         >
                                             <CheckCircle className="mr-2 h-4 w-4" />
-                                            Tính điểm
+
+                                            <AlertDialog>
+                                                <AlertDialogTrigger>Tính điểm</AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Tính điểm</AlertDialogTitle>
+                                                        <AlertDialogDescription className="space-y-2">
+                                                            <p>Điểm GPT đánh giá cho tiêu đề: <span className="font-semibold">15</span></p>
+                                                            <p>Điểm GPT đánh giá cho mô tả: <span className="font-semibold">25</span></p>
+                                                            <p>Đã thêm <span className="font-semibold">10 điểm</span> cho giá: <span className="font-semibold">2,199,999.00 VNĐ</span></p>
+                                                            <p>Tổng điểm: <span className="font-semibold">50</span></p>
+                                                            <p>Điểm số của khóa học: <span className="font-semibold">finalScore</span></p>
+                                                            <p>Giải thích: Điểm cao nhờ tiêu đề hấp dẫn, mô tả rõ ràng và giá hợp lý.</p>
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction>Continue</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </Button>
 
                                         <AlertDialog open={isRejectModalOpen} onOpenChange={setIsRejectModalOpen}>
