@@ -59,11 +59,13 @@ export const UserOrderHistory = () => {
     }, []);
     const fetchOrderHistory = async () => {
         const token = localStorage.getItem("access_token");
-        const userId = user.user_id
+        const userId = user.user_id;
+
         if (!userId) {
             console.log("User ID not found");
             return;
         }
+
         try {
             const response = await axios.get(`${API_URL}/orders/user/${userId}`, {
                 headers: {
@@ -71,7 +73,9 @@ export const UserOrderHistory = () => {
                     Authorization: `Bearer ${token}`,
                 }
             });
-            setOrderHistory(response.data.data);
+            const filteredOrders = response.data.data.filter(order => order.status === 'success');
+            setOrderHistory(filteredOrders);
+
         } catch (error) {
             console.log('Error fetching order history', error);
         }
@@ -81,7 +85,6 @@ export const UserOrderHistory = () => {
             fetchOrderHistory();
         }
     }, [user.user_id]);
-
 
     const searchOrderHistory = async (e) => {
         e.preventDefault();
