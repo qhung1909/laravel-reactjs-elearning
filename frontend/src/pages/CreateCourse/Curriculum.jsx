@@ -247,6 +247,7 @@ export const Curriculum = () => {
         }
 
         const newSection = {
+            id: sections.length + 1,
             course_id: course_id,
             title: '',
             lessons: []
@@ -258,7 +259,7 @@ export const Curriculum = () => {
                 `${API_URL}/teacher/content`,
                 {
                     course_id: course_id,
-                    name_content: newSection.title, // Gửi tiêu đề rỗng vì người dùng sẽ nhập sau
+                    name_content: newSection.title,
                 },
                 {
                     headers: {
@@ -295,6 +296,7 @@ export const Curriculum = () => {
     const addLesson = async (sectionId) => {
         const section = sections.find(section => section.id === sectionId);
 
+        if (!section) return;
         // Kiểm tra nếu không có bài học nào trong section
         if (section.lessons.length === 0) {
             // Có thể thực hiện logic khác nếu cần
@@ -335,29 +337,33 @@ export const Curriculum = () => {
 
             const newTitleContentId = response.data.data[0].title_content_id;
 
-            setSections(sections.map(section => {
-                if (section.id === sectionId) {
-                    return {
-                        ...section,
-                        lessons: [
-                            ...section.lessons,
-                            {
-                                id: section.lessons.length + 1,
-                                title: '',
-                                selectedOption: '',
-                                videoLink: '',
-                                content: '',
-                                fileName: '',
-                                description: '',
-                                title_content_id: newTitleContentId
-                            }
-                        ]
-                    };
-                }
-                return section;
-            }));
 
-            await fetchContent()
+            const newLesson = {
+                id: section.lessons.length + 1,  // Đảm bảo ID bài học là duy nhất
+                title: '',
+                selectedOption: '',
+                videoLink: '',
+                content: '',
+                fileName: '',
+                description: '',
+                title_content_id: newTitleContentId
+            };
+
+
+            setSections(prevSections =>
+                prevSections.map(section => {
+                    if (section.id === sectionId) {
+                        return {
+                            ...section,
+                            lessons: [
+                                ...section.lessons,
+                                newLesson  // Thêm bài học mới vào mảng lessons
+                            ]
+                        };
+                    }
+                    return section;
+                })
+            );
 
             toast.success("Thêm bài học mới thành công!");
 
@@ -549,7 +555,14 @@ export const Curriculum = () => {
 
     const update = async () => {
         toast.dismiss();
-        const invalidSections = sections.filter(section => !section.title.trim());
+
+        if (sections.length === 0) {
+            toast.error('Vui lòng tạo ít nhất một bài học trước khi cập nhật!');
+            return;
+        }
+
+
+        const invalidSections = sections.filter(section => !section.title || !section.title.trim());
         if (invalidSections.length > 0) {
             toast.error('Vui lòng nhập tiêu đề hợp lệ cho tất cả các bài học!');
             return;
