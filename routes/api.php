@@ -260,4 +260,5 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
 
 Route::post('/create-meeting/{content_id}', [OnlineMeetingController::class, 'createMeeting']);
 Route::get('/meeting/{uuid}', [OnlineMeetingController::class, 'getMeetingByUuid']);
-Route::post('/mark-attendance', [ParticipantController::class, 'markAttendance']);
+Route::post('/meetings/attendance', [ParticipantController::class, 'attendance']);
+Route::post('/meetings/participants', [ParticipantController::class, 'store']);
