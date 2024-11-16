@@ -1630,12 +1630,36 @@ export const Detail = () => {
                                         {formatCurrency(detail.price)}
                                     </span>
                                 </div>
-                                <p className="text-red-500 mb-1">
-                                    Giảm {percentDiscount}%
-                                </p>
-                                <p className="text-sm text-gray-600 mb-2">
-                                    Mức giá ưu đãi!
-                                </p>
+                                <div className="flex justify-between items-center"> {/* Dùng flex để căn chỉnh các phần tử theo hàng ngang */}
+                                    <div>
+                                        <p className="text-red-500 mb-1">
+                                            Giảm {percentDiscount}%
+                                        </p>
+                                        <p className="text-sm text-gray-600 mb-2">
+                                            Mức giá ưu đãi!
+                                        </p>
+                                    </div>
+
+                                    {/* Nút Yêu thích */}
+                                    <button
+                                        onClick={() => handleLike(detail.course_id)}
+                                        className={`flex items-center gap-2 mb-1 mt-6 px-3 py-1 rounded-full transition-all duration-300 ${favorites[detail.course_id]
+                                            ? 'bg-red-50 text-red-500'
+                                            : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                                            }`}
+                                    >
+                                        <Heart
+                                            className={`w-5 h-5 transition-all duration-300 ${favorites[detail.course_id]
+                                                ? 'fill-current'
+                                                : ''
+                                                }`}
+                                        />
+                                        <span className="text-xs font-medium">
+                                            {favorites[detail.course_id] ? 'Đã yêu thích' : 'Yêu thích'}
+                                        </span>
+                                    </button>
+                                </div>
+
                                 {/* Nếu người dùng đã mua khóa học và chưa enroll */}
                                 {isPaymentCourse && !isEnrolled && (
                                     <button
@@ -1651,10 +1675,6 @@ export const Detail = () => {
                                         <button className="w-full bg-teal-400 text-white py-2 rounded-lg mb-2 hover:bg-teal-500 transition duration-300">
                                             Vào học ngay
                                         </button>
-
-
-
-
                                     </Link>
                                 )}
 
@@ -1722,9 +1742,6 @@ export const Detail = () => {
                                     </>
                                 )}
 
-                                <p className="text-sm text-center text-gray-600">
-                                    Đảm bảo hoàn tiền trong 30 ngày
-                                </p>
                                 <div className="mt-2">
                                     <h4 className="font-semibold mb-2">
                                         Khóa học này bao gồm:
