@@ -1576,6 +1576,20 @@ export const Detail = () => {
                                                                         {formatCurrency(course.price)}
                                                                     </p>
                                                                 </div>
+                                                                <button
+                                                                    onClick={() => handleLike(course.course_id)}
+                                                                    className={`flex items-center gap-2 mt-6 px-2 py-1 rounded-full transition-all duration-300 ${favorites[course.course_id]
+                                                                        ? 'bg-red-50 text-red-500'
+                                                                        : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                                                                        }`}
+                                                                >
+                                                                    <Heart
+                                                                        className={`w-5 h-5 transition-all duration-300 ${favorites[course.course_id]
+                                                                            ? 'fill-current'
+                                                                            : ''
+                                                                            }`}
+                                                                    />
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
