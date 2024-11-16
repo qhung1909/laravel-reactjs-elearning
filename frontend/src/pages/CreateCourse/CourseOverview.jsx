@@ -71,9 +71,69 @@ export const CourseOverview = () => {
 
     const wordCount = courseDescriptionText.trim().split(/\s+/).filter(word => word).length;
 
+    const [errors, setErrors] = useState({
+        categoryError: '',
+        priceError: '',
+        descriptionError: '',
+        titleError: '',
+    });
+
+    const [selectedExtension, setSelectedExtension] = useState("");
+    const [selectedDate, setSelectedDate] = useState("");
+    const [backupDate, setBackupDate] = useState('');
+
+    const handleSelectedDateChange = (e) => {
+        const date = e.target.value;
+        setSelectedDate(date);
+
+        // Tính ngày backup (ngày sau ngày cuối cùng của khai giảng online)
+        if (date) {
+            const selectedDateObj = new Date(date);
+            const backupDateObj = new Date(selectedDateObj);
+            backupDateObj.setDate(backupDateObj.getDate() + 1); // Thêm 1 ngày để làm ngày backup
+
+            // Cập nhật ngày backup
+            const backupDateStr = backupDateObj.toISOString().split('T')[0]; // Định dạng lại ngày
+            setBackupDate(backupDateStr);
+        }
+    };
+
+
+
     // console.log(isUpdated, 'clickUpdate-courseOverview');
+    const exportToJsonLog = () => {
+        const logData = {
+            courseTitle, // Tiêu đề khóa học
+            courseDescriptionText, // Mô tả khóa học
+            currency, // Tiền tệ
+            price, // Giá khóa học
+            selectedLanguage, // Ngôn ngữ
+            selectedCategory, // Thể loại
+            courseImage, // Hình ảnh khóa học
+            selectedExtension, // Phần mở rộng khóa học
+            selectedDate, // Ngày học nếu chọn online
+            backupDate
+        };
 
+        // Chuyển đối tượng dữ liệu thành JSON
+        const jsonLog = JSON.stringify(logData, null, 2);
 
+        // Xuất ra log dưới dạng JSON
+        console.log(jsonLog);
+    };
+
+    useEffect(() => {
+        // Đặt isUpdated thành true khi mới vào trang
+        if (!initialCourseTitle && !initialCourseDescriptionText) {
+            setIsUpdated(true);
+        }
+        if (!isUpdated) {
+            // Khi trang load hoặc chuyển component, không hiển thị thông báo.
+            toast.dismiss();
+        }
+    }, [initialCourseTitle, initialCourseDescriptionText, isUpdated]);
+
+    // Đặt lại giá trị isUpdated khi có sự thay đổi giữa dữ liệu hiện tại và dữ liệu ban đầu
     useEffect(() => {
         if (
             courseTitle !== initialCourseTitle ||
@@ -85,8 +145,10 @@ export const CourseOverview = () => {
             courseImage !== initialCourseImage
         ) {
             setHasChanges(true);
+            setIsUpdated(false); // Đánh dấu là đã thay đổi
         } else {
             setHasChanges(false);
+            setIsUpdated(true); // Đánh dấu là chưa thay đổi
         }
     }, [
         courseTitle,
@@ -104,6 +166,7 @@ export const CourseOverview = () => {
         initialSelectedCategory,
         initialCourseImage
     ]);
+
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -136,6 +199,7 @@ export const CourseOverview = () => {
 
     useEffect(() => {
         const fetchCategories = async () => {
+            toast.dismiss();
             setLoading(true);
             try {
                 const res = await axios.get(`${API_URL}/categories`, {
@@ -155,6 +219,7 @@ export const CourseOverview = () => {
     // Fetch dữ liệu ban đầu từ API
     useEffect(() => {
         const fetchCourse = async () => {
+            toast.dismiss();
             try {
                 const response = await axios.get(`${API_URL}/teacher/courses/${course_id}`, {
                     headers: {
@@ -189,27 +254,104 @@ export const CourseOverview = () => {
 
 
 
-    const handleSubmit = async () => {
+    const update = async () => {
+        let valid = true;
+        const newErrors = {
+            categoryError: '',
+            priceError: '',
+            descriptionError: '',
+            titleError: '',
+        };
+
+        // Kiểm tra tiêu đề
+        if (!courseTitle || courseTitle.trim() === '') {
+            newErrors.titleError = 'Vui lòng nhập tiêu đề khóa học';
+            valid = false;
+        } else if (courseTitle.length < 10) {
+            newErrors.titleError = 'Tiêu đề khóa học phải có ít nhất 10 ký tự';
+            valid = false;
+        }
+
+        // Kiểm tra thể loại
+        if (!selectedCategory) {
+            newErrors.categoryError = 'Vui lòng chọn thể loại khóa học';
+            valid = false;
+        }
+
+        // Kiểm tra giá
+        if (!price) {
+            newErrors.priceError = 'Vui lòng nhập giá khóa học';
+            valid = false;
+        } else if (isNaN(price)) {
+            newErrors.priceError = 'Giá khóa học phải là số';
+            valid = false;
+        } else if (parseFloat(price) <= 0) {
+            newErrors.priceError = 'Giá khóa học phải lớn hơn 0';
+            valid = false;
+        }
+
+        // Loại bỏ tất cả các thẻ <p><br></p> và các thẻ trống khác
+        const cleanedDescription = courseDescriptionText.replace(/<p><br><\/p>/g, '').replace(/<\/?[^>]+(>|$)/g, '').trim();
+
+        // Kiểm tra nếu mô tả đã được làm sạch có trống hay không
+        const isDescriptionEmpty = cleanedDescription === "";
+
+        // Đếm số từ sau khi làm sạch mô tả
+        const wordCount = isDescriptionEmpty ? 0 : cleanedDescription.split(/\s+/).filter(word => word).length;
+
+
+
+        // Kiểm tra nếu mô tả có ít hơn 20 từ
+        if (isDescriptionEmpty || wordCount < 20) {
+            newErrors.descriptionError = 'Vui lòng nhập mô tả khóa học (tối thiểu 20 từ)';
+            valid = false;
+        }
+
+
+
+        // Nếu có lỗi, cập nhật state và dừng lại
+        if (!valid) {
+            setErrors(newErrors);
+            notify('Vui lòng kiểm tra lại thông tin', 'error');
+            return;
+        }
+
+        // Xóa tất cả lỗi nếu dữ liệu hợp lệ
+        setErrors({
+            categoryError: '',
+            priceError: '',
+            descriptionError: '',
+            titleError: '',
+        });
+
+        // Chuẩn bị dữ liệu gửi lên
         const courseData = {
             course_category_id: selectedCategory,
-            price: price,
+            price: parseFloat(price), // Chuyển đổi price thành số
             description: courseDescriptionText,
-            title: courseTitle,
+            title: courseTitle.trim(),
+            currency: currency,
+            language: selectedLanguage
         };
 
         try {
-            const response = await axios.put(`${API_URL}/teacher/courses/${course_id}`, courseData, {
-                headers: {
-                    'x-api-secret': API_KEY,
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+            const response = await axios.put(
+                `${API_URL}/teacher/courses/${course_id}`,
+                courseData,
+                {
+                    headers: {
+                        'x-api-secret': API_KEY,
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
 
             if (response.data.success) {
-                notify('Khóa học đã được cập nhật', 'success');
+                notify('Khóa học đã được cập nhật thành công', 'success');
                 setIsUpdated(true);
-                // Cập nhật dữ liệu ban đầu sau khi lưu thành công
+
+                // Cập nhật dữ liệu ban đầu
                 setInitialCourseTitle(courseTitle);
                 setInitialCourseDescriptionText(courseDescriptionText);
                 setInitialCurrency(currency);
@@ -218,12 +360,14 @@ export const CourseOverview = () => {
                 setInitialSelectedCategory(selectedCategory);
                 setInitialCourseImage(courseImage);
             } else {
-                notify('Failed to add course', 'error');
+                notify('Không thể cập nhật khóa học', 'error');
             }
-        } catch {
-            notify('Lỗi cập nhật khóa học', 'error');
+        } catch (error) {
+            console.error('Error updating course:', error);
+            notify(error.response?.data?.message || 'Lỗi cập nhật khóa học', 'error');
         }
     };
+
 
 
 
@@ -242,7 +386,7 @@ export const CourseOverview = () => {
 
                         <div className="flex items-center gap-4">
                             <Button
-                                onClick={handleSubmit}
+                                onClick={update}
                                 className="hidden sm:inline-flex items-center px-6 py-3 bg-white text-yellow-600 font-semibold rounded-lg border-2 border-yellow-600 hover:bg-yellow-600 hover:text-white transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
                             >
                                 <span>Cập nhật Khóa Học</span>
@@ -266,7 +410,7 @@ export const CourseOverview = () => {
 
 
             <div className="flex max-w-7xl m-auto pt-16 pb-36">
-                <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated} hasChanges={hasChanges}/>
+                <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated} hasChanges={hasChanges} />
                 <div className="w-full lg:w-10/12 shadow-lg">
                     <div>
                         <div className="m-2">
@@ -285,11 +429,15 @@ export const CourseOverview = () => {
                                 className="w-full mb-2 border-slate-300 border-2 py-2 pl-3"
                                 placeholder='Chèn tiêu đề khóa học'
                                 value={courseTitle}
-                                onChange={(e) => setCourseTitle(e.target.value)}
+                                onChange={(e) => {
+                                    setCourseTitle(e.target.value);
+                                    // Reset lỗi khi người dùng nhập vào
+                                    if (e.target.value.trim() !== '') {
+                                        setErrors(prev => ({ ...prev, titleError: '' }));
+                                    }
+                                }}
                             />
-                            <p className="text-sm text-gray-400">
-                                Tiêu đề của bạn không những phải thu hút sự chú ý, chứa nhiều thông tin mà còn được tối ưu hóa dễ tìm kiếm
-                            </p>
+                            {errors.titleError && <p className="text-red-500 text-sm">{errors.titleError}</p>}
                         </div>
 
                         <div className="pb-6">
@@ -297,7 +445,13 @@ export const CourseOverview = () => {
                             <ReactQuill
                                 className="pb-2"
                                 value={courseDescriptionText}
-                                onChange={setCourseDescriptionText}
+                                onChange={(value) => {
+                                    setCourseDescriptionText(value);
+                                    // Reset lỗi khi người dùng nhập vào
+                                    if (value.trim() !== '' && value !== '<p><br></p>') {
+                                        setErrors(prev => ({ ...prev, descriptionError: '' }));
+                                    }
+                                }}
                                 modules={{
                                     toolbar: [
                                         [{ 'header': [1, 2, 3, false] }],
@@ -312,14 +466,21 @@ export const CourseOverview = () => {
                                     'list', 'bullet', 'link', 'image', 'code-block'
                                 ]}
                             />
-                            <p className="text-sm text-gray-400">Mô tả hiện tại: {wordCount} từ. (Cần ít nhất 200 từ)</p>
+                            <p className="text-sm text-gray-400">Mô tả hiện tại: {wordCount} từ. (Cần ít nhất 20 từ)</p>
+                            {errors.descriptionError && <p className="text-red-500 text-sm">{errors.descriptionError}</p>}
                         </div>
 
                         <div className="pb-6">
                             <h2 className="pb-2 font-medium text-lg">Đặt giá cho khóa học của bạn</h2>
                             <div className="flex flex-cols-2 py-2 gap-4">
                                 <div>
-                                    <Select value={currency} onValueChange={setCurrency}>
+                                    <Select value={currency} onValueChange={(value) => {
+                                        setCurrency(value);
+                                        // Reset lỗi khi người dùng chọn giá trị
+                                        if (value !== '') {
+                                            setErrors(prev => ({ ...prev, categoryError: '' }));
+                                        }
+                                    }}>
                                         <SelectTrigger className="w-[180px]">
                                             <SelectValue placeholder="Chọn tiền tệ" />
                                         </SelectTrigger>
@@ -333,10 +494,18 @@ export const CourseOverview = () => {
                                     </Select>
                                 </div>
                                 <div>
-                                    <Input className='h-full' value={price} onChange={(e) => setPrice(e.target.value)} type="number" placeholder="Giá" />
+                                    <Input className='h-full' value={price} onChange={(e) => {
+                                        setPrice(e.target.value);
+                                        // Reset lỗi khi người dùng nhập giá trị
+                                        if (e.target.value.trim() !== '') {
+                                            setErrors(prev => ({ ...prev, priceError: '' }));
+                                        }
+                                    }} type="number" placeholder="Giá" />
+                                    {errors.priceError && <p className="text-red-500 text-sm">{errors.priceError}</p>}
+
                                 </div>
+
                             </div>
-                            <p className="text-sm text-gray-400">Nếu muốn cung cấp miễn phí khóa học của mình thì khóa học đó phải có tổng thời lượng video dưới 2 giờ. Ngoài ra, các khóa học có bài kiểm tra thực hành không thể miễn phí.</p>
                         </div>
 
                         <div className="pb-6">
@@ -355,36 +524,100 @@ export const CourseOverview = () => {
                                     </SelectContent>
                                 </Select>
 
-                                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                                <Select value={selectedCategory} onValueChange={(value) => {
+                                    setSelectedCategory(value);
+                                    // Reset lỗi khi người dùng chọn giá trị
+                                    if (value !== '') {
+                                        setErrors(prev => ({ ...prev, categoryError: '' }));
+                                    }
+                                }}>
                                     <SelectTrigger className="w-full">
                                         <SelectValue placeholder="-- Chọn thể loại khóa học --" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectGroup>
-
                                             {loading ? (
-                                                <>
-                                                    <SelectLabel>Đang load</SelectLabel>
-                                                </>
+                                                <SelectLabel>Đang load</SelectLabel>
                                             ) : (
                                                 <>
                                                     <SelectLabel>Thể loại khóa học</SelectLabel>
-
                                                     {categories.map((category, index) => (
                                                         <SelectItem key={index} value={category.course_category_id}>
                                                             {category.name}
                                                         </SelectItem>
                                                     ))}
                                                 </>
-                                            )
-                                            }
-
+                                            )}
                                         </SelectGroup>
+
                                     </SelectContent>
+
                                 </Select>
+                                {errors.categoryError && <p className="text-red-500 text-sm">{errors.categoryError}</p>}
 
                             </div>
                         </div>
+                        <div className="pb-6">
+                            <div className="flex">
+                                <div className="w-1/3">
+                                    <h2 className="pb-1 text-lg font-medium">Chọn mở rộng khóa học</h2>
+                                    {/* Chọn phần mở rộng */}
+
+                                    <Select
+                                        value={selectedExtension}
+                                        onValueChange={(value) => setSelectedExtension(value)}
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="-- Chọn phần mở rộng --" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                <SelectLabel>Phần mở rộng</SelectLabel>
+                                                <SelectItem value="0">Không chọn</SelectItem>
+                                                <SelectItem value="online">Chọn thêm phần học online</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Hiển thị phần lịch bên phải khi chọn "online" */}
+                                {selectedExtension === "online" && (
+                                    <>
+                                        <div className="w-1/3 ml-4">
+                                            <h3 className="text-lg font-medium">Ngày khai giảng học online</h3>
+                                            <input
+                                                type="date"
+                                                className="w-full py-2 px-4 border border-gray-300 rounded-md"
+                                                min={new Date().toISOString().split("T")[0]}  // Ngày bắt đầu không được nhỏ hơn ngày hiện tại
+                                                max={new Date(new Date().setDate(new Date().getDate() + 10)).toISOString().split("T")[0]}  // Ngày cuối cùng không được quá 10 ngày kể từ hôm nay
+                                                onChange={handleSelectedDateChange}  // Cập nhật ngày khai giảng
+                                                value={selectedDate}  // Đảm bảo hiển thị ngày đã chọn
+                                            />
+                                        </div>
+
+                                        {/* Lịch khai giảng học online backup */}
+                                        <div className="w-1/3 ml-4">
+                                            <h3 className="text-lg font-medium">Backup: Lịch khai giảng học online </h3>
+                                            <input
+                                                type="date"
+                                                className="w-full py-2 px-4 border border-gray-300 rounded-md"
+                                                min={backupDate}  // Chỉ cho phép chọn ngày sau ngày khai giảng online
+                                                value={backupDate}  // Giá trị của lịch backup sẽ được hiển thị
+                                                onChange={(e) => setBackupDate(e.target.value)} // Cho phép người dùng chọn ngày backup
+                                                disabled={!selectedDate}
+                                            />
+                                            {!selectedDate && (
+                                                <p className="text-gray-500 text-sm mt-2">
+                                                    Chọn ngày khai giảng trước
+                                                </p>
+                                            )}
+                                        </div>
+                                    </>
+
+                                )}
+                            </div>
+                        </div>
+
 
                         <div className="pb-6">
                             <h2 className="pb-1 text-lg font-medium">Hình ảnh khóa học</h2>
@@ -406,6 +639,10 @@ export const CourseOverview = () => {
                                 </div>
                             </div>
                         </div>
+
+                        <Button onClick={exportToJsonLog} className="mt-4">
+                            Xuất JSON Log
+                        </Button>
 
                     </div>
                 </div>

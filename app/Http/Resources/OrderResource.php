@@ -28,9 +28,19 @@ class OrderResource extends JsonResource
                 'name' => optional($this->coupon)->name_coupon,
                 'discount_price' => optional($this->coupon)->discount_price,
             ]),
-
+            'order_details' => $this->orderDetails->map(function ($orderDetail) {
+                return [
+                    'course' => [
+                        'course_id' => $orderDetail->course->course_id,
+                        'title' => $orderDetail->course->title,
+                    ],
+                    'price' => $orderDetail->price,
+                    'status' => $orderDetail->status,
+                ];
+            }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
     }
+    
 }

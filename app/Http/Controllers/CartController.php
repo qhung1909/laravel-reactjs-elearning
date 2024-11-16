@@ -188,20 +188,30 @@ class CartController extends Controller
         }
     
         $user_id = Auth::id();
-        
-        $orders = Order::with('orderDetails')
+    
+        // Eager load orderDetails và khóa học liên quan
+        $orders = Order::with(['orderDetails.course']) // Eager load mối quan hệ với course qua orderDetails
             ->where('user_id', $user_id)
-            ->where('status', 'pending') 
+            ->where('status', 'pending')
             ->get();
-        
+    
         if ($orders->isEmpty()) {
             return response()->json([
                 'message' => 'Không có đơn hàng nào.',
             ], 404);
         }
-        
+    
+        // Thêm thông tin tên khóa học vào mỗi orderDetail mà không thay đổi cấu trúc JSON
+        $orders->each(function ($order) {
+            $order->orderDetails->each(function ($orderDetail) {
+                // Thêm tên khóa học vào orderDetail mà không làm thay đổi cấu trúc JSON
+                $orderDetail->course_name = $orderDetail->course->name ?? null;
+            });
+        });
+    
         return response()->json($orders, 200);
     }
+    
     
 
     public function addToCart(Request $request)
