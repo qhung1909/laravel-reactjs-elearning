@@ -4,9 +4,11 @@ import { formatDate } from "@/components/FormatDay/Formatday";
 import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import { ChevronDown, ChevronUp, Edit, Heart, HeartOff, Trash, User } from "lucide-react";
-import { Calendar, Globe, BookOpen, Star } from "lucide-react";
-import { Play, Users, Book, Clock, Eye } from "lucide-react";
+import { BadgeAlert, ChevronDown, ChevronUp, Edit, Heart, HeartOff, Trash, User } from "lucide-react";
+import { Calendar, Globe, BookOpen, Star, Gift } from "lucide-react";
+import { Play, Users, Book, Clock, Eye, ShoppingCart, X } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -28,6 +30,7 @@ import {
     DialogContent,
     DialogTitle,
     DialogDescription,
+    DialogHeader,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -43,6 +46,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import ReactPlayer from "react-player";
 import { CoursesContext } from "../context/coursescontext";
+import { Separator } from "@radix-ui/react-context-menu";
 // import { CategoriesContext } from "../context/categoriescontext";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -500,6 +504,8 @@ export const Detail = () => {
             checkEnrollment(user.user_id, detail.course_id);
         }
     }, [user, detail]);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
     const addToCart = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -563,7 +569,6 @@ export const Detail = () => {
 
             const data = await res.json();
             console.log("Order:", data.order);
-            setLoading(true);
             toast.success("Thêm thành công khóa học vào giỏ hàng!", {
                 style: {
                     padding: "16px",
@@ -572,6 +577,7 @@ export const Detail = () => {
             });
 
             setCartItems((prevItems) => [...prevItems, newItem]);
+            setIsDialogOpen(false);
         } catch (error) {
             console.log("Error:", error);
             toast.error("Có lỗi xảy ra, vui lòng thử lại sau.", {
@@ -583,6 +589,7 @@ export const Detail = () => {
             setLoading(false);
         }
     };
+
 
     const renderBannerDetail = loading ? (
         <SkeletonLoaderBanner />
@@ -629,6 +636,10 @@ export const Detail = () => {
                 </Breadcrumb>
 
                 <div className="mt-8 max-w-3xl">
+                    <Badge className="mb-4 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 text-white font-bold text-lg py-2 px-3 rounded-full shadow-lg transform transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-xl hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 ">
+                        <Gift className="text-yellow-400 hover:text-yellow-500 transition-colors duration-300 ease-in-out mr-2" />
+                        <span>Khóa học online bắt đầu vào ngày 15-12-2024</span>
+                    </Badge>
                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-white shadow-text">
                         {detail.title}
                     </h1>
@@ -1635,14 +1646,67 @@ export const Detail = () => {
                                 )}
 
                                 {!isPaymentCourse && (
-                                    <button
-                                        onClick={() =>
-                                            addToCart({ id: detail.course_id })
-                                        }
-                                        className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
-                                    >
-                                        Thêm vào giỏ hàng
-                                    </button>
+                                    <>
+                                        <button
+                                            onClick={async () => {
+                                                const token = localStorage.getItem("access_token");
+                                                if (!token) {
+                                                    console.error("No token found");
+                                                    toast.error("Bạn chưa đăng nhập", {
+                                                        style: {
+                                                            padding: "16px",
+                                                        },
+                                                    });
+                                                    return;
+                                                }
+                                                setIsDialogOpen(true);
+                                            }}
+                                            className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
+                                        >
+                                            Thêm vào giỏ hàng
+                                        </button>
+
+                                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                            <DialogContent className="sm:max-w-[425px]">
+                                                <DialogHeader>
+                                                    <DialogHeader>
+                                                        <div className="flex items-center gap-2">
+                                                            <Calendar className="w-5 h-5 text-blue-500" />
+                                                            <DialogTitle className="text-xl font-semibold leading-tight">
+                                                                Khóa học Online bắt đầu vào ngày
+                                                            </DialogTitle>
+                                                        </div>
+                                                        <div className="mt-2">
+                                                            <span className="text-3xl font-bold text-center block text-red-600">15-12-2024</span>
+                                                        </div>
+                                                    </DialogHeader>
+
+                                                    <div className="flex items-start gap-3 mt-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
+                                                        <BadgeAlert className="h-5 w-5 flex-shrink-0 mt-0.5 text-red-500" />
+                                                        <DialogDescription className="text-sm text-muted-foreground">
+                                                            <span className="font-semibold">Lưu ý:</span> Sau khi thanh toán thành công, bạn sẽ nhận được đường link tham gia lớp học trực tuyến qua email vào ngày bắt đầu khóa học.
+                                                        </DialogDescription>
+                                                    </div>
+                                                </DialogHeader>
+                                                <div className="my-1">
+                                                    <p className="text-sm font-medium text-foreground">
+                                                        Đối với các bài học video tự học, bạn có thể học theo lịch trình của mình bất kỳ lúc nào.
+                                                    </p>
+                                                </div>
+                                                <Separator className="my-1" />
+                                                <div className="flex justify-end space-x-2">
+                                                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                                                        <X className="w-4 h-4 mr-2" />
+                                                        Hủy
+                                                    </Button>
+                                                    <Button onClick={addToCart} className="bg-yellow-400 text-white hover:bg-yellow-500">
+                                                        <ShoppingCart className="w-4 h-4 mr-2" />
+                                                        Xác nhận
+                                                    </Button>
+                                                </div>
+                                            </DialogContent>
+                                        </Dialog>
+                                    </>
                                 )}
 
                                 <p className="text-sm text-center text-gray-600">
