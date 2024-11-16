@@ -414,16 +414,16 @@ class TeacherController extends Controller
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-
+    
             $content = Content::where('content_id', $contentId)->first();
-
+    
             if (!$content) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Không tìm thấy nội dung'
                 ], 404);
             }
-
+    
             $validator = Validator::make($request->all(), [
                 'title_contents' => 'nullable|array',
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
@@ -435,51 +435,57 @@ class TeacherController extends Controller
                 'title_contents.*.body_content.required' => 'Nội dung không được để trống',
                 'title_contents.*.video_link.max' => 'File video không được vượt quá 100MB'
             ]);
-
+    
             if ($validator->fails()) {
                 Log::error('Validation failed', [
                     'errors' => $validator->errors(),
                     'input' => request()->all()
                 ]);
-
+    
                 return response()->json([
                     'success' => false,
                     'message' => 'Dữ liệu không hợp lệ',
                     'errors' => $validator->errors()
                 ], 422);
             }
-
+    
             DB::beginTransaction();
-
+    
             try {
-                foreach ($request->title_contents as $titleContentData) {
-                    $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
-                        ->where('content_id', $contentId)
-                        ->first();
-
-                    if (!$titleContent) {
-                        throw new \Exception("TitleContent ID {$titleContentData['title_content_id']} không thuộc về nội dung này");
+                // Kiểm tra nếu title_contents là mảng hợp lệ và không null
+                $titleContents = $request->get('title_contents', []);
+    
+                // Kiểm tra nếu titleContents không phải là null và là mảng
+                if (!empty($titleContents) && is_array($titleContents)) {
+                    foreach ($titleContents as $titleContentData) {
+                        $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
+                            ->where('content_id', $contentId)
+                            ->first();
+    
+                        if (!$titleContent) {
+                            throw new \Exception("TitleContent ID {$titleContentData['title_content_id']} không thuộc về nội dung này");
+                        }
+    
+                        $updateData = [
+                            'body_content' => $titleContentData['body_content'],
+                            'document_link' => array_key_exists('document_link', $titleContentData) ? $titleContentData['document_link'] : $titleContent->document_link,
+                            'description' => array_key_exists('description', $titleContentData) ? $titleContentData['description'] : $titleContent->description,
+                            'status' => 'draft'
+                        ];
+    
+                        // Xử lý upload video nếu có
+                        if (isset($titleContentData['video_link']) && $titleContentData['video_link'] instanceof UploadedFile) {
+                            $updateData['video_link'] = $this->handleVideoUpload($titleContentData['video_link'], $titleContent);
+                        } elseif (array_key_exists('video_link', $titleContentData)) {
+                            $updateData['video_link'] = $titleContentData['video_link'];
+                        }
+    
+                        $titleContent->update($updateData);
                     }
-
-                    $updateData = [
-                        'body_content' => $titleContentData['body_content'],
-                        'document_link' => array_key_exists('document_link', $titleContentData) ? $titleContentData['document_link'] : $titleContent->document_link,
-                        'description' => array_key_exists('description', $titleContentData) ? $titleContentData['description'] : $titleContent->description,
-                        'status' => 'draft'
-                    ];
-
-                    // Xử lý upload video nếu có
-                    if (isset($titleContentData['video_link']) && $titleContentData['video_link'] instanceof UploadedFile) {
-                        $updateData['video_link'] = $this->handleVideoUpload($titleContentData['video_link'], $titleContent);
-                    } elseif (array_key_exists('video_link', $titleContentData)) {
-                        $updateData['video_link'] = $titleContentData['video_link'];
-                    }
-
-                    $titleContent->update($updateData);
                 }
-
+    
                 DB::commit();
-
+    
                 return response()->json([
                     'success' => true,
                     'message' => 'Cập nhật tiêu đề nội dung thành công'
@@ -495,6 +501,7 @@ class TeacherController extends Controller
             ], 500);
         }
     }
+    
 
 
     public function deleteTitleContent($titleContentId)

@@ -68,6 +68,7 @@ export const InstructorLesson = () => {
     const navigate = useNavigate();
     const [course, setCourse] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState("");
 
     // phân trang
     const [currentPage, setCurrentPage] = useState(1);
@@ -109,6 +110,45 @@ export const InstructorLesson = () => {
         }
     }
 
+    // hàm xử lý thay đổi status khóa học
+    const toggleCourseStatus = async (courseId) => {
+        const token = localStorage.getItem("access_token");
+        try {
+            const response = await axios.put(
+                `${API_URL}/teacher/courses/${courseId}/toggle-status`,
+                {},
+                {
+                    headers: {
+                        'x-api-secret': `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (response.data.status) {
+                notify(`Trạng thái đã đổi sang: ${response.data.data.status}`, 'success');
+                setTeacherCourses(prevCourses =>
+                    prevCourses.map(course =>
+                        course.course_id === courseId ? { ...course, status: response.data.data.status } : course
+                    )
+                );
+            } else {
+                notify(response.data.message, 'error');
+            }
+        } catch (error) {
+            notify('Có lỗi trong quá trình thay đổi trạng thái', 'error');
+        }
+    };
+
+    const handleStatusChange = (event) => {
+        setSelectedStatus(event.target.value);
+    };
+
+    const handleSaveStatus = (courseId) => {
+        if (selectedStatus) {
+            toggleCourseStatus(courseId, selectedStatus);
+        }
+    };
     // trạng thái
     const getStatusBadge = (status) => {
         switch (status) {
@@ -227,29 +267,14 @@ export const InstructorLesson = () => {
                                                 Bạn có thể tùy chỉnh trạng thái tại đây
                                             </div>
 
-                                            <div className="mt-5 space-y-1">
+                                            <div className="flex justify-between mt-5 space-y-1">
+                                                <p className="text-lg">Trạng thái hiện tại: <span className="text-yellow-500 font-semibold">{item.status}</span></p>
                                                 <div className="">
-                                                    <p>Trạng thái:</p>
-                                                </div>
-                                                <div className="">
-                                                    <select className="w-full p-2 border rounded" id="">
-                                                        <option value="draft">Chọn trạng thái...</option>
-                                                        <option value="">
-                                                            draft
-                                                        </option>
-                                                        <option value="">
-                                                            hide
-                                                        </option>
-                                                        <option value="">
-                                                            published
-                                                        </option>
-                                                    </select>
+                                                    <Button onClick={() => toggleCourseStatus(item.course_id)}>Thay đổi trạng thái</Button>
                                                 </div>
                                             </div>
 
-                                            <div className="flex justify-end mt-2">
-                                                <Button>Lưu</Button>
-                                            </div>
+
 
                                         </div>
 
@@ -449,7 +474,7 @@ export const InstructorLesson = () => {
                                                         <SheetTitle>
                                                             <div className="p-4 flex justify-between items-center border-b-[1px]">
                                                                 <div className="logo ">
-                                                                <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
+                                                                    <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                                                 </div>
                                                             </div>
                                                         </SheetTitle>
