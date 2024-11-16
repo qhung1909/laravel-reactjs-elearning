@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { TrendingUp } from "lucide-react"
 import { CartesianGrid, XAxis, YAxis, Line, LineChart, Tooltip, ResponsiveContainer } from "recharts"; // Added YAxis and Tooltip to imports
 import {
@@ -10,21 +10,6 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import {
-    ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent,
-} from "@/components/ui/chart"
-const chartConfig = {
-    desktop: {
-        label: "Desktop",
-        color: "hsl(var(--chart-1))",
-    },
-    mobile: {
-        label: "Mobile",
-        color: "hsl(var(--chart-2))",
-    },
-}
-import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
@@ -33,7 +18,6 @@ import {
 } from "@/components/ui/breadcrumb"
 import {
 } from "@/components/ui/collapsible"
-
 import { Separator } from "@/components/ui/separator"
 import {
     SidebarInset,
@@ -41,22 +25,50 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { SideBarUI } from "../sidebarUI"
-import { Link } from "react-router-dom"
-import { Input } from "@/components/ui/input"
-import PropTypes from 'prop-types'; // Import PropTypes
-
+import PropTypes from 'prop-types';
+import { UserContext } from '@/pages/context/usercontext';
 
 const API_KEY = import.meta.env.VITE_API_KEY
 const API_URL = import.meta.env.VITE_API_URL
 export default function Dashboard() {
-    const [summaryData, setSummaryData] = useState({
-        total_revenue: 0,
-        total_courses_sold: 0,
-        total_lessons: 0
-    });
+    const [summaryData, setSummaryData] = useState([]);
     const [chartData, setChartData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [overview, setOverview] = useState([]);
+    const [users, setUsers] = useState([]);
 
+    // hàm xử lý lấy tất cả users
+    const fetchUsers = async () => {
+        try {
+            const response = await fetch(`${API_URL}/users`, {
+                headers: {
+                    'x-api-secret': API_KEY
+                }
+            });
+            const result = await response.json();
+            setUsers(result.data);
+        } catch (error) {
+            console.error('Error fetching summary data:', error);
+        }
+    };
+
+    const fetchOverview = async () => {
+        try {
+            const response = await fetch(`${API_URL}/admin/overview`, {
+                headers: {
+                    'x-api-secret': API_KEY
+                }
+            });
+            const resuit = await response.json();
+            setOverview(resuit.data);
+            console.log(resuit.data)
+        } catch (error) {
+            console.error('Error fetching summary data:', error);
+        }
+    };
+
+
+    // doanh thu tổng - khóa học đã bán - tổng bài học
     const fetchSummaryData = async () => {
         try {
             const response = await fetch(`${API_URL}/admin/summary`, {
@@ -71,6 +83,8 @@ export default function Dashboard() {
         }
     };
 
+
+    // biểu đồ doanh thu
     const fetchRevenueData = async () => {
         try {
             const response = await fetch(`${API_URL}/admin/revenue-chart`, {
@@ -227,16 +241,12 @@ export default function Dashboard() {
     };
 
     useEffect(() => {
+        fetchOverview();
+        fetchUsers();
         fetchSummaryData();
         fetchRevenueData();
     }, []);
 
-
-    /* Quản lí tài chính */
-    const revenue = 500000;
-    const expenses = 200000;
-    const profit = revenue - expenses;
-    const profitMargin = ((profit / revenue) * 100).toFixed(2);
 
     // Mock data for transactions
     const transactions = [
@@ -248,37 +258,6 @@ export default function Dashboard() {
         { id: 6, date: '2024-11-08', amount: 250000, status: 'Success' },
     ];
 
-    const revenueData = [
-        { month: "Tháng 1", revenue: 800 },
-        { month: "Tháng 2", revenue: 950 },
-        { month: "Tháng 3", revenue: 850 },
-        { month: "Tháng 4", revenue: 1000 },
-        { month: "Tháng 5", revenue: 1200 },
-        { month: "Tháng 6", revenue: 1300 },
-        { month: "Tháng 7", revenue: 800 },
-        { month: "Tháng 8", revenue: 950 },
-        { month: "Tháng 9", revenue: 850 },
-        { month: "Tháng 10", revenue: 1000 },
-        { month: "Tháng 11", revenue: 1200 },
-        { month: "Tháng 12", revenue: 1300 },
-    ]
-
-    const expenseData = [
-        { month: "Tháng 1", expense: 800 },
-        { month: "Tháng 2", expense: 950 },
-        { month: "Tháng 3", expense: 850 },
-        { month: "Tháng 4", expense: 1000 },
-        { month: "Tháng 5", expense: 1200 },
-        { month: "Tháng 6", expense: 1300 },
-        { month: "Tháng 7", expense: 800 },
-        { month: "Tháng 8", expense: 950 },
-        { month: "Tháng 9", expense: 850 },
-        { month: "Tháng 10", expense: 1000 },
-        { month: "Tháng 11", expense: 1200 },
-        { month: "Tháng 12", expense: 1300 },
-    ]
-    const maxRevenue = Math.max(...revenueData.map(item => item.revenue));
-    /* ------------------------- */
 
     return (
         <SidebarProvider className="">
@@ -314,153 +293,86 @@ export default function Dashboard() {
                     {/* heading content */}
                     <div className="mx-auto p-4">
 
+
+
                         {/* admin - page */}
-                        <div className="flex justify-between items-center mb-6">
-                            <h1 className="text-xl sm:text-2xl font-semibold">Admin</h1>
-                        </div>
+                        <div className="grid lg:grid-cols-2 grid-cols-2 gap-3">
+                            <div className="">
+                                <div className="mb-6 p-5 rounded border border-gray-200 shadow-md h-full">
+                                    <h1 className="text-xl sm:text-2xl font-semibold">Trang quản trị</h1>
+                                    <span className='text-sm text-gray-500'>Trang dành riêng cho quản trị viên, quản lí tất cả sản phẩm, khóa học, danh mục, header, footer, người dùng, nội dung...</span>
+                                </div>
 
-                        {/* doanh thu */}
-                        <div className="grid lg:grid-cols-4 grid-cols-2 gap-3 mb-6">
-                            <div className="bg-white shadow rounded p-4">
-                                <div className="flex justify-between items-center">
-                                    <h2 className="xl:text-base lg:text-sm text-xs font-semibold text-green-500 uppercase">
-                                        Tổng doanh thu
-                                    </h2>
-                                </div>
-                                <div className="my-2 text-2xl font-semibold">
-                                    {formatCurrency(summaryData.total_revenue)}
-                                </div>
-                                <div className="text-sm mt-1">
-                                    <p>2024</p>
-                                </div>
+                            </div>
+                            <div className=" grid grid-cols-2 gap-2">
+
+                                {/* tổng doanh thu */}
+                                <Card className="col-span-1 bg-orange-200 text-white relative overflow-hidden">
+                                    <CardContent className="p-5">
+                                        <div className="">
+                                            <div className="space-y-1">
+                                                <div className="p-1 bg-orange-400 rounded w-10 ">
+                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/revenue.svg" className='w-20' alt="" />
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <div className="">
+                                                        <p className='text-2xl font-semibold text-black'>
+                                                            {formatCurrency(summaryData.total_revenue)}
+                                                        </p>
+                                                        <p className='font-semibold text-gray-700 mt-3'>Tổng doanh thu</p>
+                                                    </div>
+                                                    <div className="">
+                                                        <div className="flex justify-center items-center">
+                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/revenue2.svg" className='w-16 z-10' alt="" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </CardContent>
+                                    <div className="absolute top-0 right-14 h-40 w-40 translate-x-8 translate-y-[-50%] rounded-full bg-orange-500/20" />
+                                    <div className="absolute top-5 right-0 h-44 w-44 translate-x-8 translate-y-[-50%] rounded-full bg-orange-400" />
+                                </Card>
+                                {/* tổng khóa học đã bán */}
+                                <Card className="col-span-1 bg-green-200 text-white relative overflow-hidden">
+                                    <CardContent className="p-5">
+                                        <div className="">
+                                            <div className="space-y-1">
+                                                <div className="p-1 bg-green-400 rounded w-10 ">
+                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/profitadmin.svg" className='w-20' alt="" />
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <div className="">
+                                                        <p className='text-2xl font-semibold text-black'>
+                                                            {overview.admin_revenue}
+                                                        </p>
+                                                        <p className='font-semibold text-gray-700 mt-3'>Lợi nhuận</p>
+                                                    </div>
+                                                    <div className="">
+                                                        <div className="flex justify-center items-center">
+                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/profitadmin2.svg" className='w-16 z-10' alt="" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </CardContent>
+                                    <div className="absolute top-0 right-14 h-40 w-40 translate-x-8 translate-y-[-50%] rounded-full bg-green-500/20" />
+                                    <div className="absolute top-5 right-0 h-44 w-44 translate-x-8 translate-y-[-50%] rounded-full bg-green-400" />
+                                </Card>
+
                             </div>
 
-                            {/* tổng khóa học */}
-                            <div className="bg-white shadow rounded p-4">
-                                <div className="flex justify-between items-center">
-                                    <h2 className="xl:text-base lg:text-sm text-xs font-semibold text-red-500 uppercase">
-                                        Tổng khóa học
-                                    </h2>
-                                </div>
-                                <div className="my-2 text-2xl font-semibold">
-                                    {summaryData.total_courses_sold}
-                                </div>
-                                <div className="text-sm mt-1">Đã bán</div>
-                            </div>
-
-                            {/* tổng bài học */}
-                            <div className="bg-white shadow rounded p-4">
-                                <div className="flex justify-between items-center">
-                                    <h2 className="xl:text-base lg:text-sm text-xs font-semibold text-blue-500 uppercase">
-                                        Bài học
-                                    </h2>
-                                </div>
-                                <div className="my-2 text-2xl font-semibold">
-                                    {summaryData.total_lessons}
-                                </div>
-                                <div className="text-sm mt-1">Tổng cộng</div>
-                            </div>
-
-                            {/* Đánh giá trung bình */}
-                            <div className="bg-white shadow rounded p-4">
-                                <div className="flex justify-between items-center">
-                                    <h2 className="xl:text-base lg:text-sm text-xs font-semibold text-yellow-500 uppercase">Đánh giá</h2>
-                                </div>
-                                <div className="my-2 text-2xl font-semibold">4.5</div>
-                                <div className="text-sm mt-1">Điểm trung bình</div>
-                            </div>
 
                         </div>
                     </div>
 
                     {/* bottom content */}
                     <div className="w-full p-4 xl:grid grid-cols-4 gap-3">
-
-                        {/* revenue */}
-                        <div className="col-span-1 space-y-5">
-                            {/* card 1 */}
-                            <Card className="col-span-1 bg-purple-800 text-white relative overflow-hidden">
-                                <CardContent className="p-6">
-                                    <div className="mt-8">
-                                        <div className="space-y-2">
-                                            <div className="p-1 bg-purple-900 rounded w-10 ">
-                                                <img src="/src/assets/images/money.svg" className='w-20' alt="" />
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <div className="">
-                                                    <p className='text-2xl font-semibold'>12,200,000đ</p>
-                                                    <p className='font-semibold text-gray-200 mt-3'>Tổng doanh thu</p>
-                                                </div>
-                                                <div className="">
-                                                    <div className="flex justify-center items-center">
-                                                        <img src="/src/assets/images/chart.svg" className='w-16 z-10' alt="" />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </CardContent>
-                                <div className="absolute top-0 right-14 h-40 w-40 translate-x-8 translate-y-[-50%] rounded-full bg-purple-500/20" />
-                                <div className="absolute top-5 right-0 h-44 w-44 translate-x-8 translate-y-[-50%] rounded-full bg-purple-900" />
-                            </Card>
-
-                            {/* card 1 */}
-                            <Card className="col-span-1 bg-blue-800 text-white relative overflow-hidden">
-                                <CardContent className="p-6">
-                                    <div className="mt-8">
-                                    <div className="space-y-2">
-                                    <div className="p-1 bg-blue-900 rounded w-10 ">
-                                                <img src="/src/assets/images/money2.svg" className='w-20' alt="" />
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <div className="">
-                                                    <p className='text-2xl font-semibold'>350,000đ</p>
-                                                    <p className='font-semibold text-gray-200 mt-3'>Chi phí trả hàng tháng (bao gồm thuế)</p>
-                                                </div>
-                                                <div className="">
-                                                    <div className="flex justify-center items-center">
-                                                        <img src="/src/assets/images/tax.svg" className='w-16 z-10' alt="" />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </CardContent>
-                                <div className="absolute top-0 right-14 h-40 w-40 translate-x-8 translate-y-[-50%] rounded-full bg-blue-500/20" />
-                                <div className="absolute top-5 right-0 h-44 w-44 translate-x-8 translate-y-[-50%] rounded-full bg-blue-900" />
-                            </Card>
-                            {/* card 1 */}
-                            <Card className="col-span-1 bg-yellow-800 text-white relative overflow-hidden">
-                                <CardContent className="p-6">
-                                    <div className="mt-8">
-                                    <div className="space-y-2">
-                                    <div className="p-1 bg-yellow-900 rounded w-10 ">
-                                                <img src="/src/assets/images/money3.svg" className='w-20' alt="" />
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <div className="">
-                                                    <p className='text-2xl font-semibold'>870,000đ</p>
-                                                    <p className='font-semibold text-gray-200 mt-3'>Lợi Nhuận Của Bạn</p>
-                                                </div>
-                                                <div className="">
-                                                    <div className="flex justify-center items-center">
-                                                        <img src="/src/assets/images/profit.svg" className='w-16 z-10' alt="" />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </CardContent>
-                                <div className="absolute top-0 right-14 h-40 w-40 translate-x-8 translate-y-[-50%] rounded-full bg-yellow-500/20" />
-                                <div className="absolute top-5 right-0 h-44 w-44 translate-x-8 translate-y-[-50%] rounded-full bg-yellow-900" />
-                            </Card>
-                        </div>
 
                         {/* chart */}
                         <div className="col-span-3 mt-5 xl:mt-0">
@@ -549,6 +461,95 @@ export default function Dashboard() {
                                 </Card>
                             </div>
                         </div>
+                        {/* revenue */}
+                        <div className="col-span-1 space-y-5">
+                            {/* card 1 */}
+                            <Card className="col-span-1 bg-purple-800 text-white relative overflow-hidden">
+                                <CardContent className="p-6">
+                                    <div className="mt-8">
+                                        <div className="space-y-2">
+                                            <div className="p-1 bg-purple-900 rounded w-10 ">
+                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/useradmin.svg" className='w-20' alt="" />
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <div className="">
+                                                    <p className='text-2xl font-semibold'>
+                                                        {users.length}
+                                                    </p>
+                                                    <p className='font-semibold text-gray-200 mt-3'>Tổng học viên</p>
+                                                </div>
+                                                <div className="">
+                                                    <div className="flex justify-center items-center">
+                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/useradmin2.svg" className='w-16 z-10' alt="" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </CardContent>
+                                <div className="absolute top-0 right-14 h-40 w-40 translate-x-8 translate-y-[-50%] rounded-full bg-purple-500/20" />
+                                <div className="absolute top-5 right-0 h-44 w-44 translate-x-8 translate-y-[-50%] rounded-full bg-purple-900" />
+                            </Card>
+
+                            {/* card 1 */}
+                            <Card className="col-span-1 bg-blue-800 text-white relative overflow-hidden">
+                                <CardContent className="p-6">
+                                    <div className="mt-8">
+                                        <div className="space-y-2">
+                                            <div className="p-1 bg-blue-900 rounded w-10 ">
+                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courseadmin.svg" className='w-20' alt="" />
+                                            </div>
+                                            <div className="flex justify-between items-center gap-5">
+                                                <div className="">
+                                                    <p className='text-2xl font-semibold'>{summaryData.total_lessons}</p>
+                                                    <p className='font-semibold text-gray-200 mt-3'>Tổng bài học</p>
+                                                </div>
+                                                <div className="">
+                                                    <div className="flex justify-center items-center">
+                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/courseadmin2.svg" className='w-20 z-10' alt="" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </CardContent>
+                                <div className="absolute top-0 right-14 h-40 w-40 translate-x-8 translate-y-[-50%] rounded-full bg-blue-500/20" />
+                                <div className="absolute top-5 right-0 h-44 w-44 translate-x-8 translate-y-[-50%] rounded-full bg-blue-900" />
+                            </Card>
+                            {/* card 1 */}
+                            <Card className="col-span-1 bg-gray-800 text-white relative overflow-hidden">
+                                <CardContent className="p-6">
+                                    <div className="mt-8">
+                                        <div className="space-y-2">
+                                            <div className="p-1 bg-gray-900 rounded w-10 ">
+                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/selladmin.svg" className='w-20' alt="" />
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <div className="">
+                                                    <p className='text-2xl font-semibold'>{summaryData.total_lessons}</p>
+                                                    <p className='font-semibold text-gray-200 mt-3'>Tổng đơn hàng đã bán</p>
+                                                </div>
+                                                <div className="">
+                                                    <div className="flex justify-center items-center">
+                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/selladmin2.svg" className='w-16 z-10' alt="" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </CardContent>
+                                <div className="absolute top-0 right-14 h-40 w-40 translate-x-8 translate-y-[-50%] rounded-full bg-gray-500/20" />
+                                <div className="absolute top-5 right-0 h-44 w-44 translate-x-8 translate-y-[-50%] rounded-full bg-gray-900" />
+                            </Card>
+                        </div>
+
+
                     </div>
 
                     <div>
