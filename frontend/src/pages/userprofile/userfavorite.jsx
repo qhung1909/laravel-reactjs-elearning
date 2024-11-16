@@ -152,10 +152,10 @@ export const UserFavorite = () => {
                         </div>
                         <div className="col-span-3 my-3 lg:my-5">
                             <div className="border-b border-gray-200 pb-5">
-                                <h2 className="text-xl font-semibold text-gray-800">Khóa học yêu thích của bạn</h2>
-                                <p className="mt-2 text-sm text-gray-500">Những khóa học bạn thích nhưng vẫn chưa có dịp mua, chúng tôi sẽ giúp bạn lưu lại.</p>
+                                <h2 className="text-xl font-bold text-gray-800">Khóa học yêu thích của bạn</h2>
+                                <p className="mt-1 text-sm text-gray-500">Những khóa học bạn thích nhưng vẫn chưa có dịp mua, chúng tôi sẽ giúp bạn lưu lại.</p>
                             </div>
-                            <div className="mt-8">
+                            <div className="mt-6">
                                 <div className="grid xl:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
                                     {favorites.length > 0 ? (
                                         favorites.map(favorite => {
@@ -177,10 +177,10 @@ export const UserFavorite = () => {
                                                             {favorite.course.title}
                                                         </h3>
                                                         <p className="text-sm font-medium text-gray-600 flex items-center">
-                                                            <span className="text-yellow-600 mr-1">Giá:</span>
+                                                            <span className="text-red-600 mr-1">Giá:</span>
                                                             {formatCurrency(favorite.course.price_discount)}
                                                         </p>
-                                                        <div className="pt-3 flex flex-col justify-center gap-4">
+                                                        <div className="pt-3 flex flex-col justify-center gap-2">
                                                             {/* View Details Button */}
                                                             <Link
                                                                 to={`/detail/${favorite.course.slug}`}
