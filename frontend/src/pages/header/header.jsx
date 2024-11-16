@@ -683,8 +683,10 @@ export const Header = () => {
                                                             {/* <div className="navbar-language cursor-pointer">
                                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-7" alt="" />
                                                             </div> */}
-
+                                                            <div className="w-8">
                                                             {user && <NotificationDropdown userId={user.user_id} />}
+
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </SheetTitle>
