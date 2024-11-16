@@ -5,8 +5,9 @@ import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { ChevronDown, ChevronUp, Edit, Heart, HeartOff, Trash, User } from "lucide-react";
-import { Calendar, Globe, BookOpen, Star } from "lucide-react";
+import { Calendar, Globe, BookOpen, Star, Gift } from "lucide-react";
 import { Play, Users, Book, Clock, Eye } from "lucide-react";
+import { Badge } from "@/components/ui/badge"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -629,6 +630,10 @@ export const Detail = () => {
                 </Breadcrumb>
 
                 <div className="mt-8 max-w-3xl">
+                    <Badge className="mb-4 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 text-white font-bold text-lg py-2 px-3 rounded-full shadow-lg transform transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-xl hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 ">
+                        <Gift className="text-yellow-400 hover:text-yellow-500 transition-colors duration-300 ease-in-out mr-2" />
+                        <span>Khóa học online bắt đầu vào ngày 15-12-2024</span>
+                    </Badge>
                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-white shadow-text">
                         {detail.title}
                     </h1>
