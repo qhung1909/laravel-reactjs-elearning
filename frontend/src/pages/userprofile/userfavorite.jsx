@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { formatCurrency } from '@/components/Formatcurrency/formatCurrency';
 import './userprofile.css';
+import { ExternalLink, Eye, Heart, Trash2 } from 'lucide-react';
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -179,22 +180,22 @@ export const UserFavorite = () => {
                                                             <span className="text-yellow-600 mr-1">Giá:</span>
                                                             {formatCurrency(favorite.course.price_discount)}
                                                         </p>
-                                                        <div className="pt-3 flex justify-center">
+                                                        <div className="pt-3 flex justify-center gap-6">
+                                                            {/* View Details Button */}
                                                             <Link
                                                                 to={`/detail/${favorite.course.slug}`}
-                                                                className="block"
+                                                                className="relative group"
                                                             >
-                                                                <Button className="bg-yellow-600 hover:bg-yellow-700 text-white font-medium px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50">
-                                                                    Xem chi tiết
-                                                                </Button>
+                                                                <ExternalLink className="relative w-5 h-5 text-blue-500 group-hover:text-blue-600 transition-all duration-300" />
                                                             </Link>
-                                                            <Button
-                                                                onClick={() => deleteFavorite(favorite.favorites_id, favorite.course.course_id)}
-                                                                className="bg-red-600 text-white font-medium px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                                                            >
-                                                                Bỏ thích
-                                                            </Button>
 
+                                                            {/* Remove Button */}
+                                                            <button
+                                                                onClick={() => deleteFavorite(favorite.favorites_id, favorite.course.course_id)}
+                                                                className="relative group"
+                                                            >
+                                                                <Trash2 className="relative w-5 h-5 text-red-500 group-hover:text-red-600 transition-all duration-300" />
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
