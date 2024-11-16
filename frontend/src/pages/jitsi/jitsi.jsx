@@ -20,6 +20,8 @@ const JitsiMeeting = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log(response);
+        
         setUserInfo({ name: response.data.name, role: response.data.role });
       } catch (error) {
         console.error('Error fetching user info:', error);
