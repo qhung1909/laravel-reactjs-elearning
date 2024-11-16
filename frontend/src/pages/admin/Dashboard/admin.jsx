@@ -307,41 +307,20 @@ export default function Dashboard() {
                         </Breadcrumb>
                     </div>
                 </header>
+
+                {/* content */}
                 <div className="absolute top-12 w-full font-sans">
+
+                    {/* heading content */}
                     <div className="mx-auto p-4">
+
+                        {/* admin - page */}
                         <div className="flex justify-between items-center mb-6">
-
-                            {/* admin - page */}
-                            <div>
-                                <h1 className="text-xl sm:text-2xl font-semibold">Admin</h1>
-                                <div className="text-gray-500 text-sm mt-1">
-                                    <Link to="/" className="text-xs sm:text-sm">Trang chủ</Link> &gt; <span className="text-xs sm:text-sm">Dashboard</span>
-                                </div>
-                            </div>
-
-                            {/* search */}
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    type="text"
-                                    placeholder="Search..."
-                                    className="border rounded-md px-3 py-1 text-gray-700"
-                                />
-
-                                {/* notification */}
-                                <div className="">
-                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-10" alt="" />
-                                </div>
-
-                                {/* useer */}
-                                <div className="">
-                                    <img src="https://img.tripi.vn/cdn-cgi/image/width=700,height=700/https://gcs.tripi.vn/public-tripi/tripi-feed/img/474120nrt/anh-avatar-shin-cute-nhat_014815307.jpg" alt="User" className="w-10 rounded-full" />
-                                </div>
-
-                            </div>
+                            <h1 className="text-xl sm:text-2xl font-semibold">Admin</h1>
                         </div>
-                        <div className="grid lg:grid-cols-4 grid-cols-2 gap-3 mb-6">
 
-                            {/* doanh thu */}
+                        {/* doanh thu */}
+                        <div className="grid lg:grid-cols-4 grid-cols-2 gap-3 mb-6">
                             <div className="bg-white shadow rounded p-4">
                                 <div className="flex justify-between items-center">
                                     <h2 className="xl:text-base lg:text-sm text-xs font-semibold text-green-500 uppercase">
@@ -393,110 +372,186 @@ export default function Dashboard() {
 
                         </div>
                     </div>
-                    <div className="xl:flex w-full gap-4 px-4 mb-10">
-                        <Card className="xl:w-4/5 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                            <CardHeader className="pb-2">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <CardTitle className="text-2xl font-bold text-gray-800">Biểu đồ Doanh thu</CardTitle>
-                                        <CardDescription className="text-gray-600">Tháng 1 - Tháng 12 2024</CardDescription>
+
+                    {/* bottom content */}
+                    <div className="w-full p-4 xl:grid grid-cols-4 gap-3">
+
+                        {/* revenue */}
+                        <div className="col-span-1 space-y-5">
+                            {/* card 1 */}
+                            <Card className="col-span-1 bg-purple-800 text-white relative overflow-hidden">
+                                <CardContent className="p-6">
+                                    <div className="mt-8">
+                                        <div className="space-y-2">
+                                            <div className="p-1 bg-purple-900 rounded w-10 ">
+                                                <img src="/src/assets/images/money.svg" className='w-20' alt="" />
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <div className="">
+                                                    <p className='text-2xl font-semibold'>12,200,000đ</p>
+                                                    <p className='font-semibold text-gray-200 mt-3'>Tổng doanh thu</p>
+                                                </div>
+                                                <div className="">
+                                                    <div className="flex justify-center items-center">
+                                                        <img src="/src/assets/images/chart.svg" className='w-16 z-10' alt="" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
                                     </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="pt-4">
-                                {!isLoading && (
-                                    <div className="w-full h-[400px]">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <LineChart
-                                                data={chartData}
-                                                margin={{
-                                                    top: 20,
-                                                    right: 30,
-                                                    left: 20,
-                                                    bottom: 20,
-                                                }}
-                                            >
-                                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                                                <XAxis
-                                                    dataKey="month"
-                                                    tickLine={false}
-                                                    axisLine={false}
-                                                    tickMargin={12}
-                                                    stroke="#888888"
-                                                />
-                                                <YAxis
-                                                    tickLine={false}
-                                                    axisLine={false}
-                                                    tickMargin={12}
-                                                    stroke="#888888"
-                                                    domain={[0, 'dataMax + 10000']}
-                                                    tickFormatter={(value) =>
-                                                        new Intl.NumberFormat('vi-VN', {
-                                                            style: 'currency',
-                                                            currency: 'VND',
-                                                            notation: 'compact',
-                                                        }).format(value)
-                                                    }
-                                                />
-                                                <Tooltip
-                                                    contentStyle={{
-                                                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                                        border: 'none',
-                                                        borderRadius: '8px',
-                                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                                    }}
-                                                    formatter={(value) => [
-                                                        new Intl.NumberFormat('vi-VN', {
-                                                            style: 'currency',
-                                                            currency: 'VND',
-                                                        }).format(value),
-                                                        "Doanh thu"
-                                                    ]}
-                                                    labelStyle={{ color: '#666' }}
-                                                />
-                                                <Line
-                                                    type="monotone"
-                                                    dataKey="revenue"
-                                                    stroke="#4CAF50"
-                                                    strokeWidth={3}
-                                                    dot={{ r: 4, strokeWidth: 2, fill: '#fff' }}
-                                                    activeDot={{ r: 6, strokeWidth: 2 }}
-                                                />
-                                            </LineChart>
-                                        </ResponsiveContainer>
+                                </CardContent>
+                                <div className="absolute top-0 right-14 h-40 w-40 translate-x-8 translate-y-[-50%] rounded-full bg-purple-500/20" />
+                                <div className="absolute top-5 right-0 h-44 w-44 translate-x-8 translate-y-[-50%] rounded-full bg-purple-900" />
+                            </Card>
+
+                            {/* card 1 */}
+                            <Card className="col-span-1 bg-blue-800 text-white relative overflow-hidden">
+                                <CardContent className="p-6">
+                                    <div className="mt-8">
+                                    <div className="space-y-2">
+                                    <div className="p-1 bg-blue-900 rounded w-10 ">
+                                                <img src="/src/assets/images/money2.svg" className='w-20' alt="" />
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <div className="">
+                                                    <p className='text-2xl font-semibold'>350,000đ</p>
+                                                    <p className='font-semibold text-gray-200 mt-3'>Chi phí trả hàng tháng (bao gồm thuế)</p>
+                                                </div>
+                                                <div className="">
+                                                    <div className="flex justify-center items-center">
+                                                        <img src="/src/assets/images/tax.svg" className='w-16 z-10' alt="" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
                                     </div>
-                                )}
-                            </CardContent>
-                            <CardFooter className="border-t pt-4">
-                                <div className="flex flex-col w-full gap-3">
-                                    <GrowthTrendDisplay chartData={chartData} />
-                                    <div className="text-sm text-muted-foreground">
-                                        Hiển thị doanh thu trong 12 tháng qua
+                                </CardContent>
+                                <div className="absolute top-0 right-14 h-40 w-40 translate-x-8 translate-y-[-50%] rounded-full bg-blue-500/20" />
+                                <div className="absolute top-5 right-0 h-44 w-44 translate-x-8 translate-y-[-50%] rounded-full bg-blue-900" />
+                            </Card>
+                            {/* card 1 */}
+                            <Card className="col-span-1 bg-yellow-800 text-white relative overflow-hidden">
+                                <CardContent className="p-6">
+                                    <div className="mt-8">
+                                    <div className="space-y-2">
+                                    <div className="p-1 bg-yellow-900 rounded w-10 ">
+                                                <img src="/src/assets/images/money3.svg" className='w-20' alt="" />
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <div className="">
+                                                    <p className='text-2xl font-semibold'>870,000đ</p>
+                                                    <p className='font-semibold text-gray-200 mt-3'>Lợi Nhuận Của Bạn</p>
+                                                </div>
+                                                <div className="">
+                                                    <div className="flex justify-center items-center">
+                                                        <img src="/src/assets/images/profit.svg" className='w-16 z-10' alt="" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
                                     </div>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                    </div>
-                    <div>
-                        {/* Tổng quan tài chính */}
-                        <section className="bg-white p-5 rounded-lg shadow-md">
-                            <h2 className="text-2xl font-semibold mb-4">Tổng quan tài chính</h2>
-                            <div className="grid grid-cols-3 gap-4">
-                                <div className="bg-gray-100 p-4 rounded-lg">
-                                    <h3 className="font-semibold">Doanh thu</h3>
-                                    <p>{revenue.toLocaleString()} VND</p>
-                                </div>
-                                <div className="bg-gray-100 p-4 rounded-lg">
-                                    <h3 className="font-semibold">Chi phí</h3>
-                                    <p>{expenses.toLocaleString()} VND</p>
-                                </div>
-                                <div className="bg-gray-100 p-4 rounded-lg">
-                                    <h3 className="font-semibold">Lợi nhuận</h3>
-                                    <p>{profit.toLocaleString()} VND</p>
-                                    <p className="text-green-600">Lợi nhuận gộp: {profitMargin}%</p>
-                                </div>
+                                </CardContent>
+                                <div className="absolute top-0 right-14 h-40 w-40 translate-x-8 translate-y-[-50%] rounded-full bg-yellow-500/20" />
+                                <div className="absolute top-5 right-0 h-44 w-44 translate-x-8 translate-y-[-50%] rounded-full bg-yellow-900" />
+                            </Card>
+                        </div>
+
+                        {/* chart */}
+                        <div className="col-span-3 mt-5 xl:mt-0">
+                            <div className="w-full gap-4">
+                                <Card className="w-full shadow-lg hover:shadow-xl transition-shadow duration-300">
+                                    <CardHeader className="pb-2">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <CardTitle className="text-2xl font-bold text-gray-800">Biểu đồ Doanh thu</CardTitle>
+                                                <CardDescription className="text-gray-600">Tháng 1 - Tháng 12 2024</CardDescription>
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="pt-4">
+                                        {!isLoading && (
+                                            <div className="w-full h-[430px]">
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <LineChart
+                                                        data={chartData}
+                                                        margin={{
+                                                            top: 20,
+                                                            right: 30,
+                                                            left: 20,
+                                                            bottom: 20,
+                                                        }}
+                                                    >
+                                                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                                        <XAxis
+                                                            dataKey="month"
+                                                            tickLine={false}
+                                                            axisLine={false}
+                                                            tickMargin={12}
+                                                            stroke="#888888"
+                                                        />
+                                                        <YAxis
+                                                            tickLine={false}
+                                                            axisLine={false}
+                                                            tickMargin={12}
+                                                            stroke="#888888"
+                                                            domain={[0, 'dataMax + 10000']}
+                                                            tickFormatter={(value) =>
+                                                                new Intl.NumberFormat('vi-VN', {
+                                                                    style: 'currency',
+                                                                    currency: 'VND',
+                                                                    notation: 'compact',
+                                                                }).format(value)
+                                                            }
+                                                        />
+                                                        <Tooltip
+                                                            contentStyle={{
+                                                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                                                border: 'none',
+                                                                borderRadius: '8px',
+                                                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                                            }}
+                                                            formatter={(value) => [
+                                                                new Intl.NumberFormat('vi-VN', {
+                                                                    style: 'currency',
+                                                                    currency: 'VND',
+                                                                }).format(value),
+                                                                "Doanh thu"
+                                                            ]}
+                                                            labelStyle={{ color: '#666' }}
+                                                        />
+                                                        <Line
+                                                            type="monotone"
+                                                            dataKey="revenue"
+                                                            stroke="#4CAF50"
+                                                            strokeWidth={3}
+                                                            dot={{ r: 4, strokeWidth: 2, fill: '#fff' }}
+                                                            activeDot={{ r: 6, strokeWidth: 2 }}
+                                                        />
+                                                    </LineChart>
+                                                </ResponsiveContainer>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                    <CardFooter className="border-t pt-4">
+                                        <div className="flex flex-col w-full gap-3 pt-4">
+                                            <GrowthTrendDisplay chartData={chartData} />
+                                            <div className="text-sm text-muted-foreground">
+                                                Hiển thị doanh thu trong 12 tháng qua
+                                            </div>
+                                        </div>
+                                    </CardFooter>
+                                </Card>
                             </div>
-                        </section>
+                        </div>
+                    </div>
+
+                    <div>
 
                         {/* Danh sách giao dịch */}
                         <section className="mt-6 bg-white p-5 rounded-lg shadow-md">
@@ -525,38 +580,7 @@ export default function Dashboard() {
                             </table>
                         </section>
 
-                        {/* Báo cáo tài chính */}
-                        <section className="mt-6 bg-white p-5 rounded-lg shadow-md">
-                            <h2 className="text-2xl font-semibold mb-4 text-gray-800">Báo cáo tài chính</h2>
-                            <Card className="bg-gray-100 p-4 rounded-lg shadow-lg">
-                                <CardHeader>
-                                    <CardTitle className="font-semibold text-lg text-gray-800">Doanh thu tháng</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="relative h-[300px]">
-                                        <div className="absolute inset-0 flex items-end justify-between gap-6">
-                                            {revenueData.map((item) => (
-                                                <div key={item.month} className="flex flex-col items-center flex-1">
-                                                    <div className="w-full flex flex-col items-center">
-                                                        <div
-                                                            className="w-2/3 bg-orange-500/20 hover:bg-orange-500/30 transition-colors duration-300 rounded-t-sm shadow-md"
-                                                            style={{
-                                                                height: `${(item.revenue / maxRevenue) * 240}px`, // Tính chiều cao cột
-                                                                transition: "height 0.3s ease-in-out", // Thêm hiệu ứng khi thay đổi chiều cao
-                                                            }}
-                                                        />
-                                                        <div className="mt-3 text-sm font-medium text-gray-600">{item.month}</div>
-                                                        <div className="mt-1 text-sm font-semibold text-gray-800">
-                                                            {item.revenue.toLocaleString()} VND
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </section>
+
 
                     </div>
 
