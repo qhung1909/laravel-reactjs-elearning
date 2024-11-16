@@ -72,35 +72,36 @@ export const UserFavorite = () => {
                                 <p className="mt-2 text-sm text-gray-500">Những khóa học bạn thích nhưng vẫn chưa có dịp mua, chúng tôi sẽ giúp bạn lưu lại.</p>
                             </div>
                             <div className="mt-8">
-                                <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-6">
+                                <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-6">
                                     {favorites.length > 0 ? (
                                         favorites.map(favorites => {
                                             return (
                                                 <div
                                                     key={favorites.favorites_id}
-                                                    className="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
+                                                    className="group bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100"
                                                 >
-                                                    <div className="aspect-square overflow-hidden">
+                                                    <div className="relative overflow-hidden">
                                                         <img
                                                             src={favorites.course.img}
-                                                            className="w-full h-60 object-cover rounded-lg shadow-lg transform transition-transform duration-300 ease-in-out group-hover:scale-105"
+                                                            className="w-full h-48 object-cover transform transition-transform duration-500 ease-out group-hover:scale-110"
                                                             alt={favorites.course.title}
                                                         />
-
+                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                                     </div>
                                                     <div className="p-4 space-y-3">
-                                                        <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 min-h-[3.5rem]">
+                                                        <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 min-h-[3.5rem] hover:text-yellow-600 transition-colors duration-300">
                                                             {favorites.course.title}
                                                         </h3>
-                                                        <p className="text-sm font-medium text-gray-600">
-                                                            Giá: {formatCurrency(favorites.course.price_discount)}
+                                                        <p className="text-sm font-medium text-gray-600 flex items-center">
+                                                            <span className="text-yellow-600 mr-1">Giá:</span>
+                                                            {formatCurrency(favorites.course.price_discount)}
                                                         </p>
-                                                        <div className="pt-2">
+                                                        <div className="pt-3 flex justify-center">
                                                             <Link
                                                                 to={`/detail/${favorites.course.slug}`}
-                                                                className="block w-full"
+                                                                className="block"
                                                             >
-                                                                <Button className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 rounded-lg transition-colors duration-300">
+                                                                <Button className="bg-yellow-600 hover:bg-yellow-700 text-white font-medium px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50">
                                                                     Xem chi tiết
                                                                 </Button>
                                                             </Link>
@@ -110,11 +111,13 @@ export const UserFavorite = () => {
                                             );
                                         })
                                     ) : (
-                                        <div className="col-span-full text-center py-10">
-                                            <p className="text-gray-500 text-lg">Không có khóa học yêu thích nào.</p>
+                                        <div className="col-span-full flex flex-col items-center justify-center py-16">
+                                            <p className="text-gray-500 text-lg mb-2">Không có khóa học yêu thích nào.</p>
+                                            <p className="text-sm text-gray-400">Hãy thêm các khóa học yêu thích để xem sau nhé!</p>
                                         </div>
                                     )}
                                 </div>
+
                             </div>
                         </div>
                     </div>
