@@ -67,7 +67,7 @@ import Draft from "./pages/admin/ManageCourses/draft.jsx";
 import ManageFooter from "./pages/admin/ManageHeaderFooter/ManageFooter.jsx";
 import DetailCourse from "./pages/admin/ManageCourses/detailCourse.jsx";
 import { CmtCrud } from "./pages/admin/ManageComments/cmtCrud.jsx";
-
+import JitsiMeeting from "./pages/jitsi/jitsi.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -162,7 +162,8 @@ function AppContent() {
                 <Route path="/quizzes" element={<Quizzes />}></Route>
                 <Route path="/quizzes/:quiz_id" element={<Quizzes />}></Route>
                 <Route path="/notifications" element={<TaskList />}></Route>
-
+                <Route path="/jitsitest/:id" element={<JitsiMeeting />}></Route>
+                
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}
         </>
