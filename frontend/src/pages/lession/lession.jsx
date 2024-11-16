@@ -10,7 +10,7 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy, Gamepad2 } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy, Gamepad2, Gift } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
@@ -896,17 +896,16 @@ export const Lesson = () => {
                                             </div>
                                             <Dialog>
                                                 <DialogTrigger asChild>
-                                                    <button className="ml-10 flex justify-center items-center bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 rounded-lg shadow-lg hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-300">
-                                                        <Gamepad2 className="w-8 h-8" />
+                                                    <button className="relative group">
+                                                        <div className="relative flex items-center ml-10 px-4 py-2 bg-white rounded-lg">
+                                                            <Gamepad2 className="w-6 h-6 text-purple-600 group-hover:animate-bounce" />
+                                                        </div>
                                                     </button>
                                                 </DialogTrigger>
                                                 <DialogContent className="sm:max-w-md">
                                                     <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-2xl">
                                                         <DialogTitle className="relative">
                                                             <div className="flex flex-col items-center space-y-4 mb-8">
-                                                                <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
-                                                                    <Trophy className="w-8 h-8 text-indigo-500" />
-                                                                </div>
                                                                 <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
                                                                     Câu Đố Kiến Thức
                                                                 </h2>
@@ -942,20 +941,20 @@ export const Lesson = () => {
                                                             )}
 
                                                             {isCorrect === true && (
-                                                                <div className="animate-fadeIn bg-green-50 rounded-xl p-4 space-y-2">
+                                                                <div className="animate-fadeIn bg-green-50 rounded-2xl p-4 space-y-2">
                                                                     <p className="text-green-600 font-bold text-center text-lg">
                                                                         🎉 Chúc mừng! Bạn đã trả lời đúng! 🎉
                                                                     </p>
                                                                     <div className="bg-white rounded-lg p-3 border border-green-200">
                                                                         <p className="text-sm text-gray-600 text-center">
-                                                                            Phần quà của bạn là voucher 24h:
+                                                                            <Gift className="inline w-5 h-5 mr-2 text-green-600" />Phần quà của bạn là voucher 24h:
                                                                         </p>
                                                                         <p className="text-lg font-mono font-bold text-center text-green-600 mt-1">
                                                                             {randomVoucher}
                                                                         </p>
                                                                     </div>
-                                                                    <p className="text-sm text-center text-gray-500 mt-2">
-                                                                        Nhập voucher vào lần thanh toán cho khóa học sau nhé
+                                                                    <p className="text-xs text-center italic text-gray-500 mt-2">
+                                                                        Nhập voucher vào lần thanh toán khóa học sau nhé!
                                                                     </p>
                                                                 </div>
                                                             )}
