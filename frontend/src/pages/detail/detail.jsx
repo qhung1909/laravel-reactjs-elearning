@@ -1245,6 +1245,23 @@ export const Detail = () => {
                                                                             <Eye className="w-4 h-4 mr-1" />
                                                                             <span>{course.views} lượt xem</span>
                                                                         </div>
+                                                                        <button
+                                                                            onClick={() => handleLike(course.course_id)}
+                                                                            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${favorites[course.course_id]
+                                                                                ? 'bg-red-50 text-red-500'
+                                                                                : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                                                                                }`}
+                                                                        >
+                                                                            <Heart
+                                                                                className={`w-5 h-5 transition-all duration-300 ${favorites[course.course_id]
+                                                                                    ? 'fill-current'
+                                                                                    : ''
+                                                                                    }`}
+                                                                            />
+                                                                            <span className="text-xs font-medium">
+                                                                                {favorites[course.course_id] ? 'Đã yêu thích' : 'Yêu thích'}
+                                                                            </span>
+                                                                        </button>
                                                                     </div>
 
                                                                     <div className="mt-auto pt-3 border-t border-gray-100">
@@ -1265,25 +1282,7 @@ export const Detail = () => {
                                                                         </div>
                                                                     </div>
 
-                                                                    <div className="mt-3">
-                                                                        <button
-                                                                            onClick={() => handleLike(course.course_id)}
-                                                                            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${favorites[course.course_id]
-                                                                                ? 'bg-red-50 text-red-500'
-                                                                                : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
-                                                                                }`}
-                                                                        >
-                                                                            <Heart
-                                                                                className={`w-5 h-5 transition-all duration-300 ${favorites[course.course_id]
-                                                                                    ? 'fill-current'
-                                                                                    : ''
-                                                                                    }`}
-                                                                            />
-                                                                            <span className="text-sm font-medium">
-                                                                                {favorites[course.course_id] ? 'Đã yêu thích' : 'Yêu thích'}
-                                                                            </span>
-                                                                        </button>
-                                                                    </div>
+
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1577,6 +1576,20 @@ export const Detail = () => {
                                                                         {formatCurrency(course.price)}
                                                                     </p>
                                                                 </div>
+                                                                <button
+                                                                    onClick={() => handleLike(course.course_id)}
+                                                                    className={`flex items-center gap-2 mt-6 px-2 py-1 rounded-full transition-all duration-300 ${favorites[course.course_id]
+                                                                        ? 'bg-red-50 text-red-500'
+                                                                        : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                                                                        }`}
+                                                                >
+                                                                    <Heart
+                                                                        className={`w-5 h-5 transition-all duration-300 ${favorites[course.course_id]
+                                                                            ? 'fill-current'
+                                                                            : ''
+                                                                            }`}
+                                                                    />
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
