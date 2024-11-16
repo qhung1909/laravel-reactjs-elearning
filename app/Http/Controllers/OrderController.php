@@ -33,25 +33,15 @@ class OrderController extends Controller
     {
         try {
             return DB::transaction(function () use ($user_id) {
-                $orders = Order::query()
+                // Eager load user, coupon và courses
+                $orders = Order::with([
+                    'user:user_id,name,email',
+                    'coupon:coupon_id,name_coupon,discount_price',
+                    'orderDetails.course'  // Đảm bảo eager load mối quan hệ với courses qua orderDetails
+                ])
                     ->where('user_id', $user_id)
-                    ->with(['user:user_id,name,email', 'coupon:coupon_id,name_coupon,discount_price'])
                     ->select('orders.*')
                     ->paginate(10);
-
-                // Lấy thêm thông tin từ order_detail và courses
-                $orders->getCollection()->transform(function ($order) {
-                    $orderDetails = DB::table('order_detail')
-                        ->join('courses', 'order_detail.course_id', '=', 'courses.course_id')  // Chỉnh sửa tên bảng ở đây
-                        ->where('order_detail.order_id', $order->order_id)
-                        ->select('order_detail.course_id', 'courses.title')  // Cũng thay đổi ở đây
-                        ->get();
-
-                    // Thêm vào thông tin chi tiết khóa học vào đơn hàng
-                    $order->course_details = $orderDetails;
-
-                    return $order;
-                });
 
                 return OrderResource::collection($orders);
             });
@@ -62,6 +52,7 @@ class OrderController extends Controller
             ], 500);
         }
     }
+
 
 
 
