@@ -15,7 +15,7 @@ class Participant extends Model
         'user_id',
         'is_present',
         'attendance_date',
-        'john_at',
+        'joined_at',
         'left_at'
     ];
 
