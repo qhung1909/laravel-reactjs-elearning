@@ -53,7 +53,7 @@ const JitsiMeeting = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
+        }); 
         console.log('User info:', response.data);
         setUserInfo({ name: response.data.name, user_id: response.data.user_id, role: response.data.role });
       } catch (error) {
