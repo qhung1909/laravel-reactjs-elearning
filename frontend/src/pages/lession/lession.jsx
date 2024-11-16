@@ -898,52 +898,76 @@ export const Lesson = () => {
                                                 <DialogTrigger asChild>
                                                     <button className="ml-10 flex justify-center items-center bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 rounded-lg shadow-lg hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-300">
                                                         <Gamepad2 className="w-8 h-8" />
-
                                                     </button>
                                                 </DialogTrigger>
-                                                <DialogContent className="bg-gray-100 p-8 rounded-lg shadow-xl max-w-lg mx-auto">
-                                                    <DialogTitle className="text-2xl font-bold text-gray-800 mb-6 text-center">
-                                                        Câu Đố Kiến Thức
-                                                    </DialogTitle>
-                                                    <p className="text-gray-600 text-center mb-6">
-                                                        Gợi ý: Ai là người phát minh ra World Wide Web?
-                                                    </p>
+                                                <DialogContent className="sm:max-w-md">
+                                                    <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-2xl">
+                                                        <DialogTitle className="relative">
+                                                            <div className="flex flex-col items-center space-y-4 mb-8">
+                                                                <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
+                                                                    <Trophy className="w-8 h-8 text-indigo-500" />
+                                                                </div>
+                                                                <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
+                                                                    Câu Đố Kiến Thức
+                                                                </h2>
+                                                            </div>
+                                                        </DialogTitle>
 
-                                                    <input
-                                                        type="text"
-                                                        value={answer}
-                                                        onChange={handleInputChange}
-                                                        className="p-4 border border-gray-300 rounded-lg w-full mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                        placeholder="Nhập câu trả lời..."
-                                                    />
+                                                        <div className="space-y-6">
+                                                            <div className="bg-indigo-50 p-4 rounded-xl">
+                                                                <p className="text-gray-700 text-center font-medium">
+                                                                    Câu hỏi: Ai là người phát minh ra World Wide Web?
+                                                                </p>
+                                                            </div>
 
-                                                    <button
-                                                        onClick={handleSubmitGame}
-                                                        className="bg-green-600 text-white px-6 py-3 rounded-lg w-full hover:bg-green-700 transition-all duration-300"
-                                                    >
-                                                        Xác nhận
-                                                    </button>
+                                                            <div className="space-y-4">
+                                                                <input
+                                                                    type="text"
+                                                                    value={answer}
+                                                                    onChange={handleInputChange}
+                                                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition-colors"
+                                                                    placeholder="Nhập câu trả lời..."
+                                                                />
 
-                                                    {isCorrect === true && (
-                                                        <div className="mt-6 text-center">
-                                                            <p className="text-green-600 text-lg font-bold">🎉 Chúc mừng! Bạn đã đoán đúng! 🎉</p>
-                                                            <p className="text-md text-teal-700 mt-2">
-                                                                Phần quà của bạn là 1 voucher sử dụng trong vòng 24h: <span className="font-semibold">{randomVoucher}</span>
-                                                            </p>
+                                                                <button
+                                                                    onClick={handleSubmitGame}
+                                                                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium py-3 px-4 rounded-xl hover:opacity-90 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                                                                >
+                                                                    Xác nhận đáp án
+                                                                </button>
+                                                            </div>
+
+                                                            {isCorrect === true && (
+                                                                <div className="animate-fadeIn bg-green-50 rounded-xl p-4 space-y-2">
+                                                                    <p className="text-green-600 font-bold text-center text-lg">
+                                                                        🎉 Chúc mừng! Bạn đã trả lời đúng! 🎉
+                                                                    </p>
+                                                                    <div className="bg-white rounded-lg p-3 border border-green-200">
+                                                                        <p className="text-sm text-gray-600 text-center">
+                                                                            Phần quà của bạn là voucher 24h:
+                                                                        </p>
+                                                                        <p className="text-lg font-mono font-bold text-center text-green-600 mt-1">
+                                                                            {randomVoucher}
+                                                                        </p>
+                                                                    </div>
+                                                                    <p className="text-sm text-center text-gray-500 mt-2">
+                                                                        Nhập voucher vào lần thanh toán cho khóa học sau nhé
+                                                                    </p>
+                                                                </div>
+                                                            )}
+
+
+                                                            {isCorrect === false && (
+                                                                <div className="animate-fadeIn bg-red-50 rounded-xl p-4">
+                                                                    <p className="text-red-500 text-center font-medium">
+                                                                        Rất tiếc! Hãy thử lại nhé!
+                                                                    </p>
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    )}
-                                                    {isCorrect === false && (
-                                                        <p className="text-center text-red-500 mt-4">Câu trả lời sai! Hãy thử lại.</p>
-                                                    )}
-
-                                                    <DialogClose asChild>
-                                                        <button className="mt-6 bg-gray-400 px-5 py-3 text-white rounded-lg hover:bg-gray-500 transition-all">
-                                                            Đóng
-                                                        </button>
-                                                    </DialogClose>
+                                                    </div>
                                                 </DialogContent>
                                             </Dialog>
-
                                         </div>
                                     </div>
                                 </div>
@@ -1065,16 +1089,9 @@ export const Lesson = () => {
                                             </div>
                                         )}
                                     </Accordion>
-
-
-
-
                                 </div>
-
-
                             </div>
                         </div>
-
                     </div>
                 </div>
             </body>
