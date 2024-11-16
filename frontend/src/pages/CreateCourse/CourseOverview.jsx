@@ -78,9 +78,11 @@ export const CourseOverview = () => {
         titleError: '',
     });
 
+    const [selectedExtension, setSelectedExtension] = useState("");
+    const [selectedDate, setSelectedDate] = useState("");
+
     // console.log(isUpdated, 'clickUpdate-courseOverview');
     const exportToJsonLog = () => {
-        // Tạo đối tượng dữ liệu mà bạn muốn xuất ra
         const logData = {
             courseTitle, // Tiêu đề khóa học
             courseDescriptionText, // Mô tả khóa học
@@ -89,23 +91,29 @@ export const CourseOverview = () => {
             selectedLanguage, // Ngôn ngữ
             selectedCategory, // Thể loại
             courseImage, // Hình ảnh khóa học
-            errors, // Lỗi validation
-            wordCount, // Số từ trong mô tả
+            selectedExtension, // Phần mở rộng khóa học
+            selectedDate, // Ngày học nếu chọn online
         };
 
         // Chuyển đối tượng dữ liệu thành JSON
-        const jsonLog = JSON.stringify(logData, null, 2); // null, 2 để format dễ đọc
+        const jsonLog = JSON.stringify(logData, null, 2);
 
         // Xuất ra log dưới dạng JSON
         console.log(jsonLog);
-
-        // Tạo một Blob và liên kết tải xuống
-        const blob = new Blob([jsonLog], { type: "application/json" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.click();
     };
 
+    useEffect(() => {
+        // Đặt isUpdated thành true khi mới vào trang
+        if (!initialCourseTitle && !initialCourseDescriptionText) {
+            setIsUpdated(true);
+        }
+        if (!isUpdated) {
+            // Khi trang load hoặc chuyển component, không hiển thị thông báo.
+            toast.dismiss();
+        }
+    }, [initialCourseTitle, initialCourseDescriptionText, isUpdated]);
+
+    // Đặt lại giá trị isUpdated khi có sự thay đổi giữa dữ liệu hiện tại và dữ liệu ban đầu
     useEffect(() => {
         if (
             courseTitle !== initialCourseTitle ||
@@ -117,8 +125,10 @@ export const CourseOverview = () => {
             courseImage !== initialCourseImage
         ) {
             setHasChanges(true);
+            setIsUpdated(false); // Đánh dấu là đã thay đổi
         } else {
             setHasChanges(false);
+            setIsUpdated(true); // Đánh dấu là chưa thay đổi
         }
     }, [
         courseTitle,
@@ -136,6 +146,7 @@ export const CourseOverview = () => {
         initialSelectedCategory,
         initialCourseImage
     ]);
+
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -168,6 +179,7 @@ export const CourseOverview = () => {
 
     useEffect(() => {
         const fetchCategories = async () => {
+            toast.dismiss();
             setLoading(true);
             try {
                 const res = await axios.get(`${API_URL}/categories`, {
@@ -187,6 +199,7 @@ export const CourseOverview = () => {
     // Fetch dữ liệu ban đầu từ API
     useEffect(() => {
         const fetchCourse = async () => {
+            toast.dismiss();
             try {
                 const response = await axios.get(`${API_URL}/teacher/courses/${course_id}`, {
                     headers: {
@@ -522,6 +535,44 @@ export const CourseOverview = () => {
                                 </Select>
                                 {errors.categoryError && <p className="text-red-500 text-sm">{errors.categoryError}</p>}
 
+                            </div>
+                        </div>
+                        <div className="pb-6">
+                            <div className="flex">
+                                <div className="w-1/2">
+                                    <h2 className="pb-1 text-lg font-medium">Chọn mở rộng khóa học</h2>
+                                    {/* Chọn phần mở rộng */}
+
+                                    <Select
+                                        value={selectedExtension}
+                                        onValueChange={(value) => setSelectedExtension(value)}
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="-- Chọn phần mở rộng --" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                <SelectLabel>Phần mở rộng</SelectLabel>
+                                                <SelectItem value="0">Không chọn</SelectItem>
+                                                <SelectItem value="online">Chọn thêm phần học online</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Hiển thị phần lịch bên phải khi chọn "online" */}
+                                {selectedExtension === "online" && (
+                                    <div className="w-1/2 ml-4">
+                                        <h3 className="text-lg font-medium">Lịch khai giảng học online</h3>
+                                        <input
+                                            type="date"
+                                            className="w-full py-2 px-4 border border-gray-300 rounded-md"
+                                            min={new Date().toISOString().split("T")[0]}
+                                            max={new Date(new Date().setDate(new Date().getDate() + 10)).toISOString().split("T")[0]}
+                                            onChange={(e) => setSelectedDate(e.target.value)} 
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
 

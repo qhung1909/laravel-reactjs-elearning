@@ -402,9 +402,9 @@ export const CategoryCrud = () => {
                     <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-yellow-400">
+                                <tr className="bg-yellow-100">
                                     <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">ID</th>
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Icon</th>
+                                    {/* <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Icon</th> */}
                                     <th
                                         className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
                                         onClick={() => handleSort('name')}
@@ -444,9 +444,6 @@ export const CategoryCrud = () => {
                                                     <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
                                                 </td>
                                                 <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
-                                                </td>
-                                                <td className="py-4 px-6">
                                                     <div className="bg-gray-300 rounded animate-pulse" style={{ width: '120px', height: '20px' }} />
                                                 </td>
                                                 <td className="py-4 px-6">
@@ -465,13 +462,13 @@ export const CategoryCrud = () => {
                                     sortedCategories.map((category, index) => (
                                         <tr key={index} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
                                             <td className="py-4 px-6 text-sm text-gray-600">#{category.course_category_id}</td>
-                                            <td className="py-4 px-6 text-sm text-gray-600">
+                                            {/* <td className="py-4 px-6 text-sm text-gray-600">
                                                 {category.image ? (
                                                     <img src={category.image} alt={`${category.name} icon`} className="h-6 w-6" />
                                                 ) : (
                                                     <>null</>
                                                 )}
-                                            </td>
+                                            </td> */}
                                             <td className="py-4 px-6">
                                                 <div className="font-medium text-gray-900">{category.name}</div>
                                             </td>
