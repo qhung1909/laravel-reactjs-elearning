@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useState, useEffect } from "react"
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
+import { formatDate } from "@/components/FormatDay/Formatday"
 import axios from "axios"
 export const UserOrderHistory = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -19,22 +20,70 @@ export const UserOrderHistory = () => {
     const [orderHistory, setOrderHistory] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-
-    const fetchOrderHistory = async () => {
-        const token = localStorage.getItem("acce    ss_token");
+    const [user, setUser] = useState({});
+    // Fetch thông tin user đang đăng nhập
+    const fetchUser = async () => {
+        setLoading(true);
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.error("Người dùng chưa đăng nhập.");
+            return;
+        }
         try {
-            const response = await axios.get(`${API_URL}/auth/orders/history`, {
+            const res = await axios.get(`${API_URL}/auth/me`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            // Kiểm tra cấu trúc dữ liệu trả về
+            if (res.data && res.data) {
+                setUser(res.data);
+            } else {
+                console.error(
+                    "Không tìm thấy thông tin người dùng trong phản hồi."
+                );
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy thông tin người dùng:", error);
+            if (error.response) {
+                console.error("Chi tiết lỗi:", error.response.data);
+                console.error("Trạng thái lỗi:", error.response.status);
+            } else {
+                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
+        fetchUser();
+    }, []);
+    const fetchOrderHistory = async () => {
+        const token = localStorage.getItem("access_token");
+        const userId = user.user_id
+        if (!userId) {
+            console.log("User ID not found");
+            return;
+        }
+        try {
+            const response = await axios.get(`${API_URL}/orders/user/${userId}`, {
                 headers: {
                     'x-api-secret': `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
                 }
             });
-
-            setOrderHistory(response.data);
+            setOrderHistory(response.data.data);
         } catch (error) {
-            console.log('Error fetching order history', error)
+            console.log('Error fetching order history', error);
         }
     }
+    useEffect(() => {
+        if (user.user_id) {
+            fetchOrderHistory();
+        }
+    }, [user.user_id]);
+
 
     const searchOrderHistory = async (e) => {
         e.preventDefault();
@@ -86,47 +135,40 @@ export const UserOrderHistory = () => {
             );
         }
 
-        return orderHistory
-            .filter(item => item.status === "success")
-            .map((item, index) => (
-                <TableRow key={index} className="sm:p-4 p-0">
-                    <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                        {index + 1}
-                    </TableCell>
-                    <TableCell className="sm:p-4 py-2 px-0 xl:w-[400px] lg:w-[250px] md:w-[200px] w-fit font-medium lg:text-base sm:text-sm text-xs">
-                        <p className="line-clamp-2">{item.courses && item.courses[0] ? item.courses[0].course_title : "Lỗi hiển thị tên khóa học"}</p>
-                    </TableCell>
-                    <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                        <span className={`${item.status === "success" ? "bg-green-100 text-green-700 font-semibold px-3 py-1 rounded-full" : ""
-                            }`}>
-                            {item.status === "success" ? "Thành công" : item.status}
-                        </span>
-                    </TableCell>
+        return orderHistory.map((item, index) => (
+            <TableRow key={index} className="sm:p-4 p-0">
+                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
+                    {index + 1}
+                </TableCell>
+                <TableCell className="sm:p-4 py-2 px-0 xl:w-[400px] lg:w-[250px] md:w-[200px] w-fit font-medium lg:text-base sm:text-sm text-xs">
+                    <p className="line-clamp-2">{item.courses && item.courses[0] ? item.courses[0].course_title : "Đang tải tên khóa học"}</p>
+                </TableCell>
+                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
+                    <span className={`${item.status === "success" ? "bg-green-100 text-green-700 font-semibold px-3 py-1 rounded-full" : ""
+                        }`}>
+                        {item.status === "success" ? "Thành công" : item.status}
+                    </span>
+                </TableCell>
 
-                    <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                        {item.payment_method === "vnpay" ? (
-                            <img src="/src/assets/images/logo-vnpay.jpg" alt="VNPay" className="w-32 h-14 object-contain pr-4" />
-                        ) : (
-                            item.payment_method
-                        )}
-                    </TableCell>
+                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
+                    <img src="/src/assets/images/logo-vnpay.jpg" alt="VNPay" className="w-32 h-14 object-contain pr-4" />
+
+                </TableCell>
 
 
-                    <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                        {item.created_at}
-                    </TableCell>
-                    <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                        {formatCurrency(item.total_price)}
-                    </TableCell>
-                </TableRow>
-            ));
+                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
+                    {formatDate(item.created_at)}
+                </TableCell>
+                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
+                    {formatCurrency(item.total_price)}
+                </TableCell>
+            </TableRow>
+        ));
     };
 
 
 
-    useEffect(() => {
-        fetchOrderHistory();
-    }, []);
+
     return (
         <>
             <section className="useraccount my-10 mx-auto  px-4 lg:px-10 xl:px-20">
@@ -167,8 +209,8 @@ export const UserOrderHistory = () => {
                                 <p className="text-sm text-gray-500 ">Xem lại những giao dịch bạn đã hoàn thành.</p>
                             </div>
                             <div className="my-5">
-                                <form onSubmit={searchOrderHistory}>
-                                    <div className="mb-4 flex items-center gap-2">
+                                <form > {/*onSubmit={searchOrderHistory}*/}
+                                    {/* <div className="mb-4 flex items-center gap-2">
                                         <Input
                                             type="text"
                                             value={searchQuery}
@@ -179,7 +221,7 @@ export const UserOrderHistory = () => {
                                         <Button type="submit" className="bg-blue-500 text-white p-5 rounded">
                                             Tìm kiếm
                                         </Button>
-                                    </div>
+                                    </div> */}
                                     <div className="mb-5">
                                         <Table>
                                             <TableHeader>
