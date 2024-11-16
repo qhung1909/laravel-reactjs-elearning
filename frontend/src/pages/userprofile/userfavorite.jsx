@@ -72,7 +72,7 @@ export const UserFavorite = () => {
                                 <p className="mt-2 text-sm text-gray-500">Những khóa học bạn thích nhưng vẫn chưa có dịp mua, chúng tôi sẽ giúp bạn lưu lại.</p>
                             </div>
                             <div className="mt-8">
-                                <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-6">
+                                <div className="grid xl:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
                                     {favorites.length > 0 ? (
                                         favorites.map(favorites => {
                                             return (
