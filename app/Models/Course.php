@@ -21,6 +21,10 @@ class Course extends Model
         'img',
         'title',
         'slug',
+        'backup_launch_date',
+        'launch_date',
+        'reject_reason',
+        'revision_reason'
     ];
 
     public function category()
