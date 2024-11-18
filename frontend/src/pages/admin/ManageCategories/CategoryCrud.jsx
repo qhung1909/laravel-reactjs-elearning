@@ -49,6 +49,7 @@ import axios from 'axios'
 import toast, { Toaster } from 'react-hot-toast';
 import Swal from "sweetalert2";
 import * as XLSX from 'xlsx';
+import { Card, CardHeader } from "@/components/ui/card";
 
 
 const notify = (message, type) => {
@@ -329,252 +330,261 @@ export const CategoryCrud = () => {
                         <div className='loading-spin'></div>
                     </div>
                 )}
-                <div className="absolute top-12 w-full p-4 font-sans">
-                    <div className="mb-4 flex items-center justify-between">
-                        <div className="relative flex-1 max-w-md">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm danh mục..."
-                                className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-full"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <div className="flex gap-3">
-                            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                                <DialogTrigger asChild>
-                                    <Button className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
-                                        <Plus className="h-4 w-4" />
-                                        Thêm danh mục mới
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                        <DialogTitle>Thêm danh mục</DialogTitle>
-                                        <DialogDescription>
-                                            Nhập thông tin danh mục mới ở đây. Nhấn thêm khi bạn hoàn tất.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="grid gap-4 py-4">
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="newCategoryName" className="text-right">
-                                                Tên
-                                            </Label>
-                                            <Input
-                                                // id="newCategoryName"
-                                                value={newCategoryName}
-                                                onChange={(e) => setNewCategoryName(e.target.value)}
-                                                className="col-span-3"
-                                                required
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="newCategoryImage" className="text-right">
-                                                File ảnh
-                                            </Label>
-                                            <Input
-                                                // id="newCategoryImage"
-                                                type='file'
-                                                // value={newCategoryImage}
-                                                onChange={(e) => setNewCategoryImage(e.target.files[0])}
-                                                className="col-span-3"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <DialogFooter>
-                                        <Button className='bg-yellow-500 hover:bg-yellow-600' type="submit" onClick={addCategory}>
-                                            Thêm
-                                        </Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
+                <div className="absolute top-16 px-6 bg-gray-50 w-full font-sans">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                        <h1 className="text-2xl font-bold text-gray-900">Quản lý danh mục</h1>
 
-                            <Button variant="outline" className="flex items-center" onClick={exportToExcel}>
-                                <FileDown size={16} />
-                                Xuất
-                            </Button>
+                        <div className="flex-1 flex justify-end gap-4 items-center">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Tìm kiếm danh mục..."
+                                    className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-full md:w-auto"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="flex gap-3">
+                                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button className="bg-orange-400 hover:bg-orange-500 text-white flex items-center gap-2">
+                                            <Plus className="h-4 w-4" />
+                                            Thêm danh mục mới
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[425px]">
+                                        <DialogHeader>
+                                            <DialogTitle>Thêm danh mục</DialogTitle>
+                                            <DialogDescription>
+                                                Nhập thông tin danh mục mới ở đây. Nhấn thêm khi bạn hoàn tất.
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="grid gap-4 py-4">
+                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                <Label htmlFor="newCategoryName" className="text-right">
+                                                    Tên
+                                                </Label>
+                                                <Input
+                                                    value={newCategoryName}
+                                                    onChange={(e) => setNewCategoryName(e.target.value)}
+                                                    className="col-span-3"
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                <Label htmlFor="newCategoryImage" className="text-right">
+                                                    File ảnh
+                                                </Label>
+                                                <Input
+                                                    type="file"
+                                                    onChange={(e) => setNewCategoryImage(e.target.files[0])}
+                                                    className="col-span-3"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                        <DialogFooter>
+                                            <Button className="bg-yellow-500 hover:bg-yellow-600" type="submit" onClick={addCategory}>
+                                                Thêm
+                                            </Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+
+                                <Button variant="outline" className="flex items-center" onClick={exportToExcel}>
+                                    <FileDown size={16} />
+                                    Xuất
+                                </Button>
+                            </div>
                         </div>
                     </div>
+
 
                     {/* Phần bảng danh mục không thay đổi */}
-                    <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="bg-yellow-100">
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">ID</th>
-                                    {/* <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Icon</th> */}
-                                    <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
-                                        onClick={() => handleSort('name')}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            Tên danh mục
-                                            {getSortIcon('name')}
-                                        </div>
-                                    </th>
-                                    <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
-                                        onClick={() => handleSort('courseCount')}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            Số lượng khóa học
-                                            {getSortIcon('courseCount')}
-                                        </div>
-                                    </th>
-                                    <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
-                                        onClick={() => handleSort('lastUpdated')}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            Cập nhật lần cuối
-                                            {getSortIcon('lastUpdated')}
-                                        </div>
-                                    </th>
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loadingCategory ? (
-                                    <>
-                                        {[...Array(5)].map((_, rowIndex) => (
-                                            <tr key={rowIndex} className="border-t border-gray-100">
-                                                <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
+                    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-collapse">
+                                <thead>
+                                    <tr className="bg-yellow-100">
+                                        <th className="whitespace-nowrap py-4 px-6 text-md font-bold text-gray-700 text-center">STT</th>
+                                        <th className="whitespace-nowrap py-4 px-6 text-md font-bold text-gray-700 text-center">Hình ảnh</th>
+                                        <th
+                                            className="whitespace-nowrap py-4 px-6 text-md font-bold text-gray-700 cursor-pointer group"
+                                            onClick={() => handleSort('name')}
+                                        >
+                                            <div className="flex items-center justify-center gap-2">
+                                                Tên danh mục
+                                                {getSortIcon('name')}
+                                            </div>
+                                        </th>
+                                        <th
+                                            className="whitespace-nowrap py-4 px-6 text-md font-bold text-gray-700 cursor-pointer group"
+                                            onClick={() => handleSort('courseCount')}
+                                        >
+                                            <div className="flex items-center justify-center gap-2">
+                                                Số lượng khóa học
+                                                {getSortIcon('courseCount')}
+                                            </div>
+                                        </th>
+                                        <th
+                                            className="whitespace-nowrap py-4 px-6 text-md font-bold text-gray-700 cursor-pointer group"
+                                            onClick={() => handleSort('lastUpdated')}
+                                        >
+                                            <div className="flex items-center justify-center gap-2">
+                                                Cập nhật lần cuối
+                                                {getSortIcon('updated_at')}
+                                            </div>
+                                        </th>
+                                        <th className="whitespace-nowrap py-4 px-6 text-md font-bold text-gray-700 text-center">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loadingCategory ? (
+                                        <>
+                                            {[...Array(5)].map((_, rowIndex) => (
+                                                <tr key={rowIndex} className="border-t border-yellow-100">
+                                                    <td className="p-4">
+                                                        <div className="mx-auto h-5 w-10 animate-pulse rounded bg-yellow-200" />
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <div className="mx-auto h-16 w-16 animate-pulse rounded bg-yellow-200" />
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <div className="mx-auto h-5 w-32 animate-pulse rounded bg-yellow-200" />
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <div className="mx-auto h-5 w-20 animate-pulse rounded bg-yellow-200" />
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <div className="mx-auto h-5 w-24 animate-pulse rounded bg-yellow-200" />
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <div className="mx-auto h-5 w-28 animate-pulse rounded bg-yellow-200" />
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </>
+                                    ) : (
+                                        sortedCategories.map((category, index) => (
+                                            <tr key={index} className="border-t border-yellow-100 hover:bg-gray-50 transition-colors">
+                                                <td className="whitespace-nowrap py-4 px-6 text-sm text-gray-600 text-center">
+                                                    {index + 1}
+                                                </td>
+                                                <td className="py-4 px-6 text-center">
+                                                    {category.image ? (
+                                                        <img
+                                                            src={category.image}
+                                                            alt={`${category.name}`}
+                                                            className="h-16 w-16 object-cover rounded-lg mx-auto"
+                                                        />
+                                                    ) : (
+                                                        <div className="h-16 w-16 rounded-lg bg-gray-100 flex items-center justify-center mx-auto">
+                                                            <span className="text-gray-400 text-xs">No image</span>
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                <td className="whitespace-nowrap py-4 px-6 text-sm font-medium text-gray-900 text-center">
+                                                    {category.name}
+                                                </td>
+                                                <td className="whitespace-nowrap py-4 px-6 text-sm text-gray-600 text-center">
+                                                    {category.courseCount || 'Update soon'}
+                                                </td>
+                                                <td className="whitespace-nowrap py-4 px-6 text-sm text-gray-600 text-center">
+                                                    {new Date(category.updated_at).toLocaleDateString('vi-VN')}
                                                 </td>
                                                 <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '120px', height: '20px' }} />
-                                                </td>
-                                                <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '120px', height: '20px' }} />
-                                                </td>
-                                                <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '80px', height: '20px' }} />
-                                                </td>
-                                                <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '80px', height: '20px' }} />
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <Dialog>
+                                                            <DialogTrigger asChild>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="border-gray-500 text-gray-600 hover:bg-blue-50 transition-colors"
+                                                                    onClick={() => openEditDialog(category)}
+                                                                >
+                                                                    <PenLine className="h-4 w-4 mr-1.5" />
+                                                                    Sửa
+                                                                </Button>
+                                                            </DialogTrigger>
+                                                            <DialogContent className="sm:max-w-[425px]">
+                                                                <DialogHeader>
+                                                                    <DialogTitle className="text-xl font-semibold">
+                                                                        Sửa danh mục
+                                                                    </DialogTitle>
+                                                                    <DialogDescription className="text-gray-500">
+                                                                        Thay đổi thông tin danh mục ở đây. Nhấn lưu khi bạn hoàn tất.
+                                                                    </DialogDescription>
+                                                                </DialogHeader>
+                                                                <div className="space-y-6 py-4">
+                                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                                        <Label className="text-right font-medium">Tên</Label>
+                                                                        <div className="col-span-3">
+                                                                            <Input
+                                                                                value={category.name}
+                                                                                className="w-full"
+                                                                                placeholder="Nhập tên danh mục"
+                                                                                required
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {category.image && (
+                                                                        <div className="grid grid-cols-4 items-center gap-4">
+                                                                            <Label className="text-right font-medium">Ảnh hiện tại</Label>
+                                                                            <div className="col-span-3">
+                                                                                <img
+                                                                                    src={category.image}
+                                                                                    alt="Current"
+                                                                                    className="h-20 w-20 object-cover rounded-lg"
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+
+                                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                                        <Label className="text-right font-medium">Tải ảnh mới</Label>
+                                                                        <div className="col-span-3">
+                                                                            <Input
+                                                                                type="file"
+                                                                                className="w-full cursor-pointer file:mr-4 file:py-2 file:px-4
+                                                                                    file:rounded-md file:border-0 file:text-sm file:font-semibold
+                                                                                    file:bg-orange-50 file:text-orange-600 hover:file:bg-orange-100"
+                                                                                accept="image/*"
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <DialogFooter>
+                                                                    <Button
+                                                                        className="bg-orange-500 hover:bg-orange-600 text-white min-w-[100px]"
+                                                                        onClick={() => editCategory(category.course_category_id)}
+                                                                    >
+                                                                        Cập nhật
+                                                                    </Button>
+                                                                </DialogFooter>
+                                                            </DialogContent>
+                                                        </Dialog>
+
+                                                        <Button
+                                                            variant="destructive"
+                                                            size="sm"
+                                                            className="bg-white border border-red-600 hover:bg-red-100 transition-colors"
+                                                            onClick={() => deleteCategory(category.slug)}
+                                                        >
+                                                            <Trash2 className="h-4 w-4 mr-1.5 text-red-500" />
+                                                            <span className="text-red-500">Xóa</span>
+                                                        </Button>
+                                                    </div>
                                                 </td>
                                             </tr>
-                                        ))}
-                                    </>
-                                ) : (
-                                    sortedCategories.map((category, index) => (
-                                        <tr key={index} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
-                                            <td className="py-4 px-6 text-sm text-gray-600">#{category.course_category_id}</td>
-                                            {/* <td className="py-4 px-6 text-sm text-gray-600">
-                                                {category.image ? (
-                                                    <img src={category.image} alt={`${category.name} icon`} className="h-6 w-6" />
-                                                ) : (
-                                                    <>null</>
-                                                )}
-                                            </td> */}
-                                            <td className="py-4 px-6">
-                                                <div className="font-medium text-gray-900">{category.name}</div>
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-sm text-gray-600">{category.courseCount}  update soon</span>
-                                                </div>
-                                            </td>
-                                            <td className="py-4 px-6 text-sm text-gray-600">
-                                                {new Date(category.updated_at).toLocaleDateString('vi-VN')}
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <div className="flex justify-start gap-2">
-                                                    <Dialog>
-                                                        <DialogTrigger asChild>
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                className="text-blue-600 border-blue-600 hover:bg-blue-50"
-                                                                onClick={() => openEditDialog(category)}
-                                                            >
-                                                                <PenLine className="h-4 w-4 mr-1" />
-                                                                Sửa
-                                                            </Button>
-                                                        </DialogTrigger>
-                                                        <DialogContent className="sm:max-w-[425px]">
-                                                            <DialogHeader>
-                                                                <DialogTitle>Sửa danh mục</DialogTitle>
-                                                                <DialogDescription>
-                                                                    Thay đổi thông tin danh mục ở đây. Nhấn lưu khi bạn hoàn tất.
-                                                                </DialogDescription>
-                                                            </DialogHeader>
-                                                            <div className="grid gap-4 py-4">
-                                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                                    <Label htmlFor="editCategoryName" className="text-right">
-                                                                        Tên
-                                                                    </Label>
-                                                                    <Input
-                                                                        id="editCategoryName"
-                                                                        value={editCategoryName}
-                                                                        onChange={(e) => setEditCategoryName(e.target.value)}
-                                                                        className="col-span-3"
-                                                                        required
-                                                                    />
-                                                                </div>
-
-
-                                                                {category.image ? (
-                                                                    <div className="grid grid-cols-4 items-center gap-4">
-                                                                        <Label>Icon hiện tại</Label>
-                                                                        <img src={category.image} alt="Current Icon" />
-                                                                    </div>
-                                                                ) : (
-                                                                    <></>
-                                                                )
-
-                                                                }
-
-
-                                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                                    <Label htmlFor="editCategoryImage" className="text-right">
-                                                                        Tạo icon mới
-                                                                    </Label>
-                                                                    <Input
-                                                                        type='file'
-                                                                        id="editCategoryImage"
-                                                                        onChange={handleImageChange}
-                                                                        className="col-span-3"
-                                                                        required
-                                                                    />
-                                                                </div>
-
-                                                                {selectedImage && (
-                                                                    <div className="grid grid-cols-4 items-center gap-4">
-                                                                        <Label>Hình ảnh đã chọn:</Label>
-                                                                        <img src={selectedImage} onChange={((e) => setEditCategoryImage(e.target.value))} alt="Selected" className="col-span-3" />
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
-                                                            <DialogFooter>
-                                                                <Button className='bg-yellow-500 hover:bg-yellow-600' type="submit" onClick={() => editCategory(category.course_category_id)}>
-                                                                    Cập nhật
-                                                                </Button>
-                                                            </DialogFooter>
-                                                        </DialogContent>
-                                                    </Dialog>
-                                                    <Button
-                                                        onClick={() => deleteCategory(category.slug)}
-                                                        variant="destructive"
-                                                        size="sm"
-                                                        className="bg-red-500 hover:bg-red-600"
-                                                    >
-                                                        <Trash2 className="h-4 w-4 mr-1" />
-                                                        Xóa
-                                                    </Button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-
-
                     <div className="mt-3">
                         <Pagination>
                             <PaginationContent>
