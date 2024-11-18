@@ -16,7 +16,8 @@ import {
     Sparkles,
     SquareTerminal,
     Layout,
-    MessageCircle
+    MessageCircle,
+    School
 } from "lucide-react";
 
 import {
@@ -123,7 +124,7 @@ const data = {
         {
             title: "Quản lý lịch dạy của giảng viên",
             url: "#",
-            icon: BookOpen,
+            icon: School,
             items: [
                 { title: "Danh sách lịch dạy của giảng viên", url: "/admin/teaching-schedule-list" },
             ],
