@@ -87,6 +87,7 @@ const JitsiMeeting = () => {
         participant._properties?.role === 'moderator'
       );
     });
+
   };
 
   const saveParticipant = async (participant, meeting_id, leftAt = null) => {
@@ -95,7 +96,7 @@ const JitsiMeeting = () => {
       console.error("Token không tồn tại!");
       return;
     }
-
+  
     const joinedAt = new Date().toISOString();
     const data = {
       meeting_url: meetingUrl,  
@@ -119,7 +120,7 @@ const JitsiMeeting = () => {
       console.error("Error saving participant:", error.response?.data || error.message);
     }
   };
-
+  
   const handleParticipantEvents = (api) => {
     api.on("videoConferenceJoined", () => {
       const currentParticipants = api.getParticipantsInfo();
@@ -136,6 +137,7 @@ const JitsiMeeting = () => {
       setParticipants((prevParticipants) => {
         const updatedParticipants = [...prevParticipants, participant];
         const teacherOrModeratorPresent = checkForTeacherOrModerator(updatedParticipants);
+
         setHasTeacher(teacherOrModeratorPresent);
         setIsWaiting(!teacherOrModeratorPresent && userInfo.role !== "teacher");
         return updatedParticipants;
@@ -197,12 +199,6 @@ const JitsiMeeting = () => {
       };
     }
   }, [userInfo, isLoading, meetingUrl]);
-
-  useEffect(() => {
-    if (isWaiting) {
-      alert('Waiting for the teacher to start the meeting...');
-    }
-  }, [isWaiting]);
 
 
   return (
