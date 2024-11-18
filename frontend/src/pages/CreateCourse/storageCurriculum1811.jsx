@@ -52,19 +52,22 @@ export const Curriculum = () => {
     const [sections, setSections] = useState([]);
     const [isUpdated, setIsUpdated] = useState(false);
 
+    // console.log(isUpdated, 'clickUpdate-curriculum');
     const [hasChanges, setHasChanges] = useState(false);
 
+    // Function to handle section title change
     const handleSectionTitleChange = (sectionId, newTitle) => {
         setSections(prevSections => {
             const updatedSections = prevSections.map(section =>
                 section.id === sectionId ? { ...section, title: newTitle } : section
             );
-            setHasChanges(true);
+            setHasChanges(true); // Mark as having changes
             return updatedSections;
         });
     };
 
-    const handleContentTitleChange = (sectionId, lessonId, newTitle) => {
+    // Function to handle lesson title change
+    const handleLessonTitleChange = (sectionId, lessonId, newTitle) => {
         setSections(prevSections => {
             const updatedSections = prevSections.map(section => {
                 if (section.id === sectionId) {
@@ -77,7 +80,7 @@ export const Curriculum = () => {
                 }
                 return section;
             });
-            setHasChanges(true);
+            setHasChanges(true); // Mark as having changes
             return updatedSections;
         });
     };
@@ -120,7 +123,7 @@ export const Curriculum = () => {
     };
 
 
-    const handleContentDescChange = (sectionId, lessonId, newDescription) => {
+    const handleLessonDescriptionChange = (sectionId, lessonId, newDescription) => {
         setSections(prevSections =>
             prevSections.map(section =>
                 section.id === sectionId
@@ -135,7 +138,7 @@ export const Curriculum = () => {
         )
     }
 
-    const handleDocumentChange = (sectionId, lessonId, value) => {
+    const handleContentChange = (sectionId, lessonId, value) => {
         setSections(sections.map(section => {
             if (section.id === sectionId) {
                 return {
@@ -149,7 +152,7 @@ export const Curriculum = () => {
         }));
     };
 
-    const handleFileVideoChange = (sectionId, lessonId, file) => {
+    const handleFileChange = (sectionId, lessonId, file) => {
         setSections(sections.map(section => {
             if (section.id === sectionId) {
                 return {
@@ -233,7 +236,7 @@ export const Curriculum = () => {
             course_id: course_id,
             title: '',
             lessons: [],
-            is_online_meeting: 0,
+            is_online_meeting: 1,
         };
 
         try {
@@ -609,47 +612,9 @@ export const Curriculum = () => {
         }
 
 
-        // const invalidSections = sections.filter(section => !section.title || !section.title.trim());
-        // if (invalidSections.length > 0) {
-        //     toast.error('Vui lòng nhập tiêu đề hợp lệ cho tất cả các bài học!');
-        //     return;
-        // }
-
-        // const invalidContent = sections.some(section =>
-        //     section.lessons.some(lesson => !lesson.title || !lesson.title.trim())
-        // );
-        // if (invalidContent) {
-        //     toast.error('Vui lòng nhập tiêu đề hợp lệ cho tất cả các nội dung!');
-        //     return;
-        // }
-
-        let hasErrors = false;
-
-        // Kiểm tra tất cả các phần và nội dung
-        // sections.forEach(section => {
-        //     if (!section.title || !section.title.trim()) {
-        //         hasErrors = true;
-        //     }
-        //     section.lessons.forEach(lesson => {
-        //         if (!lesson.title || !lesson.title.trim()) {
-        //             hasErrors = true;
-        //         }
-        //     });
-        // });
-
-        sections.forEach(section => {
-            if (!section.title || !section.title.trim()) {
-                hasErrors = true;
-            }
-            section.lessons.forEach(lesson => {
-                if (!lesson.title || !lesson.title.trim() || !lesson.description || !lesson.description.trim()) {
-                    hasErrors = true;
-                }
-            });
-        }); 
-
-        if (hasErrors) {
-            toast.error('Vui lòng điền tất cả nội dung!');
+        const invalidSections = sections.filter(section => !section.title || !section.title.trim());
+        if (invalidSections.length > 0) {
+            toast.error('Vui lòng nhập tiêu đề hợp lệ cho tất cả các bài học!');
             return;
         }
 
@@ -932,14 +897,14 @@ export const Curriculum = () => {
                                                                             className="flex-1 p-2 border rounded-md"
                                                                             placeholder={`Nhập tiêu đề nội dung bài ${sectionIndex + 1}.${lessonIndex + 1}`}
                                                                             value={lesson.title}
-                                                                            onChange={(e) => handleContentTitleChange(section.id, lesson.id, e.target.value)}
+                                                                            onChange={(e) => handleLessonTitleChange(section.id, lesson.id, e.target.value)}
                                                                         />
                                                                     </div>
 
                                                                     <Textarea
                                                                         placeholder="Nhập mô tả cho bài học này"
                                                                         value={lesson.description}
-                                                                        onChange={(e) => handleContentDescChange(section.id, lesson.id, e.target.value)}
+                                                                        onChange={(e) => handleLessonDescriptionChange(section.id, lesson.id, e.target.value)}
                                                                         className="w-full"
                                                                     />
 
@@ -985,7 +950,7 @@ export const Curriculum = () => {
                                                                             <Input
                                                                                 className="mt-2"
                                                                                 type="file"
-                                                                                onChange={(e) => handleFileVideoChange(section.id, lesson.id, e.target.files[0])}
+                                                                                onChange={(e) => handleFileChange(section.id, lesson.id, e.target.files[0])}
                                                                             />
                                                                         </div>
                                                                     )}
@@ -1000,7 +965,7 @@ export const Curriculum = () => {
                                                                             <ReactQuill
                                                                                 className="mt-2 pb-2"
                                                                                 value={lesson.content || ""}
-                                                                                onChange={(value) => handleDocumentChange(section.id, lesson.id, value)}
+                                                                                onChange={(value) => handleContentChange(section.id, lesson.id, value)}
                                                                                 modules={{
                                                                                     toolbar: [
                                                                                         [{ header: [1, 2, 3, false] }],
