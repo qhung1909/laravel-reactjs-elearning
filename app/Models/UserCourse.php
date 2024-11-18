@@ -9,9 +9,9 @@ class UserCourse extends Model
 {
     use HasFactory;
     protected $table = 'user_courses';
-    protected $primaryKey = 'user_course_id'; 
+    protected $primaryKey = 'user_course_id';
     protected $fillable = [
-        'user_id', 
+        'user_id',
         'course_id',
         'order_id',
     ];
@@ -28,5 +28,10 @@ class UserCourse extends Model
     public function order()
     {
         return $this->belongsTo(Order::class, 'order_id', 'order_id');
+    }
+
+    public function onlineMeeting()
+    {
+        return $this->belongsTo(OnlineMeeting::class, 'course_id', 'course_id');
     }
 }

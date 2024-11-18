@@ -269,3 +269,5 @@ Route::post('/meetings/get-user-ids-by-meeting-id', [ParticipantController::clas
 Route::post('/meetings/users-courses', [ParticipantController::class, 'getUsersList']);
 Route::post('/meetings/check-meeting-access', [ParticipantController::class, 'checkAccess']);
 Route::get('/meetings/course', [ParticipantController::class, 'getCourseIdByMeetingUrl']);
+Route::post('/meetings/users', [ParticipantController::class, 'getUserIdsByMeetingUrl']);
+Route::post('/meetings/mark-attendance ', [ParticipantController::class, 'markAttendance']);

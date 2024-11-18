@@ -44,13 +44,91 @@ const JitsiMeeting = () => {
     );
   };
 
-  const fetchStudentAttendance = async (meeting_id) => {
+  const fetchStudentAttendance = async () => {
+    const token = localStorage.getItem("access_token");
+    const meetingUrl = window.location.href;
+    const fullMeetingUrl =
+      meetingUrl.startsWith("http://") || meetingUrl.startsWith("https://")
+        ? meetingUrl
+        : `http://localhost:5173${meetingUrl}`;
+
+    try {
+      console.log("Fetching student attendance for meeting:", fullMeetingUrl);
+
+      const response = await axios.get(`${API_URL}/meetings/getMeetingId`, {
+        params: {
+          meeting_url: fullMeetingUrl,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("getMeetingId response:", response.data);
+
+      const meetingId = response.data.meeting_id;
+      console.log("Meeting ID:", meetingId);
+
+      const attendanceResponse = await axios.post(
+        `${API_URL}/meetings/users`,
+        { meeting_id: meetingId, meeting_url: fullMeetingUrl },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("getUserIdsByMeetingUrl response:", attendanceResponse.data);
+
+      if (
+        attendanceResponse.data &&
+        attendanceResponse.data.status === "success" &&
+        Array.isArray(attendanceResponse.data.data)
+      ) {
+        setStudents(
+          attendanceResponse.data.data.map((user) => ({
+            id: user.user_id,
+            name: user.name || "Unknown",
+            status: user.attended === 1 ? "present" : "absent",
+          }))
+        );
+      } else {
+        console.error("Unexpected data structure:", attendanceResponse.data);
+        setStudents([]);
+      }
+    } catch (error) {
+      console.error("Error fetching student attendance:", error);
+      console.error("Error response:", error.response);
+      setStudents([]);
+    }
+  };
+
+
+  const saveAttendance = async () => {
     const token = localStorage.getItem('access_token');
     try {
-      console.log("Fetching student attendance for meeting:", meeting_id);
-      const response = await axios.post(
-        `${API_URL}/meetings/get-user-ids-by-meeting-id`,
-        { meeting_id },
+      // Log ra toàn bộ students để kiểm tra trạng thái
+      console.log("Students:", students);
+
+      // Lọc những sinh viên có trạng thái 'present' và lấy id của họ
+      const userIds = students.filter(student => student.status === "present").map(student => student.id);
+      console.log("User IDs to mark attendance:", userIds);  // Log ra mảng user_ids
+
+      // Nếu mảng userIds là rỗng, không thực hiện gọi API
+      if (userIds.length === 0) {
+        console.log("No students to mark as present.");
+        return;
+      }
+
+      // Gửi request tới API
+      await axios.post(
+        `${API_URL}/meetings/mark-attendance`,
+        {
+          meeting_url: window.location.href,
+          user_ids: userIds
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -58,26 +136,13 @@ const JitsiMeeting = () => {
           }
         }
       );
-
-      console.log("Student attendance response:", response.data);
-
-      const studentList = (response.data.users || []).map(user => ({
-        id: user.id,
-        name: user.name,
-        status: user.is_present === 1 ? "present" : "absent"
-      }));
-
-      console.log("Processed student list:", studentList);
-      setStudents(studentList);
+      console.log("Attendance saved successfully");
     } catch (error) {
-      console.error('Error fetching student attendance:', error);
-      setStudents([]);
+      console.error('Error saving attendance:', error);
     }
   };
 
-  const saveAttendance = () => {
-    console.log("Saving attendance:", students);
-  };
+
 
   const fetchUserInfo = async () => {
     const token = localStorage.getItem('access_token');
@@ -116,10 +181,15 @@ const JitsiMeeting = () => {
 
   const fetchMeetingId = async (meetingUrl) => {
     const token = localStorage.getItem('access_token');
+
+    const fullMeetingUrl = meetingUrl.startsWith('http://') || meetingUrl.startsWith('https://')
+      ? meetingUrl
+      : `http://localhost:5173${meetingUrl}`;
+
     try {
       const response = await axios.get(`${API_URL}/meetings/getMeetingId`, {
         params: {
-          meeting_url: `${meetingUrl}`
+          meeting_url: fullMeetingUrl
         },
         headers: {
           Authorization: `Bearer ${token}`
@@ -137,6 +207,7 @@ const JitsiMeeting = () => {
       return null;
     }
   };
+
   const saveParticipant = async (participant, meeting_id, leftAt = null) => {
     const token = localStorage.getItem("access_token");
     if (!token) {
@@ -298,7 +369,6 @@ const JitsiMeeting = () => {
         await saveParticipant(participantWithTime, meeting_id);
         setParticipants(prev => [...prev, participant]);
 
-        // Refresh student list when new participant joins
         if (userInfo.role === 'teacher') {
           console.log("Refreshing student list after new participant joined");
           await fetchStudentAttendance(meeting_id);
@@ -336,7 +406,6 @@ const JitsiMeeting = () => {
 
         setParticipants(prev => prev.filter(p => p.id !== participant.id));
 
-        // Refresh student list when participant leaves
         if (userInfo.role === 'teacher') {
           console.log("Refreshing student list after participant left");
           await fetchStudentAttendance(meeting_id);
@@ -372,7 +441,6 @@ const JitsiMeeting = () => {
   useEffect(() => {
     fetchUserInfo();
   }, []);
-
   useEffect(() => {
     let mounted = true;
 
@@ -388,15 +456,13 @@ const JitsiMeeting = () => {
             if (hasAccess) {
               const meeting_id = await fetchMeetingId(meetingUrl);
               if (meeting_id) {
-                setCurrentMeetingId(meeting_id);
                 if (userInfo.role === 'teacher') {
                   await fetchStudentAttendance(meeting_id);
-                  await initializeJitsiMeeting(meeting_id);
-                } else {
-                  await initializeJitsiMeeting(meeting_id);
                 }
+                await initializeJitsiMeeting(meeting_id);
               } else {
                 console.error('Could not fetch meeting_id');
+                navigate('/');
               }
             } else {
               console.error('User does not have access to this course');
@@ -412,7 +478,6 @@ const JitsiMeeting = () => {
         }
       }
     };
-
     initializeRoom();
 
     return () => {
@@ -429,10 +494,11 @@ const JitsiMeeting = () => {
 
     if (isWaiting && userInfo.role === 'user') {
       intervalId = setInterval(async () => {
-        const teacherIsPresent = await checkTeacherPresence(window.location.href);
+        const meetingUrl = window.location.href;
+        const teacherIsPresent = await checkTeacherPresence(meetingUrl);
         if (teacherIsPresent) {
           setIsWaiting(false);
-          const meeting_id = await fetchMeetingId(window.location.href);
+          const meeting_id = await fetchMeetingId(meetingUrl);
           if (meeting_id && !jitsiApiRef.current) {
             await initializeJitsiMeeting(meeting_id);
           }
@@ -449,7 +515,7 @@ const JitsiMeeting = () => {
 
   const getMeetingCourseId = async (meetingUrl) => {
     try {
-    const response = await axios.get(`${API_URL}/meetings/course?meeting_url=http://localhost:5173${meetingUrl}`);
+      const response = await axios.get(`${API_URL}/meetings/course?meeting_url=http://localhost:5173${meetingUrl}`);
       return response.data.course_id;
     } catch (error) {
       console.error('Error getting course ID:', error);
@@ -461,21 +527,21 @@ const JitsiMeeting = () => {
       return null;
     }
   };
-  
+
   const checkMeetingAccess = async (userId, courseId) => {
     try {
       const response = await axios.post(`${API_URL}/meetings/check-meeting-access`, {
         user_id: userId,
         course_id: courseId
       });
-  
+
       return response.data.has_access;
     } catch (error) {
       console.error('Error checking meeting access:', error);
       return false;
     }
   };
-  
+
   if (isWaiting) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
@@ -484,7 +550,7 @@ const JitsiMeeting = () => {
       </div>
     );
   }
-  
+
   return (
     <div>
       <div ref={jitsiContainerRef} style={{ width: '100%', height: '100vh' }} />
@@ -543,16 +609,16 @@ const JitsiMeeting = () => {
                         <TableCell>{student.name}</TableCell>
                         <TableCell>
                           {student.status === "present" ? (
-                            <span className="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
-                              Có mặt
+                            <span className="bg-green-300 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
+                              Có
                             </span>
                           ) : student.status === "late" ? (
                             <span className="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300">
                               Đi muộn
                             </span>
                           ) : (
-                            <span className="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">
-                              Vắng mặt
+                            <span className="bg-red-300 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">
+                              Vắng
                             </span>
                           )}
                         </TableCell>
@@ -585,4 +651,5 @@ const JitsiMeeting = () => {
     </div>
   );
 }
+
 export default JitsiMeeting;

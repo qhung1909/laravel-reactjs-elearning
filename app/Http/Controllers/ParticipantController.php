@@ -372,4 +372,101 @@ class ParticipantController extends Controller
 
         return response()->json(['course_id' => $meeting->course_id]);
     }
+    public function getUserIdsByMeetingUrl(Request $request)
+    {
+        $request->validate([
+            'meeting_url' => 'required|string',
+        ]);
+    
+        $meetingUrl = $request->input('meeting_url');
+    
+        $meeting = OnlineMeeting::where('meeting_url', $meetingUrl)->first();
+        if (!$meeting) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Meeting URL không tồn tại',
+            ], 404);
+        }
+    
+        // Truy vấn dữ liệu kết hợp bảng users
+        $attendanceData = DB::table('user_courses AS uc')
+            ->leftJoin('online_meetings AS om', 'uc.course_id', '=', 'om.course_id')
+            ->leftJoin('meeting_participants AS mp', function ($join) use ($meeting) {
+                $join->on('uc.user_id', '=', 'mp.participant_id')
+                    ->where('mp.meeting_id', '=', $meeting->meeting_id);
+            })
+            ->leftJoin('users AS u', 'uc.user_id', '=', 'u.user_id') // Join bảng users để lấy tên
+            ->where('om.meeting_url', $meetingUrl)
+            ->select('uc.user_id', 'u.name', DB::raw('CASE WHEN mp.participant_id IS NOT NULL THEN 1 ELSE 0 END AS attended'))
+            ->get();
+    
+        // Tạo mảng dữ liệu trả về
+        $data = [];
+        foreach ($attendanceData as $row) {
+            $data[] = [
+                'user_id' => $row->user_id,
+                'name' => $row->name, // Thêm tên người dùng
+                'attended' => $row->attended,
+            ];
+        }
+    
+        return response()->json([
+            'status' => 'success',
+            'data' => $data,
+        ]);
+    }
+    
+    public function markAttendance(Request $request)
+    {
+        $request->validate([
+            'meeting_url' => 'required|string',
+            'user_ids' => 'required|array',
+        ]);
+    
+        $meetingUrl = $request->input('meeting_url');
+        $userIds = $request->input('user_ids');
+    
+        Log::info('Mark Attendance called', [
+            'meeting_url' => $meetingUrl,
+            'user_ids' => $userIds
+        ]);
+    
+        $meeting = OnlineMeeting::where('meeting_url', $meetingUrl)->first();
+        if (!$meeting) {
+            Log::warning('Meeting not found', ['meeting_url' => $meetingUrl]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Meeting URL không tồn tại',
+            ], 404);
+        }
+    
+        Log::info('Meeting found', ['meeting_id' => $meeting->meeting_id]);
+    
+        $now = now();
+        $participants = [];
+    
+        foreach ($userIds as $userId) {
+            Log::info('Checking participant presence', ['user_id' => $userId]);
+    
+            $participant = Participant::firstOrNew([
+                'meeting_id' => $meeting->meeting_id,
+                'user_id' => $userId,
+            ]);
+    
+            $participant->is_present = 1;
+            $participant->attendance_date = $now;
+            $participant->created_at = $now;
+            $participant->updated_at = $now;
+            $participant->save();
+    
+            $participants[] = $participant;
+        }
+    
+        Log::info('Saved attendance for participants', ['participants_count' => count($participants)]);
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Điểm danh thành công',
+        ]);
+    }
 }

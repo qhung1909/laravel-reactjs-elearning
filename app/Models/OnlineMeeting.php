@@ -17,4 +17,10 @@ class OnlineMeeting extends Model
         'start_time',
         'end_time',
     ];
+
+    public function userCourses()
+    {
+        return $this->hasMany(UserCourse::class, 'course_id', 'course_id');
+    }
+    
 }
