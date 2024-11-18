@@ -93,10 +93,10 @@ const JitsiMeeting = () => {
     try {
       const data = {
         meeting_url: meetingUrl,
-        user_id: leftAt ? participant.user_id : userInfo.user_id, // Fix: Chỉ dùng userInfo.user_id khi join mới
+        user_id: participant.user_id || userInfo.user_id,  // fallback to userInfo.user_id if not found
         joined_at: !leftAt ? new Date().toISOString() : null,
         left_at: leftAt,
-        is_present: leftAt ? 0 : 1,
+        is_present: 0,
         meeting_id: meeting_id,
         participant_info: {
           displayName: participant.displayName,
@@ -238,16 +238,10 @@ const JitsiMeeting = () => {
           ...participant,
           joinedAt: new Date().toISOString()
         };
-
-        // Lưu thông tin user vào Map với key là participant.id
-        setParticipantUserIds(prev => new Map(prev).set(participant.id, {
-          user_id: participant.user_id || userInfo.user_id,
-          joinedAt: participantWithTime.joinedAt
-        }));
-
+        // Fix: truyền user_id của participant thay vì dùng userInfo.user_id
         await saveParticipant(participantWithTime, meeting_id);
         setParticipants(prev => [...prev, participant]);
-
+      
         if (userInfo.role === 'user') {
           const teacherIsPresent = await checkTeacherPresence(meetingUrl);
           setIsWaiting(!teacherIsPresent);

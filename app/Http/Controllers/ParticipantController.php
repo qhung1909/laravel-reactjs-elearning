@@ -84,26 +84,37 @@ class ParticipantController extends Controller
     
             $meeting_id = $meeting->meeting_id;
     
-            // Sửa query để lấy participant mới nhất của user trong meeting này
+            // Lấy record gần nhất của user trong meeting này
             $existingParticipant = Participant::where('meeting_id', $meeting_id)
                 ->where('user_id', $request->user_id)
-                ->whereNotNull('joined_at')  // Chỉ lấy record có joined_at 
-                ->orderBy('created_at', 'desc')  // Lấy record mới nhất
+                ->orderBy('created_at', 'desc')  // Lấy record mới nhất 
                 ->first();
     
+            // Nếu có request leave và user đang có record active
+            if ($request->left_at && $existingParticipant && !$existingParticipant->left_at) {
+                $existingParticipant->update([
+                    'left_at' => Carbon::parse($request->left_at)->format('Y-m-d H:i:s'),
+                ]);
+                return response()->json(['message' => 'Participant left successfully.'], 200);
+            }
+    
+            // Nếu user join và đã có record nhưng đã left trước đó
+            if ($request->joined_at && $existingParticipant && $existingParticipant->left_at) {
+                // Reset left_at và update joined_at mới
+                $existingParticipant->update([
+                    'joined_at' => Carbon::parse($request->joined_at)->format('Y-m-d H:i:s'),
+                    'left_at' => null,
+                ]);
+                return response()->json(['message' => 'Participant rejoined successfully.'], 200);
+            }
+    
+            // Nếu đã có record active (chưa left) thì không tạo mới
             if ($existingParticipant && !$existingParticipant->left_at) {
-                if ($request->left_at) {
-                    $existingParticipant->update([
-                        'left_at' => Carbon::parse($request->left_at)->format('Y-m-d H:i:s'),
-                        'is_present' => 0
-                    ]);
-                    return response()->json(['message' => 'Participant left successfully.'], 200);
-                }
                 return response()->json(['message' => 'Participant already exists.'], 200);
             }
     
-            // Chỉ tạo mới nếu có joined_at từ request
-            if ($request->joined_at) {
+            // Tạo mới record nếu user chưa có record nào
+            if ($request->joined_at && !$existingParticipant) {
                 $participant = Participant::create([
                     'meeting_id' => $meeting_id,
                     'user_id' => $request->user_id,
