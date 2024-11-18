@@ -449,6 +449,11 @@ export const Login = () => {
                                 </svg>
                                 Đăng nhập với Google
                             </Button>
+
+                            <div
+                                className="cf-turnstile"
+                                data-sitekey="0x4AAAAAAA0TLiwUkgt4o_4P"
+                            ></div>
                         </div>
                         <div className="mt-4 text-center text-sm">
                             Bạn chưa có tài khoản?{" "}

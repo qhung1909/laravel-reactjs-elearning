@@ -93,7 +93,7 @@ const JitsiMeeting = () => {
     try {
       const data = {
         meeting_url: meetingUrl,
-        user_id: participant.user_id || userInfo.user_id,  // fallback to userInfo.user_id if not found
+        user_id: participant.user_id || userInfo.user_id, 
         joined_at: !leftAt ? new Date().toISOString() : null,
         left_at: leftAt,
         is_present: 0,
@@ -150,7 +150,6 @@ const JitsiMeeting = () => {
   };
 
   const initializeJitsiMeeting = async (meeting_id) => {
-    // Kiểm tra nếu đã có instance đang chạy thì không tạo mới
     if (jitsiApiRef.current) {
       console.log("Jitsi instance already exists");
       return;
@@ -211,7 +210,6 @@ const JitsiMeeting = () => {
         const joinTime = new Date().toISOString();
         const myParticipantId = api.getParticipantsInfo()[0].participantId;
 
-        // Lưu thông tin của chính mình
         setParticipantUserIds(prev => new Map(prev).set(myParticipantId, {
           user_id: userInfo.user_id,
           joinedAt: joinTime
@@ -238,7 +236,6 @@ const JitsiMeeting = () => {
           ...participant,
           joinedAt: new Date().toISOString()
         };
-        // Fix: truyền user_id của participant thay vì dùng userInfo.user_id
         await saveParticipant(participantWithTime, meeting_id);
         setParticipants(prev => [...prev, participant]);
       
@@ -254,7 +251,6 @@ const JitsiMeeting = () => {
       api.on("participantLeft", async (participant) => {
         console.log("Participant left:", participant);
 
-        // Lấy thông tin user_id từ Map
         const participantInfo = participantUserIds.get(participant.id);
 
         if (participantInfo) {
@@ -262,11 +258,10 @@ const JitsiMeeting = () => {
             displayName: participant.displayName,
             role: participant.role || userInfo.role,
             id: participant.id,
-            user_id: participantInfo.user_id, // Sử dụng user_id đã lưu
+            user_id: participantInfo.user_id, 
             joinedAt: participantInfo.joinedAt
           }, meeting_id, new Date().toISOString());
 
-          // Xóa thông tin participant khỏi Map
           setParticipantUserIds(prev => {
             const newMap = new Map(prev);
             newMap.delete(participant.id);
@@ -286,7 +281,6 @@ const JitsiMeeting = () => {
       });
 
       api.on("videoConferenceLeft", async () => {
-        // Lưu thời điểm rời phòng cho user hiện tại
         await saveParticipant({
           displayName: userInfo.name,
           role: userInfo.role,
