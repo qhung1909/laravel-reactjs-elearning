@@ -264,3 +264,4 @@ Route::post('/meetings/attendance', [ParticipantController::class, 'attendance']
 Route::post('/meetings/participants', [ParticipantController::class, 'store']);
 Route::get('/meetings/getMeetingId', [ParticipantController::class, 'getMeetingId']);
 Route::get('/meetings/checkMeetingAccess', [ParticipantController::class, 'checkMeetingAccess']);
+Route::post('/meetings/check-teacher-presence', [ParticipantController::class, 'checkTeacherPresence']);
