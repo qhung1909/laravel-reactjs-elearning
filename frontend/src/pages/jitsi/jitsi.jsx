@@ -26,8 +26,7 @@ const JitsiMeeting = () => {
   const [isWaiting, setIsWaiting] = useState(false);
   const jitsiApiRef = useRef(null);
   const API_URL = import.meta.env.VITE_API_URL;
-
-  const meetingUrl = window.location.href;
+  const meetingUrl = window.location.href; 
 
   const fetchUserInfo = async () => {
     const token = localStorage.getItem('access_token');
@@ -42,6 +41,7 @@ const JitsiMeeting = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log("User Info:", response.data);
       setUserInfo({
         name: response.data.name,
         user_id: response.data.user_id,
@@ -50,7 +50,6 @@ const JitsiMeeting = () => {
       });
       setIsLoading(false);
 
-      // Xác định trạng thái chờ ban đầu
       if (response.data.role !== 'teacher') {
         setIsWaiting(true);
       }
@@ -61,6 +60,19 @@ const JitsiMeeting = () => {
         console.error('Error fetching user info:', error);
       }
       setIsLoading(false);
+    }
+  };
+
+  const fetchMeetingId = async (meetingUrl) => {
+    try {
+      const response = await axios.get(`${API_URL}/meetings/getMeetingId`, {
+        params: { meeting_url: meetingUrl },
+      });
+      console.log("Meeting ID:", response.data.meeting_id); 
+      return response.data.meeting_id;
+    } catch (error) {
+      console.error('Error fetching meeting ID:', error);
+      return null;
     }
   };
 
@@ -75,10 +87,9 @@ const JitsiMeeting = () => {
         participant._properties?.role === 'moderator'
       );
     });
-
   };
 
-  const saveParticipant = async (participant, leftAt = null) => {
+  const saveParticipant = async (participant, meeting_id, leftAt = null) => {
     const token = localStorage.getItem("access_token");
     if (!token) {
       console.error("Token không tồn tại!");
@@ -87,13 +98,16 @@ const JitsiMeeting = () => {
 
     const joinedAt = new Date().toISOString();
     const data = {
-      participant_id: participant.id,
-      name: participant.name || "Unknown",
-      joined_at: joinedAt,
-      meeting_url: meetingUrl,
-      left_at: leftAt,
+      meeting_url: meetingUrl,  
+      user_id: userInfo.user_id, 
+      joined_at: joinedAt,  
+      left_at: leftAt,  
+      is_present: 0,  
+      meeting_id: meeting_id,  
+      created_at: new Date().toISOString(),  
+      updated_at: new Date().toISOString(),  
     };
-
+    console.log("Data to save participant:", data);  
     try {
       const response = await axios.post(`${API_URL}/meetings/participants`, data, {
         headers: {
@@ -107,10 +121,9 @@ const JitsiMeeting = () => {
   };
 
   const handleParticipantEvents = (api) => {
-    // Khi tham gia cuộc họp
     api.on("videoConferenceJoined", () => {
       const currentParticipants = api.getParticipantsInfo();
-      currentParticipants.forEach((participant) => saveParticipant(participant));
+      currentParticipants.forEach((participant) => saveParticipant(participant, id));
       setParticipants(currentParticipants);
 
       const teacherOrModeratorPresent = checkForTeacherOrModerator(currentParticipants);
@@ -118,26 +131,22 @@ const JitsiMeeting = () => {
       setIsWaiting(!teacherOrModeratorPresent && userInfo.role !== "teacher");
     });
 
-    // Khi có người tham gia mới
     api.on("participantJoined", (participant) => {
-      saveParticipant(participant);
+      saveParticipant(participant, id);
       setParticipants((prevParticipants) => {
         const updatedParticipants = [...prevParticipants, participant];
         const teacherOrModeratorPresent = checkForTeacherOrModerator(updatedParticipants);
-
         setHasTeacher(teacherOrModeratorPresent);
         setIsWaiting(!teacherOrModeratorPresent && userInfo.role !== "teacher");
         return updatedParticipants;
       });
     });
 
-    // Khi người tham gia rời đi
     api.on("participantLeft", (participant) => {
-      saveParticipant(participant, new Date().toISOString());
+      saveParticipant(participant, id, new Date().toISOString());
       setParticipants((prevParticipants) => {
         const updatedParticipants = prevParticipants.filter((p) => p.id !== participant.id);
         const teacherOrModeratorPresent = checkForTeacherOrModerator(updatedParticipants);
-
         setHasTeacher(teacherOrModeratorPresent);
         setIsWaiting(!teacherOrModeratorPresent && userInfo.role !== "teacher");
         return updatedParticipants;
@@ -151,28 +160,34 @@ const JitsiMeeting = () => {
 
   useEffect(() => {
     if (!isLoading && userInfo.user_id && jitsiContainerRef.current) {
-      const domain = '192.168.1.7:8443';
-      const options = {
-        roomName: id,
-        width: '100%',
-        height: '100%',
-        parentNode: jitsiContainerRef.current,
-        configOverwrite: {
-          enableLobby: false,
-          startWithAudioMuted: true,
-          startWithVideoMuted: true,
-        },
-        userInfo: {
-          displayName: userInfo.name,
-        },
-      };
+      fetchMeetingId(meetingUrl).then((meeting_id) => {
+        if (!meeting_id) {
+          console.error('Could not fetch meeting_id');
+          return;
+        }
+        const domain = '192.168.1.7:8443';
+        const options = {
+          roomName: meeting_id,  
+          width: '100%',
+          height: '100%',
+          parentNode: jitsiContainerRef.current,
+          configOverwrite: {
+            enableLobby: false,
+            startWithAudioMuted: true,
+            startWithVideoMuted: true,
+          },
+          userInfo: {
+            displayName: userInfo.name,
+          },
+        };
 
-      if (!jitsiApiRef.current) {
-        const api = new window.JitsiMeetExternalAPI(domain, options);
-        jitsiApiRef.current = api;
+        if (!jitsiApiRef.current) {
+          const api = new window.JitsiMeetExternalAPI(domain, options);
+          jitsiApiRef.current = api;
 
-        handleParticipantEvents(api);
-      }
+          handleParticipantEvents(api);
+        }
+      });
 
       return () => {
         if (jitsiApiRef.current) {
@@ -181,8 +196,13 @@ const JitsiMeeting = () => {
         }
       };
     }
-  }, [userInfo, isLoading, id]);
+  }, [userInfo, isLoading, meetingUrl]);
 
+  useEffect(() => {
+    if (isWaiting) {
+      alert('Waiting for the teacher to start the meeting...');
+    }
+  }, [isWaiting]);
 
 
   return (
@@ -198,7 +218,6 @@ const JitsiMeeting = () => {
               <SheetHeader>
                 <SheetTitle>Attendance List</SheetTitle>
                 <SheetDescription>
-                  {/* List of participants */}
                 </SheetDescription>
               </SheetHeader>
               <SheetClose asChild>

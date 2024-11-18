@@ -262,3 +262,5 @@ Route::post('/create-meeting/{content_id}', [OnlineMeetingController::class, 'cr
 Route::get('/meeting/{uuid}', [OnlineMeetingController::class, 'getMeetingByUuid']);
 Route::post('/meetings/attendance', [ParticipantController::class, 'attendance']);
 Route::post('/meetings/participants', [ParticipantController::class, 'store']);
+Route::get('/meetings/getMeetingId', [ParticipantController::class, 'getMeetingId']);
+Route::get('/meetings/checkMeetingAccess', [ParticipantController::class, 'checkMeetingAccess']);
