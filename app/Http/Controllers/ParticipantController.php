@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\UserCourse;
 use App\Models\Participant;
 use Illuminate\Http\Request;
 use App\Models\OnlineMeeting;
 use Illuminate\Support\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class ParticipantController extends Controller
 {
@@ -75,45 +77,39 @@ class ParticipantController extends Controller
                 'joined_at' => 'nullable|date',
                 'left_at' => 'nullable|date',
             ]);
-    
+
             $meeting = OnlineMeeting::where('meeting_url', $request->meeting_url)->first();
-    
+
             if (!$meeting) {
                 return response()->json(['error' => 'Meeting not found.'], 404);
             }
-    
+
             $meeting_id = $meeting->meeting_id;
-    
-            // Lấy record gần nhất của user trong meeting này
+
             $existingParticipant = Participant::where('meeting_id', $meeting_id)
                 ->where('user_id', $request->user_id)
-                ->orderBy('created_at', 'desc')  // Lấy record mới nhất 
+                ->orderBy('created_at', 'desc')
                 ->first();
-    
-            // Nếu có request leave và user đang có record active
+
             if ($request->left_at && $existingParticipant && !$existingParticipant->left_at) {
                 $existingParticipant->update([
                     'left_at' => Carbon::parse($request->left_at)->format('Y-m-d H:i:s'),
                 ]);
                 return response()->json(['message' => 'Participant left successfully.'], 200);
             }
-    
-            // Nếu user join và đã có record nhưng đã left trước đó
+
             if ($request->joined_at && $existingParticipant && $existingParticipant->left_at) {
-                // Reset left_at và update joined_at mới
                 $existingParticipant->update([
                     'joined_at' => Carbon::parse($request->joined_at)->format('Y-m-d H:i:s'),
                     'left_at' => null,
                 ]);
                 return response()->json(['message' => 'Participant rejoined successfully.'], 200);
             }
-    
-            // Nếu đã có record active (chưa left) thì không tạo mới
+
             if ($existingParticipant && !$existingParticipant->left_at) {
                 return response()->json(['message' => 'Participant already exists.'], 200);
             }
-    
-            // Tạo mới record nếu user chưa có record nào
+
             if ($request->joined_at && !$existingParticipant) {
                 $participant = Participant::create([
                     'meeting_id' => $meeting_id,
@@ -122,15 +118,14 @@ class ParticipantController extends Controller
                     'joined_at' => Carbon::parse($request->joined_at)->format('Y-m-d H:i:s'),
                     'left_at' => null,
                 ]);
-    
+
                 return response()->json([
                     'participant' => $participant,
                     'meeting_id' => $meeting_id,
                 ], 201);
             }
-    
+
             return response()->json(['error' => 'Invalid request.'], 400);
-            
         } catch (\Exception $e) {
             Log::error('Error saving participant:', ['error' => $e->getMessage()]);
             return response()->json(['error' => 'Unable to save participant.'], 500);
@@ -162,31 +157,25 @@ class ParticipantController extends Controller
                 return response()->json(['error' => 'Meeting URL is required'], 400);
             }
 
-            // Kiểm tra xem meeting_id đã tồn tại chưa
             $meeting = OnlineMeeting::where('meeting_url', $meetingUrl)->first();
 
             if (!$meeting) {
-                // Nếu meeting không tồn tại, không cho phép tham gia
                 return response()->json(['error' => 'Meeting does not exist.'], 404);
             }
 
-            // Nếu meeting đã tồn tại, kiểm tra vai trò của người dùng
             $user = Auth::user();
             if (!$user) {
                 return response()->json(['error' => 'Unauthorized, user not found.'], 401);
             }
 
-            // Nếu là teacher, cho phép tham gia
             if ($user->role === 'teacher') {
                 return response()->json(['message' => 'Teacher can join the meeting.', 'meeting_id' => $meeting->meeting_id], 200);
             }
 
-            // Nếu là user, cho phép tham gia nếu meeting đã tồn tại
             if ($user->role === 'user') {
                 return response()->json(['message' => 'User can join the meeting.', 'meeting_id' => $meeting->meeting_id], 200);
             }
 
-            // Nếu người dùng có vai trò khác
             return response()->json(['error' => 'Unauthorized, only teachers or users can join this meeting.'], 403);
         } catch (\Exception $e) {
             Log::error('Error checking meeting access:', ['error' => $e->getMessage()]);
@@ -207,10 +196,8 @@ class ParticipantController extends Controller
                 return response()->json(['error' => 'Meeting not found'], 404);
             }
 
-            // Lấy danh sách user_id của các giảng viên
             $teacherIds = User::where('role', 'teacher')->pluck('user_id');
 
-            // Kiểm tra xem có giảng viên nào đang trong phòng không
             $teacherPresent = Participant::where('meeting_id', $meeting->meeting_id)
                 ->whereIn('user_id', $teacherIds)
                 ->where(function ($query) {
@@ -233,5 +220,156 @@ class ParticipantController extends Controller
             ]);
             return response()->json(['error' => 'Unable to check teacher presence'], 500);
         }
+    }
+
+    public function getUserIdsByMeetingId(Request $request)
+    {
+        try {
+            $request->validate([
+                'meeting_id' => 'required|integer',
+            ]);
+
+            $participants = DB::table('meeting_participants')
+                ->join('users', 'meeting_participants.user_id', '=', 'users.user_id')
+                ->where('meeting_participants.meeting_id', $request->meeting_id)
+                ->where('users.role', 'user')
+                ->select('users.user_id as id', 'users.name', 'meeting_participants.is_present')
+                ->get();
+
+            if ($participants->isEmpty()) {
+                return response()->json(['message' => 'No participants found for this meeting.'], 404);
+            }
+
+            $participantData = $participants->map(function ($participant) {
+                return [
+                    'id' => $participant->id,
+                    'name' => $participant->name,
+                    'is_present' => $participant->is_present
+                ];
+            });
+
+            return response()->json([
+                'meeting_id' => $request->meeting_id,
+                'users' => $participantData
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error retrieving user IDs by meeting ID:', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Unable to retrieve user IDs.'], 500);
+        }
+    }
+
+    public function getUsersList(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'course_id' => 'required|integer'
+            ]);
+
+            $courseId = $request->input('course_id');
+
+            $users = UserCourse::select('users.user_id', 'users.name')
+                ->join('users', 'user_courses.user_id', '=', 'users.user_id')
+                ->where('users.role', '=', 'user')
+                ->where('user_courses.course_id', '=', $courseId)
+                ->distinct()
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $users,
+                'message' => 'Users list retrieved successfully'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error retrieving users list: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function checkAccess(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'user_id' => 'required|integer',
+                'course_id' => 'required|integer'
+            ]);
+
+            // Lấy role của user
+            $userRole = User::where('user_id', $request->user_id)->value('role');
+
+            // Nếu role không phải là 'user', bỏ qua kiểm tra và cho phép truy cập
+            if ($userRole !== 'user') {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Access granted',
+                    'has_access' => true
+                ], 200);
+            }
+
+            // Nếu role là 'user', kiểm tra quyền truy cập
+            $hasAccess = UserCourse::join('users', 'user_courses.user_id', '=', 'users.user_id')
+                ->where('user_courses.user_id', $request->user_id)
+                ->where('user_courses.course_id', $request->course_id)
+                ->where('users.role', '=', 'user')
+                ->exists();
+
+            if (!$hasAccess) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'You do not have access to this course',
+                    'has_access' => false
+                ], 403);
+            }
+
+            // Tìm thông tin buổi họp
+            $meeting = OnlineMeeting::where('course_id', $request->course_id)
+                ->first();
+
+            if (!$meeting) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Meeting not found',
+                    'has_access' => false
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Access granted',
+                'has_access' => true,
+                'data' => [
+                    'meeting_url' => $meeting->meeting_url,
+                    'start_time' => $meeting->start_time,
+                    'end_time' => $meeting->end_time
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error checking access: ' . $e->getMessage(),
+                'has_access' => false
+            ], 500);
+        }
+    }
+
+
+
+    public function getCourseIdByMeetingUrl(Request $request)
+    {
+        $meetingUrl = $request->query('meeting_url');
+
+        if (!$meetingUrl) {
+            return response()->json(['error' => 'Meeting URL is required'], 400);
+        }
+
+        $meeting = OnlineMeeting::where('meeting_url', $meetingUrl)->first();
+
+        if (!$meeting) {
+            return response()->json(['error' => 'Meeting not found'], 404);
+        }
+
+        return response()->json(['course_id' => $meeting->course_id]);
     }
 }

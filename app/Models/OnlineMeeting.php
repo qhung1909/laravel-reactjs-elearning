@@ -12,6 +12,7 @@ class OnlineMeeting extends Model
     protected $primaryKey = 'meeting_id'; 
     protected $fillable = [
         'content_id',
+        'course_id',
         'meeting_url',
         'start_time',
         'end_time',

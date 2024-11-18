@@ -1,30 +1,83 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
+import { Search, Filter, Save } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const JitsiMeeting = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
   const jitsiContainerRef = useRef(null);
   const [userInfo, setUserInfo] = useState({ name: '', user_id: null, role: '' });
   const [participants, setParticipants] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasTeacher, setHasTeacher] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
   const jitsiApiRef = useRef(null);
-  const API_URL = import.meta.env.VITE_API_URL;
-  const meetingUrl = window.location.href;
   const [participantUserIds, setParticipantUserIds] = useState(new Map());
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [students, setStudents] = useState([]);
+  const [currentMeetingId, setCurrentMeetingId] = useState(null);
+  const { meetingUrl } = useParams();
+  const location = useLocation();
+
+  const filteredStudents = students.filter(student =>
+    student.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    (filterStatus === "all" || student.status === filterStatus)
+  );
+
+  const handleAttendanceChange = (id, isPresent) => {
+    setStudents(prevStudents =>
+      prevStudents.map(student =>
+        student.id === id ? { ...student, status: isPresent ? "present" : "absent" } : student
+      )
+    );
+  };
+
+  const fetchStudentAttendance = async (meeting_id) => {
+    const token = localStorage.getItem('access_token');
+    try {
+      console.log("Fetching student attendance for meeting:", meeting_id);
+      const response = await axios.post(
+        `${API_URL}/meetings/get-user-ids-by-meeting-id`,
+        { meeting_id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log("Student attendance response:", response.data);
+
+      const studentList = (response.data.users || []).map(user => ({
+        id: user.id,
+        name: user.name,
+        status: user.is_present === 1 ? "present" : "absent"
+      }));
+
+      console.log("Processed student list:", studentList);
+      setStudents(studentList);
+    } catch (error) {
+      console.error('Error fetching student attendance:', error);
+      setStudents([]);
+    }
+  };
+
+  const saveAttendance = () => {
+    console.log("Saving attendance:", students);
+  };
 
   const fetchUserInfo = async () => {
     const token = localStorage.getItem('access_token');
@@ -65,7 +118,9 @@ const JitsiMeeting = () => {
     const token = localStorage.getItem('access_token');
     try {
       const response = await axios.get(`${API_URL}/meetings/getMeetingId`, {
-        params: { meeting_url: meetingUrl },
+        params: {
+          meeting_url: `${meetingUrl}`
+        },
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -82,7 +137,6 @@ const JitsiMeeting = () => {
       return null;
     }
   };
-
   const saveParticipant = async (participant, meeting_id, leftAt = null) => {
     const token = localStorage.getItem("access_token");
     if (!token) {
@@ -92,8 +146,8 @@ const JitsiMeeting = () => {
 
     try {
       const data = {
-        meeting_url: meetingUrl,
-        user_id: participant.user_id || userInfo.user_id, 
+        meeting_url: window.location.href,
+        user_id: participant.user_id || userInfo.user_id,
         joined_at: !leftAt ? new Date().toISOString() : null,
         left_at: leftAt,
         is_present: 0,
@@ -156,7 +210,7 @@ const JitsiMeeting = () => {
     }
 
     if (userInfo.role === 'user') {
-      const teacherIsPresent = await checkTeacherPresence(meetingUrl);
+      const teacherIsPresent = await checkTeacherPresence(window.location.href);
       if (!teacherIsPresent) {
         setIsWaiting(true);
         return;
@@ -199,7 +253,7 @@ const JitsiMeeting = () => {
         const currentParticipants = api.getParticipantsInfo();
 
         if (userInfo.role === 'user') {
-          const teacherIsPresent = await checkTeacherPresence(meetingUrl);
+          const teacherIsPresent = await checkTeacherPresence(window.location.href);
           if (!teacherIsPresent) {
             api.executeCommand('hangup');
             setIsWaiting(true);
@@ -223,6 +277,11 @@ const JitsiMeeting = () => {
           user_id: userInfo.user_id
         }, meeting_id);
 
+        // Refresh student list after joining
+        if (userInfo.role === 'teacher') {
+          await fetchStudentAttendance(meeting_id);
+        }
+
         setParticipants(currentParticipants.map(p => ({
           ...p,
           joinedAt: joinTime
@@ -238,9 +297,15 @@ const JitsiMeeting = () => {
         };
         await saveParticipant(participantWithTime, meeting_id);
         setParticipants(prev => [...prev, participant]);
-      
+
+        // Refresh student list when new participant joins
+        if (userInfo.role === 'teacher') {
+          console.log("Refreshing student list after new participant joined");
+          await fetchStudentAttendance(meeting_id);
+        }
+
         if (userInfo.role === 'user') {
-          const teacherIsPresent = await checkTeacherPresence(meetingUrl);
+          const teacherIsPresent = await checkTeacherPresence(window.location.href);
           setIsWaiting(!teacherIsPresent);
           if (!teacherIsPresent) {
             api.executeCommand('hangup');
@@ -258,7 +323,7 @@ const JitsiMeeting = () => {
             displayName: participant.displayName,
             role: participant.role || userInfo.role,
             id: participant.id,
-            user_id: participantInfo.user_id, 
+            user_id: participantInfo.user_id,
             joinedAt: participantInfo.joinedAt
           }, meeting_id, new Date().toISOString());
 
@@ -271,15 +336,20 @@ const JitsiMeeting = () => {
 
         setParticipants(prev => prev.filter(p => p.id !== participant.id));
 
+        // Refresh student list when participant leaves
+        if (userInfo.role === 'teacher') {
+          console.log("Refreshing student list after participant left");
+          await fetchStudentAttendance(meeting_id);
+        }
+
         if (userInfo.role === 'user') {
-          const teacherIsPresent = await checkTeacherPresence(meetingUrl);
+          const teacherIsPresent = await checkTeacherPresence(window.location.href);
           if (!teacherIsPresent) {
             api.executeCommand('hangup');
             setIsWaiting(true);
           }
         }
       });
-
       api.on("videoConferenceLeft", async () => {
         await saveParticipant({
           displayName: userInfo.name,
@@ -293,7 +363,6 @@ const JitsiMeeting = () => {
           jitsiApiRef.current = null;
         }
       });
-
     } catch (error) {
       console.error("Error initializing Jitsi:", error);
       jitsiApiRef.current = null;
@@ -309,21 +378,37 @@ const JitsiMeeting = () => {
 
     const initializeRoom = async () => {
       if (!isLoading && userInfo.user_id && jitsiContainerRef.current && mounted) {
-        const meeting_id = await fetchMeetingId(meetingUrl);
-        if (!meeting_id) {
-          console.error('Could not fetch meeting_id');
-          return;
-        }
+        const meetingUrl = location.pathname;
+        console.log('meetingUrl:', meetingUrl);
 
-        if (userInfo.role === 'teacher') {
-          await initializeJitsiMeeting(meeting_id);
-        } else {
-          const teacherIsPresent = await checkTeacherPresence(meetingUrl);
-          if (teacherIsPresent) {
-            await initializeJitsiMeeting(meeting_id);
+        if (meetingUrl) {
+          const courseId = await getMeetingCourseId(meetingUrl);
+          if (courseId) {
+            const hasAccess = await checkMeetingAccess(userInfo.user_id, courseId);
+            if (hasAccess) {
+              const meeting_id = await fetchMeetingId(meetingUrl);
+              if (meeting_id) {
+                setCurrentMeetingId(meeting_id);
+                if (userInfo.role === 'teacher') {
+                  await fetchStudentAttendance(meeting_id);
+                  await initializeJitsiMeeting(meeting_id);
+                } else {
+                  await initializeJitsiMeeting(meeting_id);
+                }
+              } else {
+                console.error('Could not fetch meeting_id');
+              }
+            } else {
+              console.error('User does not have access to this course');
+              navigate('/');
+            }
           } else {
-            setIsWaiting(true);
+            console.error('Could not fetch course_id');
+            navigate('/');
           }
+        } else {
+          console.error('Could not extract meeting URL');
+          navigate('/');
         }
       }
     };
@@ -337,17 +422,17 @@ const JitsiMeeting = () => {
         jitsiApiRef.current = null;
       }
     };
-  }, [userInfo, isLoading]);
+  }, [userInfo, isLoading, location.pathname, navigate]);
 
   useEffect(() => {
     let intervalId;
 
     if (isWaiting && userInfo.role === 'user') {
       intervalId = setInterval(async () => {
-        const teacherIsPresent = await checkTeacherPresence(meetingUrl);
+        const teacherIsPresent = await checkTeacherPresence(window.location.href);
         if (teacherIsPresent) {
           setIsWaiting(false);
-          const meeting_id = await fetchMeetingId(meetingUrl);
+          const meeting_id = await fetchMeetingId(window.location.href);
           if (meeting_id && !jitsiApiRef.current) {
             await initializeJitsiMeeting(meeting_id);
           }
@@ -362,6 +447,35 @@ const JitsiMeeting = () => {
     };
   }, [isWaiting, userInfo.role]);
 
+  const getMeetingCourseId = async (meetingUrl) => {
+    try {
+    const response = await axios.get(`${API_URL}/meetings/course?meeting_url=http://localhost:5173${meetingUrl}`);
+      return response.data.course_id;
+    } catch (error) {
+      console.error('Error getting course ID:', error);
+      if (error.response && error.response.status === 404) {
+        console.error('Meeting not found');
+      } else {
+        console.error('Error occurred while getting course ID');
+      }
+      return null;
+    }
+  };
+  
+  const checkMeetingAccess = async (userId, courseId) => {
+    try {
+      const response = await axios.post(`${API_URL}/meetings/check-meeting-access`, {
+        user_id: userId,
+        course_id: courseId
+      });
+  
+      return response.data.has_access;
+    } catch (error) {
+      console.error('Error checking meeting access:', error);
+      return false;
+    }
+  };
+  
   if (isWaiting) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
@@ -370,32 +484,105 @@ const JitsiMeeting = () => {
       </div>
     );
   }
-
+  
   return (
     <div>
       <div ref={jitsiContainerRef} style={{ width: '100%', height: '100vh' }} />
       {userInfo.role === 'teacher' && (
-        <div className="fixed bottom-4 right-4">
+        <div className="fixed bottom-4 left-4">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline">View Attendance</Button>
+              <Button variant="outline">Danh sách học viên</Button>
             </SheetTrigger>
-            <SheetContent side="right">
+            <SheetContent side="left" className="w-full sm:w-[540px] flex flex-col">
               <SheetHeader>
-                <SheetTitle>Attendance List</SheetTitle>
+                <SheetTitle>Danh sách học viên điểm danh</SheetTitle>
                 <SheetDescription>
-                  {/* Thêm nội dung danh sách điểm danh ở đây */}
+                  Quản lý điểm danh của học viên
                 </SheetDescription>
               </SheetHeader>
-              <SheetClose asChild>
-                <Button variant="default">Close</Button>
-              </SheetClose>
+              {/* Vùng tìm kiếm và lọc */}
+              <div className="my-6 space-y-4">
+                <div className="flex space-x-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Tìm kiếm học viên"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-8"
+                    />
+                  </div>
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-[180px]">
+                      <Filter className="mr-2 h-4 w-4" />
+                      <SelectValue placeholder="Lọc trạng thái" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tất cả</SelectItem>
+                      <SelectItem value="present">Có mặt</SelectItem>
+                      <SelectItem value="absent">Vắng mặt</SelectItem>
+                      <SelectItem value="late">Đi muộn</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Separator />
+              </div>
+              <ScrollArea className="flex-grow">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tên học viên</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                      <TableHead>Điểm danh</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredStudents.map((student) => (
+                      <TableRow key={student.id}>
+                        <TableCell>{student.name}</TableCell>
+                        <TableCell>
+                          {student.status === "present" ? (
+                            <span className="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
+                              Có mặt
+                            </span>
+                          ) : student.status === "late" ? (
+                            <span className="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300">
+                              Đi muộn
+                            </span>
+                          ) : (
+                            <span className="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">
+                              Vắng mặt
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Switch
+                            checked={student.status === "present"}
+                            onCheckedChange={(isPresent) =>
+                              handleAttendanceChange(student.id, isPresent)
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+              <div className="flex justify-between mt-6">
+                <SheetClose asChild>
+                  <Button variant="outline">Đóng</Button>
+                </SheetClose>
+                <Button onClick={saveAttendance} variant="default">
+                  <Save className="mr-2 h-4 w-4" />
+                  Lưu điểm danh
+                </Button>
+              </div>
             </SheetContent>
           </Sheet>
         </div>
       )}
     </div>
   );
-};
-
+}
 export default JitsiMeeting;
