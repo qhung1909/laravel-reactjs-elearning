@@ -8,8 +8,7 @@ use App\Models\OnlineMeeting;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
+
 
 class ParticipantController extends Controller
 {
@@ -67,6 +66,7 @@ class ParticipantController extends Controller
 
     public function store(Request $request)
     {
+
         try {
             $request->validate([
                 'participant_id' => 'required|integer',
@@ -85,19 +85,21 @@ class ParticipantController extends Controller
             }
     
             $existingParticipant = Participant::where('meeting_id', $meeting->meeting_id)
-                ->where('user_id', $request->participant_id)
-                ->first();
-    
-            if ($existingParticipant) {
-                if ($existingParticipant && !$existingParticipant->left_at) {
-                    $leftAt = Carbon::parse($request->left_at)->format('Y-m-d H:i:s');
-                    $existingParticipant->update([
-                        'left_at' => $leftAt,
-                    ]);
-                    return response()->json(['message' => 'Participant left updated successfully.'], 200);
-                }
-                
-            }
+            ->where('user_id', $request->participant_id)
+            ->first();
+        
+        if ($existingParticipant) {
+            $leftAt = $request->left_at ? Carbon::parse($request->left_at)->format('Y-m-d H:i:s') : null;
+            $joinedAt = Carbon::parse($request->joined_at)->format('Y-m-d H:i:s');
+        
+            $existingParticipant->update([
+                'joined_at' => $joinedAt,
+                'left_at' => $leftAt,
+            ]);
+        
+            return response()->json(['message' => 'Participant updated successfully.'], 200);
+        }
+        
     
             $joinedAt = Carbon::parse($request->joined_at)->format('Y-m-d H:i:s');
             $leftAt = $request->left_at ? Carbon::parse($request->left_at)->format('Y-m-d H:i:s') : null;
