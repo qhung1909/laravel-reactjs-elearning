@@ -5,13 +5,15 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
+
+import { CartesianGrid, XAxis, YAxis, Line, LineChart, Tooltip, ResponsiveContainer } from "recharts"; // Added YAxis and Tooltip to imports
 import {
     Sheet,
     SheetContent,
@@ -25,7 +27,8 @@ import { Link, useNavigate } from "react-router-dom"
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import axios from "axios";
 import toast, { Toaster } from 'react-hot-toast';
-
+import { TrendingUp } from "lucide-react"
+import PropTypes from 'prop-types';
 const notify = (message, type) => {
     if (type === 'success') {
         toast.success(message);
@@ -45,8 +48,136 @@ export const Instructor = () => {
     const [teacherRevenue, setTeacherRevenue] = useState([]);
     const [teacherRank, setTeacherRank] = useState([]);
     const [teacherProgress, setTeacherProgress] = useState([]);
+    const [chartData, setChartData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const token = localStorage.getItem("access_token");
 
+    // hàm xử lý lấy doanh thu của giảng viên
+    const fetchRevenueData = async () => {
+        try {
+            const response = await fetch(`${API_URL}/teacher/revenue`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = await response.json();
+            const transformedData = Array.from({ length: 12 }, (_, index) => ({
+                month: `T${index + 1}`,
+                revenue: 0,
+            }));
+            const currentMonth = new Date().getMonth();
+            const totalRevenue = Number(data.data.summary.total_revenue);
+            transformedData[currentMonth].revenue = totalRevenue;
+
+            setChartData(transformedData);
+            setTeacherRevenue(totalRevenue);
+        } catch (error) {
+            console.error('Error fetching revenue data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
+    const calculateRevenueGrowth = (chartData) => {
+        // Kiểm tra dữ liệu đầu vào
+        if (!chartData || !Array.isArray(chartData) || chartData.length < 2) {
+            return {
+                growthPercentage: 0,
+                trend: 'neutral',
+                message: 'Chưa có đủ dữ liệu'
+            };
+        }
+
+        // Lọc dữ liệu hợp lệ
+        const validData = chartData.filter(item =>
+            item &&
+            typeof item.revenue === 'number' &&
+            !isNaN(item.revenue)
+        );
+
+        if (validData.length < 2) {
+            return {
+                growthPercentage: 0,
+                trend: 'neutral',
+                message: 'Chưa có đủ dữ liệu'
+            };
+        }
+
+        // Lấy dữ liệu 2 tháng gần nhất
+        const currentMonth = validData[validData.length - 1];
+        const previousMonth = validData[validData.length - 2];
+
+        const currentRevenue = Number(currentMonth.revenue) || 0;
+        const previousRevenue = Number(previousMonth.revenue) || 0;
+
+        // Xử lý trường hợp đặc biệt khi previousRevenue = 0
+        if (previousRevenue === 0) {
+            if (currentRevenue > 0) {
+                return {
+                    growthPercentage: 100,
+                    trend: 'increase',
+                    message: 'Có xu hướng tăng'
+                };
+            }
+            return {
+                growthPercentage: 0,
+                trend: 'neutral',
+                message: 'Không đổi'
+            };
+        }
+
+        // Tính phần trăm tăng trưởng
+        const growthPercentage = ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+
+        // Xử lý kết quả
+        if (isNaN(growthPercentage)) {
+            return {
+                growthPercentage: 0,
+                trend: 'neutral',
+                message: 'Không xác định'
+            };
+        }
+
+        const roundedGrowth = Number(growthPercentage.toFixed(1));
+
+        return {
+            growthPercentage: roundedGrowth,
+            trend: roundedGrowth > 0 ? 'increase' : roundedGrowth < 0 ? 'decrease' : 'neutral',
+            message: `Có xu hướng ${roundedGrowth > 0 ? 'tăng' : 'giảm'}`
+        };
+    };
+
+    const GrowthTrendDisplay = ({ chartData }) => {
+        const growth = calculateRevenueGrowth(chartData);
+
+        const trendColors = {
+            increase: 'text-green-500',
+            decrease: 'text-red-500',
+            neutral: 'text-gray-500',
+        };
+
+        const currentMonthIndex = new Date().getMonth();
+        const currentRevenue = chartData[currentMonthIndex]?.revenue || 0;
+
+        return (
+            <div className="flex items-center gap-2 font-medium leading-none">
+                Doanh thu tháng này: {formatCurrency(currentRevenue)}
+                <TrendingUp className={`h-4 w-4 ${trendColors[growth.trend]}`} />
+            </div>
+        );
+    };
+
+    GrowthTrendDisplay.propTypes = {
+        chartData: PropTypes.arrayOf(
+            PropTypes.shape({
+                month: PropTypes.string.isRequired,
+                revenue: PropTypes.number.isRequired,
+            })
+        ).isRequired,
+    };
+    // hàm xử lý lấy danh sách khóa học của giảng viên
     const fetchTeacherCourse = async () => {
         try {
             const response = await axios.get(`${API_URL}/teacher/course`, {
@@ -60,6 +191,8 @@ export const Instructor = () => {
             console.log('Error fetching teacher Courses', error)
         }
     }
+
+    // hàm xử lý lấy danh sách sinh viên hoàn thành khóa học của giảng viên
     const fetchTeacherProgress = async (teacherId) => {
         try {
             const response = await axios.get(`${API_URL}/teacher/${teacherId}/courses/completion-stats`, {
@@ -75,19 +208,10 @@ export const Instructor = () => {
             console.log('Error fetching teacher student progress', error)
         }
     }
-    const fetchTeacherRevenue = async () => {
-        try {
-            const response = await axios.get(`${API_URL}/teacher/revenue`, {
-                headers: {
-                    'x-api-secret': `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            setTeacherRevenue(response.data.data.summary.total_revenue)
-        } catch (error) {
-            console.log('Error fetching teacher revenue', error)
-        }
-    }
+
+
+
+    // hàm lấy xếp hạng của giảng viên
     const fetchTeacherRank = async () => {
         try {
             const response = await axios.get(`${API_URL}/teacher/rank`, {
@@ -118,58 +242,17 @@ export const Instructor = () => {
             alert('Failed to refresh token. Please log in again.');
         }
     };
+
     useEffect(() => {
         if (instructor && instructor.user_id) {
             fetchTeacherCourse();
-            fetchTeacherRevenue();
             fetchTeacherRank();
             fetchTeacherProgress(instructor.user_id);
+            fetchRevenueData();
         }
     }, [instructor]);
 
-    const revenue = 500000;
-    const expenses = 200000;
-    const profit = revenue - expenses;
-    const profitMargin = ((profit / revenue) * 100).toFixed(2);
 
-    const transactions = [
-        { id: 1, date: '2024-11-10', amount: 150000, status: 'Success' },
-        { id: 2, date: '2024-11-09', amount: 200000, status: 'Success' },
-        { id: 3, date: '2024-11-08', amount: 250000, status: 'Success' },
-        { id: 4, date: '2024-11-10', amount: 150000, status: 'Success' },
-        { id: 5, date: '2024-11-09', amount: 200000, status: 'Success' },
-        { id: 6, date: '2024-11-08', amount: 250000, status: 'Success' },
-    ];
-    const revenueData = [
-        { month: "Tháng 1", revenue: 800 },
-        { month: "Tháng 2", revenue: 950 },
-        { month: "Tháng 3", revenue: 850 },
-        { month: "Tháng 4", revenue: 1000 },
-        { month: "Tháng 5", revenue: 1200 },
-        { month: "Tháng 6", revenue: 1300 },
-        { month: "Tháng 7", revenue: 800 },
-        { month: "Tháng 8", revenue: 950 },
-        { month: "Tháng 9", revenue: 850 },
-        { month: "Tháng 10", revenue: 1000 },
-        { month: "Tháng 11", revenue: 1200 },
-        { month: "Tháng 12", revenue: 1300 },
-    ]
-
-    const expenseData = [
-        { month: "Tháng 1", expense: 800 },
-        { month: "Tháng 2", expense: 950 },
-        { month: "Tháng 3", expense: 850 },
-        { month: "Tháng 4", expense: 1000 },
-        { month: "Tháng 5", expense: 1200 },
-        { month: "Tháng 6", expense: 1300 },
-        { month: "Tháng 7", expense: 800 },
-        { month: "Tháng 8", expense: 950 },
-        { month: "Tháng 9", expense: 850 },
-        { month: "Tháng 10", expense: 1000 },
-        { month: "Tháng 11", expense: 1200 },
-        { month: "Tháng 12", expense: 1300 },
-    ]
-    const maxRevenue = Math.max(...revenueData.map(item => item.revenue));
     return (
         <>
             <section className="instructor-home">
@@ -406,8 +489,96 @@ export const Instructor = () => {
                                 </div>
                             </div>
 
+                            {/* chart */}
+                            <div className="col-span-3 mt-5 xl:mt-0">
+                                <div className="w-full gap-4">
+                                    <Card className="w-full shadow-lg hover:shadow-xl transition-shadow duration-300">
+                                        <CardHeader className="pb-2">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <CardTitle className="text-2xl font-bold text-gray-800">Biểu đồ Doanh thu</CardTitle>
+                                                    <CardDescription className="text-gray-600">Tháng 1 - Tháng 12 2024</CardDescription>
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="pt-4">
+                                            {!isLoading && (
+                                                <div className="w-full h-[430px]">
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <LineChart
+                                                            data={chartData}
+                                                            margin={{
+                                                                top: 20,
+                                                                right: 30,
+                                                                left: 20,
+                                                                bottom: 20,
+                                                            }}
+                                                        >
+                                                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                                            <XAxis
+                                                                dataKey="month"
+                                                                tickLine={false}
+                                                                axisLine={false}
+                                                                tickMargin={12}
+                                                                stroke="#888888"
+                                                            />
+                                                            <YAxis
+                                                                tickLine={false}
+                                                                axisLine={false}
+                                                                tickMargin={12}
+                                                                stroke="#888888"
+                                                                domain={[0, 'dataMax + 10000']}
+                                                                tickFormatter={(value) =>
+                                                                    new Intl.NumberFormat('vi-VN', {
+                                                                        style: 'currency',
+                                                                        currency: 'VND',
+                                                                        notation: 'compact',
+                                                                    }).format(value)
+                                                                }
+                                                            />
+                                                            <Tooltip
+                                                                contentStyle={{
+                                                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                                                    border: 'none',
+                                                                    borderRadius: '8px',
+                                                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                                                }}
+                                                                formatter={(value) => [
+                                                                    new Intl.NumberFormat('vi-VN', {
+                                                                        style: 'currency',
+                                                                        currency: 'VND',
+                                                                    }).format(value),
+                                                                    "Doanh thu"
+                                                                ]}
+                                                                labelStyle={{ color: '#666' }}
+                                                            />
+                                                            <Line
+                                                                type="monotone"
+                                                                dataKey="revenue"
+                                                                stroke="#4CAF50"
+                                                                strokeWidth={3}
+                                                                dot={{ r: 4, strokeWidth: 2, fill: '#fff' }}
+                                                                activeDot={{ r: 6, strokeWidth: 2 }}
+                                                            />
+                                                        </LineChart>
+                                                    </ResponsiveContainer>
+                                                </div>
+                                            )}
+                                        </CardContent>
+                                        <CardFooter className="border-t pt-4">
+                                            <div className="flex flex-col w-full gap-3 pt-4">
+                                                <GrowthTrendDisplay chartData={chartData} />
+                                                <div className="text-sm text-muted-foreground">
+                                                    Hiển thị doanh thu trong 12 tháng qua
+                                                </div>
+                                            </div>
+                                        </CardFooter>
+                                    </Card>
+                                </div>
+                            </div>
+
                             {/* Hours */}
-                            <div className="bg-white rounded-lg shadow-lg p-6 my-5">
+                            {/* <div className="bg-white rounded-lg shadow-lg p-6 my-5">
                                 <div className="md:flex  justify-between items-center mb-4">
                                     <h3 className="lg:text-lg md:text-md text-md font-bold text-center">Thống kê số giờ học</h3>
                                     <div className="flex space-x-2 justify-center py-3">
@@ -443,7 +614,7 @@ export const Instructor = () => {
                                     <br />
                                     <p className="text-gray-500">Dữ liệu đang được cập nhật</p>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>

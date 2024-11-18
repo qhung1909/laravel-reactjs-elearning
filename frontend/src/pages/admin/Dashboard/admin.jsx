@@ -88,7 +88,7 @@ export default function Dashboard() {
     const fetchRevenueData = async () => {
         try {
             const response = await fetch(`${API_URL}/admin/revenue-chart`, {
-                headers: {
+                headers: {  
                     'x-api-secret': API_KEY
                 }
             });
