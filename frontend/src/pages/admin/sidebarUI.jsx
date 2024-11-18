@@ -121,6 +121,14 @@ const data = {
             ],
         },
         {
+            title: "Quản lý lịch dạy của giảng viên",
+            url: "#",
+            icon: BookOpen,
+            items: [
+                { title: "Danh sách lịch dạy của giảng viên", url: "/admin/teaching-schedule-list" },
+            ],
+        },
+        {
             title: "Quản lý nội dung",
             url: "#",
             icon: Settings2,

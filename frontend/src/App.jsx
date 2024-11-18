@@ -68,6 +68,8 @@ import ManageFooter from "./pages/admin/ManageHeaderFooter/ManageFooter.jsx";
 import DetailCourse from "./pages/admin/ManageCourses/detailCourse.jsx";
 import { CmtCrud } from "./pages/admin/ManageComments/cmtCrud.jsx";
 import JitsiMeeting from "./pages/jitsi/jitsi.jsx";
+import ScheduleList from "./pages/admin/ManageScheduleList/ScheduleList.jsx";
+
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -134,6 +136,8 @@ function AppContent() {
                 <Route path="/admin/personal-information" element={<PersonalInformation />}></Route>
                 <Route path="/admin/manage-footer" element={<ManageFooter />}></Route>
                 <Route path="/admin/manage-header" element={<ManageHeader />}></Route>
+                <Route path="/admin/teaching-schedule-list" element={<ScheduleList />}></Route>
+
 
                 <Route path="/admin/draft" element={<Draft />}></Route>
                 <Route path="/admin/courses/:course_id" element={<DetailCourse />} />
@@ -163,7 +167,7 @@ function AppContent() {
                 <Route path="/quizzes/:quiz_id" element={<Quizzes />}></Route>
                 <Route path="/notifications" element={<TaskList />}></Route>
                 <Route path="/lesson/meeting/:id" element={<JitsiMeeting />}></Route>
-                
+
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}
         </>
