@@ -11,6 +11,9 @@ return [
         'http://192.168.1.53:5173',
         'http://192.168.1.53:5174',
         'http://192.168.1.7:5173',
+        'https://localhost:8443',
+        'https://127.0.0.1:8443',
+        'https://192.168.1.7:8443'
     ],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],

@@ -1,92 +1,148 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const JitsiMeeting = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const jitsiContainerRef = useRef(null);
   const [userInfo, setUserInfo] = useState({ name: '', user_id: null, role: '' });
   const [participants, setParticipants] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasTeacher, setHasTeacher] = useState(false);
+  const [isWaiting, setIsWaiting] = useState(false);
   const jitsiApiRef = useRef(null);
   const API_URL = import.meta.env.VITE_API_URL;
 
   const meetingUrl = window.location.href;
 
-  const sendParticipantToBackend = async (participant, leftAt = null, joinedAt = null) => {
-    const token = localStorage.getItem('access_token');
-    const leftAtTime = leftAt || null;  // Nếu không có leftAt, để giá trị null
-    const joinedAtTime = joinedAt || new Date().toISOString(); // Nếu không có joinedAt, lấy thời gian hiện tại
-  
-    console.log('Sending participant:', participant);
-    if (!participant || !participant.displayName) {
-      console.error('Participant data is incomplete', participant);
-      return;
-    }
-  
-    try {
-      const response = await axios.post(
-        `${API_URL}/meetings/participants`,
-        {
-          meeting_url: meetingUrl,
-          participant_id: userInfo.user_id,
-          name: participant.displayName,
-          joined_at: joinedAtTime,  // Gửi thời gian tham gia
-          left_at: leftAtTime,      // Gửi thời gian rời đi
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log('Response from backend:', response);
-    } catch (error) {
-      console.error('Error sending participant info:', error);
-    }
-  };
-  
-
   const fetchUserInfo = async () => {
     const token = localStorage.getItem('access_token');
-    if (token) {
-      try {
-        const response = await axios.get(`${API_URL}/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }); 
-        console.log('User info:', response.data);
-        setUserInfo({ name: response.data.name, user_id: response.data.user_id, role: response.data.role });
-      } catch (error) {
+    if (!token) {
+      navigate('/login', { state: { from: window.location.pathname } });
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${API_URL}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUserInfo({
+        name: response.data.name,
+        user_id: response.data.user_id,
+        role: response.data.role,
+        email: response.data.email,
+      });
+      setIsLoading(false);
+
+      // Xác định trạng thái chờ ban đầu
+      if (response.data.role !== 'teacher') {
+        setIsWaiting(true);
+      }
+    } catch (error) {
+      if (error.response?.status === 401) {
+        navigate('/login', { state: { from: window.location.pathname } });
+      } else {
         console.error('Error fetching user info:', error);
       }
+      setIsLoading(false);
     }
   };
 
-  const updateAttendance = async (participant_id, is_present) => {
-    const token = localStorage.getItem('access_token');
-    try {
-      const response = await axios.post(
-        `${API_URL}/meetings/attendance`,
-        {
-          meeting_url: meetingUrl,
-          participants: [
-            {
-              participant_id,
-              is_present,
-            },
-          ],
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+  const checkForTeacherOrModerator = (participantsList) => {
+    console.log('Participants List:', participantsList);
+
+    return participantsList.some(participant => {
+      return (
+        participant.role === 'teacher' ||
+        participant._properties?.role === 'teacher' ||
+        participant.role === 'moderator' ||
+        participant._properties?.role === 'moderator'
       );
-      console.log('Attendance updated:', response.data);
-    } catch (error) {
-      console.error('Error updating attendance:', error);
+    });
+
+  };
+
+  const saveParticipant = async (participant, leftAt = null) => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      console.error("Token không tồn tại!");
+      return;
     }
+
+    const joinedAt = new Date().toISOString();
+    const data = {
+      participant_id: participant.id,
+      name: participant.name || "Unknown",
+      joined_at: joinedAt,
+      meeting_url: meetingUrl,
+      left_at: leftAt,
+    };
+
+    try {
+      const response = await axios.post(`${API_URL}/meetings/participants`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("Participant saved successfully:", response.data);
+    } catch (error) {
+      console.error("Error saving participant:", error.response?.data || error.message);
+    }
+  };
+
+  const handleParticipantEvents = (api) => {
+    // Khi tham gia cuộc họp
+    api.on("videoConferenceJoined", () => {
+      const currentParticipants = api.getParticipantsInfo();
+      currentParticipants.forEach((participant) => saveParticipant(participant));
+      setParticipants(currentParticipants);
+
+      const teacherOrModeratorPresent = checkForTeacherOrModerator(currentParticipants);
+      setHasTeacher(teacherOrModeratorPresent);
+      setIsWaiting(!teacherOrModeratorPresent && userInfo.role !== "teacher");
+    });
+
+    // Khi có người tham gia mới
+    api.on("participantJoined", (participant) => {
+      saveParticipant(participant);
+      setParticipants((prevParticipants) => {
+        const updatedParticipants = [...prevParticipants, participant];
+        const teacherOrModeratorPresent = checkForTeacherOrModerator(updatedParticipants);
+
+        setHasTeacher(teacherOrModeratorPresent);
+        setIsWaiting(!teacherOrModeratorPresent && userInfo.role !== "teacher");
+        return updatedParticipants;
+      });
+    });
+
+    // Khi người tham gia rời đi
+    api.on("participantLeft", (participant) => {
+      saveParticipant(participant, new Date().toISOString());
+      setParticipants((prevParticipants) => {
+        const updatedParticipants = prevParticipants.filter((p) => p.id !== participant.id);
+        const teacherOrModeratorPresent = checkForTeacherOrModerator(updatedParticipants);
+
+        setHasTeacher(teacherOrModeratorPresent);
+        setIsWaiting(!teacherOrModeratorPresent && userInfo.role !== "teacher");
+        return updatedParticipants;
+      });
+    });
   };
 
   useEffect(() => {
@@ -94,30 +150,17 @@ const JitsiMeeting = () => {
   }, []);
 
   useEffect(() => {
-    if (userInfo.user_id && jitsiContainerRef.current) {
-      const domain = 'meet.jit.si';
+    if (!isLoading && userInfo.user_id && jitsiContainerRef.current) {
+      const domain = '192.168.1.7:8443';
       const options = {
         roomName: id,
         width: '100%',
         height: '100%',
         parentNode: jitsiContainerRef.current,
         configOverwrite: {
+          enableLobby: false,
           startWithAudioMuted: true,
           startWithVideoMuted: true,
-          interfaceConfigOverwrite: {
-            TOOLBAR_BUTTONS: [
-              'microphone',
-              'camera',
-              'desktop',
-              'raisehand',
-              'hangup',
-              'chat',
-              'fullscreen',
-              'fodeviceselection',
-              'profile',
-              'settings',
-            ],
-          },
         },
         userInfo: {
           displayName: userInfo.name,
@@ -128,32 +171,7 @@ const JitsiMeeting = () => {
         const api = new window.JitsiMeetExternalAPI(domain, options);
         jitsiApiRef.current = api;
 
-        // Gửi dữ liệu giảng viên vào backend ngay khi vào
-        sendParticipantToBackend({ displayName: userInfo.name }, null, new Date().toISOString());
-
-        api.addListener('participantJoined', (participant) => {
-          console.log('Participant joined:', participant); // Log
-          sendParticipantToBackend(participant);
-          setParticipants((prevParticipants) => {
-            const updatedParticipants = [
-              ...prevParticipants,
-              { participant_id: participant.id, name: participant.displayName, is_present: true },
-            ];
-            console.log('Updated participants list:', updatedParticipants); // Log
-            return updatedParticipants;
-          });
-        });
-
-        api.addListener('participantLeft', (participant) => {
-          console.log('Participant left:', participant); // Log
-          const leftAtTime = new Date().toISOString(); // Ghi lại thời gian rời đi
-          sendParticipantToBackend(participant, leftAtTime); // Gửi left_at với thời gian chính xác
-          setParticipants((prevParticipants) =>
-            prevParticipants.filter((p) => p.participant_id !== participant.id)
-          );
-        });
-        
-        
+        handleParticipantEvents(api);
       }
 
       return () => {
@@ -163,43 +181,31 @@ const JitsiMeeting = () => {
         }
       };
     }
-  }, [userInfo, id]);
+  }, [userInfo, isLoading, id]);
 
-  const handleAttendanceChange = (participant_id, is_present) => {
-    updateAttendance(participant_id, is_present);
-    setParticipants((prevParticipants) =>
-      prevParticipants.map((participant) =>
-        participant.participant_id === participant_id
-          ? { ...participant, is_present }
-          : participant
-      )
-    );
-  };
+
 
   return (
     <div>
-      <div ref={jitsiContainerRef} style={{ width: '100%', height: '80vh' }}></div>
-
+      <div ref={jitsiContainerRef} style={{ width: '100%', height: '100vh' }} />
       {userInfo.role === 'teacher' && (
-        <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
-          <h3>Attendance</h3>
-          <ul>
-            {participants.map((participant) => (
-              <li key={participant.participant_id}>
-                <span>{participant.name}</span>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={participant.is_present}
-                    onChange={(e) =>
-                      handleAttendanceChange(participant.participant_id, e.target.checked)
-                    }
-                  />
-                  Present
-                </label>
-              </li>
-            ))}
-          </ul>
+        <div className="fixed bottom-4 right-4">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline">View Attendance</Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <SheetHeader>
+                <SheetTitle>Attendance List</SheetTitle>
+                <SheetDescription>
+                  {/* List of participants */}
+                </SheetDescription>
+              </SheetHeader>
+              <SheetClose asChild>
+                <Button variant="default">Close</Button>
+              </SheetClose>
+            </SheetContent>
+          </Sheet>
         </div>
       )}
     </div>

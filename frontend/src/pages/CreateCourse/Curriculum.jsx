@@ -27,18 +27,21 @@ import { SkeletonLoaderCurriculum } from '../skeletonEffect/skeleton';
 const notify = (message, type) => {
     if (type === 'success') {
         toast.success(message, {
+            duration: 5000, // 5 giây
             style: {
-                padding: '16px'
-            }
+                padding: '16px',
+            },
         });
     } else {
         toast.error(message, {
+            duration: 5000, // 5 giây
             style: {
-                padding: '16px'
-            }
-        })
+                padding: '16px',
+            },
+        });
     }
-}
+};
+
 export const Curriculum = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
@@ -52,22 +55,25 @@ export const Curriculum = () => {
     const [sections, setSections] = useState([]);
     const [isUpdated, setIsUpdated] = useState(false);
 
-    // console.log(isUpdated, 'clickUpdate-curriculum');
     const [hasChanges, setHasChanges] = useState(false);
 
-    // Function to handle section title change
-    const handleSectionTitleChange = (sectionId, newTitle) => {
+
+    // const exportToJsonLog = () => {
+    //     console.log(JSON.stringify(sections, null, 2));
+    //     toast.success("Đã xuất dữ liệu ra log!");
+    // };
+
+    const handleLessonTitleChange = (sectionId, newTitle) => {
         setSections(prevSections => {
             const updatedSections = prevSections.map(section =>
                 section.id === sectionId ? { ...section, title: newTitle } : section
             );
-            setHasChanges(true); // Mark as having changes
+            setHasChanges(true);
             return updatedSections;
         });
     };
 
-    // Function to handle lesson title change
-    const handleLessonTitleChange = (sectionId, lessonId, newTitle) => {
+    const handleContentTitleChange = (sectionId, lessonId, newTitle) => {
         setSections(prevSections => {
             const updatedSections = prevSections.map(section => {
                 if (section.id === sectionId) {
@@ -80,10 +86,25 @@ export const Curriculum = () => {
                 }
                 return section;
             });
-            setHasChanges(true); // Mark as having changes
+            setHasChanges(true);
             return updatedSections;
         });
     };
+
+    const handleContentDescChange = (sectionId, lessonId, newDescription) => {
+        setSections(prevSections =>
+            prevSections.map(section =>
+                section.id === sectionId
+                    ? {
+                        ...section,
+                        lessons: section.lessons.map(lesson =>
+                            lesson.id === lessonId ? { ...lesson, description: newDescription } : lesson
+                        )
+                    }
+                    : section
+            )
+        )
+    }
 
     const handleSelectChange = (sectionId, lessonId, value) => {
         setSections(prevSections =>
@@ -124,35 +145,6 @@ export const Curriculum = () => {
 
 
 
-
-    // const handleVideoLinkChange = (sectionId, lessonId, value) => {
-    //     setSections(sections.map(section => {
-    //         if (section.id === sectionId) {
-    //             return {
-    //                 ...section,
-    //                 lessons: section.lessons.map(lesson =>
-    //                     lesson.id === lessonId ? { ...lesson, videoLink: value } : lesson
-    //                 )
-    //             };
-    //         }
-    //         return section;
-    //     }));
-    // };
-
-    const handleLessonDescriptionChange = (sectionId, lessonId, newDescription) => {
-        setSections(prevSections =>
-            prevSections.map(section =>
-                section.id === sectionId
-                    ? {
-                        ...section,
-                        lessons: section.lessons.map(lesson =>
-                            lesson.id === lessonId ? { ...lesson, description: newDescription } : lesson
-                        )
-                    }
-                    : section
-            )
-        )
-    }
 
     const handleContentChange = (sectionId, lessonId, value) => {
         setSections(sections.map(section => {
@@ -238,7 +230,7 @@ export const Curriculum = () => {
     };
 
 
-    const addSection = async () => {
+    const addNewSection = async () => {
         if (
             sections.length > 0 &&
             (!sections[sections.length - 1].title || !sections[sections.length - 1].title.trim())
@@ -300,6 +292,7 @@ export const Curriculum = () => {
         if (!section) return;
         // Kiểm tra nếu không có bài học nào trong section
         if (section.lessons.length === 0) {
+            return
             // Có thể thực hiện logic khác nếu cần
         } else {
             // Kiểm tra bài học cuối có tiêu đề không
@@ -340,7 +333,7 @@ export const Curriculum = () => {
 
 
             const newLesson = {
-                id: section.lessons.length + 1,  // Đảm bảo ID bài học là duy nhất
+                id: section.lessons.length + 1,
                 title: '',
                 selectedOption: '',
                 videoLink: '',
@@ -358,7 +351,7 @@ export const Curriculum = () => {
                             ...section,
                             lessons: [
                                 ...section.lessons,
-                                newLesson  // Thêm bài học mới vào mảng lessons
+                                newLesson
                             ]
                         };
                     }
@@ -395,7 +388,6 @@ export const Curriculum = () => {
 
 
         try {
-            // Gửi yêu cầu xóa đến API
             const response = await axios.delete(`${API_URL}/teacher/courses/${course_id}/contents`, {
                 data: { content_ids: [contentId] },
                 headers: {
@@ -406,7 +398,6 @@ export const Curriculum = () => {
             });
 
             if (response.data.success) {
-                // Cập nhật state sau khi xóa thành công
                 const updatedSections = sections.filter(section => section.content_id !== contentId);
                 const resetSections = resetIds(updatedSections);
                 setSections(resetSections);
@@ -434,7 +425,6 @@ export const Curriculum = () => {
             return;
         }
 
-        // Hiển thị xác nhận trước khi xóa
         const { isConfirmed } = await Swal.fire({
             title: "Xác nhận xóa",
             text: "Bạn có chắc chắn muốn xóa nội dung này? Hành động này không thể hoàn tác.",
@@ -451,7 +441,6 @@ export const Curriculum = () => {
         }
 
         try {
-            // Gửi yêu cầu xóa đến API
             const response = await axios.delete(`${API_URL}/teacher/title-content/delete/${lesson.title_content_id}`, {
                 headers: {
                     'x-api-secret': API_KEY,
@@ -461,7 +450,6 @@ export const Curriculum = () => {
             });
 
             if (response.data.success) {
-                // Xóa bài học khỏi state sau khi xóa thành công
                 const updatedSections = sections.map(section => {
                     if (section.id === sectionId) {
                         return {
@@ -485,10 +473,6 @@ export const Curriculum = () => {
     };
 
 
-    // const exportToJsonLog = () => {
-    //     console.log(JSON.stringify(sections, null, 2));
-    //     toast.success("Đã xuất dữ liệu ra log!");
-    // };
 
 
     const openPageQuiz = async (sectionId) => {
@@ -529,7 +513,6 @@ export const Curriculum = () => {
         } catch (error) {
             if (error.response) {
                 if (error.response.status === 400) {
-                    // Lỗi 400, quiz đã tồn tại
                     Swal.fire({
                         title: 'Tiếp tục!',
                         text: 'Quiz đã có sẵn. Chuyển đến trang tạo quiz.',
@@ -555,8 +538,6 @@ export const Curriculum = () => {
 
 
     const update = async () => {
-        toast.dismiss();
-
         if (sections.length === 0) {
             toast.error('Vui lòng tạo ít nhất một bài học trước khi cập nhật!');
             return;
@@ -651,7 +632,6 @@ export const Curriculum = () => {
             if (!hasError) {
                 toast.success('Đã lưu thành nội dung thành công!');
                 setHasChanges(false);
-                await fetchContent();
             }
         } catch (error) {
             if (error.response?.status === 401) {
@@ -674,14 +654,6 @@ export const Curriculum = () => {
         }
     };
 
-    useEffect(() => {
-        return () => {
-            toast.dismiss();
-        };
-    }, []);
-
-
-
 
     const handleAccordionClick = (contentId) => {
 
@@ -690,7 +662,6 @@ export const Curriculum = () => {
             console.log("Dữ liệu đã được tải, không cần fetch lại");
             return;
         }
-        // console.log(contentId);
 
         const fetchData = async () => {
             try {
@@ -715,7 +686,6 @@ export const Curriculum = () => {
                         };
                     });
 
-                    // Update only the lessons of the section with the matching content_id
                     setSections((prevSections) =>
                         prevSections.map((section) =>
                             section.content_id === contentId
@@ -803,7 +773,7 @@ export const Curriculum = () => {
                                                 value={`section-${section.id}`}
                                                 key={section.id}
                                                 className="border-2 rounded-lg border-yellow-700 p-4 relative"
-                                                onClick={() => handleAccordionClick(section.content_id)} // Thêm sự kiện onClick vào đây
+                                                onClick={() => handleAccordionClick(section.content_id)}
                                             >
                                                 <div className="flex items-center gap-4 w-[80%] md:w-[88%] absolute ml-14 mt-3">
                                                     <div className="flex items-center gap-2">
@@ -814,8 +784,8 @@ export const Curriculum = () => {
                                                         className="flex-1 p-2 border rounded-md"
                                                         placeholder={`Nhập tiêu đề bài ${sectionIndex + 1}`}
                                                         value={section.title}
-                                                        onChange={(e) => handleSectionTitleChange(section.id, e.target.value)}
-                                                        onClick={(e) => e.stopPropagation()} // Ngăn chặn sự kiện click lan truyền
+                                                        onChange={(e) => handleLessonTitleChange(section.id, e.target.value)}
+                                                        onClick={(e) => e.stopPropagation()}
                                                     />
                                                     <Button className="bg-yellow-500 hover:bg-yellow-600" onClick={() => openPageQuiz(section.content_id)}>
                                                         Tạo quiz
@@ -842,26 +812,16 @@ export const Curriculum = () => {
                                                                             className="flex-1 p-2 border rounded-md"
                                                                             placeholder={`Nhập tiêu đề nội dung bài ${sectionIndex + 1}.${lessonIndex + 1}`}
                                                                             value={lesson.title}
-                                                                            onChange={(e) => handleLessonTitleChange(section.id, lesson.id, e.target.value)}
+                                                                            onChange={(e) => handleContentTitleChange(section.id, lesson.id, e.target.value)}
                                                                         />
                                                                     </div>
 
                                                                     <Textarea
                                                                         placeholder="Nhập mô tả cho bài học này"
                                                                         value={lesson.description}
-                                                                        onChange={(e) => handleLessonDescriptionChange(section.id, lesson.id, e.target.value)}
+                                                                        onChange={(e) => handleContentDescChange(section.id, lesson.id, e.target.value)}
                                                                         className="w-full"
                                                                     />
-
-                                                                    {/* <select
-                                                                        onChange={(e) => handleSelectChange(section.id, lesson.id, e.target.value)}
-                                                                        value={lesson.selectedOption}
-                                                                        className="border p-2 rounded-md mb-4"
-                                                                    >
-                                                                        <option value="">Chọn loại nội dung</option>
-                                                                        <option value="videoFile">Dạng Video file</option>
-                                                                        <option value="content">Dạng Nội dung</option>
-                                                                    </select> */}
 
                                                                     <Select
                                                                         className="border p-2 rounded-md mb-4"
@@ -887,7 +847,6 @@ export const Curriculum = () => {
                                                                                 <label className="font-medium">Tải lên video:</label>
                                                                             </div>
 
-                                                                            {/* Hiển thị tên file từ cơ sở dữ liệu nếu có */}
                                                                             {lesson.fileName && (
                                                                                 <p className="text-gray-600 mt-2">Tệp hiện tại: {lesson.fileName}</p>
                                                                             )}
@@ -953,20 +912,29 @@ export const Curriculum = () => {
                                         ))}
                                     </Accordion>
 
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={addNewSection}
+                                            className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
+                                        >
+                                            + Thêm Bài học mới
+                                        </button>
 
-                                    <button
-                                        onClick={addSection}
-                                        className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
-                                    >
-                                        + Thêm Bài học mới
-                                    </button>
+                                        <button
+                                            // onClick={addOnlineSection}
+                                            className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
+                                        >
+                                            + Thêm Bài online mới
+                                        </button>
+                                    </div>
+
 
                                     {/* <button
-                                onClick={exportToJsonLog}
-                                className="w-full p-3 border-2 border-dashed border-green-700 rounded-md text-gray-600 hover:bg-gray-50"
-                            >
-                                Xuất dữ liệu ra log
-                            </button> */}
+                                        onClick={exportToJsonLog}
+                                        className="w-full p-3 border-2 border-dashed border-green-700 rounded-md text-gray-600 hover:bg-gray-50"
+                                    >
+                                        Xuất dữ liệu ra log
+                                    </button> */}
 
                                 </form>
                                 <Toaster />

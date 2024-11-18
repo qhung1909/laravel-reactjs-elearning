@@ -15,7 +15,9 @@ class Content extends Model
         'name_content',
         'status',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'is_online_meeting'
+        
     ];
     public function course()
     {
