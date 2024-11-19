@@ -113,7 +113,6 @@ const JitsiMeeting = () => {
 
       const loadingToast = toast.loading('Đang cập nhật điểm danh...');
 
-      // Xử lý điểm danh có mặt
       if (presentUserIds.length > 0) {
         await axios.post(
           `${API_URL}/meetings/mark-attendance`,
@@ -288,6 +287,36 @@ const JitsiMeeting = () => {
       return false;
     }
   };
+
+  const getMeetingCourseId = async (meetingUrl) => {
+    try {
+      const response = await axios.get(`${API_URL}/meetings/course?meeting_url=http://localhost:5173${meetingUrl}`);
+      return response.data.course_id;
+    } catch (error) {
+      console.error('Error getting course ID:', error);
+      if (error.response && error.response.status === 404) {
+        console.error('Meeting not found');
+      } else {
+        console.error('Error occurred while getting course ID');
+      }
+      return null;
+    }
+  };
+
+  const checkMeetingAccess = async (userId, courseId) => {
+    try {
+      const response = await axios.post(`${API_URL}/meetings/check-meeting-access`, {
+        user_id: userId,
+        course_id: courseId
+      });
+      console.log(response.data);
+      return response.data.has_access;
+    } catch (error) {
+      console.error('Error checking meeting access:', error);
+      return false;
+    }
+  };
+
 
   const initializeJitsiMeeting = async (meeting_id) => {
     if (jitsiApiRef.current) {
@@ -528,34 +557,6 @@ const JitsiMeeting = () => {
     };
   }, [isWaiting, userInfo.role]);
 
-  const getMeetingCourseId = async (meetingUrl) => {
-    try {
-      const response = await axios.get(`${API_URL}/meetings/course?meeting_url=http://localhost:5173${meetingUrl}`);
-      return response.data.course_id;
-    } catch (error) {
-      console.error('Error getting course ID:', error);
-      if (error.response && error.response.status === 404) {
-        console.error('Meeting not found');
-      } else {
-        console.error('Error occurred while getting course ID');
-      }
-      return null;
-    }
-  };
-
-  const checkMeetingAccess = async (userId, courseId) => {
-    try {
-      const response = await axios.post(`${API_URL}/meetings/check-meeting-access`, {
-        user_id: userId,
-        course_id: courseId
-      });
-
-      return response.data.has_access;
-    } catch (error) {
-      console.error('Error checking meeting access:', error);
-      return false;
-    }
-  };
 
   if (isWaiting) {
     return (

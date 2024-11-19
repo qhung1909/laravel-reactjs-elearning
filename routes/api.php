@@ -255,6 +255,12 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::get('/{teacherId}/orders', [TeacherController::class, 'getTeacherOrderHistory']);
 
     Route::get('/course/{courseId}/orders', [TeacherController::class, 'getCourseOrderHistory']);
+
+    Route::get('/teaching-schedule', [TeachingScheduleController::class, 'index']);           // Lấy danh sách
+    Route::post('/teaching-schedule', [TeachingScheduleController::class, 'store']);          // Tạo mới
+    Route::get('/teaching-schedule/{meeting_id}', [TeachingScheduleController::class, 'show']); // Lấy chi tiết theo meeting_id
+    Route::put('/teaching-schedule/{id}', [TeachingScheduleController::class, 'update']);     // Cập nhật
+    Route::delete('/teaching-schedule/{id}', [TeachingScheduleController::class, 'destroy']); // Xóa
 });
 
 
