@@ -122,11 +122,12 @@ const data = {
             ],
         },
         {
-            title: "Quản lý lịch dạy của giảng viên",
+            title: "Quản lý phòng học trực tuyến",
             url: "#",
             icon: School,
             items: [
-                { title: "Danh sách lịch dạy của giảng viên", url: "/admin/teaching-schedule-list" },
+                { title: "Danh sách lịch dạy", url: "/admin/teaching-schedule-list" },
+                { title: "Quản lý phòng Jitsi Meet", url: "/admin/manage-meet-room" },
             ],
         },
         {

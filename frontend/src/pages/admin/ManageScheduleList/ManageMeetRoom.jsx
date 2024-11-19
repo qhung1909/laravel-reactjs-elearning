@@ -52,7 +52,7 @@ const scheduleData = [
     { id: 5, teacherName: 'Hoàng Văn E', date: '2024-10-22', note: 'Seminar Blockchain' },
 ]
 
-export default function ScheduleList() {
+export default function ManageMeetRoom() {
     const [searchTerm, setSearchTerm] = useState('')
     const [filterCriteria, setFilterCriteria] = useState('all')
 
@@ -90,7 +90,7 @@ export default function ScheduleList() {
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator />
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink href="/schedule-list">Danh sách lịch dạy</BreadcrumbLink>
+                                    <BreadcrumbLink href="/schedule-list">Quản lý phòng Jitsi Meet</BreadcrumbLink>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
@@ -98,7 +98,7 @@ export default function ScheduleList() {
                 </header>
                 <div className="absolute top-16 px-6 bg-gray-50 w-full font-sans overflow-auto p-6">
                     <div className="flex justify-between items-center mb-2 mr-6 ml-2">
-                        <h1 className="text-2xl font-semibold mb-4">Danh sách lịch dạy</h1>
+                        <h1 className="text-2xl font-semibold mb-4">Quản lý phòng Jitsi Meet</h1>
                         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-wrap w-full md:w-auto">
                             <div className="relative flex-1 md:flex-initial">
                                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -138,7 +138,7 @@ export default function ScheduleList() {
                     </div>
                     <div className="rounded-md border">
                         <Table>
-                            <TableCaption>Danh sách lịch dạy.</TableCaption>
+                            <TableCaption>Danh sách lịch dạy của giảng viên.</TableCaption>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="w-[100px] text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900">STT</TableHead>
