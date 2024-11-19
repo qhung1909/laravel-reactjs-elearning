@@ -69,6 +69,8 @@ import DetailCourse from "./pages/admin/ManageCourses/detailCourse.jsx";
 import { CmtCrud } from "./pages/admin/ManageComments/cmtCrud.jsx";
 import JitsiMeeting from "./pages/jitsi/jitsi.jsx";
 import ScheduleList from "./pages/admin/ManageScheduleList/ScheduleList.jsx";
+import ManageMeetRoom from "./pages/admin/ManageScheduleList/ManageMeetRoom.jsx";
+
 
 function AppContent() {
     const location = useLocation();
@@ -137,6 +139,7 @@ function AppContent() {
                 <Route path="/admin/manage-footer" element={<ManageFooter />}></Route>
                 <Route path="/admin/manage-header" element={<ManageHeader />}></Route>
                 <Route path="/admin/teaching-schedule-list" element={<ScheduleList />}></Route>
+                <Route path="/admin/manage-meet-room" element={<ManageMeetRoom />}></Route>
 
 
                 <Route path="/admin/draft" element={<Draft />}></Route>
