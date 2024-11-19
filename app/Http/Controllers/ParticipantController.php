@@ -377,9 +377,9 @@ class ParticipantController extends Controller
         $request->validate([
             'meeting_url' => 'required|string',
         ]);
-    
+
         $meetingUrl = $request->input('meeting_url');
-    
+
         $meeting = OnlineMeeting::where('meeting_url', $meetingUrl)->first();
         if (!$meeting) {
             return response()->json([
@@ -387,50 +387,55 @@ class ParticipantController extends Controller
                 'message' => 'Meeting URL không tồn tại',
             ], 404);
         }
-    
-        // Truy vấn dữ liệu kết hợp bảng users
+
+        // Sửa lại câu query với điều kiện join đúng
         $attendanceData = DB::table('user_courses AS uc')
-            ->leftJoin('online_meetings AS om', 'uc.course_id', '=', 'om.course_id')
+            ->select(
+                'uc.user_id',
+                'u.name',
+                'mp.is_present',
+                'mp.attendance_date'
+            )
+            ->join('online_meetings AS om', function ($join) use ($meetingUrl) {
+                $join->on('uc.course_id', '=', 'om.course_id')
+                    ->where('om.meeting_url', '=', $meetingUrl);
+            })
+            ->join('users AS u', 'uc.user_id', '=', 'u.user_id')
             ->leftJoin('meeting_participants AS mp', function ($join) use ($meeting) {
-                $join->on('uc.user_id', '=', 'mp.participant_id')
+                $join->on('uc.user_id', '=', 'mp.user_id')  // Thay đổi từ participant_id thành user_id
                     ->where('mp.meeting_id', '=', $meeting->meeting_id);
             })
-            ->leftJoin('users AS u', 'uc.user_id', '=', 'u.user_id') // Join bảng users để lấy tên
-            ->where('om.meeting_url', $meetingUrl)
-            ->select('uc.user_id', 'u.name', DB::raw('CASE WHEN mp.participant_id IS NOT NULL THEN 1 ELSE 0 END AS attended'))
             ->get();
-    
-        // Tạo mảng dữ liệu trả về
-        $data = [];
-        foreach ($attendanceData as $row) {
-            $data[] = [
+
+        $data = $attendanceData->map(function ($row) {
+            return [
                 'user_id' => $row->user_id,
-                'name' => $row->name, // Thêm tên người dùng
-                'attended' => $row->attended,
+                'name' => $row->name,
+                'is_present' => $row->is_present ?? 0,
+                'attendance_date' => $row->attendance_date
             ];
-        }
-    
+        })->toArray();
+
         return response()->json([
             'status' => 'success',
-            'data' => $data,
+            'data' => $data
         ]);
     }
-    
     public function markAttendance(Request $request)
     {
         $request->validate([
             'meeting_url' => 'required|string',
             'user_ids' => 'required|array',
         ]);
-    
+
         $meetingUrl = $request->input('meeting_url');
         $userIds = $request->input('user_ids');
-    
+
         Log::info('Mark Attendance called', [
             'meeting_url' => $meetingUrl,
             'user_ids' => $userIds
         ]);
-    
+
         $meeting = OnlineMeeting::where('meeting_url', $meetingUrl)->first();
         if (!$meeting) {
             Log::warning('Meeting not found', ['meeting_url' => $meetingUrl]);
@@ -439,31 +444,31 @@ class ParticipantController extends Controller
                 'message' => 'Meeting URL không tồn tại',
             ], 404);
         }
-    
+
         Log::info('Meeting found', ['meeting_id' => $meeting->meeting_id]);
-    
+
         $now = now();
         $participants = [];
-    
+
         foreach ($userIds as $userId) {
             Log::info('Checking participant presence', ['user_id' => $userId]);
-    
+
             $participant = Participant::firstOrNew([
                 'meeting_id' => $meeting->meeting_id,
                 'user_id' => $userId,
             ]);
-    
+
             $participant->is_present = 1;
             $participant->attendance_date = $now;
             $participant->created_at = $now;
             $participant->updated_at = $now;
             $participant->save();
-    
+
             $participants[] = $participant;
         }
-    
+
         Log::info('Saved attendance for participants', ['participants_count' => count($participants)]);
-    
+
         return response()->json([
             'status' => 'success',
             'message' => 'Điểm danh thành công',

@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
-import { Search, Filter, Save } from 'lucide-react';
+import { Search, Filter, Save, RefreshCw } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
@@ -91,9 +91,13 @@ const JitsiMeeting = () => {
           attendanceResponse.data.data.map((user) => ({
             id: user.user_id,
             name: user.name || "Unknown",
-            status: user.attended === 1 ? "present" : "absent",
+            status: user.is_present === 1 ? "present" : "absent",
           }))
         );
+
+        // Log để debug
+        console.log("Mapped students data:", attendanceResponse.data.data);
+
       } else {
         console.error("Unexpected data structure:", attendanceResponse.data);
         setStudents([]);
@@ -109,14 +113,10 @@ const JitsiMeeting = () => {
   const saveAttendance = async () => {
     const token = localStorage.getItem('access_token');
     try {
-      // Log ra toàn bộ students để kiểm tra trạng thái
       console.log("Students:", students);
-
-      // Lọc những sinh viên có trạng thái 'present' và lấy id của họ
       const userIds = students.filter(student => student.status === "present").map(student => student.id);
-      console.log("User IDs to mark attendance:", userIds);  // Log ra mảng user_ids
+      console.log("User IDs to mark attendance:", userIds);
 
-      // Nếu mảng userIds là rỗng, không thực hiện gọi API
       if (userIds.length === 0) {
         console.log("No students to mark as present.");
         return;
@@ -136,9 +136,27 @@ const JitsiMeeting = () => {
           }
         }
       );
+
       console.log("Attendance saved successfully");
+
+      // Fetch lại dữ liệu sau khi lưu thành công
+      await fetchStudentAttendance();
+
+      // Hiển thị thông báo thành công (nếu bạn muốn)
+      // toast({
+      //   title: "Lưu điểm danh thành công",
+      //   description: "Danh sách điểm danh đã được cập nhật",
+      //   status: "success",
+      // });
+
     } catch (error) {
       console.error('Error saving attendance:', error);
+      // Hiển thị thông báo lỗi (nếu bạn muốn)
+      toast({
+        title: "Lỗi",
+        description: "Không thể lưu điểm danh. Vui lòng thử lại",
+        status: "error",
+      });
     }
   };
 
@@ -288,7 +306,7 @@ const JitsiMeeting = () => {
       }
     }
 
-    const domain = '192.168.1.7:8443';
+    const domain = '192.168.1.8:8443';
     const options = {
       roomName: meeting_id,
       width: '100%',
@@ -642,6 +660,10 @@ const JitsiMeeting = () => {
                 <Button onClick={saveAttendance} variant="default">
                   <Save className="mr-2 h-4 w-4" />
                   Lưu điểm danh
+                </Button>
+                <Button onClick={fetchStudentAttendance} variant="outline">
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Làm mới
                 </Button>
               </div>
             </SheetContent>
