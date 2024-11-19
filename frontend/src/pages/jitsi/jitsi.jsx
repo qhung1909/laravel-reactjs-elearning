@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
-import { Search, Filter, Save, RefreshCw } from 'lucide-react';
+import { Search, Filter, Save, RefreshCw, Check, X, } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
@@ -103,39 +103,59 @@ const JitsiMeeting = () => {
   const saveAttendance = async () => {
     const token = localStorage.getItem('access_token');
     try {
-      const userIds = students.filter(student => student.status === "present").map(student => student.id);
+      const presentUserIds = students.filter(student => student.status === "present").map(student => student.id);
+      const absentUserIds = students.filter(student => student.status === "absent").map(student => student.id);
 
-      if (userIds.length === 0) {
+      if (presentUserIds.length === 0 && absentUserIds.length === 0) {
         toast.error('Vui lòng chọn ít nhất một sinh viên để điểm danh');
         return;
       }
 
-      const loadingToast = toast.loading('Đang lưu điểm danh...');
+      const loadingToast = toast.loading('Đang cập nhật điểm danh...');
 
-      await axios.post(
-        `${API_URL}/meetings/mark-attendance`,
-        {
-          meeting_url: window.location.href,
-          user_ids: userIds
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
+      // Xử lý điểm danh có mặt
+      if (presentUserIds.length > 0) {
+        await axios.post(
+          `${API_URL}/meetings/mark-attendance`,
+          {
+            meeting_url: window.location.href,
+            user_ids: presentUserIds
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
           }
-        }
-      );
+        );
+      }
+
+      if (absentUserIds.length > 0) {
+        await axios.post(
+          `${API_URL}/meetings/mark-absent`,
+          {
+            meeting_url: window.location.href,
+            user_ids: absentUserIds
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      }
 
       toast.dismiss(loadingToast);
-      toast.success('Lưu điểm danh thành công');
+      toast.success('Cập nhật điểm danh thành công');
 
       await fetchStudentAttendance();
 
     } catch (error) {
       console.error('Error saving attendance:', error);
-      toast.error('Không thể lưu điểm danh. Vui lòng thử lại');
+      toast.error('Không thể cập nhật điểm danh. Vui lòng thử lại');
     }
-  }
+  };
 
 
 
@@ -586,6 +606,30 @@ const JitsiMeeting = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setStudents(students.map(student => ({ ...student, status: "present" })));
+                      toast.success('Đã chọn tất cả học viên có mặt');
+                    }}
+                  >
+                    <Check className="mr-2 h-4 w-4" />
+                    Chọn tất cả có
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setStudents(students.map(student => ({ ...student, status: "absent" })));
+                      toast.success('Đã chọn tất cả học viên vắng mặt');
+                    }}
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    Chọn tất cả vắng
+                  </Button>
+                </div>
                 <Separator />
               </div>
               <ScrollArea className="flex-grow">
@@ -594,7 +638,11 @@ const JitsiMeeting = () => {
                     <TableRow>
                       <TableHead>Tên học viên</TableHead>
                       <TableHead>Trạng thái</TableHead>
-                      <TableHead>Điểm danh</TableHead>
+                      <TableHead>
+                        <div className="flex items-center justify-between">
+                          Điểm danh
+                        </div>
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -615,9 +663,10 @@ const JitsiMeeting = () => {
                         <TableCell>
                           <Switch
                             checked={student.status === "present"}
-                            onCheckedChange={(isPresent) =>
-                              handleAttendanceChange(student.id, isPresent)
-                            }
+                            onCheckedChange={(isPresent) => {
+                              handleAttendanceChange(student.id, isPresent);
+                              toast.success(`Đã đánh dấu ${student.name} ${isPresent ? 'có mặt' : 'vắng mặt'}`);
+                            }}
                           />
                         </TableCell>
                       </TableRow>
@@ -629,11 +678,21 @@ const JitsiMeeting = () => {
                 <SheetClose asChild>
                   <Button variant="outline">Đóng</Button>
                 </SheetClose>
-                <Button onClick={saveAttendance} variant="default">
+                <Button
+                  onClick={saveAttendance}
+                  variant="default"
+                  className="bg-primary hover:bg-primary/90"
+                >
                   <Save className="mr-2 h-4 w-4" />
                   Lưu điểm danh
                 </Button>
-                <Button onClick={fetchStudentAttendance} variant="outline">
+                <Button
+                  onClick={() => {
+                    const loadingToast = toast.loading('Đang làm mới...');
+                    fetchStudentAttendance().finally(() => toast.dismiss(loadingToast));
+                  }}
+                  variant="outline"
+                >
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Làm mới
                 </Button>
