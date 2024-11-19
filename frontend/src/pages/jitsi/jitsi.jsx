@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Search, Filter, Save, RefreshCw } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -53,8 +54,6 @@ const JitsiMeeting = () => {
         : `http://localhost:5173${meetingUrl}`;
 
     try {
-      console.log("Fetching student attendance for meeting:", fullMeetingUrl);
-
       const response = await axios.get(`${API_URL}/meetings/getMeetingId`, {
         params: {
           meeting_url: fullMeetingUrl,
@@ -64,10 +63,7 @@ const JitsiMeeting = () => {
         },
       });
 
-      console.log("getMeetingId response:", response.data);
-
       const meetingId = response.data.meeting_id;
-      console.log("Meeting ID:", meetingId);
 
       const attendanceResponse = await axios.post(
         `${API_URL}/meetings/users`,
@@ -79,8 +75,6 @@ const JitsiMeeting = () => {
           },
         }
       );
-
-      console.log("getUserIdsByMeetingUrl response:", attendanceResponse.data);
 
       if (
         attendanceResponse.data &&
@@ -94,10 +88,6 @@ const JitsiMeeting = () => {
             status: user.is_present === 1 ? "present" : "absent",
           }))
         );
-
-        // Log để debug
-        console.log("Mapped students data:", attendanceResponse.data.data);
-
       } else {
         console.error("Unexpected data structure:", attendanceResponse.data);
         setStudents([]);
@@ -106,23 +96,22 @@ const JitsiMeeting = () => {
       console.error("Error fetching student attendance:", error);
       console.error("Error response:", error.response);
       setStudents([]);
+      toast.error('Lỗi khi tải danh sách sinh viên. Vui lòng thử lại sau');
     }
   };
-
 
   const saveAttendance = async () => {
     const token = localStorage.getItem('access_token');
     try {
-      console.log("Students:", students);
       const userIds = students.filter(student => student.status === "present").map(student => student.id);
-      console.log("User IDs to mark attendance:", userIds);
 
       if (userIds.length === 0) {
-        console.log("No students to mark as present.");
+        toast.error('Vui lòng chọn ít nhất một sinh viên để điểm danh');
         return;
       }
 
-      // Gửi request tới API
+      const loadingToast = toast.loading('Đang lưu điểm danh...');
+
       await axios.post(
         `${API_URL}/meetings/mark-attendance`,
         {
@@ -137,28 +126,16 @@ const JitsiMeeting = () => {
         }
       );
 
-      console.log("Attendance saved successfully");
+      toast.dismiss(loadingToast);
+      toast.success('Lưu điểm danh thành công');
 
-      // Fetch lại dữ liệu sau khi lưu thành công
       await fetchStudentAttendance();
-
-      // Hiển thị thông báo thành công (nếu bạn muốn)
-      // toast({
-      //   title: "Lưu điểm danh thành công",
-      //   description: "Danh sách điểm danh đã được cập nhật",
-      //   status: "success",
-      // });
 
     } catch (error) {
       console.error('Error saving attendance:', error);
-      // Hiển thị thông báo lỗi (nếu bạn muốn)
-      toast({
-        title: "Lỗi",
-        description: "Không thể lưu điểm danh. Vui lòng thử lại",
-        status: "error",
-      });
+      toast.error('Không thể lưu điểm danh. Vui lòng thử lại');
     }
-  };
+  }
 
 
 
@@ -175,7 +152,7 @@ const JitsiMeeting = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("User Info:", response.data);
+
       setUserInfo({
         name: response.data.name,
         user_id: response.data.user_id,
@@ -213,7 +190,7 @@ const JitsiMeeting = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      console.log("Meeting ID:", response.data.meeting_id);
+
       return response.data.meeting_id;
     } catch (error) {
       console.error('Error fetching meeting ID:', error);
@@ -248,7 +225,7 @@ const JitsiMeeting = () => {
         }
       };
 
-      console.log("Data to save participant:", data);
+
 
       const response = await axios.post(
         `${API_URL}/meetings/participants`,
@@ -261,7 +238,7 @@ const JitsiMeeting = () => {
         }
       );
 
-      console.log("Participant saved successfully:", response.data);
+
       return response.data;
     } catch (error) {
       console.error("Error saving participant:", error);
@@ -284,7 +261,7 @@ const JitsiMeeting = () => {
           }
         }
       );
-      console.log("Teacher presence check:", response.data);
+
       return response.data.can_join;
     } catch (error) {
       console.error("Error checking teacher presence:", error);
@@ -294,7 +271,7 @@ const JitsiMeeting = () => {
 
   const initializeJitsiMeeting = async (meeting_id) => {
     if (jitsiApiRef.current) {
-      console.log("Jitsi instance already exists");
+
       return;
     }
 
@@ -334,7 +311,7 @@ const JitsiMeeting = () => {
     };
 
     try {
-      console.log("Initializing new Jitsi instance");
+
       const api = new window.JitsiMeetExternalAPI(domain, options);
       jitsiApiRef.current = api;
 
@@ -379,7 +356,7 @@ const JitsiMeeting = () => {
       });
 
       api.on("participantJoined", async (participant) => {
-        console.log("Participant joined:", participant);
+
         const participantWithTime = {
           ...participant,
           joinedAt: new Date().toISOString()
@@ -388,7 +365,7 @@ const JitsiMeeting = () => {
         setParticipants(prev => [...prev, participant]);
 
         if (userInfo.role === 'teacher') {
-          console.log("Refreshing student list after new participant joined");
+
           await fetchStudentAttendance(meeting_id);
         }
 
@@ -402,7 +379,7 @@ const JitsiMeeting = () => {
       });
 
       api.on("participantLeft", async (participant) => {
-        console.log("Participant left:", participant);
+
 
         const participantInfo = participantUserIds.get(participant.id);
 
@@ -425,7 +402,7 @@ const JitsiMeeting = () => {
         setParticipants(prev => prev.filter(p => p.id !== participant.id));
 
         if (userInfo.role === 'teacher') {
-          console.log("Refreshing student list after participant left");
+
           await fetchStudentAttendance(meeting_id);
         }
 
@@ -465,7 +442,7 @@ const JitsiMeeting = () => {
     const initializeRoom = async () => {
       if (!isLoading && userInfo.user_id && jitsiContainerRef.current && mounted) {
         const meetingUrl = location.pathname;
-        console.log('meetingUrl:', meetingUrl);
+
 
         if (meetingUrl) {
           const courseId = await getMeetingCourseId(meetingUrl);
@@ -606,7 +583,6 @@ const JitsiMeeting = () => {
                       <SelectItem value="all">Tất cả</SelectItem>
                       <SelectItem value="present">Có mặt</SelectItem>
                       <SelectItem value="absent">Vắng mặt</SelectItem>
-                      <SelectItem value="late">Đi muộn</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -629,10 +605,6 @@ const JitsiMeeting = () => {
                           {student.status === "present" ? (
                             <span className="bg-green-300 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
                               Có
-                            </span>
-                          ) : student.status === "late" ? (
-                            <span className="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300">
-                              Đi muộn
                             </span>
                           ) : (
                             <span className="bg-red-300 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">
@@ -670,6 +642,27 @@ const JitsiMeeting = () => {
           </Sheet>
         </div>
       )}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: 'var(--background)',
+            color: 'var(--foreground)',
+            border: '1px solid var(--border)',
+          },
+          success: {
+            icon: '✅',
+          },
+          error: {
+            icon: '❌',
+            duration: 4000,
+          },
+          loading: {
+            icon: '⏳',
+          },
+        }}
+      />
     </div>
   );
 }

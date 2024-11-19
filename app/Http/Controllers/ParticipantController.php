@@ -431,11 +431,6 @@ class ParticipantController extends Controller
         $meetingUrl = $request->input('meeting_url');
         $userIds = $request->input('user_ids');
 
-        Log::info('Mark Attendance called', [
-            'meeting_url' => $meetingUrl,
-            'user_ids' => $userIds
-        ]);
-
         $meeting = OnlineMeeting::where('meeting_url', $meetingUrl)->first();
         if (!$meeting) {
             Log::warning('Meeting not found', ['meeting_url' => $meetingUrl]);
@@ -445,13 +440,10 @@ class ParticipantController extends Controller
             ], 404);
         }
 
-        Log::info('Meeting found', ['meeting_id' => $meeting->meeting_id]);
-
         $now = now();
         $participants = [];
 
         foreach ($userIds as $userId) {
-            Log::info('Checking participant presence', ['user_id' => $userId]);
 
             $participant = Participant::firstOrNew([
                 'meeting_id' => $meeting->meeting_id,
@@ -467,11 +459,50 @@ class ParticipantController extends Controller
             $participants[] = $participant;
         }
 
-        Log::info('Saved attendance for participants', ['participants_count' => count($participants)]);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Điểm danh thành công',
+        ]);
+    }
+
+    public function markAbsent(Request $request)
+    {
+        $request->validate([
+            'meeting_url' => 'required|string',
+            'user_ids' => 'required|array',
+        ]);
+
+        $meetingUrl = $request->input('meeting_url');
+        $userIds = $request->input('user_ids');
+
+        $meeting = OnlineMeeting::where('meeting_url', $meetingUrl)->first();
+        if (!$meeting) {
+            Log::warning('Meeting not found', ['meeting_url' => $meetingUrl]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Meeting URL không tồn tại',
+            ], 404);
+        }
+
+        $now = now();
+
+        foreach ($userIds as $userId) {
+            $participant = Participant::firstOrNew([
+                'meeting_id' => $meeting->meeting_id,
+                'user_id' => $userId,
+            ]);
+
+            $participant->is_present = 0;
+            $participant->attendance_date = $now;
+            $participant->created_at = $now;
+            $participant->updated_at = $now;
+            $participant->save();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Đã cập nhật trạng thái vắng mặt',
         ]);
     }
 }

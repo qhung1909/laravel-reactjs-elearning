@@ -271,3 +271,4 @@ Route::post('/meetings/check-meeting-access', [ParticipantController::class, 'ch
 Route::get('/meetings/course', [ParticipantController::class, 'getCourseIdByMeetingUrl']);
 Route::post('/meetings/users', [ParticipantController::class, 'getUserIdsByMeetingUrl']);
 Route::post('/meetings/mark-attendance ', [ParticipantController::class, 'markAttendance']);
+Route::post('/meetings/mark-absent ', [ParticipantController::class, 'markAbsent']);
