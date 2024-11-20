@@ -28,10 +28,10 @@ class TeachingScheduleController extends Controller
                 $query->with([
                     'course:course_id,title',
                     'content:content_id,name_content' 
-                ])->select('meeting_id', 'course_id', 'content_id', 'meeting_url', 'start_time', 'end_time'); 
-            }])
+                ])->select('meeting_id', 'meeting_url', 'start_time', 'end_time'); 
+            }, 'user:user_id,name'])
             ->select('id', 'meeting_id', 'user_id', 'proposed_start', 'notes');
-            
+
             if ($request->has('user_id')) {
                 $query->where('user_id', $request->user_id);
             }

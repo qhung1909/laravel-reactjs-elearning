@@ -32,4 +32,8 @@ class OnlineMeeting extends Model
     {
         return $this->belongsTo(Content::class, 'content_id');
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
