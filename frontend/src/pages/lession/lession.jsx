@@ -33,6 +33,7 @@ export const Lesson = () => {
     //respon
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showMiniGame, setShowMiniGame] = useState(false);
+    //fetchLesson
     useEffect(() => {
         const fetchLesson = async () => {
             if (!slug) return;
