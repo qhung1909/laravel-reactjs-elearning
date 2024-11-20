@@ -32,7 +32,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { SideBarUI } from '../sidebarUI'
-import { toast } from 'sonner'
+import { toast } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 
 export default function ScheduleList() {
