@@ -17,7 +17,8 @@ import {
     SquareTerminal,
     Layout,
     MessageCircle,
-    School
+    School,
+    SquareChartGantt
 } from "lucide-react";
 
 import {
@@ -133,7 +134,7 @@ const data = {
         {
             title: "Quản lý nội dung",
             url: "#",
-            icon: Settings2,
+            icon: SquareChartGantt,
             items: [
                 { title: "Bài viết/Blog", url: "/admin/blogs" },
                 { title: "Banner quảng cáo", url: "#" },
