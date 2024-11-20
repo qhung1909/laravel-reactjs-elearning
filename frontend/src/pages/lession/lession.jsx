@@ -10,7 +10,7 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy, Gamepad2, Gift } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy, Gamepad2, Gift, CircleCheck } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
@@ -378,6 +378,7 @@ export const Lesson = () => {
             }
         }
     };
+
     useEffect(() => {
         if (progressData.length > 0) {
             const updatedCompletedLessons = new Set();
@@ -911,10 +912,10 @@ export const Lesson = () => {
                                     <div className="grid grid-cols-2 gap-3 mt-4">
                                         <div className="bg-violet-50 rounded-xl p-3 border border-violet-100 group hover:bg-violet-100 transition-colors">
                                             <div className="flex items-center text-purple-600 mb-1">
-                                                <PlayCircle className="w-4 h-4 mr-2" />
+                                                <CircleCheck className="w-4 h-4 mr-2" />
                                                 <span className="text-sm font-medium">Đã hoàn thành</span>
                                             </div>
-                                            <p className="text-lg font-semibold text-gray-800">
+                                            <p className="text-lg font-semibold text-gray-800 text-center">
                                                 {completedLessons.size}/{contentLesson.length}
                                             </p>
                                         </div>
