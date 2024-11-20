@@ -123,7 +123,6 @@ class TeachingScheduleController extends Controller
                 ], 422);
             }
 
-            // 7. Kiểm tra trùng lịch
             $proposedEndTime = $proposedStartTime->copy()->addHours(2);
             $existingSchedule = TeachingSchedule::where('user_id', $request->user_id)
                 ->where(function ($query) use ($proposedStartTime, $proposedEndTime) {
@@ -142,16 +141,13 @@ class TeachingScheduleController extends Controller
                 ], 422);
             }
 
-            // 8. Tạo lịch dạy và gửi mail
             $result = DB::transaction(function () use ($request, $proposedStartTime, $teacher, $course, $content) {
-                // Tạo schedule trước
                 $schedule = TeachingSchedule::create([
                     'user_id' => $request->user_id,
                     'proposed_start' => $proposedStartTime,
                     'notes' => $request->notes,
                 ]);
 
-                // Tạo meeting
                 $meeting = OnlineMeeting::create([
                     'content_id' => $request->content_id,
                     'course_id' => $request->course_id,
@@ -160,14 +156,11 @@ class TeachingScheduleController extends Controller
                     'end_time' => $proposedStartTime->copy()->addHours(2),
                 ]);
 
-                // Update meeting_id cho schedule
                 $schedule->update(['meeting_id' => $meeting->meeting_id]);
 
-                // Gửi mail
                 $this->sendTeacherScheduleNotification($teacher, $course, $content, $proposedStartTime, $meeting, $request->notes);
                 $this->sendStudentScheduleNotifications($course, $content, $teacher, $proposedStartTime, $meeting, $schedule);
 
-                // Load relationships để return
                 $schedule->load([
                     'user',
                     'onlineMeeting' => function ($query) {
