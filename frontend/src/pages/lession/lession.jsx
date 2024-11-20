@@ -262,6 +262,19 @@ export const Lesson = () => {
 
 
     //Progress
+    const [completedLessons, setCompletedLessons] = useState(new Set());
+    const [completedVideosInSection, setCompletedVideosInSection] = useState({});
+    const [videoProgress, setVideoProgress] = useState({});
+    const [videoDurations, setVideoDurations] = useState({});
+    const [progressData, setProgressData] = useState([]);
+    const playerRef = useRef();
+    // Tính toán progress
+    const calculateProgress = () => {
+        const totalLessons = contentLesson.length;
+        const completedCount = completedLessons.size;
+        return totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
+    };
+    // Cập nhật progress lên server
     const updateProgress = async (contentId) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -293,39 +306,64 @@ export const Lesson = () => {
             toast.error("Có lỗi xảy ra khi cập nhật tiến độ.");
         }
     };
-    const [completedLessons, setCompletedLessons] = useState(new Set());
-    const calculateProgress = () => {
-        const totalLessons = contentLesson.length;
-        const completedCount = completedLessons.size;
-        return totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
-    };
-    // Theo dõi video nào đã hoàn thành trong từng phần nội dung
-    const [completedVideosInSection, setCompletedVideosInSection] = useState({});
-    const [videoProgress, setVideoProgress] = useState({});
-    const playerRef = useRef();
-    const [videoDurations, setVideoDurations] = useState({});
 
-    const handleVideoComplete = (contentId, index) => {
-        // Kiểm tra xem video này đã được đánh dấu là hoàn thành chưa
-        if (!videoProgress[`${contentId}-${index}`]) {
-            setVideoProgress(prev => ({
-                ...prev,
-                [`${contentId}-${index}`]: true
-            }));
+    // Xử lý khi video hoàn thành
+    const handleVideoComplete = async (contentId, index, titleContentId) => {
+        if (!videoProgress[titleContentId]) {
+            // Cập nhật video progress
+            const newVideoProgress = {
+                ...videoProgress,
+                [titleContentId]: true
+            };
+            setVideoProgress(newVideoProgress);
 
-            setCompletedVideosInSection(prev => {
-                const updated = { ...prev };
-                updated[contentId] = (updated[contentId] || 0) + 1;
-                // Kiểm tra nếu tất cả video trong phần đã hoàn thành
-                if (updated[contentId] === titleContent[contentId].length) {
-                    updateProgress(contentId);
+            // Lưu vào localStorage
+            const savedVideoProgress = JSON.parse(localStorage.getItem(`videoProgress_${lesson.course_id}`) || '{}');
+            const updatedVideoProgress = {
+                ...savedVideoProgress,
+                [titleContentId]: true
+            };
+            localStorage.setItem(`videoProgress_${lesson.course_id}`, JSON.stringify(updatedVideoProgress));
+
+            // Kiểm tra hoàn thành tất cả video trong content
+            const allVideosInContent = titleContent[contentId] || [];
+            const isAllVideosCompleted = allVideosInContent.every(video =>
+                newVideoProgress[video.title_content_id] || savedVideoProgress[video.title_content_id]
+            );
+
+            if (isAllVideosCompleted) {
+                // Cập nhật UI trước
+                setCompletedVideosInSection(prev => ({
+                    ...prev,
+                    [contentId]: true
+                }));
+
+                // Cập nhật completedLessons
+                setCompletedLessons(prev => new Set([...prev, contentId]));
+
+                // Gọi API để cập nhật
+                try {
+                    await updateProgress(contentId);
+                    // Fetch lại progress sau khi update thành công
+                    await fetchProgress();
+                } catch (error) {
+                    console.error("Lỗi khi cập nhật progress:", error);
+                    // Rollback UI nếu cập nhật thất bại
+                    setCompletedVideosInSection(prev => ({
+                        ...prev,
+                        [contentId]: false
+                    }));
+                    setCompletedLessons(prev => {
+                        const newSet = new Set(prev);
+                        newSet.delete(contentId);
+                        return newSet;
+                    });
                 }
-
-                return updated;
-            });
+            }
         }
     };
 
+    // Xử lý progress của video
     const handleProgress = (progress, titleContentId, index, contentId) => {
         const { playedSeconds } = progress;
         const duration = videoDurations[titleContentId] || playerRef.current.getDuration();
@@ -341,23 +379,45 @@ export const Lesson = () => {
                 }));
             }
 
-            // Đánh dấu hoàn thành khi video đạt 70% và chưa được đánh dấu trước đó
-            if (playedPercentage >= 70 && !videoProgress[`${titleContentId}-${index}`]) {
-                handleVideoComplete(contentId, index);  // Truyền đúng contentId
+            // Đánh dấu hoàn thành khi video đạt 70%
+            if (playedPercentage >= 70 && !videoProgress[titleContentId]) {
+                handleVideoComplete(contentId, index, titleContentId);
             }
         }
     };
-
     useEffect(() => {
-        if (completedVideosInSection) {
-            const completedCount = Object.keys(completedVideosInSection).filter((contentId) => {
-                return Array.isArray(titleContent[contentId]) && completedVideosInSection[contentId] === titleContent[contentId].length;
-            }).length;
-            setCompletedLessons(new Set([...completedLessons, ...Array(completedCount).keys()]));
-        }
-    }, [completedVideosInSection, titleContent]);
+        if (progressData.length > 0) {
+            const updatedCompletedLessons = new Set();
+            const updatedCompletedVideos = {};
+            const updatedVideoProgress = {};
 
-    const [progressData, setProgressData] = useState([]);
+            progressData.forEach((progress) => {
+                if (progress.is_complete) {
+                    updatedCompletedLessons.add(progress.content_id);
+                    updatedCompletedVideos[progress.content_id] = true;
+
+                    // Cập nhật trạng thái video
+                    if (titleContent[progress.content_id]) {
+                        titleContent[progress.content_id].forEach(title => {
+                            updatedVideoProgress[title.title_content_id] = true;
+                        });
+                    }
+                }
+            });
+
+            // Merge với localStorage
+            const savedVideoProgress = JSON.parse(localStorage.getItem(`videoProgress_${lesson.course_id}`) || '{}');
+
+            setCompletedLessons(updatedCompletedLessons);
+            setCompletedVideosInSection(updatedCompletedVideos);
+            setVideoProgress(prev => ({
+                ...prev,
+                ...updatedVideoProgress,
+                ...savedVideoProgress
+            }));
+        }
+    }, [progressData, titleContent]);
+    // Fetch progress từ server
     const fetchProgress = async () => {
         try {
             const token = localStorage.getItem("access_token");
@@ -374,25 +434,10 @@ export const Lesson = () => {
             });
 
             if (res.data) {
-                // Lọc dữ liệu theo user_id và course_id
                 const userProgress = res.data.filter(
                     (progress) => progress.user_id === user.user_id && progress.course_id === lesson.course_id
                 );
                 setProgressData(userProgress);
-
-                // Cập nhật trạng thái phần đã hoàn thành
-                const updatedCompletedLessons = new Set();
-                const updatedCompletedVideos = {};
-
-                userProgress.forEach((progress) => {
-                    if (progress.is_complete) {
-                        updatedCompletedLessons.add(progress.content_id);
-                        updatedCompletedVideos[progress.content_id] = true;
-                    }
-                });
-
-                setCompletedLessons(updatedCompletedLessons);
-                setCompletedVideosInSection(updatedCompletedVideos);
             }
         } catch (error) {
             console.error("Lỗi khi gọi API tiến độ:", error);
@@ -977,7 +1022,7 @@ export const Lesson = () => {
 
                                 {/* Content List */}
                                 <div className="p-4 max-h-[650px] overflow-y-auto custom-scrollbar">
-                                    <Accordion type="multiple" className="space-y-3 ">
+                                    <Accordion type="multiple" className="space-y-3">
                                         {contentLesson.length > 0 ? (
                                             contentLesson.map((content, index) => {
                                                 // Tính tổng thời gian cho phần này
@@ -1044,35 +1089,46 @@ export const Lesson = () => {
                                                             <AccordionContent>
                                                                 <div className="px-4 pb-4">
                                                                     {Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
-                                                                        titleContent[content.content_id].map((item, i) => (
-                                                                            <div
-                                                                                key={i}
-                                                                                onClick={() => handleVideoClick(item, content.content_id, i)}
-                                                                                className={`group flex items-start gap-3 p-3 rounded-lg transition-all duration-200 cursor-pointer border ${activeItem.contentId === content.content_id && activeItem.index === i
-                                                                                    ? 'bg-purple-100 border-purple-300'
-                                                                                    : 'border-transparent hover:bg-purple-50 hover:border-purple-100'
-                                                                                    }`}
-                                                                            >
-                                                                                <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0 mt-1 group-hover:bg-purple-200">
-                                                                                    {i + 1}
-                                                                                </span>
-                                                                                <div className="flex-1 min-w-0">
-                                                                                    <div className="flex items-center justify-between gap-2">
-                                                                                        <p className="text-sm text-gray-600 line-clamp-2 flex-1">
-                                                                                            {item.body_content}
-                                                                                        </p>
-                                                                                    </div>
-                                                                                    <div className="flex items-center gap-2 mt-1">
-                                                                                        <span className="text-xs text-gray-400 flex items-center">
-                                                                                            <Clock className="w-3 h-3 mr-1" />
-                                                                                            {videoDurations[item.title_content_id]
-                                                                                                ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}`
-                                                                                                : "0:00"}
+                                                                        titleContent[content.content_id].map((item, i) => {
+                                                                            const isWatched = videoProgress[item.title_content_id];
+                                                                            return (
+                                                                                <div
+                                                                                    key={i}
+                                                                                    onClick={() => handleVideoClick(item, content.content_id, i)}
+                                                                                    className={`group flex items-start gap-3 p-3 rounded-lg transition-all duration-200 cursor-pointer border ${activeItem.contentId === content.content_id && activeItem.index === i
+                                                                                        ? 'bg-purple-100 border-purple-300'
+                                                                                        : 'border-transparent hover:bg-purple-50 hover:border-purple-100'
+                                                                                        }`}
+                                                                                >
+                                                                                    <div className="relative">
+                                                                                        <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0 mt-1 group-hover:bg-purple-200">
+                                                                                            {i + 1}
                                                                                         </span>
+                                                                                        {isWatched && (
+                                                                                            <CheckCircle className="absolute -bottom-1 -right-1 w-3 h-3 text-green-500 bg-white rounded-full" />
+                                                                                        )}
+                                                                                    </div>
+                                                                                    <div className="flex-1 min-w-0">
+                                                                                        <div className="flex items-center justify-between gap-2">
+                                                                                            <p className="text-sm text-gray-600 line-clamp-2 flex-1">
+                                                                                                {item.body_content}
+                                                                                            </p>
+                                                                                        </div>
+                                                                                        <div className="flex items-center gap-2 mt-1">
+                                                                                            <span className="text-xs text-gray-400 flex items-center">
+                                                                                                <Clock className="w-3 h-3 mr-1" />
+                                                                                                {videoDurations[item.title_content_id]
+                                                                                                    ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}`
+                                                                                                    : "0:00"}
+                                                                                            </span>
+                                                                                            <span className={`text-xs ${isWatched ? 'text-green-500' : 'text-gray-400'}`}>
+                                                                                                • {isWatched ? 'Đã xem' : 'Chưa xem'}
+                                                                                            </span>
+                                                                                        </div>
                                                                                     </div>
                                                                                 </div>
-                                                                            </div>
-                                                                        ))
+                                                                            );
+                                                                        })
                                                                     ) : (
                                                                         <div className="flex items-center justify-center py-6 text-gray-400">
                                                                             <Loader2 className="w-5 h-5 animate-spin mr-2" />
