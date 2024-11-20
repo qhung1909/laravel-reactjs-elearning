@@ -26,6 +26,7 @@ import { Instructor } from "./pages/instructor/instructor.jsx";
 import { InstructorHistory } from "./pages/instructor/instructorHistory.jsx";
 import { InstructorLesson } from "./pages/instructor/instructorLesson.jsx";
 import { InstructorProfile } from "./pages/instructor/instructorProfile.jsx";
+import { InstructorSchedule } from "./pages/instructor/instructorSchedule.jsx";
 import { PaymentResult } from "./pages/payment/payment-result.jsx";
 import { VerificationEmail } from "./pages/verification/verification-email.jsx";
 import { UserProfile } from "./pages/userprofile/userprofile.jsx";
@@ -112,6 +113,7 @@ function AppContent() {
                 <Route path="/instructor/lessson" element={<InstructorLesson />}></Route>
                 <Route path="/instructor/notification" element={<InstructorNotification />}></Route>
                 <Route path="/instructor/profile" element={<InstructorProfile />}></Route>
+                <Route path="/instructor/schedule" element={<InstructorSchedule />}></Route>
                 <Route path="/contact" element={<Contact />}></Route>
 
                 <Route path="/course/manage/:course_id/course-overview" element={<CourseOverview />}></Route>
