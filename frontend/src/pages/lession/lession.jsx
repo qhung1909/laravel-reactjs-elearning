@@ -284,14 +284,13 @@ export const Lesson = () => {
         }
         try {
             const courseId = lesson.course_id;
-            const isComplete = true;
             const progressPercent = calculateProgress();
 
-            const res = await axios.post(`${API_URL}/progress/complete-content`, {
+            await axios.post(`${API_URL}/progress/complete-content`, {
                 user_id: user.user_id,
                 content_id: contentId,
                 course_id: courseId,
-                is_complete: isComplete,
+                is_complete: true,
                 complete_at: new Date().toISOString(),
                 progress_percent: progressPercent,
             }, {
@@ -300,54 +299,44 @@ export const Lesson = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-
         } catch (error) {
             console.error("Lỗi khi cập nhật tiến độ:", error);
             toast.error("Có lỗi xảy ra khi cập nhật tiến độ.");
+            throw error; // Throw error để handle ở component
         }
     };
 
     // Xử lý khi video hoàn thành
     const handleVideoComplete = async (contentId, index, titleContentId) => {
         if (!videoProgress[titleContentId]) {
-            // Cập nhật video progress
+            // Cập nhật video progress trong state
             const newVideoProgress = {
                 ...videoProgress,
                 [titleContentId]: true
             };
             setVideoProgress(newVideoProgress);
 
-            // Lưu vào localStorage
-            const savedVideoProgress = JSON.parse(localStorage.getItem(`videoProgress_${lesson.course_id}`) || '{}');
-            const updatedVideoProgress = {
-                ...savedVideoProgress,
-                [titleContentId]: true
-            };
-            localStorage.setItem(`videoProgress_${lesson.course_id}`, JSON.stringify(updatedVideoProgress));
-
             // Kiểm tra hoàn thành tất cả video trong content
             const allVideosInContent = titleContent[contentId] || [];
             const isAllVideosCompleted = allVideosInContent.every(video =>
-                newVideoProgress[video.title_content_id] || savedVideoProgress[video.title_content_id]
+                newVideoProgress[video.title_content_id]
             );
 
             if (isAllVideosCompleted) {
-                // Cập nhật UI trước
-                setCompletedVideosInSection(prev => ({
-                    ...prev,
-                    [contentId]: true
-                }));
-
-                // Cập nhật completedLessons
-                setCompletedLessons(prev => new Set([...prev, contentId]));
-
-                // Gọi API để cập nhật
                 try {
+                    // Cập nhật UI trước
+                    setCompletedVideosInSection(prev => ({
+                        ...prev,
+                        [contentId]: true
+                    }));
+
+                    setCompletedLessons(prev => new Set([...prev, contentId]));
+
+                    // Gọi API để cập nhật
                     await updateProgress(contentId);
                     // Fetch lại progress sau khi update thành công
                     await fetchProgress();
                 } catch (error) {
-                    console.error("Lỗi khi cập nhật progress:", error);
                     // Rollback UI nếu cập nhật thất bại
                     setCompletedVideosInSection(prev => ({
                         ...prev,
@@ -358,6 +347,10 @@ export const Lesson = () => {
                         newSet.delete(contentId);
                         return newSet;
                     });
+                    setVideoProgress(prev => ({
+                        ...prev,
+                        [titleContentId]: false
+                    }));
                 }
             }
         }
@@ -396,7 +389,6 @@ export const Lesson = () => {
                     updatedCompletedLessons.add(progress.content_id);
                     updatedCompletedVideos[progress.content_id] = true;
 
-                    // Cập nhật trạng thái video
                     if (titleContent[progress.content_id]) {
                         titleContent[progress.content_id].forEach(title => {
                             updatedVideoProgress[title.title_content_id] = true;
@@ -405,16 +397,9 @@ export const Lesson = () => {
                 }
             });
 
-            // Merge với localStorage
-            const savedVideoProgress = JSON.parse(localStorage.getItem(`videoProgress_${lesson.course_id}`) || '{}');
-
             setCompletedLessons(updatedCompletedLessons);
             setCompletedVideosInSection(updatedCompletedVideos);
-            setVideoProgress(prev => ({
-                ...prev,
-                ...updatedVideoProgress,
-                ...savedVideoProgress
-            }));
+            setVideoProgress(updatedVideoProgress);
         }
     }, [progressData, titleContent]);
     // Fetch progress từ server
@@ -1104,9 +1089,7 @@ export const Lesson = () => {
                                                                                         <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0 mt-1 group-hover:bg-purple-200">
                                                                                             {i + 1}
                                                                                         </span>
-                                                                                        {isWatched && (
-                                                                                            <CheckCircle className="absolute -bottom-1 -right-1 w-3 h-3 text-green-500 bg-white rounded-full" />
-                                                                                        )}
+
                                                                                     </div>
                                                                                     <div className="flex-1 min-w-0">
                                                                                         <div className="flex items-center justify-between gap-2">
