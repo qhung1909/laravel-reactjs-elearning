@@ -233,7 +233,7 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::post('/content/', [TeacherController::class, 'storeContent']);
     Route::put('/courses/{courseId}/contents', [TeacherController::class, 'updateContents']);
     Route::delete('/courses/{courseId}/contents', [TeacherController::class, 'deleteContents']);
-    Route::delete('/content/{content_id}', [ContentController::class, 'destroyContentId']);
+    Route::delete('/contents/{content_id}', [ContentController::class, 'destroyContentId']);
 
     Route::get('/title-content/{contentId}', [TeacherController::class, 'showTitleContent']);
 
