@@ -189,8 +189,8 @@ class CartController extends Controller
     
         $user_id = Auth::id();
     
-        // Eager load orderDetails và khóa học liên quan
-        $orders = Order::with(['orderDetails.course']) // Eager load mối quan hệ với course qua orderDetails
+        
+        $orders = Order::with(['orderDetails.course']) 
             ->where('user_id', $user_id)
             ->where('status', 'pending')
             ->get();
@@ -201,10 +201,10 @@ class CartController extends Controller
             ], 404);
         }
     
-        // Thêm thông tin tên khóa học vào mỗi orderDetail mà không thay đổi cấu trúc JSON
+        
         $orders->each(function ($order) {
             $order->orderDetails->each(function ($orderDetail) {
-                // Thêm tên khóa học vào orderDetail mà không làm thay đổi cấu trúc JSON
+                
                 $orderDetail->course_name = $orderDetail->course->name ?? null;
             });
         });

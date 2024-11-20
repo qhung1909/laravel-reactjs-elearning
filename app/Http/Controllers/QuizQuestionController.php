@@ -13,9 +13,9 @@ class QuizQuestionController extends Controller
 {
     public function index($quizId)
     {
-        // Tải trước các mối quan hệ để tránh vấn đề n+1
+        
         $questions = QuizQuestion::where('quiz_id', $quizId)
-                                 ->with('options') // Thay 'options' bằng quan hệ thực tế mà bạn cần
+                                 ->with('options') 
                                  ->get();
     
         return response()->json($questions);

@@ -432,7 +432,7 @@ class TeacherController extends Controller
                 'title_contents' => 'nullable|array',
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
                 'title_contents.*.body_content' => 'required|string',
-                'title_contents.*.video_link' => 'nullable|file|mimes:mp4,mov,avi,wmv|max:102400', // 100MB max
+                'title_contents.*.video_link' => 'nullable|file|mimes:mp4,mov,avi,wmv|max:102400', 
                 'title_contents.*.document_link' => 'nullable|string',
                 'title_contents.*.description' => 'nullable|string'
             ], [
@@ -456,10 +456,10 @@ class TeacherController extends Controller
             DB::beginTransaction();
     
             try {
-                // Kiểm tra nếu title_contents là mảng hợp lệ và không null
+                
                 $titleContents = $request->get('title_contents', []);
     
-                // Kiểm tra nếu titleContents không phải là null và là mảng
+                
                 if (!empty($titleContents) && is_array($titleContents)) {
                     foreach ($titleContents as $titleContentData) {
                         $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
@@ -477,7 +477,7 @@ class TeacherController extends Controller
                             'status' => 'draft'
                         ];
     
-                        // Xử lý upload video nếu có
+                        
                         if (isset($titleContentData['video_link']) && $titleContentData['video_link'] instanceof UploadedFile) {
                             $updateData['video_link'] = $this->handleVideoUpload($titleContentData['video_link'], $titleContent);
                         } elseif (array_key_exists('video_link', $titleContentData)) {
@@ -617,7 +617,7 @@ class TeacherController extends Controller
 
     private function handleVideoUpload($file, $titleContent)
     {
-        // Khởi tạo S3 client
+        
         $s3 = new S3Client([
             'region'  => env('AWS_DEFAULT_REGION'),
             'version' => 'latest',
@@ -630,10 +630,10 @@ class TeacherController extends Controller
             ],
         ]);
 
-        // Xóa video cũ nếu tồn tại
+        
         if ($titleContent->video_link) {
             try {
-                // Lấy key từ URL cũ
+                
                 $oldKey = str_replace(env('AWS_URL'), '', $titleContent->video_link);
                 $s3->deleteObject([
                     'Bucket' => env('AWS_BUCKET'),
@@ -644,7 +644,7 @@ class TeacherController extends Controller
             }
         }
 
-        // Chuẩn bị thông tin file mới
+        
         $filePath = $file->getRealPath();
         $contentId = $titleContent->content_id;
         $titleContentId = $titleContent->title_content_id;
@@ -653,7 +653,7 @@ class TeacherController extends Controller
         $newFileName = "content_{$contentId}_title_{$titleContentId}_{$originalFileName}.{$extension}";
         $key = 'videos/' . $newFileName;
 
-        // Xác định content type cho video
+        
         $contentType = match ($extension) {
             'mp4' => 'video/mp4',
             'mov' => 'video/quicktime',
@@ -663,7 +663,7 @@ class TeacherController extends Controller
         };
 
         try {
-            // Upload file lên S3
+            
             $result = $s3->putObject([
                 'Bucket' => env('AWS_BUCKET'),
                 'Key'    => $key,
