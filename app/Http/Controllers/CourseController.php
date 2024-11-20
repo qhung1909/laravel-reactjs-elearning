@@ -210,42 +210,43 @@ class CourseController extends Controller
             'description' => 'nullable|string',
             'img' => 'nullable|mimes:jpeg,png,jpg,gif,webp,svg|max:2048',
             'title' => 'nullable|string',
-            'status' => 'nullable|string|in:draft,published,hide,pending,failed'
+            'status' => 'nullable|string|in:draft,published,hide,pending,failed',
+            'launch_date' => 'nullable|date',
+            'backup_launch_date' => 'nullable|date|after_or_equal:launch_date'
         ];
-
+    
         $validator = Validator::make($request->all(), $rules);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
+    
         if ($request->price < $request->price_discount) {
             return response()->json(['error' => 'Giá không được nhỏ hơn giá giảm giá.'], 422);
         }
-
+    
         try {
             $course = DB::transaction(function () use ($request) {
                 $userId = auth()->id();
-
+    
                 $baseSlug = Str::slug($request->title);
                 $slug = $baseSlug;
                 $counter = 1;
-
+    
                 while (Course::where('slug', $slug)->exists()) {
                     $slug = $baseSlug . '-' . $counter;
                     $counter++;
                 }
-
+    
                 $imageUrl = null;
                 if ($request->hasFile('img')) {
-                    // Tạo một đối tượng tạm để lấy ID
                     $tempCourse = new Course();
-                    $tempCourse->content_id = time(); // Tạm thời dùng timestamp làm ID
+                    $tempCourse->content_id = time();
                     $tempCourse->title_content_id = time();
-
+                    
                     $imageUrl = $this->handleImageUpload($request->file('img'), $tempCourse);
                 }
-
+    
                 $course = Course::create([
                     'user_id' => $userId,
                     'course_category_id' => $request->course_category_id,
@@ -255,12 +256,14 @@ class CourseController extends Controller
                     'title' => $request->title,
                     'slug' => $slug,
                     'img' => $imageUrl,
-                    'status' => $request->status ?? 'draft'
+                    'status' => $request->status ?? 'draft',
+                    'launch_date' => $request->launch_date,
+                    'backup_launch_date' => $request->backup_launch_date
                 ]);
-
+    
                 return $course;
             });
-
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Khóa học được thêm thành công.',
@@ -273,7 +276,7 @@ class CourseController extends Controller
             ], 500);
         }
     }
-
+    
     public function update(Request $request, $slug)
     {
         $rules = [
@@ -283,33 +286,35 @@ class CourseController extends Controller
             'description' => 'required|string',
             'img' => 'nullable|mimes:jpeg,png,jpg,gif,webp,svg|max:2048',
             'title' => 'required|string',
-            'status' => 'nullable|string|in:draft,published,hide,pending,failed'
+            'status' => 'nullable|string|in:draft,published,hide,pending,failed',
+            'launch_date' => 'nullable|date',
+            'backup_launch_date' => 'nullable|date|after_or_equal:launch_date'
         ];
-
+    
         $validator = Validator::make($request->all(), $rules);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
+    
         if ($request->has(['price', 'price_discount']) && $request->price < $request->price_discount) {
             return response()->json(['error' => 'Giá không được nhỏ hơn giá giảm giá.'], 422);
         }
-
+    
         try {
             $course = DB::transaction(function () use ($request, $slug) {
                 $course = $this->course->where('slug', $slug)->firstOrFail();
-
+    
                 if ($course->user_id !== auth()->id()) {
                     throw new \Exception('Bạn không có quyền cập nhật khóa học này.');
                 }
-
+    
                 $newSlug = $slug;
                 if ($request->has('title') && $request->title !== $course->title) {
                     $baseSlug = Str::slug($request->title);
                     $newSlug = $baseSlug;
                     $counter = 1;
-
+    
                     while (Course::where('slug', $newSlug)
                         ->where('course_id', '!=', $course->course_id)
                         ->exists()
@@ -318,12 +323,12 @@ class CourseController extends Controller
                         $counter++;
                     }
                 }
-
+    
                 $imageUrl = $course->img;
                 if ($request->hasFile('img')) {
                     $imageUrl = $this->handleImageUpload($request->file('img'), $course);
                 }
-
+    
                 $course->update([
                     'course_category_id' => $request->input('course_category_id', $course->course_category_id),
                     'price' => $request->input('price', $course->price),
@@ -332,12 +337,14 @@ class CourseController extends Controller
                     'title' => $request->input('title', $course->title),
                     'img' => $imageUrl,
                     'slug' => $newSlug,
-                    'status' => $request->input('status', $course->status)
+                    'status' => $request->input('status', $course->status),
+                    'launch_date' => $request->input('launch_date', $course->launch_date),
+                    'backup_launch_date' => $request->input('backup_launch_date', $course->backup_launch_date)
                 ]);
-
+    
                 return $course;
             });
-
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Khóa học được cập nhật thành công.',
@@ -350,20 +357,19 @@ class CourseController extends Controller
             ], $e->getMessage() === 'Bạn không có quyền cập nhật khóa học này.' ? 403 : 500);
         }
     }
-
+    
     public function delete($slug)
     {
         try {
             DB::transaction(function () use ($slug) {
                 $course = $this->course->where('slug', $slug)->firstOrFail();
-
+    
                 if ($course->user_id !== auth()->id()) {
                     throw new \Exception('Bạn không có quyền xóa khóa học này.');
                 }
-
+    
                 if ($course->img) {
                     try {
-                        // Khởi tạo S3 client
                         $s3 = new S3Client([
                             'region'  => env('AWS_DEFAULT_REGION'),
                             'version' => 'latest',
@@ -375,11 +381,9 @@ class CourseController extends Controller
                                 'verify' => env('VERIFY_URL'),
                             ],
                         ]);
-
-                        // Lấy key từ URL
+    
                         $imageKey = str_replace(env('AWS_URL'), '', $course->img);
-
-                        // Xóa file từ S3
+                        
                         $s3->deleteObject([
                             'Bucket' => env('AWS_BUCKET'),
                             'Key'    => $imageKey,
@@ -388,10 +392,10 @@ class CourseController extends Controller
                         Log::error('Error deleting image from S3: ' . $e->getMessage());
                     }
                 }
-
+    
                 $course->delete();
             });
-
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Khóa học đã được xóa thành công.'
@@ -403,6 +407,7 @@ class CourseController extends Controller
             ], $e->getMessage() === 'Bạn không có quyền xóa khóa học này.' ? 403 : 500);
         }
     }
+    
     public function featureCouse()
     {
         if (Cache::has('featured_course')) {
