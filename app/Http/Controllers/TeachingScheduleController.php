@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\StudentScheduleNotification;
 use App\Mail\TeacherScheduleNotification;
+use Illuminate\Support\Facades\Validator;
 
 class TeachingScheduleController extends Controller
 {
@@ -358,5 +359,38 @@ class TeachingScheduleController extends Controller
             'message' => 'Teaching schedule retrieved successfully',
             'data' => $schedule
         ], 200);
+    }
+
+    public function getUpcomingMeetings()
+    {
+        $user_id = Auth::id();
+
+        $meetings = OnlineMeeting::select(
+            'online_meetings.meeting_url',
+            'online_meetings.start_time',
+            'online_meetings.end_time',
+            'courses.title as course_title',
+            'contents.name_content as content_name'
+        )
+            ->join('user_courses', 'online_meetings.course_id', '=', 'user_courses.course_id')
+            ->join('courses', 'online_meetings.course_id', '=', 'courses.course_id')
+            ->join('contents', 'online_meetings.content_id', '=', 'contents.content_id')
+            ->where('user_courses.user_id', $user_id)
+            ->where('online_meetings.start_time', '>', now())
+            ->orderBy('online_meetings.start_time', 'asc')
+            ->get();
+
+        if ($meetings->isEmpty()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Không có lịch học nào sắp tới',
+                'data' => []
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $meetings
+        ]);
     }
 }
