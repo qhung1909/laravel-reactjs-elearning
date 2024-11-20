@@ -121,6 +121,7 @@ Route::middleware(['admin'])->group(function () {
     Route::put('quizzes/{id}', [QuizController::class, 'update']);
     Route::delete('quizzes/{id}', [QuizController::class, 'destroy']);
     Route::post('quiz/check-content', [QuizController::class, 'checkContentQuiz']);
+    Route::post('quizzes/check-quiz', [QuizController::class, 'checkQuizExists']);
 
 
 
