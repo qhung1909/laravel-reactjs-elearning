@@ -9,7 +9,7 @@ class OnlineMeeting extends Model
 {
     use HasFactory;
     protected $table = 'online_meetings';
-    protected $primaryKey = 'meeting_id'; 
+    protected $primaryKey = 'meeting_id';
     protected $fillable = [
         'content_id',
         'course_id',
@@ -22,5 +22,14 @@ class OnlineMeeting extends Model
     {
         return $this->hasMany(UserCourse::class, 'course_id', 'course_id');
     }
-    
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    public function content()
+    {
+        return $this->belongsTo(Content::class);
+    }
 }
