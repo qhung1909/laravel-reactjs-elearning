@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Aws\S3\S3Client;
 use App\Models\Course;
+use App\Models\UserCourse;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use App\Models\UserCourse;
+
 class CourseController extends Controller
 {
     protected $course;
@@ -33,7 +35,7 @@ class CourseController extends Controller
             ->join('courses', 'users.user_id', '=', 'courses.user_id')
             ->leftJoin('comments', 'courses.course_id', '=', 'comments.course_id')
             ->where('users.role', 'teacher')
-            ->where('courses.status', 'published') 
+            ->where('courses.status', 'published')
             ->groupBy('users.user_id')
             ->orderBy('max_is_buy', 'desc')
             ->get();
@@ -177,25 +179,25 @@ class CourseController extends Controller
     {
         $course = Cache::remember("course_{$slug}", 90, function () use ($slug) {
             return $this->course->where('slug', $slug)
-                               ->where('status', 'published') 
-                               ->first();
+                ->where('status', 'published')
+                ->first();
         });
-    
+
         if (!$course) {
             return response()->json(['error' => 'Khóa học không tìm thấy hoặc chưa được xuất bản'], 404);
         }
-    
+
         $ipAddress = $request->ip();
         $cacheKey = "course_view_{$slug}_{$ipAddress}";
-    
+
         if (Cache::has($cacheKey)) {
             return response()->json($course);
         }
-    
+
         $course->increment('views');
-    
-        Cache::put($cacheKey, true, 86400); 
-    
+
+        Cache::put($cacheKey, true, 86400);
+
         return response()->json($course);
     }
 
@@ -206,9 +208,11 @@ class CourseController extends Controller
             'price' => 'nullable|numeric',
             'price_discount' => 'nullable|numeric',
             'description' => 'nullable|string',
-            'img' => 'nullable|max:2048',
+            'img' => 'nullable|mimes:jpeg,png,jpg,gif,webp,svg|max:2048',
             'title' => 'nullable|string',
-            'status' => 'nullable|string|in:draft,published,hide,pending,failed'
+            'status' => 'nullable|string|in:draft,published,hide,pending,failed',
+            'launch_date' => 'nullable|date',
+            'backup_launch_date' => 'nullable|date|after_or_equal:launch_date'
         ];
     
         $validator = Validator::make($request->all(), $rules);
@@ -225,23 +229,22 @@ class CourseController extends Controller
             $course = DB::transaction(function () use ($request) {
                 $userId = auth()->id();
     
-                // Tạo slug từ title
                 $baseSlug = Str::slug($request->title);
                 $slug = $baseSlug;
                 $counter = 1;
     
-                // Kiểm tra slug tồn tại
                 while (Course::where('slug', $slug)->exists()) {
                     $slug = $baseSlug . '-' . $counter;
                     $counter++;
                 }
     
-                // Upload hình ảnh trong transaction
-                $imageName = null;
+                $imageUrl = null;
                 if ($request->hasFile('img')) {
-                    $img = $request->file('img');
-                    $imageName = time() . '.' . $img->getClientOriginalExtension();
-                    $img->move(public_path('upload/products'), $imageName);
+                    $tempCourse = new Course();
+                    $tempCourse->content_id = time();
+                    $tempCourse->title_content_id = time();
+                    
+                    $imageUrl = $this->handleImageUpload($request->file('img'), $tempCourse);
                 }
     
                 $course = Course::create([
@@ -252,8 +255,10 @@ class CourseController extends Controller
                     'description' => $request->description,
                     'title' => $request->title,
                     'slug' => $slug,
-                    'img' => $imageName,
-                    'status' => $request->status ?? 'draft'
+                    'img' => $imageUrl,
+                    'status' => $request->status ?? 'draft',
+                    'launch_date' => $request->launch_date,
+                    'backup_launch_date' => $request->backup_launch_date
                 ]);
     
                 return $course;
@@ -279,9 +284,11 @@ class CourseController extends Controller
             'price' => 'required|numeric',
             'price_discount' => 'required|numeric',
             'description' => 'required|string',
-            'img' => 'nullable|max:2048',
-            'title' => 'required|required|string',
-            'status' => 'nullable|string|in:draft,published,hide,pending,failed'
+            'img' => 'nullable|mimes:jpeg,png,jpg,gif,webp,svg|max:2048',
+            'title' => 'required|string',
+            'status' => 'nullable|string|in:draft,published,hide,pending,failed',
+            'launch_date' => 'nullable|date',
+            'backup_launch_date' => 'nullable|date|after_or_equal:launch_date'
         ];
     
         $validator = Validator::make($request->all(), $rules);
@@ -317,18 +324,9 @@ class CourseController extends Controller
                     }
                 }
     
-                $imageName = $course->img;
+                $imageUrl = $course->img;
                 if ($request->hasFile('img')) {
-                    if ($course->img) {
-                        $oldImagePath = public_path('upload/products/' . $course->img);
-                        if (file_exists($oldImagePath)) {
-                            unlink($oldImagePath);
-                        }
-                    }
-    
-                    $img = $request->file('img');
-                    $imageName = time() . '.' . $img->getClientOriginalExtension();
-                    $img->move(public_path('upload/products'), $imageName);
+                    $imageUrl = $this->handleImageUpload($request->file('img'), $course);
                 }
     
                 $course->update([
@@ -337,9 +335,11 @@ class CourseController extends Controller
                     'price_discount' => $request->input('price_discount', $course->price_discount),
                     'description' => $request->input('description', $course->description),
                     'title' => $request->input('title', $course->title),
-                    'img' => $imageName,
+                    'img' => $imageUrl,
                     'slug' => $newSlug,
-                    'status' => $request->input('status', $course->status)
+                    'status' => $request->input('status', $course->status),
+                    'launch_date' => $request->input('launch_date', $course->launch_date),
+                    'backup_launch_date' => $request->input('backup_launch_date', $course->backup_launch_date)
                 ]);
     
                 return $course;
@@ -357,28 +357,45 @@ class CourseController extends Controller
             ], $e->getMessage() === 'Bạn không có quyền cập nhật khóa học này.' ? 403 : 500);
         }
     }
-
+    
     public function delete($slug)
     {
         try {
             DB::transaction(function () use ($slug) {
                 $course = $this->course->where('slug', $slug)->firstOrFail();
-
+    
                 if ($course->user_id !== auth()->id()) {
                     throw new \Exception('Bạn không có quyền xóa khóa học này.');
                 }
-
+    
                 if ($course->img) {
-                    $imagePath = public_path('upload/products/' . $course->img);
-                    if (file_exists($imagePath)) {
-                        unlink($imagePath);
+                    try {
+                        $s3 = new S3Client([
+                            'region'  => env('AWS_DEFAULT_REGION'),
+                            'version' => 'latest',
+                            'credentials' => [
+                                'key'    => env('AWS_ACCESS_KEY_ID'),
+                                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+                            ],
+                            'http' => [
+                                'verify' => env('VERIFY_URL'),
+                            ],
+                        ]);
+    
+                        $imageKey = str_replace(env('AWS_URL'), '', $course->img);
+                        
+                        $s3->deleteObject([
+                            'Bucket' => env('AWS_BUCKET'),
+                            'Key'    => $imageKey,
+                        ]);
+                    } catch (\Exception $e) {
+                        Log::error('Error deleting image from S3: ' . $e->getMessage());
                     }
                 }
-
+    
                 $course->delete();
-
             });
-
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Khóa học đã được xóa thành công.'
@@ -390,7 +407,7 @@ class CourseController extends Controller
             ], $e->getMessage() === 'Bạn không có quyền xóa khóa học này.' ? 403 : 500);
         }
     }
-
+    
     public function featureCouse()
     {
         if (Cache::has('featured_course')) {
@@ -432,12 +449,70 @@ class CourseController extends Controller
 
         $students = UserCourse::whereIn('course_id', $courses)
             ->join('users', 'user_courses.user_id', '=', 'users.user_id')
-            ->select('users.user_id', 'users.name', 'users.email') 
+            ->select('users.user_id', 'users.name', 'users.email')
             ->get();
 
         return response()->json([
             'success' => true,
             'data' => $students
         ]);
+    }
+
+    private function handleImageUpload($file, $titleContent)
+    {
+        $s3 = new S3Client([
+            'region'  => env('AWS_DEFAULT_REGION'),
+            'version' => 'latest',
+            'credentials' => [
+                'key'    => env('AWS_ACCESS_KEY_ID'),
+                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            ],
+            'http' => [
+                'verify' => env('VERIFY_URL'),
+            ],
+        ]);
+
+        if ($titleContent->image_link) {
+            try {
+                $oldKey = str_replace(env('AWS_URL'), '', $titleContent->image_link);
+                $s3->deleteObject([
+                    'Bucket' => env('AWS_BUCKET'),
+                    'Key'    => $oldKey,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Error deleting old image: ' . $e->getMessage());
+            }
+        }
+
+        $filePath = $file->getRealPath();
+        $contentId = $titleContent->content_id;
+        $titleContentId = $titleContent->title_content_id;
+        $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $newFileName = "content_{$contentId}_title_{$titleContentId}_{$originalFileName}.{$extension}";
+        $key = 'images/' . $newFileName;
+
+        $contentType = match ($extension) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'svg' => 'image/svg+xml',
+            default => 'image/jpeg',
+        };
+
+        try {
+            $result = $s3->putObject([
+                'Bucket' => env('AWS_BUCKET'),
+                'Key'    => $key,
+                'SourceFile' => $filePath,
+                'ContentType' => $contentType,
+                'ACL' => 'public-read',
+            ]);
+
+            return $result['ObjectURL'];
+        } catch (\Exception $e) {
+            throw new \Exception('Không thể upload ảnh lên S3: ' . $e->getMessage());
+        }
     }
 }

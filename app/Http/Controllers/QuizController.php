@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+
 class QuizController extends Controller
 {
     const QUIZ_STATUSES = ['draft', 'published', 'hide', 'pending', 'failed'];
@@ -148,5 +149,30 @@ class QuizController extends Controller
             'exists' => false
         ]);
     }
-    
+
+    public function checkQuizExists(Request $request)
+    {
+        $request->validate([
+            'content_id' => 'required|integer',
+        ]);
+
+        $contentId = $request->input('content_id');
+
+        $quiz = Quiz::where('content_id', $contentId)->first();
+
+        if (!$quiz) {
+            return response()->json([
+                'status' => 404,
+                'exists' => false,
+                'message' => 'No quiz found for this content_id.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'exists' => true,
+            'quiz_id' => $quiz->quiz_id,
+            'message' => 'Quiz exists for this content_id.',
+        ], 200);
+    }
 }

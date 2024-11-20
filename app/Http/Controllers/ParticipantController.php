@@ -296,10 +296,10 @@ class ParticipantController extends Controller
                 'course_id' => 'required|integer'
             ]);
 
-            // Lấy role của user
+            
             $userRole = User::where('user_id', $request->user_id)->value('role');
 
-            // Nếu role không phải là 'user', bỏ qua kiểm tra và cho phép truy cập
+            
             if ($userRole !== 'user') {
                 return response()->json([
                     'status' => 'success',
@@ -308,7 +308,7 @@ class ParticipantController extends Controller
                 ], 200);
             }
 
-            // Nếu role là 'user', kiểm tra quyền truy cập
+            
             $hasAccess = UserCourse::join('users', 'user_courses.user_id', '=', 'users.user_id')
                 ->where('user_courses.user_id', $request->user_id)
                 ->where('user_courses.course_id', $request->course_id)
@@ -323,7 +323,7 @@ class ParticipantController extends Controller
                 ], 403);
             }
 
-            // Tìm thông tin buổi họp
+            
             $meeting = OnlineMeeting::where('course_id', $request->course_id)
                 ->first();
 
@@ -388,7 +388,7 @@ class ParticipantController extends Controller
             ], 404);
         }
 
-        // Sửa lại câu query với điều kiện join đúng
+        
         $attendanceData = DB::table('user_courses AS uc')
             ->select(
                 'uc.user_id',
@@ -402,7 +402,7 @@ class ParticipantController extends Controller
             })
             ->join('users AS u', 'uc.user_id', '=', 'u.user_id')
             ->leftJoin('meeting_participants AS mp', function ($join) use ($meeting) {
-                $join->on('uc.user_id', '=', 'mp.user_id')  // Thay đổi từ participant_id thành user_id
+                $join->on('uc.user_id', '=', 'mp.user_id')  
                     ->where('mp.meeting_id', '=', $meeting->meeting_id);
             })
             ->get();

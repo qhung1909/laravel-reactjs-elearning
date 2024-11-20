@@ -121,6 +121,7 @@ Route::middleware(['admin'])->group(function () {
     Route::put('quizzes/{id}', [QuizController::class, 'update']);
     Route::delete('quizzes/{id}', [QuizController::class, 'destroy']);
     Route::post('quiz/check-content', [QuizController::class, 'checkContentQuiz']);
+    Route::post('quizzes/check-quiz', [QuizController::class, 'checkQuizExists']);
 
 
 
@@ -226,13 +227,14 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::get('/courses/{courseId}', [AdminController::class, 'showCoursesTeacher']);
-    Route::put('/courses/{courseId}', [AdminController::class, 'updateCoursesTeacher']);
+    Route::post('/courses/{courseId}', [AdminController::class, 'updateCoursesTeacher']);
 
     Route::get('/course', [TeacherController::class, 'getCoursesByTeacher']);
     Route::get('/content/{courseId}', [TeacherController::class, 'showContent']);
     Route::post('/content/', [TeacherController::class, 'storeContent']);
     Route::put('/courses/{courseId}/contents', [TeacherController::class, 'updateContents']);
     Route::delete('/courses/{courseId}/contents', [TeacherController::class, 'deleteContents']);
+    Route::delete('/contents/{content_id}', [ContentController::class, 'destroyContentId']);
 
     Route::get('/title-content/{contentId}', [TeacherController::class, 'showTitleContent']);
 
@@ -256,11 +258,11 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
 
     Route::get('/course/{courseId}/orders', [TeacherController::class, 'getCourseOrderHistory']);
 
-    Route::get('/teaching-schedule', [TeachingScheduleController::class, 'index']);           // Lấy danh sách
-    Route::post('/teaching-schedule', [TeachingScheduleController::class, 'store']);          // Tạo mới
-    Route::get('/teaching-schedule/{meeting_id}', [TeachingScheduleController::class, 'show']); // Lấy chi tiết theo meeting_id
-    Route::put('/teaching-schedule/{id}', [TeachingScheduleController::class, 'update']);     // Cập nhật
-    Route::delete('/teaching-schedule/{id}', [TeachingScheduleController::class, 'destroy']); // Xóa
+    Route::get('/teaching-schedule', [TeachingScheduleController::class, 'index']);           
+    Route::post('/teaching-schedule', [TeachingScheduleController::class, 'store']);         
+    Route::get('/teaching-schedule/{meeting_id}', [TeachingScheduleController::class, 'show']); 
+    Route::put('/teaching-schedule/{id}', [TeachingScheduleController::class, 'update']);     
+    Route::delete('/teaching-schedule/{id}', [TeachingScheduleController::class, 'destroy']);
 });
 
 
@@ -278,3 +280,4 @@ Route::get('/meetings/course', [ParticipantController::class, 'getCourseIdByMeet
 Route::post('/meetings/users', [ParticipantController::class, 'getUserIdsByMeetingUrl']);
 Route::post('/meetings/mark-attendance ', [ParticipantController::class, 'markAttendance']);
 Route::post('/meetings/mark-absent ', [ParticipantController::class, 'markAbsent']);
+Route::post('/upcoming-meetings', [TeachingScheduleController::class, 'getUpcomingMeetings']);

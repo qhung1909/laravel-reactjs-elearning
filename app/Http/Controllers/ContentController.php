@@ -235,4 +235,38 @@ class ContentController extends Controller
             ], 500);
         }
     }
+
+    public function destroyContentId($content_id)
+    {
+        try {
+            $content = Content::find($content_id);
+            
+            if (!$content) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Không tìm thấy content với ID $content_id"
+                ], 404);
+            }
+    
+            $result = $content->deleteWithTitleContents();
+            
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message']
+                ], 200);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message']
+                ], 400);
+            }
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -275,7 +275,7 @@ class QuizOptionController extends Controller
             ->toArray();
 
         $allCorrectSelected = empty(array_diff($correctOptionIds, $selectedOptions));
-        $anyIncorrectSelected = !empty(array_intersect($selectedOptions, QuizOption::where('question_id', $question->question_id)->where('is_correct', false)->pluck('option_id')->toArray())); // Có tùy chọn sai được chọn
+        $anyIncorrectSelected = !empty(array_intersect($selectedOptions, QuizOption::where('question_id', $question->question_id)->where('is_correct', false)->pluck('option_id')->toArray())); 
 
         foreach ($selectedOptions as $optionId) {
             UserAnswer::create([
@@ -409,9 +409,9 @@ class QuizOptionController extends Controller
     }
     public function index($questionId)
     {
-        // Tải trước quan hệ 'question' để tránh vấn đề n+1
+        
         $options = QuizOption::where('question_id', $questionId)
-                             ->with('question') // Eager load quan hệ 'question'
+                             ->with('question') 
                              ->get();
     
         return response()->json($options);
