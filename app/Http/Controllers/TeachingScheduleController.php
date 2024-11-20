@@ -25,9 +25,13 @@ class TeachingScheduleController extends Controller
     {
         try {
             $query = TeachingSchedule::with(['onlineMeeting' => function ($query) {
-                $query->with(['course', 'content']);
-            }]);
-
+                $query->with([
+                    'course:course_id,title',
+                    'content:content_id,name_content' 
+                ])->select('meeting_id', 'course_id', 'content_id', 'meeting_url', 'start_time', 'end_time'); 
+            }])
+            ->select('id', 'meeting_id', 'user_id', 'proposed_start', 'notes');
+            
             if ($request->has('user_id')) {
                 $query->where('user_id', $request->user_id);
             }

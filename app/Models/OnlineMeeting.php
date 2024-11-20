@@ -25,11 +25,11 @@ class OnlineMeeting extends Model
 
     public function course()
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(Course::class, 'course_id');
     }
 
     public function content()
     {
-        return $this->belongsTo(Content::class);
+        return $this->belongsTo(Content::class, 'content_id');
     }
 }
