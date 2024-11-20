@@ -10,7 +10,7 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy, Gamepad2, Gift, CircleCheck } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy, Gamepad2, Gift, CircleCheck, ChartBar, BarChart, School, Book, CalendarDays } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
@@ -613,13 +613,13 @@ export const Lesson = () => {
                                         onClick={() => setIsCalendarOpen(!isCalendarOpen)}
                                         className="p-2 md:p-3 bg-gray-600 rounded-lg hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                                     >
-                                        📅
+                                        <CalendarDays className="h-4 w-4 md:h-5 md:w-5 text-white" />
                                     </button>
 
                                     {/* Trigger mở Sheet chat */}
                                     <Sheet>
                                         <SheetTrigger asChild>
-                                            <button className="p-2 md:p-3 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                                            <button className="p-2 md:p-3 bg-gray-600 rounded-lg hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                                                 <MessageCircle className="h-4 w-4 md:h-5 md:w-5 text-white" />
                                             </button>
                                         </SheetTrigger>
@@ -880,26 +880,30 @@ export const Lesson = () => {
                             <div className="xl:w-96 lg:w-80 md:w-72 bg-gray-50 rounded-xl shadow-lg">
                                 {/* Header */}
                                 <div className="p-4 border-b border-gray-100">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-xl font-semibold text-gray-800 flex items-center">
-                                            <BookOpenCheck className="w-5 h-5 mr-2 text-purple-500" />
-                                            Nội dung bài học
-                                        </h3>
-                                        <TooltipProvider>
-                                            <Tooltip >
-                                                <TooltipTrigger>
-                                                    <Badge variant="secondary" className="text-xl">
-                                                        {contentLesson.length} phần
-                                                    </Badge>
-                                                </TooltipTrigger>
-
-                                            </Tooltip>
-                                        </TooltipProvider>
+                                    <div className="mb-5">
+                                        <div className="flex items-center justify-between p-4 bg-white  ">
+                                            <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                                                <Book className="w-6 h-6 mr-3 text-purple-500" />
+                                                <span>Nội dung bài học</span>
+                                            </h3>
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <Badge variant="secondary" className="text-lg px-4 py-1 hover:bg-purple-100 transition-colors"> {/* Larger badge with hover effect */}
+                                                            {contentLesson.length} phần
+                                                        </Badge>
+                                                    </TooltipTrigger>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        </div>
                                     </div>
                                     {/* Progress */}
                                     <div className="space-y-3">
                                         <div className="flex justify-between text-sm text-gray-600">
-                                            <span className="text-base">Tiến độ học tập</span>
+                                            <div className="flex items-center gap-2">
+                                                <BarChart className="w-5 h-5" />
+                                                <span className="text-base">Tiến độ học tập</span>
+                                            </div>
                                             <span className="font-medium text-base">{Math.round(calculateProgress())}%</span>
                                         </div>
                                         <Progress
