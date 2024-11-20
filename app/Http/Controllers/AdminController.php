@@ -477,8 +477,9 @@ class AdminController extends Controller
                 'price' => 'sometimes|required|numeric|min:0',
                 'description' => 'sometimes|required|string',
                 'img' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-                'launch_date' => 'sometimes|required|date',           // Thêm validate launch_date
-                'backup_launch_date' => 'sometimes|nullable|date'     // Thêm validate backup_launch_date
+                'launch_date' => 'sometimes|required|date',          
+                'backup_launch_date' => 'sometimes|nullable|date',
+                'is_online_meeting' => 'sometimes|required|in:0,1'  
             ]);
     
             if ($validator->fails()) {
@@ -505,7 +506,8 @@ class AdminController extends Controller
                 'description',
                 'status',
                 'launch_date',            
-                'backup_launch_date'         
+                'backup_launch_date',
+                'is_online_meeting'     
             ]);
     
             if (isset($updateData['launch_date'])) {
