@@ -442,8 +442,7 @@ export const Curriculum = () => {
 
         try {
             // Gửi yêu cầu xóa đến API
-            const response = await axios.delete(`${API_URL}/teacher/courses/${course_id}/contents`, {
-                data: { content_ids: [contentId] },
+            const response = await axios.delete(`${API_URL}/teacher/contents/${contentId}`, {
                 headers: {
                     'x-api-secret': API_KEY,
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -646,7 +645,7 @@ export const Curriculum = () => {
                     hasErrors = true;
                 }
             });
-        }); 
+        });
 
         if (hasErrors) {
             toast.error('Vui lòng điền tất cả nội dung!');
