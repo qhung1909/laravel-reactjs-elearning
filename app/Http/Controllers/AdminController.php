@@ -2,27 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
-use App\Models\Course;
-use Illuminate\Support\Facades\DB;
-use App\Models\Enroll;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Aws\S3\S3Client;
-use App\Models\Category;
-use App\Models\Content;
-use App\Models\Coupon;
+use Carbon\Carbon;
 use App\Models\Quiz;
+use App\Models\User;
+use Aws\S3\S3Client;
+use App\Models\Coupon;
+use App\Models\Course;
+use App\Models\Enroll;
+use App\Models\Content;
+use App\Models\Category;
+use App\Models\OrderDetail;
+use Illuminate\Support\Str;
 use App\Models\TitleContent;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 use App\Mail\CourseStatusNotification;
-use App\Models\User;
-use App\Models\OrderDetail;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
@@ -475,54 +476,114 @@ class AdminController extends Controller
                 'course_category_id' => 'sometimes|required|exists:categories,course_category_id',
                 'price' => 'sometimes|required|numeric|min:0',
                 'description' => 'sometimes|required|string',
-                'img' => 'sometimes|nullable|image|mimes:jpeg,png,jpg|max:2048'
+                'img' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+                'launch_date' => 'sometimes|required|date',          
+                'backup_launch_date' => 'sometimes|nullable|date',
+                'is_online_meeting' => 'sometimes|required|in:0,1'  
             ]);
-
+    
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
                     'message' => $validator->errors()
                 ], 422);
             }
-
+    
             $course = Course::find($courseId);
-
+    
             if (!$course) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Không tìm thấy khóa học'
                 ], 404);
             }
-
+    
             $updateData = $request->only([
                 'title',
                 'course_category_id',
                 'price',
                 'price_discount',
                 'description',
-                'status'
+                'status',
+                'launch_date',            
+                'backup_launch_date',
+                'is_online_meeting'     
             ]);
-
-            // Xử lý upload ảnh mới nếu có
+    
+            if (isset($updateData['launch_date'])) {
+                $updateData['launch_date'] = Carbon::parse($updateData['launch_date'])->format('Y-m-d H:i:s');
+            }
+    
+            if (isset($updateData['backup_launch_date'])) {
+                $updateData['backup_launch_date'] = Carbon::parse($updateData['backup_launch_date'])->format('Y-m-d H:i:s');
+            }
+    
             if ($request->hasFile('img')) {
-                $image = $request->file('img');
-                $imageName = time() . '.' . $image->extension();
-                $image->move(public_path('images/courses'), $imageName);
-                $updateData['img'] = 'images/courses/' . $imageName;
-
-                // Xóa ảnh cũ nếu có
-                if ($course->img && file_exists(public_path($course->img))) {
-                    unlink(public_path($course->img));
+                try {
+                    $s3 = new S3Client([
+                        'region'  => env('AWS_DEFAULT_REGION'),
+                        'version' => 'latest',
+                        'credentials' => [
+                            'key'    => env('AWS_ACCESS_KEY_ID'),
+                            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+                        ],
+                        'http' => [
+                            'verify' => env('VERIFY_URL'),
+                        ],
+                    ]);
+    
+                    if ($course->img) {
+                        try {
+                            $oldKey = str_replace(env('AWS_URL'), '', $course->img);
+                            $s3->deleteObject([
+                                'Bucket' => env('AWS_BUCKET'),
+                                'Key'    => $oldKey,
+                            ]);
+                        } catch (\Exception $e) {
+                            Log::error('Error deleting old image: ' . $e->getMessage());
+                        }
+                    }
+    
+                    $file = $request->file('img');
+                    $filePath = $file->getRealPath();
+                    $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+                    $newFileName = "course_{$courseId}_{$originalFileName}." . $extension;
+                    $key = 'images/courses/' . $newFileName;
+    
+                    $contentType = match ($extension) {
+                        'jpg', 'jpeg' => 'image/jpeg',
+                        'png' => 'image/png',
+                        'gif' => 'image/gif',
+                        'webp' => 'image/webp',
+                        'svg' => 'image/svg+xml',
+                        default => 'image/jpeg',
+                    };
+    
+                    $result = $s3->putObject([
+                        'Bucket' => env('AWS_BUCKET'),
+                        'Key'    => $key,
+                        'SourceFile' => $filePath,
+                        'ContentType' => $contentType,
+                        'ACL' => 'public-read',
+                    ]);
+    
+                    $updateData['img'] = $result['ObjectURL'];
+    
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Lỗi khi upload ảnh: ' . $e->getMessage()
+                    ], 500);
                 }
             }
-
-            // Cập nhật slug nếu title thay đổi
+    
             if (isset($updateData['title'])) {
                 $updateData['slug'] = Str::slug($updateData['title']);
             }
-
+    
             $course->update($updateData);
-
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Cập nhật khóa học thành công',
@@ -959,6 +1020,64 @@ class AdminController extends Controller
                 'message' => 'Failed to update user role',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    private function handleImageUploadImage($file, $titleContent)
+    {
+        $s3 = new S3Client([
+            'region'  => env('AWS_DEFAULT_REGION'),
+            'version' => 'latest',
+            'credentials' => [
+                'key'    => env('AWS_ACCESS_KEY_ID'),
+                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            ],
+            'http' => [
+                'verify' => env('VERIFY_URL'),
+            ],
+        ]);
+
+        if ($titleContent->image_link) {
+            try {
+                $oldKey = str_replace(env('AWS_URL'), '', $titleContent->image_link);
+                $s3->deleteObject([
+                    'Bucket' => env('AWS_BUCKET'),
+                    'Key'    => $oldKey,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Error deleting old image: ' . $e->getMessage());
+            }
+        }
+
+        $filePath = $file->getRealPath();
+        $contentId = $titleContent->content_id;
+        $titleContentId = $titleContent->title_content_id;
+        $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $newFileName = "content_{$contentId}_title_{$titleContentId}_{$originalFileName}.{$extension}";
+        $key = 'images/' . $newFileName;
+
+        $contentType = match ($extension) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'svg' => 'image/svg+xml',
+            default => 'image/jpeg',
+        };
+
+        try {
+            $result = $s3->putObject([
+                'Bucket' => env('AWS_BUCKET'),
+                'Key'    => $key,
+                'SourceFile' => $filePath,
+                'ContentType' => $contentType,
+                'ACL' => 'public-read',
+            ]);
+
+            return $result['ObjectURL'];
+        } catch (\Exception $e) {
+            throw new \Exception('Không thể upload ảnh lên S3: ' . $e->getMessage());
         }
     }
 }

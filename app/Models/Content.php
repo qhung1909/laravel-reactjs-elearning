@@ -31,12 +31,10 @@ class Content extends Model
     public function deleteWithTitleContents()
     {
         try {
-            // Kiểm tra content có tồn tại không
             if (!$this->exists) {
                 throw new \Exception("Content không tồn tại");
             }
 
-            // Hoặc có thể kiểm tra chi tiết hơn
             $contentExists = Content::where('content_id', $this->content_id)->exists();
             if (!$contentExists) {
                 throw new \Exception("Content với ID {$this->content_id} không tồn tại");
@@ -44,11 +42,9 @@ class Content extends Model
 
             DB::beginTransaction();
 
-            // Kiểm tra và xóa title contents
             $titleContentsCount = $this->titleContents()->count();
             $this->titleContents()->delete();
 
-            // Xóa content
             $this->delete();
 
             DB::commit();

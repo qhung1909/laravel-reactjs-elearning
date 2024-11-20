@@ -47,12 +47,12 @@ class MessageController extends Controller
             $content = $request->input('content');
             $notificationIds = [];
 
-            // Lấy thông tin người gửi
+            
             $sender = User::select(['user_id', 'name', 'email'])
                 ->find(Auth::id());
 
             if ($userId) {
-                // Lấy thông tin người nhận cụ thể
+                
                 $receiver = User::select(['user_id', 'name', 'email'])
                     ->find($userId);
 
@@ -103,7 +103,7 @@ class MessageController extends Controller
                     ]
                 ]);
             } else {
-                // Gửi cho tất cả người dùng
+                
                 $receivers = User::select(['user_id', 'name', 'email'])->get();
                 $receiversList = [];
 
@@ -217,7 +217,7 @@ class MessageController extends Controller
             $perPage = $request->input('per_page', 8);
             $page = $request->input('page', 1);
     
-            // Chỉ rõ bảng cho cột user_id
+            
             $notifications = Notification::where('notifications.user_id', $userId)
                 ->join('users', 'notifications.created_by', '=', 'users.user_id')
                 ->select(

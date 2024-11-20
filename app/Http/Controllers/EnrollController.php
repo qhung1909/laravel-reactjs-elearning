@@ -50,11 +50,11 @@ class EnrollController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Lấy thông tin khóa học và user để gửi mail
+            
             $course = Course::find($request->course_id);
             $user = Auth::user();
 
-            // Gửi mail xác nhận
+            
             Mail::to($user->email)->send(new EnrollmentConfirmation($user, $course));
 
             return response()->json([

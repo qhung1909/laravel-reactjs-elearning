@@ -33,11 +33,11 @@ class OrderController extends Controller
     {
         try {
             return DB::transaction(function () use ($user_id) {
-                // Eager load user, coupon và courses
+                
                 $orders = Order::with([
                     'user:user_id,name,email',
                     'coupon:coupon_id,name_coupon,discount_price',
-                    'orderDetails.course'  // Đảm bảo eager load mối quan hệ với courses qua orderDetails
+                    'orderDetails.course'  
                 ])
                     ->where('user_id', $user_id)
                     ->select('orders.*')

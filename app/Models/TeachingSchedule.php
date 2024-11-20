@@ -16,4 +16,16 @@ class TeachingSchedule extends Model
         'proposed_start',
         'notes',
     ];
+
+    public function onlineMeeting()
+    {
+        return $this->belongsTo(OnlineMeeting::class, 'meeting_id', 'meeting_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+        
 }
