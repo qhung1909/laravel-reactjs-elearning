@@ -311,7 +311,7 @@ export const Curriculum = () => {
                     },
                 }
             );
-            console.log(response.data);
+            console.log('hihih', response.data);
 
 
             // Kiểm tra phản hồi từ server và thêm ID vào phần mới
@@ -661,6 +661,7 @@ export const Curriculum = () => {
             const updateContentsData = sectionsToUpdate.map(section => ({
                 content_id: section.content_id,
                 name_content: section.title.trim(),
+                is_online_meeting: section.is_online_meeting
             }));
 
             let updatePromise = Promise.resolve();
@@ -882,6 +883,12 @@ export const Curriculum = () => {
                                                 className="border-2 rounded-lg border-yellow-700 p-4 relative"
                                             >
                                                 <div className="flex items-center gap-4 w-[80%] md:w-[88%] absolute ml-14 mt-3">
+                                                    {section.is_online_meeting === 1 ? (
+                                                        <span className="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Online</span>
+                                                    ) : (
+                                                        <span className="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Offline</span>
+                                                    )
+                                                    }
                                                     <div className="flex items-center gap-2">
                                                         <span className="font-medium text-gray-600">Bài {sectionIndex + 1}:</span>
                                                     </div>
@@ -920,7 +927,10 @@ export const Curriculum = () => {
                                                         {Array.isArray(section.lessons) && section.lessons.map((lesson, lessonIndex) => (
                                                             <Card key={lesson.id} className="relative p-4 border border-yellow-400 ml-6">
                                                                 <div className="space-y-4">
+                                                                <span className="relative mx-6 bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Offline</span>
+
                                                                     <div className="flex items-center gap-4 mt-4">
+
                                                                         <div className="flex items-center gap-2">
                                                                             <span className="font-medium text-gray-600">
                                                                                 Nội dung: {sectionIndex + 1}.{lessonIndex + 1}
