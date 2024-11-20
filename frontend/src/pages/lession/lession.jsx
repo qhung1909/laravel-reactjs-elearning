@@ -10,7 +10,7 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy, Gamepad2, Gift } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy, Gamepad2, Gift, CircleCheck, ChartBar, BarChart, School, Book, CalendarDays } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +32,7 @@ export const Lesson = () => {
     const { slug } = useParams();
     //respon
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showMiniGame, setShowMiniGame] = useState(false);
     useEffect(() => {
         const fetchLesson = async () => {
             if (!slug) return;
@@ -60,8 +61,12 @@ export const Lesson = () => {
                     if (res.data.course_id) {
                         await checkPaymentCourse(user.user_id, res.data.course_id);
 
-                        // Thay đổi hàm gọi để truyền course_id
+                        //hàm gọi để truyền course_id
                         fetchContentLesson(res.data.course_id);
+                        const CourseMiniGame = courses.find(course => course.course_id === res.data.course_id);
+                        if (CourseMiniGame && parseFloat(CourseMiniGame.price_discount) >= 1500000) {
+                            setShowMiniGame(true);
+                        }
                     } else {
                         console.error("Không tìm thấy course_id của bài học");
                     }
@@ -73,7 +78,7 @@ export const Lesson = () => {
         if (user?.user_id) {
             fetchLesson();
         }
-    }, [slug, navigate, user]);;
+    }, [slug, navigate, user]);
 
     const [isPaymentCourse, setPaymentCourse] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -172,7 +177,6 @@ export const Lesson = () => {
     useEffect(() => {
         fetchCourses();
     }, []);
-
 
 
     const [contentLesson, setContentLesson] = useState([]);
@@ -378,6 +382,7 @@ export const Lesson = () => {
             }
         }
     };
+
     useEffect(() => {
         if (progressData.length > 0) {
             const updatedCompletedLessons = new Set();
@@ -612,13 +617,13 @@ export const Lesson = () => {
                                         onClick={() => setIsCalendarOpen(!isCalendarOpen)}
                                         className="p-2 md:p-3 bg-gray-600 rounded-lg hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                                     >
-                                        📅
+                                        <CalendarDays className="h-4 w-4 md:h-5 md:w-5 text-white" />
                                     </button>
 
                                     {/* Trigger mở Sheet chat */}
                                     <Sheet>
                                         <SheetTrigger asChild>
-                                            <button className="p-2 md:p-3 bg-blue-600 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                                            <button className="p-2 md:p-3 bg-gray-600 rounded-lg hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                                                 <MessageCircle className="h-4 w-4 md:h-5 md:w-5 text-white" />
                                             </button>
                                         </SheetTrigger>
@@ -879,26 +884,30 @@ export const Lesson = () => {
                             <div className="xl:w-96 lg:w-80 md:w-72 bg-gray-50 rounded-xl shadow-lg">
                                 {/* Header */}
                                 <div className="p-4 border-b border-gray-100">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-xl font-semibold text-gray-800 flex items-center">
-                                            <BookOpenCheck className="w-5 h-5 mr-2 text-purple-500" />
-                                            Nội dung bài học
-                                        </h3>
-                                        <TooltipProvider>
-                                            <Tooltip >
-                                                <TooltipTrigger>
-                                                    <Badge variant="secondary" className="text-xl">
-                                                        {contentLesson.length} phần
-                                                    </Badge>
-                                                </TooltipTrigger>
-
-                                            </Tooltip>
-                                        </TooltipProvider>
+                                    <div className="mb-5">
+                                        <div className="flex items-center justify-between p-4 bg-white  ">
+                                            <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                                                <Book className="w-6 h-6 mr-3 text-purple-500" />
+                                                <span>Nội dung bài học</span>
+                                            </h3>
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <Badge variant="secondary" className="text-lg px-4 py-1 hover:bg-purple-100 transition-colors"> {/* Larger badge with hover effect */}
+                                                            {contentLesson.length} phần
+                                                        </Badge>
+                                                    </TooltipTrigger>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        </div>
                                     </div>
                                     {/* Progress */}
                                     <div className="space-y-3">
                                         <div className="flex justify-between text-sm text-gray-600">
-                                            <span className="text-base">Tiến độ học tập</span>
+                                            <div className="flex items-center gap-2">
+                                                <BarChart className="w-5 h-5" />
+                                                <span className="text-base">Tiến độ học tập</span>
+                                            </div>
                                             <span className="font-medium text-base">{Math.round(calculateProgress())}%</span>
                                         </div>
                                         <Progress
@@ -911,97 +920,99 @@ export const Lesson = () => {
                                     <div className="grid grid-cols-2 gap-3 mt-4">
                                         <div className="bg-violet-50 rounded-xl p-3 border border-violet-100 group hover:bg-violet-100 transition-colors">
                                             <div className="flex items-center text-purple-600 mb-1">
-                                                <PlayCircle className="w-4 h-4 mr-2" />
+                                                <CircleCheck className="w-4 h-4 mr-2" />
                                                 <span className="text-sm font-medium">Đã hoàn thành</span>
                                             </div>
-                                            <p className="text-lg font-semibold text-gray-800">
+                                            <p className="text-lg font-semibold text-gray-800 text-center">
                                                 {completedLessons.size}/{contentLesson.length}
                                             </p>
                                         </div>
                                         {/* MiniGame */}
-                                        <div className="bg-violet-50 rounded-xl p-3 border border-violet-100 group hover:bg-violet-100 transition-colors">
-                                            <div className="flex items-center text-violet-600 mb-1">
-                                                <Gamepad2 className="w-4 h-4 mr-2" />
-                                                <span className="text-sm font-medium">Mini Game</span>
-                                            </div>
-                                            <Dialog>
-                                                <DialogTrigger asChild>
-                                                    <button className="relative group">
-                                                        <div className="relative flex items-center ml-10 px-4 py-2 bg-white rounded-lg">
-                                                            <Gamepad2 className="w-6 h-6 text-purple-600 group-hover:animate-bounce" />
-                                                        </div>
-                                                    </button>
-                                                </DialogTrigger>
-                                                <DialogContent className="sm:max-w-md">
-                                                    <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-2xl">
-                                                        <DialogTitle className="relative">
-                                                            <div className="flex flex-col items-center space-y-4 mb-8">
-                                                                <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
-                                                                    Câu Đố Kiến Thức
-                                                                </h2>
+                                        {showMiniGame && (
+                                            <div className="bg-violet-50 rounded-xl p-3 border border-violet-100 group hover:bg-violet-100 transition-colors">
+                                                <div className="flex items-center text-violet-600 mb-1">
+                                                    <Gamepad2 className="w-4 h-4 mr-2" />
+                                                    <span className="text-sm font-medium">Mini Game</span>
+                                                </div>
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <button className="relative group">
+                                                            <div className="relative flex items-center ml-10 px-4 py-2 bg-white rounded-lg">
+                                                                <Gamepad2 className="w-6 h-6 text-purple-600 group-hover:animate-bounce" />
                                                             </div>
-                                                        </DialogTitle>
+                                                        </button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="sm:max-w-md">
+                                                        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-2xl">
+                                                            <DialogTitle className="relative">
+                                                                <div className="flex flex-col items-center space-y-4 mb-8">
+                                                                    <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
+                                                                        Câu Đố Kiến Thức
+                                                                    </h2>
+                                                                </div>
+                                                            </DialogTitle>
 
-                                                        <div className="space-y-6">
-                                                            <div className="bg-indigo-50 p-4 rounded-xl">
-                                                                <p className="text-gray-700 text-center font-medium">
-                                                                    Câu hỏi: Ai là người phát minh ra World Wide Web?
-                                                                </p>
-                                                            </div>
-
-                                                            <div className="space-y-4">
-                                                                <input
-                                                                    type="text"
-                                                                    value={answer}
-                                                                    onChange={handleInputChange}
-                                                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition-colors"
-                                                                    placeholder="Nhập câu trả lời..."
-                                                                    disabled={isCorrect === true}
-                                                                />
-
-                                                            </div>
-
-                                                            {isCorrect === null && (
-                                                                <button
-                                                                    onClick={handleSubmitGame}
-                                                                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium py-3 px-4 rounded-xl hover:opacity-90 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                                                                >
-                                                                    Xác nhận đáp án
-                                                                </button>
-                                                            )}
-
-                                                            {isCorrect === true && (
-                                                                <div className="animate-fadeIn bg-green-50 rounded-2xl p-4 space-y-2">
-                                                                    <p className="text-green-600 font-bold text-center text-lg">
-                                                                        🎉 Chúc mừng! Bạn đã trả lời đúng! 🎉
+                                                            <div className="space-y-6">
+                                                                <div className="bg-indigo-50 p-4 rounded-xl">
+                                                                    <p className="text-gray-700 text-center font-medium">
+                                                                        Câu hỏi: Ai là người phát minh ra World Wide Web?
                                                                     </p>
-                                                                    <div className="bg-white rounded-lg p-3 border border-green-200">
-                                                                        <p className="text-sm text-gray-600 text-center">
-                                                                            <Gift className="inline w-5 h-5 mr-2 text-green-600" />Phần quà của bạn là voucher 24h:
+                                                                </div>
+
+                                                                <div className="space-y-4">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={answer}
+                                                                        onChange={handleInputChange}
+                                                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition-colors"
+                                                                        placeholder="Nhập câu trả lời..."
+                                                                        disabled={isCorrect === true}
+                                                                    />
+
+                                                                </div>
+
+                                                                {isCorrect === null && (
+                                                                    <button
+                                                                        onClick={handleSubmitGame}
+                                                                        className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium py-3 px-4 rounded-xl hover:opacity-90 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                                                                    >
+                                                                        Xác nhận đáp án
+                                                                    </button>
+                                                                )}
+
+                                                                {isCorrect === true && (
+                                                                    <div className="animate-fadeIn bg-green-50 rounded-2xl p-4 space-y-2">
+                                                                        <p className="text-green-600 font-bold text-center text-lg">
+                                                                            🎉 Chúc mừng! Bạn đã trả lời đúng! 🎉
                                                                         </p>
-                                                                        <p className="text-lg font-mono font-bold text-center text-green-600 mt-1">
-                                                                            {randomVoucher}
+                                                                        <div className="bg-white rounded-lg p-3 border border-green-200">
+                                                                            <p className="text-sm text-gray-600 text-center">
+                                                                                <Gift className="inline w-5 h-5 mr-2 text-green-600" />Phần quà của bạn là voucher 24h:
+                                                                            </p>
+                                                                            <p className="text-lg font-mono font-bold text-center text-green-600 mt-1">
+                                                                                {randomVoucher}
+                                                                            </p>
+                                                                        </div>
+                                                                        <p className="text-xs text-center italic text-gray-500 mt-2">
+                                                                            Nhập voucher vào lần thanh toán khóa học sau nhé!
                                                                         </p>
                                                                     </div>
-                                                                    <p className="text-xs text-center italic text-gray-500 mt-2">
-                                                                        Nhập voucher vào lần thanh toán khóa học sau nhé!
-                                                                    </p>
-                                                                </div>
-                                                            )}
+                                                                )}
 
-                                                            {isCorrect === false && (
-                                                                <div className="animate-fadeIn bg-red-50 rounded-xl p-4">
-                                                                    <p className="text-red-500 text-center font-medium">
-                                                                        Rất tiếc! Hãy thử lại nhé!
-                                                                    </p>
-                                                                </div>
-                                                            )}
+                                                                {isCorrect === false && (
+                                                                    <div className="animate-fadeIn bg-red-50 rounded-xl p-4">
+                                                                        <p className="text-red-500 text-center font-medium">
+                                                                            Rất tiếc! Hãy thử lại nhé!
+                                                                        </p>
+                                                                    </div>
+                                                                )}
 
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </DialogContent>
-                                            </Dialog>
-                                        </div>
+                                                    </DialogContent>
+                                                </Dialog>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
