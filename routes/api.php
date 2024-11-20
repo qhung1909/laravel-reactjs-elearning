@@ -2,31 +2,32 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\OrderController;
 use App\Http\Middleware\CheckAuthMessage;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\EnrollController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\CommentController;
-use App\Http\Controllers\MessageController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\QuizOptionController;
-use App\Http\Controllers\UserCourseController;
-use App\Http\Controllers\QuizQuestionController;
-use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContentController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\TitleContentController;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ProgressController;
-use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\QuizOptionController;
+use App\Http\Controllers\UserCourseController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\ParticipantController;
+use App\Http\Controllers\QuizQuestionController;
+use App\Http\Controllers\TitleContentController;
 use App\Http\Controllers\OnlineMeetingController;
 use App\Http\Controllers\TeachingScheduleController;
-use App\Http\Controllers\ParticipantController;
 
 // Authentication
 Route::group([
@@ -181,6 +182,9 @@ Route::middleware(['admin'])->group(function () {
     //Progress
     Route::get('/progress', [ProgressController::class, 'index']);
     Route::post('/progress/complete-content', [ProgressController::class, 'completeContent']);
+
+    Route::get('/certificate/details', [CertificateController::class, 'getCertificateDetails']);
+
 });
 
 Route::prefix('admin')->middleware('admin')->group(function () {
@@ -222,6 +226,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     Route::get('/revenue/teachers', [AdminController::class, 'getTeacherRevenues']);
     Route::put('/user/{userId}/role', [AdminController::class, 'updateRole']);
+    
 });
 
 
@@ -263,6 +268,9 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::get('/teaching-schedule/{meeting_id}', [TeachingScheduleController::class, 'show']); 
     Route::put('/teaching-schedule/{id}', [TeachingScheduleController::class, 'update']);     
     Route::delete('/teaching-schedule/{id}', [TeachingScheduleController::class, 'destroy']);
+
+
+    
 });
 
 
