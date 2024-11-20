@@ -42,7 +42,6 @@ export default function ScheduleList() {
 
     const [schedules, setSchedules] = useState([])
     const [courses, setCourses] = useState([])
-    const [contentLessons, setLessons] = useState({})
     const [loadingSchedules, setLoadingSchedules] = useState(true)
     const [loadingCourses, setLoadingCourses] = useState(true)
     const [loadingLessons, setLoadingLessons] = useState(false)
@@ -74,20 +73,18 @@ export default function ScheduleList() {
                 }
             });
 
-            console.log("API Response for schedules:", res.data); // Debug response
+            console.log("API Response for schedules:", res.data);
 
             if (res.data?.data && Array.isArray(res.data.data)) {
                 const schedulesWithCourseId = res.data.data.map(schedule => ({
                     ...schedule,
-                    course_id: schedule.course_id || schedule.content?.course_id // Thử lấy course_id từ content nếu không có trực tiếp
+                    course_id: schedule.course_id || schedule.content?.course_id
                 }));
                 console.log("Processed schedules:", schedulesWithCourseId);
                 setSchedules(schedulesWithCourseId);
 
-                // Fetch courses và content lessons
                 await fetchCourses();
                 const uniqueCourseIds = [...new Set(schedulesWithCourseId.map(s => s.course_id))];
-                console.log("Unique course IDs:", uniqueCourseIds);
                 for (const courseId of uniqueCourseIds) {
                     if (courseId) {
                         await fetchContentLesson(courseId);
@@ -119,9 +116,6 @@ export default function ScheduleList() {
                     'Authorization': `Bearer ${token}`
                 }
             });
-
-            console.log("API Response for courses:", res.data);
-
             if (Array.isArray(res.data)) {
                 setCourses(res.data);
             }
@@ -143,57 +137,74 @@ export default function ScheduleList() {
             setLoadingCourses(false);
         }
     };
+    useEffect(() => {
+        fetchCourses();
+    }, []);
+
+    const [contentLesson, setContentLesson] = useState([]);
+    const [titleContent, setTitleContent] = useState([]);
+
+    const sortedContent = contentLesson.sort(
+        (a, b) => a.content_id - b.content_id
+    );
+    
+    const fetchTitleContent = async (contentId) => {
+        const token = localStorage.getItem("access_token");
+        try {
+            const res = await axios.get(`${API_URL}/title-contents/${contentId}`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            if (res.data && res.data.success) {
+                setTitleContent(prev => ({ ...prev, [contentId]: res.data.data }));
+
+            } else {
+                console.error("Dữ liệu không hợp lệ:", res.data);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy chi tiết title_content:", error);
+        }
+    };
 
     const fetchContentLesson = async (courseId) => {
-        setLoadingLessons(true);
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
         try {
             const res = await axios.get(`${API_URL}/contents`, {
                 headers: {
-                    "x-api-secret": API_KEY,
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
                 },
                 params: { course_id: courseId }
             });
+            console.log("API Response for Content Lessons:", res.data);
 
-            if (res.data?.success && Array.isArray(res.data.data)) {
-                // Lấy tất cả content có course_id tương ứng mà không cần lọc status
-                const contents = res.data.data.filter(content =>
-                    content.course_id === Number(courseId)
-                );
-                setLessons(contents); // Thêm dòng này để lưu contents vào state
-                return contents;
+            if (res.data && res.data.success && Array.isArray(res.data.data)) {
+                setContentLesson(res.data.data);
             } else {
-                console.error("Unexpected content data format:", res.data);
-                setLessons([]); // Set empty array nếu data không hợp lệ
-                toast.error("Định dạng dữ liệu bài học không đúng");
+                console.error("Dữ liệu không phải là mảng hoặc không thành công:", res.data);
+                toast.error("Dữ liệu không hợp lệ hoặc không thành công.");
             }
         } catch (error) {
-            console.error("Error fetching content lessons:", error);
+            console.error("Lỗi khi lấy nội dung bài học:", error);
             toast.error("Có lỗi xảy ra khi tải nội dung bài học.");
-            setLessons([]); // Set empty array khi có lỗi
-        } finally {
-            setLoadingLessons(false);
         }
     };
+
+
+    const [course_id, setCourse_id] = useState(null);
 
     useEffect(() => {
-        const token = checkAuth();
-        if (token) {
-            fetchSchedules();
-            fetchCourses();
+        if (course_id) {
+            fetchContentLesson(course_id);
         }
     }, []);
-
-    const getLessonInfo = (courseId, contentId) => {
-        const courseLessons = contentLessons[courseId] || [];
-        const lesson = courseLessons.find(l => l.content_id === contentId);
-        if (!lesson) return 'Chưa có thông tin';
-
-        const titles = lesson.titleContents
-            .filter(t => t && t.title)
-            .map(t => t.title)
-            .join(' - ');
-        return titles || 'Chưa có tiêu đề';
-    };
 
     const filterSchedules = () => {
         if (!Array.isArray(schedules)) return [];
@@ -248,13 +259,19 @@ export default function ScheduleList() {
         }
     };
     useEffect(() => {
-        const token = checkAuth();
-        if (token) {
-            fetchSchedules();
-            fetchCourses();
-            fetchUsers();
-        }
+        fetchCourses();
+        fetchContentLesson(course_id);
     }, []);
+
+    useEffect(() => {
+        console.log("Courses:", courses);
+    }, [courses]);
+
+    useEffect(() => {
+        console.log("Content Lessons:", contentLesson);
+    }, [contentLesson]);
+
+
 
     const [teachers, setTeachers] = useState([]);
     const fetchUsers = async () => {
@@ -266,13 +283,18 @@ export default function ScheduleList() {
             });
 
             if (res.data) {
+                console.log("Teacher data structure:", res.data[0]);
                 setTeachers(res.data);
-                console.log("Teachers data:", res.data);
             }
         } catch (error) {
             console.error('Error fetching teachers:', error);
         }
     };
+    useEffect(() => {
+        fetchUsers();
+    }, [])
+
+
 
     return (
         <div className="h-screen">
@@ -365,7 +387,7 @@ export default function ScheduleList() {
                                         <TableRow>
                                             <TableCell colSpan={9} className="text-center">
                                                 <div className="flex items-center justify-center space-x-2">
-                                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+                                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-yellow-400"></div>
                                                     <span>Đang tải dữ liệu...</span>
                                                 </div>
                                             </TableCell>
@@ -386,12 +408,10 @@ export default function ScheduleList() {
                                                     )?.name || 'Không tìm thấy giảng viên'}
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    {courses && schedule && courses.find(c =>
-                                                        Number(c.course_id) === Number(schedule.course_id))?.title ||
-                                                        `Khóa học ${schedule?.course_id || 'hihi'}`}
+                                                    {courses.find(course => course.id === schedule.course_id)?.name || 'Chưa có thông tin'}
                                                 </TableCell>
-                                                <TableCell className="text-center">{/* Bài học */}
-                                                    {getLessonInfo(schedule.course_id, schedule.content_id)}
+                                                <TableCell className="text-center">
+                                                    {contentLesson.find(lesson => lesson.content_id === schedule.content_id)?.name || 'Chưa có thông tin'}
                                                 </TableCell>
                                                 <TableCell className="text-center"> {/* Ngày dạy */}
                                                     {formatDate(schedule.proposed_start)}
