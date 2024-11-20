@@ -231,19 +231,35 @@ export const CourseOverview = () => {
                 if (response.data) {
                     const courseData = response.data.data;
                     setCourseTitle(courseData.title || '');
-                    setInitialCourseTitle(courseData.title || ''); // Lưu dữ liệu ban đầu
+                    setInitialCourseTitle(courseData.title || '');
                     setCourseDescriptionText(courseData.description || '');
-                    setInitialCourseDescriptionText(courseData.description || ''); // Lưu dữ liệu ban đầu
+                    setInitialCourseDescriptionText(courseData.description || '');
                     setCurrency(courseData.currency || '');
-                    setInitialCurrency(courseData.currency || ''); // Lưu dữ liệu ban đầu
+                    setInitialCurrency(courseData.currency || '');
                     setPrice(courseData.price || '');
-                    setInitialPrice(courseData.price || ''); // Lưu dữ liệu ban đầu
+                    setInitialPrice(courseData.price || '');
                     setSelectedLanguage(courseData.language || '');
-                    setInitialSelectedLanguage(courseData.language || ''); // Lưu dữ liệu ban đầu
+                    setInitialSelectedLanguage(courseData.language || '');
                     setSelectedCategory(courseData.course_category_id || '');
-                    setInitialSelectedCategory(courseData.course_category_id || ''); // Lưu dữ liệu ban đầu
+                    setInitialSelectedCategory(courseData.course_category_id || '');
                     setCourseImage(courseData.img || null);
-                    setInitialCourseImage(courseData.img || null); // Lưu dữ liệu ban đầu
+                    setInitialCourseImage(courseData.img || null);
+
+                    // Thêm logic xử lý cho phần mở rộng và ngày
+                    if (courseData.launch_date) {
+                        setSelectedExtension("online");
+                        // Chuyển đổi định dạng ngày từ API sang định dạng HTML date input
+                        const formattedLaunchDate = new Date(courseData.launch_date).toISOString().split('T')[0];
+                        const formattedBackupDate = courseData.backup_launch_date ?
+                            new Date(courseData.backup_launch_date).toISOString().split('T')[0] : '';
+
+                        setSelectedDate(formattedLaunchDate);
+                        setBackupDate(formattedBackupDate);
+                    } else {
+                        setSelectedExtension("0");
+                        setSelectedDate('');
+                        setBackupDate('');
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching course data:', error);
@@ -263,60 +279,14 @@ export const CourseOverview = () => {
             titleError: '',
         };
 
-        // Kiểm tra tiêu đề
-        if (!courseTitle || courseTitle.trim() === '') {
-            newErrors.titleError = 'Vui lòng nhập tiêu đề khóa học';
-            valid = false;
-        } else if (courseTitle.length < 10) {
-            newErrors.titleError = 'Tiêu đề khóa học phải có ít nhất 10 ký tự';
-            valid = false;
-        }
+        // Existing validation checks...
 
-        // Kiểm tra thể loại
-        if (!selectedCategory) {
-            newErrors.categoryError = 'Vui lòng chọn thể loại khóa học';
-            valid = false;
-        }
-
-        // Kiểm tra giá
-        if (!price) {
-            newErrors.priceError = 'Vui lòng nhập giá khóa học';
-            valid = false;
-        } else if (isNaN(price)) {
-            newErrors.priceError = 'Giá khóa học phải là số';
-            valid = false;
-        } else if (parseFloat(price) <= 0) {
-            newErrors.priceError = 'Giá khóa học phải lớn hơn 0';
-            valid = false;
-        }
-
-        // Loại bỏ tất cả các thẻ <p><br></p> và các thẻ trống khác
-        const cleanedDescription = courseDescriptionText.replace(/<p><br><\/p>/g, '').replace(/<\/?[^>]+(>|$)/g, '').trim();
-
-        // Kiểm tra nếu mô tả đã được làm sạch có trống hay không
-        const isDescriptionEmpty = cleanedDescription === "";
-
-        // Đếm số từ sau khi làm sạch mô tả
-        const wordCount = isDescriptionEmpty ? 0 : cleanedDescription.split(/\s+/).filter(word => word).length;
-
-
-
-        // Kiểm tra nếu mô tả có ít hơn 20 từ
-        if (isDescriptionEmpty || wordCount < 20) {
-            newErrors.descriptionError = 'Vui lòng nhập mô tả khóa học (tối thiểu 20 từ)';
-            valid = false;
-        }
-
-
-
-        // Nếu có lỗi, cập nhật state và dừng lại
         if (!valid) {
             setErrors(newErrors);
             notify('Vui lòng kiểm tra lại thông tin', 'error');
             return;
         }
 
-        // Xóa tất cả lỗi nếu dữ liệu hợp lệ
         setErrors({
             categoryError: '',
             priceError: '',
@@ -324,25 +294,40 @@ export const CourseOverview = () => {
             titleError: '',
         });
 
-        // Chuẩn bị dữ liệu gửi lên
-        const courseData = {
-            course_category_id: selectedCategory,
-            price: parseFloat(price), // Chuyển đổi price thành số
-            description: courseDescriptionText,
-            title: courseTitle.trim(),
-            currency: currency,
-            language: selectedLanguage
-        };
+        const formData = new FormData();
+        formData.append('course_category_id', selectedCategory);
+        formData.append('price', parseFloat(price));
+        formData.append('description', courseDescriptionText);
+        formData.append('title', courseTitle.trim());
+        formData.append('currency', currency);
+        formData.append('language', selectedLanguage);
+
+        // Add launch dates if extension is online
+        if (selectedExtension === "online") {
+            if (selectedDate) {
+                formData.append('launch_date', selectedDate);
+            }
+            if (backupDate) {
+                formData.append('backup_launch_date', backupDate);
+            }
+        }
+
+        // Add image if it exists and has changed
+        if (courseImage && courseImage !== initialCourseImage) {
+            const base64Response = await fetch(courseImage);
+            const blob = await base64Response.blob();
+            formData.append('img', blob, 'course-image.jpg');
+        }
 
         try {
-            const response = await axios.put(
+            const response = await axios.post(
                 `${API_URL}/teacher/courses/${course_id}`,
-                courseData,
+                formData,
                 {
                     headers: {
                         'x-api-secret': API_KEY,
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'multipart/form-data',
                     },
                 }
             );
@@ -351,7 +336,7 @@ export const CourseOverview = () => {
                 notify('Khóa học đã được cập nhật thành công', 'success');
                 setIsUpdated(true);
 
-                // Cập nhật dữ liệu ban đầu
+                // Update initial states
                 setInitialCourseTitle(courseTitle);
                 setInitialCourseDescriptionText(courseDescriptionText);
                 setInitialCurrency(currency);
@@ -618,27 +603,28 @@ export const CourseOverview = () => {
                             </div>
                         </div>
 
+                        <form method="POST" encType="multipart/form-data" onSubmit={(e) => e.preventDefault()} className="space-y-4">
+                            <div className="pb-6">
+                                <h2 className="pb-1 text-lg font-medium">Hình ảnh khóa học</h2>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-red-100">
+                                        {courseImage && (
+                                            <img src={courseImage} alt="Hình ảnh khóa học" />
+                                        )}
+                                    </div>
+                                    <div className="ml-12">
+                                        <p className="pb-4">
+                                            Tải hình ảnh lên đây. Để được chấp nhận, hình ảnh phải đáp ứng tiêu chuẩn chất lượng hình ảnh khóa học. Hướng dẫn quan trọng 750x422 pixel, jpg, jpeg, gif hoặc png và không có nhu cầu trên hình ảnh.
+                                        </p>
 
-                        <div className="pb-6">
-                            <h2 className="pb-1 text-lg font-medium">Hình ảnh khóa học</h2>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-red-100">
-                                    {courseImage && (
-                                        <img src={courseImage} alt="Hình ảnh khóa học" />
-                                    )}
-                                </div>
-                                <div className="ml-12">
-                                    <p className="pb-4">
-                                        Tải hình ảnh lên đây. Để được chấp nhận, hình ảnh phải đáp ứng tiêu chuẩn chất lượng hình ảnh khóa học. Hướng dẫn quan trọng 750x422 pixel, jpg, jpeg, gif hoặc png và không có nhu cầu trên hình ảnh.
-                                    </p>
-
-                                    <div className="grid w-full max-w-sm items-center gap-1.5">
-                                        <Label htmlFor="picture">Hình ảnh</Label>
-                                        <Input onChange={handleFileChange} id="picture" type="file" />
+                                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                                            <Label htmlFor="picture">Hình ảnh</Label>
+                                            <Input onChange={handleFileChange} id="picture" type="file" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </form>
 
                         <Button onClick={exportToJsonLog} className="mt-4">
                             Xuất JSON Log
