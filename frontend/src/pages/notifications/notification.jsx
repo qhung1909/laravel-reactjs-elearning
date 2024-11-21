@@ -40,7 +40,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Bell, Search, MoreHorizontal, Eye, Trash } from "lucide-react"
+import { Bell, Search, MoreHorizontal, Eye, Trash, Check } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import axios from "axios"
 export default function TaskList() {
@@ -51,6 +51,8 @@ export default function TaskList() {
     const [tasksPerPage] = useState(8)
     const [totalPages, setTotalPages] = useState(0)
     const [selectedNotification, setSelectedNotification] = useState(null);
+    const [notifications, setNotifications] = useState([]);
+
     const API_URL = import.meta.env.VITE_API_URL
     const location = useLocation()
     const navigate = useNavigate()
@@ -71,8 +73,9 @@ export default function TaskList() {
             });
 
             // Log response data
+            console.log(response.data);
 
-            setTasks(response.data.data.notifications || []);
+            setNotifications(response.data.data.notifications || []);
             setTotalPages(response.data.data.pagination.last_page);
             setCurrentPage(response.data.data.pagination.current_page);
         } catch (error) {
@@ -81,28 +84,27 @@ export default function TaskList() {
             setLoading(false);
         }
     };
-
-    const markAsRead = async (notificationId) => {
+    const handleMarkAsRead = async (notificationId) => {
         const token = localStorage.getItem('access_token');
         try {
-            // Gửi yêu cầu POST để đánh dấu thông báo là đã đọc
             await axios.post(`${API_URL}/auth/notifications/read/${notificationId}`, null, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });
-            // Cập nhật trạng thái thông báo đã đọc trong danh sách
-            setTasks((prevTasks) =>
-                prevTasks.map((task) =>
-                    task.id === notificationId ? { ...task, is_read: 1 } : task
+            // Update notification status locally
+            setNotifications(prevNotifications =>
+                prevNotifications.map(notification =>
+                    notification.id === notificationId
+                        ? { ...notification, is_read: 1 }
+                        : notification
                 )
             );
         } catch (error) {
             console.error('Error marking notification as read:', error);
         }
     };
-
 
     // hàm xử lý lấy thông báo chi tiết
     const handleNotificationClick = async (notificationId) => {
@@ -130,9 +132,11 @@ export default function TaskList() {
         fetchNotifications(page)
     }, [location.search])
 
-    const filteredTasks = tasks.filter(task =>
-        task.message.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const filteredNotifications = notifications.filter(notification =>
+        notification.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        notification.sender_name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
 
     const TaskSkeleton = () => (
         <TableRow>
@@ -177,6 +181,7 @@ export default function TaskList() {
                         />
                     </div>
 
+
                     {/* Table */}
                     <div className="rounded-xl border border-gray-100 overflow-hidden">
                         <Table>
@@ -190,20 +195,51 @@ export default function TaskList() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {/* Giữ nguyên nội dung Table Body nhưng thay đổi màu sắc */}
                                 {loading ? (
                                     Array(8).fill(0).map((_, index) => <TaskSkeleton key={index} />)
-                                ) : filteredTasks.length > 0 ? (
-                                    filteredTasks.map((task, index) => (
+                                ) : notifications.length > 0 ? (
+                                    notifications.map((notification, index) => (
                                         <TableRow
-                                            key={task.id}
-                                            className={task.is_read === 0 
-                                                ? "bg-red-50/50 hover:bg-red-100/50" 
+                                            key={notification.id}
+                                            className={notification.is_read === 0
+                                                ? "bg-red-50/50 hover:bg-red-100/50"
                                                 : "bg-green-50/50 hover:bg-green-100/50"
                                             }
-                                            onClick={() => handleNotificationClick(task.id)}
+                                            onClick={() => handleNotificationClick(notification.id)}
                                         >
-                                            {/* Giữ nguyên các cells */}
+                                            <TableCell>{index + 1}</TableCell>
+                                            <TableCell>{notification.sender_name}</TableCell>
+                                            <TableCell>{notification.message}</TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    className={notification.is_read === 0
+                                                        ? "bg-red-500 text-white"
+                                                        : "bg-green-500 text-white"
+                                                    }
+                                                >
+                                                    {notification.is_read === 0 ? 'Chưa đọc' : 'Đã đọc'}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger>
+                                                        <Button variant="ghost">
+                                                            <MoreHorizontal className="h-5 w-5" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent>
+                                                        <DropdownMenuItem onClick={() => handleNotificationClick(notification.id)}>
+                                                            <Eye className="h-4 w-4 mr-2" /> Xem chi tiết
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleMarkAsRead(notification.id)}>
+                                                            <Check className="h-4 w-4 mr-2" /> Đánh dấu đã đọc
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleDeleteNotification(notification.id)}>
+                                                            <Trash className="h-4 w-4 mr-2" /> Xóa
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
@@ -224,8 +260,8 @@ export default function TaskList() {
                                 <PaginationItem key={index + 1}>
                                     <PaginationLink
                                         href="#"
-                                        className={currentPage === index + 1 
-                                            ? "bg-yellow-400 text-white hover:bg-yellow-500" 
+                                        className={currentPage === index + 1
+                                            ? "bg-yellow-400 text-white hover:bg-yellow-500"
                                             : "hover:bg-yellow-50"
                                         }
                                         onClick={() => handlePageChange(index + 1)}
