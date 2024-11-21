@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CalendarDays, Clock, Video, GraduationCap, Users, BookOpen, ChevronLeft, ChevronRight  } from "lucide-react";
+import { CalendarDays, Clock, Video, GraduationCap, Users, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
@@ -26,7 +26,7 @@ const ScheduleManagement = () => {
             topic: "ES6 Features & Modern JavaScript",
             meetingLink: "https://zoom.us/j/123456789",
             students: 25,
-            status: "upcoming" // upcoming, ongoing, completed
+            status: "upcoming"
         },
         {
             id: 2,
@@ -60,7 +60,10 @@ const ScheduleManagement = () => {
     };
 
     return (
+
+
         <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/50 p-6">
+
             {/* Header Section */}
             <div className="max-w-7xl mx-auto mb-8">
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -97,8 +100,10 @@ const ScheduleManagement = () => {
                         </Card>
                     </div>
 
+
                     {/* Calendar */}
                 </div>
+
 
                 {/* Right Column */}
                 <div className="lg:col-span-2">
@@ -191,7 +196,9 @@ const ScheduleManagement = () => {
                 </div>
             </div>
         </div>
+
     );
+
 };
 
 export default ScheduleManagement;
