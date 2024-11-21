@@ -494,7 +494,7 @@ export const Lesson = () => {
     const [voucher, setVoucher] = useState([]);
     const [randomVoucher, setRandomVoucher] = useState(null);
 
-    const correctAnswer = 'Tim';
+    const correctAnswer = 'HyperText Markup Language';
 
     const fetchCoupons = async () => {
         const token = localStorage.getItem("access_token");
@@ -954,7 +954,7 @@ export const Lesson = () => {
                                                             <div className="space-y-6">
                                                                 <div className="bg-indigo-50 p-4 rounded-xl">
                                                                     <p className="text-gray-700 text-center font-medium">
-                                                                        Câu hỏi: Ai là người phát minh ra World Wide Web?
+                                                                        Câu hỏi: HTML là viết tắt của cụm từ gì?
                                                                     </p>
                                                                 </div>
 
@@ -988,7 +988,7 @@ export const Lesson = () => {
                                                                             <div className="bg-white rounded-lg p-3 border border-green-200">
                                                                                 <p className="text-sm text-gray-600 text-center">
                                                                                     <Gift className="inline w-5 h-5 mr-2 text-green-600" />
-                                                                                    Phần quà của bạn là voucher 24h:
+                                                                                    Phần quà của bạn là voucher 72h:
                                                                                 </p>
                                                                                 <p className="text-lg font-mono font-bold text-center text-green-600 mt-1">
                                                                                     {randomVoucher}
