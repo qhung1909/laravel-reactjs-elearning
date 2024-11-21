@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import CertificateTemplate from './certificate';
 import { Button } from "@/components/ui/button";
-import { Download, ChevronLeft, Share2, Medal } from "lucide-react";
+import { Download, ChevronLeft, Share2, Medal, Facebook } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -26,6 +26,27 @@ const CertificateDetailPage = () => {
   const [error, setError] = useState(null);
   const [downloading, setDownloading] = useState(false);
   const certificateRef = useRef(null);
+
+  const shareFacebook = async () => {
+    try {
+      const shareUrl = window.location.href;
+
+      const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+
+      const width = 1200;
+      const height = 600;
+      const left = (window.innerWidth - width) / 2;
+      const top = (window.innerHeight - height) / 2;
+
+      window.open(
+        facebookShareUrl,
+        'facebook-share-dialog',
+        `width=${width},height=${height},top=${top},left=${left}`
+      );
+    } catch (error) {
+      console.error('Error sharing to Facebook:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchCertificate = async () => {
@@ -218,13 +239,14 @@ const CertificateDetailPage = () => {
             </Button>
 
             <Button
-              size="lg"
-              variant="outline"
-              className="border-2 hover:bg-gray-50 transition-all duration-200"
-            >
-              <Share2 className="h-5 w-5 mr-2" />
-              Chia sẻ
-            </Button>
+                    size="lg"
+                    variant="outline"
+                    onClick={shareFacebook}
+                    className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white border-0 transition-all duration-200 shadow-md"
+                  >
+                    <Facebook className="h-5 w-5 mr-2" />
+                    Chia sẻ Facebook
+                  </Button>
           </CardFooter>
         </Card>
       </div>
