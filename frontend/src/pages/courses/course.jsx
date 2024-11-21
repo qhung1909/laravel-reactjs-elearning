@@ -44,6 +44,9 @@ import axios from 'axios';
 import { Skeleton } from "@/components/ui/skeleton";
 import { CategoriesContext } from '../context/categoriescontext';
 import { formatDateNoTime } from '@/components/FormatDay/Formatday';
+import { Badge } from '@/components/ui/badge';
+import { Book, Users, WifiOff, Wifi, Crown, Calendar, ShoppingCart, Tag } from 'lucide-react';
+import { Medal, BookOpen, Star, TrendingUp } from 'lucide-react';
 
 export const Courses = () => {
     const { courses, setCourses, fetchSearchResults, fetchCoursesByCategory, fetchCourses, fetchTopPurchasedProduct, hotProducts } = useContext(CoursesContext);
@@ -192,37 +195,49 @@ export const Courses = () => {
                     <Skeleton className="h-[125px] w-11/12 rounded-xl" />
                     <div className="flex flex-col space-y-2 items-center md:items-start">
                         <Skeleton className="h-4 w-8/12 md:w-11/12" />
-                        <Skeleton className="h-4 w-5/12 md:w-9/12 " />
+                        <Skeleton className="h-4 w-5/12 md:w-9/12" />
                     </div>
                 </div>
-
             ))}
         </>
-    ) :
-        Array.isArray(hotInstructor) && hotInstructor.length > 0 ? (
-            hotInstructor.map((item, index) => (
-                <div key={index} className="bg-white border my-3 sm:my-0 border-gray-200 rounded-md p-5 pl-8 pr-2 flex items-center justify-start w-full">
-                    <img
-                        alt="Example"
-                        className="w-16 h-16 object-cover rounded-full mr-4"
-                        src={`${item.avatar}`} />
-                    <div>
-                        <h3 className="xl:text-lg md:text-base sm:text-sm text-lg font-semibold text-gray-800">
+    ) : Array.isArray(hotInstructor) && hotInstructor.length > 0 ? (
+        hotInstructor.map((item, index) => (
+            <div
+                key={index}
+                className="bg-white my-3 sm:my-0 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-6 group"
+            >
+                <div className="flex items-center space-x-4">
+                    <div className="relative">
+                        <img
+                            alt={item.name}
+                            className="w-16 h-16 object-cover rounded-full ring-4 ring-amber-100 group-hover:ring-amber-200 transition-all"
+                            src={item.avatar}
+                        />
+                        <div className="absolute -bottom-1 -right-1 bg-amber-400 rounded-full p-1">
+                            <Star className="w-4 h-4 text-white" />
+                        </div>
+                    </div>
+
+                    <div className="flex-1">
+                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-amber-600 transition-colors">
                             {item.name}
                         </h3>
-                        {/* <p className="text-yellow-500 text-sm">
-                            <strong>4,8</strong> ★★★★☆ (297)
-                        </p> */}
-                        <p className="text-gray-700 text-sm">
-                            <strong>Tổng khóa học đã bán:</strong> {item.max_is_buy}
-                        </p>
+                        <div className="mt-1 flex items-center gap-1">
+                            <Badge className="bg-amber-100 text-amber-800 border-amber-200">
+                                <TrendingUp className="w-4 h-4 mr-1" />
+                                {item.max_is_buy} khóa học đã bán
+                            </Badge>
+                        </div>
                     </div>
                 </div>
-            ))
-        ) : (
-            <p>Không có giảng viên nào phù hợp ngay lúc này, thử lại</p>
-        )
-
+            </div>
+        ))
+    ) : (
+        <div className="text-center p-8 bg-amber-50 rounded-lg">
+            <Users className="mx-auto h-12 w-12 text-amber-500 mb-3" />
+            <p className="text-gray-600">Không có giảng viên nào phù hợp ngay lúc này, thử lại sau nhé!</p>
+        </div>
+    )
 
 
     // xử lý phân trang và render
@@ -313,34 +328,79 @@ export const Courses = () => {
     ) : (
         hotProducts.map((item, index) => (
             <div key={index}>
-                <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg flex flex-col lg:flex-row group lg:my-5 md:my-3 my-0">
-                    <img alt="Best-selling course" className="w-full custom-img-height md:h-82 lg:h-60 lg:w-96 object-cover mb-4 lg:mb-0 lg:mr-4 border" src={`${item.img}`} />
-                    <div className="bg-white p-6 flex flex-col justify-between">
-                        <div className="flex-1">
-                            <h3 className="text-xl md:text-2xl font-bold text-gray-800 my-1">
+                <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-xl flex flex-col lg:flex-row group lg:my-5 md:my-3 my-0 hover:shadow-xl transition-all duration-300 border border-amber-100">
+                    <div className="relative flex-shrink-0 lg:w-[400px]">
+                        <img
+                            alt={item.title}
+                            className="w-full h-[300px] lg:h-full object-contain mb-4 lg:mb-0 lg:mr-4 rounded-lg shadow-sm"
+                            src={item.img}
+                        />
+                        <Badge className="absolute top-2 right-2 bg-gradient-to-r from-amber-400 to-orange-400 text-white px-4 py-1.5 rounded-full flex items-center gap-2 shadow-lg">
+                            <Crown size={16} className="animate-pulse" />
+                            <span className="font-semibold">Bán chạy nhất</span>
+                        </Badge>
+                    </div>
+                    <div className="bg-white p-6 flex flex-col justify-between flex-grow">
+                        <div className="flex-1 space-y-4">
+                            <Badge
+                                variant="secondary"
+                                className={`mb-2 px-4 py-2 text-sm font-bold shadow-lg ${item.is_online_meeting === 1
+                                        ? "bg-gradient-to-r from-orange-400 to-yellow-400 text-white"
+                                        : "bg-gradient-to-r from-emerald-400 to-teal-400 text-white"
+                                    } rounded-lg`}
+                            >
+                                {item.is_online_meeting === 1
+                                    ? "👨‍🏫 Face-to-Face - Tương tác trực tiếp"
+                                    : "🎓 E-Learning - Học mọi lúc mọi nơi"}
+                            </Badge>
+
+                            <h3 className="text-xl md:text-2xl font-bold text-gray-900 leading-tight group-hover:text-amber-500 transition-colors">
                                 {item.title}
                             </h3>
-                            <p className="text-gray-700 my-1">
+
+                            <p className="text-base text-gray-600 leading-relaxed">
                                 {item.description}
                             </p>
-                            <p className="text-gray-500 text-xs my-1">
-                                {item.user?.name || "Không thấy tên giảng viên"}
-                            </p>
-                            <p className="font-thin text-xs text-green-600 my-1">
-                                Cập nhật ngày {" "}
-                                <span className="text-green-800 font-bold">
-                                    {formatDateNoTime(item.updated_at)}
+
+                            <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="bg-amber-50 border-amber-200 text-amber-700 text-sm px-3 py-1.5 rounded-lg">
+                                    <span className="font-medium">🎓 Giảng viên:</span> {item.user?.name || "Đang cập nhật"}
+                                </Badge>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <Badge className="bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 flex items-center gap-2 border border-amber-200 text-sm font-medium px-3 py-1.5 rounded-lg">
+                                    <ShoppingCart size={16} />
+                                    <span>{item.is_buy} Học viên đã đăng ký</span>
+                                </Badge>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm text-amber-700">
+                                <Calendar size={16} />
+                                <span>Cập nhật ngày {" "}
+                                    <span className="font-semibold">{formatDateNoTime(item.updated_at)}</span>
                                 </span>
-                            </p>
-                            <p className="text-lg text-gray-800 font-semibold">
-                                <span className="bg-yellow-200 text-gray-700 text-sm px-2 py-1">
-                                    {item.is_buy} Lượt bán
-                                </span>
-                            </p>
+                            </div>
                         </div>
-                        <p className="text-lg font-bold text-black my-1">
-                            {formatCurrency(item.price_discount)}
-                        </p>
+
+                        <div className="flex items-center gap-4 mt-6 p-4 rounded-lg">
+                            <div className="flex items-center gap-2">
+                                <Tag className="w-6 h-6 text-blue-500" />
+                                <span className="text-2xl font-bold text-blue-500">
+                                    {formatCurrency(item.price_discount)}
+                                </span>
+                            </div>
+                            {item.price_discount < item.price && (
+                                <>
+                                    <span className="text-base text-gray-500 line-through">
+                                        {formatCurrency(item.price)}
+                                    </span>
+                                    <Badge className="bg-gradient-to-r from-blue-300 to-blue-400 text-white text-sm font-medium px-3 py-1 rounded-full">
+                                        Giảm {Math.round((1 - item.price_discount / item.price) * 100)}%
+                                    </Badge>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </Link>
             </div>
@@ -381,34 +441,47 @@ export const Courses = () => {
     ) : (
         currentCourses.map((item, index) => (
             <div key={index} >
-                <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg flex items-center group my-5">
-                    <img alt={item.title} className="w-44 h-28 sm:w-64 sm:h-40 md:w-72 md:h-40 sm:object-cover mr-4 " src={`${item.img}`} />
-                    <div className="flex-1">
-                        <h3 className="text-md md:text-lg font-semibold text-gray-800 line-clamp-2">
-                            <a className="hover:underline" href="#">
-                                {item.title}
-                            </a>
+                <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg flex items-center group my-5 hover:shadow-lg transition-shadow">
+                    <img alt={item.title} className="w-44 h-28 sm:w-64 sm:h-40 md:w-72 md:h-40 sm:object-cover mr-4 rounded-lg" src={item.img} />
+                    <div className="flex-1 ml-4">
+                        <Badge
+                            variant="secondary"
+                            className={`mb-2 px-3 py-1.5 text-sm font-bold shadow-md ${item.is_online_meeting === 1
+                                ? "bg-gradient-to-r from-purple-500 to-orange-500 text-white"
+                                : "bg-gradient-to-r from-green-500 to-cyan-500 text-white"
+                                }`}
+                        >
+                            {item.is_online_meeting === 1
+                                ? "👨‍🏫 Face-to-Face - Tương tác trực tiếp"
+                                : "🎓 E-Learning - Học mọi lúc mọi nơi"}
+                        </Badge>
+                        <h3 className="text-md md:text-lg font-bold text-gray-800 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
+                            {item.title}
                         </h3>
-                        <p className="text-sm text-black pr-5 line-clamp-2">
+                        <p className="text-sm text-gray-600 pr-5 line-clamp-2 mb-3">
                             {item.description}
                         </p>
-                        <p className="text-xs text-gray-500 my-1 line-clamp-1">
-                            <span className='font-semibold text-xs sm:text-base'>Đăng bởi: </span>{item.user?.name || "Không thấy tên giảng viên"}
-                        </p>
-
-                        <p className="text-xs text-gray-500 my-1">
-                            <span className='font-semibold text-xs sm:text-base'>Lượt xem:</span> {item.views}
-                        </p>
+                        <div className="flex items-center text-xs text-gray-500 mb-2">
+                            <Users size={16} className="mr-1" />
+                            <span className="font-medium mr-1">Đăng bởi:</span>
+                            {item.user?.name || "Không thấy tên giảng viên"}
+                        </div>
+                        <div className="flex items-center text-xs text-gray-500">
+                            <Book size={16} className="mr-1" />
+                            <span className="font-medium mr-1">Lượt xem:</span>
+                            {item.views}
+                        </div>
                     </div>
-                    <div className="ml-auto">
-                        <p className="text-sm sm:text-lg font-bold text-black">
+                    <div className="ml-auto flex flex-col items-end">
+                        <p className="text-sm sm:text-lg font-bold text-blue-600 mb-1">
                             {formatCurrency(item.price_discount)}
                         </p>
-                        <p className="text-sm sm:text-lg text-gray-500 line-through">
+                        <p className="text-sm text-gray-400 line-through">
                             {formatCurrency(item.price)}
                         </p>
                     </div>
                 </Link>
+
             </div>
         ))
     )
@@ -424,6 +497,7 @@ export const Courses = () => {
                     if (response.status === 200 && Array.isArray(response.data)) {
                         setCourses(response.data);
                     }
+
                 }
             } catch (error) {
                 console.error("Error fetching courses:", error);
@@ -433,6 +507,7 @@ export const Courses = () => {
         const timeoutId = setTimeout(() => {
             if (searchQuery) {
                 fetchCourses();
+
             }
         }, 300);
         fetchHotInstructor();
@@ -444,34 +519,54 @@ export const Courses = () => {
         <section className='courses'>
             <div className="max-w-custom mx-auto px-4 pt-5 ">
                 {/* Khóa học nổi bật */}
-                <div className="hot-courses shadow-md  p-3">
-                    <h1 className="text-2xl font-medium mb-2 text-center lg:text-start">
-                        Khóa học nổi bật
-                    </h1>
-                    <p className="text-gray-600 lg:mb-4 text-center lg:text-start">
-                        Nhiều học viên thích khóa học được đánh giá cao này vì nội
-                        dung hấp dẫn của nó.
-                    </p>
+                <div className="hot-courses shadow-md p-3">
+                    <div className="relative mb-6">
+                        <Badge className="
+      w-full
+      relative 
+      overflow-hidden 
+      text-2xl
+      py-4 
+      px-6 
+      rounded-xl
+      shadow-sm
+      font-bold 
+      text-gray-700
+      bg-gradient-to-r from-orange-50 via-amber-100 to-yellow-100
+      hover:shadow-md
+      transform 
+      transition-all 
+      duration-500 
+      hover:scale-105
+      border border-amber-200
+      backdrop-blur-sm
+    ">
+                            <div className="absolute inset-0 bg-gradient-to-r from-orange-100/40 via-amber-100/40 to-yellow-100/40"></div>
+                            <div className="relative flex items-center justify-center gap-3">
+                                <BookOpen className="w-7 h-7 text-amber-600" />
+                                <span>Khóa học nổi bật</span>
+                                <Medal className="w-7 h-7 text-amber-600" />
+                            </div>
+                        </Badge>
+                        <p className="text-gray-600 mt-4 mb-6 text-center lg:text-start">
+                            Nhiều học viên thích khóa học được đánh giá cao này vì nội dung hấp dẫn của nó.
+                        </p>
+                    </div>
+
                     <Carousel>
                         <CarouselContent>
-                            <CarouselItem>
-                                {render_course_hot[0]} {/* Hiển thị item đầu tiên */}
-                            </CarouselItem>
-                            <CarouselItem>
-                                {render_course_hot[1]} {/* Hiển thị item thứ hai */}
-                            </CarouselItem>
-                            <CarouselItem>
-                                {render_course_hot[2]} {/* Hiển thị item thứ ba */}
-                            </CarouselItem>
+                            {render_course_hot.slice(0, 3).map((course, index) => (
+                                <CarouselItem key={index}>
+                                    {course}
+                                </CarouselItem>
+                            ))}
                         </CarouselContent>
-                        {/* Đặt nút điều hướng bên ngoài CarouselContent */}
                         <div className="flex justify-between items-center absolute w-full top-1/2 transform -translate-y-1/2">
                             <CarouselPrevious className="z-10" />
                             <CarouselNext className="z-10" />
                         </div>
                     </Carousel>
                 </div>
-
 
 
                 {/* Các danh mục bài học*/}
