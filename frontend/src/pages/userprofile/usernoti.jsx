@@ -20,7 +20,7 @@ export const UserNoti = () => {
                                 <h2 className="font-bold text-2xl bg-gradient-to-r from-yellow-400 to-yellow-500 bg-clip-text text-transparent">
                                     Cài đặt tài khoản
                                 </h2>
-                                <p className="text-gray-500 text-sm mt-1">Quản lý cài đặt và thông tin tài khoản của bạn</p>
+                                <p className="text-gray-500 text-sm">Quản lý cài đặt và thông tin tài khoản của bạn</p>
                             </div>
                         </div>
                     </div>
@@ -28,9 +28,9 @@ export const UserNoti = () => {
                     <div className="lg:grid grid-cols-4 gap-8">
                         {/* Sidebar */}
                         <div className="col-span-1 my-6">
-                            <ul className="gap-2 text-sm font-medium flex lg:flex-col">
+                            <ul className="gap-2 text-sm font-medium max-w-screen-md:grid grid-cols-2 lg:flex-col space-y-3">
                                 <li className="w-full">
-                                    <Link 
+                                    <Link
                                         to="/user/profile"
                                         className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
                                     >
@@ -39,7 +39,7 @@ export const UserNoti = () => {
                                     </Link>
                                 </li>
                                 <li className="w-full">
-                                    <Link 
+                                    <Link
                                         to="/user/orderhistory"
                                         className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
                                     >
@@ -48,7 +48,7 @@ export const UserNoti = () => {
                                     </Link>
                                 </li>
                                 <li className="w-full">
-                                    <Link 
+                                    <Link
                                         to="/user/noti"
                                         className="flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
                                     >
@@ -57,7 +57,7 @@ export const UserNoti = () => {
                                     </Link>
                                 </li>
                                 <li className="w-full">
-                                    <Link 
+                                    <Link
                                         to="/user/favorite"
                                         className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
                                     >
@@ -70,7 +70,23 @@ export const UserNoti = () => {
 
                         {/* Main Content */}
                         <div className="col-span-3 my-6">
-                            <TaskList />
+                            <div className="border-b pb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-yellow-50 rounded-xl">
+                                        <Bell className="w-5 h-5 text-yellow-500" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-semibold">Thông báo</h3>
+                                        <p className="text-sm text-gray-500">
+                                            Xem lại những thông báo của bạn.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-3">
+                                <TaskList />
+
+                            </div>
                         </div>
                     </div>
                 </div>

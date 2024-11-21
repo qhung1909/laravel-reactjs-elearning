@@ -99,7 +99,7 @@ export const UserProfile = () => {
                                 <h2 className="font-bold text-2xl bg-gradient-to-r from-yellow-500 to-yellow-600 bg-clip-text text-transparent">
                                     Cài đặt tài khoản
                                 </h2>
-                                <p className="text-gray-500 text-sm mt-1">Quản lý cài đặt và thông tin tài khoản của bạn</p>
+                                <p className="text-gray-500 text-sm ">Quản lý cài đặt và thông tin tài khoản của bạn</p>
                             </div>
                         </div>
                     </div>
@@ -107,9 +107,9 @@ export const UserProfile = () => {
                     <div className="lg:grid grid-cols-4 gap-8">
                         {/* Sidebar */}
                         <div className="col-span-1 my-6">
-                            <ul className="gap-2 text-sm font-medium flex lg:flex-col">
+                            <ul className="gap-2 text-sm font-medium max-w-screen-md:grid grid-cols-2 lg:flex-col space-y-3">
                                 <li className="w-full">
-                                    <Link 
+                                    <Link
                                         to="/user/profile"
                                         className="flex items-center gap-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
                                     >
@@ -118,7 +118,7 @@ export const UserProfile = () => {
                                     </Link>
                                 </li>
                                 <li className="w-full">
-                                    <Link 
+                                    <Link
                                         to="/user/orderhistory"
                                         className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
                                     >
@@ -127,7 +127,7 @@ export const UserProfile = () => {
                                     </Link>
                                 </li>
                                 <li className="w-full">
-                                    <Link 
+                                    <Link
                                         to="/user/noti"
                                         className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
                                     >
@@ -136,7 +136,7 @@ export const UserProfile = () => {
                                     </Link>
                                 </li>
                                 <li className="w-full">
-                                    <Link 
+                                    <Link
                                         to="/user/favorite"
                                         className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
                                     >
@@ -164,8 +164,8 @@ export const UserProfile = () => {
                             <div className="mt-6">
                                 <Tabs defaultValue="profile" className="w-full">
                                     <TabsList className="bg-yellow-50/80 p-1 rounded-xl">
-                                        <TabsTrigger 
-                                            value="profile" 
+                                        <TabsTrigger
+                                            value="profile"
                                             className="data-[state=active]:bg-white data-[state=active]:text-yellow-600 data-[state=active]:shadow-sm rounded-lg transition-all duration-200"
                                         >
                                             <div className="flex items-center gap-2 py-2 px-4">
@@ -173,7 +173,7 @@ export const UserProfile = () => {
                                                 <span className="font-semibold">Chỉnh sửa hồ sơ</span>
                                             </div>
                                         </TabsTrigger>
-                                        <TabsTrigger 
+                                        <TabsTrigger
                                             value="password"
                                             className="data-[state=active]:bg-white data-[state=active]:text-yellow-600 data-[state=active]:shadow-sm rounded-lg transition-all duration-200"
                                         >
@@ -199,8 +199,8 @@ export const UserProfile = () => {
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <label 
-                                                            htmlFor="avatar-upload" 
+                                                        <label
+                                                            htmlFor="avatar-upload"
                                                             className="absolute bottom-0 right-0 p-2 bg-yellow-500 rounded-full text-white cursor-pointer shadow-lg hover:bg-yellow-500 transition-colors"
                                                         >
                                                             <Camera className="w-4 h-4" />
