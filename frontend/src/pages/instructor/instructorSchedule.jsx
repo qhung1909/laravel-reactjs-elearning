@@ -12,6 +12,15 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableHead,
+    TableHeader,
+    TableRow,
+    TableCell,
+} from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,7 +28,10 @@ import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom"
 import toast, { Toaster } from 'react-hot-toast';
 import { UserContext } from "../context/usercontext";
-
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Badge } from "@/components/ui/badge"
+Button
 const notify = (message, type) => {
     if (type === 'success') {
         toast.success(message);
@@ -28,13 +40,14 @@ const notify = (message, type) => {
     }
 }
 export const InstructorSchedule = () => {
-    const { user, updateUserProfile, logout, updatePassword } = useContext(UserContext);
+    const { instructor, updateUserProfile, logout, updatePassword } = useContext(UserContext);
     const [userName, setUserName] = useState('');
     const [role, setRole] = useState('');
     const [email, setEmail] = useState('');
     const [avatar, setAvatar] = useState(null);
     const [currentAvatar, setCurrentAvatar] = useState('');
     const [success, setSuccess] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
     const [loadingLogout, setLoadingLogout] = useState(false);
     const [password, setPassword] = useState("");
@@ -43,15 +56,38 @@ export const InstructorSchedule = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isProfileSubmitting, setIsProfileSubmitting] = useState(false);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (user) {
-            setUserName(user.name);
-            setEmail(user.email);
-            setCurrentAvatar(user.avatar);
-            setRole(user.role);
+    const sampleSchedules = [
+        {
+            id: 1,
+            course_name: "Lập trình React JS",
+            lesson_name: "Components và Props",
+            teaching_date: "2024-11-20",
+            time_slot: "09:00-11:00",
+            meet_link: "#",
+            notes: "Chuẩn bị bài tập về nhà",
+            status: "upcoming"
+        },
+        {
+            id: 2,
+            course_name: "JavaScript Cơ bản",
+            lesson_name: "Array Methods",
+            teaching_date: "2024-11-21",
+            time_slot: "14:00-16:00",
+            meet_link: "#",
+            notes: "Quiz cuối buổi",
+            status: "completed"
+        },
+        {
+            id: 3,
+            course_name: "Node.js Backend",
+            lesson_name: "RESTful API",
+            teaching_date: "2024-11-22",
+            time_slot: "19:00-21:00",
+            meet_link: "#",
+            notes: "Demo project",
+            status: "in_progress"
         }
-    }, [user]);
+    ];
 
     // hàm xử lý thay đổi file
     const handleFileChange = (e) => {
@@ -116,11 +152,11 @@ export const InstructorSchedule = () => {
             <section className="instructor-schedule">
                 <div className="flex bg-gray-100 h-sc">
                     {/* Sidebar */}
-                    <div className="h-auto w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
+                    <div className="h-screen w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
                         <div className="p-3">
                             {/* logo */}
                             <div className="p-4 flex justify-between items-center">
-                                <div className="logo ">
+                                <div className="logo">
                                     <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                                 </div>
                                 <div className="logout">
@@ -142,23 +178,23 @@ export const InstructorSchedule = () => {
                                 </li>
                                 <li className="mb-3">
                                     <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                        <div className=" mr-3  px-1 rounded-full">
+                                        <div className=" mr-3 px-1 rounded-full">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Bài học của tôi</p>
                                     </Link>
                                 </li>
                                 <li className="mb-3">
-                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                        <div className=" mr-3 px-1 rounded-full">
+                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
+                                        <div className="bg-yellow-400 mr-3 px-1 rounded-full">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Lịch sử mua hàng</p>
                                     </Link>
                                 </li>
                                 <li className="mb-3">
-                                    <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100 ">
-                                        <div className=" mr-3  px-1 rounded-full">
+                                    <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                        <div className=" mr-3 px-1 rounded-full">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Thông báo</p>
@@ -166,15 +202,15 @@ export const InstructorSchedule = () => {
                                 </li>
                                 <li className="mb-3">
                                     <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                        <div className=" mr-3  px-1 rounded-full">
+                                        <div className=" mr-3 px-1 rounded-full">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Thông tin tài khoản</p>
                                     </Link>
                                 </li>
                                 <li className="mb-3">
-                                    <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
-                                        <div className="bg-yellow-400 mr-3 px-1 rounded-full">
+                                    <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                        <div className=" mr-3 px-1 rounded-full">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/instructorschedule.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Thông tin lịch học</p>
@@ -185,7 +221,6 @@ export const InstructorSchedule = () => {
                     </div>
                     {/* Main Content */}
                     <div className="flex-1">
-
                         {/* Header */}
                         <div className="bg-white shadow-sm p-2">
                             <div className="flex items-center justify-between px-4 py-3">
@@ -200,13 +235,14 @@ export const InstructorSchedule = () => {
                                 <div className="flex items-center space-x-4">
                                     <button className="p-1 rounded-full hover:bg-gray-100">
                                         <img src="./src/assets/images/notification.svg" className="w-7" alt="" />
+
                                     </button>
 
                                     <div className="flex items-center gap-3">
                                         {/* avatar */}
-                                        {currentAvatar ? (
+                                        {instructor?.avatar ? (
                                             <img
-                                                src={currentAvatar}
+                                                src={instructor.avatar}
                                                 alt="User Avatar"
                                                 className="w-10 h-10 object-cover rounded-full"
                                             />
@@ -217,18 +253,18 @@ export const InstructorSchedule = () => {
 
                                         {/* user control */}
                                         <div className="text-left">
-                                            <span className="font-medium text-sm">{userName}</span>
+                                            <span className="font-medium text-sm">{instructor?.name}</span>
                                             <br />
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger>
                                                     <div className="flex items-center">
-                                                        <p className="text-gray-600 text-sm">{role}</p>
+                                                        <p className="text-gray-600 text-sm">{instructor?.role}</p>
                                                         <svg className="w-4 h-4 ml-1 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                                         </svg>
                                                     </div>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent>
+                                                <DropdownMenuContent >
                                                     <div className="p-3">
                                                         <DropdownMenuItem>
                                                             <span className="cursor-pointer" onClick={handleLogout}>Đăng xuất</span>
@@ -268,34 +304,42 @@ export const InstructorSchedule = () => {
                                                                 </li>
                                                                 <li className="mb-3">
                                                                     <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                        <div className=" mr-3  px-1 rounded-full">
+                                                                        <div className=" mr-3 px-1 rounded-full">
                                                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
                                                                         </div>
                                                                         <p className="font-semibold text-base">Bài học của tôi</p>
                                                                     </Link>
                                                                 </li>
                                                                 <li className="mb-3">
-                                                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                        <div className=" mr-3 px-1 rounded-full">
+                                                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
+                                                                        <div className="bg-yellow-400 mr-3 px-1 rounded-full">
                                                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
                                                                         </div>
                                                                         <p className="font-semibold text-base">Lịch sử mua hàng</p>
                                                                     </Link>
                                                                 </li>
                                                                 <li className="mb-3">
-                                                                    <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100 ">
-                                                                        <div className=" mr-3  px-1 rounded-full">
+                                                                    <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                        <div className=" mr-3 px-1 rounded-full">
                                                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
                                                                         </div>
                                                                         <p className="font-semibold text-base">Thông báo</p>
                                                                     </Link>
                                                                 </li>
-                                                                <li>
-                                                                    <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
-                                                                        <div className="bg-yellow-400 mr-3 px-1 rounded-full">
+                                                                <li className="mb-3">
+                                                                    <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                        <div className=" mr-3 px-1 rounded-full">
                                                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
                                                                         </div>
                                                                         <p className="font-semibold text-base">Thông tin tài khoản</p>
+                                                                    </Link>
+                                                                </li>
+                                                                <li className="mb-3">
+                                                                    <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                        <div className=" mr-3 px-1 rounded-full">
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/instructorschedule.svg" className="w-7" alt="" />
+                                                                        </div>
+                                                                        <p className="font-semibold text-base">Thông tin lịch học</p>
                                                                     </Link>
                                                                 </li>
                                                             </ul>
@@ -308,167 +352,118 @@ export const InstructorSchedule = () => {
                                 </div>
                             </div>
                         </div>
-
                         {/* Schedule content */}
-                        <div className="md:p-6 ">
-                            <Tabs defaultValue="profile" className="w-[100%] py-10 md:py-0">
-                                {/* tabs - header */}
-                                <TabsList>
-                                    <div className="bg-gray-200 p-1 rounded-xl">
-                                        {/* header 1 */}
-                                        <TabsTrigger value="profile" className="rounded-xl">
-                                            <div className=" py-2 text-base font-bold text-gray-600">
-                                                Chỉnh sửa hồ sơ
-                                            </div>
-                                        </TabsTrigger>
-                                        {/* header 2 */}
-                                        <TabsTrigger value="password" className="rounded-xl">
-                                            <div className=" py-2 text-base font-bold text-gray-600">
-                                                Mật khẩu
-                                            </div>
-                                        </TabsTrigger>
-                                    </div>
-                                </TabsList>
-                                {/* tabs - content */}
-                                <div className="my-5">
+                        <div className=" md:p-6 p-2 max-lg:h-screen">
+                        <div className="my-5 bg-white rounded-3xl p-3">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs w-20">STT</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs w-full sm:w-auto">Tên học viên</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs">Tên khóa học</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs">Giá</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs">Ngày mua</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                    </TableBody>
+                                </Table>
+                                {/* <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious
+                                                href="#"
+                                                onClick={() => handlePageChange(currentPage > 1 ? currentPage - 1 : 1)}
+                                            />
+                                        </PaginationItem>
+                                        {Array.from({ length: Math.max(1, Math.ceil(teacherOrders.length / itemsPerPage)) }).map((_, index) => (
+                                            <PaginationItem key={index}>
+                                                <PaginationLink
+                                                    href="#"
+                                                    onClick={() => handlePageChange(index + 1)}
+                                                    className={currentPage === index + 1 ? "active" : ""}
+                                                >
+                                                    {index + 1}
+                                                </PaginationLink>
+                                            </PaginationItem>
+                                        ))}
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                href="#"
+                                                onClick={() =>
+                                                    handlePageChange(
+                                                        currentPage < Math.ceil(teacherOrders.length / itemsPerPage)
+                                                            ? currentPage + 1
+                                                            : currentPage
+                                                    )
+                                                }
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination> */}
 
 
-                                    {/* profile */}
-                                    <TabsContent value="profile" className="">
-                                        <form onSubmit={handleUpdateProfile}>
-                                            <div className="bg-white rounded-xl py-5  w-full mx-auto">
-                                                <div className="">
-                                                    {/* header */}
-                                                    <div className="flex justify-between items-center px-8">
-                                                        <div className="">
-                                                            <span className="text-xl font-bold">Sửa hồ sơ của bạn</span>
-                                                            <p>Điều này sẽ được chia sẻ với các học viên khác</p>
-                                                        </div>
-                                                        <div className="">
-                                                            <button
-                                                                className="bg-yellow-400 px-4 py-2 rounded-xl font-bold sm:block hidden"
-                                                                disabled={isProfileSubmitting}
-                                                            >
-                                                                {isProfileSubmitting ? "Đang lưu..." : "Lưu"}
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                    <hr className="my-5" />
-                                                    {/* content */}
-                                                    <div className="px-8">
-
-                                                        {/* img */}
-                                                        <div className="image mb-5">
-                                                            <p className="font-bold text-sm my-3">Ảnh hồ sơ</p>
-                                                            <div className="flex items-center gap-20">
-                                                                <div className="rounded-xl border-gray-300 border">
-                                                                    {currentAvatar ? (
-                                                                        <img src={currentAvatar} alt="Avatar" className="rounded-xl" width="150" height="150" />
-                                                                    ) : (
-                                                                        <p className="font-bold px-14 py-10">Ảnh</p>
-                                                                    )}
-                                                                </div>
-                                                                <div>
-                                                                    <Label className="font-medium text-sm mb-2">Nhập ảnh của bạn vào đây để cập nhật avatar</Label>
-                                                                    <Input id="picture" type="file" onChange={handleFileChange} />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        {/* name  */}
-                                                        <div className="w-full my-5">
-                                                            <Label htmlFor="firstname" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Tên</p></Label>
-                                                            <Input value={userName} onChange={(e) => setUserName(e.target.value)} type="firstname" id="firstname" placeholder="Tên" className="p-6 mt-2 rounded-xl font-semibold text-base" />
-                                                        </div>
-
-                                                        {/* email  */}
-                                                        <div className="w-full my-5 gap-5">
-                                                            <div className="">
-                                                                <Label htmlFor="email" className="flex gap-2 text-base"><p className="text-sm">Email</p></Label>
-                                                                <Input disabled type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="p-6 mt-2 rounded-xl font-semibold" />
-                                                            </div>
-
-                                                        </div>
-
-                                                        {/* button - hidden */}
-                                                        <div className="">
-                                                            <button className="bg-yellow-400 px-4 py-2 rounded-xl font-bold sm:hidden block">Lưu</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </form>
-
-                                    </TabsContent>
-
-                                    {/* password */}
-                                    <TabsContent value="password">
-                                        <form onSubmit={handleChangePassword}>
-                                            <div className="bg-white rounded-xl py-5">
-                                                {/* header */}
-                                                <div className="px-8">
-                                                    <div className="">
-                                                        <span className="text-xl font-bold">Thay đổi mật khẩu</span>
-                                                    </div>
-                                                </div>
-                                                <hr className="my-5" />
-                                                {/* content */}
-                                                <div className="px-8">
-
-                                                    {/* current password */}
-                                                    <div className="my-10 gap-5">
-                                                        <div className="w-[100%]">
-                                                            <Label htmlFor="password" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Mật khẩu hiện tại</p></Label>
-                                                            <Input
-                                                                placeholder="Nhập mật khẩu hiện tại..."
-                                                                className="text-sm py-7"
-                                                                type="password"
-                                                                value={current_password}
-                                                                onChange={(e) => setCurrentPassword(e.target.value)}
-                                                            />                                                    </div>
-                                                    </div>
-
-                                                    {/* new password */}
-                                                    <div className="my-10 gap-5">
-                                                        <div className="w-[100%]">
-                                                            <Label htmlFor="newpassword" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Mật khẩu mới</p></Label>
-                                                            <Input
-                                                                placeholder="Nhập mật khẩu mới..."
-                                                                className="text-sm py-7"
-                                                                type="password"
-                                                                value={password}
-                                                                onChange={(e) => setPassword(e.target.value)}
-                                                            />                                                    </div>
-                                                    </div>
-
-                                                    {/* confirm password */}
-                                                    <div className="my-10 gap-5">
-                                                        <div className="w-[100%]">
-                                                            <Label htmlFor="confirmpassword" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Xác nhận mật khẩu</p></Label>
-                                                            <Input
-                                                                placeholder="Xác nhận mật khẩu mới..."
-                                                                className="text-sm py-7"
-                                                                type="password"
-                                                                value={password_confirmation}
-                                                                onChange={(e) => setPassword_Confirmation(e.target.value)}
-                                                            />                                                    </div>
-                                                    </div>
-
-                                                    {/* save button */}
-                                                    <div className="my-5">
-                                                        <button className="bg-yellow-400 p-3 font-bold rounded-xl">Lưu mật khẩu</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </form>
-
-                                    </TabsContent>
-                                </div>
-                            </Tabs>
-
-
+                            </div>
                         </div>
+                        {/* <div className="md:p-6 p-2 max-lg:h-screen">
+                            <div className="my-5 bg-white rounded-3xl p-3">
+                                <div className="space-y-4">
+                                    <div className=" overflow-x-auto  shadow-md rounded-lg">
+                                        <table className="w-full text-sm text-left">
+                                            <thead className="text-xs bg-gray-50">
+                                                <tr className="border-b">
+                                                    <th className="py-4 px-6 font-medium whitespace-nowrap">STT</th>
+                                                    <th className="py-4 px-6 font-medium">Khóa học</th>
+                                                    <th className="py-4 px-6 font-medium">Bài học</th>
+                                                    <th className="py-4 px-6 font-medium">Ngày dạy</th>
+                                                    <th className="py-4 px-6 font-medium">Khung giờ</th>
+                                                    <th className="py-4 px-6 font-medium">Link meet</th>
+                                                    <th className="py-4 px-6 font-medium">Ghi chú</th>
+                                                    <th className="py-4 px-6 font-medium">Trạng thái</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y">
+                                                {sampleSchedules.map((schedule, index) => (
+                                                    <tr key={schedule.id || index} className="bg-white hover:bg-gray-50">
+                                                        <td className="py-4 px-6 font-medium">{index + 1}</td>
+                                                        <td className="py-4 px-6 font-medium">{schedule.course_name}</td>
+                                                        <td className="py-4 px-6">{schedule.lesson_name}</td>
+                                                        <td className="py-4 px-6">{schedule.teaching_date}</td>
+                                                        <td className="py-4 px-6">{schedule.time_slot}</td>
+                                                        <td className="py-4 px-6">
+                                                            <a
+                                                                href={schedule.meet_link}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-blue-600 hover:text-blue-800 flex items-center gap-2"
+                                                            >
+                                                                <img
+                                                                    src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/meet.svg"
+                                                                    className="w-4 h-4"
+                                                                    alt="meet"
+                                                                />
+                                                                Join Meet
+                                                            </a>
+                                                        </td>
+                                                        <td className="py-4 px-6">{schedule.notes}</td>
+                                                        <td className="py-4 px-6">
+                                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${schedule.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                                                schedule.status === 'upcoming' ? 'bg-blue-100 text-blue-800' :
+                                                                    'bg-yellow-100 text-yellow-800'
+                                                                }`}>
+                                                                {schedule.status === 'completed' ? 'Đã hoàn thành' :
+                                                                    schedule.status === 'upcoming' ? 'Sắp diễn ra' :
+                                                                        'Đang diễn ra'}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> */}
                     </div>
                 </div>
             </section>

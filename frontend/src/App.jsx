@@ -73,6 +73,7 @@ import ScheduleList from "./pages/admin/ManageScheduleList/ScheduleList.jsx";
 import ManageMeetRoom from "./pages/admin/ManageScheduleList/ManageMeetRoom.jsx";
 import CertificateDetailPage from "./pages/certificate/certificatePage.jsx";
 import ManageCertificate from "./pages/certificate/ManageCertificate.jsx";
+import ScheduleManagement from "./pages/schedule/template.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -94,12 +95,15 @@ function AppContent() {
             "/terms",
             "/aboutus",
             "/certificate/:id",
-            "/user/certificate"
+            "/user/certificate",
+            "/user/schedule"
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/") &&
         !location.pathname.startsWith("/user/noti/") &&
         !location.pathname.startsWith("/blogs/") &&
-        !location.pathname.startsWith("/certificate/"); 
+        !location.pathname.startsWith("/user/schedule")&&
+        !location.pathname.startsWith("/certificate/");
+
 
 
     return (
@@ -178,6 +182,7 @@ function AppContent() {
                 <Route path="/notifications" element={<TaskList />}></Route>
                 <Route path="/lesson/meeting/:id" element={<JitsiMeeting />}></Route>
                 <Route path="/certificate/:id" element={<CertificateDetailPage />}></Route>
+                <Route path="/user/schedule" element={<ScheduleManagement />}></Route>
                 
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}

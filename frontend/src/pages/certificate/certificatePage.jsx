@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import CertificateTemplate from './certificate';
 import { Button } from "@/components/ui/button";
-import { Download, Printer, AlertCircle, ChevronLeft, FileX } from "lucide-react";
+import { Download, ChevronLeft, Share2, Medal, Facebook } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -27,6 +27,27 @@ const CertificateDetailPage = () => {
   const [downloading, setDownloading] = useState(false);
   const certificateRef = useRef(null);
 
+  const shareFacebook = async () => {
+    try {
+      const shareUrl = window.location.href;
+
+      const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+
+      const width = 1200;
+      const height = 600;
+      const left = (window.innerWidth - width) / 2;
+      const top = (window.innerHeight - height) / 2;
+
+      window.open(
+        facebookShareUrl,
+        'facebook-share-dialog',
+        `width=${width},height=${height},top=${top},left=${left}`
+      );
+    } catch (error) {
+      console.error('Error sharing to Facebook:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchCertificate = async () => {
       try {
@@ -39,10 +60,10 @@ const CertificateDetailPage = () => {
             'x-api-secret': API_KEY
           }
         });
-        
+
         if (!response.ok) {
-          throw new Error(response.status === 401 
-            ? 'Please log in to view this certificate' 
+          throw new Error(response.status === 401
+            ? 'Please log in to view this certificate'
             : 'Certificate not found');
         }
 
@@ -71,17 +92,17 @@ const CertificateDetailPage = () => {
   const downloadAsPNG = async () => {
     try {
       setDownloading(true);
-      
+
       await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       const certificateElement = certificateRef.current;
       if (!certificateElement) {
         throw new Error('Certificate element not found');
       }
 
       const canvas = await html2canvas(certificateElement, {
-        scale: 2, 
-        useCORS: true, 
+        scale: 2,
+        useCORS: true,
         backgroundColor: null,
         logging: false,
       });
@@ -91,7 +112,7 @@ const CertificateDetailPage = () => {
       });
 
       const url = URL.createObjectURL(blob);
-      
+
       const link = document.createElement('a');
       link.href = url;
       link.download = `certificate-${certificate.course_title}.png`;
@@ -109,43 +130,52 @@ const CertificateDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex justify-center items-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-blue-200 rounded-full animate-spin border-t-blue-600"></div>
+          </div>
+          <p className="text-gray-500 animate-pulse">Đang tải chứng chỉ...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50/50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center">
-                <FileX className="h-10 w-10 text-red-500" />
+      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-orange-50 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full shadow-xl border-0">
+          <CardHeader className="text-center space-y-6">
+            <div className="flex justify-center">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 flex items-center justify-center animate-pulse">
+                <Medal className="h-12 w-12 text-rose-500" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold tracking-tight">Không tìm thấy chứng chỉ</CardTitle>
-            <CardDescription className="text-base mt-2">
-              Xin lỗi, chúng tôi không thể tìm thấy chứng chỉ bạn yêu cầu. Vui lòng kiểm tra lại ID chứng chỉ hoặc quay lại trang quản lý chứng chỉ.
-            </CardDescription>
+            <div>
+              <CardTitle className="text-2xl font-bold text-gray-900">
+                Không tìm thấy chứng chỉ
+              </CardTitle>
+              <CardDescription className="text-base mt-2 text-gray-600">
+                Xin lỗi, chúng tôi không thể tìm thấy chứng chỉ bạn yêu cầu.
+              </CardDescription>
+            </div>
           </CardHeader>
-          <CardContent className="flex flex-col items-center">
-            <Alert variant="destructive" className="mb-6">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Lỗi</AlertTitle>
-              <AlertDescription>
+          <CardContent className="space-y-4">
+            <Alert variant="destructive" className="bg-rose-50 border-rose-200">
+              <AlertTitle className="text-rose-800 font-semibold">Có lỗi xảy ra</AlertTitle>
+              <AlertDescription className="text-rose-700">
                 {error}
               </AlertDescription>
             </Alert>
           </CardContent>
-          <CardFooter className="flex justify-center">
-            <Button 
+          <CardFooter className="flex justify-center pb-8">
+            <Button
               variant="outline"
-              className="flex items-center gap-2"
+              size="lg"
+              className="bg-white hover:bg-gray-50 border-2 transition-all duration-200 font-medium"
               onClick={() => navigate('/user/certificate')}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 mr-2" />
               Quay lại danh sách chứng chỉ
             </Button>
           </CardFooter>
@@ -155,28 +185,70 @@ const CertificateDetailPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <div ref={certificateRef}>
-        {certificate && (
-          <CertificateTemplate
-            studentName={certificate.student_name}
-            courseName={certificate.course_title}
-            completionDate={new Date(certificate.issue_at).toLocaleDateString('vi-VN')}
-          />
-        )}
-      </div>
-
-      <div className="flex justify-center items-center mb-6 mt-5">
-        <div className="flex gap-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4">
+      <div className="max-w-5xl mx-auto">
+        {/* Navigation */}
+        <div className="mb-8">
           <Button
-            onClick={downloadAsPNG}
-            disabled={downloading}
-            className="flex items-center gap-2"
+            variant="ghost"
+            className="text-gray-600 hover:text-gray-900"
+            onClick={() => navigate('/user/certificate')}
           >
-            <Download className="h-4 w-4" />
-            {downloading ? 'Downloading...' : 'Tải file ảnh - PNG'}
+            <ChevronLeft className="h-4 w-4 mr-2" />
+            Quay lại danh sách
           </Button>
         </div>
+
+        {/* Certificate Card */}
+        <Card className="shadow-xl border-0 bg-white/70 backdrop-blur-sm">
+          <CardHeader className="text-center border-b bg-white">
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Chứng chỉ khóa học
+            </CardTitle>
+            <CardDescription className="text-gray-600">
+              {certificate?.course_title}
+            </CardDescription>
+          </CardHeader>
+
+          {/* Certificate Preview */}
+          <CardContent className="p-6">
+            <div
+              ref={certificateRef}
+              className="rounded-lg overflow-hidden shadow-lg"
+            >
+              {certificate && (
+                <CertificateTemplate
+                  studentName={certificate.student_name}
+                  courseName={certificate.course_title}
+                  completionDate={new Date(certificate.issue_at).toLocaleDateString('vi-VN')}
+                />
+              )}
+            </div>
+          </CardContent>
+
+          {/* Action Buttons */}
+          <CardFooter className="flex justify-center gap-4 pb-8">
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 transition-all duration-200 shadow-md"
+              onClick={downloadAsPNG}
+              disabled={downloading}
+            >
+              <Download className="h-5 w-5 mr-2" />
+              {downloading ? 'Đang tải xuống...' : 'Tải chứng chỉ'}
+            </Button>
+
+            <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={shareFacebook}
+                    className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white border-0 transition-all duration-200 shadow-md"
+                  >
+                    <Facebook className="h-5 w-5 mr-2" />
+                    Chia sẻ Facebook
+                  </Button>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );
