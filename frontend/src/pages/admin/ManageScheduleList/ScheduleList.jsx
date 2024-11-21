@@ -1,28 +1,27 @@
-import React, { useEffect, useState } from 'react'
-import { ChevronDown, Search } from 'lucide-react'
-import axios from 'axios'
-
+import React, { useEffect, useState } from 'react';
+import { ChevronDown, Search } from 'lucide-react';
+import axios from 'axios';
 import {
     SidebarProvider,
     SidebarInset,
     SidebarTrigger,
-} from '@/components/ui/sidebar'
+} from '@/components/ui/sidebar';
 import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { Separator } from '@/components/ui/separator'
-import { Input } from '@/components/ui/input'
+} from '@/components/ui/breadcrumb';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 import {
     Table,
     TableBody,
@@ -30,24 +29,21 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/components/ui/table'
-import { SideBarUI } from '../sidebarUI'
-import { toast } from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
+} from '@/components/ui/table';
+import { SideBarUI } from '../sidebarUI';
+import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function ScheduleList() {
-    const API_KEY = import.meta.env.VITE_API_KEY
-    const API_URL = import.meta.env.VITE_API_URL
-    const navigate = useNavigate()
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
+    const navigate = useNavigate();
 
-    const [schedules, setSchedules] = useState([])
-    const [courses, setCourses] = useState([])
-    const [loadingSchedules, setLoadingSchedules] = useState(true)
-    const [loadingCourses, setLoadingCourses] = useState(true)
-    const [loadingLessons, setLoadingLessons] = useState(false)
-    const [searchTerm, setSearchTerm] = useState('')
-    const [filterCriteria, setFilterCriteria] = useState('all')
-    const [error, setError] = useState(null)
+    const [schedules, setSchedules] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterCriteria, setFilterCriteria] = useState('all');
+    const [error, setError] = useState(null);
 
     const checkAuth = () => {
         const token = localStorage.getItem("access_token");
@@ -59,152 +55,39 @@ export default function ScheduleList() {
         return token;
     };
 
-    const fetchSchedules = async () => {
-        const token = checkAuth();
-        if (!token) return;
+    useEffect(() => {
+        const fetchData = async () => {
+            const token = checkAuth();
+            if (!token) return;
 
-        setLoadingSchedules(true);
-        setError(null);
-        try {
-            const res = await axios.get(`${API_URL}/teacher/teaching-schedule`, {
-                headers: {
-                    'x-api-secret': API_KEY,
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            console.log("API Response for schedules:", res.data);
-
-            if (res.data?.data && Array.isArray(res.data.data)) {
-                const schedulesWithCourseId = res.data.data.map(schedule => ({
-                    ...schedule,
-                    course_id: schedule.course_id || schedule.content?.course_id
-                }));
-                console.log("Processed schedules:", schedulesWithCourseId);
-                setSchedules(schedulesWithCourseId);
-
-                await fetchCourses();
-                const uniqueCourseIds = [...new Set(schedulesWithCourseId.map(s => s.course_id))];
-                for (const courseId of uniqueCourseIds) {
-                    if (courseId) {
-                        await fetchContentLesson(courseId);
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await axios.get(`${API_URL}/teacher/teaching-schedule`, {
+                    headers: {
+                        'x-api-secret': API_KEY,
+                        'Authorization': `Bearer ${token}`
                     }
+                });
+
+                if (response.data?.data && Array.isArray(response.data.data)) {
+                    setSchedules(response.data.data);
+                } else {
+                    setSchedules([]);
+                    toast.info("Không có lịch dạy nào");
                 }
-            } else {
-                setSchedules([]);
-                toast.info("Không có lịch dạy nào");
+            } catch (error) {
+                console.error('Error fetching schedule:', error);
+                const errorMessage = error.response?.data?.message || 'Không thể tải dữ liệu';
+                setError(errorMessage);
+                toast.error(errorMessage);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error fetching schedules:', error);
-            const errorMessage = error.response?.data?.message || 'Không thể tải dữ liệu lịch dạy';
-            setError(errorMessage);
-            toast.error(errorMessage);
-        } finally {
-            setLoadingSchedules(false);
-        }
-    };
+        };
 
-    const fetchCourses = async () => {
-        const token = checkAuth();
-        if (!token) return;
-
-        setLoadingCourses(true);
-        try {
-            const res = await axios.get(`${API_URL}/admin/courses`, {
-                headers: {
-                    'x-api-secret': API_KEY,
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            if (Array.isArray(res.data)) {
-                setCourses(res.data);
-            }
-            else if (res.data?.data && Array.isArray(res.data.data)) {
-                setCourses(res.data.data);
-            }
-            else {
-                console.error("Unexpected courses data format:", res.data);
-                setCourses([]);
-                toast.error("Định dạng dữ liệu khóa học không đúng");
-            }
-        } catch (error) {
-            console.error('Error fetching courses:', error);
-            const errorMessage = error.response?.data?.message || 'Không thể tải dữ liệu khóa học';
-            setError(errorMessage);
-            toast.error(errorMessage);
-            setCourses([]);
-        } finally {
-            setLoadingCourses(false);
-        }
-    };
-    useEffect(() => {
-        fetchCourses();
-    }, []);
-
-    const [contentLesson, setContentLesson] = useState([]);
-    const [titleContent, setTitleContent] = useState([]);
-
-    const sortedContent = contentLesson.sort(
-        (a, b) => a.content_id - b.content_id
-    );
-    
-    const fetchTitleContent = async (contentId) => {
-        const token = localStorage.getItem("access_token");
-        try {
-            const res = await axios.get(`${API_URL}/title-contents/${contentId}`, {
-                headers: {
-                    "x-api-secret": `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            if (res.data && res.data.success) {
-                setTitleContent(prev => ({ ...prev, [contentId]: res.data.data }));
-
-            } else {
-                console.error("Dữ liệu không hợp lệ:", res.data);
-            }
-        } catch (error) {
-            console.error("Lỗi khi lấy chi tiết title_content:", error);
-        }
-    };
-
-    const fetchContentLesson = async (courseId) => {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            toast.error("Bạn chưa đăng nhập.");
-            navigate('/');
-            return;
-        }
-        try {
-            const res = await axios.get(`${API_URL}/contents`, {
-                headers: {
-                    "x-api-secret": `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-                params: { course_id: courseId }
-            });
-            console.log("API Response for Content Lessons:", res.data);
-
-            if (res.data && res.data.success && Array.isArray(res.data.data)) {
-                setContentLesson(res.data.data);
-            } else {
-                console.error("Dữ liệu không phải là mảng hoặc không thành công:", res.data);
-                toast.error("Dữ liệu không hợp lệ hoặc không thành công.");
-            }
-        } catch (error) {
-            console.error("Lỗi khi lấy nội dung bài học:", error);
-            toast.error("Có lỗi xảy ra khi tải nội dung bài học.");
-        }
-    };
-
-
-    const [course_id, setCourse_id] = useState(null);
-
-    useEffect(() => {
-        if (course_id) {
-            fetchContentLesson(course_id);
-        }
-    }, []);
+        fetchData();
+    }, [API_URL, API_KEY, navigate]);
 
     const filterSchedules = () => {
         if (!Array.isArray(schedules)) return [];
@@ -212,7 +95,9 @@ export default function ScheduleList() {
         return schedules.filter(item => {
             const matchesSearch =
                 (item.user?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-                (item.notes?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+                (item.notes?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                (item.online_meeting?.course?.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                (item.online_meeting?.content?.name_content?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
             if (!matchesSearch) return false;
 
@@ -258,43 +143,6 @@ export default function ScheduleList() {
             return 'Giờ không hợp lệ';
         }
     };
-    useEffect(() => {
-        fetchCourses();
-        fetchContentLesson(course_id);
-    }, []);
-
-    useEffect(() => {
-        console.log("Courses:", courses);
-    }, [courses]);
-
-    useEffect(() => {
-        console.log("Content Lessons:", contentLesson);
-    }, [contentLesson]);
-
-
-
-    const [teachers, setTeachers] = useState([]);
-    const fetchUsers = async () => {
-        try {
-            const res = await axios.get(`${API_URL}/admin/teachers`, {
-                headers: {
-                    'x-api-secret': API_KEY
-                }
-            });
-
-            if (res.data) {
-                console.log("Teacher data structure:", res.data[0]);
-                setTeachers(res.data);
-            }
-        } catch (error) {
-            console.error('Error fetching teachers:', error);
-        }
-    };
-    useEffect(() => {
-        fetchUsers();
-    }, [])
-
-
 
     return (
         <div className="h-screen">
@@ -333,7 +181,7 @@ export default function ScheduleList() {
                                     <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         type="text"
-                                        placeholder="Tìm kiếm giảng viên hoặc ghi chú..."
+                                        placeholder="Tìm kiếm giảng viên, khóa học, bài học..."
                                         className="pl-9 pr-4 py-2 w-full"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -371,19 +219,19 @@ export default function ScheduleList() {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="w-[100px] text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900">STT</TableHead>
+                                        <TableHead className="w-[60px] text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900">STT</TableHead>
                                         <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900">Tên giảng viên</TableHead>
                                         <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900">Khóa học</TableHead>
                                         <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900">Bài học</TableHead>
                                         <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900">Ngày dạy</TableHead>
-                                        <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900">Khung giờ</TableHead>
+                                        <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900 whitespace-nowrap">Khung giờ</TableHead>
                                         <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900">Link meet</TableHead>
                                         <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900">Ghi chú</TableHead>
                                         <TableHead className="text-center bg-yellow-100 text-md font-bold py-4 px-3 text-yellow-900">Trạng thái</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {(loadingSchedules || loadingCourses || loadingLessons) ? (
+                                    {loading ? (
                                         <TableRow>
                                             <TableCell colSpan={9} className="text-center">
                                                 <div className="flex items-center justify-center space-x-2">
@@ -400,46 +248,46 @@ export default function ScheduleList() {
                                         </TableRow>
                                     ) : (
                                         filterSchedules().map((schedule, index) => (
-                                            <TableRow key={schedule.id}>
-                                                <TableCell className="text-center">{index + 1}</TableCell> {/* STT */}
-                                                <TableCell className="text-center">
-                                                    {teachers.find(schedule =>
-                                                        schedule.user_id === schedule.user_id
-                                                    )?.name || 'Không tìm thấy giảng viên'}
+                                            <TableRow key={schedule.id} className="hover:bg-gray-50">
+                                                <TableCell className="text-center font-medium text-gray-600">{index + 1}</TableCell>
+                                                <TableCell className="text-center text-gray-800 font-medium">
+                                                    {schedule.user?.name || 'Không tìm thấy giảng viên'}
                                                 </TableCell>
-                                                <TableCell className="text-center">
-                                                    {courses.find(course => course.id === schedule.course_id)?.name || 'Chưa có thông tin'}
+                                                <TableCell className="text-center text-gray-700">
+                                                    {schedule.online_meeting?.course?.title || 'Chưa có thông tin'}
                                                 </TableCell>
-                                                <TableCell className="text-center">
-                                                    {contentLesson.find(lesson => lesson.content_id === schedule.content_id)?.name || 'Chưa có thông tin'}
+                                                <TableCell className="text-center text-gray-700">
+                                                    {schedule.online_meeting?.content?.name_content || 'Chưa có thông tin'}
                                                 </TableCell>
-                                                <TableCell className="text-center"> {/* Ngày dạy */}
+                                                <TableCell className="text-center font-medium text-gray-600 whitespace-nowrap">
                                                     {formatDate(schedule.proposed_start)}
                                                 </TableCell>
-                                                <TableCell className="text-center"> {/* Khung giờ */}
+                                                <TableCell className="text-center font-medium text-gray-600 whitespace-nowrap">
                                                     {formatTime(schedule.proposed_start)}
                                                 </TableCell>
-                                                <TableCell className="text-center"> {/* Link meet */}
-                                                    {schedule.meeting_url ? (
+                                                <TableCell className="text-center whitespace-nowrap">
+                                                    {schedule.online_meeting?.meeting_url ? (
                                                         <a
-                                                            href={schedule.meeting_url}
+                                                            href={schedule.online_meeting.meeting_url}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="text-blue-600 hover:underline"
+                                                            className="px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
                                                         >
                                                             Tham gia
                                                         </a>
                                                     ) : (
-                                                        'Chưa có link'
+                                                        <span className="text-gray-500">Chưa có link</span>
                                                     )}
                                                 </TableCell>
-                                                <TableCell className="text-center"> {/* Ghi chú */}
-                                                    {schedule.notes || 'Không có ghi chú'}
+                                                <TableCell className="text-center text-gray-600">
+                                                    {schedule.notes ||
+                                                        <span className="text-gray-400">Không có ghi chú</span>
+                                                    }
                                                 </TableCell>
-                                                <TableCell className="text-center"> {/* Trạng thái */}
-                                                    <span className={`px-2 py-1 rounded-full text-sm ${schedule.meeting_id
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-yellow-100 text-yellow-800'
+                                                <TableCell className="text-center whitespace-nowrap">
+                                                    <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${schedule.meeting_id
+                                                        ? 'bg-green-50 text-green-700 border border-green-200'
+                                                        : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
                                                         }`}>
                                                         {schedule.meeting_id ? 'Đã tạo meet' : 'Chưa tạo meet'}
                                                     </span>

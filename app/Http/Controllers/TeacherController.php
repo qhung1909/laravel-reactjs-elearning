@@ -169,7 +169,7 @@ class TeacherController extends Controller
                 'contents' => 'required|array',
                 'contents.*.content_id' => 'required|exists:contents,content_id',
                 'contents.*.name_content' => 'required|string|max:255',
-                'contents.*.is_online_meeting' => 'required|in:0,1'  
+                'contents.*.is_online_meeting' => 'nullable|in:0,1'  
             ]);
     
             if ($validator->fails()) {

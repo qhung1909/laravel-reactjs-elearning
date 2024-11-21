@@ -4,7 +4,7 @@ import { formatDate } from "@/components/FormatDay/Formatday";
 import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import { BadgeAlert, ChevronDown, ChevronUp, Edit, Heart, HeartOff, Trash, User } from "lucide-react";
+import { BadgeAlert, ChevronDown, ChevronUp, CircleUserRound, Edit, Heart, HeartOff, Trash, User } from "lucide-react";
 import { Calendar, Globe, BookOpen, Star, Gift } from "lucide-react";
 import { Play, Users, Book, Clock, Eye, ShoppingCart, X } from "lucide-react";
 
@@ -1345,9 +1345,9 @@ export const Detail = () => {
                                     <div key={teacher.user_id} className="flex items-start bg-white p-6 rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300">
                                         <Avatar>
                                             <AvatarImage
-                                                src={teacher.avatar || "https://github.com/shadcn.png"}
+                                                src={teacher.avatar}
                                                 alt={teacher.name}
-                                                className="rounded-full border border-gray-200"
+                                                className="rounded-full border border-gray-200 w-16 h-16"
                                             />
                                         </Avatar>
                                         <div className="ml-6 flex-grow">
@@ -1358,23 +1358,23 @@ export const Detail = () => {
                                                 {teacher.role === 'teacher' ? 'Giảng viên' : teacher.role}
                                             </p>
                                             <div className="flex items-center mb-4">
-                                                <span className="text-yellow-500 text-2xl font-bold">...</span>
-                                                <Star className="ml-1 w-6 h-6 text-yellow-500" />
-                                                <span className="text-gray-600 ml-2 text-lg font-medium">Đang cập nhật dữ liệu</span>
+                                                <span className="text-gray-600 text-lg font-medium">{teacher.email}</span>
                                             </div>
                                             <ul className="text-gray-600 mb-6 space-y-2">
                                                 <li className="flex items-center">
                                                     <Book className="w-5 h-5 mr-2 text-gray-500" />
-                                                    {teacher.total_courses || "Đang cập nhật dữ liệu"} Khóa học
+                                                    {teacher.total_courses} Khóa học
                                                 </li>
                                                 <li className="flex items-center">
                                                     <User className="w-5 h-5 mr-2 text-gray-500" />
-                                                    {teacher.course?.is_buy || "Đang cập nhật dữ liệu"} Học viên
+                                                    {teacher.is_buy || "Đang cập nhật"} Học viên
                                                 </li>
                                             </ul>
                                             <Accordion type="single" collapsible className="w-full">
                                                 <AccordionItem value="instructor-description">
-                                                    <AccordionTrigger className="text-black-600 hover:no-underline">Xem thêm</AccordionTrigger>
+                                                    <AccordionTrigger className="text-black-600 hover:no-underline">
+                                                        Xem thêm
+                                                    </AccordionTrigger>
                                                     <AccordionContent>
                                                         <p className="text-gray-700 leading-relaxed">
                                                             {teacher.description || 'Chưa có thông tin mô tả.'}

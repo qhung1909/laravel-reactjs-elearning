@@ -29,7 +29,6 @@ class ProgressController extends Controller
         $contentId = $request->input('content_id');
         $courseId = $request->input('course_id');
 
-        // Create progress if not exists
         $existingProgress = Progress::where('user_id', $userId)
             ->where('content_id', $contentId)
             ->first();

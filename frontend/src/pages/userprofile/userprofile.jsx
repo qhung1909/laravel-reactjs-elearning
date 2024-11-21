@@ -5,7 +5,7 @@ import { useEffect, useState, useContext } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import toast, { Toaster } from 'react-hot-toast';
 import { UserContext } from "../context/usercontext";
-
+import { User, History, Bell, Heart, Camera, Mail, Lock, Key } from "lucide-react";
 
 export const UserProfile = () => {
     const { user, updateUserProfile, updatePassword } = useContext(UserContext);
@@ -86,205 +86,247 @@ export const UserProfile = () => {
     }, [success]);
 
     return (
-        <>
-
-            <section className="userprofile my-10 mx-auto  px-4 lg:px-10 xl:px-20">
-                <div className="border border-gray-200 rounded-xl px-10 py-5 shadow-lg">
-                    <div className="py-5 border-b">
-                        <span className="font-semibold text-xl">Cài đặt</span>
-                        <p className="text-gray-500 text-sm">Quản lý cài đặt tài khoản của bạn</p>
+        <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-orange-50">
+            <section className="userprofile py-12 mx-auto px-4 lg:px-10 xl:px-20">
+                <div className="border-0 rounded-2xl px-8 py-6 shadow-xl bg-white/80 backdrop-blur-sm">
+                    {/* Header */}
+                    <div className="py-6 border-b border-gray-200/80">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-yellow-50 rounded-xl">
+                                <User className="w-5 h-5 text-yellow-600" />
+                            </div>
+                            <div>
+                                <h2 className="font-bold text-2xl bg-gradient-to-r from-yellow-500 to-yellow-600 bg-clip-text text-transparent">
+                                    Cài đặt tài khoản
+                                </h2>
+                                <p className="text-gray-500 text-sm mt-1">Quản lý cài đặt và thông tin tài khoản của bạn</p>
+                            </div>
+                        </div>
                     </div>
-                    <div className="lg:grid grid-cols-4 gap-5 ">
-                        <div className="col-span-1 my-3 lg:my-5 ">
-                            <ul className="gap-3 text-sm font-medium max-lg:items-center flex lg:flex-col">
-                                <li className="bg-gray-100 py-1 lg:py-2 px-3 rounded-md">
-                                    <Link to="/user/profile">
-                                        <p>Hồ sơ cá nhân</p>
+
+                    <div className="lg:grid grid-cols-4 gap-8">
+                        {/* Sidebar */}
+                        <div className="col-span-1 my-6">
+                            <ul className="gap-2 text-sm font-medium flex lg:flex-col">
+                                <li className="w-full">
+                                    <Link 
+                                        to="/user/profile"
+                                        className="flex items-center gap-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+                                    >
+                                        <User className="w-4 h-4" />
+                                        <span>Hồ sơ cá nhân</span>
                                     </Link>
                                 </li>
-                                <li className="py-3 lg:py-2 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/user/orderhistory">
-                                        <p>Lịch sử mua hàng</p>
+                                <li className="w-full">
+                                    <Link 
+                                        to="/user/orderhistory"
+                                        className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
+                                    >
+                                        <History className="w-4 h-4" />
+                                        <span>Lịch sử mua hàng</span>
                                     </Link>
                                 </li>
-                                <li className="py-3 lg:py-2 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/user/noti">
-                                        <p>Thông báo</p>
+                                <li className="w-full">
+                                    <Link 
+                                        to="/user/noti"
+                                        className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
+                                    >
+                                        <Bell className="w-4 h-4" />
+                                        <span>Thông báo</span>
                                     </Link>
                                 </li>
-                                <li className="py-3 lg:py-2 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/user/favorite">
-                                        <p>Yêu thích</p>
+                                <li className="w-full">
+                                    <Link 
+                                        to="/user/favorite"
+                                        className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
+                                    >
+                                        <Heart className="w-4 h-4" />
+                                        <span>Yêu thích</span>
                                     </Link>
                                 </li>
                             </ul>
                         </div>
-                        <div className="col-span-3 my-3 lg:my-5">
-                            <div className="border-b pb-5">
-                                <span className="font-medium">Thông tin cơ bản</span>
-                                <p className="text-sm text-gray-500 ">Người khác sẽ nhìn ra bạn với những thông tin dưới đây</p>
+
+                        {/* Main Content */}
+                        <div className="col-span-3 my-6">
+                            <div className="border-b pb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-yellow-50 rounded-xl">
+                                        <User className="w-5 h-5 text-yellow-500" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-lg">Thông tin cơ bản</h3>
+                                        <p className="text-sm text-gray-500">Thông tin hiển thị công khai của bạn</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="my-5">
+
+                            <div className="mt-6">
                                 <Tabs defaultValue="profile" className="w-full">
-                                    <TabsList>
-                                        <div className="bg-gray-200 p-1 rounded-xl">
-                                            {/* header 1 */}
-                                            <TabsTrigger value="profile" className="rounded-xl">
-                                                <div className=" py-2 text-base font-bold text-gray-600">
-                                                    Chỉnh sửa hồ sơ
-                                                </div>
-                                            </TabsTrigger>
-                                            {/* header 2 */}
-                                            <TabsTrigger value="password" className="rounded-xl">
-                                                <div className=" py-2 text-base font-bold text-gray-600">
-                                                    Mật khẩu
-                                                </div>
-                                            </TabsTrigger>
-                                        </div>
+                                    <TabsList className="bg-yellow-50/80 p-1 rounded-xl">
+                                        <TabsTrigger 
+                                            value="profile" 
+                                            className="data-[state=active]:bg-white data-[state=active]:text-yellow-600 data-[state=active]:shadow-sm rounded-lg transition-all duration-200"
+                                        >
+                                            <div className="flex items-center gap-2 py-2 px-4">
+                                                <User className="w-4 h-4" />
+                                                <span className="font-semibold">Chỉnh sửa hồ sơ</span>
+                                            </div>
+                                        </TabsTrigger>
+                                        <TabsTrigger 
+                                            value="password"
+                                            className="data-[state=active]:bg-white data-[state=active]:text-yellow-600 data-[state=active]:shadow-sm rounded-lg transition-all duration-200"
+                                        >
+                                            <div className="flex items-center gap-2 py-2 px-4">
+                                                <Lock className="w-4 h-4" />
+                                                <span className="font-semibold">Mật khẩu</span>
+                                            </div>
+                                        </TabsTrigger>
                                     </TabsList>
 
-                                    {/* account */}
-                                    <TabsContent value="profile">
+                                    <TabsContent value="profile" className="mt-6">
                                         <form onSubmit={handleUpdateProfile}>
-                                            {/* img */}
-                                            <div className="image mb-5">
-                                                <p className="font-bold text-sm my-5">Ảnh hồ sơ</p>
-                                                <div className="flex items-center gap-20">
-                                                    <div className=" border-gray-300 border rounded-2xl">
-                                                        <div className="w-52">
+                                            {/* Avatar Section */}
+                                            <div className="space-y-6">
+                                                <div className="flex items-center gap-8">
+                                                    <div className="relative group">
+                                                        <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
                                                             {currentAvatar ? (
-                                                                <img src={currentAvatar} alt="User Avatar" className="rounded-2xl w-full h-full object-cover" />
+                                                                <img src={currentAvatar} alt="Avatar" className="w-full h-full object-cover" />
                                                             ) : (
-                                                                <span className="text-gray-500 flex justify-center p-10">Ảnh</span>
+                                                                <div className="w-full h-full bg-yellow-50 flex items-center justify-center">
+                                                                    <User className="w-12 h-12 text-yellow-600" />
+                                                                </div>
                                                             )}
                                                         </div>
+                                                        <label 
+                                                            htmlFor="avatar-upload" 
+                                                            className="absolute bottom-0 right-0 p-2 bg-yellow-500 rounded-full text-white cursor-pointer shadow-lg hover:bg-yellow-500 transition-colors"
+                                                        >
+                                                            <Camera className="w-4 h-4" />
+                                                        </label>
+                                                        <input
+                                                            id="avatar-upload"
+                                                            type="file"
+                                                            className="hidden"
+                                                            onChange={handleFileChange}
+                                                        />
                                                     </div>
-                                                    <div>
-                                                        <Label className="font-medium text-sm mb-2">Nhập ảnh của bạn vào đây để cập nhật avatar</Label>
-                                                        <Input id="picture" type="file" onChange={handleFileChange} />
+                                                    <div className="flex-1">
+                                                        <h4 className="font-semibold mb-2">Ảnh hồ sơ</h4>
+                                                        <p className="text-sm text-gray-500">
+                                                            Chọn ảnh đại diện. Kích thước đề xuất 200x200px
+                                                        </p>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            {/* name  */}
-                                            <div className="mb-5">
+                                                {/* Name Input */}
                                                 <div className="space-y-2">
-                                                    <Label className="font-medium text-sm">Tên tài khoản</Label>
+                                                    <Label className="text-sm font-medium flex items-center gap-2">
+                                                        <User className="w-4 h-4 text-gray-500" />
+                                                        Tên hiển thị
+                                                    </Label>
                                                     <Input
-
-                                                        placeholder="Nhập tên tài khoản của bạn tại đây..."
-                                                        className="text-sm py-7"
                                                         value={userName}
                                                         onChange={(e) => setUserName(e.target.value)}
+                                                        className="h-12 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-400"
+                                                        placeholder="Nhập tên của bạn"
                                                     />
-                                                    <p className="text-xs text-gray-500">Đây là tên hiển thị công khai của bạn. Nó có thể là tên thật hoặc biệt danh của bạn.</p>
                                                 </div>
-                                            </div>
 
-                                            {/* email */}
-                                            <div className="mb-5">
+                                                {/* Email Input */}
                                                 <div className="space-y-2">
-                                                    <Label className="font-medium text-sm">Email</Label>
+                                                    <Label className="text-sm font-medium flex items-center gap-2">
+                                                        <Mail className="w-4 h-4 text-gray-500" />
+                                                        Email
+                                                    </Label>
                                                     <Input
-                                                        disabled
-                                                        placeholder="Nhập email của bạn tại đây..."
-                                                        className="text-sm py-7"
-                                                        type="email"
                                                         value={email}
-                                                        onChange={(e) => setEmail(e.target.value)}
+                                                        disabled
+                                                        className="h-12 px-4 bg-gray-50 border border-gray-200 rounded-xl"
                                                     />
-                                                    <p className="text-xs text-gray-500">Mỗi tài khoản chỉ sử dụng một email.</p>
                                                 </div>
-                                            </div>
-                                            <div className="my-5">
+
+                                                {/* Save Button */}
                                                 <button
                                                     type="submit"
-                                                    className="bg-yellow-400 p-3 font-bold rounded-xl"
                                                     disabled={isProfileSubmitting}
+                                                    className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-70"
                                                 >
-                                                    {isProfileSubmitting ? "Đang lưu..." : "Lưu hồ sơ"}
+                                                    {isProfileSubmitting ? (
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                            <span>Đang lưu...</span>
+                                                        </div>
+                                                    ) : (
+                                                        'Lưu thay đổi'
+                                                    )}
                                                 </button>
                                             </div>
                                         </form>
-
                                     </TabsContent>
 
-                                    {/* password */}
-                                    <TabsContent value="password">
-                                        <form onSubmit={handleChangePassword}>
-                                            <div className="bg-white rounded-xl py-5">
-                                                {/* header */}
-                                                <div className="px-8">
-                                                    <div className="">
-                                                        <span className="text-xl font-bold">Thay đổi mật khẩu</span>
-                                                    </div>
+                                    <TabsContent value="password" className="mt-6">
+                                        <form onSubmit={handleChangePassword} className="space-y-6">
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="p-2 bg-yellow-50 rounded-xl">
+                                                    <Key className="w-5 h-5 text-yellow-500" />
                                                 </div>
-                                                <hr className="my-5" />
-                                                {/* content */}
-                                                <div className="px-8">
-
-                                                    {/* current password */}
-                                                    <div className="my-5 gap-5">
-                                                        <div className="w-[100%]">
-                                                            <Label htmlFor="password" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Mật khẩu hiện tại</p></Label>
-                                                            <Input
-                                                                placeholder="Nhập mật khẩu hiện tại..."
-                                                                className="text-sm py-7"
-                                                                type="password"
-                                                                value={current_password}
-                                                                onChange={(e) => setCurrentPassword(e.target.value)}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    {/* new password */}
-                                                    <div className="my-5 gap-5">
-                                                        <div className="w-[100%]">
-                                                            <Label htmlFor="newpassword" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Mật khẩu mới</p></Label>
-                                                            <Input
-                                                                placeholder="Nhập mật khẩu mới..."
-                                                                className="text-sm py-7"
-                                                                type="password"
-                                                                value={password}
-                                                                onChange={(e) => setPassword(e.target.value)}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    {/* confirm password */}
-                                                    <div className="my-5 gap-5">
-                                                        <div className="w-[100%]">
-                                                            <Label htmlFor="confirmpassword" className="flex gap-2 text-base"><span className="text-red-600">*</span><p className="text-sm">Xác nhận mật khẩu</p></Label>
-                                                            <Input
-                                                                placeholder="Xác nhận mật khẩu mới..."
-                                                                className="text-sm py-7"
-                                                                type="password"
-                                                                value={password_confirmation}
-                                                                onChange={(e) => setPassword_Confirmation(e.target.value)}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    {/* save button */}
-                                                    <div className="my-5">
-                                                        <button className="bg-yellow-400 p-3 font-bold rounded-xl">Lưu mật khẩu</button>
-                                                    </div>
+                                                <div>
+                                                    <h3 className="font-semibold text-lg">Đổi mật khẩu</h3>
+                                                    <p className="text-sm text-gray-500">Cập nhật mật khẩu mới để bảo vệ tài khoản</p>
                                                 </div>
                                             </div>
 
+                                            {/* Password Fields */}
+                                            <div className="space-y-4">
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-medium">Mật khẩu hiện tại</Label>
+                                                    <Input
+                                                        type="password"
+                                                        value={current_password}
+                                                        onChange={(e) => setCurrentPassword(e.target.value)}
+                                                        className="h-12 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-400"
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-medium">Mật khẩu mới</Label>
+                                                    <Input
+                                                        type="password"
+                                                        value={password}
+                                                        onChange={(e) => setPassword(e.target.value)}
+                                                        className="h-12 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-400"
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-medium">Xác nhận mật khẩu</Label>
+                                                    <Input
+                                                        type="password"
+                                                        value={password_confirmation}
+                                                        onChange={(e) => setPassword_Confirmation(e.target.value)}
+                                                        className="h-12 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-400"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Save Button */}
+                                            <button
+                                                type="submit"
+                                                className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+                                            >
+                                                Cập nhật mật khẩu
+                                            </button>
                                         </form>
                                     </TabsContent>
                                 </Tabs>
-
-
                             </div>
                         </div>
                     </div>
                 </div>
-
             </section>
-            <Toaster />
-
-        </>
-    )
+            <Toaster position="top-center" />
+        </div>
+    );
 }

@@ -71,8 +71,9 @@ import { CmtCrud } from "./pages/admin/ManageComments/cmtCrud.jsx";
 import JitsiMeeting from "./pages/jitsi/jitsi.jsx";
 import ScheduleList from "./pages/admin/ManageScheduleList/ScheduleList.jsx";
 import ManageMeetRoom from "./pages/admin/ManageScheduleList/ManageMeetRoom.jsx";
-
-
+import CertificateDetailPage from "./pages/certificate/certificatePage.jsx";
+import ManageCertificate from "./pages/certificate/ManageCertificate.jsx";
+import ScheduleManagement from "./pages/schedule/template.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -93,10 +94,17 @@ function AppContent() {
             "/user/noti/:id",
             "/terms",
             "/aboutus",
+            "/certificate/:id",
+            "/user/certificate",
+            "/user/schedule"
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/") &&
         !location.pathname.startsWith("/user/noti/") &&
-        !location.pathname.startsWith("/blogs/");
+        !location.pathname.startsWith("/blogs/") &&
+        !location.pathname.startsWith("/user/schedule")&&
+        !location.pathname.startsWith("/certificate/");
+
+
 
     return (
         <>
@@ -104,6 +112,7 @@ function AppContent() {
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
                 <Route path="/demo" element={<Demo />}></Route>
+                <Route path="/user/certificate" element={<ManageCertificate />}></Route>
                 <Route path="/user/orderhistory" element={<UserOrderHistory />}></Route>
                 <Route path="/user/profile" element={<UserProfile />}></Route>
                 <Route path="/user/noti" element={<UserNoti />}></Route>
@@ -172,7 +181,9 @@ function AppContent() {
                 <Route path="/quizzes/:quiz_id" element={<Quizzes />}></Route>
                 <Route path="/notifications" element={<TaskList />}></Route>
                 <Route path="/lesson/meeting/:id" element={<JitsiMeeting />}></Route>
-
+                <Route path="/certificate/:id" element={<CertificateDetailPage />}></Route>
+                <Route path="/user/schedule" element={<ScheduleManagement />}></Route>
+                
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}
         </>
@@ -184,11 +195,11 @@ function App() {
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
             <Router>
                 <UserProvider>
-                    <CoursesProvider>
-                        <CategoriesProvider>
+                    <CategoriesProvider>
+                        <CoursesProvider>
                             <AppContent />
-                        </CategoriesProvider>
-                    </CoursesProvider>
+                        </CoursesProvider>
+                    </CategoriesProvider>
                 </UserProvider>
             </Router>
         </ThemeProvider>
