@@ -525,10 +525,9 @@ export const Lesson = () => {
                         endDate <= oneWeekLater &&
                         coupon.discount_price <= 100000; // 100k
                 });
-
-                setVoucher(validCoupons);
-                console.log(validCoupons);
-
+                if (validCoupons.length > 0) {
+                    setVoucher(validCoupons);
+                }
             } else {
                 console.error("Không có dữ liệu trả về:", res.data);
             }
@@ -985,17 +984,26 @@ export const Lesson = () => {
                                                                         <p className="text-green-600 font-bold text-center text-lg">
                                                                             🎉 Chúc mừng! Bạn đã trả lời đúng! 🎉
                                                                         </p>
-                                                                        <div className="bg-white rounded-lg p-3 border border-green-200">
-                                                                            <p className="text-sm text-gray-600 text-center">
-                                                                                <Gift className="inline w-5 h-5 mr-2 text-green-600" />Phần quà của bạn là voucher 24h:
-                                                                            </p>
-                                                                            <p className="text-lg font-mono font-bold text-center text-green-600 mt-1">
-                                                                                {randomVoucher}
-                                                                            </p>
-                                                                        </div>
-                                                                        <p className="text-xs text-center italic text-gray-500 mt-2">
-                                                                            Nhập voucher vào lần thanh toán khóa học sau nhé!
-                                                                        </p>
+                                                                        {voucher.length > 0 ? (
+                                                                            <div className="bg-white rounded-lg p-3 border border-green-200">
+                                                                                <p className="text-sm text-gray-600 text-center">
+                                                                                    <Gift className="inline w-5 h-5 mr-2 text-green-600" />
+                                                                                    Phần quà của bạn là voucher 24h:
+                                                                                </p>
+                                                                                <p className="text-lg font-mono font-bold text-center text-green-600 mt-1">
+                                                                                    {randomVoucher}
+                                                                                </p>
+                                                                                <p className="text-xs text-center italic text-gray-500 mt-2">
+                                                                                    Nhập voucher vào lần thanh toán khóa học sau nhé!
+                                                                                </p>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className="bg-red-50 rounded-xl p-4">
+                                                                                <p className="text-red-500 text-center font-medium text-sm">
+                                                                                    Tạm thời chưa có voucher khả dụng. Bạn có thể liên hệ giảng viên để nhận phần quà thay thế nhé! 🎁
+                                                                                </p>
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                 )}
 
