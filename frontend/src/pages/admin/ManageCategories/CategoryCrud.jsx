@@ -477,7 +477,7 @@ export const CategoryCrud = () => {
                                                         <img
                                                             src={category.image}
                                                             alt={`${category.name}`}
-                                                            className="h-16 w-16 object-cover rounded-lg mx-auto"
+                                                            className="h-22 w-20 object-cover rounded-lg mx-auto"
                                                         />
                                                     ) : (
                                                         <div className="h-16 w-16 rounded-lg bg-gray-100 flex items-center justify-center mx-auto">

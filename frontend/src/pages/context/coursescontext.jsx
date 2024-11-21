@@ -48,7 +48,7 @@ export const CoursesProvider = ({ children }) => {
                     'x-api-secret': `${API_KEY}`,
                 },
             });
-            const allCourses = response.data;
+            const allCourses = response.data;            
             setCourses(allCourses)
         } catch (error) {
             console.log('Error fetching categories', error)

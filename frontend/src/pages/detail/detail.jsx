@@ -47,6 +47,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ReactPlayer from "react-player";
 import { CoursesContext } from "../context/coursescontext";
 import { Separator } from "@radix-ui/react-context-menu";
+import { Sparkles } from 'lucide-react';
+
 // import { CategoriesContext } from "../context/categoriescontext";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -636,9 +638,25 @@ export const Detail = () => {
                 </Breadcrumb>
 
                 <div className="mt-8 max-w-3xl">
-                    <Badge className="mb-4 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 text-white font-bold text-lg py-2 px-3 rounded-full shadow-lg transform transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-xl hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 ">
-                        <Gift className="text-yellow-400 hover:text-yellow-500 transition-colors duration-300 ease-in-out mr-2" />
-                        <span>Khóa học online bắt đầu vào ngày 15-12-2024</span>
+                    <Badge className="
+  group mb-4 relative overflow-hidden text-lg py-3 px-6 rounded-full 
+  shadow-[0_0_15px_rgba(168,85,247,0.5)]
+  font-bold text-white
+  bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600
+  hover:shadow-[0_0_25px_rgba(168,85,247,0.7)]
+  transform transition-all duration-500 hover:scale-105
+  animate-shimmer hover:animate-pulse
+  border border-purple-400/30 backdrop-blur-sm">
+                        <div className="absolute inset-0 bg-gradient-to-r from-violet-600/40 via-fuchsia-600/40 to-pink-600/40 animate-pulse-slow"></div>
+                        <div className="relative flex items-center gap-2">
+                            <span className="animate-gradient">👨‍🏫 Khởi động Hành trình Học tập - Mở đăng ký từ
+                                <span className="inline-block bg-yellow-400 text-purple-900 px-2 py-0.5 rounded-md mx-1 animate-bounce">
+                                    15-12-2024
+                                </span>
+                                !
+                            </span>
+                            <Sparkles className="w-5 h-5 animate-bounce" />
+                        </div>
                     </Badge>
                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-white shadow-text">
                         {detail.title}
