@@ -38,6 +38,12 @@ export const NewPassword = () => {
 
     const newPassword = async () => {
         setLoading(false);
+
+        if (password.length < 6) {
+            setError('Mật khẩu phải ít nhất 6 kí tự');
+            return;
+        }
+
         if (!password || !password_confirmation) {
             setError('Vui lòng nhập đầy đủ thông tin');
             return;
@@ -47,6 +53,8 @@ export const NewPassword = () => {
             setError('Mật khẩu không khớp');
             return;
         }
+
+
 
 
         try {
