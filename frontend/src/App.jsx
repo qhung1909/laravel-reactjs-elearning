@@ -71,7 +71,7 @@ import { CmtCrud } from "./pages/admin/ManageComments/cmtCrud.jsx";
 import JitsiMeeting from "./pages/jitsi/jitsi.jsx";
 import ScheduleList from "./pages/admin/ManageScheduleList/ScheduleList.jsx";
 import ManageMeetRoom from "./pages/admin/ManageScheduleList/ManageMeetRoom.jsx";
-
+import CertificateDetailPage from "./pages/certificate/certificatePage.jsx";
 
 function AppContent() {
     const location = useLocation();
@@ -172,6 +172,7 @@ function AppContent() {
                 <Route path="/quizzes/:quiz_id" element={<Quizzes />}></Route>
                 <Route path="/notifications" element={<TaskList />}></Route>
                 <Route path="/lesson/meeting/:id" element={<JitsiMeeting />}></Route>
+                <Route path="/certificate/:id" element={<CertificateDetailPage />}></Route>
 
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}

@@ -183,7 +183,7 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/progress', [ProgressController::class, 'index']);
     Route::post('/progress/complete-content', [ProgressController::class, 'completeContent']);
 
-    Route::get('/certificate/details', [CertificateController::class, 'getCertificateDetails']);
+    Route::get('/certificate/details/{certificateId}', [CertificateController::class, 'getCertificateDetails']);
 
 });
 
