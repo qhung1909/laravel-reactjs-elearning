@@ -1,24 +1,22 @@
-import { Link } from "react-router-dom"
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import { useState, useEffect } from "react"
-import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
-import { formatDate } from "@/components/FormatDay/Formatday"
-import axios from "axios"
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { formatCurrency } from '@/components/Formatcurrency/formatCurrency';
+import { formatDate } from '@/components/FormatDay/Formatday';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ExternalLink, Eye, Heart, Trash2, User, History, Bell } from 'lucide-react';
+import { Link } from "react-router-dom";
+
+const API_KEY = import.meta.env.VITE_API_KEY;
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const UserOrderHistory = () => {
-    const API_KEY = import.meta.env.VITE_API_KEY;
-    const API_URL = import.meta.env.VITE_API_URL;
     const [orderHistory, setOrderHistory] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [user, setUser] = useState({});
+
     // Fetch thông tin user đang đăng nhập
     const fetchUser = async () => {
         setLoading(true);
@@ -34,7 +32,6 @@ export const UserOrderHistory = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            // Kiểm tra cấu trúc dữ liệu trả về
             if (res.data && res.data) {
                 setUser(res.data);
             } else {
@@ -54,9 +51,11 @@ export const UserOrderHistory = () => {
             setLoading(false);
         }
     };
+
     useEffect(() => {
         fetchUser();
     }, []);
+
     const fetchOrderHistory = async () => {
         const token = localStorage.getItem("access_token");
         const userId = user.user_id;
@@ -75,11 +74,11 @@ export const UserOrderHistory = () => {
             });
             const filteredOrders = response.data.data.filter(order => order.status === 'success');
             setOrderHistory(filteredOrders);
-
         } catch (error) {
             console.log('Error fetching order history', error);
         }
-    }
+    };
+
     useEffect(() => {
         if (user.user_id) {
             fetchOrderHistory();
@@ -105,7 +104,6 @@ export const UserOrderHistory = () => {
         }
         setLoading(false);
     };
-
 
     const renderOrderHistory = () => {
         if (loading) {
@@ -141,7 +139,6 @@ export const UserOrderHistory = () => {
                 </TableCell>
                 <TableCell className="sm:p-4 py-2 px-0 xl:w-[400px] lg:w-[250px] md:w-[200px] w-fit font-medium lg:text-base sm:text-sm text-xs">
                     <p className="line-clamp-2">
-                        {/* Lặp qua tất cả các sản phẩm và nối tên khóa học */}
                         {item.order_details && item.order_details.length > 0 ?
                             item.order_details.map(detail => detail.course.title).join(", ") :
                             "Đang tải tên khóa học"}
@@ -152,11 +149,9 @@ export const UserOrderHistory = () => {
                         {item.status === "success" ? "Thành công" : item.status}
                     </span>
                 </TableCell>
-
                 <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
                     <img src="/src/assets/images/logo-vnpay.jpg" alt="VNPay" className="w-32 h-14 object-contain pr-4" />
                 </TableCell>
-
                 <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
                     {formatDate(item.created_at)}
                 </TableCell>
@@ -167,89 +162,113 @@ export const UserOrderHistory = () => {
         ));
     };
 
-
-
-
-
     return (
-        <>
-            <section className="useraccount my-10 mx-auto  px-4 lg:px-10 xl:px-20">
-                <div className="border border-gray-200 rounded-xl px-10 py-5 shadow-lg">
-                    <div className="py-5 border-b">
-                        <span className="font-semibold text-xl">Cài đặt</span>
-                        <p className="text-gray-500 text-sm">Quản lý cài đặt tài khoản của bạn</p>
-                    </div>
-                    <div className="lg:grid grid-cols-4 gap-5 ">
-                        {/* ul list */}
-                        <div className="col-span-1 my-3 lg:my-5 ">
-                            <ul className="gap-3 text-sm font-medium max-lg:items-center flex lg:flex-col">
-                                <li className=" py-1 lg:py-2 px-3 rounded-md">
-                                    <Link to="/user/profile" className="hover:underline">
-                                        <p>Hồ sơ cá nhân</p>
-                                    </Link>
-                                </li>
-                                <li className="bg-gray-100  py-3 lg:py-2 px-3 rounded-md">
-                                    <Link to="/user/orderhistory">
-                                        <p>Lịch sử mua hàng</p>
-                                    </Link>
-                                </li>
-                                <li className="py-3 lg:py-2 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/user/noti">
-                                        <p>Thông báo</p>
-                                    </Link>
-                                </li>
-                                <li className="py-3 lg:py-2 px-3 rounded-md">
-                                    <Link className="hover:underline" to="/user/favorite">
-                                        <p>Yêu thích</p>
-                                    </Link>
-                                </li>
-                            </ul>
+        <section className="my-10 mx-auto px-4 lg:px-10 xl:px-20">
+            <div className="border-0 rounded-xl px-8 py-6 shadow-xl bg-white">
+                {/* Header */}
+                <div className="py-6 border-b border-gray-200/80">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-yellow-50 rounded-xl">
+                            <History className="w-5 h-5 text-yellow-500" />
                         </div>
-                        <div className="col-span-3 my-3 lg:my-5">
-                            <div className="border-b pb-5">
-                                <span className="font-medium">Lịch sử mua hàng của bạn</span>
-                                <p className="text-sm text-gray-500 ">Xem lại những giao dịch bạn đã hoàn thành.</p>
-                            </div>
-                            <div className="my-5">
-                                <form > {/*onSubmit={searchOrderHistory}*/}
-                                    {/* <div className="mb-4 flex items-center gap-2">
-                                        <Input
-                                            type="text"
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                            placeholder="Nhập để tìm kiếm khóa học của bạn..."
-                                            className="border p-5 rounded-lg w-1/2"
-                                        />
-                                        <Button type="submit" className="bg-blue-500 text-white p-5 rounded">
-                                            Tìm kiếm
-                                        </Button>
-                                    </div> */}
-                                    <div className="mb-5">
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow className="text-center">
-                                                    <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[50px]">STT</TableHead>
-                                                    <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[200px]">Tên khóa học</TableHead>
-                                                    <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[150px]">Trạng thái</TableHead>
-                                                    <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[150px]">Phương thức</TableHead>
-                                                    <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[150px]">Ngày mua</TableHead>
-                                                    <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[100px]">Giá</TableHead>
-                                                </TableRow>
-
-                                            </TableHeader>
-                                            <TableBody>
-                                                {renderOrderHistory()}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
-                                </form>
-                            </div>
+                        <div>
+                            <h2 className="font-bold text-xl bg-gradient-to-r from-yellow-400 to-yellow-500 bg-clip-text text-transparent">
+                                Lịch sử mua hàng
+                            </h2>
+                            <p className="text-gray-500 text-sm">Xem lại những giao dịch bạn đã hoàn thành.</p>
                         </div>
                     </div>
                 </div>
 
-            </section>
+                <div className="lg:grid grid-cols-4 gap-8">
+                    {/* Sidebar */}
+                    <div className="col-span-1 my-6">
+                        <ul className="gap-2 text-sm font-medium flex lg:flex-col">
+                            <li className="w-full">
+                                <Link 
+                                    to="/user/profile"
+                                    className="flex items-center gap-2 p-3 rounded-xl hover:bg-yellow-50 transition-all duration-200"
+                                >
+                                    <User className="w-4 h-4" />
+                                    <span>Hồ sơ cá nhân</span>
+                                </Link>
+                            </li>
+                            <li className="w-full">
+                                <Link 
+                                    to="/user/orderhistory"
+                                    className="flex items-center gap-2 p-3 rounded-xl bg-gradient-to-r from-yellow-400 to-yellow-500 text-white"
+                                >
+                                    <History className="w-4 h-4" />
+                                    <span>Lịch sử mua hàng</span>
+                                </Link>
+                            </li>
+                            <li className="w-full">
+                                <Link 
+                                    to="/user/noti"
+                                    className="flex items-center gap-2 p-3 rounded-xl hover:bg-yellow-50 transition-all duration-200"
+                                >
+                                    <Bell className="w-4 h-4" />
+                                    <span>Thông báo</span>
+                                </Link>
+                            </li>
+                            <li className="w-full">
+                                <Link 
+                                    to="/user/favorite"
+                                    className="flex items-center gap-2 p-3 rounded-xl hover:bg-yellow-50 transition-all duration-200"
+                                >
+                                    <Heart className="w-4 h-4" />
+                                    <span>Yêu thích</span>
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
 
-        </>
-    )
-}
+                    {/* Main Content */}
+                    <div className="col-span-3 my-6">
+                        <div className="pb-6 mb-6 border-b border-gray-200">
+                            <h3 className="text-lg font-semibold">Lịch sử mua hàng của bạn</h3>
+                            <p className="text-sm text-gray-500 mt-1">
+                                Xem lại những giao dịch bạn đã hoàn thành.
+                            </p>
+                        </div>
+
+                        <div>
+                            <form onSubmit={searchOrderHistory}>
+                                <div className="mb-4 flex items-center gap-2">
+                                    <Input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        placeholder="Nhập để tìm kiếm khóa học của bạn..."
+                                        className="border p-5 rounded-lg w-1/2"
+                                    />
+                                    <Button type="submit" className="bg-blue-500 text-white p-5 rounded">
+                                        Tìm kiếm
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div className="mb-5">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="text-center">
+                                        <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[50px]">STT</TableHead>
+                                        <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[200px]">Tên khóa học</TableHead>
+                                        <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[150px]">Trạng thái</TableHead>
+                                        <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[150px]">Phương thức</TableHead>
+                                        <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[150px]">Ngày mua</TableHead>
+                                        <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[100px]">Giá</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {renderOrderHistory()}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+};

@@ -174,6 +174,7 @@ export const UserProvider = ({ children }) => {
                     'x-api-secret': `${API_KEY}`,
                 },
             });
+            console.log(response);
             fetchUserData(); // Refresh user data
         } catch (error) {
             console.log('Error updating profile', error);
