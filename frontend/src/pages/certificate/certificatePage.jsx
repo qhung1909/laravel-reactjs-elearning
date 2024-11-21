@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import html2canvas from 'html2canvas';
 import CertificateTemplate from './certificate';
+import { Button } from "@/components/ui/button";
+import { Download, Printer } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -12,6 +15,8 @@ const CertificateDetailPage = () => {
   const [certificate, setCertificate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [downloading, setDownloading] = useState(false);
+  const certificateRef = useRef(null);
 
   useEffect(() => {
     const fetchCertificate = async () => {
@@ -37,7 +42,6 @@ const CertificateDetailPage = () => {
       } catch (err) {
         setError(err.message);
         if (err.message.includes('Please log in')) {
-          // Optional: Redirect to login page if not authenticated
           navigate('/login');
         }
       } finally {
@@ -54,6 +58,49 @@ const CertificateDetailPage = () => {
 
     fetchCertificate();
   }, [id, navigate]);
+
+  const downloadAsPNG = async () => {
+    try {
+      setDownloading(true);
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const certificateElement = certificateRef.current;
+      if (!certificateElement) {
+        throw new Error('Certificate element not found');
+      }
+
+      const canvas = await html2canvas(certificateElement, {
+        scale: 2, 
+        useCORS: true, 
+        backgroundColor: null,
+        logging: false,
+      });
+
+      const blob = await new Promise(resolve => {
+        canvas.toBlob(resolve, 'image/png', 1.0);
+      });
+
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `certificate-${certificate.course_title}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading certificate:', error);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const printCertificate = () => {
+    window.print();
+  };
 
   if (loading) {
     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
@@ -75,13 +122,31 @@ const CertificateDetailPage = () => {
 
   return (
     <div className="container mx-auto p-4">
-      {certificate && (
-        <CertificateTemplate
-        studentName={certificate.student_name} // Sử dụng tên từ API
-        courseName={certificate.course_title}
-        completionDate={new Date(certificate.issue_at).toLocaleDateString('vi-VN')}
-        />
-      )}
+
+
+      <div ref={certificateRef}>
+        {certificate && (
+          <CertificateTemplate
+            studentName={certificate.student_name}
+            courseName={certificate.course_title}
+            completionDate={new Date(certificate.issue_at).toLocaleDateString('vi-VN')}
+          />
+        )}
+      </div>
+
+      <div className="flex justify-center items-center mb-6 mt-5">
+        
+        <div className="flex gap-4">
+          <Button
+            onClick={downloadAsPNG}
+            disabled={downloading}
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            {downloading ? 'Downloading...' : 'Tải file ảnh - PNG'}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

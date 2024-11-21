@@ -28,7 +28,7 @@ const CertificateTemplate = ({ studentName, courseName, completionDate }) => {
                             <p className="flex justify-center">
                                 <img src="/src/assets/images/antlearn.png" className="w-28" alt="" />
                             </p>
-                            <p className="text-2xl font-medium mt-1 text-center font-title uppercase">
+                            <p className="text-2xl font-medium text-center font-title uppercase tracking-wide text-amber-700">
                                 Ứng dụng học trực tuyến số 1 Việt Nam.
                             </p>
                         </div>
@@ -37,11 +37,13 @@ const CertificateTemplate = ({ studentName, courseName, completionDate }) => {
                     <div className="text-center space-y-4 font-title">
                         <h1 className="text-6xl font-bold mb-4">Chứng nhận</h1>
                         <h2 className="text-4xl text-amber-700 font-serif font-bold">{studentName}</h2>
-                        <p className="text-xl text-amber-700 tracking-wide">Đã hoàn thành khóa học</p>
+                        <p className="text-2xl text-amber-700 tracking-wide">Đã hoàn thành xuất sắc khóa học</p>
                     </div>
                     {/* Khóa học */}
-                    <div className="text-center my-10">
-                        <p className="text-lg mb-6">{courseName}</p>
+                    <div className="text-center my-12">
+                        <p className="text-3xl  text-slate-700 border-t-2 border-b-2 border-amber-200 py-4 px-8 inline-block">
+                            {courseName}
+                        </p>
                     </div>
                     {/* Footer */}
                     <div className="flex justify-between items-center mt-16 px-10">

@@ -93,10 +93,13 @@ function AppContent() {
             "/user/noti/:id",
             "/terms",
             "/aboutus",
+            "/certificate/:id"
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/") &&
         !location.pathname.startsWith("/user/noti/") &&
-        !location.pathname.startsWith("/blogs/");
+        !location.pathname.startsWith("/blogs/") &&
+        !location.pathname.startsWith("/certificate/"); 
+
 
     return (
         <>
@@ -185,11 +188,11 @@ function App() {
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
             <Router>
                 <UserProvider>
-                    <CoursesProvider>
-                        <CategoriesProvider>
+                    <CategoriesProvider>
+                        <CoursesProvider>
                             <AppContent />
-                        </CategoriesProvider>
-                    </CoursesProvider>
+                        </CoursesProvider>
+                    </CategoriesProvider>
                 </UserProvider>
             </Router>
         </ThemeProvider>
