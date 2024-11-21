@@ -4,7 +4,9 @@ import { useEffect, useState, useContext } from "react";
 import {
     LogOut,
     User,
-    BookOpen
+    BookOpen,
+    CreditCard,
+    GraduationCap 
 } from "lucide-react"
 import './header.css'
 import {
@@ -425,14 +427,7 @@ export const Header = () => {
                                                             </span>
                                                         </DropdownMenuItem>
 
-
-                                                        {/* Billing */}
-                                                        {/* <DropdownMenuItem>
-                                                            <CreditCard className="mr-2 h-4 w-4" />
-                                                            <Link>
-                                                                <span>Billing</span>
-                                                            </Link>
-                                                        </DropdownMenuItem> */}
+                                                                
 
                                                         {/* khóa học của tôi */}
                                                         <DropdownMenuItem>
@@ -483,6 +478,14 @@ export const Header = () => {
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>
                                                         </DropdownMenuItem>
+                                                        
+                                                        <DropdownMenuItem>
+                                                            <GraduationCap  className="mr-2 h-4 w-4" />
+                                                            <Link>
+                                                                <span>Quản lí chứng chỉ</span>
+                                                            </Link>
+                                                        </DropdownMenuItem>
+
 
                                                         {/* setting */}
                                                         {/* <DropdownMenuItem>

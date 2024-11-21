@@ -34,9 +34,9 @@ const CertificateTemplate = ({ studentName, courseName, completionDate }) => {
                         </div>
                     </div>
                     {/* Tên chứng nhận - tên người hoàn thành */}
-                    <div className="text-center space-y-4 font-title">
-                        <h1 className="text-6xl font-bold mb-4">Chứng nhận</h1>
-                        <h2 className="text-4xl text-amber-700 font-serif font-bold">{studentName}</h2>
+                    <div className="text-center space-y-1 font-title">
+                        <h1 className="text-6xl font-bold pb-4">Chứng nhận</h1>
+                        <h2 className="text-4xl text-amber-700 font-serif font-bold pt-2 pb-4">{studentName}</h2>
                         <p className="text-2xl text-amber-700 tracking-wide">Đã hoàn thành xuất sắc khóa học</p>
                     </div>
                     {/* Khóa học */}

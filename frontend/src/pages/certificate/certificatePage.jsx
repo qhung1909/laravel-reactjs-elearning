@@ -3,7 +3,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import CertificateTemplate from './certificate';
 import { Button } from "@/components/ui/button";
-import { Download, Printer } from "lucide-react";
+import { Download, Printer, AlertCircle, ChevronLeft, FileX } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -98,32 +107,55 @@ const CertificateDetailPage = () => {
     }
   };
 
-  const printCertificate = () => {
-    window.print();
-  };
-
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto p-4">
-        <button 
-          onClick={() => navigate('/certificates')}
-          className="mb-4 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
-        >
-          Back to Certificates
-        </button>
-        <div className="text-red-500 text-center">{error}</div>
+      <div className="min-h-screen bg-gray-50/50 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center">
+                <FileX className="h-10 w-10 text-red-500" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl font-bold tracking-tight">Không tìm thấy chứng chỉ</CardTitle>
+            <CardDescription className="text-base mt-2">
+              Xin lỗi, chúng tôi không thể tìm thấy chứng chỉ bạn yêu cầu. Vui lòng kiểm tra lại ID chứng chỉ hoặc quay lại trang quản lý chứng chỉ.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center">
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Lỗi</AlertTitle>
+              <AlertDescription>
+                {error}
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <Button 
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={() => navigate('/user/certificate')}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Quay lại danh sách chứng chỉ
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto p-4">
-
-
       <div ref={certificateRef}>
         {certificate && (
           <CertificateTemplate
@@ -135,7 +167,6 @@ const CertificateDetailPage = () => {
       </div>
 
       <div className="flex justify-center items-center mb-6 mt-5">
-        
         <div className="flex gap-4">
           <Button
             onClick={downloadAsPNG}

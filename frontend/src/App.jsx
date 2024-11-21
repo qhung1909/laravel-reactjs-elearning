@@ -72,7 +72,7 @@ import JitsiMeeting from "./pages/jitsi/jitsi.jsx";
 import ScheduleList from "./pages/admin/ManageScheduleList/ScheduleList.jsx";
 import ManageMeetRoom from "./pages/admin/ManageScheduleList/ManageMeetRoom.jsx";
 import CertificateDetailPage from "./pages/certificate/certificatePage.jsx";
-
+import ManageCertificate from "./pages/certificate/ManageCertificate.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -93,7 +93,8 @@ function AppContent() {
             "/user/noti/:id",
             "/terms",
             "/aboutus",
-            "/certificate/:id"
+            "/certificate/:id",
+            "/user/certificate"
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/") &&
         !location.pathname.startsWith("/user/noti/") &&
@@ -107,6 +108,7 @@ function AppContent() {
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
                 <Route path="/demo" element={<Demo />}></Route>
+                <Route path="/user/certificate" element={<ManageCertificate />}></Route>
                 <Route path="/user/orderhistory" element={<UserOrderHistory />}></Route>
                 <Route path="/user/profile" element={<UserProfile />}></Route>
                 <Route path="/user/noti" element={<UserNoti />}></Route>
@@ -176,7 +178,7 @@ function AppContent() {
                 <Route path="/notifications" element={<TaskList />}></Route>
                 <Route path="/lesson/meeting/:id" element={<JitsiMeeting />}></Route>
                 <Route path="/certificate/:id" element={<CertificateDetailPage />}></Route>
-
+                
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}
         </>
