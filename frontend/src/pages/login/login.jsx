@@ -176,9 +176,9 @@ export const Login = () => {
             }
 
             if (res.status === 403) {
-                const errorMessage = res.data.error || 'Tài khoản của bạn đã bị khóa. Vui lòng thử lại sau.'; // Lấy thông báo lỗi từ API
-                setError(errorMessage); // Hiển thị thông báo từ API
-                notify(errorMessage, 'error'); // Gọi notify để hiển thị thông báo
+                const errorMessage = res.data.error || 'Tài khoản của bạn đã bị khóa. Vui lòng thử lại sau.';
+                setError(errorMessage);
+                notify(errorMessage, 'error');
                 return;
             }
 
@@ -214,7 +214,7 @@ export const Login = () => {
                 : 'Đã xảy ra lỗi: ' + error.message;
 
             setError(errorMessage);
-            notify(errorMessage, 'error');
+            notify(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -336,9 +336,9 @@ export const Login = () => {
     const submit = (e) => {
         e.preventDefault();
         if (!email || !password) {
-            setError('Vui lòng nhập đầy đủ thông tin'); // Thiết lập thông báo lỗi
-            notify('Vui lòng nhập đầy đủ thông tin', 'error'); // Hiển thị thông báo lỗi
-            return; // Dừng lại nếu không có thông tin đầy đủ
+            setError('Vui lòng nhập đầy đủ thông tin');
+            notify('Vui lòng nhập đầy đủ thông tin', 'error');
+            return;
         }
         debouncedLogin();
     };
