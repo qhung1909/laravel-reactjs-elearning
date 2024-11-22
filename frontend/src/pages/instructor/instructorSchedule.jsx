@@ -185,8 +185,8 @@ export const InstructorSchedule = () => {
                                     </Link>
                                 </li>
                                 <li className="mb-3">
-                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
-                                        <div className="bg-yellow-400 mr-3 px-1 rounded-full">
+                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                        <div className=" mr-3 px-1 rounded-full">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Lịch sử mua hàng</p>
@@ -209,8 +209,8 @@ export const InstructorSchedule = () => {
                                     </Link>
                                 </li>
                                 <li className="mb-3">
-                                    <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                        <div className=" mr-3 px-1 rounded-full">
+                                    <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
+                                        <div className="bg-yellow-400 mr-3 px-1 rounded-full">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/instructorschedule.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Thông tin lịch học</p>
@@ -311,8 +311,8 @@ export const InstructorSchedule = () => {
                                                                     </Link>
                                                                 </li>
                                                                 <li className="mb-3">
-                                                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
-                                                                        <div className="bg-yellow-400 mr-3 px-1 rounded-full">
+                                                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                        <div className=" mr-3 px-1 rounded-full">
                                                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
                                                                         </div>
                                                                         <p className="font-semibold text-base">Lịch sử mua hàng</p>
@@ -335,8 +335,8 @@ export const InstructorSchedule = () => {
                                                                     </Link>
                                                                 </li>
                                                                 <li className="mb-3">
-                                                                    <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                        <div className=" mr-3 px-1 rounded-full">
+                                                                    <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
+                                                                        <div className="bg-yellow-400 mr-3 px-1 rounded-full">
                                                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/instructorschedule.svg" className="w-7" alt="" />
                                                                         </div>
                                                                         <p className="font-semibold text-base">Thông tin lịch học</p>
@@ -354,7 +354,7 @@ export const InstructorSchedule = () => {
                         </div>
                         {/* Schedule content */}
                         <div className=" md:p-6 p-2 max-lg:h-screen">
-                        <div className="my-5 bg-white rounded-3xl p-3">
+                            <div className="my-5 bg-white rounded-3xl p-3">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>

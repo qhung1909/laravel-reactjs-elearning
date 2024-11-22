@@ -34,6 +34,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { UserContext } from "../context/usercontext";
 import { CategoriesContext } from "../context/categoriescontext";
 import { CoursesContext } from "../context/coursescontext";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 import axios from "axios";
 import NotificationDropdown from "../pusher/pusher";
 export const Header = () => {
@@ -358,16 +364,31 @@ export const Header = () => {
 
                                         {/* content - right */}
                                         <div className="navbar-icons flex items-center justify-center gap-3 xl:mx-3">
-                                            <div>
-                                            <Link to='/user/schedule'>
-                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/calendar-svgrepo-com.svg" className="w-10" alt="" />
-                                            </Link>
-                                            </div>
-                                              
+                                            
+                                                <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger> <Link to='/user/schedule'>
+                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/calendar-svgrepo-com.svg" className="w-10" alt="" />
+                                                        </Link></TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Lịch học online</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+
+                                          
+
 
                                             {/* Notification */}
-                                            {user && <NotificationDropdown userId={user.user_id} />}
 
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger>{user && <NotificationDropdown userId={user.user_id} />}</TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Thông báo</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
 
                                             {/* language */}
                                             {/* <div className="navbar-language cursor-pointer">
@@ -375,11 +396,21 @@ export const Header = () => {
                                         </div> */}
 
                                             {/* cart */}
-                                            <div className="">
-                                                <Link to='/cart'>
-                                                    <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-10" alt="" />
-                                                </Link>
-                                            </div>
+                                                
+
+                                                <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger><Link to='/cart'>
+                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-10" alt="" />
+                                                        </Link></TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Giỏ hàng</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+
+
+                                           
 
                                             {/* user - avataruser - avatar */}
                                             <div className="cursor-pointer">

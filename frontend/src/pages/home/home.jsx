@@ -5,6 +5,9 @@ import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CategoriesContext } from "../context/categoriescontext";
 import { CoursesContext } from "../context/coursescontext";
+import { User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 

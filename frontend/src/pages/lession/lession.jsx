@@ -34,48 +34,48 @@ export const Lesson = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showMiniGame, setShowMiniGame] = useState(false);
     //fetchLesson
-    useEffect(() => {
-        const fetchLesson = async () => {
-            if (!slug) return;
+    const fetchLesson = async () => {
+        if (!slug) return;
 
-            try {
-                const token = localStorage.getItem("access_token");
-                if (!token) {
-                    toast.error("Bạn chưa đăng nhập.");
+        try {
+            const token = localStorage.getItem("access_token");
+            if (!token) {
+                toast.error("Bạn chưa đăng nhập.");
+                navigate('/');
+                return;
+            }
+            const res = await axios.get(`${API_URL}/lessons/${slug}`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                },
+            });
+
+            if (res.data) {
+                setLesson(res.data);
+                if (!user?.user_id) {
+                    toast.error("Không tìm thấy thông tin người dùng.");
                     navigate('/');
                     return;
                 }
-                const res = await axios.get(`${API_URL}/lessons/${slug}`, {
-                    headers: {
-                        "x-api-secret": `${API_KEY}`,
-                    },
-                });
+                // Đảm bảo có course_id trước khi kiểm tra payment
+                if (res.data.course_id) {
+                    await checkPaymentCourse(user.user_id, res.data.course_id);
 
-                if (res.data) {
-                    setLesson(res.data);
-                    if (!user?.user_id) {
-                        toast.error("Không tìm thấy thông tin người dùng.");
-                        navigate('/');
-                        return;
+                    //hàm gọi để truyền course_id
+                    fetchContentLesson(res.data.course_id);
+                    const CourseMiniGame = courses.find(course => course.course_id === res.data.course_id);
+                    if (CourseMiniGame && parseFloat(CourseMiniGame.price_discount) >= 1500000) {
+                        setShowMiniGame(true);
                     }
-                    // Đảm bảo có course_id trước khi kiểm tra payment
-                    if (res.data.course_id) {
-                        await checkPaymentCourse(user.user_id, res.data.course_id);
-
-                        //hàm gọi để truyền course_id
-                        fetchContentLesson(res.data.course_id);
-                        const CourseMiniGame = courses.find(course => course.course_id === res.data.course_id);
-                        if (CourseMiniGame && parseFloat(CourseMiniGame.price_discount) >= 1500000) {
-                            setShowMiniGame(true);
-                        }
-                    } else {
-                        console.error("Không tìm thấy course_id của bài học");
-                    }
+                } else {
+                    console.error("Không tìm thấy course_id của bài học");
                 }
-            } catch (error) {
-                console.error("Lỗi khi lấy dữ liệu bài học:", error);
             }
-        };
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu bài học:", error);
+        }
+    };
+    useEffect(() => {
         if (user?.user_id) {
             fetchLesson();
         }
@@ -494,7 +494,7 @@ export const Lesson = () => {
     const [voucher, setVoucher] = useState([]);
     const [randomVoucher, setRandomVoucher] = useState(null);
 
-    const correctAnswer = 'Tim';
+    const correctAnswer = 'HyperText Markup Language';
 
     const fetchCoupons = async () => {
         const token = localStorage.getItem("access_token");
@@ -512,24 +512,22 @@ export const Lesson = () => {
             });
 
             if (res.data) {
-                // Lấy ngày hiện tại
                 const currentDate = new Date();
                 currentDate.setHours(0, 0, 0, 0);
 
-                // Tạo ngày tiếp theo
-                const nextDate = new Date(currentDate);
-                nextDate.setDate(currentDate.getDate() + 1); // Cộng thêm 1 ngày
+                const oneWeekLater = new Date(currentDate);
+                oneWeekLater.setDate(currentDate.getDate() + 3); // 3 days
 
-                // Lọc các coupon hết hạn vào ngày tiếp theo
                 const validCoupons = res.data.filter(coupon => {
-                    const DateEndVoucher = new Date(coupon.end_discount);
-                    DateEndVoucher.setHours(0, 0, 0, 0);
-                    // Kiểm tra nếu ngày hết hạn trùng với ngày tiếp theo
-                    return DateEndVoucher.getTime() === nextDate.getTime();
+                    const endDate = new Date(coupon.end_discount);
+                    endDate.setHours(0, 0, 0, 0);
+                    return endDate >= currentDate &&
+                        endDate <= oneWeekLater &&
+                        coupon.discount_price <= 100000; // 100k
                 });
-
-                // Cập nhật state với danh sách coupon hợp lệ
-                setVoucher(validCoupons);
+                if (validCoupons.length > 0) {
+                    setVoucher(validCoupons);
+                }
             } else {
                 console.error("Không có dữ liệu trả về:", res.data);
             }
@@ -956,7 +954,7 @@ export const Lesson = () => {
                                                             <div className="space-y-6">
                                                                 <div className="bg-indigo-50 p-4 rounded-xl">
                                                                     <p className="text-gray-700 text-center font-medium">
-                                                                        Câu hỏi: Ai là người phát minh ra World Wide Web?
+                                                                        Câu hỏi: HTML là viết tắt của cụm từ gì?
                                                                     </p>
                                                                 </div>
 
@@ -986,17 +984,26 @@ export const Lesson = () => {
                                                                         <p className="text-green-600 font-bold text-center text-lg">
                                                                             🎉 Chúc mừng! Bạn đã trả lời đúng! 🎉
                                                                         </p>
-                                                                        <div className="bg-white rounded-lg p-3 border border-green-200">
-                                                                            <p className="text-sm text-gray-600 text-center">
-                                                                                <Gift className="inline w-5 h-5 mr-2 text-green-600" />Phần quà của bạn là voucher 24h:
-                                                                            </p>
-                                                                            <p className="text-lg font-mono font-bold text-center text-green-600 mt-1">
-                                                                                {randomVoucher}
-                                                                            </p>
-                                                                        </div>
-                                                                        <p className="text-xs text-center italic text-gray-500 mt-2">
-                                                                            Nhập voucher vào lần thanh toán khóa học sau nhé!
-                                                                        </p>
+                                                                        {voucher.length > 0 ? (
+                                                                            <div className="bg-white rounded-lg p-3 border border-green-200">
+                                                                                <p className="text-sm text-gray-600 text-center">
+                                                                                    <Gift className="inline w-5 h-5 mr-2 text-green-600" />
+                                                                                    Phần quà của bạn là voucher 72h:
+                                                                                </p>
+                                                                                <p className="text-lg font-mono font-bold text-center text-green-600 mt-1">
+                                                                                    {randomVoucher}
+                                                                                </p>
+                                                                                <p className="text-xs text-center italic text-gray-500 mt-2">
+                                                                                    Nhập voucher vào lần thanh toán khóa học sau nhé!
+                                                                                </p>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className="bg-red-50 rounded-xl p-4">
+                                                                                <p className="text-red-500 text-center font-medium text-sm">
+                                                                                    Tạm thời chưa có voucher khả dụng. Bạn có thể liên hệ giảng viên để nhận phần quà thay thế nhé! 🎁
+                                                                                </p>
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                 )}
 
