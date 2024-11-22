@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, Book, Search, Filter, BadgeHelp } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, Book, Search, Filter, BadgeHelp, Calculator } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import ReactPlayer from "react-player";
@@ -417,6 +417,7 @@ export default function BrowseNewCourses() {
     useEffect(() => {
         fetchCourses();
     }, []);
+
     //tính điểm gpt
     const calculateCourseScore = async (courseId) => {
         try {
@@ -517,6 +518,8 @@ export default function BrowseNewCourses() {
             return null;
         }
     };
+
+
     const handleCalculateScore = async (courseId) => {
         try {
             // Gọi hàm calculateCourseScore và lấy kết quả
@@ -535,6 +538,13 @@ export default function BrowseNewCourses() {
             toast.error('Có lỗi xảy ra khi tính điểm khóa học.');
         }
     };
+
+    const [scores, setScores] = useState({
+        titleScore: 0,
+        descriptionScore: 0,
+        finalScore: 0,
+        explanation: ''
+    });
 
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -720,41 +730,6 @@ export default function BrowseNewCourses() {
                                             </button>
                                         </TabsList>
 
-
-
-                                        {/* <TabsContent value="info">
-                                            {activeCourse ? (
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center">
-                                                        <label className="font-semibold mr-2">Giảng viên:</label>
-                                                        <p>{activeCourse.user.name}</p>
-                                                    </div>
-                                                    <div className="flex items-center w-full">
-                                                        <label className="font-semibold mr-2">Mô tả:</label>
-                                                        <p className="break-words">{activeCourse.description}</p>
-                                                    </div>
-                                                    <div className="flex items-center">
-                                                        <label className="font-semibold mr-2">Thời lượng: </label>
-                                                        <p>{activeCourse.duration}10 giờ</p>
-                                                    </div>
-                                                    <div className="flex items-center">
-                                                        <label className="font-semibold mr-2">Cấp độ:</label>
-                                                        <p>{activeCourse.level}Khá</p>
-                                                    </div>
-                                                    <div className="flex items-center">
-                                                        <label className="font-semibold mr-2">Giá:</label>
-                                                        <p>{formatCurrency(activeCourse.price)}</p>
-                                                    </div>
-                                                    <div className="flex items-center">
-                                                        <label className="font-semibold mr-2">Yêu cầu tiên quyết:</label>
-                                                        <p className="break-words">{activeCourse.prerequisites}</p>
-                                                    </div>
-                                                </div>
-
-                                            ) : (
-                                                <p>Thông tin khóa học sẽ xuất hiện ở đây.</p>
-                                            )}
-                                        </TabsContent> */}
                                         <TabsContent value="info">
                                             {activeCourse ? (
                                                 <div className="grid grid-cols-2 gap-8">
@@ -967,6 +942,89 @@ export default function BrowseNewCourses() {
 
                                     {/* Action Buttons */}
                                     <div className="flex gap-4 mt-6">
+                                        {/* Tính điểm */}
+                                        <Button
+                                            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                                            onClick={async () => {
+                                                const result = await calculateCourseScore(activeCourse?.course_id);
+                                                if (result) {
+                                                    setScores({
+                                                        titleScore: result.titleScore || 0,
+                                                        descriptionScore: result.descriptionScore || 0,
+                                                        finalScore: result.finalScore,
+                                                        explanation: result.explanation
+                                                    });
+                                                }
+                                                handleCalculateScore(activeCourse?.course_id);
+                                            }}
+                                        >
+                                            <Calculator className="mr-2 h-4 w-4" />
+                                            <AlertDialog>
+                                                <AlertDialogTrigger>Tính điểm</AlertDialogTrigger>
+                                                <AlertDialogContent className="max-w-md bg-white rounded-xl shadow-xl">
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle className="text-xl font-bold text-blue-700 flex items-center gap-2">
+                                                            <CheckCircle className="h-5 w-5" />
+                                                            Kết quả tính điểm
+                                                        </AlertDialogTitle>
+                                                        <AlertDialogDescription className="space-y-3 mt-4">
+                                                            {/* Điểm tiêu đề */}
+                                                            <div className="bg-blue-50 p-3 rounded-lg">
+                                                                <p className="flex justify-between items-center">
+                                                                    <span className="text-gray-700">Điểm GPT đánh giá cho tiêu đề:</span>
+                                                                    <span className="font-semibold text-blue-700">{scores.titleScore}</span>
+                                                                </p>
+                                                            </div>
+
+                                                            {/* Điểm mô tả */}
+                                                            <div className="bg-blue-50 p-3 rounded-lg">
+                                                                <p className="flex justify-between items-center">
+                                                                    <span className="text-gray-700">Điểm GPT đánh giá cho mô tả:</span>
+                                                                    <span className="font-semibold text-blue-700">{scores.descriptionScore}</span>
+                                                                </p>
+                                                            </div>
+
+                                                            {/* Điểm giá */}
+                                                            <div className="bg-blue-50 p-3 rounded-lg">
+                                                                <p className="flex justify-between items-center">
+                                                                    <span className="text-gray-700">Điểm cho giá:</span>
+                                                                    <span className="font-semibold text-blue-700">10</span>
+                                                                </p>
+                                                                {activeCourse?.price && (
+                                                                    <p className="text-sm text-gray-600 mt-1">
+                                                                        Giá: <span className="font-medium">{formatCurrency(activeCourse.price)}</span>
+                                                                    </p>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Tổng điểm */}
+                                                            <div className="bg-green-50 p-3 rounded-lg">
+                                                                <p className="flex justify-between items-center">
+                                                                    <span className="text-gray-700">Tổng điểm:</span>
+                                                                    <span className="font-bold text-green-600 text-lg">{scores.finalScore}</span>
+                                                                </p>
+                                                            </div>
+
+                                                            {/* Giải thích */}
+                                                            <div className="bg-gray-50 p-3 rounded-lg">
+                                                                <p className="text-gray-600">
+                                                                    <span className="font-medium">Giải thích:</span> {scores.explanation}
+                                                                </p>
+                                                            </div>
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter className="mt-4">
+                                                        <AlertDialogCancel className="border border-gray-200 hover:bg-gray-100 transition-colors">
+                                                            Đóng
+                                                        </AlertDialogCancel>
+                                                        <AlertDialogAction className="bg-blue-600 hover:bg-blue-700 transition-colors">
+                                                            Xác nhận
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </Button>
+                                        {/* Phê duyệt */}
                                         <AlertDialog open={isApproveModalOpen} onOpenChange={setIsApproveModalOpen}>
                                             <AlertDialogTrigger>
                                                 <Button
@@ -974,86 +1032,35 @@ export default function BrowseNewCourses() {
                                                     onClick={() => openApproveModal(activeCourse?.course_id)} // Chỉ mở modal và lưu course_id của khóa học đang được chọn
                                                 >
                                                     <CheckCircle className="mr-2 h-4 w-4" />
-                                                    Phê duyệt Bài học
+                                                    Phê duyệt
                                                 </Button>
 
 
 
                                             </AlertDialogTrigger>
-                                            <AlertDialogContent>
+                                            <AlertDialogContent className="bg-white rounded-2xl shadow-2xl max-w-md">
                                                 <AlertDialogHeader>
-                                                    <AlertDialogTitle>Xác nhận Phê duyệt</AlertDialogTitle>
-                                                    <AlertDialogDescription>
+                                                    <AlertDialogTitle className="text-2xl font-bold text-gray-800 text-center">
+                                                        Xác nhận phê duyệt
+                                                    </AlertDialogTitle>
+                                                    <AlertDialogDescription className="text-center mt-4 text-gray-600">
                                                         Bạn có chắc chắn muốn phê duyệt bài học này không?
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel onClick={() => setIsApproveModalOpen(false)}>Hủy</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={handleApprove}>Phê duyệt</AlertDialogAction>
+                                                <AlertDialogFooter className="mt-6 space-x-3">
+                                                    <AlertDialogCancel className="px-6 py-2 rounded-xl hover:bg-gray-100 transition-colors">
+                                                        Hủy
+                                                    </AlertDialogCancel>
+                                                    <AlertDialogAction className="px-6 py-2 rounded-xl bg-green-600 hover:bg-emerald-600 text-white transition-all hover:shadow-lg hover:-translate-y-0.5">
+                                                        Xác nhận
+                                                    </AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
 
 
                                         </AlertDialog>
-                                        <Button
-                                            className="bg-blue-500 hover:bg-blue-600 text-white"
-                                            onClick={() => handleCalculateScore(activeCourse?.course_id)}
-                                        >
-                                            <CheckCircle className="mr-2 h-4 w-4" />
 
-                                            <AlertDialog>
-                                                <AlertDialogTrigger>Tính điểm</AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Tính điểm</AlertDialogTitle>
-                                                        <AlertDialogDescription className="space-y-2">
-                                                            <p>Điểm GPT đánh giá cho tiêu đề: <span className="font-semibold">15</span></p>
-                                                            <p>Điểm GPT đánh giá cho mô tả: <span className="font-semibold">25</span></p>
-                                                            <p>Đã thêm <span className="font-semibold">10 điểm</span> cho giá: <span className="font-semibold">2,199,999.00 VNĐ</span></p>
-                                                            <p>Tổng điểm: <span className="font-semibold">50</span></p>
-                                                            <p>Điểm số của khóa học: <span className="font-semibold">finalScore</span></p>
-                                                            <p>Giải thích: Điểm cao nhờ tiêu đề hấp dẫn, mô tả rõ ràng và giá hợp lý.</p>
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction>Continue</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </Button>
-
-                                        <AlertDialog open={isRejectModalOpen} onOpenChange={setIsRejectModalOpen}>
-                                            <AlertDialogTrigger>
-                                                <Button
-                                                    variant="destructive"
-                                                    onClick={() => openRejectModal(activeCourse?.course_id)} // Gọi hàm khi click và lưu course_id
-                                                >
-                                                    <XCircle className="mr-2 h-4 w-4" />
-                                                    Từ chối Bài học
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Xác nhận Từ chối</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        Bạn có chắc chắn muốn từ chối bài học này không?
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <input
-                                                    type="text"
-                                                    placeholder="Nhập lý do từ chối"
-                                                    value={reason}
-                                                    onChange={(e) => setReason(e.target.value)}
-                                                    className="w-full p-2 border rounded"
-                                                />
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel onClick={() => setIsRejectModalOpen(false)}>Hủy</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={handleReject}>Từ chối</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-
+                                        {/* Yêu cầu chỉnh sửa */}
                                         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                                             <DialogTrigger>
                                                 <Button
@@ -1065,27 +1072,73 @@ export default function BrowseNewCourses() {
                                                     Yêu cầu chỉnh sửa
                                                 </Button>
                                             </DialogTrigger>
-                                            <DialogContent>
+                                            <DialogContent className="bg-white rounded-2xl shadow-lg max-w-md border border-gray-100/50">
                                                 <DialogHeader>
-                                                    <DialogTitle>Yêu cầu chỉnh sửa</DialogTitle>
-                                                    <DialogDescription>
-                                                        Vui lòng nhập ghi chú cho yêu cầu chỉnh sửa của bạn.
+                                                    <DialogTitle className="text-2xl font-bold text-gray-800 text-center">
+                                                        Yêu cầu chỉnh sửa
+                                                    </DialogTitle>
+                                                    <DialogDescription className="text-center mt-2 text-gray-600">
+                                                        Vui lòng nhập ghi chú cho yêu cầu chỉnh sửa
                                                     </DialogDescription>
                                                 </DialogHeader>
                                                 <textarea
                                                     value={editNote}
                                                     onChange={(e) => setEditNote(e.target.value)}
-                                                    placeholder="Nhập ghi chú của bạn ở đây..."
-                                                    className="w-full h-32 p-2 border rounded mb-4"
+                                                    placeholder="Nhập ghi chú của bạn..."
+                                                    className="w-full h-32 p-4 mt-4 bg-gray-50 rounded-xl resize-none outline-none border border-gray-100
+                                                    focus:ring-1 focus:ring-amber-200 focus:border-amber-300 transition-all"
                                                 />
-                                                <DialogFooter>
-                                                    <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>Hủy</Button>
-                                                    <Button onClick={handleEditRequest}>Gửi yêu cầu</Button>
+                                                <DialogFooter className="mt-6 space-x-3">
+                                                    <Button variant="outline" onClick={() => setIsEditModalOpen(false)}
+                                                        className="px-6 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
+                                                        Hủy
+                                                    </Button>
+                                                    <Button
+                                                        className="px-6 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white
+                                                        transition-all hover:shadow-md hover:-translate-y-0.5"
+                                                    >
+                                                        Gửi yêu cầu
+                                                    </Button>
                                                 </DialogFooter>
                                             </DialogContent>
                                         </Dialog>
 
-
+                                        {/* Từ chối */}
+                                        <AlertDialog open={isRejectModalOpen} onOpenChange={setIsRejectModalOpen}>
+                                            <AlertDialogTrigger>
+                                                <Button
+                                                    variant="destructive"
+                                                    onClick={() => openRejectModal(activeCourse?.course_id)} // Gọi hàm khi click và lưu course_id
+                                                >
+                                                    <XCircle className="mr-2 h-4 w-4" />
+                                                    Từ chối
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white rounded-2xl shadow-2xl max-w-md border-2 border-rose-100">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle className="text-2xl font-bold text-gray-800 text-center">
+                                                        Xác nhận từ chối
+                                                    </AlertDialogTitle>
+                                                    <AlertDialogDescription className="text-center mt-2 text-gray-600">
+                                                        Vui lòng nhập lý do từ chối bài học này
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <textarea
+                                                    placeholder="Nhập lý do từ chối"
+                                                    value={reason}
+                                                    onChange={(e) => setReason(e.target.value)}
+                                                    className="w-full h-32 p-4 mt-4 bg-rose-50 border-2 border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-all"
+                                                />
+                                                <AlertDialogFooter className="mt-6 space-x-3">
+                                                    <AlertDialogCancel className="px-6 py-2 rounded-xl bg-gray-50 hover:bg-gray-100 border-2 border-gray-200 text-gray-700 font-medium transition-colors">
+                                                        Hủy
+                                                    </AlertDialogCancel>
+                                                    <AlertDialogAction className="px-6 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-medium transition-all hover:shadow-lg hover:-translate-y-0.5">
+                                                        Xác nhận
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </CardContent>
                             </Card>
