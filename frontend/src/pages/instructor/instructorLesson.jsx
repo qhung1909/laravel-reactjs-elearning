@@ -50,7 +50,6 @@ const notify = (message, type) => {
         toast.error(message)
     }
 }
-import { format, addHours, isPast, isBefore } from 'date-fns';
 import { UserContext } from "../context/usercontext";
 import { Button } from "@/components/ui/button";
 import * as XLSX from 'xlsx';
@@ -64,7 +63,6 @@ export const InstructorLesson = () => {
     const [errors, setErrors] = useState({});
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false)
-
     const [teacherCourses, setTeacherCourses] = useState([]);
     const navigate = useNavigate();
     const [setCourse] = useState([]);
@@ -77,85 +75,7 @@ export const InstructorLesson = () => {
         proposed_start: '',
         notes: ''
     });
-    // hàm xử lý thêm lịch học online
-    const validateForm = () => {
-        const newErrors = {};
 
-        // xử lý trường
-        if (!formData.user_id) newErrors.user_id = 'ID giảng viên là bắt buộc';
-        if (!formData.course_id) newErrors.course_id = 'ID khóa học là bắt buộc';
-        if (!formData.content_id) newErrors.content_id = 'ID nội dung là bắt buộc';
-        if (!formData.proposed_start) newErrors.proposed_start = 'Thời gian bắt đầu là bắt buộc';
-
-        // xử lý thời gian
-        const proposedDate = new Date(formData.proposed_start);
-        const now = new Date();
-
-        if (isPast(proposedDate)) {
-            newErrors.proposed_start = 'Không thể tạo lịch dạy do thời gian không đúng';
-        } else if (isBefore(proposedDate, addHours(now, 1))) {
-            newErrors.proposed_start = 'Thời gian bắt đầu phải cách hiện tại ít nhất 1 giờ';
-        }
-
-        // Xử lý note
-        if (formData.notes && formData.notes.length > 255) {
-            newErrors.notes = 'Ghi chú không được vượt quá 255 ký tự';
-        }
-
-        return newErrors;
-    };
-
-    const courseOnline = async (e) => {
-        e.preventDefault();
-
-        const validationErrors = validateForm();
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const response = await fetch('/teacher/teaching-schedule', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                switch (response.status) {
-                    case 403:
-                        setErrors({ form: data.message || 'Bạn không có quyền thực hiện hành động này' });
-                        break;
-                    case 404:
-                        setErrors({ form: data.message || 'Không tìm thấy tài nguyên yêu cầu' });
-                        break;
-                    case 422:
-                        setErrors({ form: data.message || 'Dữ liệu không hợp lệ' });
-                        break;
-                    default:
-                        setErrors({ form: 'Đã có lỗi xảy ra, vui lòng thử lại sau' });
-                }
-            } else {
-                setSuccess(true);
-                setErrors({});
-                setFormData({
-                    user_id: '',
-                    course_id: '',
-                    content_id: '',
-                    proposed_start: '',
-                    notes: ''
-                });
-            }
-        } catch (error) {
-            setErrors({ form: 'Lỗi kết nối, vui lòng thử lại sau' });
-        }
-        setLoading(false);
-    };
 
     // phân trang
     const [currentPage, setCurrentPage] = useState(1);
@@ -636,100 +556,7 @@ export const InstructorLesson = () => {
 
                             {/* Thêm khóa học - xuất */}
                             <div className="flex gap-2 items-center justify-center md:justify-end">
-                                <div className="">
-                                    <Dialog>
-                                        <DialogTrigger>
-                                            <Button className=" bg-gradient-to-br from-yellow-400 to-orange-800 text-white hover:bg-white">Thêm khóa học online</Button>
 
-                                        </DialogTrigger>
-                                        <DialogContent>
-                                            <DialogHeader>
-                                                {/* <DialogTitle>Are you absolutely sure?</DialogTitle> */}
-                                                <DialogDescription>
-                                                    <div className="max-w-lg mx-auto p-6">
-                                                        <form onSubmit={courseOnline} className="space-y-4">
-                                                            {errors.form && (
-                                                                <div className="bg-red-50 p-4 rounded text-red-600">
-                                                                    {errors.form}
-                                                                </div>
-                                                            )}
-
-                                                            {success && (
-                                                                <div className="bg-green-50 p-4 rounded text-green-600">
-                                                                    Tạo lịch dạy thành công!
-                                                                </div>
-                                                            )}
-
-                                                            <div>
-                                                                <label className="block mb-1">ID Giảng viên *</label>
-                                                                <input
-                                                                    type="number"
-                                                                    value={formData.user_id}
-                                                                    onChange={e => setFormData({ ...formData, user_id: e.target.value })}
-                                                                    className="w-full p-2 border rounded"
-                                                                />
-                                                                {errors.user_id && <p className="text-red-500 text-sm mt-1">{errors.user_id}</p>}
-                                                            </div>
-
-                                                            <div>
-                                                                <label className="block mb-1">ID Khóa học *</label>
-                                                                <input
-                                                                    type="number"
-                                                                    value={formData.course_id}
-                                                                    onChange={e => setFormData({ ...formData, course_id: e.target.value })}
-                                                                    className="w-full p-2 border rounded"
-                                                                />
-                                                                {errors.course_id && <p className="text-red-500 text-sm mt-1">{errors.course_id}</p>}
-                                                            </div>
-
-                                                            <div>
-                                                                <label className="block mb-1">ID Nội dung *</label>
-                                                                <input
-                                                                    type="number"
-                                                                    value={formData.content_id}
-                                                                    onChange={e => setFormData({ ...formData, content_id: e.target.value })}
-                                                                    className="w-full p-2 border rounded"
-                                                                />
-                                                                {errors.content_id && <p className="text-red-500 text-sm mt-1">{errors.content_id}</p>}
-                                                            </div>
-
-                                                            <div>
-                                                                <label className="block mb-1">Thời gian bắt đầu *</label>
-                                                                <input
-                                                                    type="datetime-local"
-                                                                    value={formData.proposed_start}
-                                                                    onChange={e => setFormData({ ...formData, proposed_start: e.target.value })}
-                                                                    className="w-full p-2 border rounded"
-                                                                />
-                                                                {errors.proposed_start && <p className="text-red-500 text-sm mt-1">{errors.proposed_start}</p>}
-                                                            </div>
-
-                                                            <div>
-                                                                <label className="block mb-1">Ghi chú</label>
-                                                                <textarea
-                                                                    value={formData.notes}
-                                                                    onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                                                                    className="w-full p-2 border rounded"
-                                                                    maxLength={255}
-                                                                />
-                                                                {errors.notes && <p className="text-red-500 text-sm mt-1">{errors.notes}</p>}
-                                                            </div>
-
-                                                            <button
-                                                                type="submit"
-                                                                disabled={loading}
-                                                                className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
-                                                            >
-                                                                {loading ? 'Đang xử lý...' : 'Tạo lịch dạy'}
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                        </DialogContent>
-                                    </Dialog>
-
-                                </div>
                                 <div className="">
                                     <Button onClick={addCourse} className="bg-gradient-to-br from-blue-500 to-purple-800 text-white">Thêm khóa học</Button>
                                 </div>

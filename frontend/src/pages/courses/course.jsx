@@ -345,8 +345,8 @@ export const Courses = () => {
                             <Badge
                                 variant="secondary"
                                 className={`mb-2 px-4 py-2 text-sm font-bold shadow-lg ${item.is_online_meeting === 1
-                                        ? "bg-gradient-to-r from-orange-400 to-yellow-400 text-white"
-                                        : "bg-gradient-to-r from-emerald-400 to-teal-400 text-white"
+                                    ? "bg-gradient-to-r from-orange-400 to-yellow-400 text-white"
+                                    : "bg-gradient-to-r from-emerald-400 to-teal-400 text-white"
                                     } rounded-lg`}
                             >
                                 {item.is_online_meeting === 1
@@ -521,26 +521,7 @@ export const Courses = () => {
                 {/* Khóa học nổi bật */}
                 <div className="hot-courses shadow-md p-3">
                     <div className="relative mb-6">
-                        <Badge className="
-      w-full
-      relative 
-      overflow-hidden 
-      text-2xl
-      py-4 
-      px-6 
-      rounded-xl
-      shadow-sm
-      font-bold 
-      text-gray-700
-      bg-gradient-to-r from-orange-50 via-amber-100 to-yellow-100
-      hover:shadow-md
-      transform 
-      transition-all 
-      duration-500 
-      hover:scale-105
-      border border-amber-200
-      backdrop-blur-sm
-    ">
+                        <Badge className=" w-full relative overflow-hidden text-2xl py-4 px-6 rounded-xl shadow-sm font-bold text-gray-700 bg-gradient-to-r from-orange-50 via-amber-100 to-yellow-100 hover:shadow-md transform transition-all duration-500 hover:scale-105 border border-amber-200 backdrop-blur-sm">
                             <div className="absolute inset-0 bg-gradient-to-r from-orange-100/40 via-amber-100/40 to-yellow-100/40"></div>
                             <div className="relative flex items-center justify-center gap-3">
                                 <BookOpen className="w-7 h-7 text-amber-600" />
