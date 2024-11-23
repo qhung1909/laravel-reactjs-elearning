@@ -86,25 +86,7 @@ export const UserOrderHistory = () => {
         }
     }, [user.user_id]);
 
-    const searchOrderHistory = async (e) => {
-        e.preventDefault();
-        const token = localStorage.getItem("access_token");
-        setLoading(true);
 
-        try {
-            const response = await axios.get(`${API_URL}/auth/orders/searchHistory`, {
-                headers: {
-                    'x-api-secret': `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-                params: { keyword: searchQuery }
-            });
-            setOrderHistory(response.data);
-        } catch (error) {
-            console.log('Error searching order history', error);
-        }
-        setLoading(false);
-    };
 
     const renderOrderHistory = () => {
         if (loading) {
@@ -246,21 +228,6 @@ export const UserOrderHistory = () => {
                                 </div>
                             </div>
 
-
-                            {/* tìm kiếm */}
-                            <div className='mt-3'>
-                                <form onSubmit={searchOrderHistory}>
-                                    <div className="mb-4 flex items-center gap-2">
-                                        <Input
-                                            type="text"
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                            placeholder="Nhập để tìm kiếm khóa học của bạn..."
-                                            className="border p-5 rounded-lg w-1/2"
-                                        />
-                                    </div>
-                                </form>
-                            </div>
 
                             <div className="mb-5">
                                 <Table>

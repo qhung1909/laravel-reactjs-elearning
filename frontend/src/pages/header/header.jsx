@@ -364,19 +364,19 @@ export const Header = () => {
 
                                         {/* content - right */}
                                         <div className="navbar-icons flex items-center justify-center gap-3 xl:mx-3">
-                                            
-                                                <TooltipProvider>
-                                                    <Tooltip>
-                                                        <TooltipTrigger> <Link to='/user/schedule'>
-                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/calendar-svgrepo-com.svg" className="w-10" alt="" />
-                                                        </Link></TooltipTrigger>
-                                                        <TooltipContent>
-                                                            <p>Lịch học online</p>
-                                                        </TooltipContent>
-                                                    </Tooltip>
-                                                </TooltipProvider>
 
-                                          
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger> <Link to='/user/schedule'>
+                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/calendar-svgrepo-com.svg" className="w-10" alt="" />
+                                                    </Link></TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Lịch học online</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+
 
 
                                             {/* Notification */}
@@ -396,21 +396,21 @@ export const Header = () => {
                                         </div> */}
 
                                             {/* cart */}
-                                                
-
-                                                <TooltipProvider>
-                                                    <Tooltip>
-                                                        <TooltipTrigger><Link to='/cart'>
-                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-10" alt="" />
-                                                        </Link></TooltipTrigger>
-                                                        <TooltipContent>
-                                                            <p>Giỏ hàng</p>
-                                                        </TooltipContent>
-                                                    </Tooltip>
-                                                </TooltipProvider>
 
 
-                                           
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger><Link to='/cart'>
+                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-10" alt="" />
+                                                    </Link></TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Giỏ hàng</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+
+
 
                                             {/* user - avataruser - avatar */}
                                             <div className="cursor-pointer">
@@ -523,7 +523,7 @@ export const Header = () => {
                                                                 onClick={() => navigate("/user/certificate")}
                                                             >
                                                                 <GraduationCap className="mr-2 h-4 w-4" />
-                                                                <span>Quản lí chứng chỉ</span>
+                                                                <span>Chứng chỉ của tôi</span>
                                                             </DropdownMenuItem>
 
 
