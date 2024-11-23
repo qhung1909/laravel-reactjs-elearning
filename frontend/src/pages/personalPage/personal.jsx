@@ -7,12 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-export const TemplatePage = () => {
+export const PersonalPage = () => {
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="relative max-w-[1920px] mx-auto">
+    <div className="bg-gray-50  mb-72">
+      <div className="relative max-w-[1920px] mx-auto ">
         {/* Cover Image Container */}
-        <div className="relative h-[280px] sm:h-[350px] w-full">
+        <div className="relative h-[280px] sm:h-[350px] w-full ">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
             <img
               src="/api/placeholder/1920/350"
@@ -28,7 +28,7 @@ export const TemplatePage = () => {
         </div>
 
         {/* Profile Section with White Background */}
-        <div className="bg-white shadow-sm">
+        <div className="bg-white ">
           <div className="max-w-[1400px] mx-auto px-4 sm:px-8">
             <div className="flex flex-col md:flex-row gap-6 pt-8 pb-6">
               {/* Avatar */}
@@ -77,7 +77,7 @@ export const TemplatePage = () => {
             {/* Tabs Navigation */}
             <Tabs defaultValue="overview" className="w-full">
               <TabsList className="w-full justify-start h-12 bg-transparent border-b rounded-none p-0 space-x-2">
-                {['overview', 'courses', 'certificates'].map((tab) => (
+                {['overview', 'courses'].map((tab) => (
                   <TabsTrigger
                     key={tab}
                     value={tab}
@@ -86,7 +86,6 @@ export const TemplatePage = () => {
                   >
                     {tab === 'overview' && 'Tổng quan'}
                     {tab === 'courses' && 'Khóa học'}
-                    {tab === 'certificates' && 'Chứng chỉ'}
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -209,8 +208,6 @@ export const TemplatePage = () => {
                             </div>
                           ))}
                         </div>
-
-
                       </CardContent>
                     </Card>
                   </div>
@@ -224,4 +221,4 @@ export const TemplatePage = () => {
   );
 };
 
-export default TemplatePage;
+export default PersonalPage;
