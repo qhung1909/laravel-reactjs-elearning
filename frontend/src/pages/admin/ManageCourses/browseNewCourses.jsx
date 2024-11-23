@@ -433,35 +433,35 @@ export default function BrowseNewCourses() {
         try {
             const prompt = type === 'tiêu đề'
                 ? `Đánh giá tiêu đề khóa học sau đây dựa trên các tiêu chí:
-      1. Tính hấp dẫn và thu hút
-      2. Độ rõ ràng và dễ hiểu
-      3. Tính phù hợp với nội dung khóa học
-      4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp (chính trị, bạo lực, khiêu dâm, lừa đảo, vi phạm bản quyền...)
+                    1. Tính hấp dẫn và thu hút
+                    2. Độ rõ ràng và dễ hiểu
+                    3. Tính phù hợp với nội dung khóa học
+                    4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp (chính trị, bạo lực, khiêu dâm, lừa đảo, vi phạm bản quyền...)
 
-      Tiêu đề: "${content}"
+                    Tiêu đề: "${content}"
 
-      Nếu phát hiện bất kỳ từ ngữ hay nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
-      Nếu không có vấn đề gì, đánh giá bình thường từ 0-20 điểm.
+                    Nếu phát hiện bất kỳ từ ngữ hay nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
+                    Nếu không có vấn đề gì, đánh giá bình thường từ 0-20 điểm.
 
-      Hãy trả về theo định dạng sau:
-      Điểm: [số điểm]
-      Lý do: [giải thích ngắn gọn]
-      Cảnh báo: [nếu có nội dung nhạy cảm, ghi rõ vấn đề. Nếu không có thì để trống]`
+                    Hãy trả về theo định dạng sau:
+                    Điểm: [số điểm]
+                    Lý do: [giải thích ngắn gọn]
+                    Cảnh báo: [nếu có nội dung nhạy cảm, ghi rõ vấn đề. Nếu không có thì để trống]`
                 : `Đánh giá mô tả khóa học sau đây dựa trên các tiêu chí:
-      1. Độ chi tiết và đầy đủ thông tin
-      2. Tính rõ ràng và cấu trúc
-      3. Tính thuyết phục và chuyên nghiệp
-      4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp (chính trị, bạo lực, khiêu dâm, lừa đảo, vi phạm bản quyền...)
+                    1. Độ chi tiết và đầy đủ thông tin
+                    2. Tính rõ ràng và cấu trúc
+                    3. Tính thuyết phục và chuyên nghiệp
+                    4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp (chính trị, bạo lực, khiêu dâm, lừa đảo, vi phạm bản quyền...)
 
-      Mô tả: "${content}"
+                    Mô tả: "${content}"
 
-      Nếu phát hiện bất kỳ từ ngữ hay nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
-      Nếu không có vấn đề gì, đánh giá bình thường từ 0-20 điểm.
+                    Nếu phát hiện bất kỳ từ ngữ hay nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
+                    Nếu không có vấn đề gì, đánh giá bình thường từ 0-20 điểm.
 
-      Hãy trả về theo định dạng sau:
-      Điểm: [số điểm]
-      Lý do: [giải thích ngắn gọn]
-      Cảnh báo: [nếu có nội dung nhạy cảm, ghi rõ vấn đề. Nếu không có thì để trống]`;
+                    Hãy trả về theo định dạng sau:
+                    Điểm: [số điểm]
+                    Lý do: [giải thích ngắn gọn]
+                    Cảnh báo: [nếu có nội dung nhạy cảm, ghi rõ vấn đề. Nếu không có thì để trống]`;
             if (!API_KEY_GPT) {
                 console.error('API key is missing');
                 return { score: 0, reason: 'Thiếu API key' };
