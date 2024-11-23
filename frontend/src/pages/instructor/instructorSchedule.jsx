@@ -15,7 +15,6 @@ import {
 import {
     Table,
     TableBody,
-    TableCaption,
     TableHead,
     TableHeader,
     TableRow,
@@ -26,33 +25,26 @@ import {
     DialogContent,
     DialogDescription,
     DialogHeader,
-    DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
 import {
     Command,
-    CommandDialog,
     CommandEmpty,
     CommandGroup,
     CommandInput,
     CommandItem,
     CommandList,
-    CommandSeparator,
-    CommandShortcut,
 } from "@/components/ui/command"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import React, { useEffect, useState, useContext, useRef } from "react";
-import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useEffect, useState, useContext, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom"
 import toast, { Toaster } from 'react-hot-toast';
 import { UserContext } from "../context/usercontext";
-import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { format, addHours, isPast, isBefore } from 'date-fns';
 import * as XLSX from 'xlsx';
+import axios from "axios"
 const notify = (message, type) => {
     if (type === 'success') {
         toast.success(message);
@@ -63,12 +55,7 @@ const notify = (message, type) => {
 export const InstructorSchedule = () => {
     const API_URL = import.meta.env.VITE_API_URL;
     const API_KEY = import.meta.env.VITE_API_KEY;
-    const { instructor, updateUserProfile, logout, updatePassword } = useContext(UserContext);
-    const [userName, setUserName] = useState('');
-    const [role, setRole] = useState('');
-    const [email, setEmail] = useState('');
-    const [avatar, setAvatar] = useState(null);
-    const [currentAvatar, setCurrentAvatar] = useState('');
+    const { instructor, logout } = useContext(UserContext);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
     const [loadingLogout, setLoadingLogout] = useState(false);
@@ -77,6 +64,9 @@ export const InstructorSchedule = () => {
     const [showContentCommand, setShowContentCommand] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [usedContents, setUsedContents] = useState([]);
+    const [coursesTable, setCoursesTable] = useState([]);
+    const [loadingCourses, setLoadingCourses] = useState(false);
+    const [loadingSchedule, setLoadingSchedule] = useState(false);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
@@ -88,19 +78,19 @@ export const InstructorSchedule = () => {
         proposed_start: '',
         notes: ''
     });
+    const [scheduledContents, setScheduledContents] = useState([]);
 
     const courseCommandRef = useRef(null);
     const contentCommandRef = useRef(null);
 
     useEffect(() => {
-        fetchCourseOnline();
-    }, []);
-
-    useEffect(() => {
-        if (showContentCommand) {
-            fetchUsedContents();
+        if (instructor && instructor.user_id) {
+            setFormData(prev => ({
+                ...prev,
+                user_id: instructor.user_id
+            }));
         }
-    }, [showContentCommand]);
+    }, [instructor]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -118,76 +108,33 @@ export const InstructorSchedule = () => {
         };
     }, []);
 
-    // hàm xử lý đăng xuất
-    const handleLogout = () => {
-        setLoadingLogout(true);
-        logout();
-        setLoadingLogout(false);
-    };
-
-    const fetchCourseOnline = async () => {
-        try {
-            const response = await fetch(`${API_URL}/teacher/teaching/courses/online-teacher`, {
-                headers: {
-                    'x-api-secret': `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            const result = await response.json();
-
-            if (result.status && Array.isArray(result.data)) {
-                setAllCourseOnline(result.data);
-            } else {
-                setAllCourseOnline([]);
-                notify('Không có dữ liệu khóa học', 'warning');
-            }
-        } catch (error) {
-            setAllCourseOnline([]);
-            notify('Không thể tải dữ liệu khóa học', 'error');
-        }
-    };
-
-    const fetchUsedContents = async () => {
-        try {
-            const response = await fetch(`${API_URL}/teacher/teaching-schedule`, {
-                headers: {
-                    'x-api-secret': `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            const result = await response.json();
-
-            if (result.status && Array.isArray(result.data)) {
-                const usedContentIds = result.data.map(schedule => schedule.content_id);
-                setUsedContents(usedContentIds);
-            }
-        } catch (error) {
-            console.error('Không thể tải danh sách nội dung đã sử dụng:', error);
-        }
-    };
-
     // Form validate
     const validateForm = () => {
         const newErrors = {};
 
-        if (!formData.user_id) newErrors.user_id = 'ID giảng viên là bắt buộc';
-        if (!formData.course_id) newErrors.course_id = 'ID khóa học là bắt buộc';
-        if (!formData.content_id) newErrors.content_id = 'ID nội dung là bắt buộc';
-        if (!formData.proposed_start) newErrors.proposed_start = 'Thời gian bắt đầu là bắt buộc';
-
-        const proposedDate = new Date(formData.proposed_start);
-        const now = new Date();
-
-        if (isPast(proposedDate)) {
-            newErrors.proposed_start = 'Không thể tạo lịch dạy do thời gian không đúng';
-        } else if (isBefore(proposedDate, addHours(now, 1))) {
-            newErrors.proposed_start = 'Thời gian bắt đầu phải cách hiện tại ít nhất 1 giờ';
+        // Validate course selection
+        if (!formData.course_id) {
+            newErrors.course_id = 'Vui lòng chọn khóa học';
         }
 
-        if (formData.notes && formData.notes.length > 255) {
-            newErrors.notes = 'Ghi chú không được vượt quá 255 ký tự';
+        // Validate content selection
+        if (!formData.content_id) {
+            newErrors.content_id = 'Vui lòng chọn nội dung';
         }
 
+        // Validate start time
+        if (!formData.proposed_start) {
+            newErrors.proposed_start = 'Vui lòng chọn thời gian bắt đầu';
+        } else {
+            const proposedDate = new Date(formData.proposed_start);
+            const now = new Date();
+
+            if (isPast(proposedDate)) {
+                newErrors.proposed_start = 'Thời gian bắt đầu không thể trong quá khứ';
+            } else if (isBefore(proposedDate, addHours(now, 1))) {
+                newErrors.proposed_start = 'Thời gian bắt đầu phải cách hiện tại ít nhất 1 giờ';
+            }
+        }
         return newErrors;
     };
 
@@ -196,7 +143,7 @@ export const InstructorSchedule = () => {
         setFormData(prev => ({
             ...prev,
             course_id: course.course_id,
-            content_id: '' // Reset content when course changes
+            content_id: ''
         }));
         setShowCourseCommand(false);
     };
@@ -212,9 +159,10 @@ export const InstructorSchedule = () => {
     };
 
     const isContentUsed = (contentId) => {
-        return usedContents.includes(contentId);
+        return scheduledContents.includes(contentId);
     };
 
+    // xử lý lỗi từ server trả về
     const handleErrorResponse = (status, data) => {
         switch (status) {
             case 403:
@@ -242,9 +190,8 @@ export const InstructorSchedule = () => {
         setSelectedCourse(null);
     };
 
-    const courseOnline = async (e) => {
-        e.preventDefault();
-
+    // hàm xử lý thêm lịch cho khóa học online
+    const courseOnline = async () => {
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
@@ -252,46 +199,130 @@ export const InstructorSchedule = () => {
         }
 
         setLoading(true);
+        if (!formData.user_id) {
+            setErrors({ form: 'Không tìm thấy thông tin giảng viên' });
+            return;
+        }
         try {
-            const response = await fetch(`${API_URL}/teacher/teaching-schedule`, {
-                method: 'POST',
+
+            const response = await axios.post(`${API_URL}/teacher/teaching-schedule`, formData, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-api-secret': `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
+                    'x-api-secret': API_KEY,
+                    'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify(formData)
             });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                handleErrorResponse(response.status, data);
+            if (response.status !== 200) {
+                handleErrorResponse(response.status, response.data);
             } else {
                 setSuccess(true);
                 setErrors({});
                 resetForm();
-                await fetchUsedContents();
                 notify('Tạo lịch dạy thành công!', 'success');
                 setTimeout(() => {
                     setSuccess(false);
                 }, 3000);
+                fetchCoursesTable();
             }
         } catch (error) {
-            setErrors({ form: 'Lỗi kết nối, vui lòng thử lại sau' });
+            if (error.response) {
+                // Lỗi từ server
+                handleErrorResponse(error.response.status, error.response.data);
+
+            } else {
+                // Lỗi khác
+                setErrors({ form: 'Lỗi kết nối, vui lòng thử lại sau' });
+            }
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
+    };
+    const handleconsole = () => {
+        console.log(instructor ? instructor.user_id : 'ko')
+    }
+    // hàm xử lý lấy khóa học có thể học online
+    const fetchCourseOnline = async () => {
+        setLoadingCourses(true);
+        try {
+            const response = await fetch(`${API_URL}/teacher/teaching/courses/online-teacher`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const result = await response.json();
+
+            if (result.status && Array.isArray(result.data)) {
+                setAllCourseOnline(result.data);
+            } else {
+                notify('Không có dữ liệu khóa học', 'warning');
+            }
+        } catch (error) {
+            notify('Không thể tải dữ liệu khóa học', 'error');
+        } finally {
+            setLoadingCourses(false);
+        }
     };
 
+    // hàm xử lý lấy khóa học online đã có lịch
+    const fetchCoursesTable = async () => {
+        try {
+            const response = await fetch(`${API_URL}/teacher/teaching/courses/meeting-online`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const result = await response.json();
+            setCoursesTable(result.data)
+        } catch (error) {
+            notify('Không thể lấy danh sách lịch dạy online')
+        }
+    }
+    // hàm xử lý đăng xuất
+    const handleLogout = () => {
+        setLoadingLogout(true);
+        logout();
+        setLoadingLogout(false);
+    };
     // xuất excel
-    // const exportToExcel = () => {
-    //     const worksheet = XLSX.utils.json_to_sheet(teacherCourses);
+    const exportToExcel = () => {
+        const flattenedData = coursesTable.map((item, index) => ({
+            'STT': index + 1,
+            'Tên khóa học': item.course.title,
+            'Nội dung': item.name_content,
+            'Ngày bắt đầu': new Date(item.meeting.schedule.start_time).toLocaleString('vi-VN'),
+            'Ghi chú': item.meeting.notes ?? 'Không có ghi chú'
+        }));
 
-    //     const wb = XLSX.utils.book_new();
-    //     XLSX.utils.book_append_sheet(wb, worksheet, 'TeacherCourses');
+        const worksheet = XLSX.utils.json_to_sheet(flattenedData);
 
-    //     XLSX.writeFile(wb, 'teacher_courses.xlsx');
-    // };
+        const columnWidths = [
+            { wch: 5 },
+            { wch: 40 },
+            { wch: 30 },
+            { wch: 20 },
+            { wch: 20 }
+        ];
+        worksheet['!cols'] = columnWidths;
+
+        // Tạo workbook và thêm worksheet
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, worksheet, 'OnlineCourses');
+
+        // Xuất file
+        XLSX.writeFile(wb, 'onlinecourses.xlsx');
+    };
+    useEffect(() => {
+        fetchCourseOnline();
+        fetchCoursesTable();
+    }, []);
+    useEffect(() => {
+        if (coursesTable.length > 0) {
+            const usedContentIds = coursesTable.map(item => item.content_id);
+            setScheduledContents(usedContentIds);
+        }
+    }, [coursesTable]);
     return (
         <>
             <section className="instructor-schedule">
@@ -517,10 +548,10 @@ export const InstructorSchedule = () => {
                                                 <DialogDescription>
                                                     <div className="max-w-lg mx-auto p-6">
                                                         <form onSubmit={courseOnline} className="space-y-4">
+
+                                                            {/* thông báo */}
                                                             {errors.form && (
-                                                                <div className="bg-red-50 p-4 rounded text-red-600">
-                                                                    {errors.form}
-                                                                </div>
+                                                                <div className="bg-red-50 p-4 rounded text-red-600">{errors.form}</div>
                                                             )}
 
                                                             {success && (
@@ -529,8 +560,11 @@ export const InstructorSchedule = () => {
                                                                 </div>
                                                             )}
 
+                                                            {/* chọn khóa học */}
                                                             <div className="space-y-2">
-                                                                <label className="block mb-1">ID Khóa học *</label>
+                                                                <label className=" font-medium text-lg text-black">
+                                                                    Khóa học:
+                                                                </label>
                                                                 <div className="relative" ref={courseCommandRef}>
                                                                     <input
                                                                         type="text"
@@ -542,21 +576,11 @@ export const InstructorSchedule = () => {
                                                                     />
                                                                     {showCourseCommand && (
                                                                         <div className="absolute w-full z-10 bg-white border rounded-md shadow-lg mt-1">
-                                                                            <div className="flex justify-between items-center p-2 border-b">
-                                                                                <span className="font-medium">Chọn khóa học</span>
-                                                                                <button
-                                                                                    type="button"
-                                                                                    onClick={() => setShowCourseCommand(false)}
-                                                                                    className="p-1 hover:bg-gray-100 rounded-full"
-                                                                                >
-                                                                                    <X size={16} />
-                                                                                </button>
-                                                                            </div>
                                                                             <Command>
                                                                                 <CommandInput placeholder="Tìm khóa học..." />
                                                                                 <CommandList>
                                                                                     <CommandEmpty>Không tìm thấy khóa học.</CommandEmpty>
-                                                                                    <CommandGroup heading="Danh sách khóa học">
+                                                                                    <CommandGroup>
                                                                                         {allCourseOnline.map((course) => (
                                                                                             <CommandItem
                                                                                                 key={course.course_id}
@@ -571,57 +595,56 @@ export const InstructorSchedule = () => {
                                                                         </div>
                                                                     )}
                                                                 </div>
-                                                                {errors.course_id && <p className="text-red-500 text-sm mt-1">{errors.course_id}</p>}
+                                                                {errors.course_id && (
+                                                                    <p className="text-red-500 text-sm mt-1">{errors.course_id}</p>
+                                                                )}
                                                             </div>
 
+                                                            {/* chọn nội dung */}
                                                             <div className="space-y-2">
-                                                                <label className="block mb-1">ID Nội dung *</label>
+                                                                <label className=" font-medium text-lg text-black">
+                                                                    Nội dung:
+                                                                </label>
                                                                 <div className="relative" ref={contentCommandRef}>
                                                                     <input
                                                                         type="text"
                                                                         value={
-                                                                            selectedCourse?.contents?.find(c => c.content_id === formData.content_id)
-                                                                                ? `${formData.content_id} - ${selectedCourse.contents.find(c => c.content_id === formData.content_id).name_content}`
+                                                                            selectedCourse?.contents?.find((c) => c.content_id === formData.content_id)
+                                                                                ? `${formData.content_id} - ${selectedCourse.contents.find((c) => c.content_id === formData.content_id).name_content}`
                                                                                 : ''
                                                                         }
                                                                         onClick={() => selectedCourse && setShowContentCommand(true)}
                                                                         readOnly
-                                                                        className={`w-full p-2 border rounded ${selectedCourse ? 'cursor-pointer' : 'bg-gray-100 cursor-not-allowed'}`}
-                                                                        placeholder={selectedCourse ? "Chọn nội dung..." : "Vui lòng chọn khóa học trước"}
+                                                                        className={`w-full p-2 border rounded ${selectedCourse ? 'cursor-pointer' : 'bg-gray-100 cursor-not-allowed'
+                                                                            }`}
+                                                                        placeholder={selectedCourse ? 'Chọn nội dung...' : 'Vui lòng chọn khóa học trước'}
                                                                     />
                                                                     {showContentCommand && selectedCourse && (
                                                                         <div className="absolute w-full z-10 bg-white border rounded-md shadow-lg mt-1">
-                                                                            <div className="flex justify-between items-center p-2 border-b">
-                                                                                <span className="font-medium">Chọn nội dung</span>
-                                                                                <button
-                                                                                    type="button"
-                                                                                    onClick={() => setShowContentCommand(false)}
-                                                                                    className="p-1 hover:bg-gray-100 rounded-full"
-                                                                                >
-                                                                                    <X size={16} />
-                                                                                </button>
-                                                                            </div>
                                                                             <Command>
                                                                                 <CommandInput placeholder="Tìm nội dung..." />
                                                                                 <CommandList>
                                                                                     <CommandEmpty>Không tìm thấy nội dung.</CommandEmpty>
-                                                                                    <CommandGroup heading="Danh sách nội dung">
+                                                                                    <CommandGroup>
                                                                                         {selectedCourse.contents.map((content) => {
                                                                                             const isUsed = isContentUsed(content.content_id);
                                                                                             return (
                                                                                                 <CommandItem
                                                                                                     key={content.content_id}
                                                                                                     onSelect={() => !isUsed && handleContentSelect(content)}
-                                                                                                    className={`flex items-center justify-between ${isUsed ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                                                                                    className={`flex items-center justify-between ${isUsed ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                                                                                        }`}
                                                                                                     disabled={isUsed}
                                                                                                 >
                                                                                                     <div className="flex items-center gap-2">
-                                                                                                        <span>{content.content_id} - {content.name_content}</span>
+                                                                                                        <span>
+                                                                                                            {content.content_id} - {content.name_content}
+                                                                                                        </span>
                                                                                                     </div>
                                                                                                     {isUsed && (
-                                                                                                        <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                                                                                        <p className="text-sm font-semibold text-black bg-red-600 px-2 py-1 rounded">
                                                                                                             Đã thêm
-                                                                                                        </span>
+                                                                                                        </p>
                                                                                                     )}
                                                                                                 </CommandItem>
                                                                                             );
@@ -632,34 +655,50 @@ export const InstructorSchedule = () => {
                                                                         </div>
                                                                     )}
                                                                 </div>
-                                                                {errors.content_id && <p className="text-red-500 text-sm mt-1">{errors.content_id}</p>}
+                                                                {errors.content_id && (
+                                                                    <p className="text-red-500 text-sm mt-1">{errors.content_id}</p>
+                                                                )}
                                                             </div>
 
+                                                            {/* chọn ngày */}
                                                             <div>
-                                                                <label className="block mb-1">Thời gian bắt đầu *</label>
+                                                                <label className="block mb-1 font-medium">Thời gian bắt đầu</label>
                                                                 <input
                                                                     type="datetime-local"
                                                                     value={formData.proposed_start}
-                                                                    onChange={e => setFormData({ ...formData, proposed_start: e.target.value })}
+                                                                    onChange={(e) =>
+                                                                        setFormData({ ...formData, proposed_start: e.target.value })
+                                                                    }
                                                                     className="w-full p-2 border rounded"
                                                                 />
-                                                                {errors.proposed_start && <p className="text-red-500 text-sm mt-1">{errors.proposed_start}</p>}
+
+                                                                {errors.proposed_start && (
+                                                                    <p className="text-red-500 text-sm mt-1">{errors.proposed_start}</p>
+                                                                )}
                                                             </div>
 
+                                                            {/* chọn ghi chú */}
                                                             <div>
-                                                                <label className="block mb-1">Ghi chú</label>
+                                                                <label className="block mb-1 font-medium">Ghi chú</label>
                                                                 <textarea
                                                                     value={formData.notes}
-                                                                    onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                                                                    onChange={(e) =>
+                                                                        setFormData({ ...formData, notes: e.target.value })
+                                                                    }
                                                                     className="w-full p-2 border rounded"
                                                                     maxLength={255}
                                                                 />
-                                                                {errors.notes && <p className="text-red-500 text-sm mt-1">{errors.notes}</p>}
+                                                                {errors.notes && (
+                                                                    <p className="text-red-500 text-sm mt-1">{errors.notes}</p>
+                                                                )}
                                                             </div>
-
+                                                            <button onSelect={handleconsole()}>
+                                                                chọn
+                                                            </button>
                                                             <button
-                                                                type="submit"
+                                                                type="button"
                                                                 disabled={loading}
+                                                                onClick={courseOnline}
                                                                 className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
                                                             >
                                                                 {loading ? 'Đang xử lý...' : 'Tạo lịch dạy'}
@@ -673,7 +712,7 @@ export const InstructorSchedule = () => {
                                 </div>
 
                                 {/* xuất */}
-                                {/* <div className="">
+                                <div className="">
                                     <Button className="duration-300  bg-white text-black border hover:bg-gray-100" onClick={exportToExcel}>
                                         <div className="">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/download.svg" className="w-5" alt="" />
@@ -682,7 +721,7 @@ export const InstructorSchedule = () => {
                                             <p>Xuất</p>
                                         </div>
                                     </Button>
-                                </div> */}
+                                </div>
                             </div>
 
                             <div className="my-5 bg-white rounded-3xl p-3">
@@ -697,24 +736,37 @@ export const InstructorSchedule = () => {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {allCourseOnline.map((course, index) => (
-                                            <React.Fragment key={course.course_id}>
-                                                {course.contents.map((content, contentIndex) => (
-                                                    <TableRow key={`${course.course_id}-${content.content_id}`}>
-                                                        <TableCell>{index + 1}</TableCell>
-                                                        <TableCell>{course.course_title}</TableCell>
-                                                        <TableCell>{content.name_content}</TableCell>
-                                                        <TableCell>Ngày bắt đầu</TableCell>
-                                                        <TableCell>
-                                                            <span className={`px-2 py-1 rounded-full text-sm ${content.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                                                }`}>
-                                                                Ghi chú
-                                                            </span>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </React.Fragment>
-                                        ))}
+                                        {loading ? (
+                                            <TableRow>
+                                                <TableCell colSpan={5} className="text-center">
+                                                    <div className="flex justify-center items-center space-x-2">
+                                                        <span>Đang tải dữ liệu...</span>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : coursesTable.length > 0 ? (
+                                            coursesTable.map((item, index) => (
+                                                <TableRow key={index}>
+                                                    <TableCell>{index + 1}</TableCell>
+                                                    <TableCell>{item.course.title}</TableCell>
+                                                    <TableCell>{item.name_content}</TableCell>
+                                                    <TableCell>
+                                                        {new Date(item.meeting.schedule.start_time).toLocaleString('vi-VN')}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Badge>
+                                                            {item.meeting.notes || 'Không có ghi chú'}
+                                                        </Badge>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        ) : (
+                                            <TableRow>
+                                                <TableCell colSpan={5} className="text-center">
+                                                    Không có lịch cho khóa học online nào
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
                                     </TableBody>
                                 </Table>
                                 {/* <Pagination>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { CalendarDays, Clock, Video, GraduationCap, Users, BookOpen, Calendar as CalendarIcon, ArrowRight, CheckCircle2 } from "lucide-react";
+import { CalendarDays, Clock, Video, GraduationCap, Users, BookOpen, Calendar as CalendarIcon, ArrowRight, CheckCircle2, Bell,Calendar } from "lucide-react";
 import { format, isSameDay, isSameWeek } from "date-fns";
 import { vi } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -37,7 +37,6 @@ const ScheduleManagement = () => {
                 });
 
                 if (response.data?.status === "success") {
-                    // Xử lý dữ liệu từ API
                     const processedMeetings = Object.values(response.data.data).map(meeting => ({
                         meeting_id: meeting.meeting_id || meeting.course?.course_id,
                         content_name: meeting.content_name,
@@ -127,28 +126,50 @@ const ScheduleManagement = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/50 p-6">
-            {/* Header Section */}
-            <div className="max-w-7xl mx-auto mb-8">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    Quản lý Giờ học Online
-                </h1>
-                <p className="text-gray-600 mt-2 text-lg">
-                    Theo dõi và tham gia các buổi học trực tuyến của bạn
-                </p>
+            {/* Enhanced Header Section */}
+            <div className="max-w-7xl mx-auto mb-12">
+                <div className="flex justify-between items-start">
+                    <div className="space-y-2">
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                            Quản lý Giờ học Online
+                        </h1>
+                        <p className="text-gray-600 text-lg leading-relaxed">
+                            Theo dõi và tham gia các buổi học trực tuyến của bạn
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <Button 
+                            variant="outline" 
+                            size="icon"
+                            className="w-10 h-10 rounded-xl hover:bg-blue-50 transition-colors"
+                        >
+                            <Bell className="h-5 w-5 text-blue-600" />
+                        </Button>
+                        <Button 
+                            variant="outline" 
+                            size="icon"
+                            className="w-10 h-10 rounded-xl hover:bg-blue-50 transition-colors"
+                        >
+                            <Calendar className="h-5 w-5 text-blue-600" />
+                        </Button>
+                    </div>
+                </div>
             </div>
 
-            {/* Main Content */}
+            {/* Enhanced Main Content */}
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column - Stats Cards */}
-                <div className="lg:col-span-1 space-y-8">
+                {/* Enhanced Stats Cards */}
+                <div className="lg:col-span-1 space-y-6">
                     <div className="grid grid-cols-2 gap-4">
-                        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-lg transition-all duration-200">
+                        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px]">
                             <CardContent className="p-6">
                                 <div className="flex items-center gap-3">
-                                    <Clock className="h-6 w-6" />
+                                    <div className="p-2 bg-white/10 rounded-lg">
+                                        <Clock className="h-5 w-5" />
+                                    </div>
                                     <span className="font-medium">Hôm nay</span>
                                 </div>
-                                <div className="text-3xl font-bold mt-3">
+                                <div className="text-3xl font-bold mt-4">
                                     {meetings.filter(meeting => 
                                         meeting.start_time && isSameDay(new Date(meeting.start_time), new Date())
                                     ).length} Buổi học
@@ -156,13 +177,15 @@ const ScheduleManagement = () => {
                             </CardContent>
                         </Card>
                         
-                        <Card className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white hover:shadow-lg transition-all duration-200">
+                        <Card className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px]">
                             <CardContent className="p-6">
                                 <div className="flex items-center gap-3">
-                                    <GraduationCap className="h-6 w-6" />
+                                    <div className="p-2 bg-white/10 rounded-lg">
+                                        <GraduationCap className="h-5 w-5" />
+                                    </div>
                                     <span className="font-medium">Tuần này</span>
                                 </div>
-                                <div className="text-3xl font-bold mt-3">
+                                <div className="text-3xl font-bold mt-4">
                                     {meetings.filter(meeting => 
                                         meeting.start_time && isSameWeek(new Date(meeting.start_time), new Date(), { weekStartsOn: 1 })
                                     ).length} Buổi
@@ -172,25 +195,22 @@ const ScheduleManagement = () => {
                     </div>
                 </div>
 
-                {/* Right Column - Meetings List */}
+                {/* Enhanced Meetings List */}
                 <div className="lg:col-span-2">
-                    <Card className="border shadow-xl">
-                        <CardHeader className="border-b bg-gray-50/50">
+                    <Card className="border shadow-xl rounded-xl overflow-hidden">
+                        <CardHeader className="border-b bg-gray-50/50 px-6 py-4">
                             <div className="flex items-center justify-between">
                                 <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                                     Lớp học sắp tới
                                 </CardTitle>
-                                <Select 
-                                    value={selectedFilter}
-                                    onValueChange={setSelectedFilter}
-                                >
-                                    <SelectTrigger className="w-[180px]">
+                                <Select value={selectedFilter} onValueChange={setSelectedFilter}>
+                                    <SelectTrigger className="w-[180px] bg-white">
                                         <SelectValue placeholder="Chọn thời gian" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="today">Hôm nay</SelectItem>
                                         <SelectItem value="week">Tuần này</SelectItem>
-                                        <SelectItem value="all" defaultValue>Tất cả</SelectItem>
+                                        <SelectItem value="all">Tất cả</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -198,65 +218,76 @@ const ScheduleManagement = () => {
                         <CardContent className="p-6">
                             <div className="space-y-4">
                                 {filteredMeetings.length === 0 ? (
-                                    <div className="text-center py-8 text-gray-500">
-                                        Không có lớp học nào trong thời gian này
+                                    <div className="text-center py-12">
+                                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <BookOpen className="h-8 w-8 text-gray-400" />
+                                        </div>
+                                        <p className="text-gray-500 text-lg">
+                                            Không có lớp học nào trong thời gian này
+                                        </p>
                                     </div>
                                 ) : (
                                     filteredMeetings.map((meeting) => (
                                         <Card
                                             key={meeting.meeting_id}
-                                            className="hover:shadow-md transition-all duration-200 border border-gray-100"
+                                            className="hover:shadow-md transition-all duration-200 border border-gray-100 rounded-xl overflow-hidden"
                                         >
                                             <CardContent className="p-6">
                                                 <div className="flex items-start justify-between">
                                                     <div className="space-y-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="p-2 bg-blue-50 rounded-lg">
-                                                                <BookOpen className="h-5 w-5 text-blue-600" />
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="p-3 bg-blue-50 rounded-xl">
+                                                                <BookOpen className="h-6 w-6 text-blue-600" />
                                                             </div>
                                                             <div>
                                                                 <h3 className="font-semibold text-xl text-gray-900">
                                                                     {meeting.content_name}
                                                                 </h3>
                                                                 {meeting.course_title && (
-                                                                    <p className="text-sm text-gray-600">
+                                                                    <p className="text-sm text-gray-600 mt-1">
                                                                         {meeting.course_title}
                                                                     </p>
                                                                 )}
                                                             </div>
                                                         </div>
-                                                        <div className="flex flex-col gap-2 text-sm text-gray-600">
-                                                            <div className="flex items-center gap-2">
-                                                                <Clock className="h-4 w-4" />
+                                                        <div className="flex flex-col gap-3 text-sm text-gray-600">
+                                                            <div className="flex items-center gap-3">
+                                                                <Clock className="h-4 w-4 text-gray-400" />
                                                                 <span>
                                                                     {format(new Date(meeting.start_time), "HH:mm", { locale: vi })} - {format(new Date(meeting.end_time), "HH:mm", { locale: vi })}
                                                                 </span>
                                                             </div>
                                                             {meeting.teacher_name && (
-                                                                <div className="flex items-center gap-2">
-                                                                    <Users className="h-4 w-4" />
+                                                                <div className="flex items-center gap-3">
+                                                                    <Users className="h-4 w-4 text-gray-400" />
                                                                     <span>{meeting.teacher_name}</span>
                                                                 </div>
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <div className="flex flex-col gap-2 items-end">
+                                                    <div className="flex flex-col gap-3 items-end">
                                                         <Badge
                                                             variant="outline"
-                                                            className={getStatusBadge(meeting.status).className}
+                                                            className={`px-3 py-1 rounded-lg ${getStatusBadge(meeting.status).className}`}
                                                         >
                                                             {getStatusBadge(meeting.status).text}
                                                         </Badge>
                                                         {meeting.meeting_url && meeting.status !== "completed" && (
-                                                            <a 
-                                                                href={meeting.meeting_url}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm"
+                                                            <Button 
+                                                                variant="outline"
+                                                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                                                asChild
                                                             >
-                                                                <Video className="h-4 w-4" />
-                                                                Vào lớp học
-                                                            </a>
+                                                                <a 
+                                                                    href={meeting.meeting_url}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="flex items-center gap-2"
+                                                                >
+                                                                    <Video className="h-4 w-4" />
+                                                                    Vào lớp học
+                                                                </a>
+                                                            </Button>
                                                         )}
                                                     </div>
                                                 </div>
