@@ -353,22 +353,26 @@ export const BlogCrud = () => {
 
                 <div className="absolute top-12 w-full p-4 font-sans">
                     <div className="mb-4 flex items-center justify-between">
-                        <div className="relative flex-1 max-w-md">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm danh mục..."
-                                className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-full"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                        <h1 className="text-2xl ml-1 font-bold text-gray-800">Quản lí Bài viết</h1>
+
+                        <div className="flex items-center gap-4 ml-auto">
+                            <div className="relative max-w-xs">
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Tìm kiếm bài viết..."
+                                    className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-full"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
                         </div>
 
                         {/* thêm blog */}
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 ml-4">
                             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                 <DialogTrigger asChild>
-                                    <Button className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
+                                    <Button className="bg-orange-400 hover:bg-orange-500 text-white flex items-center gap-2">
                                         <Plus className="h-4 w-4" />
                                         Thêm bài viết
                                     </Button>
@@ -542,12 +546,30 @@ export const BlogCrud = () => {
 
                                             {/* content */}
                                             <td className="py-4 px-6">
-                                                <div className="w-60">
-                                                    <span
-                                                        className="text-sm text-gray-600 line-clamp-3"
-                                                        dangerouslySetInnerHTML={{ __html: blog.content }}
-                                                    />
-                                                </div>
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <div className="w-60">
+                                                            <span
+                                                                className="text-sm text-gray-600 line-clamp-3 text-justify cursor-pointer hover:text-gray-900"
+                                                                dangerouslySetInnerHTML={{ __html: blog.content }}
+                                                            />
+                                                        </div>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                                                        <DialogHeader>
+                                                            <DialogTitle className="text-xl font-semibold">{blog.title}</DialogTitle>
+                                                            <DialogDescription className="text-gray-500">
+                                                                Nội dung đầy đủ
+                                                            </DialogDescription>
+                                                        </DialogHeader>
+                                                        <div className="  text-gray-700">
+                                                            <div
+                                                                className="prose max-w-none"
+                                                                dangerouslySetInnerHTML={{ __html: blog.content }}
+                                                            />
+                                                        </div>
+                                                    </DialogContent>
+                                                </Dialog>
                                             </td>
 
                                             {/* last update */}
@@ -686,10 +708,10 @@ export const BlogCrud = () => {
                                                         onClick={() => deleteBlog(blog.slug)}
                                                         variant="destructive"
                                                         size="sm"
-                                                        className="bg-red-500 hover:bg-red-600 transition-colors"
+                                                        className="bg-white border border-red-600 hover:bg-red-100 transition-colors"
                                                     >
-                                                        <Trash2 className="h-4 w-4 mr-1.5" />
-                                                        Xóa
+                                                        <Trash2 className="h-4 w-4 mr-1.5 text-red-500" />
+                                                        <span className="text-red-500">Xóa</span>
                                                     </Button>
                                                 </div>
                                             </td>
