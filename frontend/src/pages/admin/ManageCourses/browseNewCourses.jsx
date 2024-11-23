@@ -433,25 +433,35 @@ export default function BrowseNewCourses() {
         try {
             const prompt = type === 'tiêu đề'
                 ? `Đánh giá tiêu đề khóa học sau đây dựa trên các tiêu chí:
-                   1. Tính hấp dẫn và thu hút
-                   2. Độ rõ ràng và dễ hiểu
-                   3. Tính phù hợp với nội dung khóa học
+                    1. Tính hấp dẫn và thu hút
+                    2. Độ rõ ràng và dễ hiểu
+                    3. Tính phù hợp với nội dung khóa học
+                    4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp (chính trị, bạo lực, khiêu dâm, lừa đảo, vi phạm bản quyền...)
 
-                   Tiêu đề: "${content}"
+                    Tiêu đề: "${content}"
 
-                   Hãy cho điểm từ 0-20 và giải thích ngắn gọn. Chỉ trả về định dạng sau:
-                   Điểm: [số điểm]
-                   Lý do: [giải thích ngắn gọn]`
+                    Nếu phát hiện bất kỳ từ ngữ hay nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
+                    Nếu không có vấn đề gì, đánh giá bình thường từ 0-20 điểm.
+
+                    Hãy trả về theo định dạng sau:
+                    Điểm: [số điểm]
+                    Lý do: [giải thích ngắn gọn]
+                    Cảnh báo: [nếu có nội dung nhạy cảm, ghi rõ vấn đề. Nếu không có thì để trống]`
                 : `Đánh giá mô tả khóa học sau đây dựa trên các tiêu chí:
-                   1. Độ chi tiết và đầy đủ thông tin
-                   2. Tính rõ ràng và cấu trúc
-                   3. Tính thuyết phục và chuyên nghiệp
+                    1. Độ chi tiết và đầy đủ thông tin
+                    2. Tính rõ ràng và cấu trúc
+                    3. Tính thuyết phục và chuyên nghiệp
+                    4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp (chính trị, bạo lực, khiêu dâm, lừa đảo, vi phạm bản quyền...)
 
-                   Mô tả: "${content}"
+                    Mô tả: "${content}"
 
-                   Hãy cho điểm từ 0-20 và giải thích ngắn gọn. Chỉ trả về định dạng sau:
-                   Điểm: [số điểm]
-                   Lý do: [giải thích ngắn gọn]`;
+                    Nếu phát hiện bất kỳ từ ngữ hay nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
+                    Nếu không có vấn đề gì, đánh giá bình thường từ 0-20 điểm.
+
+                    Hãy trả về theo định dạng sau:
+                    Điểm: [số điểm]
+                    Lý do: [giải thích ngắn gọn]
+                    Cảnh báo: [nếu có nội dung nhạy cảm, ghi rõ vấn đề. Nếu không có thì để trống]`;
             if (!API_KEY_GPT) {
                 console.error('API key is missing');
                 return { score: 0, reason: 'Thiếu API key' };
@@ -510,7 +520,7 @@ export default function BrowseNewCourses() {
             const descriptionAnalysis = await analyzeContentWithGPT(courseData.description, "mô tả");
 
             // Tính điểm giá
-            const priceScore = courseData.price > 0 ? 10 : 0;
+            const priceScore = courseData.price_discount > 0 ? 10 : 0;
 
             // Tổng hợp điểm và giải thích
             const finalScore = titleAnalysis.score + descriptionAnalysis.score + priceScore;
@@ -749,7 +759,7 @@ export default function BrowseNewCourses() {
                                                         </div>
                                                         <div className="flex items-center">
                                                             <label className="font-semibold mr-2">Giá:</label>
-                                                            <p>{formatCurrency(activeCourse.price)}</p>
+                                                            <p>{formatCurrency(activeCourse.price_discount)}</p>
                                                         </div>
                                                         <div className="flex items-start">
                                                             <label className="font-semibold mr-2 mt-1">Yêu cầu tiên quyết:</label>
@@ -1014,12 +1024,15 @@ export default function BrowseNewCourses() {
                                                                     <span className="mr-2">🎯</span>
                                                                     Tiêu đề:
                                                                 </p>
-                                                                <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">{
-                                                                    scores.explanation
-                                                                        .split('Mô tả:')[0]
-                                                                        .replace('Tiêu đề:', '')
-                                                                        .trim()
-                                                                }</p>
+                                                                <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">
+                                                                    {scores.explanation ?
+                                                                        scores.explanation
+                                                                            .split('Mô tả:')[0]
+                                                                            .replace('Tiêu đề:', '')
+                                                                            .trim()
+                                                                        : 'Chưa có đánh giá'
+                                                                    }
+                                                                </p>
                                                             </div>
 
                                                             {/* Phần Mô tả */}
@@ -1028,12 +1041,15 @@ export default function BrowseNewCourses() {
                                                                     <span className="mr-2">📝</span>
                                                                     Mô tả:
                                                                 </p>
-                                                                <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">{
-                                                                    scores.explanation
-                                                                        .split('Mô tả:')[1]
-                                                                        .split('Giá')[0]
-                                                                        .trim()
-                                                                }</p>
+                                                                <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">
+                                                                    {scores.explanation ?
+                                                                        scores.explanation
+                                                                            .split('Mô tả:')[1]
+                                                                            ?.split('Giá')[0]
+                                                                            ?.trim() ?? 'Chưa có đánh giá'
+                                                                        : 'Chưa có đánh giá'
+                                                                    }
+                                                                </p>
                                                             </div>
 
                                                             {/* Phần Giá */}
@@ -1043,7 +1059,10 @@ export default function BrowseNewCourses() {
                                                                     Giá:
                                                                 </p>
                                                                 <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">
-                                                                    {scores.explanation.includes('Giá hợp lệ') ? 'Hợp lệ' : 'Không hợp lệ'}
+                                                                    {scores.explanation ?
+                                                                        scores.explanation.includes('Giá hợp lệ') ? 'Hợp lệ' : 'Không hợp lệ'
+                                                                        : 'Chưa có đánh giá'
+                                                                    }
                                                                 </p>
                                                             </div>
                                                         </div>
