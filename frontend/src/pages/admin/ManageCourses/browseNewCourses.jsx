@@ -474,7 +474,7 @@ export default function BrowseNewCourses() {
                 3. Tính logic và cấu trúc
                 4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
 
-                Tiêu đề: "${titleText}"
+                Tiêu đề: "${content.content}"
 
                 Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
                 Nếu không có vấn đề gì, đánh giá bình thường từ 0-20 điểm.
@@ -490,7 +490,7 @@ export default function BrowseNewCourses() {
                 3. Tính giáo dục và hữu ích
                 4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
 
-                Nội dung: "${content.content}"
+                Nội dung: "${titleText}"
 
                 Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
                 Nếu không có vấn đề gì, đánh giá bình thường từ 0-30 điểm.
