@@ -292,3 +292,4 @@ Route::post('/meetings/users', [ParticipantController::class, 'getUserIdsByMeeti
 Route::post('/meetings/mark-attendance ', [ParticipantController::class, 'markAttendance']);
 Route::post('/meetings/mark-absent ', [ParticipantController::class, 'markAbsent']);
 Route::post('/upcoming-meetings', [TeachingScheduleController::class, 'getUpcomingMeetings']);
+Route::get('/meetings/student/upcoming-meeting', [OnlineMeetingController::class, 'getUpcomingMeeting']);

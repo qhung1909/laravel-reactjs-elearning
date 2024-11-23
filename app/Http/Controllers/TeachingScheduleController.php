@@ -192,6 +192,16 @@ class TeachingScheduleController extends Controller
     private function sendTeacherScheduleNotification($teacher, $course, $content, $proposedStartTime, $meeting, $notes)
     {
         try {
+            // Debug data trước khi gửi mail
+            Log::info('Teacher notification data:', [
+                'teacher_name' => $teacher->name,
+                'course_name' => $course->title,
+                'content_name' => $content->name_content,
+                'start_time' => $proposedStartTime->format('H:i d/m/Y'),
+                'meeting_url' => $meeting->meeting_url,
+                'notes' => $notes
+            ]);
+    
             Mail::to($teacher->email)->queue(new TeacherScheduleNotification([
                 'teacher_name' => $teacher->name,
                 'course_name' => $course->title,
@@ -203,7 +213,8 @@ class TeachingScheduleController extends Controller
         } catch (\Exception $e) {
             Log::error('Lỗi gửi mail cho giảng viên: ' . $e->getMessage(), [
                 'teacher_id' => $teacher->user_id,
-                'course_id' => $course->course_id
+                'course_id' => $course->course_id,
+                'stack_trace' => $e->getTraceAsString()
             ]);
         }
     }
