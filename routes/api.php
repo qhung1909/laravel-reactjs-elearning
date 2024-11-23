@@ -270,6 +270,7 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::put('/teaching-schedule/{id}', [TeachingScheduleController::class, 'update']);     
     Route::delete('/teaching-schedule/{id}', [TeachingScheduleController::class, 'destroy']);
     Route::get('/teaching/courses/online-teacher', [TeacherController::class, 'getCourseOnlineTeacher']);
+    Route::get('/teaching/courses/meeting-online', [TeacherController::class, 'getMeetingOnline']);
 
 
     
