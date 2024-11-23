@@ -18,6 +18,88 @@ use Carbon\Carbon;
 
 class TeacherController extends Controller
 {
+    public function getMeetingOnline()
+    {
+        // Kiểm tra đăng nhập
+        if (!Auth::check()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Vui lòng đăng nhập để xem lịch dạy online'
+            ], 401);
+        }
+
+        try {
+            // Lấy user_id của giáo viên đang đăng nhập
+            $userId = Auth::id();
+
+            // Query để lấy content có lịch dạy online
+            $contents = DB::table('contents as c')
+                ->join('online_meetings as om', 'c.content_id', '=', 'om.content_id')
+                ->join('teaching_schedule as ts', 'om.meeting_id', '=', 'ts.meeting_id')
+                ->join('courses as co', 'c.course_id', '=', 'co.course_id')  // Thêm join với bảng courses
+                ->where('c.is_online_meeting', true)
+                ->where('ts.user_id', $userId)
+                ->select([
+                    'c.content_id',
+                    'c.name_content',
+                    'c.course_id',
+                    'co.title as course_title',  // Thêm trường title từ bảng courses
+                    'om.meeting_id',
+                    'om.meeting_url',
+                    'om.start_time',
+                    'om.end_time',
+                    'ts.proposed_start',
+                    'ts.notes'
+                ])
+                ->orderBy('ts.proposed_start', 'asc')
+                ->get();
+
+            // Kiểm tra nếu không có dữ liệu
+            if ($contents->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Hiện tại bạn chưa có lịch dạy online nào',
+                    'data' => []
+                ], 200);
+            }
+
+            // Format lại dữ liệu trả về
+            $formattedContents = $contents->map(function ($content) {
+                return [
+                    'content_id' => $content->content_id,
+                    'name_content' => $content->name_content,
+                    'course' => [                     // Thêm thông tin khóa học
+                        'course_id' => $content->course_id,
+                        'title' => $content->course_title
+                    ],
+                    'meeting' => [
+                        'meeting_id' => $content->meeting_id,
+                        'meeting_url' => $content->meeting_url,
+                        'schedule' => [
+                            'start_time' => Carbon::parse($content->start_time)->format('Y-m-d H:i:s'),
+                            'end_time' => Carbon::parse($content->end_time)->format('Y-m-d H:i:s'),
+                            'proposed_start' => Carbon::parse($content->proposed_start)->format('Y-m-d H:i:s')
+                        ],
+                        'notes' => $content->notes
+                    ]
+                ];
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $formattedContents
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in getMeetingOnline: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Có lỗi xảy ra khi lấy thông tin nội dung học online',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function getCoursesByTeacher()
     {
         if (!Auth::check()) {
