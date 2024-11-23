@@ -74,7 +74,7 @@ import ManageMeetRoom from "./pages/admin/ManageScheduleList/ManageMeetRoom.jsx"
 import CertificateDetailPage from "./pages/certificate/certificatePage.jsx";
 import ManageCertificate from "./pages/certificate/ManageCertificate.jsx";
 import ScheduleManagement from "./pages/schedule/template.jsx";
-import TemplatePage from "./pages/personalPage/template.jsx";
+import PersonalPage from "./pages/personalPage/personal.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -98,13 +98,14 @@ function AppContent() {
             "/certificate/:id",
             "/user/certificate",
             "/user/schedule",
-            "/templateP"
+            "/teacher/:id"
         ].includes(location.pathname) &&
         !location.pathname.startsWith("/detail/") &&
         !location.pathname.startsWith("/user/noti/") &&
         !location.pathname.startsWith("/blogs/") &&
         !location.pathname.startsWith("/user/schedule")&&
-        !location.pathname.startsWith("/certificate/");
+        !location.pathname.startsWith("/certificate/")&&
+        !location.pathname.startsWith("/teacher/");
 
 
 
@@ -114,7 +115,7 @@ function AppContent() {
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
             
-                <Route path="/templateP" element={<TemplatePage />}></Route>
+                <Route path="/teacher/:id" element={<PersonalPage />}></Route>
                 <Route path="/demo" element={<Demo />}></Route>
                 <Route path="/user/certificate" element={<ManageCertificate />}></Route>
                 <Route path="/user/orderhistory" element={<UserOrderHistory />}></Route>
