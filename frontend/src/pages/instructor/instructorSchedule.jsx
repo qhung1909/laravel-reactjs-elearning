@@ -29,10 +29,22 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+    Command,
+    CommandDialog,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+    CommandSeparator,
+    CommandShortcut,
+} from "@/components/ui/command"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
+import { X } from 'lucide-react';
 import { Link, useNavigate } from "react-router-dom"
 import toast, { Toaster } from 'react-hot-toast';
 import { UserContext } from "../context/usercontext";
@@ -60,15 +72,15 @@ export const InstructorSchedule = () => {
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
     const [loadingLogout, setLoadingLogout] = useState(false);
-    const [password, setPassword] = useState("");
-    const [current_password, setCurrentPassword] = useState("");
-    const [password_confirmation, setPassword_Confirmation] = useState("")
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isProfileSubmitting, setIsProfileSubmitting] = useState(false);
+    const [allCourseOnline, setAllCourseOnline] = useState([]);
+    const [showCourseCommand, setShowCourseCommand] = useState(false);
+    const [showContentCommand, setShowContentCommand] = useState(false);
+    const [selectedCourse, setSelectedCourse] = useState(null);
+    const [usedContents, setUsedContents] = useState([]);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
-
+    const token = localStorage.getItem("access_token");
     const [formData, setFormData] = useState({
         user_id: '',
         course_id: '',
@@ -77,17 +89,92 @@ export const InstructorSchedule = () => {
         notes: ''
     });
 
-    // validate form
+    const courseCommandRef = useRef(null);
+    const contentCommandRef = useRef(null);
+
+    useEffect(() => {
+        fetchCourseOnline();
+    }, []);
+
+    useEffect(() => {
+        if (showContentCommand) {
+            fetchUsedContents();
+        }
+    }, [showContentCommand]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (courseCommandRef.current && !courseCommandRef.current.contains(event.target)) {
+                setShowCourseCommand(false);
+            }
+            if (contentCommandRef.current && !contentCommandRef.current.contains(event.target)) {
+                setShowContentCommand(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    // hàm xử lý đăng xuất
+    const handleLogout = () => {
+        setLoadingLogout(true);
+        logout();
+        setLoadingLogout(false);
+    };
+
+    const fetchCourseOnline = async () => {
+        try {
+            const response = await fetch(`${API_URL}/teacher/teaching/courses/online-teacher`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const result = await response.json();
+
+            if (result.status && Array.isArray(result.data)) {
+                setAllCourseOnline(result.data);
+            } else {
+                setAllCourseOnline([]);
+                notify('Không có dữ liệu khóa học', 'warning');
+            }
+        } catch (error) {
+            setAllCourseOnline([]);
+            notify('Không thể tải dữ liệu khóa học', 'error');
+        }
+    };
+
+    const fetchUsedContents = async () => {
+        try {
+            const response = await fetch(`${API_URL}/teacher/teaching-schedule`, {
+                headers: {
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const result = await response.json();
+
+            if (result.status && Array.isArray(result.data)) {
+                const usedContentIds = result.data.map(schedule => schedule.content_id);
+                setUsedContents(usedContentIds);
+            }
+        } catch (error) {
+            console.error('Không thể tải danh sách nội dung đã sử dụng:', error);
+        }
+    };
+
+    // Form validate
     const validateForm = () => {
         const newErrors = {};
 
-        // xử lý trường
         if (!formData.user_id) newErrors.user_id = 'ID giảng viên là bắt buộc';
         if (!formData.course_id) newErrors.course_id = 'ID khóa học là bắt buộc';
         if (!formData.content_id) newErrors.content_id = 'ID nội dung là bắt buộc';
         if (!formData.proposed_start) newErrors.proposed_start = 'Thời gian bắt đầu là bắt buộc';
 
-        // xử lý thời gian
         const proposedDate = new Date(formData.proposed_start);
         const now = new Date();
 
@@ -97,7 +184,6 @@ export const InstructorSchedule = () => {
             newErrors.proposed_start = 'Thời gian bắt đầu phải cách hiện tại ít nhất 1 giờ';
         }
 
-        // Xử lý note
         if (formData.notes && formData.notes.length > 255) {
             newErrors.notes = 'Ghi chú không được vượt quá 255 ký tự';
         }
@@ -105,7 +191,57 @@ export const InstructorSchedule = () => {
         return newErrors;
     };
 
-    // hàm xử lý thêm lịch học online
+    const handleCourseSelect = (course) => {
+        setSelectedCourse(course);
+        setFormData(prev => ({
+            ...prev,
+            course_id: course.course_id,
+            content_id: '' // Reset content when course changes
+        }));
+        setShowCourseCommand(false);
+    };
+
+    const handleContentSelect = (content) => {
+        if (!isContentUsed(content.content_id)) {
+            setFormData(prev => ({
+                ...prev,
+                content_id: content.content_id
+            }));
+            setShowContentCommand(false);
+        }
+    };
+
+    const isContentUsed = (contentId) => {
+        return usedContents.includes(contentId);
+    };
+
+    const handleErrorResponse = (status, data) => {
+        switch (status) {
+            case 403:
+                setErrors({ form: data.message || 'Bạn không có quyền thực hiện hành động này' });
+                break;
+            case 404:
+                setErrors({ form: data.message || 'Không tìm thấy tài nguyên yêu cầu' });
+                break;
+            case 422:
+                setErrors({ form: data.message || 'Dữ liệu không hợp lệ' });
+                break;
+            default:
+                setErrors({ form: 'Đã có lỗi xảy ra, vui lòng thử lại sau' });
+        }
+    };
+
+    const resetForm = () => {
+        setFormData({
+            user_id: instructor?.id || '',
+            course_id: '',
+            content_id: '',
+            proposed_start: '',
+            notes: ''
+        });
+        setSelectedCourse(null);
+    };
+
     const courseOnline = async (e) => {
         e.preventDefault();
 
@@ -117,10 +253,12 @@ export const InstructorSchedule = () => {
 
         setLoading(true);
         try {
-            const response = await fetch('/teacher/teaching-schedule', {
+            const response = await fetch(`${API_URL}/teacher/teaching-schedule`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-secret': `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(formData)
             });
@@ -128,114 +266,22 @@ export const InstructorSchedule = () => {
             const data = await response.json();
 
             if (!response.ok) {
-                switch (response.status) {
-                    case 403:
-                        setErrors({ form: data.message || 'Bạn không có quyền thực hiện hành động này' });
-                        break;
-                    case 404:
-                        setErrors({ form: data.message || 'Không tìm thấy tài nguyên yêu cầu' });
-                        break;
-                    case 422:
-                        setErrors({ form: data.message || 'Dữ liệu không hợp lệ' });
-                        break;
-                    default:
-                        setErrors({ form: 'Đã có lỗi xảy ra, vui lòng thử lại sau' });
-                }
+                handleErrorResponse(response.status, data);
             } else {
                 setSuccess(true);
                 setErrors({});
-                setFormData({
-                    user_id: '',
-                    course_id: '',
-                    content_id: '',
-                    proposed_start: '',
-                    notes: ''
-                });
+                resetForm();
+                await fetchUsedContents();
+                notify('Tạo lịch dạy thành công!', 'success');
+                setTimeout(() => {
+                    setSuccess(false);
+                }, 3000);
             }
         } catch (error) {
             setErrors({ form: 'Lỗi kết nối, vui lòng thử lại sau' });
         }
         setLoading(false);
     };
-
-    // hàm xử lý lấy khóa học teacher
-    // const fetchTeacherCourse = async () => {
-    //     setLoading(true)
-    //     const token = localStorage.getItem("access_token");
-    //     try {
-    //         const response = await axios.get(`${API_URL}/teacher/course`, {
-    //             headers: {
-    //                 'x-api-secret': `${API_KEY}`,
-    //                 Authorization: `Bearer ${token}`,
-    //             },
-    //         });
-    //         console.log(response.data)
-    //         setTeacherCourses(response.data.courses)
-    //     } catch (error) {
-    //         console.log('Error fetching users Courses', error)
-    //     } finally {
-    //         setLoading(false)
-    //     }
-    // }
-    // hàm xử lý thay đổi file
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setAvatar(file);
-            setCurrentAvatar(URL.createObjectURL(file));
-        }
-    };
-
-    // hàm xử lý update user profile
-    const handleUpdateProfile = async (e) => {
-        e.preventDefault();
-        if (isProfileSubmitting) return;
-
-        setIsProfileSubmitting(true);
-        try {
-            await updateUserProfile(userName, email, avatar);
-            setSuccess(true);
-            toast.success("Cập nhật hồ sơ thành công!");
-        } catch (error) {
-            setError("Cập nhật không thành công, vui lòng thử lại.");
-            toast.error(error.message);
-        } finally {
-            setIsProfileSubmitting(false);
-        }
-    };
-
-    // hàm xử lý đăng xuất
-    const handleLogout = () => {
-        setLoadingLogout(true);
-        logout();
-        setLoadingLogout(false);
-    };
-
-    // hàm xử lý validate thay đổi mật khẩu
-    const handleChangePassword = async (e) => {
-        e.preventDefault();
-        if (isSubmitting) return;
-
-        setIsSubmitting(true);
-        const isUpdated = await updatePassword(
-            current_password,
-            password,
-            password_confirmation
-        );
-        setIsSubmitting(false);
-
-        if (isUpdated) {
-            setCurrentPassword("");
-            setPassword("");
-            setPassword_Confirmation("");
-        }
-    };
-
-    useEffect(() => {
-        if (success) {
-            window.location.reload();
-        }
-    }, [success]);
 
     // xuất excel
     // const exportToExcel = () => {
@@ -462,12 +508,12 @@ export const InstructorSchedule = () => {
                                 <div className="">
                                     <Dialog>
                                         <DialogTrigger>
-                                            <Button className=" bg-gradient-to-br from-yellow-400 to-orange-800 text-white hover:bg-white">Thêm khóa học online</Button>
-
+                                            <Button className="bg-gradient-to-br from-yellow-400 to-orange-800 text-white hover:bg-white">
+                                                Thêm lịch khóa học online
+                                            </Button>
                                         </DialogTrigger>
                                         <DialogContent>
                                             <DialogHeader>
-                                                {/* <DialogTitle>Are you absolutely sure?</DialogTitle> */}
                                                 <DialogDescription>
                                                     <div className="max-w-lg mx-auto p-6">
                                                         <form onSubmit={courseOnline} className="space-y-4">
@@ -483,31 +529,112 @@ export const InstructorSchedule = () => {
                                                                 </div>
                                                             )}
 
-                                                            {/* id khóa học */}
-                                                            <div>
+                                                            <div className="space-y-2">
                                                                 <label className="block mb-1">ID Khóa học *</label>
-                                                                <input
-                                                                    type="number"
-                                                                    value={formData.course_id}
-                                                                    onChange={e => setFormData({ ...formData, course_id: e.target.value })}
-                                                                    className="w-full p-2 border rounded"
-                                                                />
+                                                                <div className="relative" ref={courseCommandRef}>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={selectedCourse ? `${selectedCourse.course_id} - ${selectedCourse.course_title}` : ''}
+                                                                        onClick={() => setShowCourseCommand(true)}
+                                                                        readOnly
+                                                                        className="w-full p-2 border rounded cursor-pointer"
+                                                                        placeholder="Chọn khóa học..."
+                                                                    />
+                                                                    {showCourseCommand && (
+                                                                        <div className="absolute w-full z-10 bg-white border rounded-md shadow-lg mt-1">
+                                                                            <div className="flex justify-between items-center p-2 border-b">
+                                                                                <span className="font-medium">Chọn khóa học</span>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => setShowCourseCommand(false)}
+                                                                                    className="p-1 hover:bg-gray-100 rounded-full"
+                                                                                >
+                                                                                    <X size={16} />
+                                                                                </button>
+                                                                            </div>
+                                                                            <Command>
+                                                                                <CommandInput placeholder="Tìm khóa học..." />
+                                                                                <CommandList>
+                                                                                    <CommandEmpty>Không tìm thấy khóa học.</CommandEmpty>
+                                                                                    <CommandGroup heading="Danh sách khóa học">
+                                                                                        {allCourseOnline.map((course) => (
+                                                                                            <CommandItem
+                                                                                                key={course.course_id}
+                                                                                                onSelect={() => handleCourseSelect(course)}
+                                                                                            >
+                                                                                                {course.course_id} - {course.course_title}
+                                                                                            </CommandItem>
+                                                                                        ))}
+                                                                                    </CommandGroup>
+                                                                                </CommandList>
+                                                                            </Command>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                                 {errors.course_id && <p className="text-red-500 text-sm mt-1">{errors.course_id}</p>}
                                                             </div>
 
-                                                            {/* nội dung */}
-                                                            <div>
+                                                            <div className="space-y-2">
                                                                 <label className="block mb-1">ID Nội dung *</label>
-                                                                <input
-                                                                    type="number"
-                                                                    value={formData.content_id}
-                                                                    onChange={e => setFormData({ ...formData, content_id: e.target.value })}
-                                                                    className="w-full p-2 border rounded"
-                                                                />
+                                                                <div className="relative" ref={contentCommandRef}>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={
+                                                                            selectedCourse?.contents?.find(c => c.content_id === formData.content_id)
+                                                                                ? `${formData.content_id} - ${selectedCourse.contents.find(c => c.content_id === formData.content_id).name_content}`
+                                                                                : ''
+                                                                        }
+                                                                        onClick={() => selectedCourse && setShowContentCommand(true)}
+                                                                        readOnly
+                                                                        className={`w-full p-2 border rounded ${selectedCourse ? 'cursor-pointer' : 'bg-gray-100 cursor-not-allowed'}`}
+                                                                        placeholder={selectedCourse ? "Chọn nội dung..." : "Vui lòng chọn khóa học trước"}
+                                                                    />
+                                                                    {showContentCommand && selectedCourse && (
+                                                                        <div className="absolute w-full z-10 bg-white border rounded-md shadow-lg mt-1">
+                                                                            <div className="flex justify-between items-center p-2 border-b">
+                                                                                <span className="font-medium">Chọn nội dung</span>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => setShowContentCommand(false)}
+                                                                                    className="p-1 hover:bg-gray-100 rounded-full"
+                                                                                >
+                                                                                    <X size={16} />
+                                                                                </button>
+                                                                            </div>
+                                                                            <Command>
+                                                                                <CommandInput placeholder="Tìm nội dung..." />
+                                                                                <CommandList>
+                                                                                    <CommandEmpty>Không tìm thấy nội dung.</CommandEmpty>
+                                                                                    <CommandGroup heading="Danh sách nội dung">
+                                                                                        {selectedCourse.contents.map((content) => {
+                                                                                            const isUsed = isContentUsed(content.content_id);
+                                                                                            return (
+                                                                                                <CommandItem
+                                                                                                    key={content.content_id}
+                                                                                                    onSelect={() => !isUsed && handleContentSelect(content)}
+                                                                                                    className={`flex items-center justify-between ${isUsed ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                                                                                    disabled={isUsed}
+                                                                                                >
+                                                                                                    <div className="flex items-center gap-2">
+                                                                                                        <span>{content.content_id} - {content.name_content}</span>
+                                                                                                    </div>
+                                                                                                    {isUsed && (
+                                                                                                        <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                                                                                            Đã thêm
+                                                                                                        </span>
+                                                                                                    )}
+                                                                                                </CommandItem>
+                                                                                            );
+                                                                                        })}
+                                                                                    </CommandGroup>
+                                                                                </CommandList>
+                                                                            </Command>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                                 {errors.content_id && <p className="text-red-500 text-sm mt-1">{errors.content_id}</p>}
                                                             </div>
 
-                                                            {/* thời gian bắt đầu */}
                                                             <div>
                                                                 <label className="block mb-1">Thời gian bắt đầu *</label>
                                                                 <input
@@ -519,7 +646,6 @@ export const InstructorSchedule = () => {
                                                                 {errors.proposed_start && <p className="text-red-500 text-sm mt-1">{errors.proposed_start}</p>}
                                                             </div>
 
-                                                            {/* ghi chú */}
                                                             <div>
                                                                 <label className="block mb-1">Ghi chú</label>
                                                                 <textarea
@@ -571,6 +697,24 @@ export const InstructorSchedule = () => {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
+                                        {allCourseOnline.map((course, index) => (
+                                            <React.Fragment key={course.course_id}>
+                                                {course.contents.map((content, contentIndex) => (
+                                                    <TableRow key={`${course.course_id}-${content.content_id}`}>
+                                                        <TableCell>{index + 1}</TableCell>
+                                                        <TableCell>{course.course_title}</TableCell>
+                                                        <TableCell>{content.name_content}</TableCell>
+                                                        <TableCell>Ngày bắt đầu</TableCell>
+                                                        <TableCell>
+                                                            <span className={`px-2 py-1 rounded-full text-sm ${content.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                                                }`}>
+                                                                Ghi chú
+                                                            </span>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </React.Fragment>
+                                        ))}
                                     </TableBody>
                                 </Table>
                                 {/* <Pagination>
@@ -610,65 +754,7 @@ export const InstructorSchedule = () => {
 
                             </div>
                         </div>
-                        {/* <div className="md:p-6 p-2 max-lg:h-screen">
-                            <div className="my-5 bg-white rounded-3xl p-3">
-                                <div className="space-y-4">
-                                    <div className=" overflow-x-auto  shadow-md rounded-lg">
-                                        <table className="w-full text-sm text-left">
-                                            <thead className="text-xs bg-gray-50">
-                                                <tr className="border-b">
-                                                    <th className="py-4 px-6 font-medium whitespace-nowrap">STT</th>
-                                                    <th className="py-4 px-6 font-medium">Khóa học</th>
-                                                    <th className="py-4 px-6 font-medium">Bài học</th>
-                                                    <th className="py-4 px-6 font-medium">Ngày dạy</th>
-                                                    <th className="py-4 px-6 font-medium">Khung giờ</th>
-                                                    <th className="py-4 px-6 font-medium">Link meet</th>
-                                                    <th className="py-4 px-6 font-medium">Ghi chú</th>
-                                                    <th className="py-4 px-6 font-medium">Trạng thái</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y">
-                                                {sampleSchedules.map((schedule, index) => (
-                                                    <tr key={schedule.id || index} className="bg-white hover:bg-gray-50">
-                                                        <td className="py-4 px-6 font-medium">{index + 1}</td>
-                                                        <td className="py-4 px-6 font-medium">{schedule.course_name}</td>
-                                                        <td className="py-4 px-6">{schedule.lesson_name}</td>
-                                                        <td className="py-4 px-6">{schedule.teaching_date}</td>
-                                                        <td className="py-4 px-6">{schedule.time_slot}</td>
-                                                        <td className="py-4 px-6">
-                                                            <a
-                                                                href={schedule.meet_link}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="text-blue-600 hover:text-blue-800 flex items-center gap-2"
-                                                            >
-                                                                <img
-                                                                    src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/meet.svg"
-                                                                    className="w-4 h-4"
-                                                                    alt="meet"
-                                                                />
-                                                                Join Meet
-                                                            </a>
-                                                        </td>
-                                                        <td className="py-4 px-6">{schedule.notes}</td>
-                                                        <td className="py-4 px-6">
-                                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${schedule.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                                                schedule.status === 'upcoming' ? 'bg-blue-100 text-blue-800' :
-                                                                    'bg-yellow-100 text-yellow-800'
-                                                                }`}>
-                                                                {schedule.status === 'completed' ? 'Đã hoàn thành' :
-                                                                    schedule.status === 'upcoming' ? 'Sắp diễn ra' :
-                                                                        'Đang diễn ra'}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> */}
+
                     </div>
                 </div>
             </section>
