@@ -15,6 +15,7 @@ use App\Models\OrderDetail;
 use Aws\S3\S3Client;
 use Illuminate\Http\UploadedFile;
 use Carbon\Carbon;
+
 class TeacherController extends Controller
 {
     public function getCoursesByTeacher()
@@ -99,38 +100,38 @@ class TeacherController extends Controller
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-    
+
             $validator = Validator::make($request->all(), [
                 'course_id' => 'required|exists:courses,course_id',
                 'name_content' => 'nullable|string|max:255',
-                'is_online_meeting' => 'required|in:0,1' 
+                'is_online_meeting' => 'required|in:0,1'
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
                     'message' => $validator->errors()
                 ], 422);
             }
-    
+
             $isCourseOwner = Course::where('course_id', $request->course_id)
                 ->where('user_id', Auth::id())
                 ->exists();
-    
+
             if (!$isCourseOwner) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Bạn không có quyền thêm nội dung vào khóa học này'
                 ], 403);
             }
-    
+
             $content = Content::create([
                 'course_id' => $request->course_id,
                 'name_content' => $request->name_content,
                 'is_online_meeting' => $request->is_online_meeting,
                 'status' => 'draft'
             ]);
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Tạo nội dung thành công',
@@ -143,7 +144,7 @@ class TeacherController extends Controller
             ], 500);
         }
     }
-    
+
     public function updateContents(Request $request, $courseId)
     {
         try {
@@ -153,25 +154,25 @@ class TeacherController extends Controller
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-    
+
             $course = Course::where('course_id', $courseId)
                 ->where('user_id', Auth::id())
                 ->first();
-    
+
             if (!$course) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Không tìm thấy khóa học hoặc bạn không có quyền truy cập'
                 ], 404);
             }
-    
+
             $validator = Validator::make($request->all(), [
                 'contents' => 'required|array',
                 'contents.*.content_id' => 'required|exists:contents,content_id',
                 'contents.*.name_content' => 'required|string|max:255',
-                'contents.*.is_online_meeting' => 'nullable|in:0,1'  
+                'contents.*.is_online_meeting' => 'nullable|in:0,1'
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -179,31 +180,31 @@ class TeacherController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-    
+
             DB::beginTransaction();
-    
+
             try {
                 foreach ($request->contents as $contentData) {
                     $content = Content::where('content_id', $contentData['content_id'])
                         ->where('course_id', $courseId)
                         ->first();
-    
+
                     if (!$content) {
                         throw new \Exception("Content ID {$contentData['content_id']} không thuộc về khóa học này");
                     }
-    
+
                     $content->update([
                         'name_content' => $contentData['name_content'],
                         'is_online_meeting' => $contentData['is_online_meeting']
                     ]);
                 }
-    
+
                 DB::commit();
-    
+
                 $updatedContents = Content::where('course_id', $courseId)
                     ->orderBy('created_at', 'desc')
                     ->get();
-    
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Cập nhật nội dung thành công',
@@ -418,78 +419,78 @@ class TeacherController extends Controller
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-    
+
             $content = Content::where('content_id', $contentId)->first();
-    
+
             if (!$content) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Không tìm thấy nội dung'
                 ], 404);
             }
-    
+
             $validator = Validator::make($request->all(), [
                 'title_contents' => 'nullable|array',
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
                 'title_contents.*.body_content' => 'required|string',
-                'title_contents.*.video_link' => 'nullable|file|mimes:mp4,mov,avi,wmv|max:102400', 
+                'title_contents.*.video_link' => 'nullable|file|mimes:mp4,mov,avi,wmv|max:102400',
                 'title_contents.*.document_link' => 'nullable|string',
                 'title_contents.*.description' => 'nullable|string'
             ], [
                 'title_contents.*.body_content.required' => 'Nội dung không được để trống',
                 'title_contents.*.video_link.max' => 'File video không được vượt quá 100MB'
             ]);
-    
+
             if ($validator->fails()) {
                 Log::error('Validation failed', [
                     'errors' => $validator->errors(),
                     'input' => request()->all()
                 ]);
-    
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Dữ liệu không hợp lệ',
                     'errors' => $validator->errors()
                 ], 422);
             }
-    
+
             DB::beginTransaction();
-    
+
             try {
-                
+
                 $titleContents = $request->get('title_contents', []);
-    
-                
+
+
                 if (!empty($titleContents) && is_array($titleContents)) {
                     foreach ($titleContents as $titleContentData) {
                         $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
                             ->where('content_id', $contentId)
                             ->first();
-    
+
                         if (!$titleContent) {
                             throw new \Exception("TitleContent ID {$titleContentData['title_content_id']} không thuộc về nội dung này");
                         }
-    
+
                         $updateData = [
                             'body_content' => $titleContentData['body_content'],
                             'document_link' => array_key_exists('document_link', $titleContentData) ? $titleContentData['document_link'] : $titleContent->document_link,
                             'description' => array_key_exists('description', $titleContentData) ? $titleContentData['description'] : $titleContent->description,
                             'status' => 'draft'
                         ];
-    
-                        
+
+
                         if (isset($titleContentData['video_link']) && $titleContentData['video_link'] instanceof UploadedFile) {
                             $updateData['video_link'] = $this->handleVideoUpload($titleContentData['video_link'], $titleContent);
                         } elseif (array_key_exists('video_link', $titleContentData)) {
                             $updateData['video_link'] = $titleContentData['video_link'];
                         }
-    
+
                         $titleContent->update($updateData);
                     }
                 }
-    
+
                 DB::commit();
-    
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Cập nhật tiêu đề nội dung thành công'
@@ -505,7 +506,7 @@ class TeacherController extends Controller
             ], 500);
         }
     }
-    
+
 
 
     public function deleteTitleContent($titleContentId)
@@ -617,7 +618,7 @@ class TeacherController extends Controller
 
     private function handleVideoUpload($file, $titleContent)
     {
-        
+
         $s3 = new S3Client([
             'region'  => env('AWS_DEFAULT_REGION'),
             'version' => 'latest',
@@ -630,10 +631,10 @@ class TeacherController extends Controller
             ],
         ]);
 
-        
+
         if ($titleContent->video_link) {
             try {
-                
+
                 $oldKey = str_replace(env('AWS_URL'), '', $titleContent->video_link);
                 $s3->deleteObject([
                     'Bucket' => env('AWS_BUCKET'),
@@ -644,7 +645,7 @@ class TeacherController extends Controller
             }
         }
 
-        
+
         $filePath = $file->getRealPath();
         $contentId = $titleContent->content_id;
         $titleContentId = $titleContent->title_content_id;
@@ -653,7 +654,7 @@ class TeacherController extends Controller
         $newFileName = "content_{$contentId}_title_{$titleContentId}_{$originalFileName}.{$extension}";
         $key = 'videos/' . $newFileName;
 
-        
+
         $contentType = match ($extension) {
             'mp4' => 'video/mp4',
             'mov' => 'video/quicktime',
@@ -663,7 +664,7 @@ class TeacherController extends Controller
         };
 
         try {
-            
+
             $result = $s3->putObject([
                 'Bucket' => env('AWS_BUCKET'),
                 'Key'    => $key,
@@ -987,6 +988,119 @@ class TeacherController extends Controller
                 'status' => false,
                 'message' => 'An error occurred while fetching course order history',
                 'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getCourseOnlineTeacher(Request $request)
+    {
+        try {
+            if (!auth()->check()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Vui lòng đăng nhập để sử dụng chức năng này',
+                    'data' => []
+                ], 401);
+            }
+
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không thể lấy thông tin người dùng',
+                    'data' => []
+                ], 401);
+            }
+
+            if ($user->role !== 'teacher') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Bạn không có quyền truy cập chức năng này',
+                    'data' => []
+                ], 403);
+            }
+
+            $teacherId = $user->user_id;
+
+            $courses = DB::table('courses as c')
+                ->select([
+                    'c.course_id',
+                    'c.course_category_id',
+                    'c.user_id',
+                    'c.title as course_title',
+                    'cnt.content_id',
+                    'cnt.name_content',
+                    'cnt.status as content_status',
+                    'cnt.created_at as content_created_at',
+                    'cnt.is_online_meeting',
+                    'u.name as teacher_name'
+                ])
+                ->join('users as u', function ($join) use ($teacherId) {
+                    $join->on('c.user_id', '=', 'u.user_id')
+                        ->where('u.role', 'teacher')
+                        ->where('u.user_id', $teacherId);
+                })
+                ->leftJoin('contents as cnt', function ($join) {
+                    $join->on('c.course_id', '=', 'cnt.course_id')
+                        ->where('cnt.is_online_meeting', '=', true);
+                })
+                ->whereExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('contents')
+                        ->whereColumn('contents.course_id', 'c.course_id')
+                        ->where('contents.is_online_meeting', '=', true);
+                })
+                ->orderBy('c.course_id', 'desc')
+                ->get();
+
+            if ($courses->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không tìm thấy khóa học online của bạn',
+                    'data' => []
+                ], 404);
+            }
+
+            $formattedCourses = collect($courses)
+                ->groupBy('course_id')
+                ->map(function ($coursesGroup) {
+                    $course = $coursesGroup->first();
+
+                    return [
+                        'course_id' => $course->course_id,
+                        'course_category_id' => $course->course_category_id,
+                        'user_id' => $course->user_id,
+                        'teacher_name' => $course->teacher_name,
+                        'course_title' => $course->course_title,
+                        'contents' => $coursesGroup
+                            ->map(function ($content) {
+                                if ($content->content_id && $content->is_online_meeting) {
+                                    return [
+                                        'content_id' => $content->content_id,
+                                        'name_content' => $content->name_content,
+                                        'status' => $content->content_status,
+                                        'created_at' => $content->content_created_at,
+                                        'is_online_meeting' => $content->is_online_meeting
+                                    ];
+                                }
+                                return null;
+                            })
+                            ->filter()
+                            ->values()
+                    ];
+                })
+                ->values();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Lấy danh sách khóa học online của bạn thành công',
+                'data' => $formattedCourses
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage(),
+                'data' => []
             ], 500);
         }
     }

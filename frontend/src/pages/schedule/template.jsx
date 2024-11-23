@@ -174,11 +174,11 @@ const ScheduleManagement = () => {
                                             <div className="mt-6 flex justify-end">
                                                 <button
                                                     className={`
-                                                        inline-flex items-center gap-2 px-6 py-2.5 
+                                                        inline-flex items-center gap-2 px-6 py-2.5
                                                         ${class_.status === 'ongoing'
                                                             ? 'bg-green-600 hover:bg-green-700'
-                                                            : 'bg-blue-600 hover:bg-blue-700'} 
-                                                        text-white rounded-lg shadow-sm 
+                                                            : 'bg-blue-600 hover:bg-blue-700'}
+                                                        text-white rounded-lg shadow-sm
                                                         hover:shadow-md transition-all duration-200
                                                     `}
                                                     onClick={() => window.open(class_.meetingLink)}
@@ -194,6 +194,11 @@ const ScheduleManagement = () => {
                         </CardContent>
                     </Card>
                 </div>
+            </div>
+
+            {/* Notfication */}
+            <div className="">
+                
             </div>
         </div>
 
