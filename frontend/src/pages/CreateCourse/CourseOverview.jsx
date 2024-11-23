@@ -101,26 +101,26 @@ export const CourseOverview = () => {
 
 
     // console.log(isUpdated, 'clickUpdate-courseOverview');
-    const exportToJsonLog = () => {
-        const logData = {
-            courseTitle, // Tiêu đề khóa học
-            courseDescriptionText, // Mô tả khóa học
-            currency, // Tiền tệ
-            price, // Giá khóa học
-            selectedLanguage, // Ngôn ngữ
-            selectedCategory, // Thể loại
-            courseImage, // Hình ảnh khóa học
-            selectedExtension, // Phần mở rộng khóa học
-            selectedDate, // Ngày học nếu chọn online
-            backupDate
-        };
+    // const exportToJsonLog = () => {
+    //     const logData = {
+    //         courseTitle, // Tiêu đề khóa học
+    //         courseDescriptionText, // Mô tả khóa học
+    //         currency, // Tiền tệ
+    //         price, // Giá khóa học
+    //         selectedLanguage, // Ngôn ngữ
+    //         selectedCategory, // Thể loại
+    //         courseImage, // Hình ảnh khóa học
+    //         selectedExtension, // Phần mở rộng khóa học
+    //         selectedDate, // Ngày học nếu chọn online
+    //         backupDate
+    //     };
 
-        // Chuyển đối tượng dữ liệu thành JSON
-        const jsonLog = JSON.stringify(logData, null, 2);
+    //     // Chuyển đối tượng dữ liệu thành JSON
+    //     const jsonLog = JSON.stringify(logData, null, 2);
 
-        // Xuất ra log dưới dạng JSON
-        console.log(jsonLog);
-    };
+    //     // Xuất ra log dưới dạng JSON
+    //     console.log(jsonLog);
+    // };
 
     useEffect(() => {
         // Đặt isUpdated thành true khi mới vào trang
@@ -626,9 +626,9 @@ export const CourseOverview = () => {
                             </div>
                         </form>
 
-                        <Button onClick={exportToJsonLog} className="mt-4">
+                        {/* <Button onClick={exportToJsonLog} className="mt-4">
                             Xuất JSON Log
-                        </Button>
+                        </Button> */}
 
                     </div>
                 </div>
