@@ -269,6 +269,7 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::get('/teaching-schedule/{meeting_id}', [TeachingScheduleController::class, 'show']); 
     Route::put('/teaching-schedule/{id}', [TeachingScheduleController::class, 'update']);     
     Route::delete('/teaching-schedule/{id}', [TeachingScheduleController::class, 'destroy']);
+    Route::get('/teaching/courses/online-teacher', [TeacherController::class, 'getCourseOnlineTeacher']);
 
 
     

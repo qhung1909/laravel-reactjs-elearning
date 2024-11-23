@@ -453,153 +453,155 @@ export const BlogCrud = () => {
                     <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
                         <table className="w-full min-w-[1200px]">
                             <thead>
-                                <tr className="bg-yellow-400">
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">ID</th>
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Tên</th>
+                                <tr className="bg-yellow-100">
+                                    <th className="text-center py-4 px-6 text-md font-bold text-yellow-900">STT</th>
+                                    <th className="text-center py-4 px-6 text-md font-bold text-yellow-900">Tên</th>
                                     <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
-
+                                        className="text-center py-4 px-6 text-md font-bold text-yellow-900 cursor-pointer group"
                                     >
-                                        <div className="flex items-center gap-2">
-                                            Ảnh bài viết
-
-                                        </div>
+                                        Ảnh bài viết
                                     </th>
                                     <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
-
+                                        className="text-center py-4 px-6 text-md font-bold text-yellow-900 cursor-pointer group"
                                     >
-                                        <div className="flex items-center gap-2">
-                                            Nội dung bài viết
-
-                                        </div>
+                                        Nội dung bài viết
                                     </th>
                                     <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
-
+                                        className="text-center py-4 px-6 text-md font-bold text-yellow-900 cursor-pointer group whitespace-nowrap"
                                     >
-                                        <div className="flex items-center gap-2">
-                                            Cập nhật lần cuối
-
-                                        </div>
+                                        Cập nhật lần cuối
                                     </th>
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Hành động</th>
+                                    <th className="text-center py-4 px-6 text-md font-bold text-yellow-900">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
-
-                                {/* loading */}
+                                {/* loading state */}
                                 {loadingCategory ? (
                                     <>
                                         {[...Array(5)].map((_, rowIndex) => (
-                                            <tr key={rowIndex} className="border-t border-gray-100">
+                                            <tr key={rowIndex} className="border-b border-gray-100">
                                                 <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
+                                                    <div className="h-5 bg-gray-200 rounded animate-pulse w-12" />
                                                 </td>
                                                 <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
+                                                    <div className="h-6 bg-gray-200 rounded animate-pulse w-48" />
                                                 </td>
                                                 <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '120px', height: '20px' }} />
+                                                    <div className="h-24 w-24 bg-gray-200 rounded-lg animate-pulse" />
                                                 </td>
                                                 <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '120px', height: '20px' }} />
+                                                    <div className="space-y-2">
+                                                        <div className="h-4 bg-gray-200 rounded animate-pulse w-32" />
+                                                        <div className="h-4 bg-gray-200 rounded animate-pulse w-40" />
+                                                    </div>
                                                 </td>
                                                 <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '80px', height: '20px' }} />
+                                                    <div className="h-5 bg-gray-200 rounded animate-pulse w-24" />
                                                 </td>
                                                 <td className="py-4 px-6">
-                                                    <div className="bg-gray-300 rounded animate-pulse" style={{ width: '80px', height: '20px' }} />
+                                                    <div className="flex gap-2">
+                                                        <div className="h-9 bg-gray-200 rounded animate-pulse w-20" />
+                                                        <div className="h-9 bg-gray-200 rounded animate-pulse w-20" />
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
                                     </>
-                                ) :
-
+                                ) : (
                                     // nội dung blog hiển thị
-                                    (
-                                        blogs.map((blog, index) => (
-                                            <tr key={index} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
+                                    blogs.map((blog, index) => (
+                                        <tr key={index} className="border-b border-gray-100 hover:bg-gray-50/70 transition-all duration-200">
+                                            {/* id */}
+                                            <td className="py-4 px-6">
+                                                <span className="text-sm font-medium text-gray-600">
+                                                    {index + 1}
+                                                </span>
+                                            </td>
 
-                                                {/* id */}
-                                                <td className="py-4 px-6 text-sm text-gray-600">
-                                                    {blog.blog_id}
-                                                </td>
+                                            {/* title */}
+                                            <td className="py-4 px-6 min-w-[200px]">
+                                                <div className="font-medium text-gray-900 line-clamp-2">
+                                                    {blog.title}
+                                                </div>
+                                            </td>
 
-                                                {/* title */}
-                                                <td className="py-4 px-6">
-                                                    <div className="font-medium text-gray-900">{blog.title}</div>
-                                                </td>
-
-                                                {/* ảnh */}
-                                                <td className="py-4 px-6 text-sm text-gray-600">
-                                                    {blog.image ? (
-                                                        <img src={blog.image} alt={`${blog.name} icon`} className="w-1/2" />
-                                                    ) : (
-                                                        <>Chưa có ảnh</>
-                                                    )}
-                                                </td>
-
-                                                {/* content */}
-                                                <td className="py-4 px-6">
-                                                    <div className="flex items-center gap-2 w-40">
-                                                        <span
-                                                            className="text-sm text-gray-600 line-clamp-3"
-                                                            dangerouslySetInnerHTML={{ __html: blog.content }}
+                                            {/* ảnh */}
+                                            <td className="py-4 px-6">
+                                                {blog.image ? (
+                                                    <div className="relative w-26 h-26 rounded-lg overflow-hidden shadow-sm">
+                                                        <img
+                                                            src={blog.image}
+                                                            alt={`${blog.name} icon`}
+                                                            className="object-cover w-full h-full"
                                                         />
                                                     </div>
-                                                </td>
+                                                ) : (
+                                                    <span className="text-sm text-gray-500 italic">Chưa có ảnh</span>
+                                                )}
+                                            </td>
 
-                                                {/* last update */}
-                                                <td className="py-4 px-6 text-sm text-gray-600">
+                                            {/* content */}
+                                            <td className="py-4 px-6">
+                                                <div className="w-60">
+                                                    <span
+                                                        className="text-sm text-gray-600 line-clamp-3"
+                                                        dangerouslySetInnerHTML={{ __html: blog.content }}
+                                                    />
+                                                </div>
+                                            </td>
+
+                                            {/* last update */}
+                                            <td className="py-4 px-6 text-center">
+                                                <span className="text-sm  text-gray-600">
                                                     {new Date(blog.updated_at).toLocaleDateString('vi-VN')}
-                                                </td>
+                                                </span>
+                                            </td>
 
-                                                {/* action */}
+                                            {/* action */}
+                                            <td className="py-4 px-6">
+                                                <div className="flex items-center gap-3">
+                                                    {/* sửa blog */}
+                                                    <Dialog>
+                                                        <DialogTrigger asChild>
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="border-gray-500 text-gray-500 hover:bg-gray-50 hover:text-gray-600 transition-colors"
+                                                                onClick={() => openEditDialog(blog)}
+                                                            >
+                                                                <PenLine className="h-4 w-4 mr-1.5" />
+                                                                Sửa
+                                                            </Button>
+                                                        </DialogTrigger>
+                                                        <DialogContent className="sm:max-w-[425px] max-h-[500px] overflow-y-auto">
+                                                            <DialogHeader>
+                                                                <DialogTitle className="text-xl font-semibold">Sửa bài viết</DialogTitle>
+                                                                <DialogDescription className="text-gray-500">
+                                                                    Thay đổi thông tin bài viết tại đây. Nhấn lưu khi bạn hoàn tất.
+                                                                </DialogDescription>
+                                                            </DialogHeader>
 
-                                                {/* sửa blog */}
-                                                <td className="py-4 px-6">
-                                                    <div className="flex justify-start gap-2">
-                                                        <Dialog>
-                                                            <DialogTrigger asChild>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    className="text-blue-600 border-blue-600 hover:bg-blue-50"
-                                                                    onClick={() => openEditDialog(blog)}
-                                                                >
-                                                                    <PenLine className="h-4 w-4 mr-1" />
-                                                                    Sửa
-                                                                </Button>
-                                                            </DialogTrigger>
-                                                            <DialogContent className="sm:max-w-[425px] max-h-[500px] overflow-y-auto">
-                                                                <DialogHeader>
-                                                                    <DialogTitle>Sửa bài viết</DialogTitle>
-                                                                    <DialogDescription>
-                                                                        Thay đổi thông tin bài viết tại đây. Nhấn lưu khi bạn hoàn tất.
-                                                                    </DialogDescription>
-                                                                </DialogHeader>
-                                                                <div className="space-y-3 py-4">
+                                                            <div className="space-y-4 pb-4">
+                                                                {/* title */}
+                                                                <div className="space-y-2">
+                                                                    <Label htmlFor="editBlogTitle" className="font-medium">
+                                                                        Tên
+                                                                    </Label>
+                                                                    <Input
+                                                                        id="editBlogTitle"
+                                                                        value={editBlogTitle}
+                                                                        onChange={(e) => setEditBlogTitle(e.target.value)}
+                                                                        className="w-full"
+                                                                        required
+                                                                    />
+                                                                </div>
 
-                                                                    {/* title */}
-                                                                    <div className="space-y-2">
-                                                                        <Label htmlFor="editBlogTitle" className="text-right">
-                                                                            Tên
-                                                                        </Label>
-                                                                        <Input
-                                                                            id="editBlogTitle"
-                                                                            value={editBlogTitle}
-                                                                            onChange={(e) => setEditBlogTitle(e.target.value)}
-                                                                            className="col-span-3"
-                                                                            required
-                                                                        />
-                                                                    </div>
-
-                                                                    {/* content */}
-                                                                    <div className="space-y-2">
-                                                                        <Label htmlFor="editBlogContent" className="text-right">
-                                                                            Nội dung
-                                                                        </Label>
+                                                                {/* content */}
+                                                                <div className="space-y-2">
+                                                                    <Label htmlFor="editBlogContent" className="font-medium">
+                                                                        Nội dung
+                                                                    </Label>
+                                                                    <div className="border rounded-lg">
                                                                         <ReactQuill
                                                                             value={editBlogContent}
                                                                             onChange={setEditBlogContent}
@@ -619,67 +621,81 @@ export const BlogCrud = () => {
                                                                             ]}
                                                                         />
                                                                     </div>
-                                                                    {/* ảnh */}
-
-                                                                    {blog.image ? (
-                                                                        <div className="space-y-2">
-                                                                            <Label>Ảnh hiện tại</Label>
-                                                                            <img src={blog.image} className="w-40" alt="Current Icon" />
-                                                                        </div>
-                                                                    ) : (
-                                                                        <></>
-                                                                    )
-
-                                                                    }
-
-                                                                    <div className="space-y-2">
-                                                                        <Label htmlFor="editCategoryImage" className="text-right">
-                                                                            Tạo ảnh  mới
-                                                                        </Label>
-                                                                        <Input
-                                                                            type='file'
-                                                                            id="editCategoryImage"
-                                                                            onChange={handleImageChange}
-                                                                            className="col-span-3"
-                                                                            required
-                                                                        />
-                                                                    </div>
-                                                                    {selectedImage && (
-                                                                        <div className="space-y-2">
-                                                                            <Label>Hình ảnh đã chọn:</Label>
-                                                                            <img src={selectedImage} onChange={((e) => setEditBlogImage(e.target.value))} alt="Selected" className="col-span-3" />
-                                                                        </div>
-                                                                    )}
                                                                 </div>
-                                                                {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
-                                                                <DialogFooter>
-                                                                    <Button
-                                                                        className="bg-yellow-500 hover:bg-yellow-600"
-                                                                        type="submit"
-                                                                        onClick={editBlog}
-                                                                    >
-                                                                        Cập nhật
-                                                                    </Button>
-                                                                </DialogFooter>
-                                                            </DialogContent>
-                                                        </Dialog>
 
+                                                                {/* ảnh */}
+                                                                {blog.image && (
+                                                                    <div className="space-y-2">
+                                                                        <Label className="font-medium">Ảnh hiện tại</Label>
+                                                                        <div className="relative w-40 h-40 rounded-lg overflow-hidden border">
+                                                                            <img
+                                                                                src={blog.image}
+                                                                                className="object-cover w-full h-full"
+                                                                                alt="Current Icon"
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                )}
 
-                                                        {/* xóa blog */}
-                                                        <Button
-                                                            onClick={() => deleteBlog(blog.slug)}
-                                                            variant="destructive"
-                                                            size="sm"
-                                                            className="bg-red-500 hover:bg-red-600"
-                                                        >
-                                                            <Trash2 className="h-4 w-4 mr-1" />
-                                                            Xóa
-                                                        </Button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
+                                                                <div className="space-y-2">
+                                                                    <Label htmlFor="editCategoryImage" className="font-medium">
+                                                                        Tải lên ảnh mới
+                                                                    </Label>
+                                                                    <Input
+                                                                        type='file'
+                                                                        id="editCategoryImage"
+                                                                        onChange={handleImageChange}
+                                                                        className="w-full"
+                                                                        required
+                                                                    />
+                                                                </div>
+
+                                                                {selectedImage && (
+                                                                    <div className="space-y-2">
+                                                                        <Label className="font-medium">Xem trước ảnh mới:</Label>
+                                                                        <div className="relative w-40 h-40 rounded-lg overflow-hidden border">
+                                                                            <img
+                                                                                src={selectedImage}
+                                                                                onChange={((e) => setEditBlogImage(e.target.value))}
+                                                                                alt="Selected"
+                                                                                className="object-cover w-full h-full"
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {error && (
+                                                                <p className="text-red-500 text-sm pt-2">{error}</p>
+                                                            )}
+
+                                                            <DialogFooter>
+                                                                <Button
+                                                                    className="bg-yellow-500 hover:bg-yellow-600 text-white transition-colors"
+                                                                    type="submit"
+                                                                    onClick={editBlog}
+                                                                >
+                                                                    Cập nhật
+                                                                </Button>
+                                                            </DialogFooter>
+                                                        </DialogContent>
+                                                    </Dialog>
+
+                                                    {/* xóa blog */}
+                                                    <Button
+                                                        onClick={() => deleteBlog(blog.slug)}
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        className="bg-red-500 hover:bg-red-600 transition-colors"
+                                                    >
+                                                        <Trash2 className="h-4 w-4 mr-1.5" />
+                                                        Xóa
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>

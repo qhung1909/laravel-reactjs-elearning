@@ -66,7 +66,7 @@
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td style="text-align: center; padding: 30px 0;">
-                                        <a href="{{ 'http://localhost:5173/certificates' }}" 
+                                        <a href="{{ 'http://localhost:5173/user/certificate' }}" 
                                            style="display: inline-block; padding: 14px 30px; background-color: #0ea5e9; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 6px; transition: background-color 0.2s;">
                                             Xem chứng chỉ
                                         </a>
