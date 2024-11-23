@@ -3,14 +3,12 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class TeacherScheduleNotification extends Mailable
 {
+    use Queueable, SerializesModels;
 
     public $data;
 
@@ -22,6 +20,6 @@ class TeacherScheduleNotification extends Mailable
     public function build()
     {
         return $this->view('emails.teacher-schedule')
-            ->subject('Thông báo lịch dạy mới');
+                    ->subject('Thông báo lịch dạy mới');
     }
 }

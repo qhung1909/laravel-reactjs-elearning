@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, Book, Search, Filter, BadgeHelp, Calculator } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, Book, Search, Filter, BadgeHelp, Calculator, Loader2 } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import ReactPlayer from "react-player";
@@ -22,7 +22,7 @@ export default function BrowseNewCourses() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const API_URL_GPT = 'https://api.openai.com/v1/chat/completions';
-    const API_KEY_GPT = import.meta.env.VITE_API_AI_KEY;
+    const API_KEY_GPT = import.meta.env.VITE_GPT_KEY;
     const [courses, setCourses] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [stats, setStats] = useState({});
@@ -419,132 +419,138 @@ export default function BrowseNewCourses() {
     }, []);
 
     //tính điểm gpt
-    const calculateCourseScore = async (courseId) => {
-        try {
-            // Fetch course data
-            const courseResponse = await axios.get(`${API_URL}/admin/pending-courses/${courseId}`, {
-                headers: { 'x-api-secret': API_KEY },
-            });
-            const courseData = courseResponse.data[0]; // Đảm bảo dữ liệu đúng là một object
-            console.log('Dữ liệu khóa học:', courseData);
-
-            // Updated criteria bao gồm các tiêu chí mới
-            const criteria = {
-                price: 10,          // Giá: 10 điểm
-                attractiveness: 20, // Đánh giá tiêu đề và mô tả dựa vào GPT: tối đa 20 điểm
-                detailLevel: 20,    // Độ chi tiết của mô tả: tối đa 20 điểm
-            };
-
-            let totalScore = 0;
-            let reasons = [];
-
-            // Function to use GPT for content analysis and scoring
-            const analyzeContentWithGPT = async (content, type) => {
-                try {
-                    const response = await axios.post(
-                        'https://api.openai.com/v1/chat/completions',
-                        {
-                            model: 'gpt-3.5-turbo',
-                            messages: [
-                                {
-                                    role: 'user',
-                                    content: `Hãy đánh giá nội dung sau đây. Đánh giá dựa vào mức độ hấp dẫn, rõ ràng và phù hợp. Cho điểm từ 0 đến 20 nếu là tiêu đề và từ 0 đến 20 nếu là mô tả: "${content}". Nội dung này là ${type}.`,
-                                },
-                            ],
-                        },
-                        {
-                            headers: {
-                                'Authorization': `Bearer ${API_KEY_GPT}`,
-                            },
-                        }
-                    );
-
-                    const result = response.data.choices[0].message.content;
-                    const scoreMatch = result.match(/(\d+)/); // Tìm số điểm trong phản hồi
-                    if (scoreMatch) {
-                        const score = parseInt(scoreMatch[0], 10);
-                        console.log(`Điểm GPT đánh giá cho ${type}: ${score}`);
-                        return score;
-                    } else {
-                        console.log(`Không tìm thấy điểm trong phản hồi của GPT cho ${type}`);
-                        return 0;
-                    }
-                } catch (error) {
-                    console.error(`Lỗi khi chấm điểm ${type} bằng GPT:`, error);
-                    return 0; // Trả về 0 nếu có lỗi
-                }
-            };
-
-            // Chấm điểm tiêu đề
-            if (courseData.title && courseData.title.trim().length > 0) {
-                const titleScore = await analyzeContentWithGPT(courseData.title, "tiêu đề");
-                totalScore += titleScore;
-            } else {
-                reasons.push('Thiếu tiêu đề hấp dẫn');
-                console.log('Không thêm điểm cho tiêu đề vì thiếu tiêu đề');
-            }
-
-            // Chấm điểm mô tả
-            if (courseData.description && courseData.description.trim().length > 0) {
-                const descriptionScore = await analyzeContentWithGPT(courseData.description, "mô tả");
-                totalScore += descriptionScore;
-            } else {
-                reasons.push('Thiếu mô tả rõ ràng');
-                console.log('Không thêm điểm cho mô tả vì thiếu mô tả');
-            }
-
-            // Chấm điểm cho giá
-            if (courseData.price && parseFloat(courseData.price) > 0) {
-                totalScore += criteria.price;
-                console.log(`Đã thêm ${criteria.price} điểm cho giá: ${courseData.price}`);
-            } else {
-                reasons.push('Không có giá hoặc giá không hợp lý');
-                console.log('Không thêm điểm cho giá vì không có giá hoặc giá không hợp lý');
-            }
-
-            // Tổng điểm tối đa là 50 (20 + 20 + 10)
-            totalScore = Math.min(totalScore, 50);
-            totalScore = Math.max(totalScore, 0);
-
-            console.log(`Tổng điểm: ${totalScore}`);
-
-            // Tạo giải thích chi tiết
-            const explanation = `Điểm số của khóa học là ${totalScore}. Lý do: ${reasons.join(', ')}.`;
-
-            return { finalScore: totalScore, explanation };
-        } catch (error) {
-            console.error('Lỗi khi tính điểm khóa học:', error);
-            toast.error('Có lỗi xảy ra khi tính điểm khóa học.');
-            return null;
-        }
-    };
-
-
-    const handleCalculateScore = async (courseId) => {
-        try {
-            // Gọi hàm calculateCourseScore và lấy kết quả
-            const courseScore = await calculateCourseScore(courseId);
-
-            if (courseScore && courseScore.finalScore !== null) {
-                const { finalScore, explanation } = courseScore;
-                console.log(`Điểm số của khóa học: ${finalScore}`);
-                console.log(`Giải thích: ${explanation}`);
-                toast.success(`Điểm số của khóa học: ${finalScore}`);
-            } else {
-                throw new Error('Không thể tính điểm khóa học');
-            }
-        } catch (error) {
-            console.error('Lỗi khi tính điểm khóa học:', error.message || error);
-            toast.error('Có lỗi xảy ra khi tính điểm khóa học.');
-        }
-    };
-
+    const [isAutoApproveResultOpen, setIsAutoApproveResultOpen] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
     const [scores, setScores] = useState({
         titleScore: 0,
         descriptionScore: 0,
+        priceScore: 0,
         finalScore: 0,
         explanation: ''
     });
+
+    const analyzeContentWithGPT = async (content, type) => {
+        try {
+            const prompt = type === 'tiêu đề'
+                ? `Đánh giá tiêu đề khóa học sau đây dựa trên các tiêu chí:
+                    1. Tính hấp dẫn và thu hút
+                    2. Độ rõ ràng và dễ hiểu
+                    3. Tính phù hợp với nội dung khóa học
+                    4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp (chính trị, bạo lực, khiêu dâm, lừa đảo, vi phạm bản quyền...)
+
+                    Tiêu đề: "${content}"
+
+                    Nếu phát hiện bất kỳ từ ngữ hay nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
+                    Nếu không có vấn đề gì, đánh giá bình thường từ 0-20 điểm.
+
+                    Hãy trả về theo định dạng sau:
+                    Điểm: [số điểm]
+                    Lý do: [giải thích ngắn gọn]
+                    Cảnh báo: [nếu có nội dung nhạy cảm, ghi rõ vấn đề. Nếu không có thì để trống]`
+                : `Đánh giá mô tả khóa học sau đây dựa trên các tiêu chí:
+                    1. Độ chi tiết và đầy đủ thông tin
+                    2. Tính rõ ràng và cấu trúc
+                    3. Tính thuyết phục và chuyên nghiệp
+                    4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp (chính trị, bạo lực, khiêu dâm, lừa đảo, vi phạm bản quyền...)
+
+                    Mô tả: "${content}"
+
+                    Nếu phát hiện bất kỳ từ ngữ hay nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
+                    Nếu không có vấn đề gì, đánh giá bình thường từ 0-20 điểm.
+
+                    Hãy trả về theo định dạng sau:
+                    Điểm: [số điểm]
+                    Lý do: [giải thích ngắn gọn]
+                    Cảnh báo: [nếu có nội dung nhạy cảm, ghi rõ vấn đề. Nếu không có thì để trống]`;
+            if (!API_KEY_GPT) {
+                console.error('API key is missing');
+                return { score: 0, reason: 'Thiếu API key' };
+            }
+            const response = await axios.post(
+                'https://api.openai.com/v1/chat/completions',
+                {
+                    model: 'gpt-3.5-turbo',
+                    messages: [{ role: 'user', content: prompt }],
+                    temperature: 0.7,
+                    max_tokens: 200
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY_GPT}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            const result = response.data.choices[0].message.content;
+            const scoreMatch = result.match(/Điểm:\s*(\d+)/i);
+            const reasonMatch = result.match(/Lý do:\s*(.+)/i);
+
+            if (!scoreMatch) {
+                console.error(`Không thể trích xuất điểm từ phản hồi GPT cho ${type}:`, result);
+                return { score: 0, reason: 'Không thể đánh giá' };
+            }
+
+            return {
+                score: Math.min(20, Math.max(0, parseInt(scoreMatch[1], 10))),
+                reason: reasonMatch ? reasonMatch[1].trim() : 'Không có giải thích'
+            };
+        } catch (error) {
+            console.error(`Lỗi khi phân tích ${type}:`, error);
+            return { score: 0, reason: `Lỗi khi đánh giá ${type}` };
+        }
+    };
+
+    const calculateCourseScore = async (courseId) => {
+        setIsProcessing(true);
+        try {
+            const courseResponse = await axios.get(`${API_URL}/admin/pending-courses/${courseId}`, {
+                headers: { 'x-api-secret': API_KEY },
+            });
+            const courseData = courseResponse.data[0];
+
+            if (!courseData?.title || !courseData?.description) {
+                throw new Error("Thiếu thông tin khóa học cần thiết");
+            }
+
+            // Đánh giá tiêu đề
+            const titleAnalysis = await analyzeContentWithGPT(courseData.title, "tiêu đề");
+
+            // Đánh giá mô tả
+            const descriptionAnalysis = await analyzeContentWithGPT(courseData.description, "mô tả");
+
+            // Tính điểm giá
+            const priceScore = courseData.price_discount > 0 ? 10 : 0;
+
+            // Tổng hợp điểm và giải thích
+            const finalScore = titleAnalysis.score + descriptionAnalysis.score + priceScore;
+            const explanation = `Tiêu đề: ${titleAnalysis.reason}. Mô tả: ${descriptionAnalysis.reason}. ${priceScore > 0 ? 'Giá hợp lệ.' : 'Giá không hợp lệ.'
+                }`;
+
+            setScores({
+                titleScore: titleAnalysis.score,
+                descriptionScore: descriptionAnalysis.score,
+                priceScore,
+                finalScore,
+                explanation
+            });
+
+            return { finalScore, explanation };
+        } catch (error) {
+            console.error('Lỗi khi tính điểm:', error);
+            toast.error('Có lỗi xảy ra khi tính điểm khóa học');
+            return null;
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleCalculateScore = async (courseId) => {
+        const result = await calculateCourseScore(courseId);
+        if (result) {
+            setIsAutoApproveResultOpen(true);
+        }
+    };
 
     const filteredCourses = courses.filter(course => {
         const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -753,7 +759,7 @@ export default function BrowseNewCourses() {
                                                         </div>
                                                         <div className="flex items-center">
                                                             <label className="font-semibold mr-2">Giá:</label>
-                                                            <p>{formatCurrency(activeCourse.price)}</p>
+                                                            <p>{formatCurrency(activeCourse.price_discount)}</p>
                                                         </div>
                                                         <div className="flex items-start">
                                                             <label className="font-semibold mr-2 mt-1">Yêu cầu tiên quyết:</label>
@@ -944,86 +950,135 @@ export default function BrowseNewCourses() {
                                     <div className="flex gap-4 mt-6">
                                         {/* Tính điểm */}
                                         <Button
-                                            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                                            className="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
                                             onClick={async () => {
-                                                const result = await calculateCourseScore(activeCourse?.course_id);
-                                                if (result) {
-                                                    setScores({
-                                                        titleScore: result.titleScore || 0,
-                                                        descriptionScore: result.descriptionScore || 0,
-                                                        finalScore: result.finalScore,
-                                                        explanation: result.explanation
-                                                    });
-                                                }
-                                                handleCalculateScore(activeCourse?.course_id);
+                                                await handleCalculateScore("activeCourseId");
                                             }}
+                                            disabled={isProcessing}
                                         >
-                                            <Calculator className="mr-2 h-4 w-4" />
-                                            <AlertDialog>
-                                                <AlertDialogTrigger>Tính điểm</AlertDialogTrigger>
-                                                <AlertDialogContent className="max-w-md bg-white rounded-xl shadow-xl">
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle className="text-xl font-bold text-blue-700 flex items-center gap-2">
-                                                            <CheckCircle className="h-5 w-5" />
-                                                            Kết quả tính điểm
-                                                        </AlertDialogTitle>
-                                                        <AlertDialogDescription className="space-y-3 mt-4">
-                                                            {/* Điểm tiêu đề */}
-                                                            <div className="bg-blue-50 p-3 rounded-lg">
+                                            {isProcessing ? (
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    Đang xử lý...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Calculator className="mr-2 h-4 w-4" />
+                                                    Tính điểm
+                                                </>
+                                            )}
+                                        </Button>
+                                        <AlertDialog open={isAutoApproveResultOpen} onOpenChange={setIsAutoApproveResultOpen}>
+                                            <AlertDialogContent className="max-w-5xl bg-white rounded-xl shadow-xl">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle className="text-xl font-bold text-purple-700 flex items-center gap-2 mb-4">
+                                                        Kết quả tính điểm
+                                                    </AlertDialogTitle>
+                                                    <AlertDialogDescription className="flex gap-6">
+                                                        {/* Cột bên trái - Hiển thị điểm */}
+                                                        <div className="w-1/3 space-y-3">
+                                                            <div className="bg-purple-50 p-3 rounded-lg">
                                                                 <p className="flex justify-between items-center">
-                                                                    <span className="text-gray-700">Điểm GPT đánh giá cho tiêu đề:</span>
-                                                                    <span className="font-semibold text-blue-700">{scores.titleScore}</span>
+                                                                    <span className="text-gray-700">Điểm tiêu đề:</span>
+                                                                    <span className="font-semibold text-purple-700">{scores.titleScore}/20</span>
                                                                 </p>
                                                             </div>
 
-                                                            {/* Điểm mô tả */}
-                                                            <div className="bg-blue-50 p-3 rounded-lg">
+                                                            <div className="bg-purple-50 p-3 rounded-lg">
                                                                 <p className="flex justify-between items-center">
-                                                                    <span className="text-gray-700">Điểm GPT đánh giá cho mô tả:</span>
-                                                                    <span className="font-semibold text-blue-700">{scores.descriptionScore}</span>
+                                                                    <span className="text-gray-700">Điểm mô tả:</span>
+                                                                    <span className="font-semibold text-purple-700">{scores.descriptionScore}/20</span>
                                                                 </p>
                                                             </div>
 
-                                                            {/* Điểm giá */}
-                                                            <div className="bg-blue-50 p-3 rounded-lg">
+                                                            <div className="bg-purple-50 p-3 rounded-lg">
                                                                 <p className="flex justify-between items-center">
-                                                                    <span className="text-gray-700">Điểm cho giá:</span>
-                                                                    <span className="font-semibold text-blue-700">10</span>
+                                                                    <span className="text-gray-700">Điểm giá:</span>
+                                                                    <span className="font-semibold text-purple-700">{scores.priceScore}/10</span>
                                                                 </p>
-                                                                {activeCourse?.price && (
-                                                                    <p className="text-sm text-gray-600 mt-1">
-                                                                        Giá: <span className="font-medium">{formatCurrency(activeCourse.price)}</span>
-                                                                    </p>
-                                                                )}
                                                             </div>
 
-                                                            {/* Tổng điểm */}
-                                                            <div className="bg-green-50 p-3 rounded-lg">
+                                                            <div className="bg-purple-50 p-3 rounded-lg">
                                                                 <p className="flex justify-between items-center">
                                                                     <span className="text-gray-700">Tổng điểm:</span>
-                                                                    <span className="font-bold text-green-600 text-lg">{scores.finalScore}</span>
+                                                                    <span className="font-semibold text-purple-700">{scores.finalScore}/50</span>
                                                                 </p>
                                                             </div>
 
-                                                            {/* Giải thích */}
-                                                            <div className="bg-gray-50 p-3 rounded-lg">
-                                                                <p className="text-gray-600">
-                                                                    <span className="font-medium">Giải thích:</span> {scores.explanation}
+                                                            <div className={`p-3 rounded-lg ${scores.finalScore >= 35 ? 'bg-green-50' : 'bg-red-50'}`}>
+                                                                <p className="flex items-center justify-center">
+                                                                    <span className={`font-medium ${scores.finalScore >= 35 ? 'text-green-600' : 'text-red-600'}`}>
+                                                                        {scores.finalScore >= 35 ? '✅ Đạt yêu cầu' : '❌ Không đạt yêu cầu'}
+                                                                    </span>
                                                                 </p>
                                                             </div>
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter className="mt-4">
-                                                        <AlertDialogCancel className="border border-gray-200 hover:bg-gray-100 transition-colors">
-                                                            Đóng
-                                                        </AlertDialogCancel>
-                                                        <AlertDialogAction className="bg-blue-600 hover:bg-blue-700 transition-colors">
-                                                            Xác nhận
-                                                        </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </Button>
+                                                        </div>
+
+                                                        {/* Cột bên phải - Chi tiết đánh giá */}
+                                                        <div className="w-2/3 bg-gray-50 p-4 rounded-lg">
+                                                            <h4 className="font-medium text-gray-700 mb-4">Chi tiết đánh giá:</h4>
+
+                                                            {/* Phần Tiêu đề */}
+                                                            <div className="mb-4">
+                                                                <p className="font-medium text-gray-600 mb-2 flex items-center">
+                                                                    <span className="mr-2">🎯</span>
+                                                                    Tiêu đề:
+                                                                </p>
+                                                                <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">
+                                                                    {scores.explanation ?
+                                                                        scores.explanation
+                                                                            .split('Mô tả:')[0]
+                                                                            .replace('Tiêu đề:', '')
+                                                                            .trim()
+                                                                        : 'Chưa có đánh giá'
+                                                                    }
+                                                                </p>
+                                                            </div>
+
+                                                            {/* Phần Mô tả */}
+                                                            <div className="mb-4">
+                                                                <p className="font-medium text-gray-600 mb-2 flex items-center">
+                                                                    <span className="mr-2">📝</span>
+                                                                    Mô tả:
+                                                                </p>
+                                                                <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">
+                                                                    {scores.explanation ?
+                                                                        scores.explanation
+                                                                            .split('Mô tả:')[1]
+                                                                            ?.split('Giá')[0]
+                                                                            ?.trim() ?? 'Chưa có đánh giá'
+                                                                        : 'Chưa có đánh giá'
+                                                                    }
+                                                                </p>
+                                                            </div>
+
+                                                            {/* Phần Giá */}
+                                                            <div>
+                                                                <p className="font-medium text-gray-600 mb-2 flex items-center">
+                                                                    <span className="mr-2">💰</span>
+                                                                    Giá:
+                                                                </p>
+                                                                <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">
+                                                                    {scores.explanation ?
+                                                                        scores.explanation.includes('Giá hợp lệ') ? 'Hợp lệ' : 'Không hợp lệ'
+                                                                        : 'Chưa có đánh giá'
+                                                                    }
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogAction
+                                                        onClick={() => setIsAutoApproveResultOpen(false)}
+                                                        className="bg-purple-600 text-white hover:bg-purple-700"
+                                                    >
+                                                        Đóng
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+
                                         {/* Phê duyệt */}
                                         <AlertDialog open={isApproveModalOpen} onOpenChange={setIsApproveModalOpen}>
                                             <AlertDialogTrigger>
@@ -1146,6 +1201,6 @@ export default function BrowseNewCourses() {
                     </div>
                 </div>
             </SidebarInset>
-        </SidebarProvider>
+        </SidebarProvider >
     );
 }
