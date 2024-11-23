@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ScheduleManagement = () => {
     const [meetings, setMeetings] = useState([]);
-    const [selectedFilter, setSelectedFilter] = useState("today");
+    const [selectedFilter, setSelectedFilter] = useState("all");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -180,7 +180,7 @@ const ScheduleManagement = () => {
                                 <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                                     Lớp học sắp tới
                                 </CardTitle>
-                                <Select
+                                <Select 
                                     value={selectedFilter}
                                     onValueChange={setSelectedFilter}
                                 >
@@ -190,7 +190,7 @@ const ScheduleManagement = () => {
                                     <SelectContent>
                                         <SelectItem value="today">Hôm nay</SelectItem>
                                         <SelectItem value="week">Tuần này</SelectItem>
-                                        <SelectItem value="all">Tất cả</SelectItem>
+                                        <SelectItem value="all" defaultValue>Tất cả</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
