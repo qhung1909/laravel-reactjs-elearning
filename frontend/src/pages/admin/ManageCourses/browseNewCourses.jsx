@@ -520,7 +520,7 @@ export default function BrowseNewCourses() {
             const descriptionAnalysis = await analyzeContentWithGPT(courseData.description, "mô tả");
 
             // Tính điểm giá
-            const priceScore = courseData.price > 0 ? 10 : 0;
+            const priceScore = courseData.price_discount > 0 ? 10 : 0;
 
             // Tổng hợp điểm và giải thích
             const finalScore = titleAnalysis.score + descriptionAnalysis.score + priceScore;
@@ -759,7 +759,7 @@ export default function BrowseNewCourses() {
                                                         </div>
                                                         <div className="flex items-center">
                                                             <label className="font-semibold mr-2">Giá:</label>
-                                                            <p>{formatCurrency(activeCourse.price)}</p>
+                                                            <p>{formatCurrency(activeCourse.price_discount)}</p>
                                                         </div>
                                                         <div className="flex items-start">
                                                             <label className="font-semibold mr-2 mt-1">Yêu cầu tiên quyết:</label>
