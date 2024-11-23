@@ -807,30 +807,66 @@ export const Lesson = () => {
                                 {currentBodyContent ? (
                                     <div className="bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
                                         <div className="p-6">
-                                            {/* Title  */}
+                                            {/* Title with Book Icon */}
                                             <div className="relative">
                                                 <div className="absolute -left-6 top-0 bottom-0 w-0.5">
                                                     <div className="w-0.5 h-full bg-gradient-to-b from-blue-400 via-blue-500 to-blue-600 rounded-full"></div>
                                                 </div>
-                                                <h2 className="text-lg font-medium text-gray-800 leading-relaxed pl-2">
-                                                    {currentBodyContent.body_content}
-                                                </h2>
+                                                <div className="flex items-start gap-3">
+                                                    <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                                                        <svg
+                                                            className="w-5 h-5 text-blue-500"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                                                            />
+                                                        </svg>
+                                                    </span>
+                                                    <h2 className="text-lg font-medium text-gray-800 leading-relaxed">
+                                                        {currentBodyContent.body_content}
+                                                    </h2>
+                                                </div>
                                             </div>
 
-                                            {/* Description */}
+                                            {/* Description with Info Icon */}
                                             {currentBodyContent.description && (
                                                 <div className="mt-5 relative overflow-hidden">
                                                     <div className="relative bg-gray-50 rounded-lg p-4">
+                                                        {/* Decorative elements */}
                                                         <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50/30 rounded-full -mr-10 -mt-10"></div>
                                                         <div className="absolute bottom-0 left-0 w-16 h-16 bg-blue-50/20 rounded-full -ml-8 -mb-8"></div>
-                                                        <p className="text-sm text-gray-600 leading-relaxed relative z-10">
-                                                            {currentBodyContent.description}
-                                                        </p>
+
+                                                        <div className="flex gap-3">
+                                                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100/50 flex items-center justify-center mt-0.5">
+                                                                <svg
+                                                                    className="w-4 h-4 text-blue-500"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth={2}
+                                                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                                    />
+                                                                </svg>
+                                                            </span>
+                                                            <p className="text-sm text-gray-600 leading-relaxed relative z-10">
+                                                                {currentBodyContent.description}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             )}
 
-                                            {/* Document Link  */}
+                                            {/* Document Link with Enhanced Icon */}
                                             {currentBodyContent.document_link && (
                                                 <div className="mt-5">
                                                     <a
@@ -851,7 +887,7 @@ export const Lesson = () => {
                                                                     strokeLinecap="round"
                                                                     strokeLinejoin="round"
                                                                     strokeWidth={2}
-                                                                    d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+                                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                                                 />
                                                             </svg>
                                                         </span>
@@ -867,16 +903,33 @@ export const Lesson = () => {
                                         </div>
                                     </div>
                                 ) : (
-
+                                    /* Loading State with Icon */
                                     <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
                                         <div className="relative">
                                             <div className="absolute -left-6 top-0 bottom-0 w-0.5">
                                                 <div className="w-0.5 h-full bg-gradient-to-b from-blue-400 via-blue-500 to-blue-600 rounded-full"></div>
                                             </div>
-                                            <h2 className="text-xl font-medium text-gray-800 pl-2 mb-4 uppercase">
-                                                {lesson?.name || "Đang tải..."}
-                                            </h2>
-                                            <div className="flex items-center gap-2 text-gray-500 text-sm pl-2">
+                                            <div className="flex items-center gap-3">
+                                                <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                                                    <svg
+                                                        className="w-5 h-5 text-blue-500"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                                                        />
+                                                    </svg>
+                                                </span>
+                                                <h2 className="text-lg font-medium text-gray-800 uppercase">
+                                                    {lesson?.name || "Đang tải..."}
+                                                </h2>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-gray-500 text-sm pl-11 mt-2">
                                                 <svg
                                                     className="w-4 h-4"
                                                     fill="none"
