@@ -457,7 +457,7 @@ export default function BrowseNewCourses() {
         }
     });
     // Tính điểm cho nội dung và tiêu đề nội dung
-    const calculateContentAndTitleScore = async (content, titleContents) => {
+    const calculateContentAndTitleScore = async (content, titleContents, videoLink) => {
         try {
             // Lấy tất cả title contents cho content này
             const contentTitles = titleContents.filter(
@@ -466,18 +466,16 @@ export default function BrowseNewCourses() {
 
             // Gộp tất cả body_content của title thành một chuỗi để đánh giá
             const titleText = contentTitles.map(t => t.body_content).join(' ');
-
+            const video_link = contentTitles.map(v => v.video_link).join(' ');
             // Chấm điểm cho tiêu đề nội dung
             const titlePrompt = `Đánh giá tiêu đề bài học sau đây dựa trên các tiêu chí:
-                1. Tính rõ ràng và dễ hiểu
-                2. Tính khái quát nội dung bài học
-                3. Tính logic và cấu trúc
-                4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
+                1. Tính rõ ràng và dễ đọc
+                2. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
 
-                Tiêu đề: "${titleText}"
+                Tiêu đề: "${content.content}"
 
                 Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
-                Nếu không có vấn đề gì, đánh giá bình thường từ 0-20 điểm.
+                Nếu không có vấn đề gì, đánh giá bình thường từ 0-10 điểm.
 
                 Hãy trả về theo định dạng sau:
                 Điểm: [số điểm]
@@ -486,11 +484,11 @@ export default function BrowseNewCourses() {
             // Chấm điểm cho nội dung
             const contentPrompt = `Đánh giá nội dung bài học sau đây dựa trên các tiêu chí:
                 1. Độ chi tiết và đầy đủ của nội dung
-                2. Tính rõ ràng và cấu trúc bài học
-                3. Tính giáo dục và hữu ích
-                4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
+                2. Kiểm tra chỉ cần có video_link và link phù hợp sẽ được 20 điểm (10 điểm cho nội dung)
+                3. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
 
-                Nội dung: "${content.content}"
+                Nội dung: "${titleText}"
+                Video link: "${video_link}"
 
                 Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
                 Nếu không có vấn đề gì, đánh giá bình thường từ 0-30 điểm.
@@ -526,7 +524,7 @@ export default function BrowseNewCourses() {
                 titleScore,
                 contentScore,
                 totalScore,
-                isPass: totalScore >= 35
+                isPass: totalScore >= 30
             };
         } catch (error) {
             console.error('Lỗi khi tính điểm nội dung:', error);
@@ -1147,17 +1145,10 @@ export default function BrowseNewCourses() {
                                                                     {/* Thêm dòng trạng thái */}
                                                                     <div className={`p-2 rounded ${scores.contentScores?.isPass ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                                                                         <p className="text-center font-medium">
-                                                                            {scores.contentScores?.averageScore >= 35 ? (
+                                                                            {scores.contentScores?.averageScore >= 30 ? (
                                                                                 <span>✅ Nội dung đạt yêu cầu</span>
                                                                             ) : (
-                                                                                <span>❌ Nội dung cần cải thiện:
-                                                                                    {scores.contentScores?.averageScore < 20 ? (
-                                                                                        ' Chất lượng nội dung thấp'
-                                                                                    ) : scores.contentScores?.averageScore < 30 ? (
-                                                                                        ' Cần bổ sung thêm chi tiết'
-                                                                                    ) : (
-                                                                                        ' Cần hoàn thiện thêm'
-                                                                                    )}
+                                                                                <span>❌ Nội dung cần cải thiện
                                                                                 </span>
                                                                             )}
                                                                         </p>
@@ -1255,7 +1246,7 @@ export default function BrowseNewCourses() {
                                                                                     <span className="font-medium truncate flex-1">
                                                                                         {content.name_content}
                                                                                     </span>
-                                                                                    <span className={`ml-4 px-2 py-1 rounded ${score?.totalScore >= 35 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+                                                                                    <span className={`ml-4 px-2 py-1 rounded ${score?.totalScore >= 30 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
                                                                                         }`}>
                                                                                         {score?.totalScore?.toFixed(1)}/50
                                                                                     </span>
