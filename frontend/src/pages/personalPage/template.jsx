@@ -14,7 +14,7 @@ export const TemplatePage = () => {
         {/* Cover Image Container */}
         <div className="relative h-[280px] sm:h-[350px] w-full">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-            <img 
+            <img
               src="/api/placeholder/1920/350"
               alt="Cover"
               className="w-full h-full object-cover opacity-85 hover:opacity-95 transition-opacity duration-300"
@@ -78,10 +78,10 @@ export const TemplatePage = () => {
             <Tabs defaultValue="overview" className="w-full">
               <TabsList className="w-full justify-start h-12 bg-transparent border-b rounded-none p-0 space-x-2">
                 {['overview', 'courses', 'certificates'].map((tab) => (
-                  <TabsTrigger 
+                  <TabsTrigger
                     key={tab}
                     value={tab}
-                    className="h-12 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 
+                    className="h-12 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500
                              data-[state=active]:text-blue-600 transition-all duration-200 hover:bg-gray-50"
                   >
                     {tab === 'overview' && 'Tổng quan'}
@@ -176,13 +176,13 @@ export const TemplatePage = () => {
                               status: "published"
                             }
                           ].map((course, index) => (
-                            <div 
-                              key={index} 
+                            <div
+                              key={index}
                               className="group cursor-pointer hover:shadow-lg transition-all duration-300 rounded-xl overflow-hidden"
                             >
                               <div className="aspect-video rounded-lg overflow-hidden">
-                                <img 
-                                  src="/api/placeholder/400/225" 
+                                <img
+                                  src="/api/placeholder/400/225"
                                   alt={course.title}
                                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                 />
@@ -210,7 +210,7 @@ export const TemplatePage = () => {
                           ))}
                         </div>
 
-                        
+
                       </CardContent>
                     </Card>
                   </div>

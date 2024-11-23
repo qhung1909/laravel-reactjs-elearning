@@ -453,37 +453,28 @@ export const BlogCrud = () => {
                     <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
                         <table className="w-full min-w-[1200px]">
                             <thead>
-                                <tr className="bg-yellow-400">
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">ID</th>
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Tên</th>
+                                <tr className="bg-yellow-100">
+                                    <th className="text-center py-4 px-6 text-md font-bold text-yellow-900">STT</th>
+                                    <th className="text-center py-4 px-6 text-md font-bold text-yellow-900">Tên</th>
                                     <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
+                                        className="text-center py-4 px-6 text-md font-bold text-yellow-900 cursor-pointer group"
 
                                     >
-                                        <div className="flex items-center gap-2">
-                                            Ảnh bài viết
-
-                                        </div>
+                                        Ảnh bài viết
                                     </th>
                                     <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
+                                        className="text-center py-4 px-6 text-md font-bold text-yellow-900 cursor-pointer group"
 
                                     >
-                                        <div className="flex items-center gap-2">
-                                            Nội dung bài viết
-
-                                        </div>
+                                        Nội dung bài viết
                                     </th>
                                     <th
-                                        className="text-left py-4 px-6 font-medium text-sm text-slate-800 cursor-pointer group"
+                                        className="text-center py-4 px-6 text-md font-bold text-yellow-900 cursor-pointer group whitespace-nowrap"
 
                                     >
-                                        <div className="flex items-center gap-2">
-                                            Cập nhật lần cuối
-
-                                        </div>
+                                        Cập nhật lần cuối
                                     </th>
-                                    <th className="text-left py-4 px-6 font-medium text-sm text-slate-800">Hành động</th>
+                                    <th className="text-center py-4 px-6 text-md font-bold text-yellow-900">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -523,7 +514,7 @@ export const BlogCrud = () => {
 
                                                 {/* id */}
                                                 <td className="py-4 px-6 text-sm text-gray-600">
-                                                    {blog.blog_id}
+                                                    {index + 1}
                                                 </td>
 
                                                 {/* title */}

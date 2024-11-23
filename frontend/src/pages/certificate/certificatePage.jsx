@@ -27,6 +27,14 @@ const CertificateDetailPage = () => {
   const [downloading, setDownloading] = useState(false);
   const certificateRef = useRef(null);
 
+  const getErrorMessage = (error) => {
+    if (error === "Certificate not found") {
+      return "Không tìm thấy chứng chỉ";
+    }
+    return error;
+  };
+
+
   const shareFacebook = async () => {
     try {
       const shareUrl = window.location.href;
@@ -164,7 +172,7 @@ const CertificateDetailPage = () => {
             <Alert variant="destructive" className="bg-rose-50 border-rose-200">
               <AlertTitle className="text-rose-800 font-semibold">Có lỗi xảy ra</AlertTitle>
               <AlertDescription className="text-rose-700">
-                {error}
+                {getErrorMessage(error)}
               </AlertDescription>
             </Alert>
           </CardContent>
@@ -239,14 +247,14 @@ const CertificateDetailPage = () => {
             </Button>
 
             <Button
-                    size="lg"
-                    variant="outline"
-                    onClick={shareFacebook}
-                    className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white border-0 transition-all duration-200 shadow-md"
-                  >
-                    <Facebook className="h-5 w-5 mr-2" />
-                    Chia sẻ Facebook
-                  </Button>
+              size="lg"
+              variant="outline"
+              onClick={shareFacebook}
+              className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white border-0 transition-all duration-200 shadow-md"
+            >
+              <Facebook className="h-5 w-5 mr-2" />
+              Chia sẻ Facebook
+            </Button>
           </CardFooter>
         </Card>
       </div>

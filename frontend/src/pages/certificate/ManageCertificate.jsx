@@ -19,6 +19,9 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { XCircle } from "lucide-react";
+import { startOfMonth, isWithinInterval } from "date-fns";
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 const API_URL = import.meta.env.VITE_API_URL;
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -29,7 +32,29 @@ const ManageCertificate = () => {
     const [certificates, setCertificates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const currentDate = new Date();
+    const startOfCurrentMonth = startOfMonth(currentDate);
+    
+    const getErrorMessage = (error) => {
+        if (error?.includes('401')) {
+            return 'Bạn chưa đăng nhập';
+        }
+        if (error?.includes('404')) {
+            return 'Không có chứng chỉ nào';
+        }
+        return error;
+    };
 
+
+    const newCertificatesThisMonth = certificates.filter(cert => {
+      const certDate = new Date(cert.issue_at);
+      return isWithinInterval(certDate, {
+        start: startOfCurrentMonth,
+        end: currentDate
+      });
+    });
+
+    
     const fetchCertificates = async () => {
         try {
             setLoading(true);
@@ -69,7 +94,7 @@ const ManageCertificate = () => {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4 md:px-8">
             <div className="max-w-7xl mx-auto">
                 {/* Stats Section */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
                         <CardContent className="pt-6">
                             <div className="flex items-center gap-4">
@@ -92,25 +117,13 @@ const ManageCertificate = () => {
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-white/80">Tháng này</p>
-                                    <h3 className="text-2xl font-bold">2 Chứng chỉ mới</h3>
+                                    <h3 className="text-2xl font-bold"> {newCertificatesThisMonth.length} Chứng chỉ mới
+                                    </h3>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-                        <CardContent className="pt-6">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white/10 rounded-lg">
-                                    <Download className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-white/80">Đã tải xuống</p>
-                                    <h3 className="text-2xl font-bold">5 Lần</h3>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
                 </div>
 
                 {/* Main Content Card */}
@@ -148,13 +161,17 @@ const ManageCertificate = () => {
                             </div>
                         )}
 
-                        {error && (
-                            <Alert variant="destructive" className="bg-rose-50 border-rose-200 text-rose-800">
-                                <AlertDescription className="flex items-center">
-                                    {error}
-                                </AlertDescription>
+                        {error ? (
+                            <Alert className="mt-4 bg-red-50 border border-red-100 shadow-sm animate-in slide-in-from-top duration-300">
+                                <div className="flex items-center gap-3">
+                                    <XCircle className="h-5 w-5 text-red-500" />
+                                    <AlertDescription className="text-red-800 font-medium">
+                                        {getErrorMessage(error)}
+                                    </AlertDescription>
+                                </div>
                             </Alert>
-                        )}
+
+                        ) : null}
 
                         {!loading && !error && certificates.length === 0 && (
                             <div className="text-center py-16">
