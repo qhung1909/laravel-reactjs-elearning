@@ -831,7 +831,7 @@ export const Curriculum = () => {
                         <div className="flex items-center gap-4">
                             <Button
                                 onClick={update}
-                                className="hidden sm:inline-flex items-center px-6 py-3 bg-white text-yellow-600 font-semibold rounded-lg border-2 border-yellow-600 hover:bg-yellow-600 hover:text-white transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+                                className=" sm:inline-flex items-center px-6 py-3 bg-white text-yellow-600 font-semibold rounded-lg border-2 border-yellow-600 hover:bg-yellow-600 hover:text-white transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
                             >
                                 <span>Cập nhật Nội Dung</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
@@ -882,11 +882,11 @@ export const Curriculum = () => {
                                                 key={section.id}
                                                 className="border-2 rounded-lg border-yellow-700 p-4 relative"
                                             >
-                                                <div className="flex items-center gap-4 w-[80%] md:w-[88%] absolute ml-14 mt-3">
+                                                <div className="flex items-center gap-4 w-[78%] md:w-[88%] absolute ml-14 mt-3">
                                                     {section.is_online_meeting === 1 ? (
-                                                        <span className="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Online</span>
+                                                        <span className="bg-green-100 text-green-800 text-sm font-medium px-1 md:px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Online</span>
                                                     ) : (
-                                                        <span className="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Offline</span>
+                                                        <span className="bg-blue-100 text-blue-800 text-sm font-medium px-1 md:px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Offline</span>
                                                     )
                                                     }
                                                     <div className="flex items-center gap-2">
@@ -894,7 +894,7 @@ export const Curriculum = () => {
                                                     </div>
                                                     <input
                                                         type="text"
-                                                        className="flex-1 p-2 border rounded-md"
+                                                        className="flex-1 p-2 w-1/2 md:w-full border rounded-md"
                                                         placeholder={`Nhập tiêu đề bài ${sectionIndex + 1}`}
                                                         value={section.title}
                                                         onChange={(e) => handleSectionTitleChange(section.id, e.target.value)}

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, Book, Search, Filter, BadgeHelp, Calculator, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, Book, Search, Filter, BadgeHelp, Calculator, Loader2, ChevronRight } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import ReactPlayer from "react-player";
@@ -16,6 +16,7 @@ import { useNavigate, } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, } from "@/components/ui/pagination"
 import { formatCurrency } from '@/components/Formatcurrency/formatCurrency';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 
 export default function BrowseNewCourses() {
@@ -323,7 +324,8 @@ export default function BrowseNewCourses() {
             return;
         }
         try {
-            const res = await axios.get(`${API_URL}/admin/pending-contents`, {
+            // 1. Lấy tất cả contents
+            const contentsRes = await axios.get(`${API_URL}/admin/pending-contents`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
                     Authorization: `Bearer ${token}`,
@@ -333,21 +335,40 @@ export default function BrowseNewCourses() {
                 }
             });
 
-            if (res.data && res.data.success && Array.isArray(res.data.contents)) {
-                const filteredContents = res.data.contents.filter(content => content.course_id === Number(courseId));
-
+            if (contentsRes.data?.success && Array.isArray(contentsRes.data.contents)) {
+                const filteredContents = contentsRes.data.contents.filter(
+                    content => content.course_id === Number(courseId)
+                );
                 setContentLesson(filteredContents);
 
-                const pendingCount = filteredContents.filter(content => content.status === 'pending').length;
-                setPendingCountContents(pendingCount);
+                // 2. Lấy titles cho tất cả contents
+                const titlePromises = filteredContents.map(content =>
+                    axios.get(`${API_URL}/admin/pending-title-contents`, {
+                        headers: {
+                            "x-api-secret": `${API_KEY}`,
+                            Authorization: `Bearer ${token}`,
+                        },
+                        params: {
+                            content_id: content.content_id
+                        }
+                    })
+                );
 
-                if (filteredContents.length > 0) {
-                    const contentId = filteredContents[0].content_id;
-                    fetchQuiz(contentId);
-                    fetchPendingTitleContents(contentId);
-                }
-            } else {
-                console.error("Dữ liệu không phải là mảng hoặc không có thành công:", res.data);
+                const titleResponses = await Promise.all(titlePromises);
+                const allTitles = titleResponses.reduce((acc, res) => {
+                    if (res.data?.success && Array.isArray(res.data.titleContents)) {
+                        return [...acc, ...res.data.titleContents];
+                    }
+                    return acc;
+                }, []);
+
+                setTitleContents(allTitles);
+
+                // 3. Update pending count
+                const pendingCount = filteredContents.filter(
+                    content => content.status === 'pending'
+                ).length;
+                setPendingCountContents(pendingCount);
             }
         } catch (error) {
             console.error("Lỗi khi lấy nội dung bài học:", error);
@@ -422,13 +443,94 @@ export default function BrowseNewCourses() {
     const [isAutoApproveResultOpen, setIsAutoApproveResultOpen] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [scores, setScores] = useState({
+        // Điểm khóa học
         titleScore: 0,
         descriptionScore: 0,
         priceScore: 0,
         finalScore: 0,
-        explanation: ''
+        explanation: '',
+        // Thêm phần điểm contents
+        contentScores: {
+            isPass: false,
+            averageScore: 0,
+            details: []
+        }
     });
+    // Tính điểm cho nội dung và tiêu đề nội dung
+    const calculateContentAndTitleScore = async (content, titleContents, videoLink) => {
+        try {
+            // Lấy tất cả title contents cho content này
+            const contentTitles = titleContents.filter(
+                title => title.content_id === content.content_id
+            );
 
+            // Gộp tất cả body_content của title thành một chuỗi để đánh giá
+            const titleText = contentTitles.map(t => t.body_content).join(' ');
+            const video_link = contentTitles.map(v => v.video_link).join(' ');
+            // Chấm điểm cho tiêu đề nội dung
+            const titlePrompt = `Đánh giá tiêu đề bài học sau đây dựa trên các tiêu chí:
+                1. Tính rõ ràng và dễ đọc
+                2. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
+
+                Tiêu đề: "${content.content}"
+
+                Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
+                Nếu không có vấn đề gì, đánh giá bình thường từ 0-10 điểm.
+
+                Hãy trả về theo định dạng sau:
+                Điểm: [số điểm]
+                Lý do: [giải thích ngắn gọn]`;
+
+            // Chấm điểm cho nội dung
+            const contentPrompt = `Đánh giá nội dung bài học sau đây dựa trên các tiêu chí:
+                1. Độ chi tiết và đầy đủ của nội dung
+                2. Kiểm tra chỉ cần có video_link và link phù hợp sẽ được 20 điểm (10 điểm cho nội dung)
+                3. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
+
+                Nội dung: "${titleText}"
+                Video link: "${video_link}"
+
+                Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
+                Nếu không có vấn đề gì, đánh giá bình thường từ 0-30 điểm.
+
+                Hãy trả về theo định dạng sau:
+                Điểm: [số điểm]
+                Lý do: [giải thích ngắn gọn]`;
+
+            const [titleResponse, contentResponse] = await Promise.all([
+                axios.post('https://api.openai.com/v1/chat/completions', {
+                    model: 'gpt-3.5-turbo',
+                    messages: [{ role: 'user', content: titlePrompt }]
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY_GPT}`
+                    }
+                }),
+                axios.post('https://api.openai.com/v1/chat/completions', {
+                    model: 'gpt-3.5-turbo',
+                    messages: [{ role: 'user', content: contentPrompt }]
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY_GPT}`
+                    }
+                })
+            ]);
+
+            const titleScore = parseInt(titleResponse.data.choices[0].message.content.match(/Điểm:\s*(\d+)/)[1]);
+            const contentScore = parseInt(contentResponse.data.choices[0].message.content.match(/Điểm:\s*(\d+)/)[1]);
+            const totalScore = titleScore + contentScore;
+
+            return {
+                titleScore,
+                contentScore,
+                totalScore,
+                isPass: totalScore >= 30
+            };
+        } catch (error) {
+            console.error('Lỗi khi tính điểm nội dung:', error);
+            return null;
+        }
+    };
     const analyzeContentWithGPT = async (content, type) => {
         try {
             const prompt = type === 'tiêu đề'
@@ -500,10 +602,11 @@ export default function BrowseNewCourses() {
             return { score: 0, reason: `Lỗi khi đánh giá ${type}` };
         }
     };
-
+    // Tính điểm cho khóa học
     const calculateCourseScore = async (courseId) => {
         setIsProcessing(true);
         try {
+            // 1. Tính điểm khóa học
             const courseResponse = await axios.get(`${API_URL}/admin/pending-courses/${courseId}`, {
                 headers: { 'x-api-secret': API_KEY },
             });
@@ -513,29 +616,47 @@ export default function BrowseNewCourses() {
                 throw new Error("Thiếu thông tin khóa học cần thiết");
             }
 
-            // Đánh giá tiêu đề
+            // Đánh giá tiêu đề và mô tả
             const titleAnalysis = await analyzeContentWithGPT(courseData.title, "tiêu đề");
-
-            // Đánh giá mô tả
             const descriptionAnalysis = await analyzeContentWithGPT(courseData.description, "mô tả");
-
-            // Tính điểm giá
             const priceScore = courseData.price_discount > 0 ? 10 : 0;
-
-            // Tổng hợp điểm và giải thích
             const finalScore = titleAnalysis.score + descriptionAnalysis.score + priceScore;
-            const explanation = `Tiêu đề: ${titleAnalysis.reason}. Mô tả: ${descriptionAnalysis.reason}. ${priceScore > 0 ? 'Giá hợp lệ.' : 'Giá không hợp lệ.'
-                }`;
 
+            // 2. Tính điểm nội dung
+            let contentScores = { isPass: false, averageScore: 0, details: [] };
+
+            if (contentLesson && contentLesson.length > 0) {
+                const contentResults = await Promise.all(
+                    contentLesson.map(async (content) => {
+                        // Truyền cả mảng titleContents vào
+                        return calculateContentAndTitleScore(content, titleContents);
+                    })
+                );
+
+                const validResults = contentResults.filter(result => result !== null);
+                if (validResults.length > 0) {
+                    contentScores = {
+                        isPass: validResults.every(result => result.isPass),
+                        averageScore: validResults.reduce((acc, curr) => acc + curr.totalScore, 0) / validResults.length,
+                        details: validResults
+                    };
+                }
+            }
+
+            // 3. Cập nhật state với đầy đủ thông tin
             setScores({
                 titleScore: titleAnalysis.score,
                 descriptionScore: descriptionAnalysis.score,
                 priceScore,
                 finalScore,
-                explanation
+                explanation: `Tiêu đề: ${titleAnalysis.reason}. Mô tả: ${descriptionAnalysis.reason}. ${priceScore > 0 ? 'Giá hợp lệ.' : 'Giá không hợp lệ.'
+                    }`,
+                contentScores,
+                isOverallPass: finalScore >= 35 && contentScores.isPass
             });
 
-            return { finalScore, explanation };
+            return { finalScore, contentScores };
+
         } catch (error) {
             console.error('Lỗi khi tính điểm:', error);
             toast.error('Có lỗi xảy ra khi tính điểm khóa học');
@@ -777,7 +898,7 @@ export default function BrowseNewCourses() {
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <p>Course information will appear here.</p>
+                                                <p>Hãy chọn khóa học cần duyệt.</p>
                                             )}
                                         </TabsContent>
 
@@ -977,94 +1098,164 @@ export default function BrowseNewCourses() {
                                                     <AlertDialogDescription className="flex gap-6">
                                                         {/* Cột bên trái - Hiển thị điểm */}
                                                         <div className="w-1/3 space-y-3">
-                                                            <div className="bg-purple-50 p-3 rounded-lg">
-                                                                <p className="flex justify-between items-center">
-                                                                    <span className="text-gray-700">Điểm tiêu đề:</span>
-                                                                    <span className="font-semibold text-purple-700">{scores.titleScore}/20</span>
-                                                                </p>
+                                                            {/* Phần điểm khóa học */}
+                                                            <div className="bg-purple-100 p-4 rounded-lg mb-4">
+                                                                <h4 className="font-medium text-purple-700 mb-3">Điểm khóa học:</h4>
+                                                                <div className="space-y-2">
+                                                                    <div className="bg-purple-50 p-3 rounded-lg">
+                                                                        <p className="flex justify-between items-center">
+                                                                            <span className="text-gray-700">Điểm tiêu đề:</span>
+                                                                            <span className="font-semibold text-purple-700">{scores.titleScore}/20</span>
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <div className="bg-purple-50 p-3 rounded-lg">
+                                                                        <p className="flex justify-between items-center">
+                                                                            <span className="text-gray-700">Điểm mô tả:</span>
+                                                                            <span className="font-semibold text-purple-700">{scores.descriptionScore}/20</span>
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <div className="bg-purple-50 p-3 rounded-lg">
+                                                                        <p className="flex justify-between items-center">
+                                                                            <span className="text-gray-700">Điểm giá:</span>
+                                                                            <span className="font-semibold text-purple-700">{scores.priceScore}/10</span>
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <div className="bg-purple-50 p-3 rounded-lg">
+                                                                        <p className="flex justify-between items-center">
+                                                                            <span className="text-gray-700 font-bold">Tổng điểm khóa học:</span>
+                                                                            <span className="font-semibold text-purple-700">{scores.finalScore}/50</span>
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
                                                             </div>
 
-                                                            <div className="bg-purple-50 p-3 rounded-lg">
-                                                                <p className="flex justify-between items-center">
-                                                                    <span className="text-gray-700">Điểm mô tả:</span>
-                                                                    <span className="font-semibold text-purple-700">{scores.descriptionScore}/20</span>
-                                                                </p>
+                                                            {/* Phần điểm nội dung - Đã đơn giản hóa */}
+                                                            <div className="bg-blue-100 p-4 rounded-lg">
+                                                                <h4 className="font-medium text-blue-700 mb-3">Điểm nội dung:</h4>
+                                                                <div className="bg-blue-50 p-3 rounded-lg space-y-2">
+                                                                    <p className="flex justify-between items-center">
+                                                                        <span className="text-gray-700">Điểm trung bình:</span>
+                                                                        <span className="font-semibold text-blue-700">
+                                                                            {scores.contentScores?.averageScore?.toFixed(1) || '0'}/50
+                                                                        </span>
+                                                                    </p>
+                                                                    {/* Thêm dòng trạng thái */}
+                                                                    <div className={`p-2 rounded ${scores.contentScores?.isPass ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                                                                        <p className="text-center font-medium">
+                                                                            {scores.contentScores?.averageScore >= 30 ? (
+                                                                                <span>✅ Nội dung đạt yêu cầu</span>
+                                                                            ) : (
+                                                                                <span>❌ Nội dung cần cải thiện
+                                                                                </span>
+                                                                            )}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
                                                             </div>
 
-                                                            <div className="bg-purple-50 p-3 rounded-lg">
-                                                                <p className="flex justify-between items-center">
-                                                                    <span className="text-gray-700">Điểm giá:</span>
-                                                                    <span className="font-semibold text-purple-700">{scores.priceScore}/10</span>
-                                                                </p>
-                                                            </div>
-
-                                                            <div className="bg-purple-50 p-3 rounded-lg">
-                                                                <p className="flex justify-between items-center">
-                                                                    <span className="text-gray-700">Tổng điểm:</span>
-                                                                    <span className="font-semibold text-purple-700">{scores.finalScore}/50</span>
-                                                                </p>
-                                                            </div>
-
-                                                            <div className={`p-3 rounded-lg ${scores.finalScore >= 35 ? 'bg-green-50' : 'bg-red-50'}`}>
+                                                            {/* Trạng thái chung */}
+                                                            <div className={`p-3 rounded-lg ${scores.isOverallPass ? 'bg-green-50' : 'bg-red-50'}`}>
                                                                 <p className="flex items-center justify-center">
-                                                                    <span className={`font-medium ${scores.finalScore >= 35 ? 'text-green-600' : 'text-red-600'}`}>
-                                                                        {scores.finalScore >= 35 ? '✅ Đạt yêu cầu' : '❌ Không đạt yêu cầu'}
+                                                                    <span className={`font-medium ${scores.isOverallPass ? 'text-green-600' : 'text-red-600'}`}>
+                                                                        {scores.finalScore >= 35
+                                                                            ? scores.contentScores?.isPass
+                                                                                ? '✅ Khóa học và nội dung đạt yêu cầu'
+                                                                                : '⚠️ Khóa học đạt yêu cầu nhưng nội dung chưa đạt'
+                                                                            : '❌ Không đạt yêu cầu'
+                                                                        }
                                                                     </span>
                                                                 </p>
                                                             </div>
                                                         </div>
-
                                                         {/* Cột bên phải - Chi tiết đánh giá */}
                                                         <div className="w-2/3 bg-gray-50 p-4 rounded-lg">
-                                                            <h4 className="font-medium text-gray-700 mb-4">Chi tiết đánh giá:</h4>
+                                                            <h4 className="font-medium text-gray-700 mb-4">Chi tiết đánh giá khóa học:</h4>
 
-                                                            {/* Phần Tiêu đề */}
-                                                            <div className="mb-4">
-                                                                <p className="font-medium text-gray-600 mb-2 flex items-center">
-                                                                    <span className="mr-2">🎯</span>
-                                                                    Tiêu đề:
-                                                                </p>
-                                                                <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">
-                                                                    {scores.explanation ?
-                                                                        scores.explanation
-                                                                            .split('Mô tả:')[0]
-                                                                            .replace('Tiêu đề:', '')
-                                                                            .trim()
-                                                                        : 'Chưa có đánh giá'
-                                                                    }
-                                                                </p>
+                                                            {/* Phần đánh giá khóa học */}
+                                                            <div className="mb-6">
+                                                                {/* Phần Tiêu đề */}
+                                                                <div className="mb-4">
+                                                                    <p className="font-medium text-gray-600 mb-2 flex items-center">
+                                                                        <span className="mr-2">🎯</span>
+                                                                        Tiêu đề:
+                                                                    </p>
+                                                                    <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">
+                                                                        {scores.explanation ?
+                                                                            scores.explanation
+                                                                                .split('Mô tả:')[0]
+                                                                                .replace('Tiêu đề:', '')
+                                                                                .trim()
+                                                                            : 'Chưa có đánh giá'
+                                                                        }
+                                                                    </p>
+                                                                </div>
+
+                                                                {/* Phần Mô tả */}
+                                                                <div className="mb-4">
+                                                                    <p className="font-medium text-gray-600 mb-2 flex items-center">
+                                                                        <span className="mr-2">📝</span>
+                                                                        Mô tả:
+                                                                    </p>
+                                                                    <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">
+                                                                        {scores.explanation ?
+                                                                            scores.explanation
+                                                                                .split('Mô tả:')[1]
+                                                                                ?.split('Giá')[0]
+                                                                                ?.trim() ?? 'Chưa có đánh giá'
+                                                                            : 'Chưa có đánh giá'
+                                                                        }
+                                                                    </p>
+                                                                </div>
+
+                                                                {/* Phần Giá */}
+                                                                <div>
+                                                                    <p className="font-medium text-gray-600 mb-2 flex items-center">
+                                                                        <span className="mr-2">💰</span>
+                                                                        Giá:
+                                                                    </p>
+                                                                    <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">
+                                                                        {scores.explanation ?
+                                                                            scores.explanation.includes('Giá hợp lệ') ? 'Hợp lệ' : 'Không hợp lệ'
+                                                                            : 'Chưa có đánh giá'
+                                                                        }
+                                                                    </p>
+                                                                </div>
                                                             </div>
 
-                                                            {/* Phần Mô tả */}
-                                                            <div className="mb-4">
-                                                                <p className="font-medium text-gray-600 mb-2 flex items-center">
-                                                                    <span className="mr-2">📝</span>
-                                                                    Mô tả:
-                                                                </p>
-                                                                <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">
-                                                                    {scores.explanation ?
-                                                                        scores.explanation
-                                                                            .split('Mô tả:')[1]
-                                                                            ?.split('Giá')[0]
-                                                                            ?.trim() ?? 'Chưa có đánh giá'
-                                                                        : 'Chưa có đánh giá'
-                                                                    }
-                                                                </p>
-                                                            </div>
-
-                                                            {/* Phần Giá */}
-                                                            <div>
-                                                                <p className="font-medium text-gray-600 mb-2 flex items-center">
-                                                                    <span className="mr-2">💰</span>
-                                                                    Giá:
-                                                                </p>
-                                                                <p className="text-gray-600 ml-6 bg-white p-3 rounded-lg">
-                                                                    {scores.explanation ?
-                                                                        scores.explanation.includes('Giá hợp lệ') ? 'Hợp lệ' : 'Không hợp lệ'
-                                                                        : 'Chưa có đánh giá'
-                                                                    }
-                                                                </p>
-                                                            </div>
+                                                            {/* Phần đánh giá nội dung - Collapsible */}
+                                                            <Collapsible>
+                                                                <CollapsibleTrigger className="flex items-center gap-2 w-full p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                                                                    <ChevronRight className="w-4 h-4" />
+                                                                    <span className="font-medium text-gray-700">Chi tiết đánh giá nội dung</span>
+                                                                    <span className="ml-auto text-sm text-gray-500">
+                                                                        ({contentLesson?.length || 0} bài học)
+                                                                    </span>
+                                                                </CollapsibleTrigger>
+                                                                <CollapsibleContent className="mt-2 space-y-2 max-h-60 overflow-y-auto">
+                                                                    {contentLesson?.map((content, index) => {
+                                                                        const score = scores.contentScores?.details?.[index];
+                                                                        return (
+                                                                            <div key={index} className="bg-white p-3 rounded-lg">
+                                                                                <div className="flex justify-between items-center">
+                                                                                    <span className='font-medium mr-2'>
+                                                                                        {index + 1}
+                                                                                    </span>
+                                                                                    <span className="font-medium truncate flex-1">
+                                                                                        {content.name_content}
+                                                                                    </span>
+                                                                                    <span className={`ml-4 px-2 py-1 rounded ${score?.totalScore >= 30 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+                                                                                        }`}>
+                                                                                        {score?.totalScore?.toFixed(1)}/50
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
+                                                                        );
+                                                                    })}
+                                                                </CollapsibleContent>
+                                                            </Collapsible>
                                                         </div>
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
