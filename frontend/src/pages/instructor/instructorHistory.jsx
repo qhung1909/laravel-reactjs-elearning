@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,7 +15,6 @@ import {
 import {
     Table,
     TableBody,
-    TableCaption,
     TableHead,
     TableHeader,
     TableRow,
@@ -25,7 +23,6 @@ import {
 import {
     Pagination,
     PaginationContent,
-    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
     PaginationNext,
@@ -195,7 +192,7 @@ export const InstructorHistory = () => {
     return (
         <>
             <section className="instructor-history">
-                <div className="flex bg-gray-100 h-sc">
+                <div className="flex bg-gray-100">
                     {/* Sidebar */}
                     <div className="h-screen w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
                         <div className="p-3">
@@ -434,6 +431,7 @@ export const InstructorHistory = () => {
                                         {renderTeacherOrder}
                                     </TableBody>
                                 </Table>
+
                                 <Pagination>
                                     <PaginationContent>
                                         <PaginationItem>

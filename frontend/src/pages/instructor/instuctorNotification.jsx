@@ -12,6 +12,23 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    SelectGroup,
+} from "@/components/ui/select"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios";
@@ -30,7 +47,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 export const InstructorNotification = () => {
     const { instructor, logout, refreshToken } = useContext(UserContext);
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -118,7 +136,6 @@ export const InstructorNotification = () => {
         }
     }, [instructor?.user_id]);
 
-
     const handleSetType = (value) => {
         setSelectedType(value);
     }
@@ -140,12 +157,20 @@ export const InstructorNotification = () => {
         }
     };
 
+    const getPriorityColor = (type) => {
+        switch (type) {
+            case 'Low': return 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800';
+            case 'Medium': return 'bg-orange-100 hover:bg-orange-200 text-orange-800';
+            case 'High': return 'bg-red-100 hover:bg-red-200 text-red-800';
+            default: return 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800';
+        }
+    };
     return (
         <>
             <section className="instructor-notification">
                 <div className="flex bg-gray-100 ">
                     {/* Sidebar */}
-                    <div className="h-screen w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
+                    <div className="h-auto w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
                         <div className="p-3">
                             {/* logo */}
                             <div className="p-4 flex justify-between items-center">
@@ -348,105 +373,114 @@ export const InstructorNotification = () => {
                         </div>
 
                         {/* Notification content */}
-                        <div className="md:p-6 p-2 max-lg:h-screen">
-                            <form onSubmit={handleSubmitNotification}>
-                                <div className="my-5 bg-white rounded-3xl p-10 space-y-5">
-                                    {/* Title */}
-                                    <div className="space-y-2">
-                                        <span className="font-semibold text-lg">Tiêu đề:</span>
-                                        <Input
-                                            value={message}
-                                            onChange={(e) => setMessage(e.target.value)}
-                                            placeholder="Nhập tiêu đề thông báo..."
-                                            className="p-1"
-                                        />
-                                    </div>
+                        <div className="md:p-6 p-2">
+                            <div className="mx-auto p-4">
+                                <Card className="shadow-lg">
+                                    <CardHeader className="space-y-1">
+                                        <div className="flex items-center space-x-2">
+                                            <CardTitle className="text-2xl font-bold">Tạo thông báo mới</CardTitle>
+                                        </div>
+                                        <Alert className="bg-yellow-50 border-yellow-200">
+                                            <AlertDescription>
+                                                Thông báo sẽ được gửi ngay lập tức đến người nhận được chọn
+                                            </AlertDescription>
+                                        </Alert>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <form onSubmit={handleSubmitNotification} className="space-y-6">
+                                            {/* Title Section */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor="title" className="text-lg font-medium">
+                                                    Tiêu đề thông báo
+                                                </Label>
+                                                <Input
+                                                    id="title"
+                                                    value={message}
+                                                    onChange={(e) => setMessage(e.target.value)}
+                                                    placeholder="Nhập tiêu đề thông báo..."
+                                                    className="w-full"
+                                                />
+                                            </div>
 
-                                    {/* Content */}
-                                    <div className="space-y-2">
-                                        <span className="font-semibold text-lg">Nội dung thông báo:</span>
-                                        <ReactQuill
-                                            value={content}
-                                            onChange={setContent}
-                                            className="pb-2"
-                                            modules={{
-                                                toolbar: [
-                                                    [{ 'header': [1, 2, 3, false] }],
-                                                    ['bold', 'italic', 'underline'],
-                                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                                    ['link', 'image', 'code-block'],
-                                                    ['clean']
-                                                ],
-                                            }}
-                                            formats={[
-                                                'header', 'bold', 'italic', 'underline',
-                                                'list', 'bullet', 'link', 'image', 'code-block'
-                                            ]}
-                                        />
-                                    </div>
-
-                                    {/* User Selection */}
-                                    <div className="space-y-2">
-                                        <span className="font-semibold text-lg">Người nhận:</span>
-                                        <select
-                                            value={selectedUser}
-                                            onChange={(e) => setSelectedUser(e.target.value)}
-                                            className="w-full p-2 border rounded"
-                                        >
-                                            <option value="">Chọn người nhận...</option>
-                                            {users.map((user) => (
-                                                <option key={user.user_id} value={user.user_id}>
-                                                    {user.name} - {user.email}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    {/* Type Selection - Keep your existing type selection code */}
-                                    <div className="space-y-2">
-                                        <div className="space-y-2">
-                                            <div className="flex items-center gap-5">
-                                                <div className="">
-                                                    <span className="font-semibold text-lg">
-                                                        Chọn kiểu:
-                                                    </span>
-                                                </div>
-                                                <div className="">
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger>
-                                                            <div className="border px-5 rounded py-1 text-base">
-                                                                {selectedType}
-                                                            </div>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent className="space-y-1 cursor-pointer">
-                                                            <DropdownMenuItem className="bg-yellow-100 cursor-pointer" onClick={() => handleSetType("Low")}>
-                                                                <div>
-                                                                    Low
-                                                                </div>
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem className="bg-yellow-300 cursor-pointer" onClick={() => handleSetType("Medium")}>
-                                                                Medium
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem className="bg-yellow-500 cursor-pointer" onClick={() => handleSetType("High")}>
-                                                                High
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
+                                            {/* Content Section */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor="content" className="text-lg font-medium">
+                                                    Nội dung thông báo
+                                                </Label>
+                                                <div className=" min-h-[200px] bg-white">
+                                                    <ReactQuill
+                                                        value={content}
+                                                        onChange={setContent}
+                                                        className="h-[150px]"
+                                                        modules={{
+                                                            toolbar: [
+                                                                [{ header: [1, 2, 3, false] }],
+                                                                ['bold', 'italic', 'underline'],
+                                                                [{ list: 'ordered' }, { list: 'bullet' }],
+                                                                ['link', 'clean']
+                                                            ],
+                                                        }}
+                                                    />
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
 
-                                    {/* Submit Button */}
-                                    <Button
-                                        type="submit"
-                                        className="bg-yellow-400 text-black hover:bg-black hover:text-white duration-300 rounded"
-                                        disabled={loading}
-                                    >
-                                        {loading ? "Đang gửi..." : "Gửi thông báo"}
-                                    </Button>
-                                </div>
-                            </form>
+                                            {/* Recipient Selection */}
+
+                                            <div className="space-y-2">
+                                                <span className="font-semibold text-lg">Người nhận:</span>
+                                                <div className="relative">
+                                                    <select
+                                                        value={selectedUser}
+                                                        onChange={(e) => setSelectedUser(e.target.value)}
+                                                        className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-colors text-gray-700 pr-10">
+                                                        <option value="" disabled>Chọn người nhận...</option>
+                                                        {users.map((user) => (
+                                                            <option key={user.user_id} value={user.user_id}>
+                                                                {user.name} - {user.email}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            {/* Priority Selection */}
+                                            <div className="space-y-2">
+                                                <Label className="text-lg font-medium">Mức độ ưu tiên</Label>
+                                                <div className="flex gap-2">
+                                                    {['Low', 'Medium', 'High'].map((type) => (
+                                                        <Badge
+                                                            key={type}
+                                                            className={`${getPriorityColor(type)} cursor-pointer px-4 py-1 ${selectedType === type ? 'ring-2 ring-offset-2' : ''
+                                                                }`}
+                                                            onClick={() => setSelectedType(type)}
+                                                        >
+                                                            {type}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Submit Button */}
+                                            <Button
+                                                type="submit"
+                                                disabled={loading}
+                                                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
+                                            >
+                                                {loading ? (
+                                                    <div className="flex items-center space-x-2">
+                                                        <span className="animate-spin">◌</span>
+                                                        <span>Đang gửi...</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center space-x-2">
+                                                        <span>Gửi thông báo</span>
+                                                    </div>
+                                                )}
+                                            </Button>
+                                        </form>
+                                    </CardContent>
+                                </Card>
+                            </div>
                         </div>
                     </div>
                 </div>

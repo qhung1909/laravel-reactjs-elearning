@@ -5,6 +5,14 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
+import {
     Sheet,
     SheetContent,
     SheetDescription,
@@ -45,6 +53,12 @@ import { Badge } from "@/components/ui/badge"
 import { format, addHours, isPast, isBefore } from 'date-fns';
 import * as XLSX from 'xlsx';
 import axios from "axios"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 const notify = (message, type) => {
     if (type === 'success') {
         toast.success(message);
@@ -82,6 +96,16 @@ export const InstructorSchedule = () => {
 
     const courseCommandRef = useRef(null);
     const contentCommandRef = useRef(null);
+
+    // phân trang
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 4;
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    }
+    const currentItems = coursesTable.slice(indexOfFirstItem, indexOfLastItem);
 
     useEffect(() => {
         if (instructor && instructor.user_id) {
@@ -237,9 +261,6 @@ export const InstructorSchedule = () => {
             setLoading(false);
         }
     };
-    const handleconsole = () => {
-        console.log(instructor ? instructor.user_id : 'ko')
-    }
     // hàm xử lý lấy khóa học có thể học online
     const fetchCourseOnline = async () => {
         setLoadingCourses(true);
@@ -255,18 +276,37 @@ export const InstructorSchedule = () => {
             if (result.status && Array.isArray(result.data)) {
                 setAllCourseOnline(result.data);
             } else {
-                notify('Không có dữ liệu khóa học', 'warning');
+                notify("Không có dữ liệu khóa học", "warning");
+                setAllCourseOnline([]); // Đặt danh sách thành rỗng để tránh hiển thị lỗi.
             }
         } catch (error) {
-            notify('Không thể tải dữ liệu khóa học', 'error');
+            notify("Không thể tải dữ liệu khóa học", "error");
+            setAllCourseOnline([]); // Đặt danh sách thành rỗng để tránh lỗi khi không có dữ liệu.
         } finally {
-            setLoadingCourses(false);
+            setLoading(false); // Tắt trạng thái loading
         }
     };
 
+    // hàm thay đổi css theo trạng thái
+    const getStatus = (schedule) => {
+        const now = new Date();
+        const startTime = new Date(schedule.start_time);
+        const endTime = new Date(schedule.end_time);
+
+        if (now > endTime) {
+            return { label: "Đã kết thúc", textColor: "text-white", bgColor: "bg-gray-500", disabled: true };
+        } else if (now >= startTime && now <= endTime) {
+            return { label: "Đang diễn ra", textColor: "text-white", bgColor: "bg-green-500", disabled: false };
+        } else if (startTime - now <= 2 * 24 * 60 * 60 * 1000) {
+            return { label: "Sắp diễn ra", textColor: "text-black", bgColor: "bg-blue-500", disabled: false };
+        } else {
+            return { label: "Chưa diễn ra", textColor: "text-white", bgColor: "bg-black", disabled: false };
+        }
+    };
     // hàm xử lý lấy khóa học online đã có lịch
     const fetchCoursesTable = async () => {
         try {
+            setLoading(true)
             const response = await fetch(`${API_URL}/teacher/teaching/courses/meeting-online`, {
                 headers: {
                     'x-api-secret': `${API_KEY}`,
@@ -274,17 +314,31 @@ export const InstructorSchedule = () => {
                 },
             });
             const result = await response.json();
-            setCoursesTable(result.data)
+            if (result.status && Array.isArray(result.data)) {
+                const dataWithStatus = result.data.map((item) => {
+                    const status = getStatus(item.meeting.schedule);
+                    return { ...item, status };
+                });
+                setCoursesTable(dataWithStatus);
+            } else {
+                setCoursesTable([]);
+                notify("Không có dữ liệu lịch dạy online", "warning");
+            }
         } catch (error) {
             notify('Không thể lấy danh sách lịch dạy online')
+        } finally {
+            setLoading(false);
         }
     }
+
+
     // hàm xử lý đăng xuất
     const handleLogout = () => {
         setLoadingLogout(true);
         logout();
         setLoadingLogout(false);
     };
+
     // xuất excel
     const exportToExcel = () => {
         const flattenedData = coursesTable.map((item, index) => ({
@@ -313,16 +367,22 @@ export const InstructorSchedule = () => {
         // Xuất file
         XLSX.writeFile(wb, 'onlinecourses.xlsx');
     };
+
     useEffect(() => {
         fetchCourseOnline();
         fetchCoursesTable();
     }, []);
+
     useEffect(() => {
         if (coursesTable.length > 0) {
             const usedContentIds = coursesTable.map(item => item.content_id);
             setScheduledContents(usedContentIds);
         }
     }, [coursesTable]);
+
+
+    // hàm xử lý trạng thái
+
     return (
         <>
             <section className="instructor-schedule">
@@ -692,9 +752,6 @@ export const InstructorSchedule = () => {
                                                                     <p className="text-red-500 text-sm mt-1">{errors.notes}</p>
                                                                 )}
                                                             </div>
-                                                            <button onSelect={handleconsole()}>
-                                                                chọn
-                                                            </button>
                                                             <button
                                                                 type="button"
                                                                 disabled={loading}
@@ -723,12 +780,20 @@ export const InstructorSchedule = () => {
                                     </Button>
                                 </div>
                             </div>
+                            <div className="w-full bg-white rounded-xl my-5">
+                                <div className="p-3">
+                                    <h1 className="text-lg font-semibold text-yellow-500">Chú thích:</h1>
+                                    <p className="text-sm text-gray-500">Bạn có thể tham gia link meeting trực tiếp thông qua click vào trạng thái</p>
+                                </div>
+                            </div>
+                            <div className=" bg-white rounded-3xl p-3">
 
-                            <div className="my-5 bg-white rounded-3xl p-3">
+                                {/* bảng khóa học online */}
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead className="text-cyan-950 md:text-base text-xs w-20">STT</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs w-32">Trạng thái</TableHead>
                                             <TableHead className="text-cyan-950 md:text-base text-xs w-full sm:w-auto">Tên khóa học</TableHead>
                                             <TableHead className="text-cyan-950 md:text-base text-xs">Nội dung</TableHead>
                                             <TableHead className="text-cyan-950 md:text-base text-xs">Ngày bắt đầu</TableHead>
@@ -737,39 +802,81 @@ export const InstructorSchedule = () => {
                                     </TableHeader>
                                     <TableBody>
                                         {loading ? (
-                                            <TableRow>
-                                                <TableCell colSpan={5} className="text-center">
-                                                    <div className="flex justify-center items-center space-x-2">
-                                                        <span>Đang tải dữ liệu...</span>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ) : coursesTable.length > 0 ? (
-                                            coursesTable.map((item, index) => (
-                                                <TableRow key={index}>
-                                                    <TableCell>{index + 1}</TableCell>
-                                                    <TableCell>{item.course.title}</TableCell>
-                                                    <TableCell>{item.name_content}</TableCell>
-                                                    <TableCell>
-                                                        {new Date(item.meeting.schedule.start_time).toLocaleString('vi-VN')}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Badge>
-                                                            {item.meeting.notes || 'Không có ghi chú'}
-                                                        </Badge>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))
+                                            <>
+                                                {Array.from({ length: 4 }).map((_, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell>
+                                                            <Skeleton className="h-4 w-7" />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Skeleton className="h-4 w-60 rounded-xl" />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Skeleton className="h-4 w-8/12 md:w-11/12" />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Skeleton className="h-4 w-20" />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Skeleton className="h-4 w-40" />
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </>
+                                        ) : currentItems.length > 0 ? (
+                                            currentItems.map((item, index) => {
+                                                const { label, bgColor, textColor, disabled } = item.status;
+                                                return (
+                                                    <TableRow key={index}>
+                                                        <TableCell>{index + 1}</TableCell>
+                                                        <TableCell>
+                                                            <Link to={item.meeting.meeting_url} className={`hover:${textColor}`}>
+                                                                <TooltipProvider>
+                                                                    <Tooltip>
+                                                                        <TooltipTrigger>
+                                                                            <Badge className={`p-2 ${bgColor} ${textColor} text-white rounded-lg hover:bg-yellow-500 duration-300`}>
+                                                                                {disabled ? (
+                                                                                    label
+                                                                                ) : (
+                                                                                    <p >
+                                                                                        {label}
+                                                                                    </p>
+                                                                                )}
+                                                                            </Badge>
+                                                                        </TooltipTrigger>
+                                                                        <TooltipContent>
+                                                                            <p>Click để tham gia trực tiếp</p>
+                                                                        </TooltipContent>
+                                                                    </Tooltip>
+                                                                </TooltipProvider>
+                                                            </Link>
+                                                        </TableCell>
+                                                        <TableCell>{item.course.title}</TableCell>
+                                                        <TableCell>{item.name_content}</TableCell>
+                                                        <TableCell>
+                                                            {new Date(item.meeting.schedule.start_time).toLocaleString("vi-VN")}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Badge className="p-2">
+                                                                {item.meeting.notes || "Không có ghi chú"}
+                                                            </Badge>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            })
                                         ) : (
                                             <TableRow>
-                                                <TableCell colSpan={5} className="text-center">
+                                                <TableCell colSpan={6} className="text-center">
                                                     Không có lịch cho khóa học online nào
                                                 </TableCell>
                                             </TableRow>
                                         )}
                                     </TableBody>
+
                                 </Table>
-                                {/* <Pagination>
+
+                                {/* phân trang */}
+                                <Pagination>
                                     <PaginationContent>
                                         <PaginationItem>
                                             <PaginationPrevious
@@ -777,7 +884,7 @@ export const InstructorSchedule = () => {
                                                 onClick={() => handlePageChange(currentPage > 1 ? currentPage - 1 : 1)}
                                             />
                                         </PaginationItem>
-                                        {Array.from({ length: Math.max(1, Math.ceil(teacherOrders.length / itemsPerPage)) }).map((_, index) => (
+                                        {Array.from({ length: Math.max(1, Math.ceil(coursesTable.length / itemsPerPage)) }).map((_, index) => (
                                             <PaginationItem key={index}>
                                                 <PaginationLink
                                                     href="#"
@@ -793,7 +900,7 @@ export const InstructorSchedule = () => {
                                                 href="#"
                                                 onClick={() =>
                                                     handlePageChange(
-                                                        currentPage < Math.ceil(teacherOrders.length / itemsPerPage)
+                                                        currentPage < Math.ceil(coursesTable.length / itemsPerPage)
                                                             ? currentPage + 1
                                                             : currentPage
                                                     )
@@ -801,7 +908,7 @@ export const InstructorSchedule = () => {
                                             />
                                         </PaginationItem>
                                     </PaginationContent>
-                                </Pagination> */}
+                                </Pagination>
 
 
                             </div>
