@@ -362,7 +362,7 @@ export const CourseOverview = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center">
                         <Link
-                            to='/instructor/lessson'
+                            to='/instructor/lesson'
                             className="flex items-center gap-2 text-slate-900 hover:text-slate-700 transition-colors"
                         >
                             <ArrowLeft className="h-5 w-5" />
