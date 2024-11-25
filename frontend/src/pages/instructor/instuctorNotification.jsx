@@ -187,7 +187,7 @@ export const InstructorNotification = () => {
                             <ul className="">
                                 <li className="mb-3">
                                     <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 hover:bg-gray-100 ">
-                                        <div className="  mr-3 px-1  rounded-full">
+                                        <div className=" mr-3 px-1  rounded-full">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
                                         </div>
                                         <p className="font-semibold text-base">Bảng điều khiển</p>
@@ -195,7 +195,7 @@ export const InstructorNotification = () => {
 
                                 </li>
                                 <li className="mb-3">
-                                    <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <Link to="/instructor/lesson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                         <div className=" mr-3 px-1 rounded-full">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
                                         </div>
@@ -322,7 +322,7 @@ export const InstructorNotification = () => {
 
                                                                 </li>
                                                                 <li className="mb-3">
-                                                                    <Link to="/instructor/lessson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                    <Link to="/instructor/lesson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
                                                                         <div className=" mr-3 px-1 rounded-full">
                                                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
                                                                         </div>
