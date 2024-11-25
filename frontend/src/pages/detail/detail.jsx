@@ -580,8 +580,6 @@ export const Detail = () => {
             price: detail.price_discount || detail.price,
         };
 
-        console.log("Item trước khi gửi:", newItem);
-
         try {
             setLoading(true);
             const res = await fetch(`${API_URL}/auth/cart/addToCart`, {
@@ -1749,53 +1747,58 @@ export const Detail = () => {
                                                     });
                                                     return;
                                                 }
-                                                setIsDialogOpen(true);
+                                                if (detail.is_online_meeting === 1) {
+                                                    setIsDialogOpen(true); 
+                                                } else {
+                                                    await addToCart();
+                                                }
                                             }}
                                             className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
                                         >
                                             Thêm vào giỏ hàng
                                         </button>
-
-                                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                                            <DialogContent className="sm:max-w-[425px]">
-                                                <DialogHeader>
+                                        {detail.is_online_meeting === 1 && (
+                                            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                                <DialogContent className="sm:max-w-[425px]">
                                                     <DialogHeader>
-                                                        <div className="flex items-center gap-2">
-                                                            <Calendar className="w-5 h-5 text-blue-500" />
-                                                            <DialogTitle className="text-xl font-semibold leading-tight">
-                                                                Khóa học Online bắt đầu vào ngày
-                                                            </DialogTitle>
-                                                        </div>
-                                                        <div className="mt-2">
-                                                            <span className="text-3xl font-bold text-center block text-red-600">15-12-2024</span>
+                                                        <DialogHeader>
+                                                            <div className="flex items-center gap-2">
+                                                                <Calendar className="w-5 h-5 text-blue-500" />
+                                                                <DialogTitle className="text-xl font-semibold leading-tight">
+                                                                    Khóa học Online bắt đầu vào ngày
+                                                                </DialogTitle>
+                                                            </div>
+                                                            <div className="mt-2">
+                                                                <span className="text-3xl font-bold text-center block text-red-600">15-12-2024</span>
+                                                            </div>
+                                                        </DialogHeader>
+
+                                                        <div className="flex items-start gap-3 mt-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
+                                                            <BadgeAlert className="h-5 w-5 flex-shrink-0 mt-0.5 text-red-500" />
+                                                            <DialogDescription className="text-sm text-muted-foreground">
+                                                                <span className="font-semibold">Lưu ý:</span> Sau khi thanh toán thành công, bạn sẽ nhận được đường link tham gia lớp học trực tuyến qua email vào ngày bắt đầu khóa học.
+                                                            </DialogDescription>
                                                         </div>
                                                     </DialogHeader>
-
-                                                    <div className="flex items-start gap-3 mt-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
-                                                        <BadgeAlert className="h-5 w-5 flex-shrink-0 mt-0.5 text-red-500" />
-                                                        <DialogDescription className="text-sm text-muted-foreground">
-                                                            <span className="font-semibold">Lưu ý:</span> Sau khi thanh toán thành công, bạn sẽ nhận được đường link tham gia lớp học trực tuyến qua email vào ngày bắt đầu khóa học.
-                                                        </DialogDescription>
+                                                    <div className="my-1">
+                                                        <p className="text-sm font-medium text-foreground">
+                                                            Đối với các bài học video tự học, bạn có thể học theo lịch trình của mình bất kỳ lúc nào.
+                                                        </p>
                                                     </div>
-                                                </DialogHeader>
-                                                <div className="my-1">
-                                                    <p className="text-sm font-medium text-foreground">
-                                                        Đối với các bài học video tự học, bạn có thể học theo lịch trình của mình bất kỳ lúc nào.
-                                                    </p>
-                                                </div>
-                                                <Separator className="my-1" />
-                                                <div className="flex justify-end space-x-2">
-                                                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                                                        <X className="w-4 h-4 mr-2" />
-                                                        Hủy
-                                                    </Button>
-                                                    <Button onClick={addToCart} className="bg-yellow-400 text-white hover:bg-yellow-500">
-                                                        <ShoppingCart className="w-4 h-4 mr-2" />
-                                                        Xác nhận
-                                                    </Button>
-                                                </div>
-                                            </DialogContent>
-                                        </Dialog>
+                                                    <Separator className="my-1" />
+                                                    <div className="flex justify-end space-x-2">
+                                                        <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                                                            <X className="w-4 h-4 mr-2" />
+                                                            Hủy
+                                                        </Button>
+                                                        <Button onClick={addToCart} className="bg-yellow-400 text-white hover:bg-yellow-500">
+                                                            <ShoppingCart className="w-4 h-4 mr-2" />
+                                                            Xác nhận
+                                                        </Button>
+                                                    </div>
+                                                </DialogContent>
+                                            </Dialog>
+                                        )}
                                     </>
                                 )}
 
