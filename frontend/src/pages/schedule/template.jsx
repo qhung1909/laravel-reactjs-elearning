@@ -254,9 +254,13 @@ const ScheduleManagement = () => {
                                                         <div className="flex flex-col gap-3 text-sm text-gray-600">
                                                             <div className="flex items-center gap-3">
                                                                 <Clock className="h-4 w-4 text-gray-400" />
-                                                                <span>
-                                                                    {format(new Date(meeting.start_time), "dd/MM/yyyy - hh:mm a")} - {format(new Date(meeting.end_time), "hh:mm a")}
-                                                                </span>
+                                                                <div className="flex items-center space-x-3 text-sm">
+                                                                    <span>Ngày: {format(new Date(meeting.start_time), "dd/MM/yyyy")}</span>
+                                                                    <span>|</span>
+                                                                    <span>Bắt đầu: {format(new Date(meeting.start_time), "hh:mm a")}</span>
+                                                                    <span>|</span>
+                                                                    <span>Kết thúc: {format(new Date(meeting.end_time), "hh:mm a")}</span>
+                                                                </div>
                                                             </div>
                                                             {meeting.teacher_name && (
                                                                 <div className="flex items-center gap-3">
