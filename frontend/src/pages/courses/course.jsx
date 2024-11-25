@@ -60,11 +60,9 @@ export const Courses = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [sortCriteria, setSortCriteria] = useState('');
     const [ratingFilter, setRatingFilter] = useState('');
-
     const API_URL = import.meta.env.VITE_API_URL;
     const API_KEY = import.meta.env.VITE_API_KEY;
     const navigate = useNavigate();
-
 
     // hàm lọc sản phẩm
     const getSortedCourses = () => {
@@ -147,18 +145,18 @@ export const Courses = () => {
         }
     };
 
-    useEffect(() => {
-        const queryParams = new URLSearchParams(location.search);
-        const categorySlug = queryParams.get('category');
+    // useEffect(() => {
+    //     const queryParams = new URLSearchParams(location.search);
+    //     const categorySlug = queryParams.get('category');
 
-        if (categorySlug) {
-            fetchCoursesByCategory(categorySlug);
-            setSelectedCategory(categorySlug);
-        } else {
-            fetchCourses();
-        }
-        fetchTopPurchasedProduct();
-    }, [location.search, sortCriteria]);
+    //     if (categorySlug) {
+    //         fetchCoursesByCategory(categorySlug);
+    //         setSelectedCategory(categorySlug);
+    //     } else {
+    //         fetchCourses();
+    //     }
+    //     fetchTopPurchasedProduct();
+    // }, [location.search, sortCriteria]);
 
     const handleCategoryClick = (slug) => {
         fetchCoursesByCategory(slug);
@@ -242,7 +240,9 @@ export const Courses = () => {
 
     // xử lý phân trang và render
     const paginate = (pageNumber) => {
-        navigate(`?page=${pageNumber}`);
+        const currentParams = new URLSearchParams(location.search);
+        currentParams.set('page', pageNumber);
+        navigate(`?${currentParams.toString()}`);
     };
 
     const totalPages = Math.ceil(courses.length / coursesPerPage);
@@ -487,33 +487,40 @@ export const Courses = () => {
     )
 
     useEffect(() => {
-        const fetchCourses = async () => {
+        const fetchData = async () => {
+            setLoading(true)
             try {
-                if (searchQuery) {
-                    const results = await fetchSearchResults(searchQuery);
-                    setCourses(results.length > 0 ? results : []);
-                } else {
-                    const response = await axios.get(`${API_URL}/courses`);
-                    if (response.status === 200 && Array.isArray(response.data)) {
-                        setCourses(response.data);
-                    }
+                const queryParams = new URLSearchParams(location.search);
+                const categorySlug = queryParams.get('category');
+                const searchQuery = queryParams.get('search');
 
+                if (searchQuery) {
+                    // Nếu có search query, ưu tiên search
+                    const results = await fetchSearchResults(searchQuery, null);
+                    setCourses(results.length > 0 ? results : []);
+                } else if (categorySlug) {
+                    // Nếu không có search nhưng có category
+                    await fetchCoursesByCategory(categorySlug);
+                    setSelectedCategory(categorySlug);
+                } else {
+                    // Nếu không có cả search và category
+                    await fetchCourses();
                 }
+
+                await Promise.all([
+                    fetchTopPurchasedProduct(),
+                    fetchHotInstructor()
+                ]);
             } catch (error) {
-                console.error("Error fetching courses:", error);
+                console.error("Error fetching data:", error);
                 setCourses([]);
+            }finally{
+                setLoading(false)
             }
         };
-        const timeoutId = setTimeout(() => {
-            if (searchQuery) {
-                fetchCourses();
 
-            }
-        }, 300);
-        fetchHotInstructor();
-        return () => clearTimeout(timeoutId);
-    }, [searchQuery, API_URL, setCourses]);
-
+        fetchData();
+    }, [location.search]);
     return (
 
         <section className='courses'>

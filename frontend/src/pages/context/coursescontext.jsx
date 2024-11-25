@@ -48,7 +48,7 @@ export const CoursesProvider = ({ children }) => {
                     'x-api-secret': `${API_KEY}`,
                 },
             });
-            const allCourses = response.data;            
+            const allCourses = response.data;
             setCourses(allCourses)
         } catch (error) {
             console.log('Error fetching categories', error)
@@ -80,7 +80,11 @@ export const CoursesProvider = ({ children }) => {
         setLoading(true);
         try {
             const response = await axios.get(`${API_URL}/courses/search`, {
-                params: { query: query.trim() }
+                params: {
+                    query: query.trim(),
+                    pattern: 'partial', // hoặc 'exact' tùy nhu cầu
+                    limit: limit
+                }
             });
             if (response.status === 200 && Array.isArray(response.data)) {
                 const results = limit ? response.data.slice(0, limit) : response.data;

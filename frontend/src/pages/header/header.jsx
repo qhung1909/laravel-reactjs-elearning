@@ -45,7 +45,7 @@ import NotificationDropdown from "../pusher/pusher";
 export const Header = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
-    const { searchValue, setSearchValue, filteredProducts, isOpen, setIsOpen, debouncedFetchSearchResults } = useContext(CoursesContext);
+    const { searchValue, setSearchValue, filteredProducts, isOpen, setIsOpen, debouncedFetchSearchResults} = useContext(CoursesContext);
     const { categories } = useContext(CategoriesContext);
     const { user, logined, logout, refreshToken } = useContext(UserContext);
     const { courses, fetchCourses } = useContext(CoursesContext);
@@ -53,7 +53,7 @@ export const Header = () => {
     const [loadingLogout, setLoadingLogout] = useState(false);
     const isBlogPage = location.pathname === "/blog";
     const isContactPage = location.pathname === "/contact";
-    const [loading] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [myCourse, setMyCourse] = useState([]);
     const navigate = useNavigate();
 
@@ -255,51 +255,49 @@ export const Header = () => {
                                             <div className="rounded-sm border-l border-r border-b shadow-lg p-3 text-gray-400">
                                                 Đang tải...
                                             </div>
+                                        ) : !searchValue ? (
+                                            <div className="rounded-sm border-l border-r border-b shadow-lg p-3 text-gray-400">
+                                                Hãy nhập để tìm khóa học phù hợp
+                                            </div>
+                                        ) : filteredProducts.length === 0 && !loading ? (
+                                            <div className="rounded-sm border-l border-r border-b shadow-lg p-3 text-gray-400">
+                                                Không tìm thấy sản phẩm
+                                            </div>
                                         ) : (
-                                            <>
-                                                {searchValue && filteredProducts.length === 0 ? (
-                                                    <div className="rounded-sm border-l border-r border-b shadow-lg p-3 text-gray-400">
-                                                        Không tìm thấy sản phẩm
-                                                    </div>
-                                                ) : searchValue === '' ? (
-                                                    <div className="rounded-sm border-l border-r border-b shadow-lg p-3 text-gray-400">
-                                                        Hãy nhập để tìm khóa học phù hợp
-                                                    </div>
-                                                ) : (
-                                                    <div className="search-results h-auto">
-                                                        <div className="p-3">
-                                                            <p className="font-semibold text-lg text-yellow-300">Kết quả:</p>
-                                                        </div>
-                                                        {filteredProducts.map((product) => (
-                                                            <div
-                                                                key={product.id}
-                                                                className="search-result-item "
-                                                                onClick={() => {
-                                                                    console.log('Selected:', product);
-                                                                    setIsOpen(false);
-                                                                }}
-                                                            >
-
-                                                                <div className="result">
-                                                                    <Link to={`/detail/${product.slug}`}>
-                                                                        <div className="flex items-center gap-3 px-3">
-                                                                            <div className="">
-                                                                                <img src={`${product.img}`} className="w-32 rounded-md" alt="" />
-                                                                            </div>
-                                                                            <div className="">
-                                                                                <div className="font-semibold">
-                                                                                    {product.title}
-                                                                                </div>
-                                                                            </div>
+                                            <div className="search-results h-auto">
+                                                <div className="p-3">
+                                                    <p className="font-semibold text-lg text-yellow-300">Kết quả:</p>
+                                                </div>
+                                                {filteredProducts.map((product) => (
+                                                    <div
+                                                        key={product.id}
+                                                        className="search-result-item"
+                                                        onClick={() => {
+                                                            console.log('Selected:', product);
+                                                            setIsOpen(false);
+                                                        }}
+                                                    >
+                                                        <div className="result">
+                                                            <Link to={`/detail/${product.slug}`}>
+                                                                <div className="flex items-center gap-3 px-3">
+                                                                    <div className="">
+                                                                        <img
+                                                                            src={`${product.img}`}
+                                                                            className="w-32 rounded-md"
+                                                                            alt=""
+                                                                        />
+                                                                    </div>
+                                                                    <div className="">
+                                                                        <div className="font-semibold">
+                                                                            {product.title}
                                                                         </div>
-                                                                    </Link>
-
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                        ))}
+                                                            </Link>
+                                                        </div>
                                                     </div>
-                                                )}
-                                            </>
+                                                ))}
+                                            </div>
                                         )}
                                     </CommandList>
                                 </div>
