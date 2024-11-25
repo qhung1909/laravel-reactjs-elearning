@@ -357,14 +357,14 @@ export const Detail = () => {
     const renderContentBadge = (content) => {
         if (content.is_online_meeting === 1) {
             return (
-                <Badge className="ml-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white text-xs font-medium flex items-center gap-1">
-                    <Video className="w-3 h-3" />
-                    Face - To - Face
+                <Badge className="ml-2 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white text-xs font-medium flex items-center gap-2 shadow-md hover:shadow-lg transition-all duration-300">
+                    <Video className="w-3.5 h-3.5" />
+                    <span className="tracking-wide">Face-To-Face</span>
                 </Badge>
             );
         }
         return null;
-    };
+     };
     const [courseRelated, setCourseRelated] = useState([]);
     const fetchCourseRelated = async () => {
         const categoryId = detail.course_category_id;
