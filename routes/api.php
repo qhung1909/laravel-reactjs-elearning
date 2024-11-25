@@ -74,6 +74,7 @@ Route::post('/check-discount', [CouponController::class, 'checkDiscount']);
 //Reset Password
 Route::post('reset-password', [UserController::class, 'sendResetLink']);
 Route::post('reset-password/{token}', [UserController::class, 'resetPassword']);
+Route::patch('/update-role', [UserController::class, 'updateRole']);
 
 Route::middleware(['admin'])->group(function () {
 
