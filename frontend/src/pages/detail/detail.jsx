@@ -4,7 +4,7 @@ import { formatDate } from "@/components/FormatDay/Formatday";
 import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import { BadgeAlert, ChevronDown, ChevronUp, CircleUserRound, Edit, Heart, HeartOff, Trash, User } from "lucide-react";
+import { BadgeAlert, ChevronDown, ChevronUp, CircleUserRound, Edit, Heart, HeartOff, Trash, User, Video } from "lucide-react";
 import { Calendar, Globe, BookOpen, Star, Gift } from "lucide-react";
 import { Play, Users, Book, Clock, Eye, ShoppingCart, X } from "lucide-react";
 
@@ -128,6 +128,8 @@ export const Detail = () => {
             });
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
                 setContentLesson(res.data.data.filter(content => content.course_id === courseId));
+                console.log(res.data.data.filter(content => content.course_id === courseId));
+
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
@@ -329,7 +331,7 @@ export const Detail = () => {
         if (detail?.is_online_meeting === 1) {
             return (
                 <Badge className="
-                    group mb-4 relative overflow-hidden text-lg py-3 px-6 rounded-full 
+                    group mb-4 relative overflow-hidden text-lg py-3 px-6 rounded-full
                     shadow-[0_0_15px_rgba(168,85,247,0.5)]
                     font-bold text-white
                     bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600
@@ -352,7 +354,17 @@ export const Detail = () => {
         }
         return null;
     };
-
+    const renderContentBadge = (content) => {
+        if (content.is_online_meeting === 1) {
+            return (
+                <Badge className="ml-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white text-xs font-medium flex items-center gap-1">
+                    <Video className="w-3 h-3" />
+                    Face - To - Face
+                </Badge>
+            );
+        }
+        return null;
+    };
     const [courseRelated, setCourseRelated] = useState([]);
     const fetchCourseRelated = async () => {
         const categoryId = detail.course_category_id;
@@ -1115,15 +1127,20 @@ export const Detail = () => {
                                                                         {content.name_content}
                                                                     </span>
                                                                 </div>
-                                                                <div className="mr-3">
-                                                                    {index === 0 ? ( // Chỉ hiển thị biểu tượng CheckCircle cho phần đầu tiên
+                                                                <div className="mr-3 flex items-center gap-2">
+                                                                    {/* Badge styling */}
+                                                                    <span >
+                                                                        {renderContentBadge(content)}
+                                                                    </span>
+                                                                    {index === 0 ? (
                                                                         <CheckCircle className="text-green-600 w-4 h-4" />
                                                                     ) : (
-                                                                        <Lock className="text-gray-400 w-4 h-4" /> // Hiển thị biểu tượng khóa cho phần còn lại
+                                                                        <Lock className="text-gray-400 w-4 h-4" />
                                                                     )}
                                                                 </div>
                                                             </div>
                                                         </AccordionTrigger>
+
                                                         <AccordionContent className="border-t border-gray-100">
                                                             {index === 0 && content.course_id === lesson.course_id && Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? ( // Chỉ hiển thị nội dung cho phần đầu tiên
                                                                 <div className="space-y-6 p-6">
