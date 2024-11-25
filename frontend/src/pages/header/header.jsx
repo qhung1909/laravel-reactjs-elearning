@@ -696,11 +696,22 @@ export const Header = () => {
                                                     </div>
 
                                                     {/* cart */}
-                                                    <div className="">
-                                                        <Link to='/cart'>
-                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-24" alt="" />
-                                                        </Link>
-                                                    </div>
+
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger>
+                                                                <div className="">
+                                                                    <Link to='/cart'>
+                                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/cart.svg" className="w-24" alt="" />
+                                                                    </Link>
+                                                                </div>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>Giỏ hàng</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+
 
                                                     {/* menu - toogle - toogle login */}
                                                     <div className="flex items-center">
@@ -727,8 +738,29 @@ export const Header = () => {
                                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-7" alt="" />
                                                             </div> */}
                                                                 <div className="w-8">
-                                                                    {user && <NotificationDropdown userId={user.user_id} />}
+                                                                    <TooltipProvider>
+                                                                        <Tooltip>
+                                                                            <TooltipTrigger>
+                                                                                {user && <NotificationDropdown userId={user.user_id} />}
+                                                                            </TooltipTrigger>
+                                                                            <TooltipContent>
+                                                                                <p>Thông báo</p>
+                                                                            </TooltipContent>
+                                                                        </Tooltip>
+                                                                    </TooltipProvider>
 
+                                                                </div>
+                                                                <div className="">
+                                                                    <TooltipProvider>
+                                                                        <Tooltip>
+                                                                            <TooltipTrigger> <Link to='/user/schedule'>
+                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/calendar-svgrepo-com.svg" className="w-8" alt="" />
+                                                                            </Link></TooltipTrigger>
+                                                                            <TooltipContent>
+                                                                                <p>Lịch học online</p>
+                                                                            </TooltipContent>
+                                                                        </Tooltip>
+                                                                    </TooltipProvider>
                                                                 </div>
                                                             </div>
                                                         </div>

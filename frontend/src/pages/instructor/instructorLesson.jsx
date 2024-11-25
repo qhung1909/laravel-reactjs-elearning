@@ -65,7 +65,7 @@ export const InstructorLesson = () => {
     const [loading, setLoading] = useState(false)
     const [teacherCourses, setTeacherCourses] = useState([]);
     const navigate = useNavigate();
-    const [setCourse] = useState([]);
+    const [course,setCourse] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("");
     const [formData, setFormData] = useState({
@@ -108,7 +108,6 @@ export const InstructorLesson = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log(response.data)
             setTeacherCourses(response.data.courses)
         } catch (error) {
             console.log('Error fetching users Courses', error)
@@ -338,7 +337,6 @@ export const InstructorLesson = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log(response.data)
             setCourse(response.data)
             navigate(`/course/manage/${response.data.course.course_id}/course-overview`)
         } catch (error) {
