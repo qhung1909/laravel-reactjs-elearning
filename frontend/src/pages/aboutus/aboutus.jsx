@@ -128,7 +128,7 @@ export const Aboutus = () => {
             <section
                 className="blog-banner flex items-center justify-center xl:h-[340px] lg:h-[295px] md:h-[250px] sm:h-[170px] h-[150px] w-full"
                 style={{
-                    backgroundImage: "url(./src/assets/images/bannerblog.png)",
+                    backgroundImage: "url(/src/assets/images/bannerblog.png)",
                     objectFit: "cover"
                 }}
             >
@@ -216,6 +216,36 @@ export const Aboutus = () => {
                                     ))}
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div className="my-16">
+                        {/* title */}
+                        <div className="text-center mb-10">
+                            <h1 className="md:text-4xl text-2xl font-bold text-navy-900 mb-4">Quá trình làm việc</h1>
+                            <p className="md:text-xl text-lg text-gray-600">Những khoảnh khắc đáng nhớ</p>
+                            <div className="w-24 h-1 bg-yellow-500 mx-auto mt-4"></div>
+                        </div>
+
+                        {/* Video */}
+                        <div className="max-w-5xl mx-auto px-4">
+                            <Card className="overflow-hidden shadow-2xl rounded-xl">
+                                <CardContent className="p-0">
+                                    <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                                        <video
+                                            className="absolute top-0 left-0 w-full h-full object-cover"
+                                            controls
+                                            controlsList="nodownload"
+                                            preload="auto"
+                                        >
+                                            <source src="/src/assets/images/timeplapse.mp4" type="video/mp4" />
+                                        </video>
+                                    </div>
+                                    <div className="p-8 text-center space-y-3 bg-gradient-to-b from-yellow-50 to-white shadow-inner">
+                                        <h3 className="text-2xl font-bold mb-3 text-yellow-700">Quá trình làm việc của chúng tôi</h3>
+                                        <p className="text-gray-600">Theo dõi hành trình phát triển dự án từ những ngày đầu tiên</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
                     </div>
 
@@ -337,7 +367,7 @@ export const Aboutus = () => {
                         <div className="flex justify-center mt-10 md:px-0 px-5">
                             <div className="grid grid-cols-2 gap-5 ">
                                 <div className="bg-gray-100 md:p-10 p-5 text-center rounded-lg hover:bg-black duration-300 hover:text-white cursor-pointer">
-                                    <Link  className='space-y-3'>
+                                    <Link className='space-y-3'>
                                         <div className="flex justify-center">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/facebook.svg" className='w-8' alt="" />
                                         </div>
