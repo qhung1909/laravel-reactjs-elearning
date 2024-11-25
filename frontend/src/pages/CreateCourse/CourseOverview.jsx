@@ -287,6 +287,18 @@ export const CourseOverview = () => {
             return;
         }
 
+        if(price < 0){
+            notify('Giá không được nhỏ hơn 0');
+            return
+        }
+
+        if(price > 100000000){
+            notify('Giá không được lớn hơn 100.000.000đ');
+            return
+        }
+
+
+
         setErrors({
             categoryError: '',
             priceError: '',
@@ -300,7 +312,7 @@ export const CourseOverview = () => {
         formData.append('description', courseDescriptionText);
         formData.append('title', courseTitle.trim());
         formData.append('currency', currency);
-        formData.append('language', selectedLanguage);
+        // formData.append('language', selectedLanguage);
 
         // Add launch dates if extension is online
         if (selectedExtension === "online") {
@@ -341,7 +353,7 @@ export const CourseOverview = () => {
                 setInitialCourseDescriptionText(courseDescriptionText);
                 setInitialCurrency(currency);
                 setInitialPrice(price);
-                setInitialSelectedLanguage(selectedLanguage);
+                // setInitialSelectedLanguage(selectedLanguage);
                 setInitialSelectedCategory(selectedCategory);
                 setInitialCourseImage(courseImage);
             } else {
@@ -457,8 +469,9 @@ export const CourseOverview = () => {
 
                         <div className="pb-6">
                             <h2 className="pb-2 font-medium text-lg">Đặt giá cho khóa học của bạn</h2>
-                            <div className="flex flex-cols-2 py-2 gap-4">
-                                <div>
+                            {/* <div className="flex flex-cols-2 py-2 gap-4"> */}
+                            <div className="w-1/4">
+                                {/* <div>
                                     <Select value={currency} onValueChange={(value) => {
                                         setCurrency(value);
                                         // Reset lỗi khi người dùng chọn giá trị
@@ -477,9 +490,9 @@ export const CourseOverview = () => {
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
-                                </div>
+                                </div> */}
                                 <div>
-                                    <Input className='h-full' value={price} onChange={(e) => {
+                                    <Input className='h-[36px]' value={price} onChange={(e) => {
                                         setPrice(e.target.value);
                                         // Reset lỗi khi người dùng nhập giá trị
                                         if (e.target.value.trim() !== '') {
@@ -496,7 +509,7 @@ export const CourseOverview = () => {
                         <div className="pb-6">
                             <h2 className="pb-1 text-lg font-medium">Thông tin cơ bản</h2>
                             <div className="grid grid-cols-3 gap-4">
-                                <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                                {/* <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
                                     <SelectTrigger className="w-full">
                                         <SelectValue placeholder="-- Chọn ngôn ngữ --" />
                                     </SelectTrigger>
@@ -507,7 +520,7 @@ export const CourseOverview = () => {
                                             <SelectItem value="english">Tiếng Anh</SelectItem>
                                         </SelectGroup>
                                     </SelectContent>
-                                </Select>
+                                </Select> */}
 
                                 <Select value={selectedCategory} onValueChange={(value) => {
                                     setSelectedCategory(value);
