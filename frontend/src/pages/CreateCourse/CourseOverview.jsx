@@ -145,10 +145,10 @@ export const CourseOverview = () => {
             courseImage !== initialCourseImage
         ) {
             setHasChanges(true);
-            setIsUpdated(false); // Đánh dấu là đã thay đổi
+            setIsUpdated(false);
         } else {
             setHasChanges(false);
-            setIsUpdated(true); // Đánh dấu là chưa thay đổi
+            setIsUpdated(true);
         }
     }, [
         courseTitle,
@@ -181,21 +181,21 @@ export const CourseOverview = () => {
         }
     };
 
-    useEffect(() => {
-        const isCourseTitleValid = courseTitle.trim() !== "";
-        const isDescriptionValid = wordCount >= 200;
-        const isCurrencyValid = currency !== "";
-        const isPriceValid = price.trim() !== "";
-        const isLanguageSelected = selectedLanguage !== "";
-        const isCategorySelected = selectedCategory !== "";
-        const isImageUploaded = courseImage !== null;
+    // useEffect(() => {
+    //     const isCourseTitleValid = courseTitle.trim() !== "";
+    //     const isDescriptionValid = wordCount >= 200;
+    //     const isCurrencyValid = currency !== "";
+    //     const isPriceValid = price.trim() !== "";
+    //     const isLanguageSelected = selectedLanguage !== "";
+    //     const isCategorySelected = selectedCategory !== "";
+    //     const isImageUploaded = courseImage !== null;
 
-        if (isCourseTitleValid && isDescriptionValid && isCurrencyValid && isPriceValid && isLanguageSelected && isCategorySelected && isImageUploaded) {
-            localStorage.setItem('FA-CO', 'done');
-        } else {
-            localStorage.removeItem('FA-CO');
-        }
-    }, [courseTitle, wordCount, courseDescriptionText, currency, price, selectedLanguage, selectedCategory, courseImage]);
+    //     if (isCourseTitleValid && isDescriptionValid && isCurrencyValid && isPriceValid && isLanguageSelected && isCategorySelected && isImageUploaded) {
+    //         localStorage.setItem('FA-CO', 'done');
+    //     } else {
+    //         localStorage.removeItem('FA-CO');
+    //     }
+    // }, [courseTitle, wordCount, courseDescriptionText, currency, price, selectedLanguage, selectedCategory, courseImage]);
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -362,7 +362,7 @@ export const CourseOverview = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center">
                         <Link
-                            to='/'
+                            to='/instructor/lessson'
                             className="flex items-center gap-2 text-slate-900 hover:text-slate-700 transition-colors"
                         >
                             <ArrowLeft className="h-5 w-5" />

@@ -114,7 +114,7 @@ function AppContent() {
             <ScrollToTop />
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
-            
+
                 <Route path="/teacher/:id" element={<PersonalPage />}></Route>
                 <Route path="/demo" element={<Demo />}></Route>
                 <Route path="/user/certificate" element={<ManageCertificate />}></Route>
@@ -124,7 +124,7 @@ function AppContent() {
                 <Route path="/user/favorite" element={<UserFavorite />}></Route>
                 <Route path="/instructor" element={<Instructor />}></Route>
                 <Route path="/instructor/history" element={<InstructorHistory />}></Route>
-                <Route path="/instructor/lessson" element={<InstructorLesson />}></Route>
+                <Route path="/instructor/lesson" element={<InstructorLesson />}></Route>
                 <Route path="/instructor/notification" element={<InstructorNotification />}></Route>
                 <Route path="/instructor/profile" element={<InstructorProfile />}></Route>
                 <Route path="/instructor/schedule" element={<InstructorSchedule />}></Route>
@@ -188,7 +188,7 @@ function AppContent() {
                 <Route path="/lesson/meeting/:id" element={<JitsiMeeting />}></Route>
                 <Route path="/certificate/:id" element={<CertificateDetailPage />}></Route>
                 <Route path="/user/schedule" element={<ScheduleManagement />}></Route>
-                
+
             </Routes>
             {!isAdminPage && !isPageNotFound && <Footer />}
         </>
