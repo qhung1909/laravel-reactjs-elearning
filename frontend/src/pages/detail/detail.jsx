@@ -524,7 +524,7 @@ export const Detail = () => {
             (item) => item.course_id === detail.course_id
         );
         if (isAlreadyAdded) {
-            toast.error("Sản phẩm này đã có trong giỏ hàng.", {
+            toast.error("Khóa học này đã có trong giỏ hàng.", {
                 style: {
                     padding: "16px",
                 },
@@ -889,7 +889,7 @@ export const Detail = () => {
             setRating(0);
             setErrorMessage("");
             fetchDetail();
-            toast.success("Đăng thành công bình luận!", {
+            toast.success("Đăng bình luận thành công!", {
                 style: {
                     padding: "16px",
                 },
@@ -958,6 +958,7 @@ export const Detail = () => {
     const [favorites, setFavorites] = useState({});
     useEffect(() => {
         const token = localStorage.getItem("access_token");
+        if (!token) return;
         const fetchFavorites = async () => {
             try {
                 const response = await axios.get(`${API_URL}/favorites`, {
@@ -985,6 +986,15 @@ export const Detail = () => {
 
     const handleLike = async (courseId) => {
         const token = localStorage.getItem("access_token");
+        // Kiểm tra token
+        if (!token) {
+            toast.error("Đăng nhập để lưu khóa học vào danh sách yêu thích nhé! ⭐", {
+                style: {
+                    padding: "16px",
+                },
+            });
+            return;
+        }
         try {
             const isFavorited = favorites[courseId];
             const newFavorites = { ...favorites };
@@ -1703,7 +1713,7 @@ export const Detail = () => {
                                                 const token = localStorage.getItem("access_token");
                                                 if (!token) {
                                                     console.error("No token found");
-                                                    toast.error("Bạn chưa đăng nhập", {
+                                                    toast.error("Đăng nhập để mua khóa học bạn nhé!", {
                                                         style: {
                                                             padding: "16px",
                                                         },
