@@ -1748,7 +1748,7 @@ export const Detail = () => {
                                                     return;
                                                 }
                                                 if (detail.is_online_meeting === 1) {
-                                                    setIsDialogOpen(true); 
+                                                    setIsDialogOpen(true);
                                                 } else {
                                                     await addToCart();
                                                 }
@@ -1769,7 +1769,7 @@ export const Detail = () => {
                                                                 </DialogTitle>
                                                             </div>
                                                             <div className="mt-2">
-                                                                <span className="text-3xl font-bold text-center block text-red-600">15-12-2024</span>
+                                                                <span className="text-3xl font-bold text-center block text-red-600">{formatDateNoTime(detail.launch_date)}</span>
                                                             </div>
                                                         </DialogHeader>
 
