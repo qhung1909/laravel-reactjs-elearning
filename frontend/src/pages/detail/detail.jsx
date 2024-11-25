@@ -294,6 +294,8 @@ export const Detail = () => {
 
             if (res.data && res.data.course_id) {
                 setDetail(res.data);
+                console.log("detail: ", res.data);
+
                 fetchComments(res.data.course_id);
                 if (user.user_id) {
                     checkPaymentCourse(user.user_id);
@@ -321,6 +323,35 @@ export const Detail = () => {
             fetchDetail();
         }
     }, [slug]);
+    //Thoi gian khai giang
+    const renderLaunchDateBadge = () => {
+        // Chỉ render badge khi khóa học là online meeting và có launch_date
+        if (detail?.is_online_meeting === 1) {
+            return (
+                <Badge className="
+                    group mb-4 relative overflow-hidden text-lg py-3 px-6 rounded-full 
+                    shadow-[0_0_15px_rgba(168,85,247,0.5)]
+                    font-bold text-white
+                    bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600
+                    hover:shadow-[0_0_25px_rgba(168,85,247,0.7)]
+                    transform transition-all duration-500 hover:scale-105
+                    animate-shimmer hover:animate-pulse
+                    border border-purple-400/30 backdrop-blur-sm">
+                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600/40 via-fuchsia-600/40 to-pink-600/40 animate-pulse-slow"></div>
+                    <div className="relative flex items-center gap-2">
+                        <span className="animate-gradient">👨‍🏫 Khởi động Hành trình Học tập - Mở đăng ký từ
+                            <span className="inline-block bg-yellow-400 text-purple-900 px-2 py-0.5 rounded-md mx-1 animate-bounce">
+                                {formatDateNoTime(detail.launch_date)}
+                            </span>
+                            !
+                        </span>
+                        <Sparkles className="w-5 h-5 animate-bounce" />
+                    </div>
+                </Badge>
+            );
+        }
+        return null;
+    };
 
     const [courseRelated, setCourseRelated] = useState([]);
     const fetchCourseRelated = async () => {
@@ -638,26 +669,7 @@ export const Detail = () => {
                 </Breadcrumb>
 
                 <div className="mt-8 max-w-3xl">
-                    <Badge className="
-  group mb-4 relative overflow-hidden text-lg py-3 px-6 rounded-full 
-  shadow-[0_0_15px_rgba(168,85,247,0.5)]
-  font-bold text-white
-  bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600
-  hover:shadow-[0_0_25px_rgba(168,85,247,0.7)]
-  transform transition-all duration-500 hover:scale-105
-  animate-shimmer hover:animate-pulse
-  border border-purple-400/30 backdrop-blur-sm">
-                        <div className="absolute inset-0 bg-gradient-to-r from-violet-600/40 via-fuchsia-600/40 to-pink-600/40 animate-pulse-slow"></div>
-                        <div className="relative flex items-center gap-2">
-                            <span className="animate-gradient">👨‍🏫 Khởi động Hành trình Học tập - Mở đăng ký từ
-                                <span className="inline-block bg-yellow-400 text-purple-900 px-2 py-0.5 rounded-md mx-1 animate-bounce">
-                                    15-12-2024
-                                </span>
-                                !
-                            </span>
-                            <Sparkles className="w-5 h-5 animate-bounce" />
-                        </div>
-                    </Badge>
+                    {renderLaunchDateBadge()}
                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-white shadow-text">
                         {detail.title}
                     </h1>
