@@ -186,6 +186,9 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/certificate/details/{certificateId}', [CertificateController::class, 'getCertificateDetails']);
     Route::get('/certificates', [CertificateController::class, 'index']);
 
+    Route::get('/meetings/{meetingId}/participants', [ParticipantController::class, 'getParticipantsByMeeting']);
+
+
 });
 
 Route::prefix('admin')->middleware('admin')->group(function () {

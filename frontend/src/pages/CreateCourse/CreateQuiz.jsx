@@ -220,7 +220,7 @@ export const CreateQuiz = () => {
                     options: [],
                     answers: []
 
-                    
+
                 };
 
                 // Khởi tạo `options` cho `single_choice` và `mutiple_choice`
@@ -286,6 +286,26 @@ export const CreateQuiz = () => {
             });
             return; // Dừng lại nếu có câu hỏi không hợp lệ
         }
+
+        // const questionsWithEmptyAnswers = questions.filter(q => {
+        //     if (q.type === 'true_false' && (q.answers[0] === '' || !q.answers[0])) {
+        //         return true;
+        //     } else if (q.type === 'fill_blank' && (q.answers[0] === '' || !q.answers[0])) {
+        //         return true;
+        //     } else if (q.type === 'single_choice' || q.type === 'mutiple_choice') {
+        //         return q.options.some(option => option.answer === '' || !option.answer);
+        //     }
+        //     return false;
+        // });
+        // if (questionsWithEmptyAnswers.length > 0) {
+        //     Swal.fire({
+        //         icon: 'warning',
+        //         title: 'Cảnh báo',
+        //         text: 'Vui lòng điền đầy đủ phần trả lời cho tất cả câu hỏi trước khi cập nhật.',
+        //         confirmButtonText: 'OK',
+        //     });
+        //     return; // Dừng lại nếu có câu hỏi có phần trả lời trống
+        // }
 
         try {
             // Chuẩn bị dữ liệu để cập nhật tất cả các câu hỏi
@@ -784,15 +804,15 @@ export const CreateQuiz = () => {
                                 </Button>
                             </div>
 
-                            {/* <div className="flex justify-end">
-              <Button
-                onClick={() => console.log(JSON.stringify(questions, null, 2))}
-                variant="outline"
-                className="text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-md text-sm transition-colors"
-              >
-                Xuất JSON
-              </Button>
-            </div> */}
+                            <div className="flex justify-end">
+                                <Button
+                                    onClick={() => console.log(JSON.stringify(questions, null, 2))}
+                                    variant="outline"
+                                    className="text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-md text-sm transition-colors"
+                                >
+                                    Xuất JSON
+                                </Button>
+                            </div>
                         </div>
                     </>
                 )
