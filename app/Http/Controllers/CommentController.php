@@ -34,6 +34,7 @@ class CommentController extends Controller
                 'created_at' => $comment->created_at,
                 'updated_at' => $comment->updated_at,
                 'user' => [
+                    'user_id'=>$comment->user->user_id,
                     'name' => $comment->user->name,
                     'avatar' => $comment->user->avatar
                 ]
