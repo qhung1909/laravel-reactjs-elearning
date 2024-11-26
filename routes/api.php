@@ -187,6 +187,7 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/certificates', [CertificateController::class, 'index']);
 
     Route::get('/meetings/{meetingId}/participants', [ParticipantController::class, 'getParticipantsByMeeting']);
+    Route::get('/attendance/history', [ParticipantController::class, 'getUserAttendanceHistory']);
 
 
 });
