@@ -4,7 +4,7 @@ import { formatDate } from "@/components/FormatDay/Formatday";
 import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import { BadgeAlert, ChevronDown, ChevronUp, CircleUserRound, Edit, Heart, HeartOff, Trash, User, Video } from "lucide-react";
+import { BadgeAlert, ChevronDown, ChevronUp, CircleUserRound, Edit, Heart, HeartOff, Mail, Trash, User, Video } from "lucide-react";
 import { Calendar, Globe, BookOpen, Star, Gift } from "lucide-react";
 import { Play, Users, Book, Clock, Eye, ShoppingCart, X } from "lucide-react";
 
@@ -52,7 +52,7 @@ import { Sparkles } from 'lucide-react';
 // import { CategoriesContext } from "../context/categoriescontext";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
-
+const GPT_KEY = import.meta.env.VITE_GPT_KEY;
 export const Detail = () => {
     // const { categories } = useContext(CategoriesContext);
     const { courses, setCourses } = useContext(CoursesContext);
@@ -730,6 +730,13 @@ export const Detail = () => {
 
             const token = localStorage.getItem("access_token");
 
+            // Kiểm tra bình luận có từ ngữ khiếm nhã hay không
+            const { isInappropriate, reason } = await checkComment(editingContent);
+            if (isInappropriate) {
+                setErrorMessage(reason); // Hiển thị lý do tại sao bình luận không hợp lệ
+                return;
+            }
+
             // Gửi request cập nhật bình luận
             await axios.put(
                 `${API_URL}/comments/${commentId}`,
@@ -744,24 +751,30 @@ export const Detail = () => {
                     },
                 }
             );
+
             setEditingCommentId(null);
             setEditingRating(0);
             setEditingContent("");
+            setErrorMessage("");  // Reset lỗi nếu có
             toast.success("Sửa bình luận thành công!", {
                 style: {
                     padding: "16px",
                 },
             });
+
+            // Fetch lại chi tiết nếu cần
             fetchDetail();
+
         } catch (error) {
             console.error(
                 "Error updating comment:",
                 error.response?.data || error.message
             );
-            toast.error(error.response.data.error);
+            toast.error(error.response?.data?.error || "Có lỗi xảy ra khi cập nhật bình luận.");
         }
     };
-
+    const editCommentLength = editingContent.length;
+    const commentLength = comment.length;
     const renderComment = (comment) => (
         <div
             key={comment.comment_id}
@@ -818,12 +831,16 @@ export const Detail = () => {
                                 />
                             ))}
                         </div>
-
-                        <textarea
-                            value={editingContent}
-                            onChange={(e) => setEditingContent(e.target.value)}
-                            className="w-full border rounded-md p-2 mt-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
+                        <div>
+                            <textarea
+                                value={editingContent}
+                                onChange={(e) => setEditingContent(e.target.value)}
+                                className="w-full border rounded-md p-2 mt-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                            <div className="text-right text-sm text-gray-500 mt-1">
+                                {editCommentLength} ký tự
+                            </div>
+                        </div>
 
                         <div className="flex space-x-2 mt-2">
                             <Button
@@ -863,13 +880,47 @@ export const Detail = () => {
             </div>
         </div>
     );
+    // Kiểm tra bình luận
+    const checkComment = async (commentContent) => {
+        try {
+            const maxLength = 300;
+            if (commentContent.length > maxLength) {
+                return { isInappropriate: true, reason: 'Nội dung bình luận vượt quá 300 ký tự.' };
+            }
+            const commentPrompt = `Vui lòng kiểm tra bình luận sau và xác định nếu có từ ngữ khiếm nhã, tục tĩu, hoặc không phù hợp: "${commentContent}".
+            Nếu có, trả lời 'Có'. Nếu không có, trả lời 'Không'. Nếu có từ ngữ khiếm nhã, hãy cho biết từ ngữ đó và lý do tại sao nó không phù hợp.`;
 
+            // Gửi yêu cầu đến API GPT để kiểm tra bình luận
+            const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+                model: 'gpt-3.5-turbo',
+                messages: [{ role: 'user', content: commentPrompt }],
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${GPT_KEY}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            // Lấy kết quả từ phản hồi của GPT và xử lý để trả về lý do
+            const result = response.data.choices[0].message.content.trim().toLowerCase();
+
+            if (result.includes('có')) {
+                // Nếu có ngôn ngữ khiếm nhã, chỉ cần trả về thông báo chung
+                return { isInappropriate: true, reason: 'Nội dung không hợp lệ' };
+            } else {
+                return { isInappropriate: false, reason: 'Bình luận hợp lệ' };
+            }
+
+        } catch (error) {
+            console.error('Lỗi khi kiểm tra bình luận khiếm nhã:', error);
+            return { isInappropriate: false, reason: 'Lỗi kiểm tra' };  // Trả về false nếu có lỗi
+        }
+    };
+    // Hàm thêm bình luận
     const addComment = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
-            setErrorMessage(
-                "Để gửi bình luận, bạn vui lòng đăng nhập trước nhé!"
-            );
+            setErrorMessage("Để gửi bình luận, bạn vui lòng đăng nhập trước nhé!");
             return;
         }
         if (rating === 0) {
@@ -877,9 +928,14 @@ export const Detail = () => {
             return;
         }
         if (!comment.trim()) {
-            setErrorMessage(
-                "Bạn chưa nhập ý kiến của mình về khóa học. Hãy cho chúng tôi biết nhé!"
-            );
+            setErrorMessage("Bạn chưa nhập ý kiến của mình về khóa học. Hãy cho chúng tôi biết nhé!");
+            return;
+        }
+
+        // Kiểm tra bình luận có khiếm nhã hay không
+        const { isInappropriate, reason } = await checkComment(comment);
+        if (isInappropriate) {
+            setErrorMessage(reason); // Hiển thị thông báo chung "Nội dung không hợp lệ"
             return;
         }
 
@@ -889,6 +945,7 @@ export const Detail = () => {
                 content: comment,
             };
 
+            // Gửi bình luận lên server nếu không có từ ngữ khiếm nhã
             await axios.post(
                 `${API_URL}/courses/${slug}/comments`,
                 commentData,
@@ -1197,7 +1254,7 @@ export const Detail = () => {
 
                             <h2 className="text-2xl font-bold mt-8 mb-4">Yêu cầu</h2>
                             <ul className="list-disc pl-8">
-                                <li>Có kiến thức cơ bản về kiến trúc máy tính</li>
+                                <li>Có kiến thức cơ bản về máy tính</li>
                                 <li>Có máy tính nối mạng Internet để thực hành các bài tập</li>
                             </ul>
 
@@ -1389,62 +1446,81 @@ export const Detail = () => {
                                 ))
                             ) : (
                                 instructor.map((teacher) => (
-                                    <div key={teacher.user_id} className="flex items-start bg-white p-6 rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300">
-                                        <Avatar>
-                                            <AvatarImage
-                                                src={teacher.avatar}
-                                                alt={teacher.name}
-                                                className="rounded-full border border-gray-200 w-16 h-16"
-                                            />
-                                        </Avatar>
-                                        <div className="ml-6 flex-grow">
-                                            <h3 className="text-2xl font-semibold mb-2 text-purple-700">
-                                                {teacher.name}
-                                            </h3>
-                                            <p className="text-gray-600 mb-4 text-lg">
-                                                {teacher.role === 'teacher' ? 'Giảng viên' : teacher.role}
-                                            </p>
-                                            <div className="flex items-center mb-4">
-                                                <span className="text-gray-600 text-lg font-medium">{teacher.email}</span>
-                                            </div>
-                                            <ul className="text-gray-600 mb-6 space-y-2">
-                                                <li className="flex items-center">
-                                                    <Book className="w-5 h-5 mr-2 text-gray-500" />
-                                                    {teacher.total_courses} Khóa học
-                                                </li>
-                                                <li className="flex items-center p-2 ">
-                                                    <div className="flex items-center space-x-2">
-                                                        {Array.from({ length: 5 }, (_, index) => (
-                                                            <Star
-                                                                key={index}
-                                                                className={`w-5 h-5 transition-colors duration-200
-                    ${index < Math.floor(teacher.average_rating)
-                                                                        ? 'text-yellow-400 fill-yellow-400'
-                                                                        : index < Math.floor(teacher.average_rating) + 1 && teacher.average_rating % 1 !== 0
-                                                                            ? 'text-yellow-400 fill-yellow-200 opacity-80'
-                                                                            : 'text-gray-200'
-                                                                    }`}
-                                                            />
-                                                        ))}
-                                                        <span className="ml-2 text-sm font-semibold text-gray-500">
-                                                            {teacher.average_rating.toFixed(1)}
+                                    <div key={teacher.user_id} className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-4">
+                                        <div className="flex flex-col sm:flex-row items-start gap-6">
+                                            {/* Avatar Section */}
+                                            <Avatar className="w-16 h-16">
+                                                <AvatarImage
+                                                    src={teacher.avatar}
+                                                    alt={teacher.name}
+                                                    className="rounded-full object-cover"
+                                                />
+                                            </Avatar>
+
+                                            {/* Content Section */}
+                                            <div className="flex-1 space-y-4">
+                                                {/* Name and Role */}
+                                                <div>
+                                                    <h3 className="text-xl font-semibold text-purple-600 mb-1">
+                                                        {teacher.name}
+                                                    </h3>
+                                                    <p className="text-gray-600">
+                                                        {teacher.role === 'teacher' ? 'Giảng viên' : teacher.role}
+                                                    </p>
+                                                </div>
+
+                                                {/* Email */}
+                                                <p className="text-gray-600 flex items-center gap-2">
+                                                    <Mail className="w-5 h-5 text-gray-500" />
+                                                    {teacher.email}
+                                                </p>
+
+                                                {/* Courses Count */}
+                                                <div className="flex items-center text-gray-600">
+                                                    <Book className="w-5 h-5 mr-2" />
+                                                    <span>{teacher.total_courses} Khóa học</span>
+                                                </div>
+
+                                                {/* Rating Section */}
+                                                <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex">
+                                                            {Array.from({ length: 5 }, (_, index) => (
+                                                                <Star
+                                                                    key={index}
+                                                                    className={`w-5 h-5
+                                                                        ${index < Math.floor(teacher.average_rating)
+                                                                            ? 'text-yellow-400 fill-yellow-400'
+                                                                            : index < Math.floor(teacher.average_rating) + 1 && teacher.average_rating % 1 !== 0
+                                                                                ? 'text-yellow-400 fill-yellow-200'
+                                                                                : 'text-gray-200'
+                                                                        }`}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                        <span className="text-gray-700 font-medium">
+                                                            {teacher.average_rating.toFixed(1)}/5
                                                         </span>
                                                     </div>
-                                                </li>
+                                                    <span className="text-sm text-gray-500 italic">
+                                                        Đánh giá trung bình các khóa học của giảng viên
+                                                    </span>
+                                                </div>
 
-                                            </ul>
-                                            <Accordion type="single" collapsible className="w-full">
-                                                <AccordionItem value="instructor-description">
-                                                    <AccordionTrigger className="text-black-600 hover:no-underline">
-                                                        Xem thêm
-                                                    </AccordionTrigger>
-                                                    <AccordionContent>
-                                                        <p className="text-gray-700 leading-relaxed">
-                                                            {teacher.description || 'Chưa có thông tin mô tả.'}
-                                                        </p>
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                            </Accordion>
+                                                {/* Accordion Section */}
+                                                <Accordion type="single" collapsible className="w-full pt-2">
+                                                    <AccordionItem value="instructor-description" className="border-none">
+                                                        <AccordionTrigger className="text-black-500 hover:text-black-700 hover:no-underline p-0">
+                                                            Xem thêm
+                                                        </AccordionTrigger>
+                                                        <AccordionContent className="pt-2">
+                                                            <p className="text-gray-700">
+                                                                {teacher.description || 'Chưa có thông tin mô tả.'}
+                                                            </p>
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                </Accordion>
+                                            </div>
                                         </div>
                                     </div>
                                 ))
@@ -1496,13 +1572,19 @@ export const Detail = () => {
                                             </div>
 
                                             {/* Nhập nội dung bình luận */}
-                                            <textarea
-                                                placeholder="Nhập nội dung bình luận"
-                                                className="w-full border rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                rows="3"
-                                                value={comment}
-                                                onChange={(e) => setComment(e.target.value)}
-                                            />
+                                            <div>
+                                                <textarea
+                                                    placeholder="Nhập nội dung bình luận"
+                                                    className="w-full border rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    rows="3"
+                                                    value={comment}
+                                                    onChange={(e) => setComment(e.target.value)}
+                                                />
+                                                {/* Hiển thị số lượng ký tự */}
+                                                <div className="text-right text-sm text-gray-500 mt-1">
+                                                    {commentLength} ký tự
+                                                </div>
+                                            </div>
                                             {/* Thông báo lỗi */}
                                             {errorMessage && (
                                                 <p className="text-red-500 mt-2">

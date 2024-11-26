@@ -184,7 +184,7 @@ export const UserOrderHistory = () => {
                                 <li className="w-full">
                                     <Link
                                         to="/user/orderhistory"
-                                        className="flex items-center gap-2 p-3 rounded-xl bg-gradient-to-r from-yellow-400 to-yellow-500 text-white"
+                                        className="flex items-center gap-3 p-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white rounded-xl transition-colors"
                                     >
                                         <History className="w-4 h-4" />
                                         <span>Lịch sử mua hàng</span>
@@ -193,7 +193,7 @@ export const UserOrderHistory = () => {
                                 <li className="w-full">
                                     <Link
                                         to="/user/noti"
-                                        className="flex items-center gap-2 p-3 rounded-xl hover:bg-yellow-50 transition-all duration-200"
+                                        className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
                                     >
                                         <Bell className="w-4 h-4" />
                                         <span>Thông báo</span>
@@ -202,7 +202,7 @@ export const UserOrderHistory = () => {
                                 <li className="w-full">
                                     <Link
                                         to="/user/favorite"
-                                        className="flex items-center gap-2 p-3 rounded-xl hover:bg-yellow-50 transition-all duration-200"
+                                        className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
                                     >
                                         <Heart className="w-4 h-4" />
                                         <span>Yêu thích</span>

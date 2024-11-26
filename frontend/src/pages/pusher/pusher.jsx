@@ -183,7 +183,7 @@ const NotificationDropdown = ({ userId }) => {
                     )}
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent className="w-96 p-3 xl:mr-48 lg:mr-16 md: mr-20 mt-1 rounded-2xl">
+                <DropdownMenuContent className="w-96 p-3 xl:mr-40 lg:mr-16 md: mr-20 mt-1 rounded-2xl">
                     <DropdownMenuLabel className="text-base text-blue-900 font-bold">
                         <div className="flex justify-between items-center">
                             <div>Thông báo</div>

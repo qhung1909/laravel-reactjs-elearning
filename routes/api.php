@@ -154,7 +154,6 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('blogs/{slug}', [BlogController::class, 'destroy']);
 
 
-
     Route::post('/contents', [ContentController::class, 'store']);
     Route::put('/contents/{content_id}', [ContentController::class, 'update']);
     Route::delete('/contents/{content_id}', [ContentController::class, 'destroy']);
@@ -228,7 +227,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     Route::get('/revenue/teachers', [AdminController::class, 'getTeacherRevenues']);
     Route::put('/user/{userId}/role', [AdminController::class, 'updateRole']);
-    
+
 });
 
 
@@ -265,16 +264,16 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
 
     Route::get('/course/{courseId}/orders', [TeacherController::class, 'getCourseOrderHistory']);
 
-    Route::get('/teaching-schedule', [TeachingScheduleController::class, 'index']);           
-    Route::post('/teaching-schedule', [TeachingScheduleController::class, 'store']);         
-    Route::get('/teaching-schedule/{meeting_id}', [TeachingScheduleController::class, 'show']); 
-    Route::put('/teaching-schedule/{id}', [TeachingScheduleController::class, 'update']);     
+    Route::get('/teaching-schedule', [TeachingScheduleController::class, 'index']);
+    Route::post('/teaching-schedule', [TeachingScheduleController::class, 'store']);
+    Route::get('/teaching-schedule/{meeting_id}', [TeachingScheduleController::class, 'show']);
+    Route::put('/teaching-schedule/{id}', [TeachingScheduleController::class, 'update']);
     Route::delete('/teaching-schedule/{id}', [TeachingScheduleController::class, 'destroy']);
     Route::get('/teaching/courses/online-teacher', [TeacherController::class, 'getCourseOnlineTeacher']);
     Route::get('/teaching/courses/meeting-online', [TeacherController::class, 'getMeetingOnline']);
 
 
-    
+
 });
 
 

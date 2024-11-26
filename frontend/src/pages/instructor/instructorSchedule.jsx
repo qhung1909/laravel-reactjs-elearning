@@ -77,10 +77,8 @@ export const InstructorSchedule = () => {
     const [showCourseCommand, setShowCourseCommand] = useState(false);
     const [showContentCommand, setShowContentCommand] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
-    const [usedContents, setUsedContents] = useState([]);
     const [coursesTable, setCoursesTable] = useState([]);
     const [loadingCourses, setLoadingCourses] = useState(false);
-    const [loadingSchedule, setLoadingSchedule] = useState(false);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
@@ -830,26 +828,26 @@ export const InstructorSchedule = () => {
                                                     <TableRow key={index}>
                                                         <TableCell>{index + 1}</TableCell>
                                                         <TableCell>
-                                                            <Link to={item.meeting.meeting_url} className={`hover:${textColor}`}>
-                                                                <TooltipProvider>
-                                                                    <Tooltip>
-                                                                        <TooltipTrigger>
-                                                                            <Badge className={`p-2 ${bgColor} ${textColor} text-white rounded-lg hover:bg-yellow-500 duration-300`}>
-                                                                                {disabled ? (
-                                                                                    label
-                                                                                ) : (
-                                                                                    <p >
-                                                                                        {label}
-                                                                                    </p>
-                                                                                )}
-                                                                            </Badge>
-                                                                        </TooltipTrigger>
-                                                                        <TooltipContent>
-                                                                            <p>Click để tham gia trực tiếp</p>
-                                                                        </TooltipContent>
-                                                                    </Tooltip>
-                                                                </TooltipProvider>
-                                                            </Link>
+                                                            {disabled ? (
+                                                                <Badge className={`p-2 ${bgColor} ${textColor} text-white rounded-lg cursor-not-allowed opacity-50`}>
+                                                                    {label}
+                                                                </Badge>
+                                                            ) : (
+                                                                <Link to={item.meeting.meeting_url} className={`hover:${textColor}`}>
+                                                                    <TooltipProvider>
+                                                                        <Tooltip>
+                                                                            <TooltipTrigger>
+                                                                                <Badge className={`p-2 ${bgColor} ${textColor} text-white rounded-lg hover:bg-yellow-500 duration-300`}>
+                                                                                    <p>{label}</p>
+                                                                                </Badge>
+                                                                            </TooltipTrigger>
+                                                                            <TooltipContent>
+                                                                                <p>Click để tham gia trực tiếp</p>
+                                                                            </TooltipContent>
+                                                                        </Tooltip>
+                                                                    </TooltipProvider>
+                                                                </Link>
+                                                            )}
                                                         </TableCell>
                                                         <TableCell>{item.course.title}</TableCell>
                                                         <TableCell>{item.name_content}</TableCell>
