@@ -50,6 +50,7 @@ export const Signup = () => {
             setError('Tên không được chứa kí tự đặc biệt');
             return;
         }
+        
 
         if (formData.password !== formData.password_confirmation) {
             setError('Mật khẩu không khớp');
@@ -112,6 +113,48 @@ export const Signup = () => {
             setLoading(false);
         }
     };
+
+    const handleGoogleSignup = async () => {
+        try {
+            setLoading(true);
+            const state = Math.random().toString(36).substring(7);
+            sessionStorage.setItem('oauth_state', state);
+
+            const response = await fetch(`${API_URL}/auth/google/url?state=${state}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error('Server response was not in JSON format');
+            }
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to get Google OAuth URL');
+            }
+
+            const data = await response.json();
+
+            if (!data.auth_url) {
+                throw new Error('No authentication URL received');
+            }
+
+            const currentPath = window.location.pathname;
+            sessionStorage.setItem('previousPage', currentPath);
+
+            window.location.href = data.auth_url;
+        } catch (error) {
+            console.error('Google Login Error:', error);
+            notify(error.message || 'Không thể kết nối với Google');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <>
             {loading && (
@@ -177,7 +220,7 @@ export const Signup = () => {
                             </Button>
                             {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
 
-                            <Button type='button' variant="outline" className="w-full">
+                            <Button type='button' onClick={handleGoogleSignup} disable={loading} variant="outline" className="w-full">
                                 <svg
                                     className="flex-none mr-3"
                                     id="google"
@@ -198,7 +241,7 @@ export const Signup = () => {
                                         d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0 79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
                                         fill="#EB4335" />
                                 </svg>
-                                Đăng nhập với Google
+                                Đăng ký với Google
                             </Button>
                         </div>
                         <div className="mt-4 text-center text-sm">
