@@ -164,7 +164,6 @@ export const Detail = () => {
     const [instructor, setInstructor] = useState([]);
     const [users, setUsers] = useState([]);
     const [averageRating, setAverageRating] = useState(0);
-    // fetch thông tin user comment & instructor & CourseRelated
     const fetchUsers = async () => {
         const token = localStorage.getItem("access_token");
         try {
@@ -306,7 +305,6 @@ export const Detail = () => {
                     "x-api-secret": `${API_KEY}`,
                 },
             });
-
             if (res.data && res.data.course_id) {
                 setDetail(res.data);
                 fetchComments(res.data.course_id);
@@ -330,7 +328,6 @@ export const Detail = () => {
             setLoading(false);
         }
     };
-
     useEffect(() => {
         if (slug) {
             fetchDetail();
@@ -643,8 +640,6 @@ export const Detail = () => {
             setLoading(false);
         }
     };
-
-
     const renderBannerDetail = loading ? (
         <SkeletonLoaderBanner />
     ) : (
@@ -654,10 +649,9 @@ export const Detail = () => {
                 backgroundImage: `url(/src/assets/images/bg-detail5.png)`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                minHeight: "400px", // Đảm bảo banner có chiều cao tối thiểu
+                minHeight: "400px",
             }}
         >
-            {/* Overlay gradient để đảm bảo text dễ đọc */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40"></div>
 
             <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 xl:px-44 py-12">
@@ -688,7 +682,6 @@ export const Detail = () => {
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
-
                 <div className="mt-8 max-w-3xl">
                     {renderLaunchDateBadge()}
                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-white shadow-text">
@@ -697,18 +690,6 @@ export const Detail = () => {
                     <p className="text-lg sm:text-xl md:text-2xl mb-6 text-gray-200 shadow-text">
                         {detail.description}
                     </p>
-
-                    <div className="flex items-center mb-4">
-                        <span className="text-yellow-400 text-lg font-semibold shadow-text">
-                            4,6
-                        </span>
-                        <span className="ml-2 text-gray-300 shadow-text">
-                            (43 xếp hạng)
-                        </span>
-                        <span className="ml-4 text-gray-300 shadow-text">
-                            382 học viên
-                        </span>
-                    </div>
 
                     <div className="flex items-center text-sm text-gray-300 mb-2">
                         <Clock className="mr-2" />
