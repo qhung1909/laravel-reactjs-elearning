@@ -730,6 +730,13 @@ export const Detail = () => {
 
             const token = localStorage.getItem("access_token");
 
+            // Kiểm tra bình luận có từ ngữ khiếm nhã hay không
+            const { isInappropriate, reason } = await checkComment(editingContent);
+            if (isInappropriate) {
+                setErrorMessage(reason); // Hiển thị lý do tại sao bình luận không hợp lệ
+                return;
+            }
+
             // Gửi request cập nhật bình luận
             await axios.put(
                 `${API_URL}/comments/${commentId}`,
@@ -744,21 +751,26 @@ export const Detail = () => {
                     },
                 }
             );
+
             setEditingCommentId(null);
             setEditingRating(0);
             setEditingContent("");
+            setErrorMessage("");  // Reset lỗi nếu có
             toast.success("Sửa bình luận thành công!", {
                 style: {
                     padding: "16px",
                 },
             });
+
+            // Fetch lại chi tiết nếu cần
             fetchDetail();
+
         } catch (error) {
             console.error(
                 "Error updating comment:",
                 error.response?.data || error.message
             );
-            toast.error(error.response.data.error);
+            toast.error(error.response?.data?.error || "Có lỗi xảy ra khi cập nhật bình luận.");
         }
     };
 
@@ -864,12 +876,16 @@ export const Detail = () => {
         </div>
     );
 
-    // Hàm kiểm tra bình luận với AI
     const checkComment = async (commentContent) => {
         try {
+            const maxLength = 500;
+            if (commentContent.length > maxLength) {
+                return { isInappropriate: true, reason: 'Nội dung bình luận quá dài.' };
+            }
             const commentPrompt = `Vui lòng kiểm tra bình luận sau và xác định nếu có từ ngữ khiếm nhã, tục tĩu, hoặc không phù hợp: "${commentContent}".
-        Nếu có, trả lời 'Có' và giải thích lý do. Nếu không có, trả lời 'Không'. Nếu có từ ngữ khiếm nhã, hãy cho biết từ ngữ đó là gì và tại sao nó không phù hợp.`;
+            Nếu có, trả lời 'Có'. Nếu không có, trả lời 'Không'. Nếu có từ ngữ khiếm nhã, hãy cho biết từ ngữ đó và lý do tại sao nó không phù hợp.`;
 
+            // Gửi yêu cầu đến API GPT để kiểm tra bình luận
             const response = await axios.post('https://api.openai.com/v1/chat/completions', {
                 model: 'gpt-3.5-turbo',
                 messages: [{ role: 'user', content: commentPrompt }],
@@ -879,15 +895,13 @@ export const Detail = () => {
                     'Content-Type': 'application/json',
                 },
             });
+
             // Lấy kết quả từ phản hồi của GPT và xử lý để trả về lý do
             const result = response.data.choices[0].message.content.trim().toLowerCase();
+
             if (result.includes('có')) {
-                // Trích lý do chi tiết từ phản hồi GPT
-                let reason = result.replace('Có', '').trim();
-                if (reason === "") {
-                    reason = 'Ngôn ngữ khiếm nhã không rõ ràng.';
-                }
-                return { isInappropriate: true, reason: `Bình luận không hợp lệ: ${reason}` };
+                // Nếu có ngôn ngữ khiếm nhã, chỉ cần trả về thông báo chung
+                return { isInappropriate: true, reason: 'Nội dung không hợp lệ' };
             } else {
                 return { isInappropriate: false, reason: 'Bình luận hợp lệ' };
             }
@@ -898,12 +912,11 @@ export const Detail = () => {
         }
     };
 
+    // Hàm thêm bình luận
     const addComment = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
-            setErrorMessage(
-                "Để gửi bình luận, bạn vui lòng đăng nhập trước nhé!"
-            );
+            setErrorMessage("Để gửi bình luận, bạn vui lòng đăng nhập trước nhé!");
             return;
         }
         if (rating === 0) {
@@ -911,16 +924,14 @@ export const Detail = () => {
             return;
         }
         if (!comment.trim()) {
-            setErrorMessage(
-                "Bạn chưa nhập ý kiến của mình về khóa học. Hãy cho chúng tôi biết nhé!"
-            );
+            setErrorMessage("Bạn chưa nhập ý kiến của mình về khóa học. Hãy cho chúng tôi biết nhé!");
             return;
         }
 
         // Kiểm tra bình luận có khiếm nhã hay không
         const { isInappropriate, reason } = await checkComment(comment);
         if (isInappropriate) {
-            setErrorMessage(reason);
+            setErrorMessage(reason); // Hiển thị thông báo chung "Nội dung không hợp lệ"
             return;
         }
 
