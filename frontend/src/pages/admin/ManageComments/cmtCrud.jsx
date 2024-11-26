@@ -277,6 +277,7 @@ export const CmtCrud = () => {
                                     <th className="text-center py-4 px-6 text-md font-bold text-yellow-900 whitespace-nowrap">STT</th>
                                     <th className="text-center py-4 px-6 text-md font-bold text-yellow-900 whitespace-nowrap">Tên khóa học</th>
                                     <th className="text-center py-4 px-6 text-md font-bold text-yellow-900 whitespace-nowrap">Ảnh khóa học</th>
+                                    <th className="text-center py-4 px-6 text-md font-bold text-yellow-900 whitespace-nowrap">Người gửi</th>
                                     <th className="text-center py-4 px-6 text-md font-bold text-yellow-900 whitespace-nowrap">Nội dung bình luận</th>
                                     <th className="text-center py-4 px-6 text-md font-bold text-yellow-900 whitespace-nowrap">Đánh giá</th>
                                     <th className="text-center py-4 px-6 text-md font-bold text-yellow-900 whitespace-nowrap">Bình luận ngày</th>
@@ -292,6 +293,9 @@ export const CmtCrud = () => {
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="bg-gray-300 rounded animate-pulse w-48 h-4"></div>
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="bg-gray-300 rounded animate-pulse w-32 h-4"></div>
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="bg-gray-300 rounded animate-pulse w-32 h-4"></div>
@@ -327,6 +331,11 @@ export const CmtCrud = () => {
                                                 ) : (
                                                     <span className="text-sm text-gray-600">Chưa có ảnh</span>
                                                 )}
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="text-sm text-gray-900 text-center max-w-[200px] break-words line-clamp-3">
+                                                    {comment.user?.name}
+                                                </div>
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="text-sm text-gray-900 text-center max-w-[200px] break-words line-clamp-3">
