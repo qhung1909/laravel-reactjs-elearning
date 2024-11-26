@@ -541,8 +541,69 @@ class ParticipantController extends Controller
         }
     }
 
+    public function getUserAttendanceHistory(Request $request): JsonResponse
+    {
+        try {
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized. Please login first.'
+                ], 401);
+            }
+
+            $userId = Auth::id();
+            $user = Auth::user();
+
+            $attendanceHistory = Participant::where('user_id', $userId)
+                ->whereNotNull('attendance_date')
+                ->orderBy('attendance_date', 'desc')
+                ->get()
+                ->map(function ($record) {
+                    $joinedAt = $record->joined_at ? Carbon::parse($record->joined_at) : null;
+                    
+                    return [
+                        'meeting_id' => $record->meeting_id,
+                        'attendance_date' => Carbon::parse($record->attendance_date)->format('Y-m-d'),
+                        'attendance_status' => $this->checkAttendanceStatus($record),
+                        'attendance_details' => [
+                            'joined_at' => $joinedAt ? $joinedAt->format('H:i') : null,
+                            'left_at' => $record->left_at ? Carbon::parse($record->left_at)->format('H:i') : null,
+                        ],
+                        'is_present' => $record->is_present
+                    ];
+                });
+
+            $totalClasses = $attendanceHistory->count();
+            $presentClasses = $attendanceHistory->where('attendance_status', 'Có mặt')->count();
+            $absentClasses = $attendanceHistory->where('attendance_status', 'Vắng mặt')->count();
+
+            return response()->json([
+                'success' => true,
+                'user' => [
+                    'user_id' => $user->user_id,
+                    'name' => $user->name,
+                    'email' => $user->email
+                ],
+                'statistics' => [
+                    'total_classes' => $totalClasses,
+                    'present' => $presentClasses,
+                    'absent' => $absentClasses,
+                    'attendance_rate' => $totalClasses > 0 ? 
+                        round(($presentClasses / $totalClasses) * 100, 2) : 0
+                ],
+                'attendance_history' => $attendanceHistory
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving attendance history: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     /**
-     * Check attendance status based on date and time records
+     * Check attendance status based on date, time records and is_present flag
      * 
      * @param Participant $participant
      * @return string
@@ -550,12 +611,11 @@ class ParticipantController extends Controller
     private function checkAttendanceStatus($participant): string
     {
         if ($participant->attendance_date) {
-            if ($participant->joined_at) {
+            // Nếu có joined_at nhưng is_present = 0 thì vẫn là vắng mặt
+            if ($participant->joined_at && $participant->is_present) {
                 return "Có mặt";
             }
-            if (!$participant->joined_at && !$participant->left_at) {
-                return "Vắng mặt";
-            }
+            return "Vắng mặt";
         }
         return "Chưa điểm danh";
     }
