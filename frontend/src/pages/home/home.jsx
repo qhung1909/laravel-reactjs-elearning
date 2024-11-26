@@ -292,50 +292,7 @@ export const Home = () => {
                 </div>
             </div>
 
-            <div className="">
-                <Dialog open={open} onOpenChange={setOpen}>
-                    <DialogTrigger />
-                    <DialogContent className="fixed flex justify-center items-center z-50">
-                        <div className="bg-white rounded-xl max-w-md w-full p-2 shadow-2xl transform transition-all">
-                            <DialogHeader className="space-y-4">
-                                {/* Icon chào mừng */}
-                                <div className="flex justify-center">
-                                    <div className="bg-yellow-100 p-1 rounded-full">
-                                        <img src={user?.avatar} className="w-20 rounded-full" alt="" />
-                                    </div>
-                                </div>
 
-                                <DialogTitle className="text-2xl font-bold text-center space-y-2">
-                                    <div className="text-yellow-500">Chào mừng</div>
-                                    <div className="text-gray-800 break-words">
-                                        {user?.name}
-                                    </div>
-                                </DialogTitle>
-
-                                <DialogDescription className="text-gray-600 text-center text-lg leading-relaxed">
-                                    Chúc mừng bạn đã trở thành một phần của đội ngũ giảng viên của chúng tôi!
-                                    <div className="mt-2 text-yellow-600 font-medium">
-                                        Hãy bắt đầu hành trình chia sẻ kiến thức của bạn!
-                                    </div>
-                                </DialogDescription>
-                            </DialogHeader>
-
-                            <div className="flex justify-center mt-8">
-                                <button
-                                    onClick={handleCloseDialog}
-                                    className="bg-yellow-500 text-white py-3 px-8 rounded-lg hover:bg-yellow-600 transition duration-300 transform hover:scale-105 font-medium text-lg shadow-md hover:shadow-lg"
-                                >
-                                    Bắt đầu ngay
-                                </button>
-                            </div>
-
-                            {/* Decoration elements */}
-                            <div className="absolute top-0 right-0 -mt-4 -mr-4 bg-yellow-200 w-24 h-24 rounded-full opacity-20"></div>
-                            <div className="absolute bottom-0 left-0 -mb-4 -ml-4 bg-yellow-200 w-16 h-16 rounded-full opacity-20"></div>
-                        </div>
-                    </DialogContent>
-                </Dialog>
-            </div>
             {/* Thân trang - sản phẩm được mua nhiều */}
             <div className="home-page bestseller sm:max-w-screen-md md:max-w-screen-lg lg:max-w-screen-xl mx-auto xl:px-3 lg:px-5 px-3 xl:text-left">
                 <div className="bestseller-box lg:mt-20 md:mt-14 sm:mt-10 mt-6">
@@ -506,6 +463,51 @@ export const Home = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div className="">
+                <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogTrigger />
+                    <DialogContent className="fixed flex justify-center items-center z-50">
+                        <div className="bg-white rounded-xl max-w-md w-full p-2 shadow-2xl transform transition-all">
+                            <DialogHeader className="space-y-4">
+                                {/* Icon chào mừng */}
+                                <div className="flex justify-center">
+                                    <div className="bg-yellow-100 p-1 rounded-full">
+                                        <img src={user?.avatar} className="w-20 rounded-full" alt="" />
+                                    </div>
+                                </div>
+
+                                <DialogTitle className="text-2xl font-bold text-center space-y-2">
+                                    <div className="text-yellow-500">Chào mừng</div>
+                                    <div className="text-gray-800 break-words">
+                                        {user?.name}
+                                    </div>
+                                </DialogTitle>
+
+                                <DialogDescription className="text-gray-600 text-center text-lg leading-relaxed">
+                                    Chúc mừng bạn đã trở thành một phần của đội ngũ giảng viên của chúng tôi!
+                                    <div className="mt-2 text-yellow-600 font-medium">
+                                        Hãy bắt đầu hành trình chia sẻ kiến thức của bạn!
+                                    </div>
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <div className="flex justify-center mt-8">
+                                <button
+                                    onClick={handleCloseDialog}
+                                    className="bg-yellow-500 text-white py-3 px-8 rounded-lg hover:bg-yellow-600 transition duration-300 transform hover:scale-105 font-medium text-lg shadow-md hover:shadow-lg"
+                                >
+                                    Bắt đầu ngay
+                                </button>
+                            </div>
+
+                            {/* Decoration elements */}
+                            <div className="absolute top-0 right-0 -mt-4 -mr-4 bg-yellow-200 w-24 h-24 rounded-full opacity-20"></div>
+                            <div className="absolute bottom-0 left-0 -mb-4 -ml-4 bg-yellow-200 w-16 h-16 rounded-full opacity-20"></div>
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
         </>
 

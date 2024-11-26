@@ -4,7 +4,7 @@ import { formatDate } from "@/components/FormatDay/Formatday";
 import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import { BadgeAlert, ChevronDown, ChevronUp, CircleUserRound, Edit, Heart, HeartOff, Trash, User, Video } from "lucide-react";
+import { BadgeAlert, ChevronDown, ChevronUp, CircleUserRound, Edit, Heart, HeartOff, Mail, Trash, User, Video } from "lucide-react";
 import { Calendar, Globe, BookOpen, Star, Gift } from "lucide-react";
 import { Play, Users, Book, Clock, Eye, ShoppingCart, X } from "lucide-react";
 
@@ -1254,7 +1254,7 @@ export const Detail = () => {
 
                             <h2 className="text-2xl font-bold mt-8 mb-4">Yêu cầu</h2>
                             <ul className="list-disc pl-8">
-                                <li>Có kiến thức cơ bản về kiến trúc máy tính</li>
+                                <li>Có kiến thức cơ bản về máy tính</li>
                                 <li>Có máy tính nối mạng Internet để thực hành các bài tập</li>
                             </ul>
 
@@ -1446,72 +1446,81 @@ export const Detail = () => {
                                 ))
                             ) : (
                                 instructor.map((teacher) => (
-                                    <div key={teacher.user_id} className="flex items-start bg-white p-6 rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300">
-                                        <Avatar>
-                                            <AvatarImage
-                                                src={teacher.avatar}
-                                                alt={teacher.name}
-                                                className="rounded-full border border-gray-200 w-16 h-16"
-                                            />
-                                        </Avatar>
-                                        <div className="ml-6 flex-grow">
-                                            <h3 className="text-2xl font-semibold mb-2 text-purple-700">
-                                                {teacher.name}
-                                            </h3>
-                                            <p className="text-gray-600 mb-4 text-lg">
-                                                {teacher.role === 'teacher' ? 'Giảng viên' : teacher.role}
-                                            </p>
-                                            <div className="flex items-center mb-4">
-                                                <span className="text-gray-600 text-lg font-medium">{teacher.email}</span>
-                                            </div>
-                                            <ul className="text-gray-600 mb-6 space-y-2">
-                                                <li className="flex items-center">
-                                                    <Book className="w-5 h-5 mr-2 text-gray-500" />
-                                                    {teacher.total_courses} Khóa học
-                                                </li>
-                                                <li className="flex items-center p-2 ">
-                                                    <div className="flex items-center space-x-2">
-                                                        {Array.from({ length: 5 }, (_, index) => (
-                                                            <Star
-                                                                key={index}
-                                                                className={`w-5 h-5 transition-colors duration-200
-                    ${index < Math.floor(teacher.average_rating)
-                                                                        ? 'text-yellow-400 fill-yellow-400'
-                                                                        : index < Math.floor(teacher.average_rating) + 1 && teacher.average_rating % 1 !== 0
-                                                                            ? 'text-yellow-400 fill-yellow-200 opacity-80'
-                                                                            : 'text-gray-200'
-                                                                    }`}
-                                                            />
-                                                        ))}
-                                                        <span className="flex items-center space-x-2 text-sm font-semibold text-gray-500">
-                                                            {/* Điểm số đánh giá */}
-                                                            <span className="text-base text-gray-700">
-                                                                {teacher.average_rating.toFixed(1)} / 5
-                                                            </span>
+                                    <div key={teacher.user_id} className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-4">
+                                        <div className="flex flex-col sm:flex-row items-start gap-6">
+                                            {/* Avatar Section */}
+                                            <Avatar className="w-16 h-16">
+                                                <AvatarImage
+                                                    src={teacher.avatar}
+                                                    alt={teacher.name}
+                                                    className="rounded-full object-cover"
+                                                />
+                                            </Avatar>
 
-                                                            {/* Mô tả đánh giá */}
-                                                            <span className="text-xs italic ml-2">
-                                                                Đây là đánh giá trung bình các khóa học của giảng viên.
-                                                            </span>
+                                            {/* Content Section */}
+                                            <div className="flex-1 space-y-4">
+                                                {/* Name and Role */}
+                                                <div>
+                                                    <h3 className="text-xl font-semibold text-purple-600 mb-1">
+                                                        {teacher.name}
+                                                    </h3>
+                                                    <p className="text-gray-600">
+                                                        {teacher.role === 'teacher' ? 'Giảng viên' : teacher.role}
+                                                    </p>
+                                                </div>
 
+                                                {/* Email */}
+                                                <p className="text-gray-600 flex items-center gap-2">
+                                                    <Mail className="w-5 h-5 text-gray-500" />
+                                                    {teacher.email}
+                                                </p>
+
+                                                {/* Courses Count */}
+                                                <div className="flex items-center text-gray-600">
+                                                    <Book className="w-5 h-5 mr-2" />
+                                                    <span>{teacher.total_courses} Khóa học</span>
+                                                </div>
+
+                                                {/* Rating Section */}
+                                                <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex">
+                                                            {Array.from({ length: 5 }, (_, index) => (
+                                                                <Star
+                                                                    key={index}
+                                                                    className={`w-5 h-5
+                                                                        ${index < Math.floor(teacher.average_rating)
+                                                                            ? 'text-yellow-400 fill-yellow-400'
+                                                                            : index < Math.floor(teacher.average_rating) + 1 && teacher.average_rating % 1 !== 0
+                                                                                ? 'text-yellow-400 fill-yellow-200'
+                                                                                : 'text-gray-200'
+                                                                        }`}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                        <span className="text-gray-700 font-medium">
+                                                            {teacher.average_rating.toFixed(1)}/5
                                                         </span>
-
                                                     </div>
-                                                </li>
+                                                    <span className="text-sm text-gray-500 italic">
+                                                        Đánh giá trung bình các khóa học của giảng viên
+                                                    </span>
+                                                </div>
 
-                                            </ul>
-                                            <Accordion type="single" collapsible className="w-full">
-                                                <AccordionItem value="instructor-description">
-                                                    <AccordionTrigger className="text-black-600 hover:no-underline">
-                                                        Xem thêm
-                                                    </AccordionTrigger>
-                                                    <AccordionContent>
-                                                        <p className="text-gray-700 leading-relaxed">
-                                                            {teacher.description || 'Chưa có thông tin mô tả.'}
-                                                        </p>
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                            </Accordion>
+                                                {/* Accordion Section */}
+                                                <Accordion type="single" collapsible className="w-full pt-2">
+                                                    <AccordionItem value="instructor-description" className="border-none">
+                                                        <AccordionTrigger className="text-black-500 hover:text-black-700 hover:no-underline p-0">
+                                                            Xem thêm
+                                                        </AccordionTrigger>
+                                                        <AccordionContent className="pt-2">
+                                                            <p className="text-gray-700">
+                                                                {teacher.description || 'Chưa có thông tin mô tả.'}
+                                                            </p>
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                </Accordion>
+                                            </div>
                                         </div>
                                     </div>
                                 ))

@@ -279,22 +279,25 @@ export const CourseOverview = () => {
             titleError: '',
         };
 
-        // Existing validation checks...
-
         if (!valid) {
             setErrors(newErrors);
             notify('Vui lòng kiểm tra lại thông tin', 'error');
             return;
         }
 
+        if(courseTitle.length > 255){
+            notify('Tên khóa học không được lớn hơn 255 kí tự');
+            return;
+        }
+
         if(price < 0){
             notify('Giá không được nhỏ hơn 0');
-            return
+            return;
         }
 
         if(price > 100000000){
             notify('Giá không được lớn hơn 100.000.000đ');
-            return
+            return;
         }
 
 
@@ -627,7 +630,7 @@ export const CourseOverview = () => {
                                     </div>
                                     <div className="ml-12">
                                         <p className="pb-4">
-                                            Tải hình ảnh lên đây. Để được chấp nhận, hình ảnh phải đáp ứng tiêu chuẩn chất lượng hình ảnh khóa học. Hướng dẫn quan trọng 750x422 pixel, jpg, jpeg, gif hoặc png và không có nhu cầu trên hình ảnh.
+                                            Tải hình ảnh lên đây. Để được chấp nhận, hình ảnh phải đáp ứng tiêu chuẩn chất lượng hình ảnh khóa học. Hướng dẫn quan trọng 750x422 pixel, jpg, jpeg, webp hoặc png và không có nhu cầu trên hình ảnh.
                                         </p>
 
                                         <div className="grid w-full max-w-sm items-center gap-1.5">
