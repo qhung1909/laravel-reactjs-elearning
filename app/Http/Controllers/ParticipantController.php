@@ -602,9 +602,8 @@ class ParticipantController extends Controller
         }
     }
 
-
     /**
-     * Check attendance status based on date and time records
+     * Check attendance status based on date, time records and is_present flag
      * 
      * @param Participant $participant
      * @return string
@@ -612,12 +611,11 @@ class ParticipantController extends Controller
     private function checkAttendanceStatus($participant): string
     {
         if ($participant->attendance_date) {
-            if ($participant->joined_at) {
+            // Nếu có joined_at nhưng is_present = 0 thì vẫn là vắng mặt
+            if ($participant->joined_at && $participant->is_present) {
                 return "Có mặt";
             }
-            if (!$participant->joined_at && !$participant->left_at) {
-                return "Vắng mặt";
-            }
+            return "Vắng mặt";
         }
         return "Chưa điểm danh";
     }
