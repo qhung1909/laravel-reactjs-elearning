@@ -128,8 +128,6 @@ export const Detail = () => {
             });
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
                 setContentLesson(res.data.data.filter(content => content.course_id === courseId));
-                console.log(res.data.data.filter(content => content.course_id === courseId));
-
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
@@ -165,7 +163,8 @@ export const Detail = () => {
 
     const [instructor, setInstructor] = useState([]);
     const [users, setUsers] = useState([]);
-    //fetch thông tin user comment & instructor & CourseRelated
+    const [averageRating, setAverageRating] = useState(0);
+    // fetch thông tin user comment & instructor & CourseRelated
     const fetchUsers = async () => {
         const token = localStorage.getItem("access_token");
         try {
@@ -175,7 +174,7 @@ export const Detail = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            // Kiểm tra xem dữ liệu có phải là mảng không và thiết lập users
+
             if (res.data && Array.isArray(res.data.data)) {
                 const usersObject = res.data.data.reduce((acc, user) => {
                     acc[user.user_id] = user;
@@ -184,37 +183,50 @@ export const Detail = () => {
                 setUsers(usersObject);
 
                 const instructorData = res.data.data.filter(user => user.user_id === detail.user_id);
-                const instructorsWithCourseCount = instructorData.map(instructor => {
-                    const totalCourses = courses.filter(
-                        course => course.user_id === instructor.user_id
-                    ).length;
+
+                // Tính toán tổng số khóa học của instructor
+                const instructorsWithStats = instructorData.map(instructor => {
+                    const instructorCourses = courses.filter(course => course.user_id === instructor.user_id);
+                    const totalCourses = instructorCourses.length;
+
+                    // Tính toán tổng rate stars từ mảng comments
+                    const totalRating = instructorCourses.reduce((total, course) => {
+                        // Cộng điểm rating của các đánh giá
+                        const courseRating = course.comments.reduce((courseTotal, comment) => {
+                            return courseTotal + parseFloat(comment.rating);
+                        }, 0);
+
+                        // Trả về tổng rating của tất cả các khóa học
+                        return total + courseRating;
+                    }, 0);
+
+                    // Tính trung bình rating
+                    const totalComments = instructorCourses.reduce((count, course) => count + course.comments.length, 0);
+                    const averageRating = totalComments > 0 ? totalRating / totalComments : 0;
+
                     return {
                         ...instructor,
-                        total_courses: totalCourses
+                        total_courses: totalCourses,
+                        average_rating: averageRating, // Gán trung bình rating
                     };
                 });
 
-                setInstructor(instructorsWithCourseCount);
+                setInstructor(instructorsWithStats);
             } else {
-                console.error(
-                    "Không tìm thấy danh sách người dùng trong phản hồi."
-                );
+                console.error("Không tìm thấy danh sách người dùng trong phản hồi.");
             }
         } catch (error) {
             console.error("Lỗi khi lấy danh sách người dùng:", error);
-            if (error.response) {
-                console.error("Chi tiết lỗi:", error.response.data);
-                console.error("Trạng thái lỗi:", error.response.status);
-            } else {
-                console.error("Lỗi mạng hoặc không có phản hồi từ máy chủ.");
-            }
         }
     };
+
     useEffect(() => {
         if (detail) {
             fetchUsers();
         }
     }, [detail]);
+
+
     const [user, setUser] = useState({});
     // Fetch thông tin user đang đăng nhập
     const fetchUser = async () => {
@@ -296,8 +308,6 @@ export const Detail = () => {
 
             if (res.data && res.data.course_id) {
                 setDetail(res.data);
-                console.log("detail: ", res.data);
-
                 fetchComments(res.data.course_id);
                 if (user.user_id) {
                     checkPaymentCourse(user.user_id);
@@ -364,7 +374,7 @@ export const Detail = () => {
             );
         }
         return null;
-     };
+    };
     const [courseRelated, setCourseRelated] = useState([]);
     const fetchCourseRelated = async () => {
         const categoryId = detail.course_category_id;
@@ -1420,10 +1430,26 @@ export const Detail = () => {
                                                     <Book className="w-5 h-5 mr-2 text-gray-500" />
                                                     {teacher.total_courses} Khóa học
                                                 </li>
-                                                <li className="flex items-center">
-                                                    <User className="w-5 h-5 mr-2 text-gray-500" />
-                                                    {teacher.is_buy || "Đang cập nhật"} Học viên
+                                                <li className="flex items-center p-2 ">
+                                                    <div className="flex items-center space-x-2">
+                                                        {Array.from({ length: 5 }, (_, index) => (
+                                                            <Star
+                                                                key={index}
+                                                                className={`w-5 h-5 transition-colors duration-200
+                    ${index < Math.floor(teacher.average_rating)
+                                                                        ? 'text-yellow-400 fill-yellow-400'
+                                                                        : index < Math.floor(teacher.average_rating) + 1 && teacher.average_rating % 1 !== 0
+                                                                            ? 'text-yellow-400 fill-yellow-200 opacity-80'
+                                                                            : 'text-gray-200'
+                                                                    }`}
+                                                            />
+                                                        ))}
+                                                        <span className="ml-2 text-sm font-semibold text-gray-500">
+                                                            {teacher.average_rating.toFixed(1)} 
+                                                        </span>
+                                                    </div>
                                                 </li>
+
                                             </ul>
                                             <Accordion type="single" collapsible className="w-full">
                                                 <AccordionItem value="instructor-description">
