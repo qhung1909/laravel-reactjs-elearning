@@ -32,7 +32,7 @@ export const UserNoti = () => {
                                 <li className="w-full">
                                     <Link
                                         to="/user/profile"
-                                        className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
+                                        className="flex items-center gap-2 p-3 rounded-xl  hover:bg-yellow-50 transition-all duration-200"
                                     >
                                         <User className="w-4 h-4" />
                                         <span>Hồ sơ cá nhân</span>
@@ -50,7 +50,7 @@ export const UserNoti = () => {
                                 <li className="w-full">
                                     <Link
                                         to="/user/noti"
-                                        className="flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+                                        className="flex items-center gap-3 p-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white rounded-xl transition-colors"
                                     >
                                         <Bell className="w-4 h-4" />
                                         <span>Thông báo</span>
