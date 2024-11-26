@@ -34,6 +34,7 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTrigger,
+    DialogTitle
 } from "@/components/ui/dialog"
 import {
     Command,
@@ -43,6 +44,7 @@ import {
     CommandItem,
     CommandList,
 } from "@/components/ui/command"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from '@/components/ui/button';
 import { useEffect, useState, useContext, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom"
@@ -261,7 +263,7 @@ export const InstructorSchedule = () => {
     };
     // hàm xử lý lấy khóa học có thể học online
     const fetchCourseOnline = async () => {
-        setLoadingCourses(true);
+        // setLoadingCourses(true);
         try {
             const response = await fetch(`${API_URL}/teacher/teaching/courses/online-teacher`, {
                 headers: {
@@ -280,9 +282,10 @@ export const InstructorSchedule = () => {
         } catch (error) {
             notify("Không thể tải dữ liệu khóa học", "error");
             setAllCourseOnline([]); // Đặt danh sách thành rỗng để tránh lỗi khi không có dữ liệu.
-        } finally {
-            setLoading(false); // Tắt trạng thái loading
         }
+        // finally {
+        //     setLoading(false); // Tắt trạng thái loading
+        // }
     };
 
     // hàm thay đổi css theo trạng thái
@@ -796,10 +799,13 @@ export const InstructorSchedule = () => {
                                             <TableHead className="text-cyan-950 md:text-base text-xs">Nội dung</TableHead>
                                             <TableHead className="text-cyan-950 md:text-base text-xs">Ngày bắt đầu</TableHead>
                                             <TableHead className="text-cyan-950 md:text-base text-xs">Ghi chú</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs">DS Điểm danh</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {loading ? (
+
+                                        {/* thêm lại loading */}
+                                        {/* {loading ? (
                                             <>
                                                 {Array.from({ length: 4 }).map((_, index) => (
                                                     <TableRow key={index}>
@@ -821,54 +827,227 @@ export const InstructorSchedule = () => {
                                                     </TableRow>
                                                 ))}
                                             </>
-                                        ) : currentItems.length > 0 ? (
-                                            currentItems.map((item, index) => {
-                                                const { label, bgColor, textColor, disabled } = item.status;
-                                                return (
-                                                    <TableRow key={index}>
-                                                        <TableCell>{index + 1}</TableCell>
-                                                        <TableCell>
-                                                            {disabled ? (
-                                                                <Badge className={`p-2 ${bgColor} ${textColor} text-white rounded-lg cursor-not-allowed opacity-50`}>
-                                                                    {label}
-                                                                </Badge>
-                                                            ) : (
-                                                                <Link to={item.meeting.meeting_url} className={`hover:${textColor}`}>
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger>
-                                                                                <Badge className={`p-2 ${bgColor} ${textColor} text-white rounded-lg hover:bg-yellow-500 duration-300`}>
-                                                                                    <p>{label}</p>
-                                                                                </Badge>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent>
-                                                                                <p>Click để tham gia trực tiếp</p>
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-                                                                </Link>
-                                                            )}
-                                                        </TableCell>
-                                                        <TableCell>{item.course.title}</TableCell>
-                                                        <TableCell>{item.name_content}</TableCell>
-                                                        <TableCell>
-                                                            {new Date(item.meeting.schedule.start_time).toLocaleString("vi-VN")}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <Badge className="p-2">
-                                                                {item.meeting.notes || "Không có ghi chú"}
+                                        ) :
+                                        currentItems.length > 0 ? ( */}
+                                        {currentItems.map((item, index) => {
+                                            const { label, bgColor, textColor, disabled } = item.status;
+                                            return (
+                                                <TableRow key={index}>
+                                                    <TableCell>{index + 1}</TableCell>
+                                                    <TableCell>
+                                                        {disabled ? (
+                                                            <Badge className={`p-2 ${bgColor} ${textColor} text-white rounded-lg cursor-not-allowed opacity-50`}>
+                                                                {label}
                                                             </Badge>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                );
-                                            })
-                                        ) : (
-                                            <TableRow>
-                                                <TableCell colSpan={6} className="text-center">
-                                                    Không có lịch cho khóa học online nào
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
+                                                        ) : (
+                                                            <Link to={item.meeting.meeting_url} className={`hover:${textColor}`}>
+                                                                <TooltipProvider>
+                                                                    <Tooltip>
+                                                                        <TooltipTrigger>
+                                                                            <Badge className={`p-2 ${bgColor} ${textColor} text-white rounded-lg hover:bg-yellow-500 duration-300`}>
+                                                                                <p>{label}</p>
+                                                                            </Badge>
+                                                                        </TooltipTrigger>
+                                                                        <TooltipContent>
+                                                                            <p>Click để tham gia trực tiếp</p>
+                                                                        </TooltipContent>
+                                                                    </Tooltip>
+                                                                </TooltipProvider>
+                                                            </Link>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="line-clamp-2">{item.course.title}</TableCell>
+                                                    <TableCell className="">{item.name_content}</TableCell>
+                                                    <TableCell>
+                                                        {new Date(item.meeting.schedule.start_time).toLocaleString("vi-VN")}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Badge className="p-2">
+                                                            {item.meeting.notes || "Không có"}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Dialog>
+                                                            <DialogTrigger>
+                                                                <button className="bg-blue-500 hover:bg-blue-600 py-2.5 px-3 text-white font-semibold transition-all rounded duration-300 flex items-center space-x-2 shadow-lg hover:shadow-blue-500/50">
+                                                                    <svg
+                                                                        className="w-5 h-5"
+                                                                        fill="none"
+                                                                        stroke="currentColor"
+                                                                        viewBox="0 0 24 24"
+                                                                    >
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            strokeWidth="2"
+                                                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                                        />
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            strokeWidth="2"
+                                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                                        />
+                                                                    </svg>
+                                                                    <span>Xem</span>
+                                                                </button>
+                                                            </DialogTrigger>
+
+                                                            <DialogContent className="max-w-[1100px] p-6">
+                                                                <DialogHeader className="space-y-4">
+                                                                    <div className="flex items-center justify-between">
+                                                                        <div>
+                                                                            <DialogTitle className="text-2xl font-bold text-gray-800">
+                                                                                Danh sách điểm danh
+                                                                            </DialogTitle>
+                                                                            <DialogDescription className="text-gray-500 mt-1">
+                                                                                Thống kê chi tiết điểm danh lớp học
+                                                                            </DialogDescription>
+                                                                        </div>
+
+                                                                        <div className="flex items-center space-x-4">
+                                                                            <div className="flex items-center space-x-2 text-sm">
+                                                                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                                                                <span>Có mặt</span>
+                                                                            </div>
+                                                                            <div className="flex items-center space-x-2 text-sm">
+                                                                                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                                                                <span>Vắng mặt</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </DialogHeader>
+
+                                                                <div className="mt-6 rounded-lg border shadow-sm">
+                                                                    <ScrollArea className="h-[300px] rounded-md border">
+                                                                        <Table>
+                                                                            <TableHeader className="bg-gray-50 sticky top-0">
+                                                                                <TableRow>
+                                                                                    <TableCell className="font-semibold text-gray-600 w-16">
+                                                                                        STT
+                                                                                    </TableCell>
+                                                                                    <TableCell className="font-semibold text-gray-600">
+                                                                                        Tên học viên
+                                                                                    </TableCell>
+                                                                                    <TableCell className="font-semibold text-gray-600">
+                                                                                        Trạng thái
+                                                                                    </TableCell>
+                                                                                    <TableCell className="font-semibold text-gray-600">
+                                                                                        Ghi chú
+                                                                                    </TableCell>
+                                                                                    <TableCell className="font-semibold text-gray-600 w-32">
+                                                                                        Thời gian
+                                                                                    </TableCell>
+                                                                                </TableRow>
+                                                                            </TableHeader>
+
+                                                                            <TableBody>
+                                                                                <TableRow className="hover:bg-gray-50 transition-colors">
+                                                                                    <TableCell className="text-gray-500">
+                                                                                        1
+                                                                                    </TableCell>
+                                                                                    <TableCell>
+                                                                                        <div className="flex items-center space-x-3">
+                                                                                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                                                                                <span className="text-blue-600 font-medium">VH</span>
+                                                                                            </div>
+                                                                                            <span className="font-medium">Vũ Huy Hoàng</span>
+                                                                                        </div>
+                                                                                    </TableCell>
+                                                                                    <TableCell>
+                                                                                        <Badge className="bg-green-500 text-white hover:bg-green-600 px-3 py-1 rounded-full">
+                                                                                            Có mặt
+                                                                                        </Badge>
+                                                                                    </TableCell>
+                                                                                    <TableCell className="text-gray-600">
+                                                                                        Xin trễ 15 phút
+                                                                                    </TableCell>
+                                                                                    <TableCell className="text-gray-500 text-sm">
+                                                                                        08:15:00
+                                                                                    </TableCell>
+                                                                                </TableRow>
+
+                                                                                <TableRow className="hover:bg-gray-50 transition-colors">
+                                                                                    <TableCell className="text-gray-500">
+                                                                                        2
+                                                                                    </TableCell>
+                                                                                    <TableCell>
+                                                                                        <div className="flex items-center space-x-3">
+                                                                                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                                                                                <span className="text-blue-600 font-medium">VH</span>
+                                                                                            </div>
+                                                                                            <span className="font-medium">Vũ Huy Hoàng</span>
+                                                                                        </div>
+                                                                                    </TableCell>
+                                                                                    <TableCell>
+                                                                                        <Badge className="bg-green-500 text-white hover:bg-green-600 px-3 py-1 rounded-full">
+                                                                                            Có mặt
+                                                                                        </Badge>
+                                                                                    </TableCell>
+                                                                                    <TableCell className="text-gray-600">
+                                                                                        Xin trễ 15 phút
+                                                                                    </TableCell>
+                                                                                    <TableCell className="text-gray-500 text-sm">
+                                                                                        08:15:00
+                                                                                    </TableCell>
+                                                                                </TableRow>
+                                                                            </TableBody>
+                                                                        </Table>
+                                                                    </ScrollArea>
+                                                                </div>
+
+                                                                <div className="mt-6 flex justify-between items-center">
+                                                                    <div className="flex items-center space-x-6">
+                                                                        <div className="text-sm flex items-center">
+                                                                            <div className="flex items-center space-x-2">
+                                                                                <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                                                                                <span className="text-gray-500">Có mặt: <span className="font-medium text-green-600">12</span> học viên</span>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="text-sm flex items-center">
+                                                                            <div className="flex items-center space-x-2">
+                                                                                <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                                                                                <span className="text-gray-500">Vắng mặt: <span className="font-medium text-red-600">3</span> học viên</span>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <button
+                                                                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300 shadow hover:shadow-blue-500/50 flex items-center space-x-2"
+                                                                        onClick={() => {/* Xử lý xuất file */ }}
+                                                                    >
+                                                                        <svg
+                                                                            className="w-4 h-4"
+                                                                            fill="none"
+                                                                            stroke="currentColor"
+                                                                            viewBox="0 0 24 24"
+                                                                        >
+                                                                            <path
+                                                                                strokeLinecap="round"
+                                                                                strokeLinejoin="round"
+                                                                                strokeWidth="2"
+                                                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                                                            />
+                                                                        </svg>
+                                                                        <span>Xuất Excel</span>
+                                                                    </button>
+                                                                </div>
+                                                            </DialogContent>
+                                                        </Dialog>
+                                                    </TableCell>
+                                                </TableRow>
+                                            )
+                                        })};
+                                        {/* //     })
+                                        // ) : (
+                                        //     <TableRow>
+                                        //         <TableCell colSpan={6} className="text-center">
+                                        //             Không có lịch cho khóa học online nào
+                                        //         </TableCell>
+                                        //     </TableRow>
+                                        // )} */}
                                     </TableBody>
 
                                 </Table>
