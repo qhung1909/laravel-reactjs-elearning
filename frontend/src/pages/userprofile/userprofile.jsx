@@ -6,7 +6,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import toast, { Toaster } from 'react-hot-toast';
 import { UserContext } from "../context/usercontext";
 import { User, History, Bell, Heart, Camera, Mail, Lock, Key } from "lucide-react";
-
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button";
 export const UserProfile = () => {
     const { user, updateUserProfile, updatePassword } = useContext(UserContext);
     const [success, setSuccess] = useState(false);
@@ -20,8 +29,10 @@ export const UserProfile = () => {
     const [password_confirmation, setPassword_Confirmation] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isProfileSubmitting, setIsProfileSubmitting] = useState(false);
-
+    const [isChecked, setIsChecked] = useState(false);
     const navigate = useNavigate();
+
+    // const handleTransformInstructor
 
     useEffect(() => {
         if (user) {
@@ -57,7 +68,6 @@ export const UserProfile = () => {
             setIsProfileSubmitting(false);
         }
     };
-
 
     // hàm xử lý validate thay đổi mật khẩu
     const handleChangePassword = async (e) => {
@@ -150,15 +160,122 @@ export const UserProfile = () => {
                         {/* Main Content */}
                         <div className="col-span-3 my-6">
                             <div className="border-b pb-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-yellow-50 rounded-xl">
-                                        <User className="w-5 h-5 text-yellow-500" />
+                                <div className="md:flex justify-between items-center">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-yellow-50 rounded-xl">
+                                            <User className="w-5 h-5 text-yellow-500" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-lg">Thông tin cơ bản</h3>
+                                            <p className="text-sm text-gray-500">Thông tin hiển thị công khai của bạn</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="font-semibold text-lg">Thông tin cơ bản</h3>
-                                        <p className="text-sm text-gray-500">Thông tin hiển thị công khai của bạn</p>
+                                    <div className="mt-5 lg:mt-0">
+                                        <Dialog>
+                                            <DialogTrigger>
+                                                <div className="rounded bg-gradient-to-br  from-purple-500 to-indigo-600 p-3">
+                                                    <p className="text-white font-semibold px-3">
+                                                        Bạn là một giảng viên?
+                                                    </p>
+                                                </div>
+                                            </DialogTrigger>
+                                            <DialogContent className="max-w-[900px]">
+                                                <DialogHeader>
+                                                    <DialogTitle className="text-left border-b border-gray-300 pb-3">
+                                                        Hãy trở thành một trong những giảng viên chính thức tại Antlearn!
+                                                    </DialogTitle>
+                                                    <DialogDescription className="max-h-96 overflow-y-auto">
+                                                        <div className="max-w-4xl text-left space-y-6">
+                                                            <div className="">
+                                                                <h1 className="text-xl font-bold text-gray-800">Điều khoản trở thành Giảng viên   </h1>
+                                                            </div>
+
+                                                            {/* Yêu cầu chuyên môn */}
+                                                            <div className="bg-white rounded-lg  ">
+                                                                <h2 className="text-lg font-semibold text-gray-800 mb-4">I. Yêu cầu chuyên môn</h2>
+                                                                <div className="space-y-3">
+                                                                    <p className="text-gray-700">1. Tốt nghiệp đại học chính quy từ các trường đại học có uy tín, chuyên ngành phù hợp với lĩnh vực giảng dạy</p>
+                                                                    <p className="text-gray-700">2. Có ít nhất 2 năm kinh nghiệm làm việc thực tế trong lĩnh vực đăng ký giảng dạy</p>
+                                                                    <p className="text-gray-700">3. Có chứng chỉ sư phạm hoặc kinh nghiệm giảng dạy là một lợi thế</p>
+                                                                    <p className="text-gray-700">4. Khả năng diễn đạt tốt, kỹ năng truyền đạt rõ ràng, logic</p>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Yêu cầu về thời gian và cam kết */}
+                                                            <div className="bg-white rounded-lg  ">
+                                                                <h2 className="text-lg font-semibold text-gray-800 mb-4">II. Yêu cầu về thời gian và cam kết</h2>
+                                                                <div className="space-y-3">
+                                                                    <p className="text-gray-700">1. Cam kết dành ít nhất 10 giờ/tuần để giảng dạy và tương tác với học viên</p>
+                                                                    <p className="text-gray-700">2. Tham gia đầy đủ các buổi đào tạo giảng viên do AntLearn tổ chức</p>
+                                                                    <p className="text-gray-700">3. Cập nhật và phát triển nội dung khóa học thường xuyên</p>
+                                                                    <p className="text-gray-700">4. Phản hồi thắc mắc của học viên trong vòng 24 giờ</p>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Yêu cầu về tài liệu và nội dung giảng dạy */}
+                                                            <div className="bg-white rounded-lg  ">
+                                                                <h2 className="text-lg font-semibold text-gray-800 mb-4">III. Yêu cầu về tài liệu và nội dung giảng dạy</h2>
+                                                                <div className="space-y-3">
+                                                                    <p className="text-gray-700">1. Xây dựng giáo án chi tiết cho mỗi khóa học</p>
+                                                                    <p className="text-gray-700">2. Chuẩn bị tài liệu học tập chất lượng cao, bài tập thực hành</p>
+                                                                    <p className="text-gray-700">3. Thiết kế nội dung phù hợp với chuẩn đầu ra của khóa học</p>
+                                                                    <p className="text-gray-700">4. Tuân thủ quy định về bản quyền và sở hữu trí tuệ</p>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Quyền lợi của giảng viên */}
+                                                            <div className="bg-white rounded-lg  ">
+                                                                <h2 className="text-lg font-semibold text-gray-800 mb-4">IV. Quyền lợi của giảng viên</h2>
+                                                                <div className="space-y-3">
+                                                                    <p className="text-gray-700">1. Thu nhập hấp dẫn dựa trên số giờ giảng dạy và số lượng học viên</p>
+                                                                    <p className="text-gray-700">2. Được đào tạo và phát triển chuyên môn liên tục</p>
+                                                                    <p className="text-gray-700">3. Có cơ hội networking với cộng đồng giáo dục trực tuyến</p>
+                                                                    <p className="text-gray-700">4. Được hỗ trợ về mặt kỹ thuật và công nghệ giảng dạy</p>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Quy trình trở thành giảng viên */}
+                                                            <div className="bg-white rounded-lg  ">
+                                                                <h2 className="text-lg font-semibold text-gray-800 mb-4">V. Quy trình trở thành giảng viên</h2>
+                                                                <div className="space-y-3">
+                                                                    <p className="text-gray-700">1. Nộp hồ sơ ứng tuyển trực tuyến</p>
+                                                                    <p className="text-gray-700">2. Tham gia phỏng vấn chuyên môn</p>
+                                                                    <p className="text-gray-700">3. Thực hiện bài giảng thử</p>
+                                                                    <p className="text-gray-700">4. Tham gia khóa đào tạo giảng viên</p>
+                                                                    <p className="text-gray-700">5. Ký kết hợp đồng và bắt đầu giảng dạy</p>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="p-4 bg-yellow-50 rounded-lg">
+                                                                <p className="text-sm text-gray-600 italic">
+                                                                    Lưu ý: AntLearn có quyền thay đổi các điều khoản này mà không cần thông báo trước.
+                                                                    Mọi thay đổi sẽ được cập nhật trên website chính thức của chúng tôi.
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex justify-between items-center  mt-3">
+                                                            <div className="flex items-center gap-1">
+                                                                <div className="">
+                                                                    <Checkbox checked={isChecked} onCheckedChange={(checked) =>setIsChecked(checked)} />
+
+                                                                </div>
+                                                                <div className="">
+                                                                    <p>Tôi đã đọc điều khoản</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="">
+                                                                <Button disabled={!isChecked}>
+                                                                    Trở thành giảng viên!
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                            </DialogContent>
+                                        </Dialog>
                                     </div>
                                 </div>
+
                             </div>
 
                             <div className="mt-6">
