@@ -121,7 +121,7 @@ export const UserProfile = () => {
                                 <li className="w-full">
                                     <Link
                                         to="/user/profile"
-                                        className="flex items-center gap-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+                                        className="flex items-center gap-2 p-3 rounded-xl bg-gradient-to-r from-yellow-400 to-yellow-500 text-white transition-all duration-200"
                                     >
                                         <User className="w-4 h-4" />
                                         <span>Hồ sơ cá nhân</span>
@@ -256,7 +256,7 @@ export const UserProfile = () => {
                                                         <div className="flex justify-between items-center  mt-3">
                                                             <div className="flex items-center gap-1">
                                                                 <div className="">
-                                                                    <Checkbox checked={isChecked} onCheckedChange={(checked) =>setIsChecked(checked)} />
+                                                                    <Checkbox checked={isChecked} onCheckedChange={(checked) => setIsChecked(checked)} />
 
                                                                 </div>
                                                                 <div className="">
