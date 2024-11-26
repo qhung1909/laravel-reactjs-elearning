@@ -52,7 +52,7 @@ import { Sparkles } from 'lucide-react';
 // import { CategoriesContext } from "../context/categoriescontext";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
-
+const GPT_KEY = import.meta.env.VITE_GPT_KEY;
 export const Detail = () => {
     // const { categories } = useContext(CategoriesContext);
     const { courses, setCourses } = useContext(CoursesContext);
@@ -864,6 +864,40 @@ export const Detail = () => {
         </div>
     );
 
+    // Hàm kiểm tra bình luận với AI
+    const checkComment = async (commentContent) => {
+        try {
+            const commentPrompt = `Vui lòng kiểm tra bình luận sau và xác định nếu có từ ngữ khiếm nhã, tục tĩu, hoặc không phù hợp: "${commentContent}".
+        Nếu có, trả lời 'Có' và giải thích lý do. Nếu không có, trả lời 'Không'. Nếu có từ ngữ khiếm nhã, hãy cho biết từ ngữ đó là gì và tại sao nó không phù hợp.`;
+
+            const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+                model: 'gpt-3.5-turbo',
+                messages: [{ role: 'user', content: commentPrompt }],
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${GPT_KEY}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            // Lấy kết quả từ phản hồi của GPT và xử lý để trả về lý do
+            const result = response.data.choices[0].message.content.trim().toLowerCase();
+            if (result.includes('có')) {
+                // Trích lý do chi tiết từ phản hồi GPT
+                let reason = result.replace('Có', '').trim();
+                if (reason === "") {
+                    reason = 'Ngôn ngữ khiếm nhã không rõ ràng.';
+                }
+                return { isInappropriate: true, reason: `Bình luận không hợp lệ: ${reason}` };
+            } else {
+                return { isInappropriate: false, reason: 'Bình luận hợp lệ' };
+            }
+
+        } catch (error) {
+            console.error('Lỗi khi kiểm tra bình luận khiếm nhã:', error);
+            return { isInappropriate: false, reason: 'Lỗi kiểm tra' };  // Trả về false nếu có lỗi
+        }
+    };
+
     const addComment = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -883,12 +917,20 @@ export const Detail = () => {
             return;
         }
 
+        // Kiểm tra bình luận có khiếm nhã hay không
+        const { isInappropriate, reason } = await checkComment(comment);
+        if (isInappropriate) {
+            setErrorMessage(reason);
+            return;
+        }
+
         try {
             const commentData = {
                 rating,
                 content: comment,
             };
 
+            // Gửi bình luận lên server nếu không có từ ngữ khiếm nhã
             await axios.post(
                 `${API_URL}/courses/${slug}/comments`,
                 commentData,
