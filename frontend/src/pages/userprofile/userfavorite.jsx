@@ -14,7 +14,6 @@ export const UserFavorite = () => {
     const { user } = useContext((UserContext));
     const [favorites, setFavorites] = useState([]);
     const [loading, setLoading] = useState(true);
-    // Fetch thông tin user đang đăng nhập
 
     // Hàm lấy danh sách yêu thích
     const fetchFavorites = async () => {
@@ -37,7 +36,7 @@ export const UserFavorite = () => {
             // Kiểm tra và xử lý dữ liệu trả về
             if (response.data && Array.isArray(response.data)) {
                 setFavorites(response.data);
-            }else {
+            } else {
                 setFavorites([]);
             }
         } catch (error) {

@@ -209,6 +209,7 @@ export const Header = () => {
             <p>Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
         );
     };
+
     useEffect(() => {
         fetchCourses();
     }, []);

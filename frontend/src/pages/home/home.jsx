@@ -5,18 +5,19 @@ import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CategoriesContext } from "../context/categoriescontext";
 import { CoursesContext } from "../context/coursescontext";
-import { User } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-
-const API_KEY = import.meta.env.VITE_API_KEY;
-const API_URL = import.meta.env.VITE_API_URL;
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog"
+import { UserContext } from "../context/usercontext";
 
 export const Home = () => {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
     const { courses, hotProducts, fetchTopPurchasedProduct, fetchCoursesByCategory } = useContext(CoursesContext)
     const { categories } = useContext(CategoriesContext);
+    const { user } = useContext(UserContext);
     const [topViewedProduct, setTopViewedProduct] = useState([]);
     const [loading, setLoading] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [open, setOpen] = useState(false);
 
     const handleCategoryClick = (slug) => {
         fetchCoursesByCategory(slug);
@@ -128,7 +129,7 @@ export const Home = () => {
                             <p>Bởi: {`${item.user?.name}`}</p>
                         </div>
                         <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
-                        <div className="product-box-time">
+                            <div className="product-box-time">
                                 <p className="text-base">Số lượt xem: <span className="font-semibold text-lg text-yellow-600">{`${item.views}`}</span> </p>
                             </div>
                         </div>
@@ -215,13 +216,27 @@ export const Home = () => {
             ))
         ) : null;
     };
+
     useEffect(() => {
         fetchTopPurchasedProduct();
         fetchTopViewedProduct();
     }, []);
 
+    useEffect(() => {
+        const shouldShowDialog = localStorage.getItem('showWelcomeDialog');
+        if (shouldShowDialog === 'true' && user) {
+            setOpen(true);
+            localStorage.removeItem('showWelcomeDialog');
+        }
+    }, [user]);
+
+    // Hàm xử lý khi đóng dialog
+    const handleCloseDialog = () => {
+        setOpen(false);
+    };
     return (
         <>
+
             {/* banner */}
             <div className="banner">
                 <div className="banner-box">
@@ -275,6 +290,51 @@ export const Home = () => {
                     </div>
 
                 </div>
+            </div>
+
+            <div className="">
+                <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogTrigger />
+                    <DialogContent className="fixed flex justify-center items-center z-50">
+                        <div className="bg-white rounded-xl max-w-md w-full p-2 shadow-2xl transform transition-all">
+                            <DialogHeader className="space-y-4">
+                                {/* Icon chào mừng */}
+                                <div className="flex justify-center">
+                                    <div className="bg-yellow-100 p-1 rounded-full">
+                                        <img src={user?.avatar} className="w-20 rounded-full" alt="" />
+                                    </div>
+                                </div>
+
+                                <DialogTitle className="text-2xl font-bold text-center space-y-2">
+                                    <div className="text-yellow-500">Chào mừng</div>
+                                    <div className="text-gray-800 break-words">
+                                        {user?.name}
+                                    </div>
+                                </DialogTitle>
+
+                                <DialogDescription className="text-gray-600 text-center text-lg leading-relaxed">
+                                    Chúc mừng bạn đã trở thành một phần của đội ngũ giảng viên của chúng tôi!
+                                    <div className="mt-2 text-yellow-600 font-medium">
+                                        Hãy bắt đầu hành trình chia sẻ kiến thức của bạn!
+                                    </div>
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <div className="flex justify-center mt-8">
+                                <button
+                                    onClick={handleCloseDialog}
+                                    className="bg-yellow-500 text-white py-3 px-8 rounded-lg hover:bg-yellow-600 transition duration-300 transform hover:scale-105 font-medium text-lg shadow-md hover:shadow-lg"
+                                >
+                                    Bắt đầu ngay
+                                </button>
+                            </div>
+
+                            {/* Decoration elements */}
+                            <div className="absolute top-0 right-0 -mt-4 -mr-4 bg-yellow-200 w-24 h-24 rounded-full opacity-20"></div>
+                            <div className="absolute bottom-0 left-0 -mb-4 -ml-4 bg-yellow-200 w-16 h-16 rounded-full opacity-20"></div>
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
             {/* Thân trang - sản phẩm được mua nhiều */}
             <div className="home-page bestseller sm:max-w-screen-md md:max-w-screen-lg lg:max-w-screen-xl mx-auto xl:px-3 lg:px-5 px-3 xl:text-left">

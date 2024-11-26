@@ -14,8 +14,18 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+
+const notify = (message, type) => {
+    if (type === 'success') {
+        toast.success(message);
+    } else {
+        toast.error(message)
+    }
+}
+
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button";
+import axios from "axios";
 export const UserProfile = () => {
     const { user, updateUserProfile, updatePassword } = useContext(UserContext);
     const [success, setSuccess] = useState(false);
@@ -31,8 +41,36 @@ export const UserProfile = () => {
     const [isProfileSubmitting, setIsProfileSubmitting] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
     const navigate = useNavigate();
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
+    const token = localStorage.getItem("access_token");
 
-    // const handleTransformInstructor
+    // hàm xử lý từ user thành teacher
+    const handleTransformInstructor = async () => {
+        try {
+            const response = await axios.patch(`${API_URL}/update-role`,
+                {
+                    user_id: user.user_id
+                },
+                {
+                    headers: {
+                        "x-api-secret": API_KEY,
+                        Authorization: `Bearer ${token}`,
+                    }
+                }
+            );
+            if (response.data.message === "Role updated successfully") {
+                notify("Cập nhật vai trò thành công!", 'success');
+                localStorage.setItem('showWelcomeDialog', 'true');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            }
+
+        } catch (error) {
+            console.error("Lỗi khi cập nhật vai trò:", error);
+        }
+    }
 
     useEffect(() => {
         if (user) {
@@ -264,7 +302,7 @@ export const UserProfile = () => {
                                                                 </div>
                                                             </div>
                                                             <div className="">
-                                                                <Button disabled={!isChecked}>
+                                                                <Button disabled={!isChecked} onClick={handleTransformInstructor}>
                                                                     Trở thành giảng viên!
                                                                 </Button>
                                                             </div>
