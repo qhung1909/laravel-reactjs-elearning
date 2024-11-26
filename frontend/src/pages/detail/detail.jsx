@@ -1254,7 +1254,7 @@ export const Detail = () => {
 
                             <h2 className="text-2xl font-bold mt-8 mb-4">Yêu cầu</h2>
                             <ul className="list-disc pl-8">
-                                <li>Có kiến thức cơ bản về kiến trúc máy tính</li>
+                                <li>Có kiến thức cơ bản về máy tính</li>
                                 <li>Có máy tính nối mạng Internet để thực hành các bài tập</li>
                             </ul>
 
