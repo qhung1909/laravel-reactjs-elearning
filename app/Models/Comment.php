@@ -9,9 +9,9 @@ class Comment extends Model
 {
     use HasFactory;
     protected $table = 'comments';
-    protected $primaryKey = 'comment_id'; 
+    protected $primaryKey = 'comment_id';
     protected $fillable = [
-        'user_id', 
+        'user_id',
         'course_id',
         'content',
         'rating',
@@ -22,5 +22,9 @@ class Comment extends Model
     {
         return $this->belongsTo(Course::class, 'course_id', 'course_id');
     }
-    
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
 }

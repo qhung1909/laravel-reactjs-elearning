@@ -18,21 +18,39 @@ class CommentController extends Controller
             return response()->json(['error' => 'Khóa học không tồn tại.'], 404);
         }
 
-        $comments = Comment::where('course_id', $course_id)->get();
+        $comments = Comment::where('course_id', $course_id)
+            ->with('user:user_id,name,avatar')
+            ->get();
 
         if ($comments->isEmpty()) {
             return response()->json(['message' => 'Không có bình luận nào cho khóa học này.'], 200);
         }
+
+        $comments = $comments->map(function ($comment) {
+            return [
+                'comment_id' => $comment->comment_id, 
+                'content' => $comment->content,
+                'rating' => $comment->rating,
+                'created_at' => $comment->created_at,
+                'updated_at' => $comment->updated_at,
+                'user' => [
+                    'user_id'=>$comment->user->user_id,
+                    'name' => $comment->user->name,
+                    'avatar' => $comment->user->avatar
+                ]
+            ];
+        });
 
         return response()->json([
             'success' => true,
             'comments' => $comments
         ], 200);
     }
-    
+
     public function showAllComment()
     {
-        $comments = Comment::with('course')->get();
+        // Load comments with both course and user relationships
+        $comments = Comment::with(['course', 'user'])->get();
 
         if ($comments->isEmpty()) {
             return response()->json(['message' => 'Không có bình luận nào.'], 200);
@@ -47,6 +65,10 @@ class CommentController extends Controller
                 'created_at' => $comment->created_at,
                 'updated_at' => $comment->updated_at,
                 'has_updated' => $comment->has_updated,
+                'user' => [
+                    'name' => $comment->user->name,
+                    'avatar' => $comment->user->avatar,
+                ],
                 'course' => [
                     'course_id' => $comment->course->course_id,
                     'title' => $comment->course->title,
