@@ -44,6 +44,13 @@ export const Signup = () => {
             return;
         }
 
+        const nameRegex = /[^a-zA-Z0-9\s]/;
+
+        if(nameRegex.test(formData.name)) {
+            setError('Tên không được chứa kí tự đặc biệt');
+            return;
+        }
+
         if (formData.password !== formData.password_confirmation) {
             setError('Mật khẩu không khớp');
             return;
@@ -69,6 +76,11 @@ export const Signup = () => {
                     password_confirmation: formData.password_confirmation
                 }),
             });
+
+            if(res.status === 422){
+                setError('Tài khoản email đã tồn tại!');
+                return;
+            }
 
             if (!res.ok) {
                 const errorData = await res.json();
