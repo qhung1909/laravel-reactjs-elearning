@@ -401,7 +401,7 @@ export const Header = () => {
                                                             // Default state
                                                             <img
                                                                 src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg"
-                                                                className="w-11"
+                                                                className="w-10"
                                                                 alt=""
                                                             />)}
                                                     </TooltipTrigger>
