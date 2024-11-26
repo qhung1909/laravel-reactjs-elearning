@@ -1469,40 +1469,35 @@ export const Detail = () => {
                                                     <Book className="w-5 h-5 mr-2 text-gray-500" />
                                                     {teacher.total_courses} Khóa học
                                                 </li>
-                                                <li className="flex items-center p-4">
-                                                    <div className="flex flex-col items-start space-y-2">
-                                                        {/* Tiêu đề phần đánh giá */}
-                                                        <span className="text-sm font-semibold text-gray-600">Đánh giá trung bình</span>
-
-                                                        {/* Hiển thị các sao */}
-                                                        <div className="flex items-center space-x-2">
-                                                            {Array.from({ length: 5 }, (_, index) => (
-                                                                <Star
-                                                                    key={index}
-                                                                    className={`w-6 h-6 transition-all duration-200
-                        ${index < Math.floor(teacher.average_rating)
-                                                                            ? 'text-yellow-500 fill-yellow-500'
-                                                                            : index < Math.floor(teacher.average_rating) + 1 && teacher.average_rating % 1 !== 0
-                                                                                ? 'text-yellow-400 fill-yellow-200 opacity-80'
-                                                                                : 'text-gray-300'
-                                                                        }`}
-                                                                />
-                                                            ))}
-                                                        </div>
-
-                                                        {/* Hiển thị điểm số trung bình */}
-                                                        <div className="flex items-center space-x-2">
-                                                            <span className="text-xl font-semibold text-gray-700">
-                                                                {teacher.average_rating.toFixed(1)}
+                                                <li className="flex items-center p-2 ">
+                                                    <div className="flex items-center space-x-2">
+                                                        {Array.from({ length: 5 }, (_, index) => (
+                                                            <Star
+                                                                key={index}
+                                                                className={`w-5 h-5 transition-colors duration-200
+                    ${index < Math.floor(teacher.average_rating)
+                                                                        ? 'text-yellow-400 fill-yellow-400'
+                                                                        : index < Math.floor(teacher.average_rating) + 1 && teacher.average_rating % 1 !== 0
+                                                                            ? 'text-yellow-400 fill-yellow-200 opacity-80'
+                                                                            : 'text-gray-200'
+                                                                    }`}
+                                                            />
+                                                        ))}
+                                                        <span className="flex items-center space-x-2 text-sm font-semibold text-gray-500">
+                                                            {/* Điểm số đánh giá */}
+                                                            <span className="text-base text-gray-700">
+                                                                {teacher.average_rating.toFixed(1)} / 5
                                                             </span>
-                                                            <span className="text-xl font-semibold text-gray-700">/5</span>
-                                                        </div>
 
-                                                        {/* Tooltip hoặc chú thích (nếu cần) */}
-                                                        <span className="text-xs text-gray-500 mt-2 italic">Đây là đánh giá trung bình các khóa học của giảng viên.</span>
+                                                            {/* Mô tả đánh giá */}
+                                                            <span className="text-xs italic ml-2">
+                                                                Đây là đánh giá trung bình các khóa học của giảng viên.
+                                                            </span>
+
+                                                        </span>
+
                                                     </div>
                                                 </li>
-
 
                                             </ul>
                                             <Accordion type="single" collapsible className="w-full">

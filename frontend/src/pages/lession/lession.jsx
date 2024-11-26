@@ -925,7 +925,7 @@ export const Lesson = () => {
                                                         />
                                                     </svg>
                                                 </span>
-                                                <h2 className="text-lg font-medium text-gray-800 uppercase">
+                                                <h2 className="text-lg font-bold text-gray-800 uppercase ">
                                                     {lesson?.name || "Đang tải..."}
                                                 </h2>
                                             </div>
