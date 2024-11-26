@@ -219,6 +219,8 @@ export const CreateQuiz = () => {
                     type: type,
                     options: [],
                     answers: []
+
+                    
                 };
 
                 // Khởi tạo `options` cho `single_choice` và `mutiple_choice`
@@ -375,22 +377,22 @@ export const CreateQuiz = () => {
                         const falseOption = q.options.find(option => option.answer === "false") || { id: null, is_correct: false };
 
                         // Nếu không có câu trả lời nào được chọn, mặc định chọn "true"
-                        // if (!q.answers || !Array.isArray(q.answers) || q.answers.length === 0) {
-                        //     q.answers = ["true"];
-                        // }
+                        if (!q.answers || !Array.isArray(q.answers) || q.answers.length === 0) {
+                            q.answers = ["true"];
+                        }
 
                         // Xử lý trường hợp thêm mới và giữ trạng thái khi cập nhật
                         optionsData = {
                             options: [
                                 {
-                                    id: trueOption.id,
+                                    id: trueOption.id, // Dùng id hiện tại hoặc null nếu thêm mới
                                     answer: "true",
-                                    is_correct: q.answers[0] === "true" // Chỉ true nếu được chọn
+                                    is_correct: trueOption.id ? (q.answers[0] === "true" ? true : trueOption.is_correct) : q.answers[0] === "true"
                                 },
                                 {
-                                    id: falseOption.id,
+                                    id: falseOption.id, // Dùng id hiện tại hoặc null nếu thêm mới
                                     answer: "false",
-                                    is_correct: q.answers[0] === "false" // Chỉ true nếu được chọn
+                                    is_correct: falseOption.id ? (q.answers[0] === "false" ? true : falseOption.is_correct) : q.answers[0] === "false"
                                 }
                             ]
                         };
