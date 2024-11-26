@@ -259,11 +259,11 @@ export const Home = () => {
                                         </p>
                                     </div>
                                     <div className="banner-left-button">
-                                        <a href="">
+                                        <Link to="/courses">
                                             <button className="bg-yellow-500 xl:mt-10 xl:px-5 xl:py-3 md:font-bold rounded-full xl:text-xl lg:text-base md:text-sm sm:text-base text-[14px] font-semibold mt-4 p-2 px-4">
                                                 Khám phá khóa học
                                             </button>
-                                        </a>
+                                        </Link>
                                     </div>
                                 </div>
 
