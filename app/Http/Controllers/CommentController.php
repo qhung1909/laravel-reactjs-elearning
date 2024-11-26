@@ -29,10 +29,11 @@ class CommentController extends Controller
             'comments' => $comments
         ], 200);
     }
-    
+
     public function showAllComment()
     {
-        $comments = Comment::with('course')->get();
+        // Load comments with both course and user relationships
+        $comments = Comment::with(['course', 'user'])->get();
 
         if ($comments->isEmpty()) {
             return response()->json(['message' => 'Không có bình luận nào.'], 200);
@@ -47,6 +48,10 @@ class CommentController extends Controller
                 'created_at' => $comment->created_at,
                 'updated_at' => $comment->updated_at,
                 'has_updated' => $comment->has_updated,
+                'user' => [
+                    'name' => $comment->user->name,
+                    'avatar' => $comment->user->avatar,
+                ],
                 'course' => [
                     'course_id' => $comment->course->course_id,
                     'title' => $comment->course->title,
