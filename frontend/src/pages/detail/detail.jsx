@@ -283,6 +283,7 @@ export const Detail = () => {
             });
             if (Array.isArray(res.data.comments)) {
                 setComments(res.data.comments);
+
             }
         } catch (error) {
             console.error("Lỗi khi lấy bình luận:", error);
@@ -788,7 +789,7 @@ export const Detail = () => {
             <Avatar className="w-10 h-10"> {/* Kích thước vừa phải cho avatar */}
                 <AvatarFallback>Avatar</AvatarFallback>
                 <AvatarImage
-                    src={users[comment.user_id]?.avatar || "default_avatar_url"}
+                    src={comment.user?.avatar || "default_avatar_url"}
                 />
             </Avatar>
 
@@ -796,26 +797,26 @@ export const Detail = () => {
                 <div className="flex justify-between items-center">
                     <div className="flex items-center">
                         <span className="font-semibold text-base">
-                            {users[comment.user_id]?.name || "Người dùng"}
+                            {comment.user?.name || "Người dùng"}
                         </span>
                         <span className="text-gray-500 text-sm ml-2">
                             {formatDate(comment.updated_at)}
                         </span>
                     </div>
 
-                    {user && user.user_id === comment.user_id && (
+                    {user && user.user_id === comment.user?.user_id && (
                         <div className="flex space-x-2">
                             <button
                                 onClick={() => editComment(comment)}
                                 className="text-blue-500 hover:text-blue-600"
                             >
-                                <Edit className="w-4 h-4" /> {/* Icon trung bình */}
+                                <Edit className="w-4 h-4" />
                             </button>
                             <button
                                 onClick={() => deleteComment(comment.comment_id)}
                                 className="text-red-500 hover:text-red-600"
                             >
-                                <Trash className="w-4 h-4" /> {/* Icon trung bình */}
+                                <Trash className="w-4 h-4" />
                             </button>
                         </div>
                     )}
@@ -1445,7 +1446,7 @@ export const Detail = () => {
                                                             />
                                                         ))}
                                                         <span className="ml-2 text-sm font-semibold text-gray-500">
-                                                            {teacher.average_rating.toFixed(1)} 
+                                                            {teacher.average_rating.toFixed(1)}
                                                         </span>
                                                     </div>
                                                 </li>
