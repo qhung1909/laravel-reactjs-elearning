@@ -773,7 +773,8 @@ export const Detail = () => {
             toast.error(error.response?.data?.error || "Có lỗi xảy ra khi cập nhật bình luận.");
         }
     };
-
+    const editCommentLength = editingContent.length;
+    const commentLength = comment.length;
     const renderComment = (comment) => (
         <div
             key={comment.comment_id}
@@ -830,12 +831,16 @@ export const Detail = () => {
                                 />
                             ))}
                         </div>
-
-                        <textarea
-                            value={editingContent}
-                            onChange={(e) => setEditingContent(e.target.value)}
-                            className="w-full border rounded-md p-2 mt-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
+                        <div>
+                            <textarea
+                                value={editingContent}
+                                onChange={(e) => setEditingContent(e.target.value)}
+                                className="w-full border rounded-md p-2 mt-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                            <div className="text-right text-sm text-gray-500 mt-1">
+                                {editCommentLength} ký tự
+                            </div>
+                        </div>
 
                         <div className="flex space-x-2 mt-2">
                             <Button
@@ -875,12 +880,12 @@ export const Detail = () => {
             </div>
         </div>
     );
-
+    // Kiểm tra bình luận
     const checkComment = async (commentContent) => {
         try {
-            const maxLength = 500;
+            const maxLength = 300;
             if (commentContent.length > maxLength) {
-                return { isInappropriate: true, reason: 'Nội dung bình luận quá dài.' };
+                return { isInappropriate: true, reason: 'Nội dung bình luận vượt quá 300 ký tự.' };
             }
             const commentPrompt = `Vui lòng kiểm tra bình luận sau và xác định nếu có từ ngữ khiếm nhã, tục tĩu, hoặc không phù hợp: "${commentContent}".
             Nếu có, trả lời 'Có'. Nếu không có, trả lời 'Không'. Nếu có từ ngữ khiếm nhã, hãy cho biết từ ngữ đó và lý do tại sao nó không phù hợp.`;
@@ -911,7 +916,6 @@ export const Detail = () => {
             return { isInappropriate: false, reason: 'Lỗi kiểm tra' };  // Trả về false nếu có lỗi
         }
     };
-
     // Hàm thêm bình luận
     const addComment = async () => {
         const token = localStorage.getItem("access_token");
@@ -1479,9 +1483,19 @@ export const Detail = () => {
                                                                     }`}
                                                             />
                                                         ))}
-                                                        <span className="ml-2 text-sm font-semibold text-gray-500">
-                                                            {teacher.average_rating.toFixed(1)}
+                                                        <span className="flex items-center space-x-2 text-sm font-semibold text-gray-500">
+                                                            {/* Điểm số đánh giá */}
+                                                            <span className="text-base text-gray-700">
+                                                                {teacher.average_rating.toFixed(1)} / 5
+                                                            </span>
+
+                                                            {/* Mô tả đánh giá */}
+                                                            <span className="text-xs italic ml-2">
+                                                                Đây là đánh giá trung bình các khóa học của giảng viên.
+                                                            </span>
+
                                                         </span>
+
                                                     </div>
                                                 </li>
 
@@ -1549,13 +1563,19 @@ export const Detail = () => {
                                             </div>
 
                                             {/* Nhập nội dung bình luận */}
-                                            <textarea
-                                                placeholder="Nhập nội dung bình luận"
-                                                className="w-full border rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                rows="3"
-                                                value={comment}
-                                                onChange={(e) => setComment(e.target.value)}
-                                            />
+                                            <div>
+                                                <textarea
+                                                    placeholder="Nhập nội dung bình luận"
+                                                    className="w-full border rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    rows="3"
+                                                    value={comment}
+                                                    onChange={(e) => setComment(e.target.value)}
+                                                />
+                                                {/* Hiển thị số lượng ký tự */}
+                                                <div className="text-right text-sm text-gray-500 mt-1">
+                                                    {commentLength} ký tự
+                                                </div>
+                                            </div>
                                             {/* Thông báo lỗi */}
                                             {errorMessage && (
                                                 <p className="text-red-500 mt-2">
