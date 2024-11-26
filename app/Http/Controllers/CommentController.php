@@ -30,6 +30,7 @@ class CommentController extends Controller
             return [
                 'comment_id' => $comment->comment_id, 
                 'content' => $comment->content,
+                'rating' => $comment->rating,
                 'created_at' => $comment->created_at,
                 'updated_at' => $comment->updated_at,
                 'user' => [
