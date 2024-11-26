@@ -12,12 +12,19 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Link } from 'react-router-dom';
-
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 useState
 export const Aboutus = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
-
+    useEffect(() => {
+        AOS.init({
+            duration: 1000,
+            once: true,
+            easing: 'ease-out'
+        });
+    }, []);
     const slides = [
         {
             image: "/src/assets/images/team1.jpg",
@@ -128,11 +135,12 @@ export const Aboutus = () => {
             <section
                 className="blog-banner flex items-center justify-center xl:h-[340px] lg:h-[295px] md:h-[250px] sm:h-[170px] h-[150px] w-full"
                 style={{
-                    backgroundImage: "url(./src/assets/images/bannerblog.png)",
+                    backgroundImage: "url(/src/assets/images/bannerblog.png)",
                     objectFit: "cover"
                 }}
+                data-aos="fade-down"
             >
-                <div className="blog-banner-title">
+                <div className="blog-banner-title" data-aos="fade-up" data-aos-delay="200">
                     <h1 className="lg:text-6xl md:text-4xl text-3xl font-title">
                         Về<span className="italic font-title text-yellow-500"> Chúng tôi</span>
                     </h1>
@@ -144,18 +152,16 @@ export const Aboutus = () => {
                 <div className="xl:max-w-screen-xl lg:max-w-screen-lg md:max-w-screen-md max-w-screen-sm mx-auto bg-white font-roboto ">
 
                     {/* describe */}
-                    <div className="my-10">
-                        {/* title */}
+                    <div className="my-10" data-aos="fade-up">
                         <div className="text-center mb-12">
                             <h1 className="md:text-4xl text-2xl font-bold text-navy-900 mb-4">Giới thiệu</h1>
                             <p className="md:text-xl text-lg text-gray-600">Nhìn qua những thành viên trong nhóm chúng tôi</p>
                             <div className="w-24 h-1 bg-yellow-500 mx-auto mt-4"></div>
                         </div>
 
-                        {/* list */}
                         <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-10 my-10 sm:px-0 px-10">
                             {team.map((item, index) => (
-                                <div className="" key={index}>
+                                <div className="" key={index} data-aos="fade-up" data-aos-delay={index * 100}>
                                     <div className="border-black border-2">
                                         <img src={`${item.image}`} className='w-full sm:h-[450px] h-96 object-cover' alt="" />
                                     </div>
@@ -173,7 +179,7 @@ export const Aboutus = () => {
                     </div>
 
                     {/* slider */}
-                    <div className="my-10 ">
+                    <div className="my-10" data-aos="fade-up" data-aos-delay="100">
                         <div className=" mx-auto ">
 
                             {/* title */}
@@ -218,20 +224,50 @@ export const Aboutus = () => {
                             </div>
                         </div>
                     </div>
+                    <div className="my-16" data-aos="fade-up">
+                        {/* title */}
+                        <div className="text-center mb-10" data-aos="fade-down">
+                            <h1 className="md:text-4xl text-2xl font-bold text-navy-900 mb-4">Quá trình làm việc</h1>
+                            <p className="md:text-xl text-lg text-gray-600">Những khoảnh khắc đáng nhớ</p>
+                            <div className="w-24 h-1 bg-yellow-500 mx-auto mt-4"></div>
+                        </div>
+
+                        {/* Video */}
+                        <div className="max-w-5xl mx-auto px-4" data-aos="zoom-in" data-aos-delay="200">
+                            <Card className="overflow-hidden shadow-2xl rounded-xl">
+                                <CardContent className="p-0">
+                                    <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                                        <video
+                                            className="absolute top-0 left-0 w-full h-full object-cover"
+                                            controls
+                                            controlsList="nodownload"
+                                            preload="auto"
+                                        >
+                                            <source src="/src/assets/images/timeplapse.mp4" type="video/mp4" />
+                                        </video>
+                                    </div>
+                                    <div className="p-8 text-center space-y-3 bg-gradient-to-b from-yellow-50 to-white shadow-inner">
+                                        <h3 className="text-2xl font-bold mb-3 text-yellow-700">Quá trình làm việc của chúng tôi</h3>
+                                        <p className="text-gray-600">Theo dõi hành trình phát triển dự án từ những ngày đầu tiên</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
 
                     {/* talk */}
-                    <div className="my-10">
+                    <div className="my-10" data-aos="fade-up">
                         {/* title */}
-                        <div className="text-center ">
+                        <div className="text-center" data-aos="fade-down">
                             <h1 className="md:text-4xl text-2xl font-bold text-navy-900 mb-4">Đôi lời</h1>
                             <p className="md:text-xl text-lg text-gray-600">Những cảm xúc mà chúng tôi đã và đang có</p>
                             <div className="w-24 h-1 bg-yellow-500 mx-auto mt-4"></div>
                         </div>
                         {/* Nhũng gì chúng tôi làm */}
-                        <div className=" shadow-lg px-10 py-16 rounded-xl">
+                        <div className="shadow-lg px-10 py-16 rounded-xl" data-aos="fade-up" data-aos-delay="200">
 
                             {/* first grid */}
-                            <div className="grid md:grid-cols-2 grid-cols-1 gap-5">
+                            <div className="grid md:grid-cols-2 grid-cols-1 gap-5" data-aos="fade-right">
 
                                 {/* grid left */}
                                 <div className="mt-10">
@@ -293,7 +329,7 @@ export const Aboutus = () => {
                             </div>
 
                             {/* Truyền cảm hứng */}
-                            <div className="flex justify-center my-20 font-polite">
+                            <div className="flex justify-center my-20 font-polite" data-aos="fade-up" data-aos-delay="300">
                                 <div className="">
                                     <div className="text-center font-medium md:w-[700px] lg:text-3xl md:text-2xl " >
                                         &quot;Đừng quan tâm ước mơ của bạn lớn lao như thế nào, hay là bạn nhỏ nhoi như thế nào, bởi vì
@@ -306,7 +342,7 @@ export const Aboutus = () => {
                             </div>
 
                             {/* second grid */}
-                            <div className="grid xl:grid-cols-2 grid-cols-1 gap-10">
+                            <div className="grid xl:grid-cols-2 grid-cols-1 gap-10" data-aos="fade-left" data-aos-delay="400">
 
                                 {/* grid left */}
                                 <div className="bg-gray-100 p-3 w-full flex justify-center">
@@ -324,20 +360,20 @@ export const Aboutus = () => {
                     </div>
 
                     {/* Link */}
-                    <div className="my-10 ">
+                    <div className="my-10" data-aos="fade-up">
 
                         {/* title */}
-                        <div className="text-center ">
+                        <div className="text-center " data-aos="fade-down">
                             <h1 className="md:text-4xl text-2xl font-bold text-navy-900 mb-4">Những liên kết</h1>
                             <p className="md:text-xl text-lg text-gray-600">Biết thêm nhiều hơn về chúng tôi</p>
                             <div className="w-24 h-1 bg-yellow-500 mx-auto mt-4"></div>
                         </div>
 
                         {/* Button */}
-                        <div className="flex justify-center mt-10 md:px-0 px-5">
+                        <div className="flex justify-center mt-10 md:px-0 px-5" data-aos="zoom-in" data-aos-delay="200">
                             <div className="grid grid-cols-2 gap-5 ">
                                 <div className="bg-gray-100 md:p-10 p-5 text-center rounded-lg hover:bg-black duration-300 hover:text-white cursor-pointer">
-                                    <Link  className='space-y-3'>
+                                    <Link className='space-y-3'>
                                         <div className="flex justify-center">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/facebook.svg" className='w-8' alt="" />
                                         </div>

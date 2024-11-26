@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { CalendarDays, Clock, Video, GraduationCap, Users, BookOpen, Calendar as CalendarIcon, ArrowRight, CheckCircle2, Bell,Calendar } from "lucide-react";
+import { CalendarDays, Clock, Video, GraduationCap, Users, BookOpen, Calendar as CalendarIcon, ArrowRight, CheckCircle2, Bell, Calendar } from "lucide-react";
 import { format, isSameDay, isSameWeek } from "date-fns";
 import { vi } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatDate } from "@/components/FormatDay/Formatday";
 
 const ScheduleManagement = () => {
     const [meetings, setMeetings] = useState([]);
@@ -47,7 +48,7 @@ const ScheduleManagement = () => {
                         status: meeting.status || determineStatus(meeting.start_time, meeting.end_time),
                         meeting_url: meeting.meeting_url
                     }));
-                    
+
                     console.log("Processed meetings:", processedMeetings);
                     setMeetings(processedMeetings);
                 } else {
@@ -94,11 +95,11 @@ const ScheduleManagement = () => {
 
     const getFilteredMeetings = () => {
         const today = new Date();
-        
+
         return meetings.filter(meeting => {
             if (!meeting.start_time) return false;
             const meetingDate = new Date(meeting.start_time);
-            
+
             switch (selectedFilter) {
                 case "today":
                     return isSameDay(meetingDate, today);
@@ -111,7 +112,7 @@ const ScheduleManagement = () => {
     };
 
     const filteredMeetings = getFilteredMeetings();
-    
+
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -138,15 +139,15 @@ const ScheduleManagement = () => {
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Button 
-                            variant="outline" 
+                        <Button
+                            variant="outline"
                             size="icon"
                             className="w-10 h-10 rounded-xl hover:bg-blue-50 transition-colors"
                         >
                             <Bell className="h-5 w-5 text-blue-600" />
                         </Button>
-                        <Button 
-                            variant="outline" 
+                        <Button
+                            variant="outline"
                             size="icon"
                             className="w-10 h-10 rounded-xl hover:bg-blue-50 transition-colors"
                         >
@@ -170,13 +171,13 @@ const ScheduleManagement = () => {
                                     <span className="font-medium">Hôm nay</span>
                                 </div>
                                 <div className="text-3xl font-bold mt-4">
-                                    {meetings.filter(meeting => 
+                                    {meetings.filter(meeting =>
                                         meeting.start_time && isSameDay(new Date(meeting.start_time), new Date())
                                     ).length} Buổi học
                                 </div>
                             </CardContent>
                         </Card>
-                        
+
                         <Card className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px]">
                             <CardContent className="p-6">
                                 <div className="flex items-center gap-3">
@@ -186,7 +187,7 @@ const ScheduleManagement = () => {
                                     <span className="font-medium">Tuần này</span>
                                 </div>
                                 <div className="text-3xl font-bold mt-4">
-                                    {meetings.filter(meeting => 
+                                    {meetings.filter(meeting =>
                                         meeting.start_time && isSameWeek(new Date(meeting.start_time), new Date(), { weekStartsOn: 1 })
                                     ).length} Buổi
                                 </div>
@@ -253,9 +254,13 @@ const ScheduleManagement = () => {
                                                         <div className="flex flex-col gap-3 text-sm text-gray-600">
                                                             <div className="flex items-center gap-3">
                                                                 <Clock className="h-4 w-4 text-gray-400" />
-                                                                <span>
-                                                                    {format(new Date(meeting.start_time), "HH:mm", { locale: vi })} - {format(new Date(meeting.end_time), "HH:mm", { locale: vi })}
-                                                                </span>
+                                                                <div className="flex items-center space-x-3 text-sm">
+                                                                    <span>Ngày: {format(new Date(meeting.start_time), "dd/MM/yyyy")}</span>
+                                                                    <span>|</span>
+                                                                    <span>Bắt đầu: {format(new Date(meeting.start_time), "hh:mm a")}</span>
+                                                                    <span>|</span>
+                                                                    <span>Kết thúc: {format(new Date(meeting.end_time), "hh:mm a")}</span>
+                                                                </div>
                                                             </div>
                                                             {meeting.teacher_name && (
                                                                 <div className="flex items-center gap-3">
@@ -273,12 +278,12 @@ const ScheduleManagement = () => {
                                                             {getStatusBadge(meeting.status).text}
                                                         </Badge>
                                                         {meeting.meeting_url && meeting.status !== "completed" && (
-                                                            <Button 
+                                                            <Button
                                                                 variant="outline"
                                                                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                                                                 asChild
                                                             >
-                                                                <a 
+                                                                <a
                                                                     href={meeting.meeting_url}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"

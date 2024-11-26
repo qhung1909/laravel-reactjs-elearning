@@ -4,7 +4,7 @@ import { formatDate } from "@/components/FormatDay/Formatday";
 import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import { BadgeAlert, ChevronDown, ChevronUp, CircleUserRound, Edit, Heart, HeartOff, Trash, User } from "lucide-react";
+import { BadgeAlert, ChevronDown, ChevronUp, CircleUserRound, Edit, Heart, HeartOff, Trash, User, Video } from "lucide-react";
 import { Calendar, Globe, BookOpen, Star, Gift } from "lucide-react";
 import { Play, Users, Book, Clock, Eye, ShoppingCart, X } from "lucide-react";
 
@@ -128,6 +128,8 @@ export const Detail = () => {
             });
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
                 setContentLesson(res.data.data.filter(content => content.course_id === courseId));
+                console.log(res.data.data.filter(content => content.course_id === courseId));
+
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
@@ -329,7 +331,7 @@ export const Detail = () => {
         if (detail?.is_online_meeting === 1) {
             return (
                 <Badge className="
-                    group mb-4 relative overflow-hidden text-lg py-3 px-6 rounded-full 
+                    group mb-4 relative overflow-hidden text-lg py-3 px-6 rounded-full
                     shadow-[0_0_15px_rgba(168,85,247,0.5)]
                     font-bold text-white
                     bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600
@@ -352,7 +354,17 @@ export const Detail = () => {
         }
         return null;
     };
-
+    const renderContentBadge = (content) => {
+        if (content.is_online_meeting === 1) {
+            return (
+                <Badge className="ml-2 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white text-xs font-medium flex items-center gap-2 shadow-md hover:shadow-lg transition-all duration-300">
+                    <Video className="w-3.5 h-3.5" />
+                    <span className="tracking-wide">Face-To-Face</span>
+                </Badge>
+            );
+        }
+        return null;
+     };
     const [courseRelated, setCourseRelated] = useState([]);
     const fetchCourseRelated = async () => {
         const categoryId = detail.course_category_id;
@@ -567,8 +579,6 @@ export const Detail = () => {
             course_id: detail.course_id,
             price: detail.price_discount || detail.price,
         };
-
-        console.log("Item trước khi gửi:", newItem);
 
         try {
             setLoading(true);
@@ -1115,15 +1125,20 @@ export const Detail = () => {
                                                                         {content.name_content}
                                                                     </span>
                                                                 </div>
-                                                                <div className="mr-3">
-                                                                    {index === 0 ? ( // Chỉ hiển thị biểu tượng CheckCircle cho phần đầu tiên
+                                                                <div className="mr-3 flex items-center gap-2">
+                                                                    {/* Badge styling */}
+                                                                    <span >
+                                                                        {renderContentBadge(content)}
+                                                                    </span>
+                                                                    {index === 0 ? (
                                                                         <CheckCircle className="text-green-600 w-4 h-4" />
                                                                     ) : (
-                                                                        <Lock className="text-gray-400 w-4 h-4" /> // Hiển thị biểu tượng khóa cho phần còn lại
+                                                                        <Lock className="text-gray-400 w-4 h-4" />
                                                                     )}
                                                                 </div>
                                                             </div>
                                                         </AccordionTrigger>
+
                                                         <AccordionContent className="border-t border-gray-100">
                                                             {index === 0 && content.course_id === lesson.course_id && Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? ( // Chỉ hiển thị nội dung cho phần đầu tiên
                                                                 <div className="space-y-6 p-6">
@@ -1732,53 +1747,58 @@ export const Detail = () => {
                                                     });
                                                     return;
                                                 }
-                                                setIsDialogOpen(true);
+                                                if (detail.is_online_meeting === 1) {
+                                                    setIsDialogOpen(true);
+                                                } else {
+                                                    await addToCart();
+                                                }
                                             }}
                                             className="w-full bg-yellow-400 text-white py-2 rounded-lg mb-2 hover:bg-yellow-500 transition duration-300"
                                         >
                                             Thêm vào giỏ hàng
                                         </button>
-
-                                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                                            <DialogContent className="sm:max-w-[425px]">
-                                                <DialogHeader>
+                                        {detail.is_online_meeting === 1 && (
+                                            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                                <DialogContent className="sm:max-w-[425px]">
                                                     <DialogHeader>
-                                                        <div className="flex items-center gap-2">
-                                                            <Calendar className="w-5 h-5 text-blue-500" />
-                                                            <DialogTitle className="text-xl font-semibold leading-tight">
-                                                                Khóa học Online bắt đầu vào ngày
-                                                            </DialogTitle>
-                                                        </div>
-                                                        <div className="mt-2">
-                                                            <span className="text-3xl font-bold text-center block text-red-600">15-12-2024</span>
+                                                        <DialogHeader>
+                                                            <div className="flex items-center gap-2">
+                                                                <Calendar className="w-5 h-5 text-blue-500" />
+                                                                <DialogTitle className="text-xl font-semibold leading-tight">
+                                                                    Khóa học Online bắt đầu vào ngày
+                                                                </DialogTitle>
+                                                            </div>
+                                                            <div className="mt-2">
+                                                                <span className="text-3xl font-bold text-center block text-red-600">{formatDateNoTime(detail.launch_date)}</span>
+                                                            </div>
+                                                        </DialogHeader>
+
+                                                        <div className="flex items-start gap-3 mt-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
+                                                            <BadgeAlert className="h-5 w-5 flex-shrink-0 mt-0.5 text-red-500" />
+                                                            <DialogDescription className="text-sm text-muted-foreground">
+                                                                <span className="font-semibold">Lưu ý:</span> Sau khi thanh toán thành công, bạn sẽ nhận được đường link tham gia lớp học trực tuyến qua email vào ngày bắt đầu khóa học.
+                                                            </DialogDescription>
                                                         </div>
                                                     </DialogHeader>
-
-                                                    <div className="flex items-start gap-3 mt-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
-                                                        <BadgeAlert className="h-5 w-5 flex-shrink-0 mt-0.5 text-red-500" />
-                                                        <DialogDescription className="text-sm text-muted-foreground">
-                                                            <span className="font-semibold">Lưu ý:</span> Sau khi thanh toán thành công, bạn sẽ nhận được đường link tham gia lớp học trực tuyến qua email vào ngày bắt đầu khóa học.
-                                                        </DialogDescription>
+                                                    <div className="my-1">
+                                                        <p className="text-sm font-medium text-foreground">
+                                                            Đối với các bài học video tự học, bạn có thể học theo lịch trình của mình bất kỳ lúc nào.
+                                                        </p>
                                                     </div>
-                                                </DialogHeader>
-                                                <div className="my-1">
-                                                    <p className="text-sm font-medium text-foreground">
-                                                        Đối với các bài học video tự học, bạn có thể học theo lịch trình của mình bất kỳ lúc nào.
-                                                    </p>
-                                                </div>
-                                                <Separator className="my-1" />
-                                                <div className="flex justify-end space-x-2">
-                                                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                                                        <X className="w-4 h-4 mr-2" />
-                                                        Hủy
-                                                    </Button>
-                                                    <Button onClick={addToCart} className="bg-yellow-400 text-white hover:bg-yellow-500">
-                                                        <ShoppingCart className="w-4 h-4 mr-2" />
-                                                        Xác nhận
-                                                    </Button>
-                                                </div>
-                                            </DialogContent>
-                                        </Dialog>
+                                                    <Separator className="my-1" />
+                                                    <div className="flex justify-end space-x-2">
+                                                        <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                                                            <X className="w-4 h-4 mr-2" />
+                                                            Hủy
+                                                        </Button>
+                                                        <Button onClick={addToCart} className="bg-yellow-400 text-white hover:bg-yellow-500">
+                                                            <ShoppingCart className="w-4 h-4 mr-2" />
+                                                            Xác nhận
+                                                        </Button>
+                                                    </div>
+                                                </DialogContent>
+                                            </Dialog>
+                                        )}
                                     </>
                                 )}
 

@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-
 class ContentController extends Controller
 {
     const CONTENT_STATUSES = ['draft', 'published', 'hide', 'pending', 'failed'];
@@ -24,7 +23,7 @@ class ContentController extends Controller
 
             $contents = Cache::remember($cacheKey, 3600, function () use ($perPage) {
                 return Content::with('course')
-                    ->select('content_id', 'course_id', 'quiz_id', 'name_content', 'status', 'created_at', 'updated_at')
+                    ->select('content_id', 'course_id', 'quiz_id', 'name_content', 'status','is_online_meeting', 'created_at', 'updated_at')
                     ->where('status', 'published')
                     ->latest()
                     ->paginate($perPage);
@@ -39,6 +38,7 @@ class ContentController extends Controller
                         'quiz_id' => $content->quiz_id,
                         'course' => $content->course,
                         'name_content' => $content->name_content,
+                        'is_online_meeting' => $content->is_online_meeting,
                         'status' => $content->status,
                         'created_at' => $content->created_at,
                         'updated_at' => $content->updated_at,
