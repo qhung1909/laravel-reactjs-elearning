@@ -18,11 +18,25 @@ class CommentController extends Controller
             return response()->json(['error' => 'Khóa học không tồn tại.'], 404);
         }
 
-        $comments = Comment::where('course_id', $course_id)->get();
+        $comments = Comment::where('course_id', $course_id)
+            ->with('user:user_id,name,avatar')
+            ->get();
 
         if ($comments->isEmpty()) {
             return response()->json(['message' => 'Không có bình luận nào cho khóa học này.'], 200);
         }
+
+        $comments = $comments->map(function ($comment) {
+            return [
+                'comment_id' => $comment->comment_id, 
+                'content' => $comment->content,
+                'created_at' => $comment->created_at,
+                'user' => [
+                    'name' => $comment->user->name,
+                    'avatar' => $comment->user->avatar
+                ]
+            ];
+        });
 
         return response()->json([
             'success' => true,
