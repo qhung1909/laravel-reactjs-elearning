@@ -296,10 +296,10 @@ class ParticipantController extends Controller
                 'course_id' => 'required|integer'
             ]);
 
-            
+
             $userRole = User::where('user_id', $request->user_id)->value('role');
 
-            
+
             if ($userRole !== 'user') {
                 return response()->json([
                     'status' => 'success',
@@ -308,7 +308,7 @@ class ParticipantController extends Controller
                 ], 200);
             }
 
-            
+
             $hasAccess = UserCourse::join('users', 'user_courses.user_id', '=', 'users.user_id')
                 ->where('user_courses.user_id', $request->user_id)
                 ->where('user_courses.course_id', $request->course_id)
@@ -323,7 +323,7 @@ class ParticipantController extends Controller
                 ], 403);
             }
 
-            
+
             $meeting = OnlineMeeting::where('course_id', $request->course_id)
                 ->first();
 
@@ -388,7 +388,7 @@ class ParticipantController extends Controller
             ], 404);
         }
 
-        
+
         $attendanceData = DB::table('user_courses AS uc')
             ->select(
                 'uc.user_id',
@@ -402,7 +402,7 @@ class ParticipantController extends Controller
             })
             ->join('users AS u', 'uc.user_id', '=', 'u.user_id')
             ->leftJoin('meeting_participants AS mp', function ($join) use ($meeting) {
-                $join->on('uc.user_id', '=', 'mp.user_id')  
+                $join->on('uc.user_id', '=', 'mp.user_id')
                     ->where('mp.meeting_id', '=', $meeting->meeting_id);
             })
             ->get();
@@ -504,5 +504,59 @@ class ParticipantController extends Controller
             'status' => 'success',
             'message' => 'Đã cập nhật trạng thái vắng mặt',
         ]);
+    }
+
+    public function getParticipantsByMeeting(Request $request, $meetingId): JsonResponse
+    {
+        try {
+            $participants = Participant::select(
+                'meeting_participants.*',
+                'users.name as student_name',
+                'users.email'
+            )
+                ->join('users', 'users.user_id', '=', 'meeting_participants.user_id')
+                ->where('meeting_id', $meetingId)
+                ->get()
+                ->map(function ($participant) {
+                    return [
+                        'participant_id' => $participant->participant_id,
+                        'student_name' => $participant->student_name,
+                        'email' => $participant->email,
+                        'attendance_status' => $this->checkAttendanceStatus($participant),
+                        'attendance_date' => $participant->attendance_date,
+                        'joined_at' => $participant->joined_at,
+                        'left_at' => $participant->left_at
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => $participants
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving participants: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Check attendance status based on date and time records
+     * 
+     * @param Participant $participant
+     * @return string
+     */
+    private function checkAttendanceStatus($participant): string
+    {
+        if ($participant->attendance_date) {
+            if ($participant->joined_at) {
+                return "Có mặt";
+            }
+            if (!$participant->joined_at && !$participant->left_at) {
+                return "Vắng mặt";
+            }
+        }
+        return "Chưa điểm danh";
     }
 }
