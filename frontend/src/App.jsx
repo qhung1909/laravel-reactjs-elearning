@@ -33,6 +33,7 @@ import { UserProfile } from "./pages/userprofile/userprofile.jsx";
 import { UserOrderHistory } from "./pages/userprofile/userorderhistory.jsx";
 import { UserNoti } from "./pages/userprofile/usernoti.jsx";
 import { UserFavorite } from "./pages/userprofile/userfavorite.jsx";
+import { UserAttendance } from "./pages/userprofile/userattendance.jsx";
 import ScrollToTop from "./pages/scrollToTop/scrollToTop.jsx";
 import { Quizzes } from './pages/quizzes/quizzes.jsx';
 import { NewPassword } from "./pages/recoverPassword/newPassword.jsx";
@@ -92,6 +93,7 @@ function AppContent() {
             "/user/orderhistory",
             "/user/noti",
             "/user/favorite",
+            "/user/attendance",
             "/user/noti/:id",
             "/terms",
             "/aboutus",
@@ -122,6 +124,7 @@ function AppContent() {
                 <Route path="/user/profile" element={<UserProfile />}></Route>
                 <Route path="/user/noti" element={<UserNoti />}></Route>
                 <Route path="/user/favorite" element={<UserFavorite />}></Route>
+                <Route path="/user/attendance" element={<UserAttendance />}></Route>
                 <Route path="/instructor" element={<Instructor />}></Route>
                 <Route path="/instructor/history" element={<InstructorHistory />}></Route>
                 <Route path="/instructor/lesson" element={<InstructorLesson />}></Route>
