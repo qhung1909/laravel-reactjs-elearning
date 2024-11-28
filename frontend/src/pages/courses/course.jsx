@@ -60,6 +60,9 @@ export const Courses = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [sortCriteria, setSortCriteria] = useState('');
     const [ratingFilter, setRatingFilter] = useState('');
+    const [onlineFilter, setOnlineFilter] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+
     const API_URL = import.meta.env.VITE_API_URL;
     const API_KEY = import.meta.env.VITE_API_KEY;
     const navigate = useNavigate();
@@ -69,6 +72,14 @@ export const Courses = () => {
         if (!courses) return [];
         let filteredCourses = [...courses];
 
+        // Apply online/offline filter first
+        if (onlineFilter !== '') {
+            filteredCourses = filteredCourses.filter(course =>
+                course.is_online_meeting === parseInt(onlineFilter)
+            );
+        }
+
+        // Apply rating filter to already filtered courses
         if (ratingFilter) {
             filteredCourses = filteredCourses.filter(course => {
                 const rating = course.comments && course.comments.length > 0
@@ -77,35 +88,43 @@ export const Courses = () => {
                 return rating >= parseFloat(ratingFilter);
             });
         }
-        if (!sortCriteria) return filteredCourses;
 
-        const sortedCourses = [...courses];
-        switch (sortCriteria) {
-            case 'New':
-                return sortedCourses.sort((a, b) => {
-                    const dateA = new Date(a.created_at || 0);
-                    const dateB = new Date(b.created_at || 0);
-                    return dateB - dateA;
-                });
-            case 'Hot':
-                return sortedCourses.sort((a, b) => (b.views || 0) - (a.views || 0));
-            case 'Buy':
-                return sortedCourses.sort((a, b) => (b.is_buy || 0) - (a.is_buy || 0));
-            case 'priceAsc':
-                return sortedCourses.sort((a, b) => (a.price_discount || 0) - (b.price_discount || 0));
-            case 'priceDesc':
-                return sortedCourses.sort((a, b) => (b.price_discount || 0) - (a.price_discount || 0));
-            default:
-                return sortedCourses;
+        // Apply sorting criteria to filtered courses
+        if (sortCriteria) {
+            switch (sortCriteria) {
+                case 'New':
+                    filteredCourses.sort((a, b) => {
+                        const dateA = new Date(a.created_at || 0);
+                        const dateB = new Date(b.created_at || 0);
+                        return dateB - dateA;
+                    });
+                    break;
+                case 'Hot':
+                    filteredCourses.sort((a, b) => (b.views || 0) - (a.views || 0));
+                    break;
+                case 'Buy':
+                    filteredCourses.sort((a, b) => (b.is_buy || 0) - (a.is_buy || 0));
+                    break;
+                case 'priceAsc':
+                    filteredCourses.sort((a, b) => (a.price_discount || 0) - (b.price_discount || 0));
+                    break;
+                case 'priceDesc':
+                    filteredCourses.sort((a, b) => (b.price_discount || 0) - (a.price_discount || 0));
+                    break;
+            }
         }
+
+        return filteredCourses;
     };
 
-    const sortedCourses = getSortedCourses();
 
-    // phân trang
-    const queryParams = new URLSearchParams(location.search);
-    const currentPage = parseInt(queryParams.get("page")) || 1;
-    const indexOfLastCourse = currentPage * coursesPerPage;
+    const sortedCourses = getSortedCourses();
+    const totalFilteredCourses = sortedCourses.length;
+    const totalPages = Math.ceil(totalFilteredCourses / coursesPerPage);
+
+    // Ensure current page doesn't exceed maximum pages after filtering
+    const adjustedCurrentPage = Math.min(currentPage, totalPages || 1);
+    const indexOfLastCourse = adjustedCurrentPage * coursesPerPage;
     const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
     const currentCourses = sortedCourses.slice(indexOfFirstCourse, indexOfLastCourse);
 
@@ -124,8 +143,18 @@ export const Courses = () => {
         setSortCriteria('');
         setRatingFilter('');
         setSelectedCategory(null);
+        setOnlineFilter(''); // Clear online filter
         fetchCourses(); // Lấy lại tất cả sản phẩm
     };
+
+    const handleOnlineFilter = (checked, value) => {
+        if (checked) {
+            setOnlineFilter(value);
+        } else {
+            setOnlineFilter('');
+        }
+    };
+
 
     // thao tác xử lý lọc giá
     const handlePriceSort = (checked, value) => {
@@ -239,22 +268,17 @@ export const Courses = () => {
 
 
     // xử lý phân trang và render
-    const paginate = (pageNumber) => {
-        const currentParams = new URLSearchParams(location.search);
-        currentParams.set('page', pageNumber);
-        navigate(`?${currentParams.toString()}`);
-    };
 
-    const totalPages = Math.ceil(courses.length / coursesPerPage);
 
     const renderPageNumbers = () => {
         const pageNumbers = [];
         const maxVisiblePages = 3;
+        const totalPages = Math.ceil(sortedCourses.length / coursesPerPage);
 
         if (totalPages <= maxVisiblePages + 2) {
             for (let i = 1; i <= totalPages; i++) {
                 pageNumbers.push(
-                    <PaginationItem key={i} className={i === currentPage ? 'active' : ''}>
+                    <PaginationItem key={i} className={i === adjustedCurrentPage ? 'active' : ''}>
                         <PaginationLink onClick={() => paginate(i)} href="#">
                             {i}
                         </PaginationLink>
@@ -262,25 +286,25 @@ export const Courses = () => {
                 );
             }
         } else {
-            if (currentPage > 1) {
+            if (adjustedCurrentPage > 1) {
                 pageNumbers.push(
-                    <PaginationItem key={1} className={currentPage === 1 ? 'active' : ''}>
+                    <PaginationItem key={1} className={adjustedCurrentPage === 1 ? 'active' : ''}>
                         <PaginationLink onClick={() => paginate(1)} href="#">
                             1
                         </PaginationLink>
                     </PaginationItem>
                 );
-                if (currentPage > 3) {
+                if (adjustedCurrentPage > 3) {
                     pageNumbers.push(<PaginationItem key="left-dots"><PaginationEllipsis /></PaginationItem>);
                 }
             }
 
-            const startPage = Math.max(2, currentPage - 1);
-            const endPage = Math.min(currentPage + 1, totalPages - 1);
+            const startPage = Math.max(2, adjustedCurrentPage - 1);
+            const endPage = Math.min(adjustedCurrentPage + 1, totalPages - 1);
 
             for (let i = startPage; i <= endPage; i++) {
                 pageNumbers.push(
-                    <PaginationItem key={i} className={i === currentPage ? 'active' : ''}>
+                    <PaginationItem key={i} className={i === adjustedCurrentPage ? 'active' : ''}>
                         <PaginationLink onClick={() => paginate(i)} href="#">
                             {i}
                         </PaginationLink>
@@ -288,12 +312,12 @@ export const Courses = () => {
                 );
             }
 
-            if (currentPage < totalPages - 2) {
+            if (adjustedCurrentPage < totalPages - 2) {
                 pageNumbers.push(<PaginationItem key="right-dots"><PaginationEllipsis /></PaginationItem>);
             }
 
             pageNumbers.push(
-                <PaginationItem key={totalPages} className={currentPage === totalPages ? 'active' : ''}>
+                <PaginationItem key={totalPages} className={adjustedCurrentPage === totalPages ? 'active' : ''}>
                     <PaginationLink onClick={() => paginate(totalPages)} href="#">
                         {totalPages}
                     </PaginationLink>
@@ -304,6 +328,14 @@ export const Courses = () => {
         return pageNumbers;
     };
 
+    const paginate = (pageNumber) => {
+        const maxPage = Math.ceil(sortedCourses.length / coursesPerPage);
+        const safePageNumber = Math.min(pageNumber, maxPage);
+        setCurrentPage(safePageNumber); // Update current page in state
+        const currentParams = new URLSearchParams(location.search);
+        currentParams.set('page', safePageNumber);
+        navigate(`?${currentParams.toString()}`);
+    };
 
     // Khóa học nổi bật
     const render_course_hot = loading ? (
@@ -760,6 +792,37 @@ export const Courses = () => {
                                                     </AccordionItem>
                                                 </Accordion>
                                                 <hr />
+                                                <Accordion type="single" collapsible>
+                                                    <AccordionItem value="item-4">
+                                                        <AccordionTrigger className="text-xl font-bold">Hình thức học</AccordionTrigger>
+                                                        <AccordionContent>
+                                                            <div className="flex gap-2 items-center my-1">
+                                                                <Checkbox
+                                                                    id="online"
+                                                                    checked={onlineFilter === '1'}
+                                                                    onCheckedChange={(checked) => handleOnlineFilter(checked, '1')}
+                                                                />
+                                                                <Label>
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                                        Online
+                                                                    </span>
+                                                                </Label>
+                                                            </div>
+                                                            <div className="flex gap-2 items-center my-1">
+                                                                <Checkbox
+                                                                    id="offline"
+                                                                    checked={onlineFilter === '0'}
+                                                                    onCheckedChange={(checked) => handleOnlineFilter(checked, '0')}
+                                                                />
+                                                                <Label>
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                                        Offline
+                                                                    </span>
+                                                                </Label>
+                                                            </div>
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                </Accordion>
                                             </SheetDescription>
                                         </SheetHeader>
                                     </SheetContent>
@@ -892,6 +955,38 @@ export const Courses = () => {
                                                 <span className="text-sm lg:text-base font-normal text-gray-800">
                                                     {" "}
                                                     Giảm dần
+                                                </span>
+                                            </Label>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+
+                            <Accordion type="single" collapsible>
+                                <AccordionItem value="item-4">
+                                    <AccordionTrigger className="text-xl font-bold">Hình thức học</AccordionTrigger>
+                                    <AccordionContent>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox
+                                                id="online"
+                                                checked={onlineFilter === '1'}
+                                                onCheckedChange={(checked) => handleOnlineFilter(checked, '1')}
+                                            />
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    Online
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 items-center my-1">
+                                            <Checkbox
+                                                id="offline"
+                                                checked={onlineFilter === '0'}
+                                                onCheckedChange={(checked) => handleOnlineFilter(checked, '0')}
+                                            />
+                                            <Label>
+                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                    Offline
                                                 </span>
                                             </Label>
                                         </div>
