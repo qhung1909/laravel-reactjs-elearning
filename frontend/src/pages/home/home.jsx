@@ -240,7 +240,7 @@ export const Home = () => {
             {/* banner */}
             <div className="banner">
                 <div className="banner-box">
-                    <div className="" style={{ backgroundImage: "url(./src/assets/images/background-banner.jpg)" }}>
+                    <div className="" style={{ backgroundImage: "url(https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/uploads/background-banner.jpg)" }}>
                         <div className="grid grid-cols-1 md:grid-cols-2 md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-2xl mx-auto">
                             <div className="grid-left">
                                 <div className="banner-left text-center md:text-left sm:h-auto h-96 sm:py-20 lg:py-20 lg:ps-10 md:px-5">
@@ -284,7 +284,7 @@ export const Home = () => {
 
                             </div>
                             <div className="md:flex items-center justify-center hidden md:block">
-                                <img src="./src/assets/images/banner-right.png" alt="" className="" />
+                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/uploads/banner-right.png" alt="" className="" />
                             </div>
                         </div>
                     </div>
@@ -393,7 +393,7 @@ export const Home = () => {
                 <div className="homeblog-box grid grid-cols-1 lg:grid-cols-2 gap-3">
                     <div className="homeblog-box-img">
                         <div className="homeblog-box-img-main relative md:flex md:justify-center">
-                            <img src="./src/assets/images/homepage-blog.png" alt="" />
+                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/uploads/homepage-blog.png" alt="" />
                         </div>
                         <div className="homeblog-box-img-content relative bg-white pb-3 xl:w-[240px] lg:w-[210px] md:w-[190px] w-[160px] xl:top-[-30%] xl:left-[15%] lg:top-[-32%] lg:left-[15%] md:left-[20%] md:top-[-35%] sm:top[-10%] top-[-35%] left-[20%]">
                             <div className="homeblog-box-img-content-header font-medium p-3 xl:text-[16px] lg:text-[14px] md:text-[12px] text-[10px]">
