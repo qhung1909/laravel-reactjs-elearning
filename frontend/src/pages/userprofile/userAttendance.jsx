@@ -8,30 +8,32 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ExternalLink, Eye, Heart, Trash2, User, History, Bell } from 'lucide-react';
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Clock, Calendar, Users } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const UserAttendance = () => {
-    const [orderHistory, setOrderHistory] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
     const [user, setUser] = useState({});
     const [attendanceList, setAttendanceList] = useState([]);
     const token = localStorage.getItem("access_token");
+    const [statistics, setStatistics] = useState([]);
 
     // hàm xử lý điểm danh
     const fetchAttendanceList = async () => {
         setLoading(true)
         try {
-            const response = await axios.get(`${API_KEY}/attendance/history`, {
+            const response = await axios.get(`${API_URL}/attendance/history`, {
                 headers: {
                     'x-api-secret': `${API_KEY}`,
                     Authorization: `Bearer ${token}`
                 }
             });
-            setAttendanceList(response.data.data);
-            console.log(setAttendanceList)
+            setAttendanceList(response.data.attendance_history);
+            setStatistics(response.data.statistics)
         } catch (error) {
             console.log('Lỗi', error)
         } finally {
@@ -39,74 +41,12 @@ export const UserAttendance = () => {
         }
     }
 
-    const renderAttendanceList = () => {
-        if (loading) {
-            return (
-                <TableRow>
-                    {Array.from({ length: 6 }).map((_, index) => (
-                        <TableCell key={index}>
-                            <Skeleton className="w-[80px] h-[20px] rounded-full" />
-                        </TableCell>
-                    ))}
-                </TableRow>
-            );
-        }
-        if (!attendanceList || attendanceList.length === 0) {
-            return (
-                <TableRow>
-                    <TableCell colSpan={6} className="text-center py-4">
-                        <div className="flex flex-col items-center">
-                            <svg width="100%" height="177" viewBox="0 0 139 142" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                {/* SVG path data... */}
-                            </svg>
-                            <p className="text-gray-500">
-                                <p className="font-semibold sm:text-base text-sm text-black-900">
-                                    {searchQuery ? "Không có kết quả tìm kiếm" : "Bạn chưa đăng ký khóa học nào"}
-                                </p>
-                            </p>
-                        </div>
-                    </TableCell>
-                </TableRow>
-            );
-        }
 
-        return attendanceList.map((item, index) => (
-            <TableRow key={index} className="sm:p-4 p-0">
-                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                    {index + 1}
-                </TableCell>
-                <TableCell className="sm:p-4 py-2 px-0 xl:w-[400px] lg:w-[250px] md:w-[200px] w-fit font-medium lg:text-base sm:text-sm text-xs">
-                    <p className="line-clamp-2">
-                        {item.attendance_status}
-                    </p>
-                </TableCell>
-                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                    <p className="line-clamp-2">
-                        {item.attendance_status}
-                    </p>
-                </TableCell>
-                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                    <p className="line-clamp-2">
-                        {item.attendance_status}
-                    </p>
-                </TableCell>
-                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                    <p className="line-clamp-2">
-                        {item.attendance_status}
-                    </p>
-                </TableCell>
-                <TableCell className="sm:p-4 py-2 px-0 lg:text-base sm:text-sm text-xs">
-                    <p className="line-clamp-2">
-                        {item.attendance_status}
-                    </p>
-                </TableCell>
-            </TableRow>
-        ));
-    };
 
     useEffect(() => {
         fetchAttendanceList();
     }, [])
+
     // Fetch thông tin user đang đăng nhập
     const fetchUser = async () => {
         setLoading(true);
@@ -225,31 +165,120 @@ export const UserAttendance = () => {
                                         <History className="w-5 h-5 text-yellow-500" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-semibold">Lịch sử mua hàng của bạn</h3>
+                                        <h3 className="text-lg font-semibold">Điểm danh của bạn</h3>
                                         <p className="text-sm text-gray-500">
-                                            Xem lại những giao dịch bạn đã hoàn thành.
+                                            Xem lại những lần điểm danh qua các ngày học của bạn.
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
-
                             <div className="mb-5">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow className="bg-yellow-50/50">
-                                            <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[50px]">STT</TableHead>
-                                            <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[200px]">Ngày học</TableHead>
-                                            <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[150px]">Trạng thái</TableHead>
-                                            <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[150px]">Giờ vào học</TableHead>
-                                            <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[150px]">Giờ thoát</TableHead>
-                                            {/* <TableHead className="p-4 lg:text-base text-sm text-gray-700 font-medium min-w-[100px]">Giá</TableHead> */}
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {renderAttendanceList()}
-                                    </TableBody>
-                                </Table>
+
+                                <div className="space-y-6">
+                                    {/* Thống kê nhanh */}
+                                    {loading ? (
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                            {Array.from({ length: 4 }).map((_, index) => (
+                                                <div key={index} className="bg-white p-4 rounded-lg shadow">
+                                                    <Skeleton className="w-20 h-4 mb-2" /> {/* Cho tiêu đề */}
+                                                    <Skeleton className="w-16 h-8" /> {/* Cho số liệu */}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) :
+                                        statistics && (
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                                <div className="bg-white p-4 rounded-lg shadow">
+                                                    <p className="text-sm text-gray-500">Tổng buổi học</p>
+                                                    <p className="text-2xl font-semibold">{statistics.total_classes}</p>
+                                                </div>
+                                                <div className="bg-white p-4 rounded-lg shadow">
+                                                    <p className="text-sm text-gray-500">Số buổi vắng</p>
+                                                    <p className="text-2xl font-semibold">{statistics.absent}</p>
+                                                </div>
+                                                <div className="bg-white p-4 rounded-lg shadow">
+                                                    <p className="text-sm text-gray-500">Số buổi có mặt</p>
+                                                    <p className="text-2xl font-semibold">{statistics.present}</p>
+                                                </div>
+                                                <div className="bg-white p-4 rounded-lg shadow">
+                                                    <p className="text-sm text-gray-500">Tỷ lệ tham gia</p>
+                                                    <p className="text-2xl font-semibold">{statistics.attendance_rate}%</p>
+                                                </div>
+                                            </div>
+                                        )
+                                    }
+
+
+                                    {/* Bảng điểm danh */}
+                                    <div className="bg-white rounded-lg shadow">
+                                        <div className="p-4 border-b">
+                                            <h2 className="text-lg font-semibold">Lịch sử điểm danh</h2>
+                                        </div>
+
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow className="bg-yellow-50/50">
+                                                    <TableHead className="p-4 text-sm font-medium text-gray-700 w-[50px]">STT</TableHead>
+                                                    <TableHead className="p-4 text-sm font-medium text-gray-700 min-w-[200px]">Ngày học</TableHead>
+                                                    <TableHead className="p-4 text-sm font-medium text-gray-700 min-w-[150px]">Trạng thái</TableHead>
+                                                    <TableHead className="p-4 text-sm font-medium text-gray-700 min-w-[150px]">Giờ vào học</TableHead>
+                                                    <TableHead className="p-4 text-sm font-medium text-gray-700 min-w-[150px]">Giờ thoát</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+
+                                            <TableBody>
+                                                {loading ? (
+                                                    <TableRow>
+                                                        {Array.from({ length: 5 }).map((_, index) => (
+                                                            <TableCell key={index}>
+                                                                <Skeleton className="w-[80px] h-[20px] rounded-full" />
+                                                            </TableCell>
+                                                        ))}
+                                                    </TableRow>
+                                                ) : !attendanceList || attendanceList.length === 0 ? (
+                                                    <TableRow>
+                                                        <TableCell colSpan={5} className="text-center py-8">
+                                                            <div className="flex flex-col items-center space-y-4">
+                                                                <svg className="w-32 h-32" viewBox="0 0 139 142" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    {/* Giữ nguyên SVG code của bạn */}
+                                                                </svg>
+                                                                <p className="font-semibold text-base text-gray-900">
+                                                                    Không có lịch điểm danh nào
+                                                                </p>
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ) : (
+                                                    attendanceList.map((item, index) => (
+                                                        <TableRow key={index}>
+                                                            <TableCell className="p-4 text-sm">
+                                                                {index + 1}
+                                                            </TableCell>
+                                                            <TableCell className="p-4 text-sm font-medium">
+                                                                {item.attendance_date}
+                                                            </TableCell>
+                                                            <TableCell className="p-4 text-sm">
+                                                                <span className={`px-2 py-1 rounded-full ${item.attendance_status === 'ó mặt'
+                                                                    ? 'bg-green-100 text-green-800'
+                                                                    : 'bg-red-100 text-red-800'
+                                                                    }`}>
+                                                                    {item.attendance_status}
+                                                                </span>
+                                                            </TableCell>
+                                                            <TableCell className="p-4 text-sm">
+                                                                {item.attendance_details.joined_at}
+                                                            </TableCell>
+                                                            <TableCell className="p-4 text-sm">
+                                                                {item.attendance_details.left_at}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))
+                                                )}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
