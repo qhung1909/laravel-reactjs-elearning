@@ -611,7 +611,6 @@ class ParticipantController extends Controller
     private function checkAttendanceStatus($participant): string
     {
         if ($participant->attendance_date) {
-            // Nếu có joined_at nhưng is_present = 0 thì vẫn là vắng mặt
             if ($participant->joined_at && $participant->is_present) {
                 return "Có mặt";
             }

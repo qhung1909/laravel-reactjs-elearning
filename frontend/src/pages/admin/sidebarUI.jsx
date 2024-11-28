@@ -3,8 +3,6 @@ import {
     AudioWaveform,
     BadgeCheck,
     Bell,
-    BookOpen,
-    Bot,
     ChevronRight,
     ChevronsUpDown,
     Command,
@@ -14,11 +12,13 @@ import {
     Plus,
     Settings2,
     Sparkles,
-    SquareTerminal,
     Layout,
     MessageCircle,
     School,
-    SquareChartGantt
+    SquareChartGantt,
+    Users,
+    ChartColumnStacked,
+    BookOpenText
 } from "lucide-react";
 
 import {
@@ -91,19 +91,19 @@ const data = {
         {
             title: "Quản lý Khóa học",
             url: "#",
-            icon: SquareTerminal,
+            icon: BookOpenText,
             items: [
                 { title: "Danh sách tất cả khóa học", url: "/admin/course-list" },
                 { title: "Duyệt khóa học mới từ giảng viên", url: "/admin/browse-new-courses" },
-                { title: "Quản lý trạng thái khóa học", url: "/admin/course-status" },
-                { title: "Phân loại khóa học theo danh mục", url: "/admin/classify-course" },
+                // { title: "Quản lý trạng thái khóa học", url: "/admin/course-status" },
+                // { title: "Phân loại khóa học theo danh mục", url: "/admin/classify-course" },
                 { title: "Quản lý mã voucher", url: "/admin/page-coupons" },
             ],
         },
         {
             title: "Quản lý Danh mục",
             url: "#",
-            icon: Bot,
+            icon: ChartColumnStacked,
             items: [
                 // { title: "Danh sách tất cả Danh mục", url: "/admin/category-list" },
                 { title: "Thêm/Sửa/Xóa Danh mục", url: "/admin/category-crud" },
@@ -114,7 +114,7 @@ const data = {
         {
             title: "Quản lý Người dùng",
             url: "#",
-            icon: BookOpen,
+            icon: Users,
             items: [
                 // { title: "Danh sách học viên", url: "/admin/list-students" },
                 // { title: "Danh sách giảng viên", url: "/admin/list-teachers" },

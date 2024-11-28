@@ -227,7 +227,7 @@ export const Header = () => {
                     <div className="navbar-logo mx-2 w-20 h-24 object-cover flex items-center">
                         <Link to="/">
                             <img
-                                src="/src/assets/images/antlearn.png"
+                                src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/uploads/antlearn.png"
                                 alt=""
                                 className="w-40"
                             />
