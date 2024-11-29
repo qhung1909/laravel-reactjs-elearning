@@ -131,7 +131,7 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
                     confirmButtonText: "Đóng",
                 });
             } finally {
-                navigate('/instructor/lessson');
+                navigate('/instructor/lesson');
                 setLoading(false);
             }
         }
