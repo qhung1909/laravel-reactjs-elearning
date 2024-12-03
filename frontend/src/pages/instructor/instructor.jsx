@@ -80,7 +80,6 @@ export const Instructor = () => {
         }
     };
 
-
     const calculateRevenueGrowth = (chartData) => {
         // Kiểm tra dữ liệu đầu vào
         if (!chartData || !Array.isArray(chartData) || chartData.length < 2) {
@@ -188,6 +187,7 @@ export const Instructor = () => {
             })
         ).isRequired,
     };
+
     // hàm xử lý lấy danh sách khóa học của giảng viên
     const fetchTeacherCourse = async () => {
         try {
@@ -270,7 +270,6 @@ export const Instructor = () => {
             fetchRevenueData();
         }
     }, [instructor]);
-
 
     return (
         <>
