@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { Link, useParams } from "react-router-dom";
-import { toast, Toaster } from "react-hot-toast";
-import Swal from 'sweetalert2';
-import { ArrowLeft, Trophy, AlertCircle } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle, } from "@/components/ui/alert";
-
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import { Trophy } from 'lucide-react';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -17,6 +20,10 @@ export const Quizzes = ({ quiz_id }) => {
     const [lesson, setLesson] = useState(null);
     const [hasStarted, setHasStarted] = useState(false);
     const [quizCompleted, setQuizCompleted] = useState(false);
+    const [correctAnswers, setCorrectAnswers] = useState({});
+    const [userResults, setUserResults] = useState({});
+    const [quizResults, setQuizResults] = useState(null);
+
     const { slug } = useParams();
 
     const fetchLesson = async () => {
@@ -28,7 +35,7 @@ export const Quizzes = ({ quiz_id }) => {
                 setLesson(res.data);
             }
         } catch (error) {
-            console.error("Error fetching lesson:", error);
+            console.error("Lỗi khi tải bài học:", error);
             toast.error("Không thể tải thông tin bài học");
         }
     };
@@ -65,7 +72,7 @@ export const Quizzes = ({ quiz_id }) => {
                 }
             });
         } catch (error) {
-            console.error("Error fetching questions:", error);
+            console.error("Lỗi khi tải câu hỏi:", error);
             toast.error("Không thể tải dữ liệu câu hỏi");
         }
     };
@@ -91,7 +98,7 @@ export const Quizzes = ({ quiz_id }) => {
             setHasStarted(true);
             fetchQuestions(quiz_id);
         } catch (error) {
-            console.error("Error starting quiz:", error);
+            console.error("Lỗi khi bắt đầu quiz:", error);
             toast.error("Không thể bắt đầu quiz");
         }
     };
@@ -107,6 +114,7 @@ export const Quizzes = ({ quiz_id }) => {
 
         const token = localStorage.getItem("access_token");
         try {
+            // 1. Submit answers
             const formattedAnswers = Object.entries(answers).map(([questionId, answer]) => {
                 const question = quizzes[0].questions.find(
                     q => q.question_id.toString() === questionId
@@ -131,7 +139,6 @@ export const Quizzes = ({ quiz_id }) => {
                         option_id: option ? option.option_id : null
                     };
                 }
-
                 return null;
             });
 
@@ -146,16 +153,56 @@ export const Quizzes = ({ quiz_id }) => {
                 }
             );
 
+            // 2. Get score and results
+            const scoreResponse = await axios.get(`${API_URL}/quiz/score`, {
+                headers: {
+                    'x-api-secret': API_KEY,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            // Lưu kết quả từ API
+            setScore(scoreResponse.data.score);
+            setQuizResults(scoreResponse.data.results);
+
+            // Xử lý kết quả từ API để tạo maps
+            const correctAnswersMap = {};
+            const resultsMap = {};
+
+            scoreResponse.data.results.forEach(result => {
+                if (result.question_type === 'fill_blank') {
+                    correctAnswersMap[result.question_id] = result.correct_answer;
+                } else {
+                    correctAnswersMap[result.question_id] = result.correct_answers;
+                }
+
+                // Kiểm tra đáp án đúng/sai cho từng câu
+                const userAnswer = answers[result.question_id];
+                if (result.question_type === 'fill_blank') {
+                    resultsMap[result.question_id] = userAnswer === result.correct_answer;
+                } else if (result.question_type === 'mutiple_choice') {
+                    resultsMap[result.question_id] =
+                        userAnswer?.length === result.correct_answers.length &&
+                        userAnswer.every(ans => result.correct_answers.includes(ans));
+                } else {
+                    resultsMap[result.question_id] = userAnswer === result.correct_answers[0];
+                }
+            });
+
+            setCorrectAnswers(correctAnswersMap);
+            setUserResults(resultsMap);
             setQuizCompleted(true);
             toast.success("Nộp bài thành công!");
-            fetchScore();
         } catch (error) {
-            console.error("Error submitting answers:", error);
+            console.error("Lỗi khi nộp bài:", error);
             toast.error("Có lỗi xảy ra khi nộp bài!");
         }
     };
 
+
     const handleAnswerChange = (questionId, selectedOption, questionType) => {
+        if (quizCompleted) return;
+
         setAnswers(prev => {
             if (questionType === 'mutiple_choice') {
                 const currentAnswers = prev[questionId] || [];
@@ -179,33 +226,46 @@ export const Quizzes = ({ quiz_id }) => {
         });
     };
 
-    const handleRetakeQuiz = () => {
-        setAnswers({});
-        setQuizCompleted(false);
-        startQuiz();
+    const getAnswerStyle = (question, option) => {
+        if (!quizCompleted) {
+            const isSelected = question.question_type === 'mutiple_choice'
+                ? answers[question.question_id]?.includes(option.answer)
+                : answers[question.question_id] === option.answer;
+            return isSelected ? "bg-yellow-400 text-white" : "bg-white hover:bg-yellow-50 border border-gray-200";
+        }
+
+        const isCorrect = option.is_correct;
+        const isSelected = question.question_type === 'mutiple_choice'
+            ? answers[question.question_id]?.includes(option.answer)
+            : answers[question.question_id] === option.answer;
+
+        if (isSelected) {
+            return isCorrect
+                ? "bg-green-500 text-white hover:bg-green-600"
+                : "bg-red-500 text-white hover:bg-red-600";
+        }
+        if (isCorrect) {
+            return "bg-green-500 text-white hover:bg-green-600";
+        }
+        return "bg-white hover:bg-gray-50 border border-gray-200";
     };
 
-    const handleConfirmExit = () => {
-        Swal.fire({
-            title: 'Bạn có chắc chắn muốn thoát?',
-            text: "Dữ liệu của bạn sẽ mất tất cả?.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Có, thoát ngay!',
-            cancelButtonText: 'Hủy',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/lessons/${slug}`;
-            }
-        });
-    };
+    const getAnswerText = (question, option) => {
+        if (!quizCompleted) return option.answer;
 
-    const handleStartQuiz = () => {
-        startQuiz();
-    };
+        const isCorrect = option.is_correct;
+        const isSelected = question.question_type === 'mutiple_choice'
+            ? answers[question.question_id]?.includes(option.answer)
+            : answers[question.question_id] === option.answer;
 
+        let text = option.answer;
+        if (isSelected) {
+            text += isCorrect ? ' ✓' : ' ✗';
+        } else if (isCorrect) {
+            text += ' (Đáp án đúng)';
+        }
+        return text;
+    };
 
     const [score, setScore] = useState(null);
     const fetchScore = async () => {
@@ -217,17 +277,10 @@ export const Quizzes = ({ quiz_id }) => {
                 },
             });
             setScore(response.data.score);
-
         } catch (error) {
-            console.error("Error fetching score:", error);
+            console.error("Lỗi khi tải điểm số:", error);
         }
     };
-
-    useEffect(() => {
-        fetchScore();
-    }, []);
-
-
 
     useEffect(() => {
         if (slug) {
@@ -235,7 +288,9 @@ export const Quizzes = ({ quiz_id }) => {
         }
     }, [slug]);
 
-
+    useEffect(() => {
+        fetchScore();
+    }, []);
 
     if (loading) {
         return (
@@ -263,7 +318,10 @@ export const Quizzes = ({ quiz_id }) => {
                     <CardContent>
                         <div className="space-y-4">
                             <div className="flex justify-center">
-                                <button onClick={handleStartQuiz} className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2">
+                                <button
+                                    onClick={startQuiz}
+                                    className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2"
+                                >
                                     <Trophy className="w-5 h-5" />
                                     Bắt đầu làm bài
                                 </button>
@@ -276,10 +334,10 @@ export const Quizzes = ({ quiz_id }) => {
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-center md:text-start">
-                                Bài kiểm tra đang diễn ra
+                                {quizCompleted ? "Kết quả bài kiểm tra" : "Bài kiểm tra đang diễn ra"}
                             </CardTitle>
                             <CardDescription className="text-center md:text-start">
-                                Hoàn thành tất cả câu hỏi bên dưới
+                                {quizCompleted ? "Xem lại đáp án đúng sai bên dưới" : "Hoàn thành tất cả câu hỏi bên dưới"}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -287,27 +345,74 @@ export const Quizzes = ({ quiz_id }) => {
                                 {quizzes.map((quiz) => (
                                     <div key={quiz.quiz_id} className="space-y-4">
                                         {quiz.questions?.map((question, index) => (
-                                            <Card key={question.question_id} className="border-l-3 border-yellow-400">
+                                            <Card key={question.question_id}
+                                                className={`border-l-4 ${quizCompleted
+                                                    ? userResults[question.question_id]
+                                                        ? 'border-green-500'
+                                                        : 'border-red-500'
+                                                    : 'border-yellow-400'
+                                                    }`}
+                                            >
                                                 <CardContent className="pt-6">
-                                                    <p className="font-medium mb-4">
-                                                        <span className="bg-yellow-100 px-2 py-1 rounded-md mr-2">
-                                                            Câu {index + 1}:
-                                                        </span>
-                                                        {question.question}
-                                                        {question.question_type === 'mutiple_choice' && (
-                                                            <span className="text-sm text-gray-500 ml-2">
-                                                                (Chọn nhiều đáp án)
+                                                    <div className="flex justify-between items-start mb-4">
+                                                        <p className="font-medium">
+                                                            <span className="bg-yellow-100 px-2 py-1 rounded-md mr-2">
+                                                                Câu {index + 1}:
+                                                            </span>
+                                                            {question.question}
+                                                            {question.question_type === 'mutiple_choice' && (
+                                                                <span className="text-sm text-gray-500 ml-2">
+                                                                    (Chọn nhiều đáp án)
+                                                                </span>
+                                                            )}
+                                                        </p>
+                                                        {quizCompleted && (
+                                                            <span className={`px-3 py-1 rounded-full text-sm ${userResults[question.question_id]
+                                                                ? 'bg-green-100 text-green-800'
+                                                                : 'bg-red-100 text-red-800'
+                                                                }`}>
+                                                                {userResults[question.question_id] ? 'Đúng' : 'Sai'}
                                                             </span>
                                                         )}
-                                                    </p>
+                                                    </div>
                                                     <div className="grid gap-3">
                                                         {question.question_type === 'fill_blank' ? (
-                                                            <input
-                                                                type="text"
-                                                                className="p-2 border rounded-lg"
-                                                                onChange={(e) => handleAnswerChange(question.question_id, e.target.value, question.question_type)}
-                                                                placeholder="Nhập câu trả lời của bạn"
-                                                            />
+                                                            <div>
+                                                                <input
+                                                                    type="text"
+                                                                    className={`p-2 border rounded-lg w-full ${quizCompleted
+                                                                            ? userResults[question.question_id]
+                                                                                ? 'border-green-500 bg-green-50'
+                                                                                : 'border-red-500 bg-red-50'
+                                                                            : ''
+                                                                        }`}
+                                                                    value={answers[question.question_id] || ''}
+                                                                    onChange={(e) => handleAnswerChange(
+                                                                        question.question_id,
+                                                                        e.target.value,
+                                                                        question.question_type
+                                                                    )}
+                                                                    placeholder="Nhập câu trả lời của bạn"
+                                                                    disabled={quizCompleted}
+                                                                />
+                                                                {quizCompleted && (
+                                                                    <div className="mt-2 text-sm">
+                                                                        <p className="text-gray-600">
+                                                                            Câu trả lời của bạn: <span className="font-medium">
+                                                                                {answers[question.question_id] || 'Chưa trả lời'}
+                                                                            </span>
+                                                                        </p>
+                                                                        <p className="text-green-600 font-medium mt-1">
+                                                                            Đáp án đúng: {
+                                                                                // Tìm kết quả tương ứng với câu hỏi
+                                                                                quizResults?.find(result =>
+                                                                                    result.question_id === question.question_id
+                                                                                )?.correct_answer
+                                                                            }
+                                                                        </p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         ) : (
                                                             question.options?.map((option, optionIndex) => {
                                                                 const isSelected = question.question_type === 'mutiple_choice'
@@ -317,25 +422,49 @@ export const Quizzes = ({ quiz_id }) => {
                                                                 return (
                                                                     <button
                                                                         key={option.option_id}
-                                                                        className={`p-2 rounded-lg text-left transition-all ${isSelected
-                                                                            ? "bg-yellow-400 text-white"
-                                                                            : "bg-white hover:bg-yellow-50 border border-gray-200"
+                                                                        className={`p-2 rounded-lg text-left transition-all flex items-center justify-between ${quizCompleted
+                                                                            ? isSelected
+                                                                                ? option.is_correct
+                                                                                    ? 'bg-green-500 text-white'
+                                                                                    : 'bg-red-500 text-white'
+                                                                                : option.is_correct
+                                                                                    ? 'bg-green-100 text-green-800'
+                                                                                    : 'bg-white text-gray-800 border border-gray-200'
+                                                                            : isSelected
+                                                                                ? 'bg-yellow-400 text-white'
+                                                                                : 'bg-white hover:bg-yellow-50 border border-gray-200'
                                                                             }`}
                                                                         onClick={() => handleAnswerChange(
                                                                             question.question_id,
                                                                             option.answer,
                                                                             question.question_type
                                                                         )}
+                                                                        disabled={quizCompleted}
                                                                     >
                                                                         <span className="flex items-center gap-3">
-                                                                            <span className={`w-8 h-8 flex items-center justify-center rounded-full ${isSelected
-                                                                                ? "bg-white text-yellow-500"
-                                                                                : "border-gray-300"
-                                                                                }`}>
+                                                                            <span className={`w-8 h-8 flex items-center justify-center rounded-full 
+                                                                                ${quizCompleted
+                                                                                    ? "bg-white/80 text-current"
+                                                                                    : "bg-white border border-gray-300"
+                                                                                }`}
+                                                                            >
                                                                                 {String.fromCharCode(65 + optionIndex)}
                                                                             </span>
-                                                                            {option.answer}
+                                                                            <span>{option.answer}</span>
                                                                         </span>
+                                                                        {quizCompleted && (
+                                                                            <span className="flex items-center">
+                                                                                {isSelected && option.is_correct && (
+                                                                                    <span className="text-white">✓ Đúng</span>
+                                                                                )}
+                                                                                {isSelected && !option.is_correct && (
+                                                                                    <span className="text-white">✗ Sai</span>
+                                                                                )}
+                                                                                {!isSelected && option.is_correct && (
+                                                                                    <span className="text-green-800">(Đáp án đúng)</span>
+                                                                                )}
+                                                                            </span>
+                                                                        )}
                                                                     </button>
                                                                 );
                                                             })
@@ -360,14 +489,13 @@ export const Quizzes = ({ quiz_id }) => {
                             Nộp bài
                         </button>
                     </div>
-                    {/* Hiển thị điểm số sau khi nộp bài */}
+
                     {quizCompleted && (
                         <div className="flex justify-center p-3">
                             <div className="title flex items-center gap-3 border-yellow-400 border px-10 py-5 rounded">
                                 <h2 className="text-lg font-bold">Điểm số của bạn: </h2>
                                 <span className="text-xl text-yellow-400 font-semibold">
                                     {score !== null ? score : 'Đang tải...'}/{quizzes[0]?.questions.length} điểm
-
                                 </span>
                             </div>
                         </div>
@@ -377,5 +505,7 @@ export const Quizzes = ({ quiz_id }) => {
         </div>
     );
 };
-
 export default Quizzes;
+
+
+

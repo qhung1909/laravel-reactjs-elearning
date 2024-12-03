@@ -178,25 +178,59 @@ class QuizOptionController extends Controller
         if (!Auth::check()) {
             return response()->json(['message' => 'Người dùng chưa đăng nhập.'], 401);
         }
-
+    
         $userId = Auth::id();
-
+    
         $quizSession = QuizSession::where('user_id', $userId)
             ->where('status', 'completed')
             ->latest()
             ->first();
-
+    
         if (!$quizSession) {
             return response()->json(['message' => 'Không tìm thấy phiên quiz đã hoàn thành.'], 404);
         }
-
+    
+        // Lấy thông tin quiz và các câu hỏi kèm options
+        $quiz = Quiz::with(['questions' => function ($query) {
+            $query->with(['options' => function ($q) {
+                $q->where('is_correct', true)
+                  ->select('question_id', 'answer', 'is_correct'); // Chỉ lấy các trường cần thiết
+            }]);
+        }])->find($quizSession->quiz_id);
+    
+        if (!$quiz) {
+            return response()->json(['message' => 'Không tìm thấy thông tin quiz.'], 404);
+        }
+    
+        // Tạo mảng kết quả với answer thay vì id
+        $results = [];
+        foreach ($quiz->questions as $question) {
+            if ($question->question_type === 'fill_blank') {
+                // Với fill_blank, lấy answer từ option
+                $correctAnswer = $question->options->first()->answer ?? null;
+                $results[] = [
+                    'question_id' => $question->question_id,
+                    'correct_answer' => $correctAnswer,
+                    'question_type' => $question->question_type
+                ];
+            } else {
+                // Với các loại câu hỏi khác giữ nguyên logic cũ
+                $correctAnswers = $question->options->pluck('answer')->toArray();
+                $results[] = [
+                    'question_id' => $question->question_id,
+                    'correct_answers' => $correctAnswers,
+                    'question_type' => $question->question_type
+                ];
+            }
+        }
+    
         return response()->json([
             'quiz_session_id' => $quizSession->quiz_session_id,
             'score' => $quizSession->score,
+            'results' => $results,
             'message' => 'Điểm số được lấy ra thành công.'
         ]);
     }
-
 
 
 
