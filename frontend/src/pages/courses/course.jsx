@@ -474,17 +474,17 @@ export const Courses = () => {
         currentCourses.map((item, index) => (
             <div key={index}>
                 <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg flex items-center group my-5 hover:shadow-lg transition-shadow">
-                    <img alt={item.title} className="w-44 h-28 sm:w-64 sm:h-40 md:w-72 md:h-40 sm:object-cover mr-4 rounded-lg" src={item.img} />
+                    <img alt={item.title} className="w-44 h-28 sm:w-64 sm:h-40 md:w-72 md:h-40 sm:object-cover rounded-lg" src={item.img} />
                     <div className="flex-1 ml-4">
                         <Badge
                             variant="secondary"
-                            className={`mb-2 px-3 py-1.5 text-sm font-bold shadow-md ${item.is_online_meeting === 1
+                            className={`mb-2 px-2 md:px-3 py-1.5 text-xs md:text-sm font-bold shadow-md ${item.is_online_meeting === 1
                                 ? "bg-gradient-to-r from-purple-500 to-orange-500 text-white"
                                 : "bg-gradient-to-r from-green-500 to-cyan-500 text-white"
                                 }`}
                         >
                             {item.is_online_meeting === 1
-                                ? "👨‍🏫 Face-to-Face - Tương tác trực tiếp"
+                                ? "👨‍🏫 Face-to-Face - Học trực tiếp"
                                 : "🎓 E-Learning - Học mọi lúc mọi nơi"}
                         </Badge>
                         <h3 className="text-md md:text-lg font-bold text-gray-800 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
@@ -503,13 +503,48 @@ export const Courses = () => {
                             <span className="font-medium mr-1">Lượt xem:</span>
                             {item.views}
                         </div>
+                        <div className="md:hidden flex flex-col md:items-end">
+                            <div className="flex flex-row md:flex-col justify-between md:justify-end gap-1 mt-1">
+                                <p className="text-sm sm:text-lg font-bold text-blue-600">
+                                    {formatCurrency(item.price_discount)}
+                                </p>
+                                <p className="text-sm text-gray-400 line-through flex">
+                                    {formatCurrency(item.price)}
+                                </p>
+                            </div>
+                            <div className="flex flex-row md:flex-col gap-2 justify-between items-center text-xs text-gray-500 space-y-1 ">
+                                <span className="flex justify-end">
+                                    {totalReviews[item.course_id] || 0} lượt đánh giá
+                                </span>
+                                <div className='flex'>
+                                    {Array.from({ length: 5 }, (_, index) => {
+                                        // Lấy rating của khóa học hiện tại
+                                        const rating = averageRatings[item.course_id] || 0;
+                                        // Convert rating thành số để đảm bảo
+                                        const ratingNumber = Number(rating);
 
+                                        return (
+                                            <Star
+                                                key={index}
+                                                className={`w-5 h-5 ${index < Math.floor(ratingNumber)
+                                                    ? 'text-yellow-400 fill-yellow-400'
+                                                    : index < Math.floor(ratingNumber) + 1 &&
+                                                        ratingNumber % 1 !== 0
+                                                        ? 'text-yellow-400 fill-yellow-200'
+                                                        : 'text-gray-200'
+                                                    }`}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="ml-auto flex flex-col items-end">
+                    <div className="md:block hidden ml-auto flex flex-col items-end mt-3">
                         <p className="text-sm sm:text-lg font-bold text-blue-600 mb-1">
                             {formatCurrency(item.price_discount)}
                         </p>
-                        <p className="text-sm text-gray-400 line-through mb-1">
+                        <p className="text-sm text-gray-400 line-through mb-1 text-end">
                             {formatCurrency(item.price)}
                         </p>
                         <div className="flex-col items-center text-xs text-gray-500 space-y-1 ">
