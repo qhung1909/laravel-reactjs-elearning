@@ -21,6 +21,7 @@ const notify = (message, type) => {
         })
     }
 }
+
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
@@ -29,8 +30,8 @@ export const UserProvider = ({ children }) => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const [user, setUser] = useState(null);
-    const [instructor, setInstructor] = useState(null)
-    const [admin, setAdmin] = useState(null)
+    const [instructor, setInstructor] = useState(null);
+    const [admin, setAdmin] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [_success, setSuccess] = useState("");
@@ -39,11 +40,123 @@ export const UserProvider = ({ children }) => {
         return token || null;
     });
 
-
-
-
     const navigate = useNavigate();
-    // API thông tin người dùng
+
+    // Khởi tạo instance axios với config mặc định
+    const api = axios.create({
+        baseURL: API_URL,
+        headers: {
+            'x-api-secret': API_KEY
+        }
+    });
+
+    // Biến để kiểm soát quá trình refresh token
+    let isRefreshing = false;
+    let failedQueue = [];
+
+    const processQueue = (error, token = null) => {
+        failedQueue.forEach(prom => {
+            if (error) {
+                prom.reject(error);
+            } else {
+                prom.resolve(token);
+            }
+        });
+        failedQueue = [];
+    };
+
+    // Xử lý refresh token
+    const refreshToken = async () => {
+        const storedRefreshToken = localStorage.getItem('refresh_token');
+        if (!storedRefreshToken) {
+            notify('Phiên đăng nhập đã hết hạn', 'error');
+            navigate('/login');
+            return null;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/auth/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ refresh_token: storedRefreshToken })
+            });
+
+            if (!response.ok) {
+                throw new Error('Refresh token failed');
+            }
+
+            const data = await response.json();
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+            return data.access_token;
+        } catch (error) {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            setUser(null);
+            setLogined(null);
+            notify('Phiên đăng nhập đã hết hạn', 'error');
+            navigate('/login');
+            return null;
+        }
+    };
+
+    // Interceptor cho request
+    api.interceptors.request.use(
+        (config) => {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+            return config;
+        },
+        (error) => {
+            return Promise.reject(error);
+        }
+    );
+
+    // Interceptor cho response
+    api.interceptors.response.use(
+        (response) => response,
+        async (error) => {
+            const originalRequest = error.config;
+
+            if (error.response?.status === 401 && !originalRequest._retry) {
+                if (isRefreshing) {
+                    return new Promise((resolve, reject) => {
+                        failedQueue.push({ resolve, reject });
+                    })
+                        .then(token => {
+                            originalRequest.headers.Authorization = `Bearer ${token}`;
+                            return api(originalRequest);
+                        })
+                        .catch(err => Promise.reject(err));
+                }
+
+                originalRequest._retry = true;
+                isRefreshing = true;
+
+                try {
+                    const newToken = await refreshToken();
+                    if (newToken) {
+                        processQueue(null, newToken);
+                        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                        return api(originalRequest);
+                    }
+                    return Promise.reject(error);
+                } catch (refreshError) {
+                    processQueue(refreshError, null);
+                    return Promise.reject(refreshError);
+                } finally {
+                    isRefreshing = false;
+                }
+            }
+            return Promise.reject(error);
+        }
+    );
+
+    // API lấy thông tin người dùng
     const fetchUserData = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -52,38 +165,26 @@ export const UserProvider = ({ children }) => {
         }
         setLoading(true);
         try {
-            const res = await axios.get(`${API_URL}/auth/me`, {
-                headers: {
-                    'x-api-secret': `${API_KEY}`,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
+            const res = await api.get('/auth/me');
             if (res.data) {
-                // Cập nhật state cho cả user và instructor
                 setUser(res.data);
                 setLogined(token);
 
-                // Nếu vai trò là instructor, cập nhật instructor
                 if (res.data.role === "teacher") {
                     setInstructor(res.data);
                 }
-                if (res.data.role === "admin"){
+                if (res.data.role === "admin") {
                     setAdmin(res.data);
                 }
             }
         } catch (error) {
             console.error("Lỗi khi lấy thông tin người dùng:", error);
-            if (error.response) {
-                console.error("Thông tin phản hồi lỗi:", error.response.data);
-            }
-        }  finally {
+        } finally {
             setLoading(false);
         }
     };
 
-
-    // hàm thay đổi mật khẩu
+    // Hàm thay đổi mật khẩu
     const updatePassword = async (current_password, password, password_confirmation) => {
         if (!current_password || !password || !password_confirmation) {
             notify('Vui lòng điền đầy đủ thông tin', 'error');
@@ -95,23 +196,12 @@ export const UserProvider = ({ children }) => {
             return false;
         }
 
-        const token = localStorage.getItem('access_token');
-
         try {
-            const response = await axios.post(
-                `${API_URL}/auth/user/updatePassword`,
-                {
-                    current_password,
-                    password,
-                    password_confirmation,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "x-api-secret": API_KEY,
-                    },
-                }
-            );
+            const response = await api.post('/auth/user/updatePassword', {
+                current_password,
+                password,
+                password_confirmation,
+            });
 
             if (response.status === 200) {
                 setPasswordAttempts(0);
@@ -119,8 +209,7 @@ export const UserProvider = ({ children }) => {
                 return true;
             }
         } catch (error) {
-            if (error.response.status === 403) {
-                // Tài khoản bị khóa
+            if (error.response?.status === 403) {
                 notify(error.response.data.message, 'error');
                 setTimeout(() => {
                     navigate('/login');
@@ -130,7 +219,6 @@ export const UserProvider = ({ children }) => {
                     setLogined(null);
                 }, 2000);
             } else {
-                // Xử lý thông báo số lần thử còn lại
                 const newAttempts = passwordAttempts + 1;
                 setPasswordAttempts(newAttempts);
 
@@ -153,9 +241,8 @@ export const UserProvider = ({ children }) => {
         return false;
     };
 
-    // update thông tin người dùng
+    // Cập nhật thông tin người dùng
     const updateUserProfile = async (userName, email, avatar) => {
-        const token = localStorage.getItem("access_token");
         if (!userName.trim()) {
             notify('Tên tài khoản không được để trống', 'error');
             return;
@@ -167,50 +254,18 @@ export const UserProvider = ({ children }) => {
             if (avatar) {
                 formData.append('file', avatar);
             }
-            const response = await axios.post(`${API_URL}/auth/user/profile`, formData, {
+            const response = await api.post('/auth/user/profile', formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${token}`,
-                    'x-api-secret': `${API_KEY}`,
-                },
+                    'Content-Type': 'multipart/form-data'
+                }
             });
-            console.log(response);
-            fetchUserData(); // Refresh user data
-        } catch (error) {
-            console.log('Error updating profile', error);
-            notify("Cập nhật thất bại", 'error');
-        }
-    };
-    // refreshtoken
-    const refreshToken = async () => {
-        const storedRefreshToken = localStorage.getItem('refresh_token');
-        if (!storedRefreshToken) {
-            alert('Session expired. Please log in again.');
-            navigate('/login');
-            return;
-        }
-        try {
-            const res = await fetch(`${API_URL}/auth/refresh`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ refresh_token: storedRefreshToken })
-            });
-
-            if (!res.ok) {
-                alert('Session expired. Please log in again.');
-                navigate('/login');
-                return;
+            if (response.status === 200) {
+                notify('Cập nhật thông tin thành công', 'success');
+                await fetchUserData();
             }
-
-            const data = await res.json();
-            localStorage.setItem('access_token', data.access_token);
-            localStorage.setItem('refresh_token', data.refresh_token);
-            return data.access_token;
-        } catch {
-            alert('Session expired. Please log in again.');
-            navigate('/login');
+        } catch (error) {
+            console.error('Error updating profile', error);
+            notify("Cập nhật thất bại", 'error');
         }
     };
 
@@ -223,7 +278,7 @@ export const UserProvider = ({ children }) => {
         setUser(null);
         setLogined(null);
         notify('Đăng xuất thành công', 'success');
-        navigate('login')
+        navigate('/login');
     };
 
     useEffect(() => {
@@ -234,12 +289,24 @@ export const UserProvider = ({ children }) => {
     }, []);
 
     return (
-        <UserContext.Provider value={{ user, logined, loading, instructor, admin, fetchUserData, logout, refreshToken, updateUserProfile, updatePassword }}>
+        <UserContext.Provider value={{
+            user,
+            logined,
+            loading,
+            instructor,
+            admin,
+            fetchUserData,
+            logout,
+            refreshToken,
+            updateUserProfile,
+            updatePassword
+        }}>
             {children}
             <Toaster />
         </UserContext.Provider>
     );
 };
+
 UserProvider.propTypes = {
     children: PropTypes.node.isRequired,
 };
