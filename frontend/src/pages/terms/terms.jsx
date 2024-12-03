@@ -28,16 +28,16 @@ export const Terms = () => {
                     {/* I */}
                     <h2 className="text-xl font-bold mt-4 mb-2">I. Nguyên tắc chung</h2>
                     <p className="mb-4">
-                        Sàn giao dịch điện tử <span className="text-yellow-500 font-medium">www.antlearn.vn</span> (sau đây gọi là Antlearn) hoạt động dưới sự quản lý của Công ty TNHH Công Nghệ Giáo Dục
+                        Sàn giao dịch điện tử <span className="text-yellow-500 font-medium">https://lmsantlearn.tech/</span> (sau đây gọi là Antlearn) hoạt động dưới sự quản lý của Công ty TNHH Công Nghệ Giáo Dục
                         AntLearn Việt Nam (Công ty) và các thành viên trên sàn là thương nhân, tổ chức, cá nhân hợp pháp chính thức nhận và được phép
-                        sử dụng dịch vụ do Sàn giao dịch điện tử Antlearn.vn cung cấp.
+                        sử dụng dịch vụ do Sàn giao dịch điện tử lmsantlearn.tech cung cấp.
                     </p>
 
                     {/* II */}
                     <h3 className="text-lg font-bold mt-4 mb-2">II. Quy định chung</h3>
                     <p className="font-bold">Định nghĩa</p>
                     <p className="mb-4">
-                        Website thương mại điện tử: Sàn giao dịch TMĐT Antlearn.vn do Công ty TNHH Công Nghệ Giáo Dục Antlearn Việt Nam phát triển và
+                        Website thương mại điện tử: Sàn giao dịch TMĐT lmsantlearn.tech do Công ty TNHH Công Nghệ Giáo Dục Antlearn Việt Nam phát triển và
                         vận hành.
                     </p>
 
@@ -59,16 +59,16 @@ export const Terms = () => {
                     {/* quy định chung */}
                     <h2 className="text-xl font-semibold mt-4 mb-2">2. Nguyên tắc chung</h2>
                     <p className="mb-4">
-                        Sàn thương mại điện tử Antlearn.vn thuộc sở hữu và quản lý của Công ty TNHH Công Nghệ Giáo Dục Antlearn Việt Nam.
+                        Sàn thương mại điện tử lmsantlearn.tech thuộc sở hữu và quản lý của Công ty TNHH Công Nghệ Giáo Dục Antlearn Việt Nam.
                     </p>
                     <p className="mb-4">
-                        Hoạt động của sàn giao dịch thương mại điện tử Antlearn.vn tuân thủ các quy định của pháp luật Việt Nam và các quy định liên quan.
+                        Hoạt động của sàn giao dịch thương mại điện tử lmsantlearn.tech tuân thủ các quy định của pháp luật Việt Nam và các quy định liên quan.
                     </p>
 
                     <h3 className="font-bold text-lg mt-4">III. Quy trình giao dịch</h3>
                     <h4 className="font-bold mt-2">1. Quy trình dành cho Người học/Người mua hàng</h4>
                     <div className="list-disc pl-5 mb-4 space-y-5 text-lg">
-                        <strong>Bước 1:</strong> Truy cập vào Website Antlearn.vn và lựa chọn các khóa học
+                        <strong>Bước 1:</strong> Truy cập vào Website lmsantlearn.tech và lựa chọn các khóa học
                         <img src="/src/assets/images/termimage.png" className="w-full" alt="" />
                         <strong>Bước 2:</strong> Đăng nhập với tài khoản email và mật khẩu đã tạo trên Antlearn
                         <img src="/src/assets/images/termimage3.png" alt="" />
