@@ -118,7 +118,7 @@ const data = {
             items: [
                 // { title: "Danh sách học viên", url: "/admin/list-students" },
                 // { title: "Danh sách giảng viên", url: "/admin/list-teachers" },
-                { title: "Thông tin cá nhân và hồ sơ", url: "/admin/personal-information" },
+                // { title: "Thông tin cá nhân và hồ sơ", url: "/admin/personal-information" },
                 { title: "Phân loại người dùng", url: "/admin/classify-users" },
             ],
         },

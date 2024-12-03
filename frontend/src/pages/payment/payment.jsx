@@ -11,13 +11,75 @@ export const Payment = () => {
     const [discount, setDiscount] = useState(0);
     const [orderId, setOrderId] = useState(null);
     const [isVoucherApplied, setIsVoucherApplied] = useState(false);
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
+    const [validatedCoupon, setValidatedCoupon] = useState(null);
+ 
+    const fetchCartData = async () => {
+        const token = localStorage.getItem("access_token");
+        const cartResponse = await axios.get(`${API_URL}/auth/cart`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        setCart(cartResponse.data);
+    };
+ 
+    // Reset cart nếu thanh toán thất bại
+    const resetCart = async () => {
+        const token = localStorage.getItem("access_token");
+        try {
+            await axios.post(
+                `${API_URL}/reset-price`,
+                { order_id: orderId },
+                {
+                    headers: {
+                        "x-api-secret": `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+ 
+            await fetchCartData();
+            setDiscount(0);
+            setIsVoucherApplied(false);
+            setValidatedCoupon(null);
+            setCoupon("");
+ 
+        } catch (error) {
+            console.error("Error resetting cart:", error);
+            toast.error("Có lỗi xảy ra khi khôi phục giỏ hàng");
+        }
+    };
+ 
+    // Check payment status từ VNPay redirect
+    useEffect(() => {
+        const checkPaymentStatus = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const vnp_ResponseCode = urlParams.get('vnp_ResponseCode');
+            
+            if (vnp_ResponseCode) {
+                if (vnp_ResponseCode === '00') {
+                    toast.success("Thanh toán thành công!");
+                } else {
+                    await resetCart();
+                    toast.error("Thanh toán thất bại. Giỏ hàng đã được khôi phục.");
+                }
+                // Xóa params để tránh check lại khi refresh
+                window.history.replaceState({}, '', window.location.pathname);
+            }
+        };
+ 
+        if (orderId) {
+            checkPaymentStatus();
+        }
+    }, [orderId]);
+ 
     useEffect(() => {
         const fetchAllData = async () => {
-            setLoading(true)
+            setLoading(true);
             try {
                 const token = localStorage.getItem("access_token");
-                // Fetch đồng thời cả courses và cart
                 const [coursesResponse, cartResponse] = await Promise.all([
                     axios.get(`${API_URL}/courses`, {
                         headers: { "x-api-secret": `${API_KEY}` },
@@ -29,44 +91,47 @@ export const Payment = () => {
                         },
                     }),
                 ]);
-
+ 
                 setCourses(coursesResponse.data);
                 setCart(cartResponse.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
-                setLoading(false)
-
+                setLoading(false);
             }
         };
-
+ 
         fetchAllData();
     }, []);
+ 
     const calculateTotalPrice = () => {
         return cart.reduce((total, item) => {
             const itemTotal = item.order_details.reduce((subtotal, detail) => {
-                // Kiểm tra nếu giá trị detail.price là hợp lệ
-                const price = parseFloat(detail.price); // Chuyển đổi giá thành số
-                return subtotal + (isNaN(price) ? 0 : price); // Nếu giá không hợp lệ, cộng 0
+                const price = parseFloat(detail.price);
+                return subtotal + (isNaN(price) ? 0 : price);
             }, 0);
             return total + itemTotal;
         }, 0);
     };
-
-    const totalPrice = calculateTotalPrice(); // Tổng tiền khi cộng các sp trong cart
-    const finalPrice = totalPrice - discount; // Thành tiền sau khi trừ giảm giá
-
-    const handleApplyCoupon = async () => {
+ 
+    const totalPrice = calculateTotalPrice();
+    const finalPrice = isVoucherApplied ? totalPrice - discount : totalPrice;
+ 
+    const handleValidateCoupon = async () => {
         if (isVoucherApplied) {
             toast.error("Chỉ được áp dụng một voucher.");
             return;
         }
-
+    
         try {
             const token = localStorage.getItem("access_token");
             const response = await axios.post(
-                `${API_URL}/check-discount`,
-                { name_coupon: coupon, order_id: orderId },
+                `${API_URL}/validate-coupon`,
+                { 
+                    name_coupon: coupon, 
+                    order_id: orderId,
+                    total_price: totalPrice
+                },
                 {
                     headers: {
                         "x-api-secret": `${API_KEY}`,
@@ -74,89 +139,103 @@ export const Payment = () => {
                     },
                 }
             );
-
-            console.log("Server response:", response.data);
-
-            if (response.data && response.data.message === "Discount applied successfully") {
-                let appliedDiscount = 0;
-
-                // Tính toán số tiền giảm giá dựa trên thông tin từ server
-                if (response.data.discount_price) {
-                    appliedDiscount = response.data.discount_price;
-                } else if (response.data.percent_discount) {
-                    const discountAmount = (totalPrice * response.data.percent_discount) / 100;
-                    appliedDiscount = response.data.max_discount
-                        ? Math.min(discountAmount, response.data.max_discount)
-                        : discountAmount;
-                } else if (response.data.new_total_price) {
-                    // Nếu server trả về giá mới sau khi áp dụng giảm giá
-                    appliedDiscount = totalPrice - response.data.new_total_price;
+    
+            if (response.data && response.data.message === 'Coupon is valid') {
+                const discountAmount = response.data.discount_price;
+                
+                if (discountAmount >= totalPrice) {
+                    toast.error("Giá trị giảm giá vượt quá tổng đơn hàng");
+                    return;
                 }
-
-                setDiscount(appliedDiscount);
-                setIsVoucherApplied(true); // Đánh dấu đã áp dụng voucher
+    
+                setDiscount(discountAmount);
+                setIsVoucherApplied(true);
+                setValidatedCoupon({
+                    coupon_id: response.data.coupon_id,
+                    name_coupon: coupon,
+                    discount_price: discountAmount
+                });
                 toast.success("Áp dụng mã giảm giá thành công!");
-            } else {
-                // Hiển thị thông báo lỗi nếu không phải là thông báo thành công
-                toast.error("Có lỗi xảy ra khi áp dụng mã giảm giá.");
             }
         } catch (error) {
-            console.error("Có lỗi xảy ra:", error);
-            if (error.response && error.response.data) {
-                // Kiểm tra thông báo cụ thể từ server
-                const errorMessage = error.response.data.message;
-
-                switch (errorMessage) {
+            if (error.response?.data?.message) {
+                switch (error.response.data.message) {
                     case "Coupon not found":
-                        toast.error("Mã giảm giá không hợp lệ."); // Thông báo cho mã không hợp lệ
+                        toast.error("Mã giảm giá không hợp lệ.");
                         break;
                     case "Coupon has expired":
-                        toast.error("Mã giảm giá đã hết hạn."); // Thông báo cho mã giảm giá hết hạn
+                        toast.error("Mã giảm giá đã hết hạn.");
                         break;
-
+                    case "Coupon is not valid yet":
+                        toast.error("Mã giảm giá chưa có hiệu lực.");
+                        break;
+                    case "Discount exceeds total price":
+                        toast.error("Giá trị giảm giá vượt quá tổng đơn hàng.");
+                        break;
                     default:
                         toast.error("Có lỗi xảy ra, vui lòng thử lại.");
                 }
             } else {
-                toast.error("Không thể kết nối đến server. Vui lòng thử lại sau.");
+                toast.error("Không thể kết nối đến server.");
             }
         }
     };
-
+ 
+    const removeCoupon = () => {
+        setDiscount(0);
+        setIsVoucherApplied(false);
+        setCoupon("");
+        setValidatedCoupon(null);
+        toast.success("Đã xóa mã giảm giá");
+    };
+ 
     const handlePayment = async () => {
         const token = localStorage.getItem("access_token");
-
+ 
         if (!token) {
             toast.error("Bạn cần đăng nhập để thực hiện thanh toán.");
             return;
         }
-
-        const orderInfo = cart
-            .flatMap((item) =>
-                item.order_details.map(
-                    (detail) =>
-                        `${courses.find(
-                            (c) => c.course_id === detail.course_id
-                        )?.title || "Khóa học"
-                        } x 1`
-                )
-            )
-            .join(", ");
-
-        const orderType = "purchase";
-        const orderAmount = finalPrice;
-
+ 
         if (!orderId) {
             toast.error("Không tìm thấy mã đơn hàng.");
             return;
         }
+ 
         try {
+            if (validatedCoupon) {
+                await axios.post(
+                    `${API_URL}/check-discount`,
+                    {
+                        name_coupon: validatedCoupon.name_coupon,
+                        order_id: orderId
+                    },
+                    {
+                        headers: {
+                            "x-api-secret": `${API_KEY}`,
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+            }
+ 
+            const orderInfo = cart
+                .flatMap((item) =>
+                    item.order_details.map(
+                        (detail) =>
+                            `${courses.find(
+                                (c) => c.course_id === detail.course_id
+                            )?.title || "Khóa học"} x 1`
+                    )
+                )
+                .join(", ");
+ 
             const response = await axios.post(
                 `${API_URL}/vnpay-payment`,
                 {
                     vnp_OrderInfo: orderInfo,
-                    vnp_OrderType: orderType,
-                    vnp_Amount: orderAmount,
+                    vnp_OrderType: 'purchase',
+                    vnp_Amount: finalPrice,
                     vnp_Txnref: orderId,
                 },
                 {
@@ -166,17 +245,18 @@ export const Payment = () => {
                     },
                 }
             );
-
+ 
             if (response.data.code === "00") {
                 window.location.href = response.data.data;
             } else {
-                console.error(response.data.message);
+                toast.error(response.data.message || "Có lỗi xảy ra khi thanh toán");
             }
         } catch (error) {
             console.error("Có lỗi xảy ra:", error);
+            toast.error("Có lỗi xảy ra trong quá trình thanh toán");
         }
     };
-
+    // Rest of the code remains the same...
     const renderInfoOrder = () => {
         return (
             <div className="bg-white shadow-md rounded-lg overflow-hidden">
@@ -211,13 +291,8 @@ export const Payment = () => {
                                         className="flex items-center space-x-4 p-4 hover:bg-gray-50 transition duration-150 ease-in-out"
                                     >
                                         <img
-                                            src={
-                                                course?.img ||
-                                                "/src/assets/images/default.jpg"
-                                            }
-                                            alt={
-                                                course?.title || "Course Image"
-                                            }
+                                            src={course?.img || "/src/assets/images/default.jpg"}
+                                            alt={course?.title || "Course Image"}
                                             className="w-16 h-16 object-cover rounded-md flex-shrink-0"
                                         />
                                         <div className="flex-grow">
@@ -239,7 +314,6 @@ export const Payment = () => {
                         )
                     )}
                 </div>
-                <Toaster />
             </div>
         );
     };
@@ -268,7 +342,6 @@ export const Payment = () => {
                                     <span className="font-semibold text-black-600">
                                         {formatCurrency(totalPrice)}
                                     </span>
-
                                 )}
                             </div>
                             <div className="flex justify-between items-center text-base">
@@ -287,12 +360,21 @@ export const Payment = () => {
                                     onChange={(e) => setCoupon(e.target.value)}
                                     className="flex-grow py-2 px-4 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                                 />
-                                <button
-                                    onClick={handleApplyCoupon}
-                                    className="px-4 py-2 bg-yellow-400 text-gray-800 rounded-lg font-semibold hover:bg-yellow-500 transition-colors duration-200"
-                                >
-                                    Áp dụng
-                                </button>
+                                {isVoucherApplied ? (
+                                    <button
+                                        onClick={removeCoupon}
+                                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors duration-200"
+                                    >
+                                        Xóa mã
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={handleValidateCoupon}
+                                        className="px-4 py-2 bg-yellow-400 text-gray-800 rounded-lg font-semibold hover:bg-yellow-500 transition-colors duration-200"
+                                    >
+                                        Áp dụng
+                                    </button>
+                                )}
                             </div>
                         </div>
                         <div className="flex justify-between items-center font-semibold text-lg mb-6 pt-4 border-t border-gray-200">
@@ -303,20 +385,14 @@ export const Payment = () => {
                                 <span className="text-black-600">
                                     {formatCurrency(finalPrice)}
                                 </span>
-
                             )}
-
-
-
                         </div>
 
-                        {/* Phần lựa chọn phương thức thanh toán */}
                         <div className="mb-6">
                             <h3 className="text-lg font-semibold text-gray-800 mb-2">
                                 Phương thức thanh toán
                             </h3>
                             <div className="flex space-x-4">
-                                {" "}
                                 <label className="flex items-center cursor-pointer">
                                     <input
                                         type="radio"
@@ -334,26 +410,21 @@ export const Payment = () => {
                         </div>
 
                         <p className="text-sm text-gray-600 text-center mb-2">
-                            Nhấn Thanh toán đồng nghĩa với việc bạn đã đọc và
-                            chấp thuận với
-                            <a
-                                href="#"
-                                className="text-black-600 hover:underline"
-                            >
-                                {" "}
-                                Điều khoản dịch vụ
-                            </a>
-                            .
+                            Nhấn Thanh toán đồng nghĩa với việc bạn đã đọc và chấp thuận với
+                            <a href="#" className="text-black-600 hover:underline">
+                                {" "}Điều khoản dịch vụ
+                            </a>.
                         </p>
                         <button
                             onClick={handlePayment}
-                            className="w-full py-3 bg-yellow-400 text-lg text-gray-800 rounded-lg font-semibold hover:bg-yellow-500 transition-colors duration-200 "
+                            className="w-full py-3 bg-yellow-400 text-lg text-gray-800 rounded-lg font-semibold hover:bg-yellow-500 transition-colors duration-200"
                         >
                             Thanh toán
                         </button>
                     </div>
                 </div>
             </div>
+            <Toaster />
         </div>
     );
 };
