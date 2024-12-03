@@ -4,7 +4,7 @@ import { formatDate } from "@/components/FormatDay/Formatday";
 import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import { BadgeAlert, ChevronDown, ChevronUp, CircleUserRound, Edit, Heart, HeartOff, Mail, Trash, User, Video } from "lucide-react";
+import { BadgeAlert, ChevronDown, ChevronUp, CircleUserRound, Edit, Heart, HeartOff, Mail, StarIcon, Trash, User, Video } from "lucide-react";
 import { Calendar, Globe, BookOpen, Star, Gift } from "lucide-react";
 import { Play, Users, Book, Clock, Eye, ShoppingCart, X } from "lucide-react";
 
@@ -307,6 +307,20 @@ export const Detail = () => {
             });
             if (res.data && res.data.course_id) {
                 setDetail(res.data);
+                // Lấy danh sách comments
+                const comments = res.data.comments || [];
+
+                // Tính tổng rating và số lượng đánh giá
+                const totalRating = comments.reduce((total, comment) => {
+                    return total + parseFloat(comment.rating || 0); 
+                }, 0);
+
+                const totalComments = comments.length;
+
+                // Tính trung bình rating
+                const avgRatingCourse = totalComments > 0 ? totalRating / totalComments : 0;
+
+                console.log("Trung bình rating của khóa học:", avgRatingCourse);
                 fetchComments(res.data.course_id);
                 if (user.user_id) {
                     checkPaymentCourse(user.user_id);
@@ -698,7 +712,15 @@ export const Detail = () => {
                             {formatDate(detail.updated_at)}
                         </span>
                     </div>
-
+                    <div className="flex items-center text-sm text-gray-300 mb-2">
+                        <Star className="mr-2" />
+                        {/* <span className="shadow-text">
+                            Trung bình{" "}
+                            {avgRatingCourse !== null && !isNaN(avgRatingCourse) && avgRatingCourse > 0
+                                ? avgRatingCourse.toFixed(1)
+                                : "Chưa có đánh giá"}
+                        </span> */}
+                    </div>
                 </div>
             </div>
         </div>
@@ -1499,7 +1521,7 @@ export const Detail = () => {
                                                             ))}
                                                         </div>
                                                         <span className="text-gray-700 font-medium">
-                                                            {teacher.average_rating.toFixed(1)}/5
+                                                            {teacher.average_rating.toFixed(0)}/5
                                                         </span>
                                                     </div>
                                                     <span className="text-sm text-gray-500 italic">
