@@ -285,17 +285,17 @@ export const CourseOverview = () => {
             return;
         }
 
-        if(courseTitle.length > 255){
+        if (courseTitle.length > 255) {
             notify('Tên khóa học không được lớn hơn 255 kí tự');
             return;
         }
 
-        if(price < 0){
+        if (price < 0) {
             notify('Giá không được nhỏ hơn 0');
             return;
         }
 
-        if(price > 100000000){
+        if (price > 100000000) {
             notify('Giá không được lớn hơn 100.000.000đ');
             return;
         }
@@ -318,13 +318,19 @@ export const CourseOverview = () => {
         // formData.append('language', selectedLanguage);
 
         // Add launch dates if extension is online
+
         if (selectedExtension === "online") {
+            formData.append('is_online_meeting', Number(1));
             if (selectedDate) {
                 formData.append('launch_date', selectedDate);
             }
             if (backupDate) {
                 formData.append('backup_launch_date', backupDate);
             }
+        } else {
+            formData.append('is_online_meeting', Number(0));
+            formData.append('launch_date', '');
+            formData.append('backup_launch_date', '');
         }
 
         // Add image if it exists and has changed
@@ -617,7 +623,9 @@ export const CourseOverview = () => {
 
                                 )}
                             </div>
+                            <p className="text-sm text-gray-400 pt-2">Khóa học của bạn có phần học online thì hãy chọn vào phần này</p>
                         </div>
+
 
                         <form method="POST" encType="multipart/form-data" onSubmit={(e) => e.preventDefault()} className="space-y-4">
                             <div className="pb-6">

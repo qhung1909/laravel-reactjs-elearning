@@ -53,6 +53,7 @@ export const Curriculum = () => {
     const [isUpdated, setIsUpdated] = useState(false);
 
     const [hasChanges, setHasChanges] = useState(false);
+    const [offLesson, setOffLesson] = useState(false);
 
     const handleSectionTitleChange = (sectionId, newTitle) => {
         setSections(prevSections => {
@@ -174,8 +175,30 @@ export const Curriculum = () => {
         }));
     };
 
+    const fetchCourse = async () => {
+        toast.dismiss();
+        try {
+            const response = await axios.get(`${API_URL}/teacher/courses/${course_id}`, {
+                headers: {
+                    'x-api-secret': API_KEY,
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                },
+            });
+
+            if (response.data.data.launch_date == null) {
+                setOffLesson(true);
+            }
+
+
+
+        } catch (error) {
+            console.error('Error fetching course data:', error);
+        }
+    };
+
     useEffect(() => {
         fetchContent()
+        fetchCourse()
     }, []);
     const fetchContent = async (force = false) => {
         toast.dismiss();
@@ -889,6 +912,7 @@ export const Curriculum = () => {
                                                         <span className="bg-blue-100 text-blue-800 text-sm font-medium px-1 md:px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Offline</span>
                                                     )
                                                     }
+
                                                     <div className="flex items-center gap-2">
                                                         <span className="font-medium text-gray-600">Bài {sectionIndex + 1}:</span>
                                                     </div>
@@ -927,7 +951,7 @@ export const Curriculum = () => {
                                                         {Array.isArray(section.lessons) && section.lessons.map((lesson, lessonIndex) => (
                                                             <Card key={lesson.id} className="relative p-4 border border-yellow-400 ml-6">
                                                                 <div className="space-y-4">
-                                                                <span className="relative mx-6 bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Offline</span>
+                                                                    <span className="relative mx-6 bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Offline</span>
 
                                                                     <div className="flex items-center gap-4 mt-4">
 
@@ -1059,12 +1083,18 @@ export const Curriculum = () => {
                                         >
                                             + Thêm Bài học mới
                                         </button>
-                                        <button
-                                            onClick={addOnlineSection}
-                                            className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
-                                        >
-                                            + Thêm Bài Online mới
-                                        </button>
+                                        {offLesson ? (
+                                            <>
+                                            </>
+                                        ) : (
+                                            <button
+                                                onClick={addOnlineSection}
+                                                className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
+                                            >
+                                                + Thêm Bài Online mới
+                                            </button>
+                                        )}
+
                                     </div>
 
 

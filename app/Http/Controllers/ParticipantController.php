@@ -561,12 +561,11 @@ class ParticipantController extends Controller
                 ->map(function ($record) {
                     $joinedAt = $record->joined_at ? Carbon::parse($record->joined_at) : null;
 
-                    // Lấy thông tin name_content từ quan hệ
                     $nameContent = $record->meeting?->content?->name_content;
 
                     return [
                         'meeting_id' => $record->meeting_id,
-                        'name_content' => $nameContent, // Thêm name_content vào kết quả
+                        'name_content' => $nameContent, 
                         'attendance_date' => Carbon::parse($record->attendance_date)->format('Y-m-d'),
                         'attendance_status' => $this->checkAttendanceStatus($record),
                         'attendance_details' => [

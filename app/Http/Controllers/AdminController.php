@@ -581,8 +581,14 @@ class AdminController extends Controller
             if (isset($updateData['title'])) {
                 $updateData['slug'] = Str::slug($updateData['title']);
             }
+            
+            DB::transaction(function () use ($course, $updateData) {
+                $course->update($updateData);
     
-            $course->update($updateData);
+                if ($updateData['is_online_meeting'] == 0) {
+                    $course->contents()->where('is_online_meeting', 1)->delete();
+                }
+            });
     
             return response()->json([
                 'success' => true,
