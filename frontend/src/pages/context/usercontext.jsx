@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
@@ -91,7 +92,7 @@ export const UserProvider = ({ children }) => {
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('refresh_token', data.refresh_token);
             return data.access_token;
-        } catch (error) {
+        } catch {
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
             setUser(null);
@@ -286,6 +287,7 @@ export const UserProvider = ({ children }) => {
         if (token && !user) {
             fetchUserData();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
