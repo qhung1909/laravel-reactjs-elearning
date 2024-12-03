@@ -869,7 +869,7 @@ export const Courses = () => {
                         <div className="lg:block hidden col-span-3 transition-all ease-in-out duration-500 " id="filterContent">
 
                             {/* mua,xem nhiều */}
-                            <Accordion type="single" collapsible>
+                            <Accordion type="single" collapsible defaultValue="item-1">
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger className="text-xl font-bold">Sắp xếp theo</AccordionTrigger>
                                     <AccordionContent>
@@ -904,7 +904,7 @@ export const Courses = () => {
                             </Accordion>
 
                             {/* xếp hạng */}
-                            <Accordion type="single" collapsible>
+                            <Accordion type="single" collapsible defaultValue="item-2">
                                 <AccordionItem value="item-2">
                                     <AccordionTrigger className="text-xl font-bold">Xếp hạng</AccordionTrigger>
                                     <AccordionContent>
@@ -952,7 +952,7 @@ export const Courses = () => {
                             </Accordion>
 
                             {/* giá */}
-                            <Accordion type="single" collapsible>
+                            <Accordion type="single" collapsible defaultValue="item-3">
                                 <AccordionItem value="item-3">
                                     <AccordionTrigger className="text-xl font-bold">Giá</AccordionTrigger>
                                     <AccordionContent>
@@ -988,7 +988,7 @@ export const Courses = () => {
                                 </AccordionItem>
                             </Accordion>
 
-                            <Accordion type="single" collapsible>
+                            <Accordion type="single" collapsible defaultValue="item-4">
                                 <AccordionItem value="item-4">
                                     <AccordionTrigger className="text-xl font-bold">Hình thức học</AccordionTrigger>
                                     <AccordionContent>
