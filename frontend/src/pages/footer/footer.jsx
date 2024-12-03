@@ -6,21 +6,20 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import i18next from "i18next"
-import { useEffect } from "react"
+import { useState } from "react";
+import axios from "axios";
 export const Footer = () => {
-    const changeLanguage = (e) => {
-        const languageValue = e.target.value || e.target.getAttribute('value');
-        sessionStorage.setItem('language', languageValue);
-        i18next.changeLanguage(languageValue);
-        window.location.reload();
-    }
-    useEffect(() => {
-        const savedLanguage = sessionStorage.getItem('language') || 'en';
-        i18next.changeLanguage(savedLanguage);
-        console.log(i18next.t('common.hello')); // Kiểm tra xem có hiển thị chuỗi tiếng Anh hay không
+    const [text, setText] = useState("");
+    const [translatedText, setTranslatedText] = useState("");
+    const translateText = async () => {
+        const response = await axios.post("https://libretranslate.com/translate", {
+            q: text,
+            source: "en",
+            target: "es",
+        });
+        setTranslatedText(response.data.translatedText);
+    };
 
-    }, []);
     return (
         <>
             <footer className="bg-gray-100 h-auto rounded-tl-[70px] rounded-tr-[70px]">
@@ -76,18 +75,27 @@ export const Footer = () => {
                             {/* thẻ 3 */}
                             <div className="footer-end mt-5 md:mt-0">
                                 <div className="space-y-2">
-                                    <span className="font-medium text-black text-base">
-                                        Ngôn ngữ
-                                    </span>
-                                    <Select>
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Ngôn ngữ" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="vie" onClick={() => changeLanguage}>Tiếng Việt</SelectItem>
-                                            <SelectItem value="eng" onClick={() => changeLanguage}>English</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    <div className="footer-mid-right">
+                                        <span className="font-medium text-black text-base">
+                                            Công tác
+                                        </span>
+                                        <ul className="mt-1 space-y-1">
+                                            {/* term */}
+                                            <li className="flex items-center gap-2">
+                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/phone.svg" className="w-5" alt="" />
+                                                <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">0123 456 789</p>
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/address.svg" className="w-5" alt="" />
+                                                <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">Quận 12, TP Hồ Chí Minh</p>
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/email.svg" className="w-5" alt="" />
+                                                <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">lmsantlearn@gmail.com</p>
+                                            </li>
+
+                                        </ul>
+                                    </div>
 
                                 </div>
 
@@ -98,7 +106,7 @@ export const Footer = () => {
                     </div>
                 </section>
                 <div className="bg-gray-100 text-center py-4 border-t-2">
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-500 text-sm">
                         © {new Date().getFullYear()} Nhóm 4 - Dự án tốt nghiệp website Antlearn.
                     </p>
                 </div>
