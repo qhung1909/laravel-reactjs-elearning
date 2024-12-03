@@ -21,6 +21,7 @@ class Course extends Model
         'img',
         'title',
         'slug',
+        'is_online_meeting',
         'backup_launch_date',
         'launch_date',
         'reject_reason',
@@ -47,7 +48,7 @@ class Course extends Model
     }
     public function comments()
     {
-        return $this->hasMany(Comment::class, 'course_id'); 
+        return $this->hasMany(Comment::class, 'course_id', 'course_id'); 
     }
 
     public function averageRating()

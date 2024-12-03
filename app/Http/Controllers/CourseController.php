@@ -178,27 +178,31 @@ class CourseController extends Controller
     public function show(Request $request, $slug)
     {
         $course = Cache::remember("course_{$slug}", 90, function () use ($slug) {
-            return $this->course->where('slug', $slug)
+            return Course::where('slug', $slug)
                 ->where('status', 'published')
                 ->first();
         });
-
+    
         if (!$course) {
-            return response()->json(['error' => 'Khóa học không tìm thấy hoặc chưa được xuất bản'], 404);
+            return response()->json(['error' => 'Course not found or not published'], 404);
         }
-
+    
         $ipAddress = $request->ip();
         $cacheKey = "course_view_{$slug}_{$ipAddress}";
-
-        if (Cache::has($cacheKey)) {
-            return response()->json($course);
+    
+        if (!Cache::has($cacheKey)) {
+            $course->increment('views');
+            Cache::put($cacheKey, true, 86400);
         }
-
-        $course->increment('views');
-
-        Cache::put($cacheKey, true, 86400);
-
-        return response()->json($course);
+    
+        $comments = $course->comments()
+            ->orderBy('created_at', 'desc')
+            ->get();
+    
+        return response()->json([
+            'course' => $course,
+            'comments' => $comments
+        ]);
     }
 
     public function store(Request $request)
