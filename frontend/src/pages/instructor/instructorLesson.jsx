@@ -116,6 +116,24 @@ export const InstructorLesson = () => {
         }
     }
 
+    // hàm xử lý tên trạng thái
+    const getStatusVietnamese = (status) => {
+        switch (status) {
+            case "published":
+                return "Hiện";
+            case "failed":
+                return "Thất bại";
+            case "hide":
+                return "Ẩn";
+            case "draft":
+                return "Nháp";
+            case "pending":
+                return "Chờ duyệt";
+            default:
+                return status;
+        }
+    }
+
     // hàm xử lý thay đổi status khóa học
     const toggleCourseStatus = async (courseId, status) => {
         const token = localStorage.getItem("access_token");
@@ -135,10 +153,11 @@ export const InstructorLesson = () => {
             );
 
             if (response.data.status) {
-                notify(`Trạng thái đã đổi sang: ${response.data.data.status}`, 'success');
+                const newStatus = response.data.data.status
+                notify(`Trạng thái đã đổi sang: ${getStatusVietnamese(newStatus)}`, 'success');
                 setTeacherCourses(prevCourses =>
                     prevCourses.map(course =>
-                        course.course_id === courseId ? { ...course, status: response.data.data.status } : course
+                        course.course_id === courseId ? { ...course, status: newStatus } : course
                     )
                 );
             } else {
@@ -147,6 +166,11 @@ export const InstructorLesson = () => {
         } catch (error) {
             notify('Có lỗi trong quá trình thay đổi trạng thái', 'error');
         }
+    };
+
+    const getNextStatus = (currentStatus) => {
+        const nextStatus = currentStatus === 'published' ? 'hide' : 'published';
+        return getStatusVietnamese(nextStatus);
     };
 
     const canEditStatus = (status) => {
@@ -180,6 +204,8 @@ export const InstructorLesson = () => {
                 return "bg-gray-500 text-white";
         }
     }
+
+
 
     // xử lý chuyên
     const handleBadgeClick = (item) => {
@@ -240,13 +266,13 @@ export const InstructorLesson = () => {
                                 </div>
                                 <div className="flex justify-between mt-5 space-y-1">
                                     <p className="text-lg">
-                                        Trạng thái hiện tại: <span className="text-yellow-500 font-semibold">{item.status}</span>
+                                        Trạng thái hiện tại: <span className="text-yellow-500 font-semibold">{getStatusVietnamese(item.status)}</span>
                                     </p>
                                     <div>
                                         <Button
                                             onClick={() => toggleCourseStatus(item.course_id, item.status)}
                                         >
-                                            Đổi sang {item.status === 'published' ? 'hide' : 'published'}
+                                            Đổi sang {getNextStatus(item.status)}
                                         </Button>
                                     </div>
                                 </div>
@@ -300,8 +326,8 @@ export const InstructorLesson = () => {
             currentItems.map((item, index) => (
                 <TableRow key={index}>
                     <TableCell>
-                        <Badge onClick={() => handleBadgeClick(item)} style={{ cursor: item.status === "draft" || item.status === "published" ? "pointer" : "default" }} className={getStatusBadge(item.status)}>
-                            {item.status}
+                        <Badge onClick={() => handleBadgeClick(item)} style={{ cursor: item.status === "draft" || item.status === "published" ? "pointer" : "not-allowed" }} className={getStatusBadge(item.status)}>
+                            {getStatusVietnamese(item.status)}
                         </Badge>
                     </TableCell>
                     <TableCell className="sm:p-4 p-0 w-20" >
@@ -615,7 +641,7 @@ export const InstructorLesson = () => {
 
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs w-16">Trạng thái</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs w-32">Trạng thái</TableHead>
                                             <TableHead className="xl:w-[250px] lg:w-[250px] md:w-[200px] w-[250px] text-cyan-950 md:text-sm text-xs">Hình ảnh</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs xl:w-[200px] lg:w-[150px] md:w-[150px] sm:w-[200px] w-[200px]">Tên</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs">Giá</TableHead>
