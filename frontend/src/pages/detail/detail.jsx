@@ -296,7 +296,8 @@ export const Detail = () => {
             setLoading(false);
         }
     };
-
+    const [avgRatingCourse, setAvgRatingCourse] = useState(0);
+    const [totalRatingCourse, setTotalRatingCourse] = useState(0);
     const fetchDetail = async () => {
         setLoading(true);
         try {
@@ -316,11 +317,10 @@ export const Detail = () => {
                 }, 0);
 
                 const totalComments = comments.length;
-
+                setTotalRatingCourse(totalComments)
                 // Tính trung bình rating
-                const avgRatingCourse = totalComments > 0 ? totalRating / totalComments : 0;
-                console.log("Tổng bình luận khóa học: ", totalComments)
-                console.log("Trung bình rating của khóa học:", avgRatingCourse);
+                const newAvgRatingCourse = totalComments > 0 ? totalRating / totalComments : 0;
+                setAvgRatingCourse(newAvgRatingCourse);
                 fetchComments(res.data.course_id);
                 if (user.user_id) {
                     checkPaymentCourse(user.user_id);
@@ -713,14 +713,20 @@ export const Detail = () => {
                         </span>
                     </div>
                     <div className="flex items-center text-sm text-gray-300 mb-2">
-                        <Star className="mr-2" />
-                        {/* <span className="shadow-text">
-                            Trung bình{" "}
-                            {avgRatingCourse !== null && !isNaN(avgRatingCourse) && avgRatingCourse > 0
-                                ? avgRatingCourse.toFixed(1)
-                                : "Chưa có đánh giá"}
-                        </span> */}
+                        {Array.from({ length: 5 }, (_, index) => (
+                            <Star
+                                key={index}
+                                className={`w-5 h-5 ${index < Math.floor(avgRatingCourse)
+                                    ? 'text-yellow-400 fill-yellow-400'
+                                    : index < Math.floor(avgRatingCourse) + 1 && avgRatingCourse % 1 !== 0
+                                        ? 'text-yellow-400 fill-yellow-200'
+                                        : 'text-gray-200'
+                                    }`}
+                            />
+                        ))}
+                        <span className="ml-2">{totalRatingCourse} lượt đánh giá</span>
                     </div>
+
                 </div>
             </div>
         </div>
