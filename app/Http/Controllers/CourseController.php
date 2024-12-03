@@ -182,32 +182,23 @@ class CourseController extends Controller
                 ->where('status', 'published')
                 ->first();
         });
-    
+
         if (!$course) {
             return response()->json(['error' => 'Khóa học không tìm thấy hoặc chưa được xuất bản'], 404);
         }
-    
+
         $ipAddress = $request->ip();
         $cacheKey = "course_view_{$slug}_{$ipAddress}";
-    
-        if (!Cache::has($cacheKey)) {
-            $course->increment('views');
-            Cache::put($cacheKey, true, 86400);
+
+        if (Cache::has($cacheKey)) {
+            return response()->json($course);
         }
-    
-        $comments = $course->comments()
-            ->orderBy('created_at', 'desc')
-            ->get();
-    
-        $response = [
-            'course' => $course
-        ];
-    
-        if ($comments->isNotEmpty()) {
-            $response['comments'] = $comments;
-        }
-    
-        return response()->json($response);
+
+        $course->increment('views');
+
+        Cache::put($cacheKey, true, 86400);
+
+        return response()->json($course);
     }
 
     public function store(Request $request)
