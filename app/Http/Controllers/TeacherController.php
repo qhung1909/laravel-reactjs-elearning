@@ -775,7 +775,7 @@ class TeacherController extends Controller
                 ], 404);
             }
 
-            $newStatus = $course->status === 'published' ? 'draft' : 'published';
+            $newStatus = $course->status === 'published' ? 'hide' : 'published';
 
             if ($newStatus === 'published') {
                 $isValid = true;
