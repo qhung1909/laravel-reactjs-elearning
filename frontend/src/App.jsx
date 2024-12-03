@@ -139,26 +139,26 @@ function AppContent() {
 
                 <Route path="/admin" element={<AdminRole element={<Dashboard />} />}></Route>
                 {/* <Route path="/admin" element={<Dashboard />}></Route> */}
-                <Route path="/admin/example" element={<Example />}></Route>
-                <Route path="/admin/course-list" element={<CourseList />}></Route>
-                <Route path="/admin/browse-new-courses" element={<BrowseNewCourses />}></Route>
-                <Route path="/admin/course-status" element={<CourseStatus />}></Route>
-                <Route path="/admin/classify-course" element={<ClassifyCourse />}></Route>
-                <Route path="/admin/page-coupons" element={<PageCoupons />}></Route>
-                <Route path="/admin/category-list" element={<CategoryList />}></Route>
-                <Route path="/admin/category-crud" element={<CategoryCrud />}></Route>
-                <Route path="/admin/priority-category" element={<PriorityCategory />}></Route>
-                <Route path="/admin/courses-of-category" element={<CoursesOfCategory />}></Route>
-                <Route path="/admin/blogs" element={<BlogCrud />}></Route>
-                <Route path="/admin/comments" element={<CmtCrud />}></Route>
-                <Route path="/admin/list-students" element={<ListStudents />}></Route>
-                <Route path="/admin/list-teachers" element={<ListTeachers />}></Route>
-                <Route path="/admin/classify-users" element={<ClassifyUsers />}></Route>
-                <Route path="/admin/personal-information" element={<PersonalInformation />}></Route>
-                <Route path="/admin/manage-footer" element={<ManageFooter />}></Route>
-                <Route path="/admin/manage-header" element={<ManageHeader />}></Route>
-                <Route path="/admin/teaching-schedule-list" element={<ScheduleList />}></Route>
-                <Route path="/admin/manage-meet-room" element={<ManageMeetRoom />}></Route>
+                <Route path="/admin/example" element={<AdminRole element={<Example />}/>}></Route>
+                <Route path="/admin/course-list" element={<AdminRole element={<CourseList />}/>}></Route>
+                <Route path="/admin/browse-new-courses" element={<AdminRole element={<BrowseNewCourses />}/>}  ></Route>
+                <Route path="/admin/course-status" element={<AdminRole element={<CourseStatus />}/>} ></Route>
+                <Route path="/admin/classify-course" element={<AdminRole  element={<ClassifyCourse />}/>}></Route>
+                <Route path="/admin/page-coupons" element={<AdminRole element={<PageCoupons />}/>} ></Route>
+                <Route path="/admin/category-list" element={<AdminRole element={<CategoryList />}/>} ></Route>
+                <Route path="/admin/category-crud" element={<AdminRole element={<CategoryCrud />}/>} ></Route>
+                <Route path="/admin/priority-category" element={<AdminRole element={<PriorityCategory />}/>} ></Route>
+                <Route path="/admin/courses-of-category" element={<AdminRole element={<CoursesOfCategory />}/>} ></Route>
+                <Route path="/admin/blogs" element={<AdminRole element={<BlogCrud />}/>} ></Route>
+                <Route path="/admin/comments" element={<AdminRole element={<CmtCrud />}/>} ></Route>
+                <Route path="/admin/list-students" element={<AdminRole element={<ListStudents />}/>} ></Route>
+                <Route path="/admin/list-teachers" element={<AdminRole element={<ListTeachers />}/>} ></Route>
+                <Route path="/admin/classify-users" element={<AdminRole element={<ClassifyUsers />}/>} ></Route>
+                <Route path="/admin/personal-information" element={<AdminRole element={<PersonalInformation />}/>} ></Route>
+                <Route path="/admin/manage-footer" element={<AdminRole element={<ManageFooter />}/>} ></Route>
+                <Route path="/admin/manage-header" element={<AdminRole element={<ManageHeader />}/>} ></Route>
+                <Route path="/admin/teaching-schedule-list" element={<AdminRole element={<ScheduleList />}/>} ></Route>
+                <Route path="/admin/manage-meet-room" element={<AdminRole element={<ManageMeetRoom />}/>} ></Route>
 
 
                 <Route path="/admin/draft" element={<Draft />}></Route>
