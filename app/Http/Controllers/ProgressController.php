@@ -31,15 +31,15 @@ class ProgressController extends Controller
         $userId = auth()->id();
         $contentId = $request->input('content_id');
         $courseId = $request->input('course_id');
-    
+
         $quiz = Quiz::where('content_id', $contentId)->first();
-    
+
         if ($quiz) {
             $quizSession = QuizSession::where('user_id', $userId)
                 ->where('quiz_id', $quiz->quiz_id)
                 ->where('status', 'completed')
                 ->first();
-    
+
             if (!$quizSession) {
                 return response()->json([
                     'message' => 'Quiz not completed',
@@ -47,11 +47,11 @@ class ProgressController extends Controller
                 ]);
             }
         }
-    
+
         $existingProgress = Progress::where('user_id', $userId)
             ->where('content_id', $contentId)
             ->first();
-    
+
         if (!$existingProgress) {
             Progress::create([
                 'user_id' => $userId,
@@ -62,15 +62,15 @@ class ProgressController extends Controller
                 'complete_update' => Carbon::now(),
             ]);
         }
-    
+
         $progressPercent = $this->getProgressPercent($userId, $courseId);
-    
+
         if ($progressPercent >= 100) {
             $existingCertificate = Certificate::where([
                 'user_id' => $userId,
                 'course_id' => $courseId
             ])->first();
-    
+
             if (!$existingCertificate) {
                 Certificate::create([
                     'user_id' => $userId,
@@ -79,41 +79,73 @@ class ProgressController extends Controller
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ]);
-    
+
                 $user = User::find($userId);
                 $course = Course::find($courseId);
-    
+
                 try {
                     Mail::to($user->email)->send(new CourseCompletedMail($user, $course));
                 } catch (\Exception $e) {
                     Log::error('Error sending course completion email: ' . $e->getMessage());
                 }
-    
+
                 return response()->json([
                     'message' => 'Course completed, certificate generated',
                     'progress_percent' => $progressPercent
                 ]);
             }
         }
-    
+
         return response()->json([
             'message' => 'Progress updated',
             'progress_percent' => $progressPercent
         ]);
     }
-    
+
     private function getProgressPercent($userId, $courseId)
     {
         $totalContents = Content::where('course_id', $courseId)->count();
-        
+
         if ($totalContents === 0) {
             return 0;
         }
-        
+
         $completedContents = Progress::where('user_id', $userId)
             ->where('course_id', $courseId)
             ->count();
-    
+
         return ($completedContents / $totalContents) * 100;
+    }
+
+    public function checkQuizCompletion(Request $request)
+    {
+        // Xác thực người dùng
+        $userId = auth()->id();
+
+        // Lấy content_id từ request
+        $contentId = $request->input('content_id');
+
+        // Tìm quiz liên quan đến content
+        $quiz = Quiz::where('content_id', $contentId)->first();
+
+        // Nếu không có quiz cho content này
+        if (!$quiz) {
+            return response()->json([
+                'quiz_completed' => true,  // Coi như đã hoàn thành nếu không có quiz
+                'has_quiz' => false
+            ]);
+        }
+
+        // Kiểm tra quiz session đã hoàn thành
+        $quizSession = QuizSession::where('user_id', $userId)
+            ->where('quiz_id', $quiz->quiz_id)
+            ->where('status', 'completed')
+            ->first();
+
+        return response()->json([
+            'quiz_completed' => $quizSession ? true : false,
+            'has_quiz' => true,
+            'quiz_id' => $quiz->quiz_id
+        ]);
     }
 }

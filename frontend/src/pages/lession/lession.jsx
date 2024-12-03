@@ -272,13 +272,43 @@ export const Lesson = () => {
     const [videoProgress, setVideoProgress] = useState({});
     const [videoDurations, setVideoDurations] = useState({});
     const [progressData, setProgressData] = useState([]);
+    const [quizStatus, setQuizStatus] = useState({});
     const playerRef = useRef();
+
+    const checkQuizCompletion = async (contentId) => {
+        try {
+            const token = localStorage.getItem("access_token");
+            const response = await axios.get(`${API_URL}/quiz/check-completion`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+                params: { content_id: contentId }
+            });
+
+            setQuizStatus(prev => ({
+                ...prev,
+                [contentId]: {
+                    hasQuiz: response.data.has_quiz,
+                    completed: response.data.quiz_completed
+                }
+            }));
+
+            return response.data;
+        } catch (error) {
+            console.error("Lỗi kiểm tra quiz:", error);
+            toast.error("Không thể kiểm tra bài kiểm tra.");
+            return null;
+        }
+    };
+
     // Tính toán progress
     const calculateProgress = () => {
         const totalLessons = contentLesson.length;
         const completedCount = completedLessons.size;
         return totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
     };
+
     // Cập nhật progress lên server
     const updateProgress = async (contentId) => {
         const token = localStorage.getItem("access_token");
@@ -287,11 +317,12 @@ export const Lesson = () => {
             navigate('/');
             return;
         }
+
         try {
             const courseId = lesson.course_id;
             const progressPercent = calculateProgress();
 
-            await axios.post(`${API_URL}/progress/complete-content`, {
+            const response = await axios.post(`${API_URL}/progress/complete-content`, {
                 user_id: user.user_id,
                 content_id: contentId,
                 course_id: courseId,
@@ -304,24 +335,49 @@ export const Lesson = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
+
+            // Xử lý các trạng thái từ server
+            switch (response.data.message) {
+                case 'Quiz not completed':
+                    toast.error("Bạn cần hoàn thành bài kiểm tra để hoàn thành nội dung này.");
+                    throw new Error('Quiz not completed');
+
+                case 'Course completed, certificate generated':
+                    toast.success("Chúc mừng! Bạn đã hoàn thành khóa học và nhận được chứng chỉ.");
+                    break;
+
+                default:
+                    toast.success("Đã cập nhật tiến độ thành công.");
+            }
+
+            return response.data;
         } catch (error) {
             console.error("Lỗi khi cập nhật tiến độ:", error);
             toast.error("Có lỗi xảy ra khi cập nhật tiến độ.");
-            throw error; // Throw error để handle ở component
+            throw error;
         }
     };
 
     // Xử lý khi video hoàn thành
     const handleVideoComplete = async (contentId, index, titleContentId) => {
         if (!videoProgress[titleContentId]) {
-            // Cập nhật video progress trong state
+            // Kiểm tra quiz cho nội dung này
+            const quizResult = await checkQuizCompletion(contentId);
+
+            // Nếu có quiz và chưa hoàn thành
+            if (quizResult?.has_quiz && !quizResult.quiz_completed) {
+                toast.error("Bạn cần hoàn thành bài kiểm tra trước khi hoàn thành nội dung này.");
+                return;
+            }
+
+            // Cập nhật tiến độ video
             const newVideoProgress = {
                 ...videoProgress,
                 [titleContentId]: true
             };
             setVideoProgress(newVideoProgress);
 
-            // Kiểm tra hoàn thành tất cả video trong content
+            // Kiểm tra xem tất cả video trong content đã hoàn thành chưa
             const allVideosInContent = titleContent[contentId] || [];
             const isAllVideosCompleted = allVideosInContent.every(video =>
                 newVideoProgress[video.title_content_id]
@@ -329,7 +385,7 @@ export const Lesson = () => {
 
             if (isAllVideosCompleted) {
                 try {
-                    // Cập nhật UI trước
+                    // Cập nhật UI
                     setCompletedVideosInSection(prev => ({
                         ...prev,
                         [contentId]: true
@@ -337,12 +393,13 @@ export const Lesson = () => {
 
                     setCompletedLessons(prev => new Set([...prev, contentId]));
 
-                    // Gọi API để cập nhật
+                    // Gọi API cập nhật tiến độ
                     await updateProgress(contentId);
-                    // Fetch lại progress sau khi update thành công
+
+                    // Fetch lại tiến độ
                     await fetchProgress();
                 } catch (error) {
-                    // Rollback UI nếu cập nhật thất bại
+                    // Hoàn tác UI nếu cập nhật thất bại
                     setCompletedVideosInSection(prev => ({
                         ...prev,
                         [contentId]: false
