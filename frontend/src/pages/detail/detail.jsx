@@ -1508,7 +1508,7 @@ export const Detail = () => {
                                                 </div>
 
                                                 {/* Accordion Section */}
-                                                <Accordion type="single" collapsible className="w-full pt-2">
+                                                {/* <Accordion type="single" collapsible className="w-full pt-2">
                                                     <AccordionItem value="instructor-description" className="border-none">
                                                         <AccordionTrigger className="text-black-500 hover:text-black-700 hover:no-underline p-0">
                                                             Xem thêm
@@ -1519,7 +1519,7 @@ export const Detail = () => {
                                                             </p>
                                                         </AccordionContent>
                                                     </AccordionItem>
-                                                </Accordion>
+                                                </Accordion> */}
                                             </div>
                                         </div>
                                     </div>
