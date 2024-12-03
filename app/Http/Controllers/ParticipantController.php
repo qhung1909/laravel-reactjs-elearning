@@ -560,9 +560,12 @@ class ParticipantController extends Controller
                 ->get()
                 ->map(function ($record) {
                     $joinedAt = $record->joined_at ? Carbon::parse($record->joined_at) : null;
-                    
+
+                    $nameContent = $record->meeting?->content?->name_content;
+
                     return [
                         'meeting_id' => $record->meeting_id,
+                        'name_content' => $nameContent, 
                         'attendance_date' => Carbon::parse($record->attendance_date)->format('Y-m-d'),
                         'attendance_status' => $this->checkAttendanceStatus($record),
                         'attendance_details' => [
@@ -572,6 +575,7 @@ class ParticipantController extends Controller
                         'is_present' => $record->is_present
                     ];
                 });
+
 
             $totalClasses = $attendanceHistory->count();
             $presentClasses = $attendanceHistory->where('attendance_status', 'Có mặt')->count();
@@ -588,12 +592,11 @@ class ParticipantController extends Controller
                     'total_classes' => $totalClasses,
                     'present' => $presentClasses,
                     'absent' => $absentClasses,
-                    'attendance_rate' => $totalClasses > 0 ? 
+                    'attendance_rate' => $totalClasses > 0 ?
                         round(($presentClasses / $totalClasses) * 100, 2) : 0
                 ],
                 'attendance_history' => $attendanceHistory
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

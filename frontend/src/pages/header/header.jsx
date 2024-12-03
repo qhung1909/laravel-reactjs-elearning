@@ -42,6 +42,10 @@ import {
 } from "@/components/ui/tooltip"
 import axios from "axios";
 import NotificationDropdown from "../pusher/pusher";
+
+import { useTranslation } from "react-i18next";
+import i18n from "i18next";
+
 export const Header = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
@@ -56,6 +60,8 @@ export const Header = () => {
     const [loading, setLoading] = useState(false);
     const [myCourse, setMyCourse] = useState([]);
     const navigate = useNavigate();
+
+    const { t } = useTranslation();
 
     const handleLoginRedirect = () => {
         sessionStorage.setItem('previousPage', location.pathname);
@@ -320,7 +326,7 @@ export const Header = () => {
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger>
                                                         <Link to="/courses" className="hover:text-gray-500 border-none p-3 ">
-                                                            Khóa học
+                                                            {t('menu-courses')}
                                                         </Link>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent>
