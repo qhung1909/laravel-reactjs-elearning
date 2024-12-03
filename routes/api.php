@@ -69,6 +69,9 @@ Route::post('/vnpay-payment', [CartController::class, 'vnpay_payment']);
 Route::get('/vnpay-callback', [CartController::class, 'vnpay_callback']);
 //Coupons check
 Route::post('/check-discount', [CouponController::class, 'checkDiscount']);
+Route::post('/validate-coupon', [CouponController::class, 'validateCoupon']);
+Route::post('/reset-price', [CouponController::class, 'resetPrice']);
+
 
 
 //Reset Password
