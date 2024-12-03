@@ -1,18 +1,30 @@
-import { Navigate } from "react-router-dom";
+/* eslint-disable react/prop-types */
+import { useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { UserContext } from "../context/usercontext";
 
-// eslint-disable-next-line react/prop-types
-const TeachRole = ({ element }) => {
-    const user = localStorage.getItem('user');
-    const getRole = user ? JSON.parse(user) : null;
+const TeacherRole = ({ element }) => {
+    const navigate = useNavigate();
+    const { user } = useContext(UserContext);
+    const [loading, setLoading] = useState(true);
 
-    const isTeach = getRole && getRole.role === 'teach';
+    useEffect(() => {
+        if (user === null) {
+            return;
+        }
 
-    if (!isTeach) {
-        console.log('Not teach');
-        return <Navigate to='/' />;
+        if (user.role !== "teacher") {
+            navigate('/');
+        } else {
+            setLoading(false);
+        }
+    }, [user, navigate]);
+
+    if (loading) {
+        return null;
     }
 
     return element;
 };
 
-export default TeachRole;
+export default TeacherRole;

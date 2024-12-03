@@ -1,20 +1,30 @@
 /* eslint-disable react/prop-types */
-import { Navigate } from "react-router-dom";
-import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/usercontext";
 
 const AdminRole = ({ element }) => {
-    const { admin } = useContext(UserContext);
+    const navigate = useNavigate();
+    const { user } = useContext(UserContext);
+    const [loading, setLoading] = useState(true);
 
-    const isAdmin = admin?.role === "admin";
-    console.log(admin?.role, 'xem role');
+    useEffect(() => {
+        if (user === null) {
+            return;
+        }
 
-    if (!isAdmin) {
-        console.log('Not admin');
-        return <Navigate to='/' />;
+        if (user.role !== "admin") {
+            navigate('/');
+        } else {
+            setLoading(false);
+        }
+    }, [user, navigate]);
+
+    if (loading) {
+        return null;
     }
 
-    return element; // Trả về phần tử nếu là admin
+    return element;
 };
 
 export default AdminRole;
