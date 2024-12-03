@@ -65,7 +65,7 @@ export const InstructorLesson = () => {
     const [loading, setLoading] = useState(false)
     const [teacherCourses, setTeacherCourses] = useState([]);
     const navigate = useNavigate();
-    const [course,setCourse] = useState([]);
+    const [course, setCourse] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("");
     const [formData, setFormData] = useState({
@@ -117,8 +117,11 @@ export const InstructorLesson = () => {
     }
 
     // hàm xử lý thay đổi status khóa học
-    const toggleCourseStatus = async (courseId) => {
+    const toggleCourseStatus = async (courseId, status) => {
         const token = localStorage.getItem("access_token");
+        if (status !== 'published' && status !== 'hide') {
+            return;
+        }
         try {
             const response = await axios.put(
                 `${API_URL}/teacher/courses/${courseId}/toggle-status`,
@@ -146,6 +149,10 @@ export const InstructorLesson = () => {
         }
     };
 
+    const canEditStatus = (status) => {
+        return status === 'published' || status === 'hide';
+    };
+
     const handleStatusChange = (event) => {
         setSelectedStatus(event.target.value);
     };
@@ -167,6 +174,8 @@ export const InstructorLesson = () => {
                 return "bg-gray-400 text-black md:px-3 md:py-1 font-medium sm:text-sm text-xs hover:text-white";
             case "draft":
                 return "bg-black text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
+            case "pending":
+                return "bg-blue-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
             default:
                 return "bg-gray-500 text-white";
         }
@@ -189,6 +198,64 @@ export const InstructorLesson = () => {
         XLSX.utils.book_append_sheet(wb, worksheet, 'TeacherCourses');
 
         XLSX.writeFile(wb, 'teacher_courses.xlsx');
+    };
+
+    const renderStatusEditButton = (item) => {
+        if (!canEditStatus(item.status)) {
+            return (
+
+                <Dialog>
+                    <DialogTrigger>
+                        <div className="flex gap-2 items-center bg-gray-300 text-gray-500 font-semibold py-2 sm:px-3 px-1 rounded cursor-not-allowed">
+                            <div>
+                                <p>Sửa</p>
+                            </div>
+                        </div>
+                    </DialogTrigger>
+
+                </Dialog>
+            );
+        }
+
+        return (
+            <Dialog>
+                <DialogTrigger>
+                    <div className="flex gap-2 items-center bg-yellow-300 text-black font-semibold py-2 sm:px-3 px-1 rounded hover:bg-blue-500 hover:text-black duration-300">
+                        <div>
+                            <p>Sửa</p>
+                        </div>
+                    </div>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            <div>
+                                Sửa trạng thái
+                            </div>
+                        </DialogTitle>
+                        <DialogDescription>
+                            <div>
+                                <div>
+                                    Bạn có thể tùy chỉnh trạng thái tại đây
+                                </div>
+                                <div className="flex justify-between mt-5 space-y-1">
+                                    <p className="text-lg">
+                                        Trạng thái hiện tại: <span className="text-yellow-500 font-semibold">{item.status}</span>
+                                    </p>
+                                    <div>
+                                        <Button
+                                            onClick={() => toggleCourseStatus(item.course_id, item.status)}
+                                        >
+                                            Đổi sang {item.status === 'published' ? 'hide' : 'published'}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        </DialogDescription>
+                    </DialogHeader>
+                </DialogContent>
+            </Dialog>
+        );
     };
 
     // render khóa học teacher
@@ -252,40 +319,7 @@ export const InstructorLesson = () => {
                         })}
                     </TableCell>
                     <TableCell>
-                        <Dialog>
-                            <DialogTrigger>
-                                <div className="flex gap-2 items-center bg-yellow-300 text-black font-semibold py-2 sm:px-3 px-1 rounded hover:bg-blue-500 hover:text-black duration-300">
-                                    <div className="">
-                                        <p>Sửa</p>
-                                    </div>
-                                </div>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>
-                                        <div className="">
-                                            Sửa trạng thái
-                                        </div>
-                                    </DialogTitle>
-                                    <DialogDescription>
-                                        <div className="">
-
-                                            <div className="">
-                                                Bạn có thể tùy chỉnh trạng thái tại đây
-                                            </div>
-
-                                            <div className="flex justify-between mt-5 space-y-1">
-                                                <p className="text-lg">Trạng thái hiện tại: <span className="text-yellow-500 font-semibold">{item.status}</span></p>
-                                                <div className="">
-                                                    <Button onClick={() => toggleCourseStatus(item.course_id)}>Thay đổi trạng thái</Button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </DialogDescription>
-                                </DialogHeader>
-                            </DialogContent>
-                        </Dialog>
-
+                        {renderStatusEditButton(item)}
                     </TableCell>
                 </TableRow>
             ))
@@ -571,7 +605,7 @@ export const InstructorLesson = () => {
                             </div>
 
                             {/* tìm kiếm */}
-                            <div className=" flex justify-center p-3 md:p-0 lg:my-5">
+                            <div className=" flex justify-center p-3 md:p-0 lg:my-5 my-3">
                                 <input type="text" value={searchTerm} onChange={handleSearch} placeholder="Nhập 1 từ khóa bất kỳ muốn tìm kiếm" className="md:w-full w-[80%] p-3 rounded-tl-lg rounded-bl-lg" />
                             </div>
 
