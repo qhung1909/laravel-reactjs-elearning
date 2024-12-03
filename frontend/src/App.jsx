@@ -18,7 +18,7 @@ import { Contact } from "./pages/contact/contact.jsx";
 import { Home } from "./pages/home/home.jsx";
 import { Header } from "./pages/header/header.jsx";
 import { Footer } from "./pages/footer/footer.jsx";
-// import AdminRole from "./pages/role/adminRole.jsx";
+import AdminRole from "./pages/role/adminRole.jsx";
 import { PageNotFound } from "./pages/pageNotFound/pageNotFound.jsx";
 import { Payment } from "./pages/payment/payment.jsx";
 import { Cart } from "./pages/cart/cart.jsx";
@@ -137,8 +137,8 @@ function AppContent() {
                 <Route path="/course/manage/:course_id/curriculum" element={<Curriculum />}></Route>
                 <Route path="/course/manage/:course_id/create-quiz/:content_id/quiz/:quiz_id" element={<CreateQuiz />}></Route>
 
-                {/* <Route path="/admin" element={<AdminRole element={<Dashboard />} />}></Route> */}
-                <Route path="/admin" element={<Dashboard />}></Route>
+                <Route path="/admin" element={<AdminRole element={<Dashboard />} />}></Route>
+                {/* <Route path="/admin" element={<Dashboard />}></Route> */}
                 <Route path="/admin/example" element={<Example />}></Route>
                 <Route path="/admin/course-list" element={<CourseList />}></Route>
                 <Route path="/admin/browse-new-courses" element={<BrowseNewCourses />}></Route>
