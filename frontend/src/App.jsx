@@ -76,6 +76,7 @@ import CertificateDetailPage from "./pages/certificate/certificatePage.jsx";
 import ManageCertificate from "./pages/certificate/ManageCertificate.jsx";
 import ScheduleManagement from "./pages/schedule/template.jsx";
 import PersonalPage from "./pages/personalPage/personal.jsx";
+import TeacherRole from "./pages/role/teachRole.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -116,7 +117,6 @@ function AppContent() {
             <ScrollToTop />
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
-
                 <Route path="/teacher/:id" element={<PersonalPage />}></Route>
                 <Route path="/demo" element={<Demo />}></Route>
                 <Route path="/user/certificate" element={<ManageCertificate />}></Route>
@@ -125,44 +125,42 @@ function AppContent() {
                 <Route path="/user/noti" element={<UserNoti />}></Route>
                 <Route path="/user/favorite" element={<UserFavorite />}></Route>
                 <Route path="/user/attendance" element={<UserAttendance />}></Route>
-                <Route path="/instructor" element={<Instructor />}></Route>
-                <Route path="/instructor/history" element={<InstructorHistory />}></Route>
-                <Route path="/instructor/lesson" element={<InstructorLesson />}></Route>
-                <Route path="/instructor/notification" element={<InstructorNotification />}></Route>
-                <Route path="/instructor/profile" element={<InstructorProfile />}></Route>
-                <Route path="/instructor/schedule" element={<InstructorSchedule />}></Route>
+                <Route path="/instructor" element={<TeacherRole element={<Instructor />}/>}></Route>
+                <Route path="/instructor/history" element={<TeacherRole element={<InstructorHistory />}/>}></Route>
+                <Route path="/instructor/lesson" element={<TeacherRole element={<InstructorLesson />}/>}></Route>
+                <Route path="/instructor/notification" element={<TeacherRole element={<InstructorNotification />}/>}></Route>
+                <Route path="/instructor/profile" element={<TeacherRole element={<InstructorProfile />}/>}></Route>
+                <Route path="/instructor/schedule" element={<TeacherRole element={<InstructorSchedule />}/>}></Route>
                 <Route path="/contact" element={<Contact />}></Route>
 
-                <Route path="/course/manage/:course_id/course-overview" element={<CourseOverview />}></Route>
-                <Route path="/course/manage/:course_id/curriculum" element={<Curriculum />}></Route>
-                <Route path="/course/manage/:course_id/create-quiz/:content_id/quiz/:quiz_id" element={<CreateQuiz />}></Route>
+                <Route path="/course/manage/:course_id/course-overview" element={<TeacherRole element={<CourseOverview />}/>}></Route>
+                <Route path="/course/manage/:course_id/curriculum" element={<TeacherRole element={<Curriculum />}/>}></Route>
+                <Route path="/course/manage/:course_id/create-quiz/:content_id/quiz/:quiz_id" element={<TeacherRole element={<CreateQuiz />}/>}></Route>
 
                 <Route path="/admin" element={<AdminRole element={<Dashboard />} />}></Route>
-                {/* <Route path="/admin" element={<Dashboard />}></Route> */}
                 <Route path="/admin/example" element={<AdminRole element={<Example />}/>}></Route>
                 <Route path="/admin/course-list" element={<AdminRole element={<CourseList />}/>}></Route>
                 <Route path="/admin/browse-new-courses" element={<AdminRole element={<BrowseNewCourses />}/>}  ></Route>
-                <Route path="/admin/course-status" element={<AdminRole element={<CourseStatus />}/>} ></Route>
+                <Route path="/admin/course-status" element={<AdminRole element={<CourseStatus />}/>}></Route>
                 <Route path="/admin/classify-course" element={<AdminRole  element={<ClassifyCourse />}/>}></Route>
-                <Route path="/admin/page-coupons" element={<AdminRole element={<PageCoupons />}/>} ></Route>
-                <Route path="/admin/category-list" element={<AdminRole element={<CategoryList />}/>} ></Route>
-                <Route path="/admin/category-crud" element={<AdminRole element={<CategoryCrud />}/>} ></Route>
-                <Route path="/admin/priority-category" element={<AdminRole element={<PriorityCategory />}/>} ></Route>
-                <Route path="/admin/courses-of-category" element={<AdminRole element={<CoursesOfCategory />}/>} ></Route>
-                <Route path="/admin/blogs" element={<AdminRole element={<BlogCrud />}/>} ></Route>
-                <Route path="/admin/comments" element={<AdminRole element={<CmtCrud />}/>} ></Route>
-                <Route path="/admin/list-students" element={<AdminRole element={<ListStudents />}/>} ></Route>
-                <Route path="/admin/list-teachers" element={<AdminRole element={<ListTeachers />}/>} ></Route>
-                <Route path="/admin/classify-users" element={<AdminRole element={<ClassifyUsers />}/>} ></Route>
-                <Route path="/admin/personal-information" element={<AdminRole element={<PersonalInformation />}/>} ></Route>
-                <Route path="/admin/manage-footer" element={<AdminRole element={<ManageFooter />}/>} ></Route>
-                <Route path="/admin/manage-header" element={<AdminRole element={<ManageHeader />}/>} ></Route>
-                <Route path="/admin/teaching-schedule-list" element={<AdminRole element={<ScheduleList />}/>} ></Route>
-                <Route path="/admin/manage-meet-room" element={<AdminRole element={<ManageMeetRoom />}/>} ></Route>
+                <Route path="/admin/page-coupons" element={<AdminRole element={<PageCoupons />}/>}></Route>
+                <Route path="/admin/category-list" element={<AdminRole element={<CategoryList />}/>}></Route>
+                <Route path="/admin/category-crud" element={<AdminRole element={<CategoryCrud />}/>}></Route>
+                <Route path="/admin/priority-category" element={<AdminRole element={<PriorityCategory />}/>}></Route>
+                <Route path="/admin/courses-of-category" element={<AdminRole element={<CoursesOfCategory />}/>}></Route>
+                <Route path="/admin/blogs" element={<AdminRole element={<BlogCrud />}/>}></Route>
+                <Route path="/admin/comments" element={<AdminRole element={<CmtCrud />}/>}></Route>
+                <Route path="/admin/list-students" element={<AdminRole element={<ListStudents />}/>}></Route>
+                <Route path="/admin/list-teachers" element={<AdminRole element={<ListTeachers />}/>}></Route>
+                <Route path="/admin/classify-users" element={<AdminRole element={<ClassifyUsers />}/>}></Route>
+                <Route path="/admin/personal-information" element={<AdminRole element={<PersonalInformation />}/>}></Route>
+                <Route path="/admin/manage-footer" element={<AdminRole element={<ManageFooter />}/>}></Route>
+                <Route path="/admin/manage-header" element={<AdminRole element={<ManageHeader />}/>}></Route>
+                <Route path="/admin/teaching-schedule-list" element={<AdminRole element={<ScheduleList />}/>}></Route>
+                <Route path="/admin/manage-meet-room" element={<AdminRole element={<ManageMeetRoom />}/>}></Route>
 
-
-                <Route path="/admin/draft" element={<Draft />}></Route>
-                <Route path="/admin/courses/:course_id" element={<DetailCourse />} />
+                <Route path="/admin/draft" element={<AdminRole element={<Draft />}/>}></Route>
+                <Route path="/admin/courses/:course_id" element={<AdminRole element={<DetailCourse />}/>}/>
 
 
                 <Route path="/" element={<Home />}></Route>
