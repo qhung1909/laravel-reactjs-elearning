@@ -297,7 +297,6 @@ export const Lesson = () => {
             return response.data;
         } catch (error) {
             console.error("Lỗi kiểm tra quiz:", error);
-            toast.error("Không thể kiểm tra bài kiểm tra.");
             return null;
         }
     };
@@ -343,17 +342,14 @@ export const Lesson = () => {
                     throw new Error('Quiz not completed');
 
                 case 'Course completed, certificate generated':
-                    toast.success("Chúc mừng! Bạn đã hoàn thành khóa học và nhận được chứng chỉ.");
+                    toast.success("🎉 Chúc mừng bạn đã hoàn thành khóa học! Chứng chỉ sẽ được gửi đến email của bạn trong giây lát.");
                     break;
 
-                default:
-                    toast.success("Đã cập nhật tiến độ thành công.");
             }
 
             return response.data;
         } catch (error) {
             console.error("Lỗi khi cập nhật tiến độ:", error);
-            toast.error("Có lỗi xảy ra khi cập nhật tiến độ.");
             throw error;
         }
     };
@@ -366,7 +362,7 @@ export const Lesson = () => {
 
             // Nếu có quiz và chưa hoàn thành
             if (quizResult?.has_quiz && !quizResult.quiz_completed) {
-                toast.error("Bạn cần hoàn thành bài kiểm tra trước khi hoàn thành nội dung này.");
+                toast.error("Bạn cần hoàn thành bài kiểm tra.");
                 return;
             }
 
