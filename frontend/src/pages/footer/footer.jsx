@@ -6,8 +6,21 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-
+import i18next from "i18next"
+import { useEffect } from "react"
 export const Footer = () => {
+    const changeLanguage = (e) => {
+        const languageValue = e.target.value || e.target.getAttribute('value');
+        sessionStorage.setItem('language', languageValue);
+        i18next.changeLanguage(languageValue);
+        window.location.reload();
+    }
+    useEffect(() => {
+        const savedLanguage = sessionStorage.getItem('language') || 'en';
+        i18next.changeLanguage(savedLanguage);
+        console.log(i18next.t('common.hello')); // Kiểm tra xem có hiển thị chuỗi tiếng Anh hay không
+
+    }, []);
     return (
         <>
             <footer className="bg-gray-100 h-auto rounded-tl-[70px] rounded-tr-[70px]">
@@ -71,8 +84,8 @@ export const Footer = () => {
                                             <SelectValue placeholder="Ngôn ngữ" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="light">Tiếng Việt</SelectItem>
-                                            <SelectItem value="dark">English</SelectItem>
+                                            <SelectItem value="vie" onClick={() => changeLanguage}>Tiếng Việt</SelectItem>
+                                            <SelectItem value="eng" onClick={() => changeLanguage}>English</SelectItem>
                                         </SelectContent>
                                     </Select>
 
