@@ -65,6 +65,15 @@ export const UserNoti = () => {
                                         <span>Yêu thích</span>
                                     </Link>
                                 </li>
+                                <li className="w-full">
+                                    <Link
+                                        to="/user/attendance"
+                                        className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
+                                    >
+                                        <Heart className="w-4 h-4" />
+                                        <span>Điểm danh</span>
+                                    </Link>
+                                </li>
                             </ul>
                         </div>
 
