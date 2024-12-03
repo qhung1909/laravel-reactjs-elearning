@@ -312,14 +312,14 @@ export const Detail = () => {
 
                 // Tính tổng rating và số lượng đánh giá
                 const totalRating = comments.reduce((total, comment) => {
-                    return total + parseFloat(comment.rating || 0); 
+                    return total + parseFloat(comment.rating || 0);
                 }, 0);
 
                 const totalComments = comments.length;
 
                 // Tính trung bình rating
                 const avgRatingCourse = totalComments > 0 ? totalRating / totalComments : 0;
-
+                console.log("Tổng bình luận khóa học: ", totalComments)
                 console.log("Trung bình rating của khóa học:", avgRatingCourse);
                 fetchComments(res.data.course_id);
                 if (user.user_id) {
