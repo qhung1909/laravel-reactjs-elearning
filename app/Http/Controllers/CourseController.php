@@ -178,13 +178,13 @@ class CourseController extends Controller
     public function show(Request $request, $slug)
     {
         $course = Cache::remember("course_{$slug}", 90, function () use ($slug) {
-            return Course::where('slug', $slug)
+            return $this->course->where('slug', $slug)
                 ->where('status', 'published')
                 ->first();
         });
     
         if (!$course) {
-            return response()->json(['error' => 'Course not found or not published'], 404);
+            return response()->json(['error' => 'Khóa học không tìm thấy hoặc chưa được xuất bản'], 404);
         }
     
         $ipAddress = $request->ip();
@@ -199,10 +199,15 @@ class CourseController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
     
-        return response()->json([
-            'course' => $course,
-            'comments' => $comments
-        ]);
+        $response = [
+            'course' => $course
+        ];
+    
+        if ($comments->isNotEmpty()) {
+            $response['comments'] = $comments;
+        }
+    
+        return response()->json($response);
     }
 
     public function store(Request $request)
