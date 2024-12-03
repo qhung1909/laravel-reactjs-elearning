@@ -1,4 +1,11 @@
 import { Link } from "react-router-dom"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 export const Footer = () => {
     return (
@@ -9,14 +16,14 @@ export const Footer = () => {
 
                         {/* grid - left */}
                         <div className="col-span-1">
-            
+
                             <img
                                 src="/src/assets/images/antlearn.png"
                                 alt=""
                                 className="w-20 md:w-32 mb-5"
                             />
                             <Link to="https://www.facebook.com/profile.php?id=100079303916866">
-                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/faecbooklogo.svg" className="w-7"  alt="" />
+                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/faecbooklogo.svg" className="w-7" alt="" />
                             </Link>
                         </div>
 
@@ -55,20 +62,20 @@ export const Footer = () => {
 
                             {/* thẻ 3 */}
                             <div className="footer-end mt-5 md:mt-0">
-                                <div className="">
+                                <div className="space-y-2">
                                     <span className="font-medium text-black text-base">
                                         Ngôn ngữ
                                     </span>
-                                    <div className="border border-gray-400 rounded-sm mt-3 md:w-full w-36">
-                                        <div className="flex items-center gap-3 py-1 px-4 ">
-                                            <div className="">
-                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/language.svg" className="w-6" alt="" />
-                                            </div>
-                                            <div className="text-sm">
-                                                Tiếng Việt
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <Select>
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue placeholder="Ngôn ngữ" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="light">Tiếng Việt</SelectItem>
+                                            <SelectItem value="dark">English</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+
                                 </div>
 
                             </div>
