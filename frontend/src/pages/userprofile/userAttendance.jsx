@@ -270,7 +270,7 @@ export const UserAttendance = () => {
                                                         <TableRow className="bg-yellow-50/50">
                                                             <TableHead className="p-4 text-sm font-medium text-gray-700 w-[50px]">STT</TableHead>
                                                             <TableHead className="p-4 text-sm font-medium text-gray-700 min-w-[200px]">Ngày học</TableHead>
-                                                            <TableHead className="p-4 text-sm font-medium text-gray-700 min-w-[200px]">Tên khóa học</TableHead>
+                                                            <TableHead className="p-4 text-sm font-medium text-gray-700 min-w-[200px]">Nội dung</TableHead>
                                                             <TableHead className="p-4 text-sm font-medium text-gray-700 min-w-[150px]">Trạng thái</TableHead>
                                                             <TableHead className="p-4 text-sm font-medium text-gray-700 min-w-[150px]">Giờ vào học</TableHead>
                                                             <TableHead className="p-4 text-sm font-medium text-gray-700 min-w-[150px]">Giờ thoát</TableHead>
@@ -311,7 +311,7 @@ export const UserAttendance = () => {
                                                                         {item.attendance_date}
                                                                     </TableCell>
                                                                     <TableCell className="p-4 text-sm font-medium">
-                                                                        Tên mẫu
+                                                                    {item.name_content}
                                                                     </TableCell>
                                                                     <TableCell className="p-4 text-sm">
                                                                         <span className={`px-2 py-1 rounded-full ${item.attendance_status === 'Có mặt'
