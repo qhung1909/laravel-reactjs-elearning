@@ -38,10 +38,12 @@ export const CoursesProvider = ({ children }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const navigate = useNavigate();
+    const [averageRatings, setAverageRatings] = useState({});
+    const [totalReviews, setTotalReviews] = useState({});
 
-    // tất cả khóa học
+    // Hàm lấy tất cả khóa học
     const fetchCourses = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
             const response = await axios.get(`${API_URL}/courses`, {
                 headers: {
@@ -49,13 +51,49 @@ export const CoursesProvider = ({ children }) => {
                 },
             });
             const allCourses = response.data;
-            setCourses(allCourses)
+
+            const newAverageRatings = {};
+            const newTotalReviews = {};
+
+            allCourses.forEach((course) => {
+                // Khởi tạo giá trị mặc định
+                newAverageRatings[course.course_id] = 0;
+                newTotalReviews[course.course_id] = 0;
+
+                // Kiểm tra comments có tồn tại và có phải array không
+                if (course.comments && Array.isArray(course.comments)) {
+                    // Lọc ra các comments có rating hợp lệ
+                    const validComments = course.comments.filter(comment =>
+                        comment && comment.rating && !isNaN(Number(comment.rating))
+                    );
+
+                    // Cập nhật số lượng đánh giá
+                    newTotalReviews[course.course_id] = validComments.length;
+
+                    if (validComments.length > 0) {
+                        // Tính tổng rating từ các comments hợp lệ
+                        const totalRating = validComments.reduce((sum, comment) => {
+                            return sum + Number(comment.rating);
+                        }, 0);
+
+                        // Tính trung bình và làm tròn đến 1 chữ số thập phân
+                        newAverageRatings[course.course_id] =
+                            Number((totalRating / validComments.length).toFixed(1));
+                    }
+                }
+
+            });
+
+            setAverageRatings(newAverageRatings);
+            setTotalReviews(newTotalReviews);
+            setCourses(allCourses);
+
         } catch (error) {
-            console.log('Error fetching categories', error)
+            console.error('Lỗi khi tải danh sách khóa học:', error);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     // khóa học theo danh mục
     const fetchCoursesByCategory = async (slug) => {
@@ -144,7 +182,10 @@ export const CoursesProvider = ({ children }) => {
             fetchCoursesByCategory,
             fetchCourses,
             fetchTopPurchasedProduct,
-            hotProducts
+            hotProducts,
+            averageRatings,
+            totalReviews
+
         }}>
             {children}
         </CoursesContext.Provider>

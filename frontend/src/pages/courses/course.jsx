@@ -49,7 +49,7 @@ import { Book, Users, WifiOff, Wifi, Crown, Calendar, ShoppingCart, Tag } from '
 import { Medal, BookOpen, Star, TrendingUp } from 'lucide-react';
 
 export const Courses = () => {
-    const { courses, setCourses, fetchSearchResults, fetchCoursesByCategory, fetchCourses, fetchTopPurchasedProduct, hotProducts } = useContext(CoursesContext);
+    const { courses, setCourses, fetchSearchResults, fetchCoursesByCategory, fetchCourses, fetchTopPurchasedProduct, hotProducts, averageRatings = {}, totalReviews = {} } = useContext(CoursesContext);
     const { categories } = useContext(CategoriesContext);
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search');
@@ -472,7 +472,7 @@ export const Courses = () => {
         ))
     ) : (
         currentCourses.map((item, index) => (
-            <div key={index} >
+            <div key={index}>
                 <Link to={`/detail/${item.slug}`} className="relative bg-white p-4 rounded-lg flex items-center group my-5 hover:shadow-lg transition-shadow">
                     <img alt={item.title} className="w-44 h-28 sm:w-64 sm:h-40 md:w-72 md:h-40 sm:object-cover mr-4 rounded-lg" src={item.img} />
                     <div className="flex-1 ml-4">
@@ -503,17 +503,43 @@ export const Courses = () => {
                             <span className="font-medium mr-1">Lượt xem:</span>
                             {item.views}
                         </div>
+
                     </div>
                     <div className="ml-auto flex flex-col items-end">
                         <p className="text-sm sm:text-lg font-bold text-blue-600 mb-1">
                             {formatCurrency(item.price_discount)}
                         </p>
-                        <p className="text-sm text-gray-400 line-through">
+                        <p className="text-sm text-gray-400 line-through mb-1">
                             {formatCurrency(item.price)}
                         </p>
+                        <div className="flex-col items-center text-xs text-gray-500 space-y-1 ">
+                            <span className="flex justify-end">
+                                {totalReviews[item.course_id] || 0} lượt đánh giá
+                            </span>
+                            <div className='flex'>
+                                {Array.from({ length: 5 }, (_, index) => {
+                                    // Lấy rating của khóa học hiện tại
+                                    const rating = averageRatings[item.course_id] || 0;
+                                    // Convert rating thành số để đảm bảo
+                                    const ratingNumber = Number(rating);
+
+                                    return (
+                                        <Star
+                                            key={index}
+                                            className={`w-5 h-5 ${index < Math.floor(ratingNumber)
+                                                ? 'text-yellow-400 fill-yellow-400'
+                                                : index < Math.floor(ratingNumber) + 1 &&
+                                                    ratingNumber % 1 !== 0
+                                                    ? 'text-yellow-400 fill-yellow-200'
+                                                    : 'text-gray-200'
+                                                }`}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </div>
                     </div>
                 </Link>
-
             </div>
         ))
     )
