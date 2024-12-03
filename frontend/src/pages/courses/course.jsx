@@ -503,38 +503,41 @@ export const Courses = () => {
                             <span className="font-medium mr-1">Lượt xem:</span>
                             {item.views}
                         </div>
-                        <div className="flex items-center text-xs text-gray-500">
-                            {Array.from({ length: 5 }, (_, index) => {
-                                // Lấy rating của khóa học hiện tại
-                                const rating = averageRatings[item.course_id] || 0;
-                                // Convert rating thành số để đảm bảo
-                                const ratingNumber = Number(rating);
 
-                                return (
-                                    <Star
-                                        key={index}
-                                        className={`w-5 h-5 ${index < Math.floor(ratingNumber)
-                                            ? 'text-yellow-400 fill-yellow-400'
-                                            : index < Math.floor(ratingNumber) + 1 &&
-                                                ratingNumber % 1 !== 0
-                                                ? 'text-yellow-400 fill-yellow-200'
-                                                : 'text-gray-200'
-                                            }`}
-                                    />
-                                );
-                            })}
-                            <span className="ml-2">
-                                {totalReviews[item.course_id] || 0} lượt đánh giá
-                            </span>
-                        </div>
                     </div>
                     <div className="ml-auto flex flex-col items-end">
                         <p className="text-sm sm:text-lg font-bold text-blue-600 mb-1">
                             {formatCurrency(item.price_discount)}
                         </p>
-                        <p className="text-sm text-gray-400 line-through">
+                        <p className="text-sm text-gray-400 line-through mb-1">
                             {formatCurrency(item.price)}
                         </p>
+                        <div className="flex-col items-center text-xs text-gray-500 space-y-1 ">
+                            <span className="flex justify-end">
+                                {totalReviews[item.course_id] || 0} lượt đánh giá
+                            </span>
+                            <div className='flex'>
+                                {Array.from({ length: 5 }, (_, index) => {
+                                    // Lấy rating của khóa học hiện tại
+                                    const rating = averageRatings[item.course_id] || 0;
+                                    // Convert rating thành số để đảm bảo
+                                    const ratingNumber = Number(rating);
+
+                                    return (
+                                        <Star
+                                            key={index}
+                                            className={`w-5 h-5 ${index < Math.floor(ratingNumber)
+                                                ? 'text-yellow-400 fill-yellow-400'
+                                                : index < Math.floor(ratingNumber) + 1 &&
+                                                    ratingNumber % 1 !== 0
+                                                    ? 'text-yellow-400 fill-yellow-200'
+                                                    : 'text-gray-200'
+                                                }`}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </div>
                     </div>
                 </Link>
             </div>
