@@ -150,7 +150,29 @@ export default function PersonalInformation() {
 
 
     const handleDeleteUser = async (userId) => {
-        console.log("Deleting user:", userId);
+        try {
+            // Call API to delete user
+            const response = await axios.delete(`${API_URL}/admin/users/${userId}`, {
+                headers: { 'x-api-secret': API_KEY }
+            });
+
+            if (response.status === 200) {
+                // Update local state
+                setStudents(prevStudents =>
+                    prevStudents.filter(student => student.id !== userId)
+                );
+                setTeachers(prevTeachers =>
+                    prevTeachers.filter(teacher => teacher.id !== userId)
+                );
+
+                // Show success message (you can use a toast notification here)
+                alert("Người dùng đã được xóa thành công!");
+            }
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            // Show error message
+            alert("Có lỗi xảy ra khi xóa người dùng. Vui lòng thử lại!");
+        }
     };
 
     const exportToExcel = () => {
