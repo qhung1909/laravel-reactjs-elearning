@@ -39,7 +39,7 @@ export const InstructorProfile = () => {
     const [error, setError] = useState("");
     const [loadingLogout, setLoadingLogout] = useState(false);
     const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const [current_password, setCurrentPassword] = useState("");
     const [password_confirmation, setPassword_Confirmation] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,13 +48,18 @@ export const InstructorProfile = () => {
 
     useEffect(() => {
         setLoading(true);
-        if (instructor) {
-            setUserName(instructor.name);
-            setEmail(instructor.email);
-            setCurrentAvatar(instructor.avatar);
-            setRole(instructor.role);
-            setLoading(false);
-        }
+
+        const timer = setTimeout(() => {
+            if (instructor) {
+                setUserName(instructor.name);
+                setEmail(instructor.email);
+                setCurrentAvatar(instructor.avatar);
+                setRole(instructor.role);
+                setLoading(false);
+            }
+        }, 500); // Thêm độ trễ 500ms
+
+        return () => clearTimeout(timer);
     }, [instructor]);
 
     // hàm xử lý thay đổi file
