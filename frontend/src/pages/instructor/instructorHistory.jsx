@@ -345,8 +345,8 @@ export const InstructorHistory = () => {
                                                             <SheetDescription>
                                                                 <ul className="">
                                                                     <li className="mb-3">
-                                                                        <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700  bg-gray-100">
-                                                                            <div className="bg-yellow-400  mr-3 px-1 rounded-full">
+                                                                        <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700  hover:bg-gray-100">
+                                                                            <div className=" mr-3 px-1 rounded-full">
                                                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
                                                                             </div>
                                                                             <p className="font-semibold text-base">Bảng điều khiển</p>
@@ -362,8 +362,8 @@ export const InstructorHistory = () => {
                                                                         </Link>
                                                                     </li>
                                                                     <li className="mb-3">
-                                                                        <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                            <div className=" mr-3 px-1 rounded-full">
+                                                                        <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
+                                                                            <div className="bg-yellow-400  mr-3 px-1 rounded-full">
                                                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
                                                                             </div>
                                                                             <p className="font-semibold text-base">Lịch sử mua hàng</p>
