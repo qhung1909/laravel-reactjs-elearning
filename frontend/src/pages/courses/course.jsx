@@ -145,6 +145,8 @@ export const Courses = () => {
         setSelectedCategory(null);
         setOnlineFilter(''); // Clear online filter
         fetchCourses(); // Lấy lại tất cả sản phẩm
+        window.history.pushState({}, '', window.location.pathname);
+
     };
 
     const handleOnlineFilter = (checked, value) => {
