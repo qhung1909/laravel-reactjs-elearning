@@ -20,63 +20,44 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
 export default function ManageFooter() {
-    const WEBSITE_SETTINGS_TABS = [
-        { id: 'general', icon: Globe, label: 'General' },
-        { id: 'branding', icon: Brush, label: 'Branding' },
-        { id: 'seo', icon: Search, label: 'SEO' },
-        { id: 'contact', icon: Phone, label: 'Contact' },
-        { id: 'media', icon: ImageIcon, label: 'Media' },
-        { id: 'social', icon: Share2, label: 'Social Media' },
-        { id: 'api', icon: Key, label: 'API' }
-    ];
-
-
-    const [activeTab, setActiveTab] = useState('general');
     const [settings, setSettings] = useState({
-        // General
         title: "My Website",
         description: "My awesome website description",
         timezone: "UTC+07:00",
         language: "vi",
-        emailNotifications: true,
 
-        // Branding
         logoUrl: "/logo.png",
         favicon: "/favicon.ico",
         primaryColor: "#EAB308",
         secondaryColor: "#CA8A04",
 
-        // SEO
         metaTitle: "",
         metaDescription: "",
         googleAnalyticsId: "",
         facebookPixelId: "",
 
-        // Contact
         email: "contact@example.com",
         phone: "+84123456789",
         address: "123 Street, City, Country",
         workingHours: "Mon-Fri: 9:00 AM - 5:00 PM",
 
-        // Media
         bannerUrl: "/banner.jpg",
         defaultThumbnail: "/thumbnail.jpg",
         maxUploadSize: 5,
         allowedFileTypes: ["jpg", "png", "pdf"],
 
-        // Social Media
         facebook: "",
         twitter: "",
         instagram: "",
         linkedin: "",
         youtube: "",
 
-        // API
         apiKey: "sk-123456789",
         webhookUrl: "",
         allowedOrigins: "*",
         rateLimit: 100
     });
+
     const handleSave = () => {
         console.log("Saving settings:", settings);
     };
