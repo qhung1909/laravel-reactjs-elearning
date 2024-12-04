@@ -8,7 +8,11 @@ import {
 } from "@/components/ui/select"
 import { useState } from "react";
 import axios from "axios";
+import { useSettingsContext } from "../context/settingcontext";
+
 export const Footer = () => {
+    const { settings, loading, handleSave } = useSettingsContext()
+
     const [text, setText] = useState("");
     const [translatedText, setTranslatedText] = useState("");
     const translateText = async () => {
@@ -83,15 +87,15 @@ export const Footer = () => {
                                             {/* term */}
                                             <li className="flex items-center gap-2">
                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/phone.svg" className="w-5" alt="" />
-                                                <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">0123 456 789</p>
+                                                <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">{settings.phone}</p>
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/address.svg" className="w-5" alt="" />
-                                                <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">Quận 12, TP Hồ Chí Minh</p>
+                                                <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">{settings.address}</p>
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/email.svg" className="w-5" alt="" />
-                                                <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">lmsantlearn@gmail.com</p>
+                                                <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">{settings.email}</p>
                                             </li>
 
                                         </ul>

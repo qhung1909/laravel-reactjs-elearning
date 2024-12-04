@@ -76,7 +76,8 @@ import ManageCertificate from "./pages/certificate/ManageCertificate.jsx";
 import ScheduleManagement from "./pages/schedule/template.jsx";
 import PersonalPage from "./pages/personalPage/personal.jsx";
 import TeacherRole from "./pages/role/teachRole.jsx";
-import WebsiteSettings from "./pages/setting/setting.jsx";
+import { SettingsProvider } from "./pages/context/settingcontext.jsx";
+
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -203,7 +204,9 @@ function App() {
                 <UserProvider>
                     <CategoriesProvider>
                         <CoursesProvider>
+                        <SettingsProvider>
                             <AppContent />
+                        </SettingsProvider>
                         </CoursesProvider>
                     </CategoriesProvider>
                 </UserProvider>
