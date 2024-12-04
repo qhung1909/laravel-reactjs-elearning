@@ -64,7 +64,6 @@ import ListTeachers from "./pages/admin/ManageAcount/ListTeachers.jsx";
 import ClassifyUsers from "./pages/admin/ManageAcount/ClassifyUsers.jsx";
 import { ThemeProvider } from "./components/ui/theme-provider.jsx";
 import PersonalInformation from "./pages/admin/ManageAcount/PersonalInformation.jsx";
-import { ManageHeader } from "./pages/admin/ManageHeaderFooter/ManageHeader.jsx";
 import Draft from "./pages/admin/ManageCourses/draft.jsx";
 import ManageFooter from "./pages/admin/ManageHeaderFooter/ManageFooter.jsx";
 import DetailCourse from "./pages/admin/ManageCourses/detailCourse.jsx";
@@ -77,6 +76,7 @@ import ManageCertificate from "./pages/certificate/ManageCertificate.jsx";
 import ScheduleManagement from "./pages/schedule/template.jsx";
 import PersonalPage from "./pages/personalPage/personal.jsx";
 import TeacherRole from "./pages/role/teachRole.jsx";
+import WebsiteSettings from "./pages/setting/setting.jsx";
 function AppContent() {
     const location = useLocation();
     const isAdminPage = location.pathname === "/admin";
@@ -117,6 +117,7 @@ function AppContent() {
             <ScrollToTop />
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
+            
                 <Route path="/teacher/:id" element={<PersonalPage />}></Route>
                 <Route path="/demo" element={<Demo />}></Route>
                 <Route path="/user/certificate" element={<ManageCertificate />}></Route>
@@ -154,11 +155,10 @@ function AppContent() {
                 <Route path="/admin/list-teachers" element={<AdminRole element={<ListTeachers />}/>}></Route>
                 <Route path="/admin/classify-users" element={<AdminRole element={<ClassifyUsers />}/>}></Route>
                 <Route path="/admin/personal-information" element={<AdminRole element={<PersonalInformation />}/>}></Route>
-                <Route path="/admin/manage-footer" element={<AdminRole element={<ManageFooter />}/>}></Route>
-                <Route path="/admin/manage-header" element={<AdminRole element={<ManageHeader />}/>}></Route>
+                <Route path="/admin/setting" element={<AdminRole element={<ManageFooter />}/>}></Route>
                 <Route path="/admin/teaching-schedule-list" element={<AdminRole element={<ScheduleList />}/>}></Route>
                 <Route path="/admin/manage-meet-room" element={<AdminRole element={<ManageMeetRoom />}/>}></Route>
-
+z
                 <Route path="/admin/draft" element={<AdminRole element={<Draft />}/>}></Route>
                 <Route path="/admin/courses/:course_id" element={<AdminRole element={<DetailCourse />}/>}/>
 

@@ -152,12 +152,11 @@ const data = {
             ],
         },
         {
-            title: "Quản lý Header/Footer",
+            title: "Quản lý cài đặt website",
             url: "#",
             icon: Settings2,
             items: [
-                { title: "Quản lý Header", url: "/admin/manage-header" },
-                { title: "Quản lý Footer", url: "/admin/manage-footer" },
+                { title: "Quản lý cài đặt website", url: "/admin/setting" },
             ],
         },
     ],
