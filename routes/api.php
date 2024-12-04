@@ -16,6 +16,7 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FavoriteController;
@@ -235,6 +236,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     Route::get('/revenue/teachers', [AdminController::class, 'getTeacherRevenues']);
     Route::put('/user/{userId}/role', [AdminController::class, 'updateRole']);
+
+    Route::get('/settings', [SettingController::class, 'index']);
+    Route::post('/settings', [SettingController::class, 'update']); 
+    
 
 });
 

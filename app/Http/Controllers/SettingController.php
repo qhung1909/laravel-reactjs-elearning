@@ -4,10 +4,28 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Setting;
-use Illuminate\Support\Facades\Validator;
 
 class SettingController extends Controller
-{
+{   
+    public function __construct() {
+        $this->middleware(function ($request, $next) {
+            if (!auth()->check()) {
+                return response()->json(['message' => 'Unauthenticated'], 401);
+            }
+            
+            if (auth()->user()->role !== 'admin') {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+            
+            return $next($request);
+        });
+    }
+    public function index()
+    {
+        $settings = Setting::first();
+        return response()->json($settings);
+    }
+
     public function update(Request $request)
     {
         if (auth()->user()->role !== 'admin') {
@@ -16,7 +34,9 @@ class SettingController extends Controller
 
         try {
             $settings = Setting::first();
-
+            if (!$settings) {
+                $settings = new Setting();
+            }
             $validated = $request->validate([
                 'title' => 'nullable|string|max:255',
                 'description' => 'nullable|string',

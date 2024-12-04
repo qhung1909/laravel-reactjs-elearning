@@ -8,9 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Setting extends Model
 {
     use HasFactory;
-
+    public $incrementing = false;
+    protected $casts = [
+        'allowed_file_types' => 'array'
+    ];
     protected $table = 'settings';
-    protected $primaryKey = 'id ';
+    protected $primaryKey = null;
     protected $fillable =
     [
         'title',

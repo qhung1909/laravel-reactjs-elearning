@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Brush, Share2, Phone } from 'lucide-react';
@@ -18,49 +18,146 @@ import { Separator } from '@radix-ui/react-context-menu'
 import { Settings, Save, Upload, AlertCircle, Key, Globe, Image as ImageIcon, RefreshCcw, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-
+import axios from 'axios';
+import toast from 'react-hot-toast';
 export default function ManageFooter() {
+    const API_URL = import.meta.env.VITE_API_URL;
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const token = localStorage.getItem('access_token');
+
     const [settings, setSettings] = useState({
-        title: "My Website",
-        description: "My awesome website description",
-        timezone: "UTC+07:00",
-        language: "vi",
-
-        logoUrl: "/logo.png",
-        favicon: "/favicon.ico",
-        primaryColor: "#EAB308",
-        secondaryColor: "#CA8A04",
-
+        title: "",
+        description: "",
+        timezone: "",
+        language: "",
+        logoUrl: "",
+        favicon: "",
+        primaryColor: "",
+        secondaryColor: "",
         metaTitle: "",
         metaDescription: "",
         googleAnalyticsId: "",
         facebookPixelId: "",
-
-        email: "contact@example.com",
-        phone: "+84123456789",
-        address: "123 Street, City, Country",
-        workingHours: "Mon-Fri: 9:00 AM - 5:00 PM",
-
-        bannerUrl: "/banner.jpg",
-        defaultThumbnail: "/thumbnail.jpg",
+        email: "",
+        phone: "",
+        address: "",
+        workingHours: "",
+        bannerUrl: "",
+        defaultThumbnail: "",
         maxUploadSize: 5,
-        allowedFileTypes: ["jpg", "png", "pdf"],
-
+        allowedFileTypes: [],
         facebook: "",
         twitter: "",
         instagram: "",
         linkedin: "",
         youtube: "",
-
-        apiKey: "sk-123456789",
+        apiKey: "",
         webhookUrl: "",
         allowedOrigins: "*",
         rateLimit: 100
     });
+    const [loading, setLoading] = useState(true);
 
-    const handleSave = () => {
-        console.log("Saving settings:", settings);
+    const fetchSettings = async () => {
+        try {
+            const response = await fetch(`${API_URL}/admin/settings`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'x-api-secret': API_KEY
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch settings');
+            const data = await response.json();
+
+            setSettings({
+                title: data.title,
+                description: data.description,
+                timezone: data.timezone,
+                language: data.language,
+                logoUrl: data.logo_url,
+                favicon: data.favicon,
+                primaryColor: data.primary_color,
+                secondaryColor: data.secondary_color,
+                metaTitle: data.meta_title,
+                metaDescription: data.meta_description,
+                googleAnalyticsId: data.google_analytics_id,
+                facebookPixelId: data.facebook_pixel_id,
+                email: data.contact_email,
+                phone: data.phone,
+                address: data.address,
+                workingHours: data.working_hours,
+                bannerUrl: data.banner_url,
+                defaultThumbnail: data.default_thumbnail,
+                maxUploadSize: data.max_upload_size,
+                allowedFileTypes: JSON.parse(data.allowed_file_types || '[]'),
+                facebook: data.facebook_url,
+                twitter: data.twitter_url,
+                instagram: data.instagram_url,
+                linkedin: data.linkedin_url,
+                youtube: data.youtube_url,
+                apiKey: data.api_key,
+                webhookUrl: data.webhook_url,
+                allowedOrigins: data.allowed_origins,
+                rateLimit: data.rate_limit
+            });
+
+        } catch (error) {
+            console.error('Error fetching settings:', error);
+        } finally {
+            setLoading(false);
+        }
     };
+
+    const handleSave = async () => {
+        try {
+            const apiData = {
+                title: settings.title,
+                description: settings.description,
+                timezone: settings.timezone,
+                language: settings.language,
+                logo_url: settings.logoUrl,
+                favicon: settings.favicon,
+                primary_color: settings.primaryColor,
+                secondary_color: settings.secondaryColor,
+                meta_title: settings.metaTitle,
+                meta_description: settings.metaDescription,
+                google_analytics_id: settings.googleAnalyticsId,
+                facebook_pixel_id: settings.facebookPixelId,
+                contact_email: settings.email,
+                phone: settings.phone,
+                address: settings.address,
+                working_hours: settings.workingHours,
+                banner_url: settings.bannerUrl,
+                default_thumbnail: settings.defaultThumbnail,
+                max_upload_size: settings.maxUploadSize,
+                allowed_file_types: JSON.stringify(settings.allowedFileTypes),
+                facebook_url: settings.facebook,
+                twitter_url: settings.twitter,
+                instagram_url: settings.instagram,
+                linkedin_url: settings.linkedin,
+                youtube_url: settings.youtube,
+                api_key: settings.apiKey,
+                webhook_url: settings.webhookUrl,
+                allowed_origins: settings.allowedOrigins,
+                rate_limit: settings.rateLimit
+            };
+
+            const { data } = await axios.post(`${API_URL}/admin/settings`, apiData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'x-api-secret': API_KEY
+                }
+            });
+
+            toast.success('Settings saved successfully');
+        } catch (error) {
+            toast.error(error.response?.data?.error || 'Error saving settings');
+        }
+    };
+
+    useEffect(() => {
+        fetchSettings();
+    }, []);
 
     return (
         <SidebarProvider>
@@ -93,100 +190,73 @@ export default function ManageFooter() {
                     </div>
                 </header>
 
-                <div className="absolute top-14 px-6 bg-gray-50 w-full font-sans">
-
+                <div className="absolute top-14 px-6 w-full font-sans bg-gradient-to-b from-slate-50 via-white to-slate-50 min-h-screen">
 
                     {/* Content */}
                     <div className="p-6 space-y-8">
                         <div className="flex justify-between items-center">
-                            <h1 className="text-2xl font-bold">Website Settings</h1>
+                            <h1 className="text-2xl font-bold">Cài đặt thông tin website</h1>
                         </div>
 
                         <div className="grid gap-8">
                             {/* General Settings */}
-                            <Card className="shadow-lg">
+                            <Card className="shadow-lg hover:shadow-xl">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        <Globe className="h-5 w-5" />
-                                        General Settings
+                                        <Globe className="h-5 w-5 text-teal-500" />
+                                        Tổng quan
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="grid md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <Label>Website Title</Label>
+                                        <Label className="text-teal-600">Tiêu đề website</Label>
                                         <Input
                                             value={settings.title}
                                             onChange={(e) => setSettings({ ...settings, title: e.target.value })}
+                                            className="focus:border-teal-500"
+                                            placeholder="Nhập tiêu đề website"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Description</Label>
+                                        <Label className="text-teal-600">Mô tả</Label>
                                         <Input
                                             value={settings.description}
                                             onChange={(e) => setSettings({ ...settings, description: e.target.value })}
+                                            className="focus:border-teal-500"
+                                            placeholder="Nhập mô tả website"
                                         />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Timezone</Label>
-                                        <Select
-                                            value={settings.timezone}
-                                            onValueChange={(value) => setSettings({ ...settings, timezone: value })}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select timezone" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="UTC+07:00">UTC+07:00</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Language</Label>
-                                        <Select
-                                            value={settings.language}
-                                            onValueChange={(value) => setSettings({ ...settings, language: value })}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select language" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="vi">Tiếng Việt</SelectItem>
-                                                <SelectItem value="en">English</SelectItem>
-                                            </SelectContent>
-                                        </Select>
                                     </div>
                                 </CardContent>
                             </Card>
 
-                            {/* Branding */}
-                            <Card className="shadow-lg">
+                            <Card className="shadow-lg hover:shadow-xl">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        <Brush className="h-5 w-5" />
-                                        Branding
+                                        <Brush className="h-5 w-5 text-orange-500" />
+                                        Nhận dạng thương hiệu
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-8">
                                     <div className="grid md:grid-cols-2 gap-8">
                                         <div className="space-y-4">
-                                            <Label>Logo</Label>
+                                            <Label className="text-orange-600">Logo</Label>
                                             <div className="flex items-center gap-4">
-                                                <div className="w-24 h-24 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center">
+                                                <div className="w-24 h-24 rounded-lg border-2 border-dashed border-orange-200 flex items-center justify-center bg-orange-50 hover:border-orange-300 transition-colors">
                                                     <img src={settings.logoUrl} alt="Logo" className="max-w-full max-h-full p-2" />
                                                 </div>
-                                                <Button variant="outline">
+                                                <Button variant="outline" className="text-orange-600 hover:text-orange-700">
                                                     <Upload className="h-4 w-4 mr-2" />
                                                     Upload Logo
                                                 </Button>
                                             </div>
                                         </div>
                                         <div className="space-y-4">
-                                            <Label>Favicon</Label>
+                                            <Label className="text-orange-600">Favicon</Label>
                                             <div className="flex items-center gap-4">
-                                                <div className="w-24 h-24 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center">
+                                                <div className="w-24 h-24 rounded-lg border-2 border-dashed border-orange-200 flex items-center justify-center bg-orange-50 hover:border-orange-300 transition-colors">
                                                     <img src={settings.favicon} alt="Favicon" className="max-w-full max-h-full p-2" />
                                                 </div>
-                                                <Button variant="outline">
+                                                <Button variant="outline" className="text-orange-600 hover:text-orange-700">
                                                     <Upload className="h-4 w-4 mr-2" />
                                                     Upload Favicon
                                                 </Button>
@@ -195,32 +265,34 @@ export default function ManageFooter() {
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <Label>Primary Color</Label>
+                                            <Label className="text-orange-600">Tone màu chính</Label>
                                             <div className="flex items-center gap-2">
                                                 <Input
                                                     type="color"
                                                     value={settings.primaryColor}
                                                     onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
-                                                    className="w-16 h-10 p-1"
+                                                    className="w-16 h-10 p-1 border-orange-200"
                                                 />
                                                 <Input
                                                     value={settings.primaryColor}
                                                     onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
+                                                    className="focus:border-orange-500"
                                                 />
                                             </div>
                                         </div>
                                         <div className="space-y-2">
-                                            <Label>Secondary Color</Label>
+                                            <Label className="text-orange-600">Tone màu phụ</Label>
                                             <div className="flex items-center gap-2">
                                                 <Input
                                                     type="color"
                                                     value={settings.secondaryColor}
                                                     onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
-                                                    className="w-16 h-10 p-1"
+                                                    className="w-16 h-10 p-1 border-orange-200"
                                                 />
                                                 <Input
                                                     value={settings.secondaryColor}
                                                     onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
+                                                    className="focus:border-orange-500"
                                                 />
                                             </div>
                                         </div>
@@ -229,120 +301,102 @@ export default function ManageFooter() {
                             </Card>
 
                             {/* SEO */}
-                            <Card className="shadow-lg">
+                            <Card className="shadow-lg hover:shadow-xl">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        <Search className="h-5 w-5" />
-                                        SEO Configuration
+                                        <Search className="h-5 w-5 text-purple-500" />
+                                        Cấu hình SEO
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <Label>Meta Title</Label>
+                                            <Label className="text-purple-600">Tiêu đề Meta</Label>
                                             <Input
                                                 value={settings.metaTitle}
                                                 onChange={(e) => setSettings({ ...settings, metaTitle: e.target.value })}
+                                                className="focus:border-purple-500"
+                                                placeholder="Tiêu đề cho SEO"
                                             />
-                                            <p className="text-sm text-gray-500">Recommended: 50-60 characters</p>
+                                            <p className="text-sm text-purple-500">Đề xuất: 50-60 từ</p>
                                         </div>
                                         <div className="space-y-2">
-                                            <Label>Meta Description</Label>
+                                            <Label className="text-purple-600">Meta Description</Label>
                                             <Textarea
                                                 value={settings.metaDescription}
                                                 onChange={(e) => setSettings({ ...settings, metaDescription: e.target.value })}
-                                                className="min-h-[100px]"
+                                                className="min-h-[100px] focus:border-purple-500"
+                                                placeholder="Mô tả cho SEO"
                                             />
-                                            <p className="text-sm text-gray-500">Recommended: 150-160 characters</p>
-                                        </div>
-                                    </div>
-                                    <div className="grid md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <Label>Google Analytics ID</Label>
-                                            <Input
-                                                value={settings.googleAnalyticsId}
-                                                onChange={(e) => setSettings({ ...settings, googleAnalyticsId: e.target.value })}
-                                                placeholder="UA-XXXXXXXXX-X"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Facebook Pixel ID</Label>
-                                            <Input
-                                                value={settings.facebookPixelId}
-                                                onChange={(e) => setSettings({ ...settings, facebookPixelId: e.target.value })}
-                                                placeholder="XXXXXXXXXXXXXXXXXX"
-                                            />
+                                            <p className="text-sm text-purple-500">Đề xuất: 150-160 từ</p>
                                         </div>
                                     </div>
                                 </CardContent>
                             </Card>
 
-                            {/* Contact */}
-                            <Card className="shadow-lg">
+                            <Card className="shadow-lg hover:shadow-xl">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        <Phone className="h-5 w-5" />
-                                        Contact Information
+                                        <Phone className="h-5 w-5 text-emerald-500" />
+                                        Thông tin liên hệ
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <Label>Email Address</Label>
+                                            <Label className="text-emerald-600">Địa chỉ email</Label>
                                             <Input
                                                 type="email"
                                                 value={settings.email}
                                                 onChange={(e) => setSettings({ ...settings, email: e.target.value })}
+                                                className="focus:border-emerald-500"
+                                                placeholder="example@domain.com"
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label>Phone Number</Label>
+                                            <Label className="text-emerald-600">Số điện thoại</Label>
                                             <Input
                                                 value={settings.phone}
                                                 onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
+                                                className="focus:border-emerald-500"
+                                                placeholder="+84 xxx xxx xxx"
                                             />
                                         </div>
-                                        <div className="space-y-2">
-                                            <Label>Address</Label>
+                                        <div className="space-y-2 md:col-span-2">
+                                            <Label className="text-emerald-600">Địa chỉ</Label>
                                             <Textarea
                                                 value={settings.address}
                                                 onChange={(e) => setSettings({ ...settings, address: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Working Hours</Label>
-                                            <Input
-                                                value={settings.workingHours}
-                                                onChange={(e) => setSettings({ ...settings, workingHours: e.target.value })}
+                                                className="focus:border-emerald-500"
+                                                placeholder="123 Đường ABC, Quận XYZ, TP.HCM"
                                             />
                                         </div>
                                     </div>
                                 </CardContent>
                             </Card>
-
-                            {/* Media */}
-                            <Card className="shadow-lg">
+                            <Card className="shadow-lg hover:shadow-xl">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        <ImageIcon className="h-5 w-5" />
-                                        Media Settings
+                                        <ImageIcon className="h-5 w-5 text-indigo-500" />
+                                        Cài đặt hình ảnh
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-8">
                                     <div className="grid md:grid-cols-2 gap-8">
                                         <div className="space-y-4">
-                                            <Label>Banner Image</Label>
+                                            <Label className="text-indigo-600">Ảnh banner</Label>
                                             <div className="flex flex-col gap-4">
-                                                <div className="aspect-video w-full rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50">
+                                                <div className="aspect-video w-full rounded-lg border-2 border-dashed border-indigo-200 flex items-center justify-center bg-indigo-50 hover:border-indigo-300 transition-colors">
                                                     <img src={settings.bannerUrl} alt="Banner" className="max-w-full max-h-full object-contain" />
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <Input
                                                         value={settings.bannerUrl}
                                                         onChange={(e) => setSettings({ ...settings, bannerUrl: e.target.value })}
-                                                        placeholder="Enter banner URL"
+                                                        placeholder="Nhập URL banner"
+                                                        className="focus:border-indigo-500"
                                                     />
-                                                    <Button variant="outline">
+                                                    <Button variant="outline" className="text-indigo-600 hover:text-indigo-700">
                                                         <Upload className="h-4 w-4 mr-2" />
                                                         Upload
                                                     </Button>
@@ -350,18 +404,19 @@ export default function ManageFooter() {
                                             </div>
                                         </div>
                                         <div className="space-y-4">
-                                            <Label>Default Thumbnail</Label>
+                                            <Label className="text-indigo-600">Ảnh Thumbnail</Label>
                                             <div className="flex flex-col gap-4">
-                                                <div className="aspect-video w-full rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50">
+                                                <div className="aspect-video w-full rounded-lg border-2 border-dashed border-indigo-200 flex items-center justify-center bg-indigo-50 hover:border-indigo-300 transition-colors">
                                                     <img src={settings.defaultThumbnail} alt="Default Thumbnail" className="max-w-full max-h-full object-contain" />
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <Input
                                                         value={settings.defaultThumbnail}
                                                         onChange={(e) => setSettings({ ...settings, defaultThumbnail: e.target.value })}
-                                                        placeholder="Enter thumbnail URL"
+                                                        placeholder="Nhập URL thumbnail"
+                                                        className="focus:border-indigo-500"
                                                     />
-                                                    <Button variant="outline">
+                                                    <Button variant="outline" className="text-indigo-600 hover:text-indigo-700">
                                                         <Upload className="h-4 w-4 mr-2" />
                                                         Upload
                                                     </Button>
@@ -369,119 +424,124 @@ export default function ManageFooter() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="grid md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <Label>Max Upload Size (MB)</Label>
-                                            <Input
-                                                type="number"
-                                                value={settings.maxUploadSize}
-                                                onChange={(e) => setSettings({ ...settings, maxUploadSize: parseInt(e.target.value) })}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Allowed File Types</Label>
-                                            <div className="flex flex-wrap gap-2">
-                                                {settings.allowedFileTypes.map((type) => (
-                                                    <div key={type} className="rounded-full bg-yellow-50 px-3 py-1 text-sm text-yellow-700">
-                                                        .{type}
-                                                    </div>
-                                                ))}
-                                                <Button variant="outline" size="sm">
-                                                    <Plus className="h-4 w-4 mr-2" />
-                                                    Add Type
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </CardContent>
                             </Card>
 
-                            {/* Social Media */}
-                            <Card className="shadow-lg">
+                            <Card className="shadow-lg hover:shadow-xl">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <Share2 className="h-5 w-5" />
-                                        Social Media Links
+                                        Liên kết mạng xã hội
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="grid md:grid-cols-2 gap-6">
-                                        {['facebook', 'twitter', 'instagram', 'linkedin', 'youtube'].map((platform) => (
-                                            <div key={platform} className="space-y-2">
-                                                <Label className="capitalize">{platform}</Label>
-                                                <Input
-                                                    value={settings[platform]}
-                                                    onChange={(e) => setSettings({ ...settings, [platform]: e.target.value })}
-                                                    placeholder={`https://${platform}.com/...`}
-                                                />
-                                            </div>
-                                        ))}
+                                        <div className="space-y-2">
+                                            <Label className="text-blue-600">Facebook</Label>
+                                            <Input
+                                                value={settings.facebook}
+                                                onChange={(e) => setSettings({ ...settings, facebook: e.target.value })}
+                                                placeholder="https://facebook.com/..."
+                                                className="focus:border-blue-500"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-blue-400">Twitter</Label>
+                                            <Input
+                                                value={settings.twitter}
+                                                onChange={(e) => setSettings({ ...settings, twitter: e.target.value })}
+                                                placeholder="https://twitter.com/..."
+                                                className="focus:border-blue-400"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-pink-500">Instagram</Label>
+                                            <Input
+                                                value={settings.instagram}
+                                                onChange={(e) => setSettings({ ...settings, instagram: e.target.value })}
+                                                placeholder="https://instagram.com/..."
+                                                className="focus:border-pink-500"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-blue-700">LinkedIn</Label>
+                                            <Input
+                                                value={settings.linkedin}
+                                                onChange={(e) => setSettings({ ...settings, linkedin: e.target.value })}
+                                                placeholder="https://linkedin.com/..."
+                                                className="focus:border-blue-700"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-red-600">Youtube</Label>
+                                            <Input
+                                                value={settings.youtube}
+                                                onChange={(e) => setSettings({ ...settings, youtube: e.target.value })}
+                                                placeholder="https://youtube.com/..."
+                                                className="focus:border-red-600"
+                                            />
+                                        </div>
                                     </div>
                                 </CardContent>
                             </Card>
 
                             {/* API Configuration */}
-                            <Card className="shadow-lg">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
+                            <Card className="shadow-xl border-red-200 bg-red-50/50">
+                                <CardHeader className="border-b border-red-200">
+                                    <CardTitle className="flex items-center gap-2 text-red-700">
                                         <Key className="h-5 w-5" />
-                                        API Configuration
+                                        Cài đặt API
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <Label>API Key</Label>
+                                            <Label className="text-red-700">API Key</Label>
                                             <div className="relative">
                                                 <Input
                                                     type="password"
                                                     value={settings.apiKey}
                                                     onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
-                                                    className="pr-24"
+                                                    className="pr-24 border-red-200 focus:ring-red-500"
                                                     placeholder="Enter API key"
                                                 />
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-yellow-600 hover:text-yellow-700"
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-red-600 hover:text-red-700"
                                                 >
-                                                    Regenerate
+                                                    Làm mới
                                                 </Button>
                                             </div>
-                                            <p className="text-sm text-gray-500">Never share your API key publicly</p>
+                                            <p className="text-sm text-red-600">Không bao giờ tiết lộ thông tin API.!</p>
                                         </div>
                                         <div className="space-y-2">
-                                            <Label>Webhook URL</Label>
+                                            <Label className="text-red-700">Webhook URL</Label>
                                             <Input
                                                 value={settings.webhookUrl}
                                                 onChange={(e) => setSettings({ ...settings, webhookUrl: e.target.value })}
+                                                className="border-red-200 focus:ring-red-500"
                                                 placeholder="https://..."
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label>Allowed Origins</Label>
+                                            <Label className="text-red-700">Domain được phép</Label>
                                             <Input
                                                 value={settings.allowedOrigins}
                                                 onChange={(e) => setSettings({ ...settings, allowedOrigins: e.target.value })}
-                                                placeholder="* or specific domains"
+                                                className="border-red-200 focus:ring-red-500"
+                                                placeholder="* hoặc domain cụ thể"
                                             />
-                                            <p className="text-sm text-gray-500">Use * for all origins or comma-separated domains</p>
+                                            <p className="text-sm text-red-600">Sử dụng * cho tất cả domain hoặc liệt kê các domain cách nhau bằng dấu phẩy</p>
                                         </div>
-                                        <div className="space-y-2">
-                                            <Label>Rate Limit (requests/min)</Label>
-                                            <Input
-                                                type="number"
-                                                value={settings.rateLimit}
-                                                onChange={(e) => setSettings({ ...settings, rateLimit: parseInt(e.target.value) })}
-                                            />
-                                        </div>
+
                                     </div>
 
-                                    <Alert className="bg-yellow-50 border-yellow-200">
-                                        <AlertCircle className="h-4 w-4 text-yellow-600" />
-                                        <AlertTitle>Security Notice</AlertTitle>
-                                        <AlertDescription className="text-yellow-600">
-                                            Keep your API credentials secure. Enable rate limiting and restrict origins to prevent abuse.
+                                    <Alert className="bg-red-100 border-red-300">
+                                        <AlertCircle className="h-4 w-4 text-red-600" />
+                                        <AlertTitle className="text-red-700">Thông báo bảo mật</AlertTitle>
+                                        <AlertDescription className="text-red-600">
+                                            Giữ bảo mật thông tin xác thực API của bạn. Kích hoạt giới hạn tốc độ và hạn chế nguồn gốc để ngăn chặn lạm dụng.
                                         </AlertDescription>
                                     </Alert>
                                 </CardContent>
