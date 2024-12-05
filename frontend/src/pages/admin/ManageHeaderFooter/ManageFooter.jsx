@@ -59,7 +59,18 @@ export default function ManageFooter() {
         rateLimit: 100
     });
     const [loading, setLoading] = useState(true);
-
+    const [selectedFiles, setSelectedFiles] = useState({
+        banner: '',
+        thumbnail: ''
+    });
+    const handleFileChange = (e, type) => {
+        if (e.target.files[0]) {
+            setSelectedFiles(prev => ({
+                ...prev,
+                [type]: e.target.files[0].name
+            }));
+        }
+    };
     const fetchSettings = async () => {
         try {
             const response = await fetch(`${API_URL}/admin/settings`, {
@@ -433,28 +444,34 @@ export default function ManageFooter() {
                                                 <div className="aspect-video w-full rounded-lg border-2 border-dashed border-indigo-200 flex items-center justify-center bg-indigo-50 hover:border-indigo-300 transition-colors">
                                                     <img src={settings.bannerUrl} alt="Banner" className="max-w-full max-h-full object-contain" />
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    <Input
-                                                        readOnly
-                                                        value={settings.bannerUrl}
-                                                        // onChange={(e) => setSettings({ ...settings, bannerUrl: e.target.value })}
-                                                        // placeholder="Nhập URL banner"
-                                                        className="focus:border-indigo-500"
-                                                    />
-                                                    <Input
-                                                        id="banner"
-                                                        type="file"
-                                                        className="hidden"
-                                                        accept="image/*"
-                                                    />
-                                                    <Button
-                                                        variant="outline"
-                                                        className="text-indigo-600 hover:text-indigo-700"
-                                                        onClick={() => document.getElementById('banner').click()}
-                                                    >
-                                                        <Upload className="h-4 w-4 mr-2" />
-                                                        Upload
-                                                    </Button>
+                                                <div className="space-y-2">
+                                                    <div className="flex gap-2">
+                                                        <Input
+                                                            readOnly
+                                                            value={settings.bannerUrl}
+                                                            className="focus:border-indigo-500"
+                                                        />
+                                                        <Input
+                                                            id="banner"
+                                                            type="file"
+                                                            className="hidden"
+                                                            accept="image/*"
+                                                            onChange={(e) => handleFileChange(e, 'banner')}
+                                                        />
+                                                        <Button
+                                                            variant="outline"
+                                                            className="text-indigo-600 hover:text-indigo-700"
+                                                            onClick={() => document.getElementById('banner').click()}
+                                                        >
+                                                            <Upload className="h-4 w-4 mr-2" />
+                                                            Upload
+                                                        </Button>
+                                                    </div>
+                                                    {selectedFiles.banner && (
+                                                        <p className="text-sm text-gray-600">
+                                                            File đã chọn: {selectedFiles.banner}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -464,27 +481,35 @@ export default function ManageFooter() {
                                                 <div className="aspect-video w-full rounded-lg border-2 border-dashed border-indigo-200 flex items-center justify-center bg-indigo-50 hover:border-indigo-300 transition-colors">
                                                     <img src={settings.defaultThumbnail} alt="Default Thumbnail" className="max-w-full max-h-full object-contain" />
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    <Input
-                                                        value={settings.defaultThumbnail}
-                                                        onChange={(e) => setSettings({ ...settings, defaultThumbnail: e.target.value })}
-                                                        placeholder="Nhập URL thumbnail"
-                                                        className="focus:border-indigo-500"
-                                                    />
-                                                    <Input
-                                                        id="thumbnail"
-                                                        type="file"
-                                                        className="hidden"
-                                                        accept="image/*"
-                                                    />
-                                                    <Button
-                                                        variant="outline"
-                                                        className="text-indigo-600 hover:text-indigo-700"
-                                                        onClick={() => document.getElementById('thumbnail').click()}
-                                                    >
-                                                        <Upload className="h-4 w-4 mr-2" />
-                                                        Upload
-                                                    </Button>
+                                                <div className="space-y-2">
+                                                    <div className="flex gap-2">
+                                                        <Input
+                                                            value={settings.defaultThumbnail}
+                                                            onChange={(e) => setSettings({ ...settings, defaultThumbnail: e.target.value })}
+                                                            placeholder="Nhập URL thumbnail"
+                                                            className="focus:border-indigo-500"
+                                                        />
+                                                        <Input
+                                                            id="thumbnail"
+                                                            type="file"
+                                                            className="hidden"
+                                                            accept="image/*"
+                                                            onChange={(e) => handleFileChange(e, 'thumbnail')}
+                                                        />
+                                                        <Button
+                                                            variant="outline"
+                                                            className="text-indigo-600 hover:text-indigo-700"
+                                                            onClick={() => document.getElementById('thumbnail').click()}
+                                                        >
+                                                            <Upload className="h-4 w-4 mr-2" />
+                                                            Upload
+                                                        </Button>
+                                                    </div>
+                                                    {selectedFiles.thumbnail && (
+                                                        <p className="text-sm text-gray-600">
+                                                            File đã chọn: {selectedFiles.thumbnail}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
