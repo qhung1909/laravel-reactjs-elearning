@@ -112,16 +112,38 @@ export default function ManageFooter() {
 
     const handleSave = async () => {
         try {
-
             setLoading(true);
 
+            const formData = new FormData();
+
+            // Get files from inputs
+            const logoInput = document.getElementById('logo');
+            const faviconInput = document.getElementById('favicon');
+            const bannerInput = document.getElementById('banner');
+            const thumbnailInput = document.getElementById('thumbnail');
+
+            // Append files if selected
+            if (logoInput?.files[0]) {
+                formData.append('logo', logoInput.files[0]);
+            }
+            if (faviconInput?.files[0]) {
+                formData.append('favicon', faviconInput.files[0]);
+            }
+            if (bannerInput?.files[0]) {
+                formData.append('banner', bannerInput.files[0]);
+            }
+            if (thumbnailInput?.files[0]) {
+                formData.append('thumbnail', thumbnailInput.files[0]);
+            }
+
+            // Append rest of the data
             const apiData = {
                 title: settings.title,
                 description: settings.description,
                 timezone: settings.timezone,
                 language: settings.language,
-                logo_url: settings.logoUrl,
-                favicon: settings.favicon,
+                // logo_url: settings.logoUrl,
+                // favicon: settings.favicon,
                 primary_color: settings.primaryColor,
                 secondary_color: settings.secondaryColor,
                 meta_title: settings.metaTitle,
@@ -132,8 +154,8 @@ export default function ManageFooter() {
                 phone: settings.phone,
                 address: settings.address,
                 working_hours: settings.workingHours,
-                banner_url: settings.bannerUrl,
-                default_thumbnail: settings.defaultThumbnail,
+                // banner_url: settings.bannerUrl,
+                // default_thumbnail: settings.defaultThumbnail,
                 max_upload_size: settings.maxUploadSize,
                 allowed_file_types: JSON.stringify(settings.allowedFileTypes),
                 facebook_url: settings.facebook,
@@ -147,13 +169,29 @@ export default function ManageFooter() {
                 rate_limit: settings.rateLimit
             };
 
-            const { data } = await axios.post(`${API_URL}/admin/settings`, apiData, {
+            // Append all fields from apiData to formData
+            Object.keys(apiData).forEach(key => {
+                formData.append(key, apiData[key]);
+            });
+
+            const { data } = await axios.post(`${API_URL}/admin/settings`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'x-api-secret': API_KEY
+                    'x-api-secret': API_KEY,
+                    'Content-Type': 'multipart/form-data'
                 }
             });
 
+            // Update settings if new URLs are returned
+            if (data.logo_url || data.favicon) {
+                setSettings(prev => ({
+                    ...prev,
+                    logoUrl: data.logo_url || prev.logoUrl,
+                    favicon: data.favicon || prev.favicon
+                }));
+            }
+
+            // Update document metadata
             const titleTag = document.getElementsByTagName('title')[0];
             if (titleTag) {
                 titleTag.innerText = settings.metaTitle;
@@ -175,7 +213,10 @@ export default function ManageFooter() {
 
             toast.success('Settings saved successfully');
         } catch (error) {
+            console.error('Save error:', error);
             toast.error(error.response?.data?.error || 'Error saving settings');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -274,7 +315,6 @@ export default function ManageFooter() {
                                                     <Input
                                                         id="logo"
                                                         type="file"
-                                                        onChange={(e) => handleImageUpload(e, 'logo')}
                                                         accept="image/*"
                                                         className="w-full"
                                                     />
@@ -289,8 +329,13 @@ export default function ManageFooter() {
                                                     <img src={settings.favicon} alt="Favicon" className="max-w-full max-h-full p-2" />
                                                 </div>
                                                 <div className="text-orange-600 hover:text-orange-700">
-                                                    <Label htmlFor="picture">Upload Logo</Label>
-                                                    <Input id="picture" type="file" />
+                                                    <Label htmlFor="faviconn">Upload Logo</Label>
+                                                    <Input
+                                                        id="faviconn"
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="w-full"
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -390,12 +435,23 @@ export default function ManageFooter() {
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <Input
+                                                        readOnly
                                                         value={settings.bannerUrl}
-                                                        onChange={(e) => setSettings({ ...settings, bannerUrl: e.target.value })}
-                                                        placeholder="Nhập URL banner"
+                                                        // onChange={(e) => setSettings({ ...settings, bannerUrl: e.target.value })}
+                                                        // placeholder="Nhập URL banner"
                                                         className="focus:border-indigo-500"
                                                     />
-                                                    <Button variant="outline" className="text-indigo-600 hover:text-indigo-700">
+                                                    <Input
+                                                        id="banner"
+                                                        type="file"
+                                                        className="hidden"
+                                                        accept="image/*"
+                                                    />
+                                                    <Button
+                                                        variant="outline"
+                                                        className="text-indigo-600 hover:text-indigo-700"
+                                                        onClick={() => document.getElementById('banner').click()}
+                                                    >
                                                         <Upload className="h-4 w-4 mr-2" />
                                                         Upload
                                                     </Button>
@@ -415,7 +471,17 @@ export default function ManageFooter() {
                                                         placeholder="Nhập URL thumbnail"
                                                         className="focus:border-indigo-500"
                                                     />
-                                                    <Button variant="outline" className="text-indigo-600 hover:text-indigo-700">
+                                                    <Input
+                                                        id="thumbnail"
+                                                        type="file"
+                                                        className="hidden"
+                                                        accept="image/*"
+                                                    />
+                                                    <Button
+                                                        variant="outline"
+                                                        className="text-indigo-600 hover:text-indigo-700"
+                                                        onClick={() => document.getElementById('thumbnail').click()}
+                                                    >
                                                         <Upload className="h-4 w-4 mr-2" />
                                                         Upload
                                                     </Button>

@@ -29,19 +29,19 @@ class SettingController extends Controller
             if ($request->hasFile('logo')) {
                 $settings->logo_url = $this->handleFileUpload($request->file('logo'), 'logo');
             }
-            
+
             if ($request->hasFile('favicon')) {
                 $settings->favicon = $this->handleFileUpload($request->file('favicon'), 'favicon');
             }
-            
+
             if ($request->hasFile('banner')) {
                 $settings->banner_url = $this->handleFileUpload($request->file('banner'), 'banner');
             }
-            
-            if ($request->hasFile('default_thumbnail')) {
-                $settings->default_thumbnail = $this->handleFileUpload($request->file('default_thumbnail'), 'thumbnail');
+
+            if ($request->hasFile('thumbnail')) {
+                $settings->default_thumbnail = $this->handleFileUpload($request->file('thumbnail'), 'thumbnail');
             }
-            
+
             $validated = $request->validate([
                 'title' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
