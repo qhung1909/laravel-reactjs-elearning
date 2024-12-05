@@ -51,13 +51,12 @@ export const SettingsProvider = ({ children }) => {
         try {
             const response = await fetch(`${API_URL}/admin/settings`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'x-api-secret': API_KEY
                 }
             })
             if (!response.ok) throw new Error('Failed to fetch settings')
             const data = await response.json()
-
+            
             setSettings({
                 title: data.title,
                 description: data.description,

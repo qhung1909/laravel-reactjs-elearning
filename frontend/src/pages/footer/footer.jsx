@@ -34,7 +34,7 @@ export const Footer = () => {
                         <div className="col-span-1">
 
                             <img
-                                src="/src/assets/images/antlearn.png"
+                                src={settings.logoUrl}
                                 alt=""
                                 className="w-20 md:w-32 mb-5"
                             />

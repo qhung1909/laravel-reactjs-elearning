@@ -2,24 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Aws\S3\S3Client;
 use App\Models\Setting;
+use Illuminate\Http\Request;
 
 class SettingController extends Controller
-{   
-    public function __construct() {
-        $this->middleware(function ($request, $next) {
-            if (!auth()->check()) {
-                return response()->json(['message' => 'Unauthenticated'], 401);
-            }
-            
-            if (auth()->user()->role !== 'admin') {
-                return response()->json(['message' => 'Unauthorized'], 403);
-            }
-            
-            return $next($request);
-        });
-    }
+{
     public function index()
     {
         $settings = Setting::first();
@@ -37,6 +25,23 @@ class SettingController extends Controller
             if (!$settings) {
                 $settings = new Setting();
             }
+
+            if ($request->hasFile('logo')) {
+                $settings->logo_url = $this->handleFileUpload($request->file('logo'), 'logo');
+            }
+            
+            if ($request->hasFile('favicon')) {
+                $settings->favicon = $this->handleFileUpload($request->file('favicon'), 'favicon');
+            }
+            
+            if ($request->hasFile('banner')) {
+                $settings->banner_url = $this->handleFileUpload($request->file('banner'), 'banner');
+            }
+            
+            if ($request->hasFile('default_thumbnail')) {
+                $settings->default_thumbnail = $this->handleFileUpload($request->file('default_thumbnail'), 'thumbnail');
+            }
+            
             $validated = $request->validate([
                 'title' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
@@ -87,6 +92,50 @@ class SettingController extends Controller
                 'message' => 'Error updating settings',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    private function handleFileUpload($file, $type)
+    {
+        $s3 = new S3Client([
+            'region'  => env('AWS_DEFAULT_REGION'),
+            'version' => 'latest',
+            'credentials' => [
+                'key'    => env('AWS_ACCESS_KEY_ID'),
+                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            ],
+            'http' => [
+                'verify' => env('VERIFY_URL'),
+            ],
+        ]);
+
+        $filePath = $file->getRealPath();
+        $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $newFileName = "settings.{$type}.{$originalFileName}.{$extension}";
+        $key = 'settings/' . $newFileName;
+
+        $contentType = match ($extension) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'ico' => 'image/x-icon',
+            'svg' => 'image/svg+xml',
+            default => 'application/octet-stream',
+        };
+
+        try {
+            $result = $s3->putObject([
+                'Bucket' => env('AWS_BUCKET'),
+                'Key'    => $key,
+                'SourceFile' => $filePath,
+                'ContentType' => $contentType,
+                'ACL' => 'public-read',
+            ]);
+
+            return $result['ObjectURL'];
+        } catch (\Exception $e) {
+            throw new \Exception("Could not upload {$type} to S3: " . $e->getMessage());
         }
     }
 }

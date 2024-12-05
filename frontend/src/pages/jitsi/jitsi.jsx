@@ -156,8 +156,6 @@ const JitsiMeeting = () => {
     }
   };
 
-
-
   const fetchUserInfo = async () => {
     const token = localStorage.getItem('access_token');
     if (!token) {
@@ -317,7 +315,6 @@ const JitsiMeeting = () => {
     }
   };
 
-
   const initializeJitsiMeeting = async (meeting_id) => {
     if (jitsiApiRef.current) {
 
@@ -332,16 +329,23 @@ const JitsiMeeting = () => {
       }
     }
 
-    const domain = '192.168.1.77:8443';
+    const domain = '192.168.1.197:8443';
     const options = {
       roomName: meeting_id,
       width: '100%',
       height: '100%',
       parentNode: jitsiContainerRef.current,
       configOverwrite: {
+        disableRtc: true,
+        disableInviteFunctions: true,
         enableLobby: true,
         startWithAudioMuted: true,
         startWithVideoMuted: true,
+        disableDeepLinking: true,
+        disableProfile: true,
+        disableShowMoreStats: true,
+        disableThirdPartyRequests: true,
+        disableWelcomePage: true
       },
       userInfo: {
         displayName: userInfo.name,
@@ -392,7 +396,6 @@ const JitsiMeeting = () => {
           user_id: userInfo.user_id
         }, meeting_id);
 
-        // Refresh student list after joining
         if (userInfo.role === 'teacher') {
           await fetchStudentAttendance(meeting_id);
         }

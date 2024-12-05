@@ -20,6 +20,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { Helmet } from 'react-helmet';
+
 export default function ManageFooter() {
     const API_URL = import.meta.env.VITE_API_URL;
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -110,6 +112,9 @@ export default function ManageFooter() {
 
     const handleSave = async () => {
         try {
+
+            setLoading(true);
+
             const apiData = {
                 title: settings.title,
                 description: settings.description,
@@ -149,6 +154,25 @@ export default function ManageFooter() {
                 }
             });
 
+            const titleTag = document.getElementsByTagName('title')[0];
+            if (titleTag) {
+                titleTag.innerText = settings.metaTitle;
+            }
+
+            let metaDescTag = document.querySelector('meta[name="description"]');
+            if (!metaDescTag) {
+                metaDescTag = document.createElement('meta');
+                metaDescTag.setAttribute('name', 'description');
+                document.head.appendChild(metaDescTag);
+            }
+            metaDescTag.setAttribute('content', settings.metaDescription);
+
+            const faviconTag = document.querySelector('link[rel="icon"]');
+            if (faviconTag) {
+                faviconTag.setAttribute('href', settings.favicon);
+                faviconTag.setAttribute('class', 'object-cover');
+            }
+
             toast.success('Settings saved successfully');
         } catch (error) {
             toast.error(error.response?.data?.error || 'Error saving settings');
@@ -161,6 +185,7 @@ export default function ManageFooter() {
 
     return (
         <SidebarProvider>
+
             <SideBarUI />
             <SidebarInset>
                 <header className="z-10 absolute left-1 top-3 font-sans">
@@ -244,10 +269,17 @@ export default function ManageFooter() {
                                                 <div className="w-24 h-24 rounded-lg border-2 border-dashed border-orange-200 flex items-center justify-center bg-orange-50 hover:border-orange-300 transition-colors">
                                                     <img src={settings.logoUrl} alt="Logo" className="max-w-full max-h-full p-2" />
                                                 </div>
-                                                <Button variant="outline" className="text-orange-600 hover:text-orange-700">
-                                                    <Upload className="h-4 w-4 mr-2" />
-                                                    Upload Logo
-                                                </Button>
+                                                <div className="text-orange-600 hover:text-orange-700">
+                                                    <Label htmlFor="logo">Upload Logo</Label>
+                                                    <Input
+                                                        id="logo"
+                                                        type="file"
+                                                        onChange={(e) => handleImageUpload(e, 'logo')}
+                                                        accept="image/*"
+                                                        className="w-full"
+                                                    />
+                                                </div>
+
                                             </div>
                                         </div>
                                         <div className="space-y-4">
@@ -256,47 +288,14 @@ export default function ManageFooter() {
                                                 <div className="w-24 h-24 rounded-lg border-2 border-dashed border-orange-200 flex items-center justify-center bg-orange-50 hover:border-orange-300 transition-colors">
                                                     <img src={settings.favicon} alt="Favicon" className="max-w-full max-h-full p-2" />
                                                 </div>
-                                                <Button variant="outline" className="text-orange-600 hover:text-orange-700">
-                                                    <Upload className="h-4 w-4 mr-2" />
-                                                    Upload Favicon
-                                                </Button>
+                                                <div className="text-orange-600 hover:text-orange-700">
+                                                    <Label htmlFor="picture">Upload Logo</Label>
+                                                    <Input id="picture" type="file" />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="grid md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <Label className="text-orange-600">Tone màu chính</Label>
-                                            <div className="flex items-center gap-2">
-                                                <Input
-                                                    type="color"
-                                                    value={settings.primaryColor}
-                                                    onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
-                                                    className="w-16 h-10 p-1 border-orange-200"
-                                                />
-                                                <Input
-                                                    value={settings.primaryColor}
-                                                    onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
-                                                    className="focus:border-orange-500"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-orange-600">Tone màu phụ</Label>
-                                            <div className="flex items-center gap-2">
-                                                <Input
-                                                    type="color"
-                                                    value={settings.secondaryColor}
-                                                    onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
-                                                    className="w-16 h-10 p-1 border-orange-200"
-                                                />
-                                                <Input
-                                                    value={settings.secondaryColor}
-                                                    onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
-                                                    className="focus:border-orange-500"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
+
                                 </CardContent>
                             </Card>
 
