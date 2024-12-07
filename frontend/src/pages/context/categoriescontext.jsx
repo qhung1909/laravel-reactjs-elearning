@@ -26,14 +26,14 @@ export const CategoriesContext = createContext();
 export const CategoriesProvider = ({ children }) => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
-    const [loading, setLoading] = useState(false);
+    const [categoryLoading, setCategoriesLoading] = useState(false);
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState("");
     const [_success, setSuccess] = useState("");
     const navigate = useNavigate();
 
     const fetchCategories = async () => {
-        setLoading(true)
+        setCategoriesLoading(true)
         try {
             const response = await axios.get(`${API_URL}/categories`, {
                 headers: {
@@ -46,7 +46,7 @@ export const CategoriesProvider = ({ children }) => {
         } catch (error) {
             console.log('Error fetching categories', error)
         } finally {
-            setLoading(false)
+            setCategoriesLoading(false)
         }
     }
 
@@ -55,7 +55,7 @@ export const CategoriesProvider = ({ children }) => {
     }, []);
 
     return (
-        <CategoriesContext.Provider value={{ loading, categories,error }}>
+        <CategoriesContext.Provider value={{ categoryLoading, categories,error,setCategoriesLoading }}>
             {children}
             <Toaster />
         </CategoriesContext.Provider>
