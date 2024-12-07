@@ -231,7 +231,7 @@ export const InstructorLesson = () => {
             return;
         }
         try {
-            const response = await axios.patch(`${API_URL}/changedate/courses/${selectedCourse.course_id}`,
+            const response = await axios.patch(`${API_URL}/teacher/changedate/courses/${selectedCourse.course_id}`,
                 {
                     launch_date: launchDate,
                     backup_launch_date: backupLaunchDate
