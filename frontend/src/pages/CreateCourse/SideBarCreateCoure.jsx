@@ -90,6 +90,52 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
 
     // Hàm gửi khóa học để xem xét
     const handleSentDone = async () => {
+        if (hasChanges && !isUpdated) {
+            notify("Vui lòng cập nhật trước khi gửi!");
+            return;
+        }
+
+
+        try {
+            const response = await axios.get(`${API_URL}/teacher/courses/${course_id}`, {
+                headers: {
+                    'x-api-secret': API_KEY,
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                },
+            });
+
+            if (response.data.data.title === null) {
+                notify('Phải nhập đầy đủ thông tin trước khi gửi')
+                return false;
+            }
+        } catch {
+            notify('Phải nhập đầy đủ thông tin trước khi gửi')
+            return false;
+        }
+
+
+        try {
+            const responsee = await axios.get(
+                `${API_URL}/teacher/content/${course_id}`,
+                {
+                    headers: {
+                        'x-api-secret': API_KEY,
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
+                }
+            );
+
+
+            if (!responsee.data?.data?.contents[0].name_content) {
+                notify("Phải nhập đầy đủ thông tin trước khi gửi");
+                return false;
+            }
+
+        } catch {
+            notify("Phải nhập đầy đủ thông tin trước khi gửi");
+            return false;
+        }
+
         // Hiển thị thông báo xác nhận trước khi gửi
         const result = await Swal.fire({
             title: "Xác nhận",
@@ -101,6 +147,10 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
             confirmButtonText: "Gửi",
             cancelButtonText: "Hủy",
         });
+
+
+
+
 
         if (result.isConfirmed) {
             setLoading(true);

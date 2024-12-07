@@ -320,6 +320,12 @@ export const CourseOverview = () => {
             valid = false;
             newErrors.priceError = 'Giá không được lớn hơn 100.000.000đ';
         }
+
+        if (!courseImage) {
+            valid = false;
+            newErrors.imageError = 'Vui lòng chọn hình ảnh cho khóa học';
+        }
+
         if (!valid) {
             setErrors(newErrors);
             notify('Vui lòng kiểm tra lại thông tin', 'error');
@@ -695,6 +701,7 @@ export const CourseOverview = () => {
                                         </div>
                                     </div>
                                 </div>
+                                {errors.imageError && <p className="text-red-500 text-sm">{errors.imageError}</p>}
                             </div>
                         </form>
 
