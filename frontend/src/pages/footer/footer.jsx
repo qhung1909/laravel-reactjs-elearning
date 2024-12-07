@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import axios from "axios";
 import { useSettingsContext } from "../context/settingcontext";
+import { BookOpen, FileText, Mail, MapPin, MessageCircle, Newspaper, Phone, Users } from "lucide-react";
 
 export const Footer = () => {
     const { settings, loading, handleSave } = useSettingsContext()
@@ -44,33 +45,47 @@ export const Footer = () => {
                         </div>
 
                         {/* grid - right */}
+
                         <div className="md:flex col-span-2 lg:justify-between gap-5 md:ps-0 mt-5 lg:mt-0">
                             <div className="flex items-start gap-5 xl:w-2/3 md:w-2/5">
                                 {/* thẻ 1 */}
                                 <div className="footer-mid-left md:w-1/3 sm:w-1/4 w-1/3">
                                     <span className="font-medium text-black text-base">
-                                        Link
+                                        Điều hướng
                                     </span>
                                     <ul className="mt-1 space-y-1">
-                                        <li className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose"><Link to='/courses'>Khóa học</Link></li>
-                                        <li className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose"><Link to='/blog'>Bài viết</Link></li>
-                                        <li className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose"><Link to='/contact'>Liên hệ</Link></li>
+                                        <li className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose flex items-center gap-2">
+                                            <BookOpen className="w-4 h-4" />
+                                            <Link to='/courses'>Khóa học</Link>
+                                        </li>
+                                        <li className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose flex items-center gap-2">
+                                            <Newspaper className="w-4 h-4" />
+                                            <Link to='/blog'>Bài viết</Link>
+                                        </li>
+                                        <li className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose flex items-center gap-2">
+                                            <MessageCircle className="w-4 h-4" />
+                                            <Link to='/contact'>Liên hệ</Link>
+                                        </li>
                                     </ul>
                                 </div>
 
                                 {/* thẻ 2 */}
                                 <div className="footer-mid-right">
                                     <span className="font-medium text-black text-base">
-                                        Chính sách chung & Hỗ trợ
+                                        Hỗ trợ & Chính sách
                                     </span>
                                     <ul className="mt-1 space-y-1">
-                                        {/* term */}
                                         <Link to="/terms">
-                                            <li className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">Điều khoản dịch vụ</li>
+                                            <li className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose flex items-center gap-2">
+                                                <FileText className="w-4 h-4" />
+                                                Điều khoản dịch vụ
+                                            </li>
                                         </Link>
-                                        {/* about us */}
                                         <Link to="/aboutus">
-                                            <li className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">Về chúng tôi</li>
+                                            <li className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose flex items-center gap-2">
+                                                <Users className="w-4 h-4" />
+                                                Về chúng tôi
+                                            </li>
                                         </Link>
                                     </ul>
                                 </div>
@@ -81,30 +96,25 @@ export const Footer = () => {
                                 <div className="space-y-2">
                                     <div className="footer-mid-right">
                                         <span className="font-medium text-black text-base">
-                                            Công tác
+                                            Thông tin liên hệ
                                         </span>
                                         <ul className="mt-1 space-y-1">
-                                            {/* term */}
                                             <li className="flex items-center gap-2">
-                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/phone.svg" className="w-5" alt="" />
+                                                <Phone className="w-5 h-5 text-gray-500" />
                                                 <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">{settings.phone}</p>
                                             </li>
                                             <li className="flex items-center gap-2">
-                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/address.svg" className="w-5" alt="" />
+                                                <MapPin className="w-5 h-5 text-gray-500" />
                                                 <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">{settings.address}</p>
                                             </li>
                                             <li className="flex items-center gap-2">
-                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/email.svg" className="w-5" alt="" />
+                                                <Mail className="w-5 h-5 text-gray-500" />
                                                 <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">{settings.email}</p>
                                             </li>
-
                                         </ul>
                                     </div>
-
                                 </div>
-
                             </div>
-
                         </div>
 
                     </div>
