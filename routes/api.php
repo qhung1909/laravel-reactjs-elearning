@@ -200,6 +200,7 @@ Route::middleware(['admin'])->group(function () {
 Route::prefix('admin')->middleware('admin')->group(function () {
     Route::get('/users', [UserController::class, 'getUsers']);
     Route::get('/teachers', [UserController::class, 'getTeacher']);
+    Route::get('/admins', [UserController::class, 'getAdmin']);
 
     //Dashboard
     Route::get('/courses', [AdminController::class, 'getAllCourses']);

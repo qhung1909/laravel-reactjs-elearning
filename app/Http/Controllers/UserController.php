@@ -436,7 +436,11 @@ class UserController extends Controller
         $teachers = User::where('role', 'teacher')->select('user_id', 'name', 'email', 'avatar', 'created_at', 'role', 'status')->get();
         return response()->json($teachers);
     }
-
+    public function getAdmin()
+    {
+        $teachers = User::where('role', 'admin')->select('user_id', 'name', 'email', 'avatar', 'created_at', 'role', 'status')->get();
+        return response()->json($teachers);
+    }
     public function updateRole(Request $request)
     {
         if (!Auth::check()) {

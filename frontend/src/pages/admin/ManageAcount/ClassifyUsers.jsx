@@ -56,7 +56,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Search, ChevronDown, FileDown, Trash, Pencil, UserCircle, School, CheckCircle, XCircle, Lock, UserCog } from 'lucide-react';
+import { Search, ChevronDown, FileDown, Trash, Pencil, UserCircle, School, CheckCircle, XCircle, Lock, UserCog, ShieldCheck } from 'lucide-react';
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import axios from "axios";
@@ -69,6 +69,7 @@ export default function ClassifyUsers() {
     const API_URL = import.meta.env.VITE_API_URL;
 
     const [students, setStudents] = useState([]);
+    const [admins, setAdmins] = useState([]);
     const [teachers, setTeachers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -79,6 +80,7 @@ export default function ClassifyUsers() {
 
     const filterOptions = [
         { value: 'all', label: 'Tất cả người dùng' },
+        { value: 'admin', label: 'Quản trị viên' },
         { value: 'teacher', label: 'Giảng viên' },
         { value: 'user', label: 'Học viên' },
     ];
@@ -133,7 +135,7 @@ export default function ClassifyUsers() {
 
 
     const getFilteredData = () => {
-        const combinedData = [...students, ...teachers];
+        const combinedData = [...students, ...teachers, ...admins];
 
         return combinedData.filter(user => {
             const matchesSearch =
@@ -162,7 +164,7 @@ export default function ClassifyUsers() {
 
         try {
             setIsLoading(true);
-            const [teachersRes, studentsRes] = await Promise.all([
+            const [teachersRes, studentsRes, adminsRes] = await Promise.all([
                 axios.get(`${API_URL}/admin/teachers`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -174,10 +176,16 @@ export default function ClassifyUsers() {
                         Authorization: `Bearer ${token}`,
                         "x-api-secret": API_KEY,
                     }
-                })
+                }),
+                axios.get(`${API_URL}/admin/admins`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "x-api-secret": API_KEY,
+                    }
+                }),
             ]);
 
-            if (teachersRes.data && studentsRes.data) {
+            if (teachersRes.data && studentsRes.data && adminsRes.data) {
                 const teachersData = teachersRes.data.map(user => ({
                     ...user,
                     id: user.user_id,
@@ -190,8 +198,19 @@ export default function ClassifyUsers() {
                     role: 'user'
                 }));
 
+                const adminsData = adminsRes.data.map(user => ({
+                    ...user,
+                    id: user.user_id,
+                    role: 'admin'
+                }));
+
                 setTeachers(teachersData);
                 setStudents(studentsData);
+                setAdmins(adminsData);
+
+                console.log("Teachers:", teachersData);
+                console.log("Students:", studentsData);
+                console.log("Admins:", adminsData);
             }
         } catch (error) {
             console.error('Lỗi khi tải dữ liệu:', error);
@@ -202,6 +221,7 @@ export default function ClassifyUsers() {
     };
 
     const handleEditUser = async (userId) => {
+        console.log("User ID:", userId);
         const token = localStorage.getItem("access_token");
         if (!token) {
             toast.error("Bạn chưa đăng nhập.");
@@ -227,8 +247,10 @@ export default function ClassifyUsers() {
                 }
             );
 
-            if (response.data && response.data.success) {
+            if (response.data && response.data.message) {  // Sửa điều kiện kiểm tra
                 toast.success("Cập nhật quyền thành công.");
+                fetchData();  // Thêm dòng này để refresh data
+                setEditingUserId(null); // Đóng dialog
             } else {
                 toast.error("Có lỗi xảy ra khi cập nhật quyền.");
             }
@@ -239,7 +261,6 @@ export default function ClassifyUsers() {
             setIsLoading(false);
         }
     };
-
     useEffect(() => {
         fetchData();
     }, []);
@@ -386,6 +407,11 @@ export default function ClassifyUsers() {
                                                                 <School className="w-4 h-4" />
                                                                 <span className="text-sm">Giảng viên</span>
                                                             </div>
+                                                        ) : user.role === "admin" ? (
+                                                            <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-red-50 text-red-700 font-medium border border-red-200 shadow-sm whitespace-nowrap">
+                                                                <ShieldCheck className="w-4 h-4" />
+                                                                <span className="text-sm">Quản trị viên</span>
+                                                            </div>
                                                         ) : (
                                                             <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 font-medium border border-purple-200 shadow-sm whitespace-nowrap">
                                                                 <UserCircle className="w-4 h-4" />
@@ -393,6 +419,7 @@ export default function ClassifyUsers() {
                                                             </div>
                                                         )}
                                                     </span>
+
                                                 </TableCell>
                                                 <TableCell className="text-center">
                                                     <div className="flex justify-center items-center gap-2">
@@ -418,7 +445,7 @@ export default function ClassifyUsers() {
                                                                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl p-6">
                                                                     <DialogHeader>
                                                                         <DialogTitle className="flex items-center justify-center text-lg font-semibold text-gray-800">
-                                                                            <UserCog className="h-5 w-5 mr-2 text-gray-700"/>
+                                                                            <UserCog className="h-5 w-5 mr-2 text-gray-700" />
                                                                             Tùy chọn người dùng
                                                                         </DialogTitle>
                                                                     </DialogHeader>
@@ -429,6 +456,7 @@ export default function ClassifyUsers() {
                                                                         type="submit"
                                                                         className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-2 px-4 rounded-lg transform transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
                                                                         disabled={isLoading}
+                                                                        onClick={() => handleEditUser(user.id)}  // Chuyển onClick lên Button
                                                                     >
                                                                         {isLoading ? (
                                                                             <div className="flex items-center justify-center">
@@ -438,7 +466,7 @@ export default function ClassifyUsers() {
                                                                         ) : (
                                                                             <div className="flex items-center justify-center">
                                                                                 <UserCog className="h-4 w-4 mr-2" />
-                                                                                Thay đổi quyền
+                                                                                Sửa quyền
                                                                             </div>
                                                                         )}
                                                                     </Button>
