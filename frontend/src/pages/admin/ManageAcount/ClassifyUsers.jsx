@@ -56,7 +56,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Search, ChevronDown, FileDown, Trash, Pencil, UserCircle, School, CheckCircle, XCircle } from 'lucide-react';
+import { Search, ChevronDown, FileDown, Trash, Pencil, UserCircle, School, CheckCircle, XCircle, Lock, UserCog } from 'lucide-react';
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import axios from "axios";
@@ -208,7 +208,7 @@ export default function ClassifyUsers() {
             navigate('/');
             return;
         }
-    
+
         if (!userId) {
             toast.error("Không tìm thấy ID người dùng.");
             return;
@@ -226,7 +226,7 @@ export default function ClassifyUsers() {
                     },
                 }
             );
-    
+
             if (response.data && response.data.success) {
                 toast.success("Cập nhật quyền thành công.");
             } else {
@@ -239,7 +239,7 @@ export default function ClassifyUsers() {
             setIsLoading(false);
         }
     };
-    
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -406,47 +406,51 @@ export default function ClassifyUsers() {
                                                         >
                                                             <DialogTrigger asChild>
                                                                 <Button
-                                                                    onClick={() => {
-                                                                        console.log('User ID:', user.id);
-                                                                        setEditingUserId(user.id);
-                                                                    }}
+                                                                    variant="ghost"
+                                                                    onClick={() => setEditingUserId(user.id)}
+                                                                    className="hover:bg-gray-100 transition-all duration-200 rounded-full"
                                                                 >
-                                                                    <Pencil className="h-4 w-4 mr-1" />
-                                                                    Thay đổi
+                                                                    <Pencil className="h-4 w-4 mr-1 text-gray-600" />
+                                                                    <span className="text-gray-700">Sửa</span>
                                                                 </Button>
                                                             </DialogTrigger>
-                                                            <DialogContent className="sm:max-w-[425px]">
-                                                                <DialogHeader>
-                                                                    <DialogTitle className="text-lg font-semibold">Chỉnh sửa người dùng</DialogTitle>
-                                                                    <DialogDescription className="text-gray-500">
-                                                                        Thay đổi thông tin người dùng tại đây. Nhấn lưu khi hoàn tất.
-                                                                    </DialogDescription>
-                                                                </DialogHeader>
-                                                                <div className="grid gap-4 py-4">
-                                                                    <div className="grid grid-cols-4 items-center gap-4">
-                                                                        <Label htmlFor="role" className="text-right text-gray-600">
-                                                                            Quyền
-                                                                        </Label>
-                                                                        <select
-                                                                            id="role"
-                                                                            defaultValue={user.role}
-                                                                            className="col-span-3 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                                                                        >
-                                                                            <option value="user">Học viên</option>
-                                                                            <option value="teacher">Giảng viên</option>
-                                                                        </select>
-                                                                    </div>
+                                                            <DialogContent className="sm:max-w-[320px] p-0 border-0 rounded-xl shadow-xl">
+                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl p-6">
+                                                                    <DialogHeader>
+                                                                        <DialogTitle className="flex items-center justify-center text-lg font-semibold text-gray-800">
+                                                                            <UserCog className="h-5 w-5 mr-2 text-gray-700"/>
+                                                                            Tùy chọn người dùng
+                                                                        </DialogTitle>
+                                                                    </DialogHeader>
                                                                 </div>
-                                                                <DialogFooter>
+
+                                                                <div className="p-4 space-y-3">
                                                                     <Button
                                                                         type="submit"
-                                                                        onClick={() => handleEditUser(user.id)}
-                                                                        className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                                                                        className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-2 px-4 rounded-lg transform transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
                                                                         disabled={isLoading}
                                                                     >
-                                                                        {isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
+                                                                        {isLoading ? (
+                                                                            <div className="flex items-center justify-center">
+                                                                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                                                                                Đang xử lý...
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className="flex items-center justify-center">
+                                                                                <UserCog className="h-4 w-4 mr-2" />
+                                                                                Thay đổi quyền
+                                                                            </div>
+                                                                        )}
                                                                     </Button>
-                                                                </DialogFooter>
+
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        className="w-full text-white hover:text-red-50 bg-red-600 hover:bg-red-700 border border-red-200 font-medium transition-all duration-200 hover:shadow-sm"
+                                                                    >
+                                                                        <Lock className="h-4 w-4 mr-2" />
+                                                                        Khóa tài khoản
+                                                                    </Button>
+                                                                </div>
                                                             </DialogContent>
                                                         </Dialog>
 
