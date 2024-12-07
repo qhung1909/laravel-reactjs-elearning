@@ -130,7 +130,7 @@ export const InstructorLesson = () => {
             case "expired":
                 return "Hết hạn";
             case "need_schedule":
-                return "Update";
+                return "Bổ sung";
             default:
                 return status;
         }

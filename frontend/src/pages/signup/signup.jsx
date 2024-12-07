@@ -44,7 +44,7 @@ export const Signup = () => {
             return;
         }
 
-        const nameRegex = /[0123456789~!@#$%^&*()_+\[\]{}|;:'",.<>?/\\\-=`]/;
+        const nameRegex = /[0123456789~!@#$%^&*()_+[\]{}|;:'",.<>?/\\\-=`]/;
 
 
         if (nameRegex.test(formData.name)) {
