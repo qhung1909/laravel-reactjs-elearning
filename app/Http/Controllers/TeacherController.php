@@ -1186,4 +1186,70 @@ class TeacherController extends Controller
             ], 500);
         }
     }
+
+    public function updateCourseDates(Request $request, $courseId)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'launch_date' => 'required|date|after:today',
+                'backup_launch_date' => 'required|date|after:launch_date',
+            ], [
+                'launch_date.required' => 'Vui lòng chọn ngày bắt đầu khóa học',
+                'launch_date.date' => 'Ngày bắt đầu không hợp lệ',
+                'launch_date.after' => 'Ngày bắt đầu phải sau ngày hiện tại',
+                'backup_launch_date.required' => 'Vui lòng chọn ngày kết thúc đăng ký',
+                'backup_launch_date.date' => 'Ngày kết thúc đăng ký không hợp lệ',
+                'backup_launch_date.after' => 'Ngày kết thúc đăng ký phải sau ngày bắt đầu khóa học',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $course = Course::findOrFail($courseId);
+
+            if (auth()->user()->role === 'teacher' && auth()->id() !== $course->user_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền cập nhật khóa học này'
+                ], 403);
+            }
+
+            $course->launch_date = Carbon::parse($request->launch_date);
+            $course->backup_launch_date = Carbon::parse($request->backup_launch_date);
+
+            if ($course->status === 'expired' || $course->status === 'need_schedule') {
+                $course->status = 'published';
+            }
+
+            $course->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật thời gian khóa học thành công',
+                'data' => [
+                    'course_id' => $course->course_id,
+                    'launch_date' => $course->launch_date,
+                    'backup_launch_date' => $course->backup_launch_date,
+                    'status' => $course->status
+                ]
+            ]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy khóa học'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi cập nhật khóa học',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

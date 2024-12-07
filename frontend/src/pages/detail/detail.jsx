@@ -296,6 +296,7 @@ export const Detail = () => {
             setLoading(false);
         }
     };
+    const token = localStorage.getItem('access_token');
     const [avgRatingCourse, setAvgRatingCourse] = useState(0);
     const [totalRatingCourse, setTotalRatingCourse] = useState(0);
     const fetchDetail = async () => {
@@ -304,6 +305,7 @@ export const Detail = () => {
             const res = await axios.get(`${API_URL}/course/${slug}`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
+                    'Authorization': `Bearer ${token}` 
                 },
             });
             if (res.data && res.data.course_id) {

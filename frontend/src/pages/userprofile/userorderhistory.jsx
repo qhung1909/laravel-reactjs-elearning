@@ -213,7 +213,7 @@ export const UserOrderHistory = () => {
                                         to="/user/attendance"
                                         className="flex items-center gap-3 p-3 hover:bg-yellow-50 rounded-xl transition-colors"
                                     >
-                                        <Heart className="w-4 h-4" />
+                                        <History className="w-4 h-4" />
                                         <span>Điểm danh</span>
                                     </Link>
                                 </li>

@@ -132,31 +132,34 @@ class CouponController extends Controller
             'order_id' => 'required|integer|exists:orders,order_id',
             'name_coupon' => 'required|string|max:255',
         ]);
-
-        $coupon = Coupon::where('name_coupon', $validated['name_coupon'])->first();
-
+    
+        $coupon = Coupon::whereRaw('BINARY name_coupon = ?', [$validated['name_coupon']])
+            ->first();
+    
         if (!$coupon) {
             return response()->json(['message' => 'Coupon not found'], 404);
         }
-
+    
         $currentDate = now();
+    
         if ($coupon->end_discount < $currentDate) {
             return response()->json(['message' => 'Coupon has expired'], 400);
         }
-
+    
         if ($coupon->start_discount > $currentDate) {
             return response()->json(['message' => 'Coupon is not valid yet'], 400);
         }
-
+    
         $order = Order::find($validated['order_id']);
+    
         $discountAmount = $coupon->discount_price;
-
+    
         if ($discountAmount >= $order->total_price) {
             return response()->json(['message' => 'Discount exceeds total price'], 400);
         }
-
+    
         $newTotalPrice = $order->total_price - $discountAmount;
-
+    
         return response()->json([
             'message' => 'Coupon is valid',
             'coupon_id' => $coupon->coupon_id,
@@ -173,19 +176,15 @@ class CouponController extends Controller
 
         $order = Order::find($validated['order_id']);
 
-        // Reset lại giá gốc cho order details
         $orderDetails = OrderDetail::where('order_id', $order->order_id)->get();
         foreach ($orderDetails as $detail) {
-            // Lấy giá gốc từ course
             $course = Course::find($detail->course_id);
             $detail->price = $course->price;
             $detail->save();
         }
 
-        // Tính lại tổng giá từ order details
         $newTotalPrice = $orderDetails->sum('price');
 
-        // Reset order
         $order->total_price = $newTotalPrice;
         $order->coupon_id = null;
         $order->save();
