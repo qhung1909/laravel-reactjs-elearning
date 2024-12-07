@@ -43,6 +43,7 @@ export const Curriculum = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
+    const [offLesson, setOffLesson] = useState(false);
 
     const [isDataFetched, setIsDataFetched] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -53,7 +54,7 @@ export const Curriculum = () => {
     const [isUpdated, setIsUpdated] = useState(false);
 
     const [hasChanges, setHasChanges] = useState(false);
-    const [offLesson, setOffLesson] = useState(false);
+
 
     const handleSectionTitleChange = (sectionId, newTitle) => {
         setSections(prevSections => {
@@ -189,13 +190,10 @@ export const Curriculum = () => {
             if (response.data.data.launch_date == null) {
                 setOffLesson(true);
             }
-
-
-
         } catch (error) {
             console.error('Error fetching course data:', error);
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
     };
 
@@ -915,89 +913,94 @@ export const Curriculum = () => {
                             <div className="border-b-2"></div>
                         </div>
 
+                        {loading ? (
+                            <>
+                                <SkeletonLoaderCurriculum />
+                            </>
+                        ) : (
+                            <>
+                                <div className="max-w-4xl mx-auto p-6">
+                                    <form method="POST" encType="multipart/form-data" onSubmit={(e) => e.preventDefault()} className="space-y-4">
+                                        <h2 className="text-xl font-semibold">Nội dung khóa học</h2>
+                                        <Accordion type="multiple" collapsible="true" className="space-y-4 relative">
+                                            {Array.isArray(sections) && sections.map((section, sectionIndex) => (
+                                                <AccordionItem
+                                                    value={`section-${section.id}`}
+                                                    key={section.id}
+                                                    className="border-2 rounded-lg border-yellow-700 p-4 relative"
+                                                >
+                                                    <div className="flex items-center gap-4 w-[78%] md:w-[88%] absolute ml-14 mt-3">
+                                                        {section.is_online_meeting === 1 ? (
+                                                            <span className="bg-green-100 text-green-800 text-sm font-medium px-1 md:px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Online</span>
+                                                        ) : (
+                                                            <span className="bg-blue-100 text-blue-800 text-sm font-medium px-1 md:px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Offline</span>
+                                                        )
+                                                        }
 
-                        <div className="max-w-4xl mx-auto p-6">
-                            <form method="POST" encType="multipart/form-data" onSubmit={(e) => e.preventDefault()} className="space-y-4">
-                                <h2 className="text-xl font-semibold">Nội dung khóa học</h2>
-                                <Accordion type="multiple" collapsible="true" className="space-y-4 relative">
-                                    {Array.isArray(sections) && sections.map((section, sectionIndex) => (
-                                        <AccordionItem
-                                            value={`section-${section.id}`}
-                                            key={section.id}
-                                            className="border-2 rounded-lg border-yellow-700 p-4 relative"
-                                        >
-                                            <div className="flex items-center gap-4 w-[78%] md:w-[88%] absolute ml-14 mt-3">
-                                                {section.is_online_meeting === 1 ? (
-                                                    <span className="bg-green-100 text-green-800 text-sm font-medium px-1 md:px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Online</span>
-                                                ) : (
-                                                    <span className="bg-blue-100 text-blue-800 text-sm font-medium px-1 md:px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Offline</span>
-                                                )
-                                                }
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-medium text-gray-600">Bài {sectionIndex + 1}:</span>
+                                                        </div>
+                                                        <input
+                                                            type="text"
+                                                            className="flex-1 p-2 w-1/2 md:w-full border rounded-md"
+                                                            placeholder={`Nhập tiêu đề bài ${sectionIndex + 1}`}
+                                                            value={section.title}
+                                                            onChange={(e) => handleSectionTitleChange(section.id, e.target.value)}
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        />
+                                                        {section.is_online_meeting === 0 && (
+                                                            <Button className="bg-yellow-500 hover:bg-yellow-600" onClick={() => openPageQuiz(section.content_id)}>
+                                                                Tạo quiz
+                                                            </Button>
+                                                        )}
 
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-medium text-gray-600">Bài {sectionIndex + 1}:</span>
-                                                </div>
-                                                <input
-                                                    type="text"
-                                                    className="flex-1 p-2 w-1/2 md:w-full border rounded-md"
-                                                    placeholder={`Nhập tiêu đề bài ${sectionIndex + 1}`}
-                                                    value={section.title}
-                                                    onChange={(e) => handleSectionTitleChange(section.id, e.target.value)}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                />
-                                                {section.is_online_meeting === 0 && (
-                                                    <Button className="bg-yellow-500 hover:bg-yellow-600" onClick={() => openPageQuiz(section.content_id)}>
-                                                        Tạo quiz
-                                                    </Button>
-                                                )}
-
-                                            </div>
+                                                    </div>
 
 
 
-                                            {section.is_online_meeting === 0 ? (
-                                                <AccordionTrigger
-                                                    onClick={() => handleAccordionClick(section.content_id)}
-                                                    className="hover:no-underline border-2 rounded-lg border-yellow-600 p-5 mt-1 ml-3"
-                                                />
-                                            ) : (
-                                                <div className="h-[56px] border-2 rounded-lg border-yellow-600 p-5 mt-1 ml-3"></div>
-                                            )}
+                                                    {section.is_online_meeting === 0 ? (
+                                                        <AccordionTrigger
+                                                            onClick={() => handleAccordionClick(section.content_id)}
+                                                            className="hover:no-underline border-2 rounded-lg border-yellow-600 p-5 mt-1 ml-3"
+                                                        />
+                                                    ) : (
+                                                        <div className="h-[56px] border-2 rounded-lg border-yellow-600 p-5 mt-1 ml-3"></div>
+                                                    )}
 
-                                            {sections.length > 1 && (
-                                                <X onClick={() => deleteLesson(section.content_id)} className="absolute text-red-600 cursor-pointer left-1 top-1" />
-                                            )}
-                                            <AccordionContent>
-                                                <div className="space-y-4 mt-4">
-                                                    {Array.isArray(section.lessons) && section.lessons.map((lesson, lessonIndex) => (
-                                                        <Card key={lesson.id} className="relative p-4 border border-yellow-400 ml-6">
-                                                            <div className="space-y-4">
-                                                                <span className="relative mx-6 bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Offline</span>
+                                                    {sections.length > 1 && (
+                                                        <X onClick={() => deleteLesson(section.content_id)} className="absolute text-red-600 cursor-pointer left-1 top-1" />
+                                                    )}
+                                                    <AccordionContent>
+                                                        <div className="space-y-4 mt-4">
+                                                            {Array.isArray(section.lessons) && section.lessons.map((lesson, lessonIndex) => (
+                                                                <Card key={lesson.id} className="relative p-4 border border-yellow-400 ml-6">
+                                                                    <div className="space-y-4">
+                                                                        <span className="relative mx-6 bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Offline</span>
 
-                                                                <div className="flex items-center gap-4 mt-4">
+                                                                        <div className="flex items-center gap-4 mt-4">
 
-                                                                    <div className="flex items-center gap-2">
-                                                                        <span className="font-medium text-gray-600">
-                                                                            Nội dung: {sectionIndex + 1}.{lessonIndex + 1}
-                                                                        </span>
-                                                                    </div>
-                                                                    <Input
-                                                                        type="text"
-                                                                        className="flex-1 p-2 border rounded-md"
-                                                                        placeholder={`Nhập tiêu đề nội dung bài ${sectionIndex + 1}.${lessonIndex + 1}`}
-                                                                        value={lesson.title}
-                                                                        onChange={(e) => handleContentTitleChange(section.id, lesson.id, e.target.value)}
-                                                                    />
-                                                                </div>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <span className="font-medium text-gray-600">
+                                                                                    Nội dung: {sectionIndex + 1}.{lessonIndex + 1}
+                                                                                </span>
+                                                                            </div>
+                                                                            <Input
+                                                                                type="text"
+                                                                                className="flex-1 p-2 border rounded-md"
+                                                                                placeholder={`Nhập tiêu đề nội dung bài ${sectionIndex + 1}.${lessonIndex + 1}`}
+                                                                                value={lesson.title}
+                                                                                onChange={(e) => handleContentTitleChange(section.id, lesson.id, e.target.value)}
+                                                                            />
+                                                                        </div>
 
-                                                                <Textarea
-                                                                    placeholder="Nhập mô tả cho bài học này"
-                                                                    value={lesson.description}
-                                                                    onChange={(e) => handleContentDescChange(section.id, lesson.id, e.target.value)}
-                                                                    className="w-full"
-                                                                />
+                                                                        <Textarea
+                                                                            placeholder="Nhập mô tả cho bài học này"
+                                                                            value={lesson.description}
+                                                                            onChange={(e) => handleContentDescChange(section.id, lesson.id, e.target.value)}
+                                                                            className="w-full"
+                                                                        />
 
-                                                                {/* <select
+                                                                        {/* <select
                                                                         onChange={(e) => handleSelectChange(section.id, lesson.id, e.target.value)}
                                                                         value={lesson.selectedOption}
                                                                         className="border p-2 rounded-md mb-4"
@@ -1007,128 +1010,141 @@ export const Curriculum = () => {
                                                                         <option value="content">Dạng Nội dung</option>
                                                                     </select> */}
 
-                                                                <Select
-                                                                    className="border p-2 rounded-md mb-4"
-                                                                    value={lesson.selectedOption}
-                                                                    onValueChange={(value) => handleSelectChange(section.id, lesson.id, value)} // Đảm bảo sử dụng onValueChange
-                                                                >
-                                                                    <SelectTrigger className="w-full">
-                                                                        <SelectValue placeholder="-- Chọn loại nội dung --" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        <SelectGroup>
-                                                                            <SelectLabel>Chọn loại nội dung</SelectLabel>
-                                                                            <SelectItem value="videoFile">Dạng Video file</SelectItem>
-                                                                            <SelectItem value="content">Dạng Nội dung</SelectItem>
-                                                                        </SelectGroup>
-                                                                    </SelectContent>
-                                                                </Select>
+                                                                        <Select
+                                                                            className="border p-2 rounded-md mb-4"
+                                                                            value={lesson.selectedOption}
+                                                                            onValueChange={(value) => handleSelectChange(section.id, lesson.id, value)} // Đảm bảo sử dụng onValueChange
+                                                                        >
+                                                                            <SelectTrigger className="w-full">
+                                                                                <SelectValue placeholder="-- Chọn loại nội dung --" />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                <SelectGroup>
+                                                                                    <SelectLabel>Chọn loại nội dung</SelectLabel>
+                                                                                    <SelectItem value="videoFile">Dạng Video file</SelectItem>
+                                                                                    <SelectItem value="content">Dạng Nội dung</SelectItem>
+                                                                                </SelectGroup>
+                                                                            </SelectContent>
+                                                                        </Select>
 
-                                                                {lesson.selectedOption === "videoFile" && (
-                                                                    <div>
-                                                                        <div className="flex items-center gap-2">
-                                                                            <Video className="text-red-500 h-5 w-5" />
-                                                                            <label className="font-medium">Tải lên video:</label>
-                                                                        </div>
+                                                                        {lesson.selectedOption === "videoFile" && (
+                                                                            <div>
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <Video className="text-red-500 h-5 w-5" />
+                                                                                    <label className="font-medium">Tải lên video:</label>
+                                                                                </div>
 
-                                                                        {/* Hiển thị tên file từ cơ sở dữ liệu nếu có */}
-                                                                        {lesson.fileName && (
-                                                                            <p className="text-gray-600 mt-2">Tệp hiện tại: {lesson.fileName}</p>
+                                                                                {/* Hiển thị tên file từ cơ sở dữ liệu nếu có */}
+                                                                                {lesson.fileName && (
+                                                                                    <p className="text-gray-600 mt-2">Tệp hiện tại: {lesson.fileName}</p>
+                                                                                )}
+
+                                                                                <Input
+                                                                                    className="mt-2"
+                                                                                    type="file"
+                                                                                    onChange={(e) => handleFileVideoChange(section.id, lesson.id, e.target.files[0])}
+                                                                                />
+                                                                            </div>
                                                                         )}
 
-                                                                        <Input
-                                                                            className="mt-2"
-                                                                            type="file"
-                                                                            onChange={(e) => handleFileVideoChange(section.id, lesson.id, e.target.files[0])}
-                                                                        />
+
+                                                                        {lesson.selectedOption === "content" && (
+                                                                            <div>
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <FileText className="text-purple-500 h-5 w-5" />
+                                                                                    <label className="font-medium">Nhập nội dung:</label>
+                                                                                </div>
+                                                                                <ReactQuill
+                                                                                    className="mt-2 pb-2"
+                                                                                    value={lesson.content || ""}
+                                                                                    onChange={(value) => handleDocumentChange(section.id, lesson.id, value)}
+                                                                                    modules={{
+                                                                                        toolbar: [
+                                                                                            [{ header: [1, 2, 3, false] }],
+                                                                                            ["bold", "italic", "underline"],
+                                                                                            [{ list: "ordered" }, { list: "bullet" }],
+                                                                                            ["link", "image", "code-block"],
+                                                                                            ["clean"],
+                                                                                        ],
+                                                                                    }}
+                                                                                    formats={[
+                                                                                        "header",
+                                                                                        "bold",
+                                                                                        "italic",
+                                                                                        "underline",
+                                                                                        "list",
+                                                                                        "bullet",
+                                                                                        "link",
+                                                                                        "image",
+                                                                                        "code-block",
+                                                                                    ]}
+                                                                                />
+                                                                            </div>
+                                                                        )}
                                                                     </div>
-                                                                )}
+                                                                    {section.lessons.length > 1 && (
+                                                                        <X onClick={() => deleteContent(section.id, lesson.id)} className="absolute top-1 left-2 text-red-400" />
+                                                                    )}
+                                                                </Card>
+                                                            ))}
 
+                                                            <button
+                                                                onClick={() => addContent(section.id)}
+                                                                className="w-full p-2 border-2 ml-6 border-dashed rounded-md text-gray-600 hover:bg-gray-50 transition-colors"
+                                                            >
+                                                                + Thêm nội dung mới
+                                                            </button>
+                                                        </div>
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            ))}
+                                        </Accordion>
 
-                                                                {lesson.selectedOption === "content" && (
-                                                                    <div>
-                                                                        <div className="flex items-center gap-2">
-                                                                            <FileText className="text-purple-500 h-5 w-5" />
-                                                                            <label className="font-medium">Nhập nội dung:</label>
-                                                                        </div>
-                                                                        <ReactQuill
-                                                                            className="mt-2 pb-2"
-                                                                            value={lesson.content || ""}
-                                                                            onChange={(value) => handleDocumentChange(section.id, lesson.id, value)}
-                                                                            modules={{
-                                                                                toolbar: [
-                                                                                    [{ header: [1, 2, 3, false] }],
-                                                                                    ["bold", "italic", "underline"],
-                                                                                    [{ list: "ordered" }, { list: "bullet" }],
-                                                                                    ["link", "image", "code-block"],
-                                                                                    ["clean"],
-                                                                                ],
-                                                                            }}
-                                                                            formats={[
-                                                                                "header",
-                                                                                "bold",
-                                                                                "italic",
-                                                                                "underline",
-                                                                                "list",
-                                                                                "bullet",
-                                                                                "link",
-                                                                                "image",
-                                                                                "code-block",
-                                                                            ]}
-                                                                        />
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            {section.lessons.length > 1 && (
-                                                                <X onClick={() => deleteContent(section.id, lesson.id)} className="absolute top-1 left-2 text-red-400" />
-                                                            )}
-                                                        </Card>
-                                                    ))}
+                                        <div className="flex gap-2">
 
+                                            {offLesson ? (
+                                                <>
                                                     <button
-                                                        onClick={() => addContent(section.id)}
-                                                        className="w-full p-2 border-2 ml-6 border-dashed rounded-md text-gray-600 hover:bg-gray-50 transition-colors"
+                                                        onClick={addOfflineLesson}
+                                                        className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
                                                     >
-                                                        + Thêm nội dung mới
+                                                        + Thêm Bài học mới
                                                     </button>
-                                                </div>
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                    ))}
-                                </Accordion>
+                                                    {offLesson ? (
+                                                        <>
+                                                        </>
+                                                    ) : (
+                                                        <button
+                                                            onClick={addOnlineSection}
+                                                            className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
+                                                        >
+                                                            + Thêm Bài Online mới
+                                                        </button>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <>
 
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={addOfflineLesson}
-                                        className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
-                                    >
-                                        + Thêm Bài học mới
-                                    </button>
-                                    {offLesson ? (
-                                        <>
-                                        </>
-                                    ) : (
-                                        <button
-                                            onClick={addOnlineSection}
-                                            className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
-                                        >
-                                            + Thêm Bài Online mới
-                                        </button>
-                                    )}
-
-                                </div>
+                                                </>
+                                            )}
 
 
-                                {/* <button
+                                        </div>
+
+
+                                        {/* <button
                                         onClick={exportToJsonLog}
                                         className="w-full p-3 border-2 border-dashed border-green-700 rounded-md text-gray-600 hover:bg-gray-50"
                                     >
                                         Xuất dữ liệu ra log
                                     </button> */}
 
-                            </form>
-                            <Toaster />
-                        </div>
+                                    </form>
+                                    <Toaster />
+                                </div>
+                            </>
+                        )}
+
                     </>
 
                 </div >
