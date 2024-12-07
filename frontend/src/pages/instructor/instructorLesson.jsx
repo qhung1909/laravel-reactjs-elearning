@@ -36,7 +36,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-
 import { Badge } from "@/components/ui/badge"
 import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom"
@@ -54,6 +53,8 @@ const notify = (message, type) => {
 import { UserContext } from "../context/usercontext";
 import { Button } from "@/components/ui/button";
 import * as XLSX from 'xlsx';
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export const InstructorLesson = () => {
     const { instructor, logout, refreshToken } = useContext(UserContext);
@@ -69,6 +70,12 @@ export const InstructorLesson = () => {
     const [course, setCourse] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("");
+    const [isDialogExpired, setIsDialogExpired] = useState(false);
+    const [selectedCourse, setSelectedCourse] = useState(null);
+    const [launchDate, setLaunchDate] = useState('');
+    const [backupLaunchDate, setBackupLaunchDate] = useState('');
+    const [isScheduleDialog, setIsScheduleDialog] = useState(false);
+    const token = localStorage.getItem("access_token");
 
     // phân trang
     const [currentPage, setCurrentPage] = useState(1);
@@ -93,7 +100,6 @@ export const InstructorLesson = () => {
     // hàm xử lý khóa học teacher
     const fetchTeacherCourse = async () => {
         setLoading(true)
-        const token = localStorage.getItem("access_token");
         try {
             const response = await axios.get(`${API_URL}/teacher/course`, {
                 headers: {
@@ -122,6 +128,10 @@ export const InstructorLesson = () => {
                 return "Nháp";
             case "pending":
                 return "Chờ duyệt";
+            case "expired":
+                return "Hết hạn";
+            case "need_schedule":
+                return "Update";
             default:
                 return status;
         }
@@ -170,35 +180,29 @@ export const InstructorLesson = () => {
         return status === 'published' || status === 'hide';
     };
 
-    const handleStatusChange = (event) => {
-        setSelectedStatus(event.target.value);
-    };
-
-    const handleSaveStatus = (courseId) => {
-        if (selectedStatus) {
-            toggleCourseStatus(courseId, selectedStatus);
-        }
-    };
-
     // trạng thái
     const getStatusBadge = (status) => {
         switch (status) {
             case "published":
-                return "bg-yellow-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
+                return "bg-green-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
             case "failed":
                 return "bg-red-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
             case "hide":
-                return "bg-gray-400 text-black md:px-3 md:py-1 font-medium sm:text-sm text-xs hover:text-white";
+                return "bg-black text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs hover:text-white";
             case "draft":
-                return "bg-black text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
+                return "bg-gray-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
             case "pending":
                 return "bg-blue-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
+            case "expired":
+                return "bg-yellow-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
+            case "need_schedule":
+                return "bg-sky-800 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
             default:
                 return "bg-gray-500 text-white";
         }
     }
 
-    // xử lý chuyên
+    // xử lý chuyển trang và hiển thị dialog
     const handleBadgeClick = (item) => {
         if (item.status === "draft") {
             window.location.href = `/course/manage/${item.course_id}/course-overview`;
@@ -206,7 +210,62 @@ export const InstructorLesson = () => {
         if (item.status === "published") {
             window.location.href = `/detail/${item.slug}`;
         }
+        if (item.status === "expired" || item.status === "need_schedule") {
+            setIsScheduleDialog(true);
+            setLaunchDate(item.launch_date || '');
+            setBackupLaunchDate(item.backup_launch_date || '');
+            setSelectedCourse(item)
+        }
     };
+
+
+    // hàm update thông tin lịch học
+    const handleUpdateSchedule = async () => {
+        if (!selectedCourse || !launchDate || !backupLaunchDate) {
+            notify('Vui lòng nhập đầy đủ', 'error');
+            return;
+        }
+
+        if(new Date(launchDate) >= new Date(backupLaunchDate)){
+            notify('Ngày dự phòng phải ở sau ngày chính thức')
+            return;
+        }
+        try {
+            const response = await axios.patch(`${API_URL}/teacher/changedate/courses/${selectedCourse.course_id}`,
+                {
+                    launch_date: launchDate,
+                    backup_launch_date: backupLaunchDate
+                },
+                {
+                    headers: {
+                        'x-api-secret': `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+            if(response.data.status){
+                notify('Cập nhật lịch học thành công');
+                setTeacherCourses(prevCourses =>
+                    prevCourses.map(course=>
+                        course.course_id === selectedCourse.course_id
+                        ? {
+                            ...course,
+                            status:'published',
+                            launch_date: launchDate,
+                            backup_launch_date: backupLaunchDate,
+                        }
+                        : course
+                    )
+                );
+                setIsDialogExpired(false);
+            }else{
+                notify(response.data.message || 'Có lỗi')
+            }
+        }catch(error){
+            notify('Không thể cập nhật lịch học')
+        }
+
+    }
 
     // xuất excel
     const exportToExcel = () => {
@@ -318,7 +377,7 @@ export const InstructorLesson = () => {
             currentItems.map((item, index) => (
                 <TableRow key={index}>
                     <TableCell>
-                        <Badge onClick={() => handleBadgeClick(item)} style={{ cursor: item.status === "draft" || item.status === "published" ? "pointer" : "not-allowed" }} className={getStatusBadge(item.status)}>
+                        <Badge onClick={() => handleBadgeClick(item)} style={{ cursor: item.status === "draft" || item.status === "need_schedule" || item.status === "expired" || item.status === "published" ? "pointer" : "not-allowed" }} className={getStatusBadge(item.status)}>
                             {getStatusVietnamese(item.status)}
                         </Badge>
                     </TableCell>
@@ -402,6 +461,72 @@ export const InstructorLesson = () => {
         }
     }
 
+    const ScheduleDialog = () => (
+        <Dialog open={isScheduleDialog} onOpenChange={setIsScheduleDialog}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>
+                        Cập nhật lịch học
+                    </DialogTitle>
+                    <DialogDescription>
+                        <div className="space-y-4 py-4">
+                            <div>
+                                <p className="font-medium mb-2">
+                                    Khóa học: <span className="text-blue-600">{selectedCourse?.title}</span>
+                                </p>
+                                <p className="text-sm text-gray-500 mb-4">
+                                    Trạng thái hiện tại: <span className="font-medium">{getStatusVietnamese(selectedCourse?.status)}</span>
+                                </p>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="launch-date">Ngày khai giảng chính thức</Label>
+                                    <Input
+                                        id="launch-date"
+                                        type="date"
+                                        value={launchDate}
+                                        onChange={(e) => setLaunchDate(e.target.value)}
+                                        min={new Date().toISOString().split('T')[0]}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="backup-date">Ngày khai giảng dự phòng</Label>
+                                    <Input
+                                        id="backup-date"
+                                        type="date"
+                                        value={backupLaunchDate}
+                                        onChange={(e) => setBackupLaunchDate(e.target.value)}
+                                        min={launchDate}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end space-x-2 pt-4">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setIsScheduleDialog(false);
+                                        setLaunchDate('');
+                                        setBackupLaunchDate('');
+                                    }}
+                                >
+                                    Hủy
+                                </Button>
+                                <Button
+                                    onClick={handleUpdateSchedule}
+                                    disabled={!launchDate || !backupLaunchDate}
+                                >
+                                    Xác nhận
+                                </Button>
+                            </div>
+                        </div>
+                    </DialogDescription>
+                </DialogHeader>
+            </DialogContent>
+        </Dialog>
+    );
 
     return (
         <>
@@ -561,8 +686,8 @@ export const InstructorLesson = () => {
                                                                 <ul className="">
                                                                     <li className="mb-3">
                                                                         <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700  hover:bg-gray-100">
-                                                                        <div className=" mr-3 px-1 rounded-full">
-                                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
+                                                                            <div className=" mr-3 px-1 rounded-full">
+                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
                                                                             </div>
                                                                             <p className="font-semibold text-base">Bảng điều khiển</p>
                                                                         </Link>
@@ -570,15 +695,15 @@ export const InstructorLesson = () => {
                                                                     </li>
                                                                     <li className="mb-3">
                                                                         <Link to="/instructor/lesson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
-                                                                        <div className="bg-yellow-400  mr-3 px-1 rounded-full">
-                                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
+                                                                            <div className="bg-yellow-400  mr-3 px-1 rounded-full">
+                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
                                                                             </div>
                                                                             <p className="font-semibold text-base">Bài học của tôi</p>
                                                                         </Link>
                                                                     </li>
                                                                     <li className="mb-3">
                                                                         <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                        <div className=" mr-3 px-1 rounded-full">
+                                                                            <div className=" mr-3 px-1 rounded-full">
                                                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
                                                                             </div>
                                                                             <p className="font-semibold text-base">Lịch sử mua hàng</p>
@@ -662,12 +787,14 @@ export const InstructorLesson = () => {
                                             <TableHead className="text-cyan-950 md:text-sm text-xs">Hành động</TableHead>
                                         </TableRow>
                                     </TableHeader>
+
                                     <TableBody>
                                         {renderTeacherCourse}
-
                                     </TableBody>
 
                                 </Table>
+                                <ScheduleDialog />
+
                                 <Pagination>
                                     <PaginationContent>
                                         <PaginationItem>
@@ -703,6 +830,23 @@ export const InstructorLesson = () => {
                                 </Pagination>
                             </div>
                         </div>
+
+                        {/* dialog expired */}
+                        {isDialogExpired && (
+                            <Dialog>
+                                <DialogTrigger>Open</DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Are you absolutely sure?</DialogTitle>
+                                        <DialogDescription>
+                                            This action cannot be undone. This will permanently delete your account
+                                            and remove your data from our servers.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                </DialogContent>
+                            </Dialog>
+                        )}
+
                     </div>
                 </div>
             </section>
