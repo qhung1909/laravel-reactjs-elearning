@@ -38,6 +38,9 @@ import { useEffect, useState } from 'react';
 import axios from "axios";
 import * as XLSX from 'xlsx';
 import { Link } from "react-router-dom";
+import toast, { Toaster } from 'react-hot-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { AlertDialogFooter, AlertDialogHeader } from "@/components/ui/alert-dialog";
 
 export default function CourseList() {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -53,6 +56,53 @@ export default function CourseList() {
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8;
+
+    const toggleCourseStatus = async (courseId, currentStatus) => {
+        try {
+            const newStatus = currentStatus === "published" ? "hide" : "published";
+
+            console.log('Toggling status:', { courseId, currentStatus, newStatus });
+
+            const response = await axios.put(
+                `${API_URL}/admin/courses/${courseId}/toggle-status`,
+                { status: newStatus },
+                {
+                    headers: {
+                        'x-api-secret': API_KEY,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            console.log('API response:', response.data);
+
+            // Show loading toast while processing
+            toast.loading('Đang cập nhật trạng thái...', {
+                position: "top-center",
+                duration: 3000, // Toast will show for 3 seconds
+            });
+
+            // Delay the state update and page refresh
+            setTimeout(() => {
+                // Hiển thị thông báo thành công
+                toast.success(`Đã thay đổi trạng thái khóa học thành "${newStatus === "published" ? "Hoàn thành" : "Ẩn"}"`, {
+                    position: "top-center"
+                });
+
+                // Refresh toàn bộ trang
+                window.location.reload();
+            }, 3000);
+
+        } catch (error) {
+            console.error('Error updating course status:', error.response?.data || error.message);
+            // Hiển thị thông báo lỗi
+            toast.error("Không thể thay đổi trạng thái khóa học", {
+                position: "top-center"
+            });
+        }
+    };
+
+
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(currentFilteredCourses);
 
@@ -494,12 +544,65 @@ export default function CourseList() {
 
                                                     <td className="py-4 px-6">
                                                         <div className="flex justify-end gap-2">
-                                                            <Button variant="outline" size="sm" className="text-bold text-amber-400 hover:text-amber-700">
-                                                                Sửa
-                                                            </Button>
-                                                            <Link to={`/admin/courses/${course.course_id}`}>                                                                <Button variant="outline" size="sm" className="text-bold text-amber-400 hover:text-amber-700">
-                                                                Chi tiết
-                                                            </Button>
+                                                            <AlertDialog>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        className="text-bold text-amber-400 hover:text-amber-700"
+                                                                    >
+                                                                        Sửa
+                                                                    </Button>
+                                                                </AlertDialogTrigger>
+                                                                <AlertDialogContent className="max-w-[450px]">
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle className="text-left">
+                                                                            Thay đổi trạng thái khóa học
+                                                                        </AlertDialogTitle>
+                                                                        <AlertDialogDescription className="text-left whitespace-normal">
+                                                                            Chọn trạng thái mới cho khóa học:
+                                                                        </AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <div className="flex flex-col gap-3 py-4">
+                                                                        {course.status === "hide" && (
+                                                                            <Button
+                                                                                variant="outline"
+                                                                                className="justify-start text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                                                onClick={() => {
+                                                                                    toggleCourseStatus(course.course_id, "published");
+                                                                                }}
+                                                                            >
+                                                                                <span className="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+                                                                                Hoàn thành
+                                                                            </Button>
+                                                                        )}
+                                                                        {course.status === "published" && (
+                                                                            <Button
+                                                                                variant="outline"
+                                                                                className="justify-start text-gray-600 hover:text-gray-700 hover:bg-gray-50"
+                                                                                onClick={() => {
+                                                                                    toggleCourseStatus(course.course_id, "hide");
+                                                                                }}
+                                                                            >
+                                                                                <span className="w-3 h-3 rounded-full bg-gray-500 mr-2"></span>
+                                                                                Ẩn
+                                                                            </Button>
+                                                                        )}
+                                                                    </div>
+                                                                    <AlertDialogFooter>
+                                                                        <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
+
+                                                            <Link to={`/admin/courses/${course.course_id}`}>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="text-bold text-amber-400 hover:text-amber-700"
+                                                                >
+                                                                    Chi tiết
+                                                                </Button>
                                                             </Link>
                                                         </div>
                                                     </td>
