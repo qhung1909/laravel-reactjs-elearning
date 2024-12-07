@@ -11,7 +11,7 @@ import { UserContext } from "../context/usercontext";
 export const Home = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
-    const { courses, hotProducts, fetchTopPurchasedProduct, fetchCoursesByCategory } = useContext(CoursesContext)
+    const { courses, hotProducts, fetchTopPurchasedProduct, fetchCoursesByCategory, setCourses } = useContext(CoursesContext)
     const { categories } = useContext(CategoriesContext);
     const { user } = useContext(UserContext);
     const [topViewedProduct, setTopViewedProduct] = useState([]);
@@ -20,8 +20,13 @@ export const Home = () => {
     const [open, setOpen] = useState(false);
 
     const handleCategoryClick = (slug) => {
-        fetchCoursesByCategory(slug);
-        setSelectedCategory(slug);
+        if (selectedCategory === slug) {
+            setSelectedCategory(null);
+            setCourses([]);
+        } else {
+            setSelectedCategory(slug);
+            fetchCoursesByCategory(slug);
+        }
     };
 
     const fetchTopViewedProduct = async () => {
@@ -144,29 +149,35 @@ export const Home = () => {
         )
 
     const renderCategories = (categoryGroup) => {
-        return loading ? (
-            <div className="flex flex-wrap justify-center items-center">
-                {Array.from({ length: 3 }).map((_, index) => (
-                    <div className="bg-gray-100 h-10 w-20 rounded-lg animate-pulse mx-2" key={index}></div>
-                ))}
-            </div>
-        ) :
-            Array.isArray(categoryGroup) && categoryGroup.length > 0 ? (
-                categoryGroup.map((item) => (
-                    <button
-                        onClick={() => handleCategoryClick(item.slug)}
-                        className={`p-3 rounded-lg duration-300 me-2 ${selectedCategory === item.slug
-                            ? 'bg-yellow-400 text-white'
-                            : 'bg-gray-100 hover:bg-white hover:border-yellow-400 border'
-                            }`}
-                        key={item.slug}
-                    >
-                        <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">{item.name}</p>
-                    </button>
-                ))
-            ) : (
+        if (loading) {
+            return (
+                <div className="flex flex-wrap justify-center items-center">
+                    {Array.from({ length: 3 }).map((_, index) => (
+                        <div className="bg-gray-100 h-10 w-20 rounded-lg animate-pulse mx-2" key={index}></div>
+                    ))}
+                </div>
+            )
+
+        }
+
+        if (!Array.isArray(categoryGroup) && categoryGroup.length === 0) {
+            return (
                 <p>Không có danh mục phù hợp ngay lúc này, thử lại sau</p>
-            );
+            )
+        }
+
+        return categoryGroup.map((item) => (
+            <button
+                onClick={() => handleCategoryClick(item.slug)}
+                className={`p-3 rounded-lg duration-300 me-2 ${selectedCategory === item.slug
+                    ? 'bg-yellow-400 text-white'
+                    : 'bg-gray-100 hover:bg-white hover:border-yellow-400 border'
+                    }`}
+                key={item.slug}
+            >
+                <p className="lg:text-base md:text-sm sm:text-xs text-[13px]">{item.name}</p>
+            </button>
+        ))
     };
 
     const renderProductsByCategory = () => {
