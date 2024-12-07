@@ -236,6 +236,8 @@ export const CourseOverview = () => {
                     },
                 });
 
+                
+
                 if (response.data) {
                     const courseData = response.data.data;
                     setCourseTitle(courseData.title || '');

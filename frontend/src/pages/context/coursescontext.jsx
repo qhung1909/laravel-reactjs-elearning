@@ -49,7 +49,7 @@ export const CoursesProvider = ({ children }) => {
             const response = await axios.get(`${API_URL}/courses`, {
                 headers: {
                     'x-api-secret': `${API_KEY}`,
-                    'Authorization': `Bearer ${token}` 
+                    'Authorization': `Bearer ${token}`
                 },
             });
             const allCourses = response.data;

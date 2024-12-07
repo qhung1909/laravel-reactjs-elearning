@@ -118,7 +118,7 @@ function AppContent() {
             <ScrollToTop />
             {!isAdminPage && !isPageNotFound && <Header />}
             <Routes>
-            
+
                 <Route path="/teacher/:id" element={<PersonalPage />}></Route>
                 <Route path="/demo" element={<Demo />}></Route>
                 <Route path="/user/certificate" element={<ManageCertificate />}></Route>
@@ -159,7 +159,7 @@ function AppContent() {
                 <Route path="/admin/setting" element={<AdminRole element={<ManageFooter />}/>}></Route>
                 <Route path="/admin/teaching-schedule-list" element={<AdminRole element={<ScheduleList />}/>}></Route>
                 <Route path="/admin/manage-meet-room" element={<AdminRole element={<ManageMeetRoom />}/>}></Route>
-z
+
                 <Route path="/admin/draft" element={<AdminRole element={<Draft />}/>}></Route>
                 <Route path="/admin/courses/:course_id" element={<AdminRole element={<DetailCourse />}/>}/>
 
