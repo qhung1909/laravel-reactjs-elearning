@@ -29,6 +29,7 @@ export const CoursesProvider = ({ children }) => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const [loading, setLoading] = useState(false);
+    const [loadingCoursesCategory,setLoadingCoursesCategory] = useState(false)
     const [courses, setCourses] = useState([]);
     const [error, setError] = useState("");
     const [_success, setSuccess] = useState("");
@@ -36,7 +37,6 @@ export const CoursesProvider = ({ children }) => {
     const [searchValue, setSearchValue] = useState("");
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
-
     const navigate = useNavigate();
     const [averageRatings, setAverageRatings] = useState({});
     const [totalReviews, setTotalReviews] = useState({});
@@ -97,7 +97,7 @@ export const CoursesProvider = ({ children }) => {
 
     // khóa học theo danh mục
     const fetchCoursesByCategory = async (slug) => {
-        setLoading(true);
+        setLoadingCoursesCategory(true);
         try {
             const response = await axios.get(`${API_URL}/categories/${slug}`, {
                 headers: {
@@ -109,7 +109,7 @@ export const CoursesProvider = ({ children }) => {
         } catch (error) {
             console.log('Error fetching courses by category', error);
         } finally {
-            setLoading(false);
+            setLoadingCoursesCategory(false);
         }
     };
 
@@ -184,8 +184,11 @@ export const CoursesProvider = ({ children }) => {
             fetchTopPurchasedProduct,
             hotProducts,
             averageRatings,
-            totalReviews
-
+            totalReviews,
+            loading,
+            setLoading,
+            loadingCoursesCategory,
+            setLoadingCoursesCategory,
         }}>
             {children}
         </CoursesContext.Provider>
