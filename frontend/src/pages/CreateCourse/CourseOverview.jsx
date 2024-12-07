@@ -171,6 +171,14 @@ export const CourseOverview = () => {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            const maxSize = 20480 * 1024;
+
+            if (file.size > maxSize) {
+                notify('Kích thước file không được vượt quá 2MB', 'error');
+                e.target.value = '';
+                return;
+            }
+
             const reader = new FileReader();
             reader.onloadend = () => {
                 setCourseImage(reader.result);
@@ -279,24 +287,47 @@ export const CourseOverview = () => {
             titleError: '',
         };
 
-        if (!valid) {
-            setErrors(newErrors);
-            notify('Vui lòng kiểm tra lại thông tin', 'error');
-            return;
-        }
 
+
+        if (!courseTitle.trim()) {
+            valid = false;
+            newErrors.titleError = 'Vui lòng nhập tiêu đề khóa học';
+        }
+        if (!courseDescriptionText.trim() || courseDescriptionText === '<p><br></p>') {
+            valid = false;
+            newErrors.descriptionError = 'Vui lòng nhập mô tả khóa học';
+        }
+        if (wordCount < 20) {
+            valid = false;
+            newErrors.descriptionError = 'Mô tả phải từ 20 từ';
+        }
+        if (!price.toString().trim()) {
+            valid = false;
+            newErrors.priceError = 'Vui lòng nhập giá khóa học';
+        }
+        if (!selectedCategory) {
+            valid = false;
+            newErrors.categoryError = 'Vui lòng chọn thể loại khóa học';
+        }
         if (courseTitle.length > 255) {
             notify('Tên khóa học không được lớn hơn 255 kí tự');
             return;
         }
-
         if (price < 0) {
-            notify('Giá không được nhỏ hơn 0');
-            return;
+            valid = false;
+            newErrors.priceError = 'Giá không được nhỏ hơn 0đ';
         }
-
+        if (price == 0) {
+            valid = false;
+            newErrors.priceError = 'Giá không được bằng 0đ';
+        }
         if (price > 100000000) {
-            notify('Giá không được lớn hơn 100.000.000đ');
+            valid = false;
+            newErrors.priceError = 'Giá không được lớn hơn 100.000.000đ';
+        }
+        if (!valid) {
+            setErrors(newErrors);
+            notify('Vui lòng kiểm tra lại thông tin', 'error');
             return;
         }
 
@@ -339,8 +370,9 @@ export const CourseOverview = () => {
             const blob = await base64Response.blob();
             formData.append('img', blob, 'course-image.jpg');
         }
-
+        const loadingToast = toast.loading('Đang xử lý...');
         try {
+            setLoading(true);
             const response = await axios.post(
                 `${API_URL}/teacher/courses/${course_id}`,
                 formData,
@@ -371,6 +403,9 @@ export const CourseOverview = () => {
         } catch (error) {
             console.error('Error updating course:', error);
             notify(error.response?.data?.message || 'Lỗi cập nhật khóa học', 'error');
+        } finally {
+            toast.dismiss(loadingToast);
+            setLoading(false);
         }
     };
 
@@ -391,15 +426,33 @@ export const CourseOverview = () => {
                         </Link>
 
                         <div className="flex items-center gap-4">
-                            <Button
-                                onClick={update}
-                                className="sm:inline-flex items-center px-6 py-3 bg-white text-yellow-600 font-semibold rounded-lg border-2 border-yellow-600 hover:bg-yellow-600 hover:text-white transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
-                            >
-                                <span>Cập nhật Khóa Học</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                            </Button>
+                            {loading ? (
+                                <>
+                                    <Button
+                                        readOnly
+                                        className="sm:inline-flex items-center px-6 py-3 bg-white text-gray-500 font-semibold rounded-lg border-2 border-gray-500 hover:bg-white hover:text-gray-500 transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+                                    >
+                                        <span>Cập nhật Khóa Học</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                        </svg>
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <Button
+                                        onClick={update}
+                                        className="sm:inline-flex items-center px-6 py-3 bg-white text-yellow-600 font-semibold rounded-lg border-2 border-yellow-600 hover:bg-yellow-600 hover:text-white transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+                                    >
+                                        <span>Cập nhật Khóa Học</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                        </svg>
+                                    </Button>
+                                </>
+                            )}
+
+
 
                             <Button
                                 variant="ghost"
@@ -501,7 +554,7 @@ export const CourseOverview = () => {
                                     </Select>
                                 </div> */}
                                 <div>
-                                    <Input className='h-[36px]' value={price} onChange={(e) => {
+                                    <Input className='h-[36px]' value={parseFloat(price).toFixed(0)} onChange={(e) => {
                                         setPrice(e.target.value);
                                         // Reset lỗi khi người dùng nhập giá trị
                                         if (e.target.value.trim() !== '') {
@@ -579,9 +632,9 @@ export const CourseOverview = () => {
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectGroup>
-                                                <SelectLabel>Phần mở rộng</SelectLabel>
-                                                <SelectItem value="0">Không chọn</SelectItem>
-                                                <SelectItem value="online">Chọn thêm phần học online</SelectItem>
+                                                <SelectLabel>Dạng mở rộng</SelectLabel>
+                                                <SelectItem value="0">Khóa học truyền thống</SelectItem>
+                                                <SelectItem value="online">Khóa học trực tuyến (có lớp học online)</SelectItem>
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>

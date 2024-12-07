@@ -296,6 +296,7 @@ export const Detail = () => {
             setLoading(false);
         }
     };
+    const token = localStorage.getItem('access_token');
     const [avgRatingCourse, setAvgRatingCourse] = useState(0);
     const [totalRatingCourse, setTotalRatingCourse] = useState(0);
     const fetchDetail = async () => {
@@ -304,6 +305,7 @@ export const Detail = () => {
             const res = await axios.get(`${API_URL}/course/${slug}`, {
                 headers: {
                     "x-api-secret": `${API_KEY}`,
+                    'Authorization': `Bearer ${token}`
                 },
             });
             if (res.data && res.data.course_id) {
@@ -365,8 +367,11 @@ export const Detail = () => {
                     <div className="relative flex items-center gap-2">
                         <span className="animate-gradient">👨‍🏫 Khởi động Hành trình Học tập - Mở đăng ký từ
                             <span className="inline-block bg-yellow-400 text-purple-900 px-2 py-0.5 rounded-md mx-1 animate-bounce">
-                                {formatDateNoTime(detail.launch_date)}
+                                {new Date(detail.launch_date) > new Date()
+                                    ? formatDateNoTime(detail.launch_date)
+                                    : formatDateNoTime(detail.backup_launch_date)}
                             </span>
+
                             !
                         </span>
                         <Sparkles className="w-5 h-5 animate-bounce" />
