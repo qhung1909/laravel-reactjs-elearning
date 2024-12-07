@@ -70,7 +70,6 @@ export const InstructorLesson = () => {
     const [course, setCourse] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("");
-    const [isDialogExpired, setIsDialogExpired] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [launchDate, setLaunchDate] = useState('');
     const [backupLaunchDate, setBackupLaunchDate] = useState('');
@@ -226,10 +225,28 @@ export const InstructorLesson = () => {
             return;
         }
 
-        if(new Date(launchDate) >= new Date(backupLaunchDate)){
-            notify('Ngày dự phòng phải ở sau ngày chính thức')
+        const now = new Date();
+        const launchDateObj = new Date(launchDate);
+        const backupLaunchDateObj = new Date(backupLaunchDate);
+
+        if (launchDateObj < now) {
+            notify('Ngày khai giảng chính thức không được ở quá khứ', 'error');
             return;
         }
+        if (backupLaunchDateObj < now) {
+            notify('Ngày khai giảng dự phòng không được ở quá khứ', 'error');
+            return;
+        }
+        if (launchDateObj >= backupLaunchDateObj) {
+            notify('Ngày dự phòng phải ở sau ngày chính thức', 'error');
+            return;
+        }
+        const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
+        if (backupLaunchDateObj - launchDateObj < oneWeekInMs) {
+            notify('Ngày dự phòng phải cách ngày chính thức ít nhất 1 tuần', 'error');
+            return;
+        }
+
         try {
             const response = await axios.patch(`${API_URL}/teacher/changedate/courses/${selectedCourse.course_id}`,
                 {
@@ -243,26 +260,27 @@ export const InstructorLesson = () => {
                     },
                 }
             )
-            if(response.data.status){
-                notify('Cập nhật lịch học thành công');
-                setTeacherCourses(prevCourses =>
-                    prevCourses.map(course=>
+            if (response.data.success) {
+                notify(`Cập nhật lịch học thành công`, 'success');
+                setTeacherCourses((prevCourses) =>
+                    prevCourses.map((course) =>
                         course.course_id === selectedCourse.course_id
-                        ? {
-                            ...course,
-                            status:'published',
-                            launch_date: launchDate,
-                            backup_launch_date: backupLaunchDate,
-                        }
-                        : course
+                            ? {
+                                ...course,
+                                status: 'published',
+                                launch_date: launchDate,
+                                backup_launch_date: backupLaunchDate,
+                            }
+                            : course
                     )
                 );
-                setIsDialogExpired(false);
-            }else{
-                notify(response.data.message || 'Có lỗi')
+                setIsScheduleDialog(false);
+
+            } else {
+                notify(response.data.message || 'Có lỗi', 'error')
             }
-        }catch(error){
-            notify('Không thể cập nhật lịch học')
+        } catch (error) {
+            notify('Không thể cập nhật lịch học', 'error', error)
         }
 
     }
@@ -463,60 +481,77 @@ export const InstructorLesson = () => {
 
     const ScheduleDialog = () => (
         <Dialog open={isScheduleDialog} onOpenChange={setIsScheduleDialog}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[450px] p-6 bg-white shadow-lg rounded-lg">
                 <DialogHeader>
-                    <DialogTitle>
+                    <DialogTitle className="text-2xl font-bold text-gray-800">
                         Cập nhật lịch học
                     </DialogTitle>
                     <DialogDescription>
-                        <div className="space-y-4 py-4">
-                            <div>
-                                <p className="font-medium mb-2">
-                                    Khóa học: <span className="text-blue-600">{selectedCourse?.title}</span>
+                        <div className="space-y-6">
+                            <div className="bg-gray-50 p-4 rounded-lg border">
+                                <p className="font-medium text-lg mb-2 text-gray-700">
+                                    Khóa học: <span className="text-blue-600 text-sm">{selectedCourse?.title}</span>
                                 </p>
-                                <p className="text-sm text-gray-500 mb-4">
-                                    Trạng thái hiện tại: <span className="font-medium">{getStatusVietnamese(selectedCourse?.status)}</span>
+                                <p className="text-sm text-gray-500">
+                                    Trạng thái hiện tại:{" "}
+                                    <span className="font-semibold text-gray-700">
+                                        {getStatusVietnamese(selectedCourse?.status)}
+                                    </span>
                                 </p>
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor="launch-date">Ngày khai giảng chính thức</Label>
+                                    <Label
+                                        htmlFor="launch-date"
+                                        className="block text-sm font-medium text-gray-700"
+                                    >
+                                        Ngày khai giảng chính thức
+                                    </Label>
                                     <Input
                                         id="launch-date"
-                                        type="date"
+                                        type="datetime-local"
                                         value={launchDate}
                                         onChange={(e) => setLaunchDate(e.target.value)}
-                                        min={new Date().toISOString().split('T')[0]}
+                                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                        min={new Date().toISOString().split("T")[0]}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="backup-date">Ngày khai giảng dự phòng</Label>
+                                    <Label
+                                        htmlFor="backup-date"
+                                        className="block text-sm font-medium text-gray-700"
+                                    >
+                                        Ngày khai giảng dự phòng
+                                    </Label>
                                     <Input
                                         id="backup-date"
-                                        type="date"
+                                        type="datetime-local"
                                         value={backupLaunchDate}
                                         onChange={(e) => setBackupLaunchDate(e.target.value)}
+                                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                                         min={launchDate}
                                     />
                                 </div>
                             </div>
 
-                            <div className="flex justify-end space-x-2 pt-4">
+                            <div className="flex justify-end space-x-4 pt-4">
                                 <Button
                                     variant="outline"
                                     onClick={() => {
                                         setIsScheduleDialog(false);
-                                        setLaunchDate('');
-                                        setBackupLaunchDate('');
+                                        setLaunchDate("");
+                                        setBackupLaunchDate("");
                                     }}
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
                                 >
                                     Hủy
                                 </Button>
                                 <Button
                                     onClick={handleUpdateSchedule}
                                     disabled={!launchDate || !backupLaunchDate}
+                                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
                                 >
                                     Xác nhận
                                 </Button>
@@ -528,329 +563,312 @@ export const InstructorLesson = () => {
         </Dialog>
     );
 
-    return (
-        <>
-            <section className="instructor-lesson">
-                <div className="flex bg-gray-100 h-sc">
-                    {/* Sidebar */}
-                    <div className="min-h-[750px] w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
-                        <div className="p-3">
-                            {/* logo */}
-                            <div className="p-4 flex justify-between items-center">
-                                <div className="logo">
-                                    <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
-                                </div>
-                                <div className="logout">
-                                    <Link to="/">
-                                        <img src="/src/assets/images/logout.svg" className="w-7" alt="" />
-                                    </Link>
-                                </div>
+return (
+    <>
+        <section className="instructor-lesson">
+            <div className="flex bg-gray-100 h-sc">
+                {/* Sidebar */}
+                <div className="min-h-[750px] w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
+                    <div className="p-3">
+                        {/* logo */}
+                        <div className="p-4 flex justify-between items-center">
+                            <div className="logo">
+                                <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
                             </div>
-                            {/* ul list */}
-                            <ul className="">
-                                <li className="mb-3">
-                                    <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 hover:bg-gray-100">
-                                        <div className="  mr-3 px-1  rounded-full">
-                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
-                                        </div>
-                                        <p className="font-semibold text-base">Bảng điều khiển</p>
-                                    </Link>
-
-                                </li>
-                                <li className="mb-3">
-                                    <Link to="/instructor/lesson" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 bg-gray-100">
-                                        <div className="bg-yellow-400 mr-3 px-1 rounded-full">
-                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
-                                        </div>
-                                        <p className="font-semibold text-base">Bài học của tôi</p>
-                                    </Link>
-                                </li>
-                                <li className="mb-3">
-                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                        <div className=" mr-3 px-1 rounded-full">
-                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
-                                        </div>
-                                        <p className="font-semibold text-base">Lịch sử mua hàng</p>
-                                    </Link>
-                                </li>
-                                <li className="mb-3">
-                                    <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                        <div className=" mr-3 px-1 rounded-full">
-                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
-                                        </div>
-                                        <p className="font-semibold text-base">Thông báo</p>
-                                    </Link>
-                                </li>
-                                <li className="mb-3">
-                                    <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                        <div className=" mr-3 px-1 rounded-full">
-                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
-                                        </div>
-                                        <p className="font-semibold text-base">Thông tin tài khoản</p>
-                                    </Link>
-                                </li>
-                                <li className="mb-3">
-                                    <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                        <div className=" mr-3 px-1 rounded-full">
-                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/instructorschedule.svg" className="w-7" alt="" />
-                                        </div>
-                                        <p className="font-semibold text-base">Thông tin lịch học</p>
-                                    </Link>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    {/* Main Content */}
-                    <div className="flex-1">
-                        {/* Header */}
-                        <div className="bg-white shadow-sm p-2">
-                            <div className="flex items-center justify-between px-4 py-3">
-                                <h1 className="text-xl font-semibold ">
-                                    <Link to="/">
-                                        <div className="flex items-center gap-2">
-                                            <img src="/src/assets/images/home.svg" className="w-6" alt="" />
-                                            <p className="text-slate-600">Trang chủ</p>
-                                        </div>
-                                    </Link>
-                                </h1>
-
-                                {/* user info */}
-                                <div className="flex items-center space-x-4">
-                                    {loading ? (
-                                        <div className="flex justify-between items-center gap-2 me-5">
-                                            <div className="">
-                                                <Skeleton className="w-12 h-12 rounded-full" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Skeleton className="w-20 h-3 " />
-                                                <Skeleton className="w-20 h-3 " />
-
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-2">
-                                            {/* avatar */}
-                                            {instructor?.avatar ? (
-                                                <img
-                                                    src={instructor.avatar}
-                                                    alt="User Avatar"
-                                                    className="w-10 h-10 object-cover rounded-full"
-                                                />
-                                            ) : (
-                                                <img src="./src/assets/images/user.svg" className="w-8" alt="" />
-                                            )}
-
-                                            {/* user control */}
-                                            <div className="text-left">
-                                                <span className="font-medium text-sm">{instructor?.name}</span>
-                                                <br />
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger>
-                                                        <div className="flex items-center">
-                                                            <p className="text-gray-600 text-sm">{instructor?.role}</p>
-                                                            <svg className="w-4 h-4 ml-1 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                                            </svg>
-                                                        </div>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent>
-                                                        <div className="p-3">
-                                                            <DropdownMenuItem>
-                                                                <span className="cursor-pointer" onClick={handleLogout}>Đăng xuất</span>
-                                                            </DropdownMenuItem>
-                                                        </div>
-                                                    </DropdownMenuContent>
-
-                                                </DropdownMenu>
-                                            </div>
-                                            {/* toggler */}
-                                            <div className="">
-                                                <Sheet>
-                                                    <SheetTrigger>
-                                                        <div className="w-5 lg:hidden block">
-                                                            <box-icon name='menu'></box-icon>
-
-                                                        </div>
-                                                        {/* <img src="./src/assets/images/toggle.png"  alt="" /> */}
-                                                    </SheetTrigger>
-                                                    <SheetContent>
-                                                        <SheetHeader>
-                                                            <SheetTitle>
-                                                                <div className="p-4 flex justify-between items-center border-b-[1px]">
-                                                                    <div className="logo ">
-                                                                        <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
-                                                                    </div>
-                                                                </div>
-                                                            </SheetTitle>
-                                                            <SheetDescription>
-                                                                <ul className="">
-                                                                    <li className="mb-3">
-                                                                        <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700  hover:bg-gray-100">
-                                                                            <div className=" mr-3 px-1 rounded-full">
-                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
-                                                                            </div>
-                                                                            <p className="font-semibold text-base">Bảng điều khiển</p>
-                                                                        </Link>
-
-                                                                    </li>
-                                                                    <li className="mb-3">
-                                                                        <Link to="/instructor/lesson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
-                                                                            <div className="bg-yellow-400  mr-3 px-1 rounded-full">
-                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
-                                                                            </div>
-                                                                            <p className="font-semibold text-base">Bài học của tôi</p>
-                                                                        </Link>
-                                                                    </li>
-                                                                    <li className="mb-3">
-                                                                        <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                            <div className=" mr-3 px-1 rounded-full">
-                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
-                                                                            </div>
-                                                                            <p className="font-semibold text-base">Lịch sử mua hàng</p>
-                                                                        </Link>
-                                                                    </li>
-                                                                    <li className="mb-3">
-                                                                        <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                            <div className=" mr-3 px-1 rounded-full">
-                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
-                                                                            </div>
-                                                                            <p className="font-semibold text-base">Thông báo</p>
-                                                                        </Link>
-                                                                    </li>
-                                                                    <li className="mb-3">
-                                                                        <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                            <div className=" mr-3 px-1 rounded-full">
-                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
-                                                                            </div>
-                                                                            <p className="font-semibold text-base">Thông tin tài khoản</p>
-                                                                        </Link>
-                                                                    </li>
-                                                                    <li className="mb-3">
-                                                                        <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                            <div className=" mr-3 px-1 rounded-full">
-                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/instructorschedule.svg" className="w-7" alt="" />
-                                                                            </div>
-                                                                            <p className="font-semibold text-base">Thông tin lịch học</p>
-                                                                        </Link>
-                                                                    </li>
-                                                                </ul>
-                                                            </SheetDescription>
-                                                        </SheetHeader>
-                                                    </SheetContent>
-                                                </Sheet>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                </div>
+                            <div className="logout">
+                                <Link to="/">
+                                    <img src="/src/assets/images/logout.svg" className="w-7" alt="" />
+                                </Link>
                             </div>
                         </div>
-                        {/* Lesson content */}
-                        <div className="md:p-6 p-4 max-lg:h-screen">
+                        {/* ul list */}
+                        <ul className="">
+                            <li className="mb-3">
+                                <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 hover:bg-gray-100">
+                                    <div className="  mr-3 px-1  rounded-full">
+                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
+                                    </div>
+                                    <p className="font-semibold text-base">Bảng điều khiển</p>
+                                </Link>
 
-                            {/* Thêm khóa học - xuất */}
-                            <div className="flex gap-2 items-center justify-center md:justify-end">
-
-                                <div className="">
-                                    <Button onClick={addCourse} className="bg-gradient-to-br from-blue-500 to-purple-800 text-white">Thêm khóa học</Button>
-                                </div>
-                                <div className="">
-                                    <Button className="duration-300  bg-white text-black border hover:bg-gray-100" onClick={exportToExcel}>
-                                        <div className="">
-                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/download.svg" className="w-5" alt="" />
-                                        </div>
-                                        <div className="">
-                                            <p>Xuất</p>
-                                        </div>
-                                    </Button>
-                                </div>
-                            </div>
-
-                            {/* tìm kiếm */}
-                            <div className=" flex justify-center p-3 md:p-0 lg:my-5 my-3">
-                                <input type="text" value={searchTerm} onChange={handleSearch} placeholder="Nhập 1 từ khóa bất kỳ muốn tìm kiếm" className="md:w-full w-[80%] p-3 rounded-tl-lg rounded-bl-lg" />
-                            </div>
-
-                            {/* Table sản phẩm */}
-                            <div className="lg:my-5 bg-white rounded-3xl p-3">
-                                <Table>
-
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs w-32">Trạng thái</TableHead>
-                                            <TableHead className="xl:w-[250px] lg:w-[250px] md:w-[200px] w-[250px] text-cyan-950 md:text-sm text-xs">Hình ảnh</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs xl:w-[200px] lg:w-[150px] md:w-[150px] sm:w-[200px] w-[200px]">Tên</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs">Giá</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt bán</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt xem</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Ngày tạo</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs">Hành động</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-
-                                    <TableBody>
-                                        {renderTeacherCourse}
-                                    </TableBody>
-
-                                </Table>
-                                <ScheduleDialog />
-
-                                <Pagination>
-                                    <PaginationContent>
-                                        <PaginationItem>
-                                            <PaginationPrevious
-                                                href="#"
-                                                onClick={() => handlePageChange(currentPage > 1 ? currentPage - 1 : 1)}
-                                            />
-                                        </PaginationItem>
-                                        {Array.from({ length: Math.ceil(teacherCourses.length / itemsPerPage) }).map((_, index) => (
-                                            <PaginationItem key={index}>
-                                                <PaginationLink
-                                                    href="#"
-                                                    onClick={() => handlePageChange(index + 1)}
-                                                    className={currentPage === index + 1 ? "active" : ""}
-                                                >
-                                                    {index + 1}
-                                                </PaginationLink>
-                                            </PaginationItem>
-                                        ))}
-                                        <PaginationItem>
-                                            <PaginationNext
-                                                href="#"
-                                                onClick={() =>
-                                                    handlePageChange(
-                                                        currentPage < Math.ceil(teacherCourses.length / itemsPerPage)
-                                                            ? currentPage + 1
-                                                            : currentPage
-                                                    )
-                                                }
-                                            />
-                                        </PaginationItem>
-                                    </PaginationContent>
-                                </Pagination>
-                            </div>
-                        </div>
-
-                        {/* dialog expired */}
-                        {isDialogExpired && (
-                            <Dialog>
-                                <DialogTrigger>Open</DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>Are you absolutely sure?</DialogTitle>
-                                        <DialogDescription>
-                                            This action cannot be undone. This will permanently delete your account
-                                            and remove your data from our servers.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                </DialogContent>
-                            </Dialog>
-                        )}
-
+                            </li>
+                            <li className="mb-3">
+                                <Link to="/instructor/lesson" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 bg-gray-100">
+                                    <div className="bg-yellow-400 mr-3 px-1 rounded-full">
+                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
+                                    </div>
+                                    <p className="font-semibold text-base">Bài học của tôi</p>
+                                </Link>
+                            </li>
+                            <li className="mb-3">
+                                <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <div className=" mr-3 px-1 rounded-full">
+                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
+                                    </div>
+                                    <p className="font-semibold text-base">Lịch sử mua hàng</p>
+                                </Link>
+                            </li>
+                            <li className="mb-3">
+                                <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <div className=" mr-3 px-1 rounded-full">
+                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
+                                    </div>
+                                    <p className="font-semibold text-base">Thông báo</p>
+                                </Link>
+                            </li>
+                            <li className="mb-3">
+                                <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <div className=" mr-3 px-1 rounded-full">
+                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
+                                    </div>
+                                    <p className="font-semibold text-base">Thông tin tài khoản</p>
+                                </Link>
+                            </li>
+                            <li className="mb-3">
+                                <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                    <div className=" mr-3 px-1 rounded-full">
+                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/instructorschedule.svg" className="w-7" alt="" />
+                                    </div>
+                                    <p className="font-semibold text-base">Thông tin lịch học</p>
+                                </Link>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-            </section>
-            <Toaster />
-        </>
-    )
+                {/* Main Content */}
+                <div className="flex-1">
+                    {/* Header */}
+                    <div className="bg-white shadow-sm p-2">
+                        <div className="flex items-center justify-between px-4 py-3">
+                            <h1 className="text-xl font-semibold ">
+                                <Link to="/">
+                                    <div className="flex items-center gap-2">
+                                        <img src="/src/assets/images/home.svg" className="w-6" alt="" />
+                                        <p className="text-slate-600">Trang chủ</p>
+                                    </div>
+                                </Link>
+                            </h1>
+
+                            {/* user info */}
+                            <div className="flex items-center space-x-4">
+                                {loading ? (
+                                    <div className="flex justify-between items-center gap-2 me-5">
+                                        <div className="">
+                                            <Skeleton className="w-12 h-12 rounded-full" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Skeleton className="w-20 h-3 " />
+                                            <Skeleton className="w-20 h-3 " />
+
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        {/* avatar */}
+                                        {instructor?.avatar ? (
+                                            <img
+                                                src={instructor.avatar}
+                                                alt="User Avatar"
+                                                className="w-10 h-10 object-cover rounded-full"
+                                            />
+                                        ) : (
+                                            <img src="./src/assets/images/user.svg" className="w-8" alt="" />
+                                        )}
+
+                                        {/* user control */}
+                                        <div className="text-left">
+                                            <span className="font-medium text-sm">{instructor?.name}</span>
+                                            <br />
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger>
+                                                    <div className="flex items-center">
+                                                        <p className="text-gray-600 text-sm">{instructor?.role}</p>
+                                                        <svg className="w-4 h-4 ml-1 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                        </svg>
+                                                    </div>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent>
+                                                    <div className="p-3">
+                                                        <DropdownMenuItem>
+                                                            <span className="cursor-pointer" onClick={handleLogout}>Đăng xuất</span>
+                                                        </DropdownMenuItem>
+                                                    </div>
+                                                </DropdownMenuContent>
+
+                                            </DropdownMenu>
+                                        </div>
+                                        {/* toggler */}
+                                        <div className="">
+                                            <Sheet>
+                                                <SheetTrigger>
+                                                    <div className="w-5 lg:hidden block">
+                                                        <box-icon name='menu'></box-icon>
+
+                                                    </div>
+                                                    {/* <img src="./src/assets/images/toggle.png"  alt="" /> */}
+                                                </SheetTrigger>
+                                                <SheetContent>
+                                                    <SheetHeader>
+                                                        <SheetTitle>
+                                                            <div className="p-4 flex justify-between items-center border-b-[1px]">
+                                                                <div className="logo ">
+                                                                    <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
+                                                                </div>
+                                                            </div>
+                                                        </SheetTitle>
+                                                        <SheetDescription>
+                                                            <ul className="">
+                                                                <li className="mb-3">
+                                                                    <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700  hover:bg-gray-100">
+                                                                        <div className=" mr-3 px-1 rounded-full">
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
+                                                                        </div>
+                                                                        <p className="font-semibold text-base">Bảng điều khiển</p>
+                                                                    </Link>
+
+                                                                </li>
+                                                                <li className="mb-3">
+                                                                    <Link to="/instructor/lesson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
+                                                                        <div className="bg-yellow-400  mr-3 px-1 rounded-full">
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
+                                                                        </div>
+                                                                        <p className="font-semibold text-base">Bài học của tôi</p>
+                                                                    </Link>
+                                                                </li>
+                                                                <li className="mb-3">
+                                                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                        <div className=" mr-3 px-1 rounded-full">
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
+                                                                        </div>
+                                                                        <p className="font-semibold text-base">Lịch sử mua hàng</p>
+                                                                    </Link>
+                                                                </li>
+                                                                <li className="mb-3">
+                                                                    <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                        <div className=" mr-3 px-1 rounded-full">
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
+                                                                        </div>
+                                                                        <p className="font-semibold text-base">Thông báo</p>
+                                                                    </Link>
+                                                                </li>
+                                                                <li className="mb-3">
+                                                                    <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                        <div className=" mr-3 px-1 rounded-full">
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
+                                                                        </div>
+                                                                        <p className="font-semibold text-base">Thông tin tài khoản</p>
+                                                                    </Link>
+                                                                </li>
+                                                                <li className="mb-3">
+                                                                    <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                        <div className=" mr-3 px-1 rounded-full">
+                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/instructorschedule.svg" className="w-7" alt="" />
+                                                                        </div>
+                                                                        <p className="font-semibold text-base">Thông tin lịch học</p>
+                                                                    </Link>
+                                                                </li>
+                                                            </ul>
+                                                        </SheetDescription>
+                                                    </SheetHeader>
+                                                </SheetContent>
+                                            </Sheet>
+                                        </div>
+                                    </div>
+                                )}
+
+                            </div>
+                        </div>
+                    </div>
+                    {/* Lesson content */}
+                    <div className="md:p-6 p-4 max-lg:h-screen">
+
+                        {/* Thêm khóa học - xuất */}
+                        <div className="flex gap-2 items-center justify-center md:justify-end">
+
+                            <div className="">
+                                <Button onClick={addCourse} className="bg-gradient-to-br from-blue-500 to-purple-800 text-white">Thêm khóa học</Button>
+                            </div>
+                            <div className="">
+                                <Button className="duration-300  bg-white text-black border hover:bg-gray-100" onClick={exportToExcel}>
+                                    <div className="">
+                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/download.svg" className="w-5" alt="" />
+                                    </div>
+                                    <div className="">
+                                        <p>Xuất</p>
+                                    </div>
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* tìm kiếm */}
+                        <div className=" flex justify-center p-3 md:p-0 lg:my-5 my-3">
+                            <input type="text" value={searchTerm} onChange={handleSearch} placeholder="Nhập 1 từ khóa bất kỳ muốn tìm kiếm" className="md:w-full w-[80%] p-3 rounded-tl-lg rounded-bl-lg" />
+                        </div>
+
+                        {/* Table sản phẩm */}
+                        <div className="lg:my-5 bg-white rounded-3xl p-3">
+                            <Table>
+
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="text-cyan-950 md:text-sm text-xs w-32">Trạng thái</TableHead>
+                                        <TableHead className="xl:w-[250px] lg:w-[250px] md:w-[200px] w-[250px] text-cyan-950 md:text-sm text-xs">Hình ảnh</TableHead>
+                                        <TableHead className="text-cyan-950 md:text-sm text-xs xl:w-[200px] lg:w-[150px] md:w-[150px] sm:w-[200px] w-[200px]">Tên</TableHead>
+                                        <TableHead className="text-cyan-950 md:text-sm text-xs">Giá</TableHead>
+                                        <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt bán</TableHead>
+                                        <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt xem</TableHead>
+                                        <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Ngày tạo</TableHead>
+                                        <TableHead className="text-cyan-950 md:text-sm text-xs">Hành động</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+
+                                <TableBody>
+                                    {renderTeacherCourse}
+                                </TableBody>
+
+                            </Table>
+                            <ScheduleDialog />
+
+                            <Pagination>
+                                <PaginationContent>
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            href="#"
+                                            onClick={() => handlePageChange(currentPage > 1 ? currentPage - 1 : 1)}
+                                        />
+                                    </PaginationItem>
+                                    {Array.from({ length: Math.ceil(teacherCourses.length / itemsPerPage) }).map((_, index) => (
+                                        <PaginationItem key={index}>
+                                            <PaginationLink
+                                                href="#"
+                                                onClick={() => handlePageChange(index + 1)}
+                                                className={currentPage === index + 1 ? "active" : ""}
+                                            >
+                                                {index + 1}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    ))}
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            href="#"
+                                            onClick={() =>
+                                                handlePageChange(
+                                                    currentPage < Math.ceil(teacherCourses.length / itemsPerPage)
+                                                        ? currentPage + 1
+                                                        : currentPage
+                                                )
+                                            }
+                                        />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <Toaster />
+    </>
+)
 }
