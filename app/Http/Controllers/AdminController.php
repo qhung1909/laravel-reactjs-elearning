@@ -15,9 +15,7 @@ use App\Models\OrderDetail;
 use Illuminate\Support\Str;
 use App\Models\TitleContent;
 use Illuminate\Http\Request;
-use App\Models\OnlineMeeting;
 use Illuminate\Validation\Rule;
-use App\Models\TeachingSchedule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -692,29 +690,6 @@ class AdminController extends Controller
     
             Quiz::where('course_id', $courseId) 
                 ->update(['status' => 'published']); 
-    
-            if ($course->is_online_meeting == 1) {
-                $firstOnlineMeetingContent = Content::where('course_id', $courseId)
-                    ->where('is_online_meeting', 1)
-                    ->orderBy('content_id')
-                    ->first();
-    
-                if ($firstOnlineMeetingContent) {
-                    $onlineMeeting = OnlineMeeting::create([
-                        'content_id' => $firstOnlineMeetingContent->content_id,
-                        'course_id' => $courseId,
-                        'start_time' => $course->launch_date,
-                        'end_time' => Carbon::parse($course->launch_date)->addHours(2), 
-                    ]);
-    
-                    TeachingSchedule::create([
-                        'meeting_id' => $onlineMeeting->meeting_id,
-                        'user_id' => $course->user_id,
-                        'proposed_start' => $course->launch_date,
-                        'notes' => 'Buổi học đầu tiên của khóa học ' . $course->title
-                    ]);
-                }
-            }
     
             Mail::to($instructor->email)
                 ->queue(new CourseStatusNotification($course, null, 'approved'));
