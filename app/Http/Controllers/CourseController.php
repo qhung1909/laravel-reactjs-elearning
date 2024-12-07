@@ -198,24 +198,45 @@ class CourseController extends Controller
 
     public function show(Request $request, $slug)
     {
-        $course = Cache::remember("course_{$slug}", 90, function () use ($slug) {
+        $userId = auth()->id(); // Lấy ID của người dùng hiện tại (nếu có)
+    
+        $course = Cache::remember("course_{$slug}_user_{$userId}", 90, function () use ($slug, $userId) {
             return $this->course->where('slug', $slug)
-                ->where('status', 'published')
+                ->where(function ($query) use ($userId) {
+                    // Điều kiện 1: Khóa học phải là "published" (công khai)
+                    $query->where('status', 'published');
+    
+                    // Điều kiện 2: Nếu là "need_schedule", kiểm tra người dùng đã mua
+                    if ($userId) {
+                        $query->orWhere(function ($q) use ($userId) {
+                            $q->where('status', 'need_schedule')
+                              ->whereExists(function ($subquery) use ($userId) {
+                                  $subquery->select('user_courses.course_id')
+                                           ->from('user_courses')
+                                           ->whereColumn('user_courses.course_id', 'courses.course_id')
+                                           ->where('user_courses.user_id', $userId)
+                                           ->whereNotNull('user_courses.order_id'); // Đảm bảo đã có thanh toán
+                              });
+                        });
+                    }
+                })
                 ->first();
         });
-
+    
         if (!$course) {
             return response()->json(['error' => 'Khóa học không tìm thấy hoặc chưa được xuất bản'], 404);
         }
-
+    
+        // Xử lý tăng lượt xem
         $ipAddress = $request->ip();
         $cacheKey = "course_view_{$slug}_{$ipAddress}";
-
+    
         if (!Cache::has($cacheKey)) {
             $course->increment('views');
-            Cache::put($cacheKey, true, 86400);
+            Cache::put($cacheKey, true, 86400); // Lưu trong 1 ngày
         }
-
+    
+        // Lấy danh sách comments và định dạng lại
         $comments = $course->comments()
             ->orderBy('created_at', 'desc')
             ->get()
@@ -231,7 +252,8 @@ class CourseController extends Controller
                     "updated_at" => $comment->updated_at->toIso8601String()
                 ];
             });
-
+    
+        // Chuẩn bị response
         $response = [
             "course_id" => $course->course_id,
             "course_category_id" => $course->course_category_id,
@@ -254,9 +276,10 @@ class CourseController extends Controller
             "launch_date" => $course->launch_date,
             "comments" => $comments
         ];
-
+    
         return response()->json($response);
     }
+    
 
     public function store(Request $request)
     {
