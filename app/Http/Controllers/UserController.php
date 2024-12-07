@@ -428,12 +428,12 @@ class UserController extends Controller
 
     public function getUsers()
     {
-        $users = User::where('role', 'user')->select('name', 'email', 'avatar', 'created_at', 'role', 'status')->get();
+        $users = User::where('role', 'user')->select('user_id', 'name', 'email', 'avatar', 'created_at', 'role', 'status')->get();
         return response()->json($users);
     }
     public function getTeacher()
     {
-        $teachers = User::where('role', 'teacher')->select('name', 'email', 'avatar', 'created_at', 'role', 'status')->get();
+        $teachers = User::where('role', 'teacher')->select('user_id', 'name', 'email', 'avatar', 'created_at', 'role', 'status')->get();
         return response()->json($teachers);
     }
 
