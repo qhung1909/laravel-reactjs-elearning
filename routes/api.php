@@ -240,6 +240,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::get('/settings', [SettingController::class, 'index']);
     Route::post('/settings', [SettingController::class, 'update']); 
     
+    Route::put('/courses/{courseId}/toggle-status', [AdminController::class, 'toggleCourseStatus']);
 
 });
 
