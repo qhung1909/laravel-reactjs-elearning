@@ -1205,7 +1205,6 @@ class TeacherController extends Controller
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Validation error',
                     'errors' => $validator->errors()
                 ], 422);
             }
@@ -1230,7 +1229,6 @@ class TeacherController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Cập nhật thời gian khóa học thành công',
                 'data' => [
                     'course_id' => $course->course_id,
                     'launch_date' => $course->launch_date,
