@@ -171,9 +171,13 @@ class CartController extends Controller
             }
         } else {
             Log::info('Signature mismatch or Order not found');
+            if ($order) {
+                OrderDetail::where('order_id', $orderId)->delete();
+                Order::where('order_id', $orderId)->delete();
+                Log::info('Deleted all cart items for Order ID: ' . $orderId);
+            }
             $returnData = ['RspCode' => '97', 'Message' => 'Invalid signature or order not found'];
         }
-    
         Log::info('Return Data: ' . json_encode($returnData));
         return response()->json($returnData);
     }
