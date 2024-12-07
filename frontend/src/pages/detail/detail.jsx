@@ -1941,30 +1941,12 @@ export const Detail = () => {
                                         </li>
                                         <li className="flex items-center">
                                             <box-icon
-                                                name="code"
-                                                color="#10B981"
-                                                class="w-4 h-4 mr-2"
-                                                size="sm"
-                                            ></box-icon>
-                                            1 bài tập coding
-                                        </li>
-                                        <li className="flex items-center">
-                                            <box-icon
                                                 name="file"
                                                 color="#10B981"
                                                 class="w-4 h-4 mr-2"
                                                 size="sm"
                                             ></box-icon>
                                             35 bài viết
-                                        </li>
-                                        <li className="flex items-center">
-                                            <box-icon
-                                                name="download"
-                                                color="#10B981"
-                                                class="w-4 h-4 mr-2"
-                                                size="sm"
-                                            ></box-icon>
-                                            7 tài nguyên có thể tải xuống
                                         </li>
                                         <li className="flex items-center">
                                             <box-icon
