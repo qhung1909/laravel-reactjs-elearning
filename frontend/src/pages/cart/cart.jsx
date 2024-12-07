@@ -112,7 +112,12 @@ export const Cart = () => {
             return total + itemTotal;
         }, 0);
     };
-
+    const calculateTotalItems = () => {
+        return cart.reduce((total, item) => {
+            // Đếm số lượng order_details trong mỗi đơn hàng
+            return total + item.order_details.length;
+        }, 0);
+    };
     const totalPrice = calculateTotalPrice();
 
     const renderCart = () => {
@@ -132,15 +137,10 @@ export const Cart = () => {
                             className="flex items-center py-3 border-t last:border-b-0"
                         >
                             <span className="mr-2 font-bold text-sm">{cartIndex + 1}</span> {/* Kích thước chữ nhỏ hơn */}
-                            <input
-                                className="mr-2 h-4 w-4 flex-shrink-0 rounded border-gray-300 checked:bg-yellow-500"
-                                defaultChecked
-                                type=""
-                                aria-label="Chọn khóa học"
-                            />
+
                             <img
                                 alt="Course Image"
-                                className="sm:w-48 sm:h-28 w-52 g-24  flex-shrink-0 rounded-2xl object-cover" // Kích thước hình ảnh nhỏ hơn
+                                className="sm:w-48 sm:h-28 w-52 g-24 ml-2 flex-shrink-0 rounded-2xl object-cover" // Kích thước hình ảnh nhỏ hơn
                                 src={
                                     course
                                         ? course.img
@@ -155,7 +155,7 @@ export const Cart = () => {
                                                 ? course.title
                                                 : "Khóa học không tồn tại"}
                                         </p>
-                                        <p className="text-sm text-black mt-1 break-words font-normal ">
+                                        <p className="text-sm text-black mt-1 break-words font-normal line-clamp-2 ">
                                             <span>{cart.course.slug}</span>
                                         </p>
                                     </div>
@@ -194,11 +194,9 @@ export const Cart = () => {
                 <div className="p-10 md:my-5 my-2 max-w-screen-xl mx-auto min-h-[500px]">
                     <div className="container mx-auto">
                         <h1 className="lg:text-5xl md:text-4xl text-3xl text-center md:text-left font-bold md:mb-6 mb-3">Giỏ hàng</h1>
-                        <div className="bg-white ">
+                        <div className="bg-white">
                             <div className="mb-4 text-center md:text-left">
-                                <span className="font-semibold text-gray-500 lg:text-lg md:text-base text-base ">
-                                    {cart.length || 0} Khóa học trong giỏ hàng
-                                </span>
+                                <p className="text-gray-600 mt-2">Vui lòng kiểm tra lại thông tin trước khi thanh toán</p>
                             </div>
 
                             <div>
@@ -210,20 +208,39 @@ export const Cart = () => {
                                         </div>
 
                                         {/* Cột bên phải: Chỉ hiển thị khi giỏ hàng có sản phẩm */}
-                                        <div className="bg-white rounded-3xl box-shadow-lg md:h-48 p-6 lg:w-1/3 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_-10px_15px_-3px_rgba(0,0,0,0.1)]">
-                                            <div className="mb-2 text-center lg:text-left">
-                                                <span className="font-bold md:text-xl text-lg text-gray-600">
-                                                    Tổng
-                                                </span>
+                                        <div className="bg-white rounded-3xl box-shadow-lg p-6 lg:w-1/3 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_-10px_15px_-3px_rgba(0,0,0,0.1)]">
+                                            {/* Phần header với số lượng sản phẩm */}
+                                            <div className="border-b pb-4">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-gray-500 text-base">
+                                                        Số lượng
+                                                    </span>
+                                                    <span className="font-medium text-black">
+                                                        {calculateTotalItems()} khóa học
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div className="font-bold md:text-3xl text-2xl mb-5 text-black text-center lg:text-left">
-                                                {formatCurrency(totalPrice)}
+
+                                            {/* Phần tổng tiền */}
+                                            <div className="py-4 border-b">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-gray-500 text-base">
+                                                        Tổng tiền
+                                                    </span>
+                                                    <span className="font-bold text-2xl text-black">
+                                                        {formatCurrency(totalPrice)}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <Link to="/payment">
-                                                <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black md:text-lg text-base font-medium py-2 rounded-3xl">
-                                                    Thanh toán
-                                                </button>
-                                            </Link>
+
+                                            {/* Phần button thanh toán */}
+                                            <div className="pt-4">
+                                                <Link to="/payment">
+                                                    <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-medium py-3 rounded-3xl transition duration-200 ease-in-out">
+                                                        Thanh toán ngay
+                                                    </button>
+                                                </Link>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
