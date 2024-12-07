@@ -214,7 +214,7 @@ export const Cart = () => {
                                             <div className="border-b pb-4">
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-2">
-                                                        <ClipboardList   className="w-5 h-5 text-gray-500" />
+                                                        <ClipboardList className="w-5 h-5 text-gray-500" />
                                                         <span className="text-gray-500 text-base">
                                                             Số lượng
                                                         </span>
