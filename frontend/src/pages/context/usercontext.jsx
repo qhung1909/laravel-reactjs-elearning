@@ -68,9 +68,14 @@ export const UserProvider = ({ children }) => {
 
     // Xử lý refresh token
     const refreshToken = async () => {
+        const checkGetAccessToken = localStorage.getItem('access_token')
+        if(!checkGetAccessToken){
+            return false;
+        }
+
+
         const storedRefreshToken = localStorage.getItem('refresh_token');
         if (!storedRefreshToken) {
-            notify('Phiên đăng nhập đã hết hạn', 'error');
             navigate('/login');
             return null;
         }
@@ -97,7 +102,7 @@ export const UserProvider = ({ children }) => {
             localStorage.removeItem('refresh_token');
             setUser(null);
             setLogined(null);
-            notify('Phiên đăng nhập đã hết hạn', 'error');
+            // notify('Phiên đăng nhập đã hết hạn', 'error');
             navigate('/login');
             return null;
         }
@@ -161,12 +166,12 @@ export const UserProvider = ({ children }) => {
     const fetchUserData = async () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
-            console.error("Người dùng chưa đăng nhập.");
+            // console.error("Người dùng chưa đăng nhập.");
             return;
         }
         setLoading(true);
         try {
-            const res = await api.get('/auth/me');
+            const res = await api.get(`${API_URL}/auth/me`);
             if (res.data) {
                 setUser(res.data);
                 setLogined(token);
@@ -179,7 +184,7 @@ export const UserProvider = ({ children }) => {
                 }
             }
         } catch (error) {
-            console.error("Lỗi khi lấy thông tin người dùng:", error);
+            // console.error("Lỗi khi lấy thông tin người dùng:", error);
         } finally {
             setLoading(false);
         }

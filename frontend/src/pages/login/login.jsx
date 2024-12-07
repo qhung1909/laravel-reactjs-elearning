@@ -43,102 +43,102 @@ export const Login = () => {
         };
     };
 
-    const getUserInfo = async () => {
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-            return;
-        }
-        setLoading(true);
-        try {
-            const res = await makeApiRequest(`${API_URL}/auth/me`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+    // const getUserInfo = async () => {
+    //     const token = localStorage.getItem('access_token');
+    //     if (!token) {
+    //         return;
+    //     }
+    //     setLoading(true);
+    //     try {
+    //         const res = await makeApiRequest(`${API_URL}/auth/me`, {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         });
 
-            if (res.ok) {
-                const userData = await res.json();
-                setUser(userData);
-            } else {
-                throw new Error('Failed to fetch user data');
-            }
-        } catch (error) {
-            console.error('Error fetching user data:', error);
-            notify('Không thể lấy thông tin người dùng');
-        } finally {
-            setLoading(false);
-        }
-    };
+    //         if (res.ok) {
+    //             const userData = await res.json();
+    //             setUser(userData);
+    //         } else {
+    //             throw new Error('Failed to fetch user data');
+    //         }
+    //     } catch (error) {
+    //         console.error('Error fetching user data:', error);
+    //         notify('Không thể lấy thông tin người dùng');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
-    const refreshToken = async () => {
-        const storedRefreshToken = localStorage.getItem('refresh_token');
-        if (!storedRefreshToken) {
-            notify('Phiên đăng nhập đã hết hạn');
-            navigate('/login');
-            return;
-        }
-        try {
-            const res = await fetch(`${API_URL}/auth/refresh`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ refresh_token: storedRefreshToken })
-            });
+    // const refreshToken = async () => {
+    //     const storedRefreshToken = localStorage.getItem('refresh_token');
+    //     if (!storedRefreshToken) {
+    //         notify('Phiên đăng nhập đã hết hạn');
+    //         navigate('/login');
+    //         return;
+    //     }
+    //     try {
+    //         const res = await fetch(`${API_URL}/auth/refresh`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify({ refresh_token: storedRefreshToken })
+    //         });
 
-            if (!res.ok) {
-                throw new Error('Failed to refresh token');
-            }
+    //         if (!res.ok) {
+    //             throw new Error('Failed to refresh token');
+    //         }
 
-            const data = await res.json();
-            localStorage.setItem('access_token', data.access_token);
-            localStorage.setItem('refresh_token', data.refresh_token);
-            return true;
-        } catch (error) {
-            console.error('Token refresh error:', error);
-            notify('Phiên đăng nhập đã hết hạn');
-            navigate('/login');
-            return false;
-        }
-    };
+    //         const data = await res.json();
+    //         localStorage.setItem('access_token', data.access_token);
+    //         localStorage.setItem('refresh_token', data.refresh_token);
+    //         return true;
+    //     } catch (error) {
+    //         console.error('Token refresh error:', error);
+    //         notify('Phiên đăng nhập đã hết hạn');
+    //         navigate('/login');
+    //         return false;
+    //     }
+    // };
 
-    const makeApiRequest = async (url, options) => {
-        const accessToken = localStorage.getItem('access_token');
+    // const makeApiRequest = async (url, options) => {
+    //     const accessToken = localStorage.getItem('access_token');
 
-        if (isTokenExpired(accessToken)) {
-            const refreshSuccess = await refreshToken();
-            if (!refreshSuccess) return null;
-        }
+    //     if (isTokenExpired(accessToken)) {
+    //         const refreshSuccess = await refreshToken();
+    //         if (!refreshSuccess) return null;
+    //     }
 
-        try {
-            const response = await fetch(url, {
-                ...options,
-                headers: {
-                    ...options.headers,
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                }
-            });
+    //     try {
+    //         const response = await fetch(url, {
+    //             ...options,
+    //             headers: {
+    //                 ...options.headers,
+    //                 'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+    //             }
+    //         });
 
-            if (response.status === 401) {
-                const refreshSuccess = await refreshToken();
-                if (!refreshSuccess) return null;
+    //         if (response.status === 401) {
+    //             const refreshSuccess = await refreshToken();
+    //             if (!refreshSuccess) return null;
 
-                return await fetch(url, {
-                    ...options,
-                    headers: {
-                        ...options.headers,
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                    }
-                });
-            }
+    //             return await fetch(url, {
+    //                 ...options,
+    //                 headers: {
+    //                     ...options.headers,
+    //                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+    //                 }
+    //             });
+    //         }
 
-            return response;
-        } catch (error) {
-            console.error('API request error:', error);
-            throw error;
-        }
-    };
+    //         return response;
+    //     } catch (error) {
+    //         console.error('API request error:', error);
+    //         throw error;
+    //     }
+    // };
 
     const isTokenExpired = (token) => {
         if (!token) return true;
@@ -193,7 +193,7 @@ export const Login = () => {
 
             notify('Đăng nhập thành công', 'success');
             setSuccess('Đăng nhập thành công');
-            await getUserInfo();
+            // await getUserInfo();
 
             const previousPage = sessionStorage.getItem('previousPage');
             sessionStorage.removeItem('previousPage');
@@ -353,16 +353,16 @@ export const Login = () => {
         }
     }, []);
 
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            const token = localStorage.getItem('access_token');
-            if (token && isTokenExpired(token)) {
-                refreshToken();
-            }
-        }, 1800000);
+    // useEffect(() => {
+    //     const intervalId = setInterval(() => {
+    //         const token = localStorage.getItem('access_token');
+    //         if (token && isTokenExpired(token)) {
+    //             refreshToken();
+    //         }
+    //     }, 1800000);
 
-        return () => clearInterval(intervalId);
-    }, []);
+    //     return () => clearInterval(intervalId);
+    // }, []);
 
     return (
         <>

@@ -293,35 +293,30 @@ export const CourseOverview = () => {
             valid = false;
             newErrors.titleError = 'Vui lòng nhập tiêu đề khóa học';
         }
+
         if (!courseDescriptionText.trim() || courseDescriptionText === '<p><br></p>') {
             valid = false;
             newErrors.descriptionError = 'Vui lòng nhập mô tả khóa học';
-        }
-        if (wordCount < 20) {
+        } else if (wordCount < 20) {
             valid = false;
             newErrors.descriptionError = 'Mô tả phải từ 20 từ';
         }
-        if (!price.toString().trim()) {
-            valid = false;
-            newErrors.priceError = 'Vui lòng nhập giá khóa học';
-        }
+
         if (!selectedCategory) {
             valid = false;
             newErrors.categoryError = 'Vui lòng chọn thể loại khóa học';
         }
-        if (courseTitle.length > 255) {
-            notify('Tên khóa học không được lớn hơn 255 kí tự');
-            return;
-        }
-        if (price < 0) {
+
+        if (!price.toString().trim()) {
             valid = false;
-            newErrors.priceError = 'Giá không được nhỏ hơn 0đ';
-        }
-        if (price == 0) {
+            newErrors.priceError = 'Vui lòng nhập giá khóa học';
+        } else if (parseFloat(price) === 0) {
             valid = false;
             newErrors.priceError = 'Giá không được bằng 0đ';
-        }
-        if (price > 100000000) {
+        } else if (parseFloat(price) < 0) {
+            valid = false;
+            newErrors.priceError = 'Giá không được nhỏ hơn 0đ';
+        } else if (price > 100000000) {
             valid = false;
             newErrors.priceError = 'Giá không được lớn hơn 100.000.000đ';
         }

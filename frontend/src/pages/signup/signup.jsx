@@ -44,9 +44,10 @@ export const Signup = () => {
             return;
         }
 
-        const nameRegex = /^[a-zA-Z0-9ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ]+$/;
+        const nameRegex = /[0123456789~!@#$%^&*()_+\[\]{}|;:'",.<>?/\\\-=`]/;
 
-        if(nameRegex.test(formData.name)) {
+
+        if (nameRegex.test(formData.name)) {
             setError('Tên không được chứa kí tự đặc biệt');
             return;
         }
@@ -78,7 +79,7 @@ export const Signup = () => {
                 }),
             });
 
-            if(res.status === 422){
+            if (res.status === 422) {
                 setError('Tài khoản email đã tồn tại!');
                 return;
             }
