@@ -285,7 +285,7 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::get('/teaching/courses/online-teacher', [TeacherController::class, 'getCourseOnlineTeacher']);
     Route::get('/teaching/courses/meeting-online', [TeacherController::class, 'getMeetingOnline']);
 
-    Route::patch('/changedate/courses/{courseId}', [CourseController::class, 'updateCourseDates']);
+    Route::patch('/changedate/courses/{courseId}', [TeacherController::class, 'updateCourseDates']);
 
 
 });

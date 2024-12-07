@@ -26,6 +26,7 @@ export const CoursesContext = createContext();
 
 // Trong coursescontext.jsx
 export const CoursesProvider = ({ children }) => {
+    const token = localStorage.getItem('access_token');
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const [loading, setLoading] = useState(false);
@@ -48,6 +49,7 @@ export const CoursesProvider = ({ children }) => {
             const response = await axios.get(`${API_URL}/courses`, {
                 headers: {
                     'x-api-secret': `${API_KEY}`,
+                    'Authorization': `Bearer ${token}` 
                 },
             });
             const allCourses = response.data;

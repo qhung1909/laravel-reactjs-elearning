@@ -78,21 +78,42 @@ class CourseController extends Controller
         return response()->json($searchResults, 200);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        Log::info('Fetching courses from cache or database.');
-
-        $courses = Cache::remember('courses', 120, function () {
-            Log::info('Querying courses from database.');
-            return $this->course->where('status', 'published')
-                ->with(['user:user_id,name', 'comments:course_id,rating'])
-                ->get();
-        });
-
-        Log::info('Courses fetched successfully:', ['courses' => $courses]);
-
+        Log::info('Fetching courses from database directly.');
+    
+        $userId = auth()->id(); // Lấy ID của người dùng hiện tại (nếu có)
+    
+        // Truy vấn trực tiếp từ cơ sở dữ liệu
+        $courses = $this->course->where(function ($query) use ($userId) {
+            // Điều kiện 1: Khóa học phải là "published" (công khai)
+            $query->where('status', 'published');
+    
+            // Điều kiện 2: Nếu là trạng thái "need_schedule", phải thỏa điều kiện user đăng ký
+            if ($userId) {
+                $query->orWhere(function ($q) use ($userId) {
+                    $q->where('status', 'need_schedule')
+                      ->whereExists(function ($subquery) use ($userId) {
+                          // Kiểm tra trong bảng user_courses
+                          $subquery->select('user_courses.course_id')
+                                   ->from('user_courses')
+                                   ->whereColumn('user_courses.course_id', 'courses.course_id')
+                                   ->where('user_courses.user_id', $userId)
+                                   ->whereNotNull('user_courses.order_id'); // Đảm bảo đã có thanh toán
+                      });
+                });
+            }
+        })
+        ->with(['user:user_id,name', 'comments:course_id,rating'])
+        ->get();
+    
+        Log::info('Courses fetched successfully:', ['count' => $courses->count()]);
+    
+        // Trả về dữ liệu JSON
         return response()->json($courses);
     }
+    
+    
 
 
     public function relatedCourses($slug)
