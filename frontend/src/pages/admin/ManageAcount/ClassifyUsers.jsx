@@ -61,6 +61,8 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import * as XLSX from 'xlsx';
+import { toast } from "react-hot-toast";
+import { useNavigate, } from "react-router-dom";
 
 export default function ClassifyUsers() {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -71,7 +73,8 @@ export default function ClassifyUsers() {
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [filterCriteria, setFilterCriteria] = useState('all');
-    // Thay thế isDialogOpen bằng editingUserId
+    const navigate = useNavigate();
+
     const [editingUserId, setEditingUserId] = useState(null);
 
     const filterOptions = [
@@ -129,45 +132,6 @@ export default function ClassifyUsers() {
     };
 
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setIsLoading(true);
-                const [teachersRes, studentsRes] = await Promise.all([
-                    axios.get(`${API_URL}/admin/teachers`, {
-                        headers: { 'x-api-secret': API_KEY }
-                    }),
-                    axios.get(`${API_URL}/admin/users`, {
-                        headers: { 'x-api-secret': API_KEY }
-                    })
-                ]);
-
-                if (teachersRes.status === 200 && studentsRes.status === 200) {
-                    const teachersData = teachersRes.data.map(user => ({
-                        ...user,
-                        id: user.user_id,
-                        role: 'teacher'
-                    }));
-
-                    const studentsData = studentsRes.data.map(user => ({
-                        ...user,
-                        id: user.user_id,
-                        role: 'user'
-                    }));
-
-                    setTeachers(teachersData);
-                    setStudents(studentsData);
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [API_URL, API_KEY]);
-
     const getFilteredData = () => {
         const combinedData = [...students, ...teachers];
 
@@ -188,10 +152,66 @@ export default function ClassifyUsers() {
         return filterOptions.find(option => option.value === filterCriteria)?.label || 'Tất cả người dùng';
     };
 
+    const fetchData = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            const [teachersRes, studentsRes] = await Promise.all([
+                axios.get(`${API_URL}/admin/teachers`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "x-api-secret": API_KEY,
+                    }
+                }),
+                axios.get(`${API_URL}/admin/users`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "x-api-secret": API_KEY,
+                    }
+                })
+            ]);
+
+            if (teachersRes.data && studentsRes.data) {
+                const teachersData = teachersRes.data.map(user => ({
+                    ...user,
+                    id: user.user_id,
+                    role: 'teacher'
+                }));
+
+                const studentsData = studentsRes.data.map(user => ({
+                    ...user,
+                    id: user.user_id,
+                    role: 'user'
+                }));
+
+                setTeachers(teachersData);
+                setStudents(studentsData);
+            }
+        } catch (error) {
+            console.error('Lỗi khi tải dữ liệu:', error);
+            toast.error("Có lỗi xảy ra khi tải dữ liệu người dùng.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleEditUser = async (userId) => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+
         try {
             if (!userId) {
-                console.error('Không tìm thấy ID người dùng');
+                toast.error("Không tìm thấy ID người dùng.");
                 return;
             }
 
@@ -200,57 +220,58 @@ export default function ClassifyUsers() {
             const updatedRole = roleSelect?.value;
 
             if (!updatedRole) {
-                console.error('Chưa chọn quyền mới');
+                toast.error("Vui lòng chọn quyền người dùng.");
                 return;
             }
 
-            const res = await axios.put(
-                `${API_URL}/admin/users/${userId}/role`,
-                { role: updatedRole },
+            const response = await axios.put(
+                `${API_URL}/admin/user/${userId}/toggle-role`,
                 {
                     headers: {
-                        'x-api-secret': API_KEY
+                        Authorization: `Bearer ${token}`,
+                        "x-api-secret": API_KEY,
+                        "Content-Type": "application/json",
                     }
                 }
-            );
 
-            if (res.data.success) {
-                // Cập nhật state local dựa trên response từ server
-                const updatedUser = res.data.data;
+
+            );
+            console.log(token);
+
+            if (response.data && response.data.success) {
+                const updatedUser = response.data.data;
 
                 if (updatedRole === 'teacher') {
-                    // Nếu chuyển từ học viên sang giảng viên
-                    setStudents(prev => prev.filter(s => s.user_id !== userId));
+                    setStudents(prev => prev.filter(s => s.id !== userId));
                     setTeachers(prev => [...prev, {
                         ...updatedUser,
-                        id: updatedUser.user_id,
+                        id: userId,
                         role: 'teacher'
                     }]);
                 } else {
-                    // Nếu chuyển từ giảng viên sang học viên
-                    setTeachers(prev => prev.filter(t => t.user_id !== userId));
+                    setTeachers(prev => prev.filter(t => t.id !== userId));
                     setStudents(prev => [...prev, {
                         ...updatedUser,
-                        id: updatedUser.user_id,
+                        id: userId,
                         role: 'user'
                     }]);
                 }
 
-                // Đóng dialog
+                toast.success("Cập nhật quyền thành công.");
                 setEditingUserId(null);
-
-                // Có thể thêm thông báo thành công ở đây nếu muốn
-                console.log('Cập nhật quyền thành công');
+            } else {
+                toast.error("Có lỗi xảy ra khi cập nhật quyền.");
             }
         } catch (error) {
-            console.error('Lỗi khi cập nhật quyền:', error);
-            // Có thể thêm thông báo lỗi ở đây nếu muốn
+            console.error("Lỗi khi cập nhật quyền:", error);
+            toast.error("Có lỗi xảy ra khi cập nhật quyền người dùng.");
         } finally {
             setIsLoading(false);
         }
     };
-
-
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const handleDeleteUser = async (user_id) => {
         console.log("Deleting user:", user_id);
@@ -414,10 +435,10 @@ export default function ClassifyUsers() {
                                                         >
                                                             <DialogTrigger asChild>
                                                                 <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    className="hover:bg-yellow-50 hover:text-yellow-700 transition-colors"
-                                                                    onClick={() => setEditingUserId(user.id)}
+                                                                    onClick={() => {
+                                                                        console.log('User ID:', user.id);
+                                                                        setEditingUserId(user.id);
+                                                                    }}
                                                                 >
                                                                     <Pencil className="h-4 w-4 mr-1" />
                                                                     Thay đổi
