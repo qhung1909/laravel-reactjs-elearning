@@ -460,4 +460,33 @@ class UserController extends Controller
             'user' => $user
         ]);
     }
+
+    public function toggleRole(Request $request, $userId)
+    {
+        $currentUser = Auth::user();
+
+        if ($currentUser->role !== 'admin') {
+            return response()->json(['error' => 'Bạn không có quyền thay đổi vai trò.'], 403);
+        }
+
+        $user = User::find($userId);
+
+        if (!$user) {
+            return response()->json(['error' => 'Không tìm thấy người dùng.'], 404);
+        }
+
+        if ($currentUser->user_id === $user->user_id) {
+            return response()->json(['error' => 'Bạn không thể thay đổi vai trò của chính mình.'], 400);
+        }
+
+        $newRole = $user->role === 'user' ? 'admin' : 'user';
+        $user->role = $newRole;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Vai trò đã được cập nhật thành công.',
+            'user_id' => $user->user_id,
+            'new_role' => $user->role,
+        ]);
+    }
 }

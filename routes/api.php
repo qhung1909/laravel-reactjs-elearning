@@ -193,6 +193,7 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/meetings/{meetingId}/participants', [ParticipantController::class, 'getParticipantsByMeeting']);
     Route::get('/attendance/history', [ParticipantController::class, 'getUserAttendanceHistory']);
+    Route::put('/users/{userId}/toggle-role', [UserController::class, 'toggleRole']);
 
 
 });
