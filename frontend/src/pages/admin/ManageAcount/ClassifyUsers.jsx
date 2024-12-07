@@ -208,57 +208,27 @@ export default function ClassifyUsers() {
             navigate('/');
             return;
         }
-
+    
+        if (!userId) {
+            toast.error("Không tìm thấy ID người dùng.");
+            return;
+        }
+        setIsLoading(true);
         try {
-            if (!userId) {
-                toast.error("Không tìm thấy ID người dùng.");
-                return;
-            }
-
-            setIsLoading(true);
-            const roleSelect = document.getElementById("role");
-            const updatedRole = roleSelect?.value;
-
-            if (!updatedRole) {
-                toast.error("Vui lòng chọn quyền người dùng.");
-                return;
-            }
-
             const response = await axios.put(
                 `${API_URL}/admin/user/${userId}/toggle-role`,
+                {},
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "x-api-secret": API_KEY,
                         "Content-Type": "application/json",
-                    }
+                    },
                 }
-
-
             );
-            console.log(token);
-
+    
             if (response.data && response.data.success) {
-                const updatedUser = response.data.data;
-
-                if (updatedRole === 'teacher') {
-                    setStudents(prev => prev.filter(s => s.id !== userId));
-                    setTeachers(prev => [...prev, {
-                        ...updatedUser,
-                        id: userId,
-                        role: 'teacher'
-                    }]);
-                } else {
-                    setTeachers(prev => prev.filter(t => t.id !== userId));
-                    setStudents(prev => [...prev, {
-                        ...updatedUser,
-                        id: userId,
-                        role: 'user'
-                    }]);
-                }
-
                 toast.success("Cập nhật quyền thành công.");
-                setEditingUserId(null);
             } else {
                 toast.error("Có lỗi xảy ra khi cập nhật quyền.");
             }
@@ -269,6 +239,7 @@ export default function ClassifyUsers() {
             setIsLoading(false);
         }
     };
+    
     useEffect(() => {
         fetchData();
     }, []);
