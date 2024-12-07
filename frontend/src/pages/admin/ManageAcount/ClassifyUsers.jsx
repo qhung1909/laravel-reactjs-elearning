@@ -56,26 +56,31 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Search, ChevronDown, FileDown, Trash, Pencil, UserCircle, School, CheckCircle, XCircle } from 'lucide-react';
+import { Search, ChevronDown, FileDown, Trash, Pencil, UserCircle, School, CheckCircle, XCircle, Lock, UserCog, ShieldCheck } from 'lucide-react';
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import * as XLSX from 'xlsx';
+import { toast } from "react-hot-toast";
+import { useNavigate, } from "react-router-dom";
 
 export default function ClassifyUsers() {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
 
     const [students, setStudents] = useState([]);
+    const [admins, setAdmins] = useState([]);
     const [teachers, setTeachers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [filterCriteria, setFilterCriteria] = useState('all');
-    // Thay thế isDialogOpen bằng editingUserId
+    const navigate = useNavigate();
+
     const [editingUserId, setEditingUserId] = useState(null);
 
     const filterOptions = [
         { value: 'all', label: 'Tất cả người dùng' },
+        { value: 'admin', label: 'Quản trị viên' },
         { value: 'teacher', label: 'Giảng viên' },
         { value: 'user', label: 'Học viên' },
     ];
@@ -129,47 +134,8 @@ export default function ClassifyUsers() {
     };
 
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setIsLoading(true);
-                const [teachersRes, studentsRes] = await Promise.all([
-                    axios.get(`${API_URL}/admin/teachers`, {
-                        headers: { 'x-api-secret': API_KEY }
-                    }),
-                    axios.get(`${API_URL}/admin/users`, {
-                        headers: { 'x-api-secret': API_KEY }
-                    })
-                ]);
-
-                if (teachersRes.status === 200 && studentsRes.status === 200) {
-                    const teachersData = teachersRes.data.map(user => ({
-                        ...user,
-                        id: user.user_id,
-                        role: 'teacher'
-                    }));
-
-                    const studentsData = studentsRes.data.map(user => ({
-                        ...user,
-                        id: user.user_id,
-                        role: 'user'
-                    }));
-
-                    setTeachers(teachersData);
-                    setStudents(studentsData);
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [API_URL, API_KEY]);
-
     const getFilteredData = () => {
-        const combinedData = [...students, ...teachers];
+        const combinedData = [...students, ...teachers, ...admins];
 
         return combinedData.filter(user => {
             const matchesSearch =
@@ -188,69 +154,116 @@ export default function ClassifyUsers() {
         return filterOptions.find(option => option.value === filterCriteria)?.label || 'Tất cả người dùng';
     };
 
-    const handleEditUser = async (userId) => {
+    const fetchData = async () => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
+
         try {
-            if (!userId) {
-                console.error('Không tìm thấy ID người dùng');
-                return;
-            }
-
             setIsLoading(true);
-            const roleSelect = document.getElementById("role");
-            const updatedRole = roleSelect?.value;
-
-            if (!updatedRole) {
-                console.error('Chưa chọn quyền mới');
-                return;
-            }
-
-            const res = await axios.put(
-                `${API_URL}/admin/users/${userId}/role`,
-                { role: updatedRole },
-                {
+            const [teachersRes, studentsRes, adminsRes] = await Promise.all([
+                axios.get(`${API_URL}/admin/teachers`, {
                     headers: {
-                        'x-api-secret': API_KEY
+                        Authorization: `Bearer ${token}`,
+                        "x-api-secret": API_KEY,
                     }
-                }
-            );
+                }),
+                axios.get(`${API_URL}/admin/users`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "x-api-secret": API_KEY,
+                    }
+                }),
+                axios.get(`${API_URL}/admin/admins`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "x-api-secret": API_KEY,
+                    }
+                }),
+            ]);
 
-            if (res.data.success) {
-                // Cập nhật state local dựa trên response từ server
-                const updatedUser = res.data.data;
+            if (teachersRes.data && studentsRes.data && adminsRes.data) {
+                const teachersData = teachersRes.data.map(user => ({
+                    ...user,
+                    id: user.user_id,
+                    role: 'teacher'
+                }));
 
-                if (updatedRole === 'teacher') {
-                    // Nếu chuyển từ học viên sang giảng viên
-                    setStudents(prev => prev.filter(s => s.user_id !== userId));
-                    setTeachers(prev => [...prev, {
-                        ...updatedUser,
-                        id: updatedUser.user_id,
-                        role: 'teacher'
-                    }]);
-                } else {
-                    // Nếu chuyển từ giảng viên sang học viên
-                    setTeachers(prev => prev.filter(t => t.user_id !== userId));
-                    setStudents(prev => [...prev, {
-                        ...updatedUser,
-                        id: updatedUser.user_id,
-                        role: 'user'
-                    }]);
-                }
+                const studentsData = studentsRes.data.map(user => ({
+                    ...user,
+                    id: user.user_id,
+                    role: 'user'
+                }));
 
-                // Đóng dialog
-                setEditingUserId(null);
+                const adminsData = adminsRes.data.map(user => ({
+                    ...user,
+                    id: user.user_id,
+                    role: 'admin'
+                }));
 
-                // Có thể thêm thông báo thành công ở đây nếu muốn
-                console.log('Cập nhật quyền thành công');
+                setTeachers(teachersData);
+                setStudents(studentsData);
+                setAdmins(adminsData);
+
+                console.log("Teachers:", teachersData);
+                console.log("Students:", studentsData);
+                console.log("Admins:", adminsData);
             }
         } catch (error) {
-            console.error('Lỗi khi cập nhật quyền:', error);
-            // Có thể thêm thông báo lỗi ở đây nếu muốn
+            console.error('Lỗi khi tải dữ liệu:', error);
+            toast.error("Có lỗi xảy ra khi tải dữ liệu người dùng.");
         } finally {
             setIsLoading(false);
         }
     };
 
+    const handleEditUser = async (userId) => {
+        console.log("User ID:", userId);
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            toast.error("Bạn chưa đăng nhập.");
+            navigate('/');
+            return;
+        }
 
+        if (!userId) {
+            toast.error("Không tìm thấy ID người dùng.");
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const response = await axios.put(
+                `${API_URL}/admin/user/${userId}/toggle-role`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "x-api-secret": API_KEY,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.data && response.data.message) {  // Sửa điều kiện kiểm tra
+                toast.success("Cập nhật quyền thành công.");
+                fetchData();  // Thêm dòng này để refresh data
+                setEditingUserId(null); // Đóng dialog
+            } else {
+                toast.error("Có lỗi xảy ra khi cập nhật quyền.");
+            }
+        } catch (error) {
+            console.error("Lỗi khi cập nhật quyền:", error);
+            toast.error("Có lỗi xảy ra khi cập nhật quyền người dùng.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const handleDeleteUser = async (user_id) => {
         console.log("Deleting user:", user_id);
@@ -394,6 +407,11 @@ export default function ClassifyUsers() {
                                                                 <School className="w-4 h-4" />
                                                                 <span className="text-sm">Giảng viên</span>
                                                             </div>
+                                                        ) : user.role === "admin" ? (
+                                                            <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-red-50 text-red-700 font-medium border border-red-200 shadow-sm whitespace-nowrap">
+                                                                <ShieldCheck className="w-4 h-4" />
+                                                                <span className="text-sm">Quản trị viên</span>
+                                                            </div>
                                                         ) : (
                                                             <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 font-medium border border-purple-200 shadow-sm whitespace-nowrap">
                                                                 <UserCircle className="w-4 h-4" />
@@ -401,6 +419,7 @@ export default function ClassifyUsers() {
                                                             </div>
                                                         )}
                                                     </span>
+
                                                 </TableCell>
                                                 <TableCell className="text-center">
                                                     <div className="flex justify-center items-center gap-2">
@@ -414,47 +433,52 @@ export default function ClassifyUsers() {
                                                         >
                                                             <DialogTrigger asChild>
                                                                 <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    className="hover:bg-yellow-50 hover:text-yellow-700 transition-colors"
+                                                                    variant="ghost"
                                                                     onClick={() => setEditingUserId(user.id)}
+                                                                    className="hover:bg-gray-100 transition-all duration-200 rounded-full"
                                                                 >
-                                                                    <Pencil className="h-4 w-4 mr-1" />
-                                                                    Thay đổi
+                                                                    <Pencil className="h-4 w-4 mr-1 text-gray-600" />
+                                                                    <span className="text-gray-700">Sửa</span>
                                                                 </Button>
                                                             </DialogTrigger>
-                                                            <DialogContent className="sm:max-w-[425px]">
-                                                                <DialogHeader>
-                                                                    <DialogTitle className="text-lg font-semibold">Chỉnh sửa người dùng</DialogTitle>
-                                                                    <DialogDescription className="text-gray-500">
-                                                                        Thay đổi thông tin người dùng tại đây. Nhấn lưu khi hoàn tất.
-                                                                    </DialogDescription>
-                                                                </DialogHeader>
-                                                                <div className="grid gap-4 py-4">
-                                                                    <div className="grid grid-cols-4 items-center gap-4">
-                                                                        <Label htmlFor="role" className="text-right text-gray-600">
-                                                                            Quyền
-                                                                        </Label>
-                                                                        <select
-                                                                            id="role"
-                                                                            defaultValue={user.role}
-                                                                            className="col-span-3 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                                                                        >
-                                                                            <option value="user">Học viên</option>
-                                                                            <option value="teacher">Giảng viên</option>
-                                                                        </select>
-                                                                    </div>
+                                                            <DialogContent className="sm:max-w-[320px] p-0 border-0 rounded-xl shadow-xl">
+                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl p-6">
+                                                                    <DialogHeader>
+                                                                        <DialogTitle className="flex items-center justify-center text-lg font-semibold text-gray-800">
+                                                                            <UserCog className="h-5 w-5 mr-2 text-gray-700" />
+                                                                            Tùy chọn người dùng
+                                                                        </DialogTitle>
+                                                                    </DialogHeader>
                                                                 </div>
-                                                                <DialogFooter>
+
+                                                                <div className="p-4 space-y-3">
                                                                     <Button
                                                                         type="submit"
-                                                                        onClick={() => handleEditUser(user.id)}
-                                                                        className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                                                                        className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-2 px-4 rounded-lg transform transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
                                                                         disabled={isLoading}
+                                                                        onClick={() => handleEditUser(user.id)}  // Chuyển onClick lên Button
                                                                     >
-                                                                        {isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
+                                                                        {isLoading ? (
+                                                                            <div className="flex items-center justify-center">
+                                                                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                                                                                Đang xử lý...
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className="flex items-center justify-center">
+                                                                                <UserCog className="h-4 w-4 mr-2" />
+                                                                                Sửa quyền
+                                                                            </div>
+                                                                        )}
                                                                     </Button>
-                                                                </DialogFooter>
+
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        className="w-full text-white hover:text-red-50 bg-red-600 hover:bg-red-700 border border-red-200 font-medium transition-all duration-200 hover:shadow-sm"
+                                                                    >
+                                                                        <Lock className="h-4 w-4 mr-2" />
+                                                                        Khóa tài khoản
+                                                                    </Button>
+                                                                </div>
                                                             </DialogContent>
                                                         </Dialog>
 
