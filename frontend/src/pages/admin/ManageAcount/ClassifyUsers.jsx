@@ -71,7 +71,8 @@ export default function ClassifyUsers() {
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [filterCriteria, setFilterCriteria] = useState('all');
-    const [editingUser, setEditingUser] = useState(null);
+    // Thay thế isDialogOpen bằng editingUserId
+    const [editingUserId, setEditingUserId] = useState(null);
 
     const filterOptions = [
         { value: 'all', label: 'Tất cả người dùng' },
@@ -187,26 +188,25 @@ export default function ClassifyUsers() {
         return filterOptions.find(option => option.value === filterCriteria)?.label || 'Tất cả người dùng';
     };
 
-    const handleEditUser = async (user_id) => {
-        if (!user_id) {
-            console.error('Invalid user ID');
-            return;
-        }
-
-        setIsLoading(true);  // Đảm bảo là loading trước khi thực hiện PUT request
-
+    const handleEditUser = async (userId) => {
         try {
-            const updatedRole = document.getElementById("role").value;  // Lấy giá trị role từ select
+            if (!userId) {
+                console.error('Không tìm thấy ID người dùng');
+                return;
+            }
+
+            setIsLoading(true);
+            const roleSelect = document.getElementById("role");
+            const updatedRole = roleSelect?.value;
+
             if (!updatedRole) {
-                console.error('Role is not selected');
+                console.error('Chưa chọn quyền mới');
                 return;
             }
 
             const res = await axios.put(
-                `${API_URL}/admin/users/${user_id}`,
-                {
-                    role: updatedRole  // Truyền dữ liệu role vào body của PUT request
-                },
+                `${API_URL}/admin/users/${userId}/role`,
+                { role: updatedRole },
                 {
                     headers: {
                         'x-api-secret': API_KEY
@@ -214,23 +214,40 @@ export default function ClassifyUsers() {
                 }
             );
 
-            const data = res.data;
-            console.log("Dữ liệu từ API:", data);
-            console.log(data.status);
+            if (res.data.success) {
+                // Cập nhật state local dựa trên response từ server
+                const updatedUser = res.data.data;
 
-            // Bạn có thể xử lý thêm ở đây nếu cần thông báo thành công
-            if (data.status === 'success') {
-                // Thông báo thành công nếu có
+                if (updatedRole === 'teacher') {
+                    // Nếu chuyển từ học viên sang giảng viên
+                    setStudents(prev => prev.filter(s => s.user_id !== userId));
+                    setTeachers(prev => [...prev, {
+                        ...updatedUser,
+                        id: updatedUser.user_id,
+                        role: 'teacher'
+                    }]);
+                } else {
+                    // Nếu chuyển từ giảng viên sang học viên
+                    setTeachers(prev => prev.filter(t => t.user_id !== userId));
+                    setStudents(prev => [...prev, {
+                        ...updatedUser,
+                        id: updatedUser.user_id,
+                        role: 'user'
+                    }]);
+                }
+
+                // Đóng dialog
+                setEditingUserId(null);
+
+                // Có thể thêm thông báo thành công ở đây nếu muốn
+                console.log('Cập nhật quyền thành công');
             }
-
         } catch (error) {
-            console.error('Error fetching Users:', error);
-            // Bạn có thể xử lý lỗi và thông báo cho người dùng nếu có
+            console.error('Lỗi khi cập nhật quyền:', error);
+            // Có thể thêm thông báo lỗi ở đây nếu muốn
         } finally {
             setIsLoading(false);
         }
-
-        setEditingUser(null);
     };
 
 
@@ -387,12 +404,20 @@ export default function ClassifyUsers() {
                                                 </TableCell>
                                                 <TableCell className="text-center">
                                                     <div className="flex justify-center items-center gap-2">
-                                                        <Dialog>
+                                                        <Dialog
+                                                            open={editingUserId === user.id}
+                                                            onOpenChange={(open) => {
+                                                                if (!open) {
+                                                                    setEditingUserId(null);
+                                                                }
+                                                            }}
+                                                        >
                                                             <DialogTrigger asChild>
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
                                                                     className="hover:bg-yellow-50 hover:text-yellow-700 transition-colors"
+                                                                    onClick={() => setEditingUserId(user.id)}
                                                                 >
                                                                     <Pencil className="h-4 w-4 mr-1" />
                                                                     Thay đổi
@@ -425,8 +450,9 @@ export default function ClassifyUsers() {
                                                                         type="submit"
                                                                         onClick={() => handleEditUser(user.id)}
                                                                         className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                                                                        disabled={isLoading}
                                                                     >
-                                                                        Lưu thay đổi
+                                                                        {isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
                                                                     </Button>
                                                                 </DialogFooter>
                                                             </DialogContent>
