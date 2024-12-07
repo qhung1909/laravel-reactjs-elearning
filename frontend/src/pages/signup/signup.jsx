@@ -44,13 +44,13 @@ export const Signup = () => {
             return;
         }
 
-        const nameRegex = /[^a-zA-Z0-9\s]/;
+        const nameRegex = /[^a-z0-9A-Z_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễếệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ]/u
 
         if(nameRegex.test(formData.name)) {
             setError('Tên không được chứa kí tự đặc biệt');
             return;
         }
-        
+
 
         if (formData.password !== formData.password_confirmation) {
             setError('Mật khẩu không khớp');
