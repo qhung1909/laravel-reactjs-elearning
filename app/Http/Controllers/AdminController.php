@@ -1086,4 +1086,53 @@ class AdminController extends Controller
             throw new \Exception('Không thể upload ảnh lên S3: ' . $e->getMessage());
         }
     }
+
+    public function toggleCourseStatus(Request $request, $courseId)
+    {
+        try {
+            // Tìm khóa học chỉ dựa trên course_id
+            $course = Course::where('course_id', $courseId)->first();
+    
+            // Kiểm tra xem khóa học có tồn tại hay không
+            if (!$course) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Course not found'
+                ], 404);
+            }
+    
+            // Thay đổi trạng thái khóa học
+            $newStatus = $course->status === 'published' ? 'hide' : 'published';
+    
+            // Kiểm tra điều kiện nếu cần xuất bản khóa học
+            if ($newStatus === 'published') {
+                $isValid = true; // Bạn có thể thêm logic kiểm tra nếu cần
+    
+                if (!$isValid) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Course cannot be published. Please ensure all required content is complete.'
+                    ], 400);
+                }
+            }
+    
+            $course->status = $newStatus;
+            $course->save();
+    
+            return response()->json([
+                'status' => true,
+                'message' => "Course status has been changed to {$newStatus}",
+                'data' => $course
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error toggling course status: ' . $e->getMessage());
+    
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while updating the course status'
+            ], 500);
+        }
+    }
+    
+
 }
