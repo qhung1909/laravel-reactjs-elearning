@@ -8,6 +8,7 @@ import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CartSkeleton } from "../skeletonEffect/skeleton";
+import { BookOpen, Calculator, ClipboardList, CreditCard, ListOrdered, Wallet } from "lucide-react";
 
 export const Cart = () => {
     const [cart, setCart] = useState([]);
@@ -212,9 +213,12 @@ export const Cart = () => {
                                             {/* Phần header với số lượng sản phẩm */}
                                             <div className="border-b pb-4">
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-gray-500 text-base">
-                                                        Số lượng
-                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <ClipboardList   className="w-5 h-5 text-gray-500" />
+                                                        <span className="text-gray-500 text-base">
+                                                            Số lượng
+                                                        </span>
+                                                    </div>
                                                     <span className="font-medium text-black">
                                                         {calculateTotalItems()} khóa học
                                                     </span>
@@ -224,9 +228,12 @@ export const Cart = () => {
                                             {/* Phần tổng tiền */}
                                             <div className="py-4 border-b">
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-gray-500 text-base">
-                                                        Tổng tiền
-                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <Wallet className="w-5 h-5 text-gray-500" />
+                                                        <span className="text-gray-500 text-base">
+                                                            Tổng tiền
+                                                        </span>
+                                                    </div>
                                                     <span className="font-bold text-2xl text-black">
                                                         {formatCurrency(totalPrice)}
                                                     </span>
@@ -236,8 +243,8 @@ export const Cart = () => {
                                             {/* Phần button thanh toán */}
                                             <div className="pt-4">
                                                 <Link to="/payment">
-                                                    <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-medium py-3 rounded-3xl transition duration-200 ease-in-out">
-                                                        Thanh toán ngay
+                                                    <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-medium py-3 rounded-3xl transition duration-200 ease-in-out flex items-center justify-center gap-2">
+                                                        <span>Thanh toán ngay</span>
                                                     </button>
                                                 </Link>
                                             </div>
