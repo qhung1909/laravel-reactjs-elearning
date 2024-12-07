@@ -476,7 +476,7 @@ class AdminController extends Controller
                 'course_category_id' => 'sometimes|required|exists:categories,course_category_id',
                 'price' => 'sometimes|required|numeric|min:0',
                 'description' => 'sometimes|required|string',
-                'img' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+                'img' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,webp|max:20480',
                 'launch_date' => 'sometimes|nullable|date',          
                 'backup_launch_date' => 'sometimes|nullable|date',
                 'is_online_meeting' => 'sometimes|required|in:0,1'  
