@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { SideBarCreateCoure } from "./SideBarCreateCoure";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Footer } from "../footer/footer";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -42,6 +42,9 @@ const notify = (message, type) => {
 export const CourseOverview = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
+
+    const token = localStorage.getItem('access_token');
+    const navigate = useNavigate();
 
     const { course_id } = useParams();
 
@@ -232,11 +235,11 @@ export const CourseOverview = () => {
                 const response = await axios.get(`${API_URL}/teacher/courses/${course_id}`, {
                     headers: {
                         'x-api-secret': API_KEY,
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Authorization': `Bearer ${token}`,
                     },
                 });
 
-                
+
 
                 if (response.data) {
                     const courseData = response.data.data;
@@ -276,7 +279,7 @@ export const CourseOverview = () => {
             }
         };
         fetchCourse();
-    }, [API_KEY, API_URL, course_id]);
+    }, [API_KEY, API_URL, course_id, token]);
 
 
 
@@ -382,7 +385,7 @@ export const CourseOverview = () => {
                 {
                     headers: {
                         'x-api-secret': API_KEY,
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data',
                     },
                 }
@@ -411,8 +414,6 @@ export const CourseOverview = () => {
             setLoading(false);
         }
     };
-
-
 
 
     return (
