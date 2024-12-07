@@ -39,6 +39,8 @@ export const CreateQuiz = () => {
     const navigate = useNavigate();
     const [isUpdated, setIsUpdated] = useState(false);
 
+    const [loadingUpdate, setLoadingUpdate] = useState(false);
+
     const [focusedAnswers, setFocusedAnswers] = useState({});
 
     const handleNavigate = (path) => {
@@ -175,20 +177,20 @@ export const CreateQuiz = () => {
 
 
     const addQuizQuestion = async (type) => {
-        if (!isUpdated) {
-            const { isConfirmed } = await Swal.fire({
-                title: "Cảnh báo",
-                text: "Bạn có thay đổi chưa được lưu. Bạn có muốn tiếp tục mà không lưu không?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Tiếp tục",
-                cancelButtonText: "Hủy",
-            });
+        // if (!isUpdated) {
+        //     const { isConfirmed } = await Swal.fire({
+        //         title: "Cảnh báo",
+        //         text: "Bạn có thay đổi chưa được lưu. Bạn có muốn tiếp tục mà không lưu không?",
+        //         icon: "warning",
+        //         showCancelButton: true,
+        //         confirmButtonText: "Tiếp tục",
+        //         cancelButtonText: "Hủy",
+        //     });
 
-            if (!isConfirmed) {
-                return; // Hủy thêm quiz mới nếu người dùng chọn "Hủy"
-            }
-        }
+        //     if (!isConfirmed) {
+        //         return; // Hủy thêm quiz mới nếu người dùng chọn "Hủy"
+        //     }
+        // }
         try {
             const requestData = {
                 questions: [
@@ -212,7 +214,7 @@ export const CreateQuiz = () => {
             );
 
             if (response.status === 201) {
-                const newQuestionId = response.data.questionId;
+                const newQuestionId = response.data[0].question_id;
                 let newQuestion = {
                     id: newQuestionId,
                     question: "",
@@ -263,9 +265,10 @@ export const CreateQuiz = () => {
                 timer: 1500
             });
             console.error(error);
-        } finally {
-            await showQuizQuestions(true);
         }
+        // finally {
+        //     await showQuizQuestions(true);
+        // }
     };
 
 
@@ -308,6 +311,7 @@ export const CreateQuiz = () => {
         // }
 
         try {
+
             // Chuẩn bị dữ liệu để cập nhật tất cả các câu hỏi
             const requestData = questions.map(q => {
                 const questionData = {
@@ -328,6 +332,7 @@ export const CreateQuiz = () => {
             });
 
             // Gửi yêu cầu API để cập nhật nhiều câu hỏi
+            setLoadingUpdate(true);
             const response = await axios.put(
                 `${API_URL}/quizzes/${quiz_id}/questions`,
                 { questions: requestData },
@@ -476,6 +481,7 @@ export const CreateQuiz = () => {
                 timer: 1500,
             });
         } finally {
+            setLoadingUpdate(false);
             await showQuizQuestions(true);
             setIsUpdated(true);
         }
@@ -620,13 +626,30 @@ export const CreateQuiz = () => {
                                         </h2>
                                     </div>
                                     <div className="flex space-x-3">
-                                        <Button
-                                            onClick={update}
-                                            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition-colors flex items-center space-x-2"
-                                        >
-                                            <Save size={18} />
-                                            <span>Lưu Quiz</span>
-                                        </Button>
+
+                                        {loadingUpdate ? (
+                                            <>
+                                                <Button
+                                                    disabled
+                                                    className="bg-gray-500 hover:bg-gray-500 text-white px-4 py-2 rounded-md transition-colors flex items-center space-x-2"
+                                                    style={{ cursor: 'not-allowed' }}
+                                                >
+                                                    <Save size={18} />
+                                                    <span>Lưu Quiz</span>
+                                                </Button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Button
+                                                    onClick={update}
+                                                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition-colors flex items-center space-x-2"
+                                                >
+                                                    <Save size={18} />
+                                                    <span>Lưu Quiz</span>
+                                                </Button>
+                                            </>
+                                        )}
+
 
                                         <Button
                                             onClick={() => handleNavigate(`/course/manage/${course_id}/curriculum`)}
@@ -804,7 +827,7 @@ export const CreateQuiz = () => {
                                 </Button>
                             </div>
 
-                            <div className="flex justify-end">
+                            {/* <div className="flex justify-end">
                                 <Button
                                     onClick={() => console.log(JSON.stringify(questions, null, 2))}
                                     variant="outline"
@@ -812,7 +835,7 @@ export const CreateQuiz = () => {
                                 >
                                     Xuất JSON
                                 </Button>
-                            </div>
+                            </div> */}
                         </div>
                     </>
                 )
