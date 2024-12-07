@@ -193,7 +193,6 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/meetings/{meetingId}/participants', [ParticipantController::class, 'getParticipantsByMeeting']);
     Route::get('/attendance/history', [ParticipantController::class, 'getUserAttendanceHistory']);
-    Route::put('/users/{userId}/toggle-role', [UserController::class, 'toggleRole']);
 
 
 });
@@ -242,6 +241,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::post('/settings', [SettingController::class, 'update']); 
     
     Route::put('/courses/{courseId}/toggle-status', [AdminController::class, 'toggleCourseStatus']);
+    Route::put('/user/{userId}/toggle-role', [UserController::class, 'toggleRole']);
 
 });
 
