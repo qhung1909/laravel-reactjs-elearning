@@ -283,6 +283,17 @@ export const CreateQuiz = () => {
         // Validate tất cả câu hỏi trước khi gửi yêu cầu cập nhật
         const invalidQuestions = questions.filter(q => !q.type || !q.question.trim());
 
+
+        if (questions.length == 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cảnh báo',
+                text: 'Vui lòng tạo ít nhất 1 câu hỏi.',
+                confirmButtonText: 'OK',
+            });
+            return; // Dừng lại nếu có câu hỏi không hợp lệ
+        }
+
         if (invalidQuestions.length > 0) {
             Swal.fire({
                 icon: 'warning',

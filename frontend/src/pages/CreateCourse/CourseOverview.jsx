@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { SideBarCreateCoure } from "./SideBarCreateCoure";
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Footer } from "../footer/footer";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -44,7 +44,6 @@ export const CourseOverview = () => {
     const API_URL = import.meta.env.VITE_API_URL;
 
     const token = localStorage.getItem('access_token');
-    const navigate = useNavigate();
 
     const { course_id } = useParams();
 
