@@ -428,12 +428,12 @@ class UserController extends Controller
 
     public function getUsers()
     {
-        $users = User::where('role', 'user')->select('name', 'email', 'avatar', 'created_at', 'role', 'status')->get();
+        $users = User::where('role', 'user')->select('user_id', 'name', 'email', 'avatar', 'created_at', 'role', 'status')->get();
         return response()->json($users);
     }
     public function getTeacher()
     {
-        $teachers = User::where('role', 'teacher')->select('name', 'email', 'avatar', 'created_at', 'role', 'status')->get();
+        $teachers = User::where('role', 'teacher')->select('user_id', 'name', 'email', 'avatar', 'created_at', 'role', 'status')->get();
         return response()->json($teachers);
     }
 
@@ -458,6 +458,25 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Role updated successfully',
             'user' => $user
+        ]);
+    }
+
+    public function toggleRole(Request $request, $userId)
+    {
+        $user = User::find($userId);
+
+        if (!$user) {
+            return response()->json(['error' => 'Không tìm thấy người dùng.'], 404);
+        }
+
+        $newRole = $user->role === 'user' ? 'admin' : 'user';
+        $user->role = $newRole;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Vai trò đã được cập nhật thành công.',
+            'user_id' => $user->user_id,
+            'new_role' => $user->role,
         ]);
     }
 }

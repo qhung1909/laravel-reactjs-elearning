@@ -241,6 +241,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::post('/settings', [SettingController::class, 'update']); 
     
     Route::put('/courses/{courseId}/toggle-status', [AdminController::class, 'toggleCourseStatus']);
+    Route::put('/user/{userId}/toggle-role', [UserController::class, 'toggleRole']);
 
 });
 
