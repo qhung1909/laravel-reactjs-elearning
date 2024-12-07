@@ -1286,7 +1286,7 @@ export default function BrowseNewCourses() {
                                             </AlertDialogTrigger>
                                             <AlertDialogContent className="bg-white rounded-2xl shadow-2xl max-w-md">
                                                 <AlertDialogHeader>
-                                                    <AlertDialogTitle  onClick={handleApprove} className="text-2xl font-bold text-gray-800 text-center">
+                                                    <AlertDialogTitle onClick={handleApprove} className="text-2xl font-bold text-gray-800 text-center">
                                                         Xác nhận phê duyệt
                                                     </AlertDialogTitle>
 
@@ -1298,7 +1298,7 @@ export default function BrowseNewCourses() {
                                                     <AlertDialogCancel className="px-6 py-2 rounded-xl hover:bg-gray-100 transition-colors">
                                                         Hủy
                                                     </AlertDialogCancel>
-                                                    <AlertDialogAction   onClick={handleApprove} className="px-6 py-2 rounded-xl bg-green-600 hover:bg-emerald-600 text-white transition-all hover:shadow-lg hover:-translate-y-0.5">
+                                                    <AlertDialogAction onClick={handleApprove} className="px-6 py-2 rounded-xl bg-green-600 hover:bg-emerald-600 text-white transition-all hover:shadow-lg hover:-translate-y-0.5">
                                                         Xác nhận
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>
@@ -1340,7 +1340,7 @@ export default function BrowseNewCourses() {
                                                         className="px-6 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
                                                         Hủy
                                                     </Button>
-                                                    <Button   onClick={handleEditRequest}
+                                                    <Button onClick={handleEditRequest}
                                                         className="px-6 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white
                                                         transition-all hover:shadow-md hover:-translate-y-0.5"
                                                     >
@@ -1380,7 +1380,7 @@ export default function BrowseNewCourses() {
                                                     <AlertDialogCancel className="px-6 py-2 rounded-xl bg-gray-50 hover:bg-gray-100 border-2 border-gray-200 text-gray-700 font-medium transition-colors">
                                                         Hủy
                                                     </AlertDialogCancel>
-                                                    <AlertDialogAction  onClick={handleReject} className="px-6 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-medium transition-all hover:shadow-lg hover:-translate-y-0.5">
+                                                    <AlertDialogAction onClick={handleReject} className="px-6 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-medium transition-all hover:shadow-lg hover:-translate-y-0.5">
                                                         Xác nhận
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>

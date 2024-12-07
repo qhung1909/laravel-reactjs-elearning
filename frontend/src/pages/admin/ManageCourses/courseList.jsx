@@ -154,10 +154,17 @@ export default function CourseList() {
         setShowOptions(false);
     };
 
-    const filteredCourses = courses.filter(course =>
-        course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (course.user && course.user.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const filteredCourses = courses.filter(course => {
+        const titleMatch = course.title
+            ? course.title.toLowerCase().includes(searchTerm.toLowerCase())
+            : false;
+
+        const authorMatch = course.user?.name
+            ? course.user.name.toLowerCase().includes(searchTerm.toLowerCase())
+            : false;
+
+        return titleMatch || authorMatch;
+    });
 
     const totalFilteredCourses = filteredCourses.length;
     const totalFilteredPages = Math.ceil(totalFilteredCourses / itemsPerPage);
@@ -437,10 +444,13 @@ export default function CourseList() {
                                                 ))}
                                             </>
                                         ) : (
-                                            currentFilteredCourses.map((course, index ) => (
+                                            currentFilteredCourses.map((course, index) => (
                                                 <tr key={course.id} className="border-t border-gray-100 hover:bg-gray-50">
                                                     {/* <td className="py-4 px-6 text-sm text-gray-600">{course.course_id}</td> */}
-                                                    <td className="py-4 px-6 text-sm text-gray-600">{index + 1}</td>
+                                                    <td className="py-4 px-6 text-sm text-gray-600">
+                                                        {(currentPage - 1) * itemsPerPage + index + 1}
+                                                    </td>
+
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center">
                                                             <div>
@@ -463,20 +473,22 @@ export default function CourseList() {
                                                             {getStatusText(course.status)}
                                                         </Badge>
                                                     </td>
-                                                    <td className="py-4 px-6">
+                                                    <td className="py-4 px-6  text-center">
                                                         <span className="text-sm text-gray-900">
                                                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}
                                                         </span>
                                                     </td>
                                                     <td className="py-4 px-6">
                                                         {course.course_category_id ? (
-                                                            <div className="flex items-center gap-2">
-                                                                <Badge className="w-full px-2 py-1 justify-center text-xs font-semibold text-white bg-orange-400 rounded-full">
+                                                            <div className="flex items-center justify-center">
+                                                                <Badge
+                                                                    className="px-3 py-1 text-xs font-semibold text-white bg-orange-400 rounded-full whitespace-nowrap "
+                                                                >
                                                                     {categories.find(c => c.course_category_id === course.course_category_id)?.name || 'Chưa có danh mục'}
                                                                 </Badge>
                                                             </div>
                                                         ) : (
-                                                            <Badge className="text-red-500">Chưa có danh mục</Badge>
+                                                            <Badge variant="destructive" className="whitespace-nowrap ">Chưa có danh mục</Badge>
                                                         )}
                                                     </td>
 
@@ -508,58 +520,75 @@ export default function CourseList() {
                                             />
                                         </PaginationItem>
 
-                                        {totalFilteredPages > 3 && currentPage > 3 && (
+                                        {totalFilteredPages <= 7 ? (
+                                            // Nếu có 7 trang hoặc ít hơn, hiển thị tất cả
+                                            [...Array(totalFilteredPages)].map((_, index) => (
+                                                <PaginationItem key={index + 1}>
+                                                    <PaginationLink
+                                                        href="#"
+                                                        isActive={currentPage === index + 1}
+                                                        onClick={() => handlePageChange(index + 1)}
+                                                    >
+                                                        {index + 1}
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                            ))
+                                        ) : (
+                                            // Nếu có nhiều hơn 7 trang
                                             <>
+                                                {/* Luôn hiển thị trang 1 */}
                                                 <PaginationItem>
-                                                    <PaginationLink href="#" onClick={() => handlePageChange(1)}>
+                                                    <PaginationLink
+                                                        href="#"
+                                                        isActive={currentPage === 1}
+                                                        onClick={() => handlePageChange(1)}
+                                                    >
                                                         1
                                                     </PaginationLink>
                                                 </PaginationItem>
-                                                <PaginationItem>
-                                                    <PaginationEllipsis />
-                                                </PaginationItem>
-                                            </>
-                                        )}
 
-                                        {[...Array(Math.min(5, totalFilteredPages))].map((_, index) => {
-                                            let pageNumber;
+                                                {/* Hiển thị ... nếu trang hiện tại > 3 */}
+                                                {currentPage > 3 && (
+                                                    <PaginationItem>
+                                                        <PaginationEllipsis />
+                                                    </PaginationItem>
+                                                )}
 
-                                            if (totalFilteredPages <= 5) {
-                                                pageNumber = index + 1;
-                                            } else if (currentPage <= 3) {
-                                                pageNumber = index + 1;
-                                            } else if (currentPage >= totalFilteredPages - 2) {
-                                                pageNumber = totalFilteredPages - 4 + index;
-                                            } else {
-                                                pageNumber = currentPage - 2 + index;
-                                            }
+                                                {/* Hiển thị các trang xung quanh trang hiện tại */}
+                                                {[...Array(3)].map((_, idx) => {
+                                                    let pageNumber;
+                                                    if (currentPage <= 3) pageNumber = idx + 2;
+                                                    else if (currentPage >= totalFilteredPages - 2) pageNumber = totalFilteredPages - 4 + idx;
+                                                    else pageNumber = currentPage - 1 + idx;
 
-                                            // Tránh việc lặp lại số trang 1
-                                            if (pageNumber === 1 && currentPage !== 1) {
-                                                return null; // Không hiển thị lại số 1 khi đã được hiển thị ở phần trên
-                                            }
+                                                    if (pageNumber > 1 && pageNumber < totalFilteredPages) {
+                                                        return (
+                                                            <PaginationItem key={pageNumber}>
+                                                                <PaginationLink
+                                                                    href="#"
+                                                                    isActive={currentPage === pageNumber}
+                                                                    onClick={() => handlePageChange(pageNumber)}
+                                                                >
+                                                                    {pageNumber}
+                                                                </PaginationLink>
+                                                            </PaginationItem>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })}
 
-                                            return (
-                                                <PaginationItem key={pageNumber}>
-                                                    <PaginationLink
-                                                        href="#"
-                                                        isActive={currentPage === pageNumber}
-                                                        onClick={() => handlePageChange(pageNumber)}
-                                                    >
-                                                        {pageNumber}
-                                                    </PaginationLink>
-                                                </PaginationItem>
-                                            );
-                                        })}
+                                                {/* Hiển thị ... nếu trang hiện tại < tổng số trang - 2 */}
+                                                {currentPage < totalFilteredPages - 2 && (
+                                                    <PaginationItem>
+                                                        <PaginationEllipsis />
+                                                    </PaginationItem>
+                                                )}
 
-                                        {totalFilteredPages > 3 && currentPage < totalFilteredPages - 2 && (
-                                            <>
-                                                <PaginationItem>
-                                                    <PaginationEllipsis />
-                                                </PaginationItem>
+                                                {/* Luôn hiển thị trang cuối */}
                                                 <PaginationItem>
                                                     <PaginationLink
                                                         href="#"
+                                                        isActive={currentPage === totalFilteredPages}
                                                         onClick={() => handlePageChange(totalFilteredPages)}
                                                     >
                                                         {totalFilteredPages}
@@ -577,7 +606,6 @@ export default function CourseList() {
                                     </PaginationContent>
                                 </Pagination>
                             </div>
-
 
                         </CardContent>
                     </Card>
