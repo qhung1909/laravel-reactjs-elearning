@@ -13,6 +13,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('email:cart_reminder')->everyMinute();
+        $schedule->command('courses:update-expired-status')->everyMinute();
+
     }
 
     /**
