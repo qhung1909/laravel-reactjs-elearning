@@ -31,6 +31,8 @@ const notify = (message, type) => {
 export const CreateQuiz = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
+    const token = localStorage.getItem('access_token');
+
     const location = useLocation();
     const lessonId = new URLSearchParams(location.search).get('lesson');
     const [questions, setQuestions] = useState([]);
@@ -42,6 +44,7 @@ export const CreateQuiz = () => {
     const [loadingUpdate, setLoadingUpdate] = useState(false);
 
     const [focusedAnswers, setFocusedAnswers] = useState({});
+
 
     const handleNavigate = (path) => {
         // console.log("isUpdated:", isUpdated); // Kiểm tra giá trị của isUpdated
@@ -79,7 +82,7 @@ export const CreateQuiz = () => {
             const response = await axios.get(`${API_URL}/quizzes/${quiz_id}/questions`, {
                 headers: {
                     'x-api-secret': API_KEY,
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 }
             });
@@ -98,7 +101,7 @@ export const CreateQuiz = () => {
                         const optionsResponse = await axios.get(`${API_URL}/questions/${q.question_id}/options`, {
                             headers: {
                                 'x-api-secret': API_KEY,
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                'Authorization': `Bearer ${token}`,
                                 'Content-Type': 'application/json',
                             }
                         });
@@ -207,7 +210,7 @@ export const CreateQuiz = () => {
                 {
                     headers: {
                         'x-api-secret': API_KEY,
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                 }
@@ -280,6 +283,17 @@ export const CreateQuiz = () => {
         // Validate tất cả câu hỏi trước khi gửi yêu cầu cập nhật
         const invalidQuestions = questions.filter(q => !q.type || !q.question.trim());
 
+
+        if (questions.length == 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cảnh báo',
+                text: 'Vui lòng tạo ít nhất 1 câu hỏi.',
+                confirmButtonText: 'OK',
+            });
+            return; // Dừng lại nếu có câu hỏi không hợp lệ
+        }
+
         if (invalidQuestions.length > 0) {
             Swal.fire({
                 icon: 'warning',
@@ -339,7 +353,7 @@ export const CreateQuiz = () => {
                 {
                     headers: {
                         'x-api-secret': API_KEY,
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                 }
@@ -362,7 +376,7 @@ export const CreateQuiz = () => {
                         const response = await axios.get(`${API_URL}/questions/${q.id}/options`, {
                             headers: {
                                 'x-api-secret': API_KEY,
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                'Authorization': `Bearer ${token}`,
                                 'Content-Type': 'application/json',
                             },
                         });
@@ -445,7 +459,7 @@ export const CreateQuiz = () => {
                             await axios.post(`${API_URL}/questions/${q.id}/options`, optionsData, {
                                 headers: {
                                     'x-api-secret': API_KEY,
-                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                    'Authorization': `Bearer ${token}`,
                                     'Content-Type': 'application/json',
                                 },
                             });
@@ -453,7 +467,7 @@ export const CreateQuiz = () => {
                             await axios.put(`${API_URL}/questions/${q.id}/options`, optionsData, {
                                 headers: {
                                     'x-api-secret': API_KEY,
-                                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                                    'Authorization': `Bearer ${token}`,
                                     'Content-Type': 'application/json',
                                 },
                             });
@@ -571,7 +585,7 @@ export const CreateQuiz = () => {
             const res = await axios.delete(`${API_URL}/quizzes/${quiz_id}/questions/${question_id}`, {
                 headers: {
                     'x-api-secret': API_KEY,
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });

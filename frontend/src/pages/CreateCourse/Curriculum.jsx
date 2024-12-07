@@ -42,6 +42,8 @@ const notify = (message, type) => {
 export const Curriculum = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
+    const token = localStorage.getItem('access_token');
+
     const navigate = useNavigate();
     const [offLesson, setOffLesson] = useState(false);
 
@@ -55,7 +57,7 @@ export const Curriculum = () => {
 
     const [hasChanges, setHasChanges] = useState(false);
 
-
+    
     const handleSectionTitleChange = (sectionId, newTitle) => {
         setSections(prevSections => {
             const updatedSections = prevSections.map(section =>
@@ -65,6 +67,7 @@ export const Curriculum = () => {
             return updatedSections;
         });
     };
+
 
     const handleContentTitleChange = (sectionId, lessonId, newTitle) => {
         setSections(prevSections => {
@@ -183,7 +186,7 @@ export const Curriculum = () => {
             const response = await axios.get(`${API_URL}/teacher/courses/${course_id}`, {
                 headers: {
                     'x-api-secret': API_KEY,
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Authorization': `Bearer ${token}`,
                 },
             });
 
@@ -213,7 +216,7 @@ export const Curriculum = () => {
                 {
                     headers: {
                         'x-api-secret': API_KEY,
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Authorization': `Bearer ${token}`,
                     },
                 }
             );
@@ -272,7 +275,7 @@ export const Curriculum = () => {
                 {
                     headers: {
                         'x-api-secret': API_KEY,
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                 }
@@ -330,7 +333,7 @@ export const Curriculum = () => {
                 {
                     headers: {
                         'x-api-secret': API_KEY,
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                 }
@@ -396,7 +399,7 @@ export const Curriculum = () => {
                 {
                     headers: {
                         'x-api-secret': API_KEY,
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                 }
@@ -469,7 +472,7 @@ export const Curriculum = () => {
             const response = await axios.delete(`${API_URL}/teacher/contents/${contentId}`, {
                 headers: {
                     'x-api-secret': API_KEY,
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -524,7 +527,7 @@ export const Curriculum = () => {
             const response = await axios.delete(`${API_URL}/teacher/title-content/delete/${lesson.title_content_id}`, {
                 headers: {
                     'x-api-secret': API_KEY,
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -575,7 +578,7 @@ export const Curriculum = () => {
                 {
                     headers: {
                         'x-api-secret': API_KEY,
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                 }
@@ -697,7 +700,7 @@ export const Curriculum = () => {
                     {
                         headers: {
                             'x-api-secret': API_KEY,
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json',
                         },
                     }
@@ -742,7 +745,7 @@ export const Curriculum = () => {
                     {
                         headers: {
                             'x-api-secret': API_KEY,
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'Authorization': `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data',
                         },
                     }
@@ -802,7 +805,7 @@ export const Curriculum = () => {
                 const response = await axios.get(`${API_URL}/teacher/title-content/${contentId}`, {
                     headers: {
                         'x-api-secret': API_KEY,
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                 });
