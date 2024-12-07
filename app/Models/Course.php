@@ -59,5 +59,12 @@ class Course extends Model
     {
         return $this->hasMany(Content::class, 'course_id', 'course_id');
     }
-    
+    public function onlineMeetings()
+    {
+        return $this->hasMany(OnlineMeeting::class, 'course_id', 'course_id');
+    }
+    public function titleContents()
+    {
+        return $this->hasMany(TitleContent::class, 'content_id', 'content_id');
+    }
 }

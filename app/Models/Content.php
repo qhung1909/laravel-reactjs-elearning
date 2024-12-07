@@ -28,6 +28,11 @@ class Content extends Model
     {
         return $this->hasMany(TitleContent::class, 'content_id', 'content_id');
     }
+
+    public function onlineMeeting()
+    {
+        return $this->hasOne(OnlineMeeting::class, 'content_id', 'content_id');
+    }
     public function deleteWithTitleContents()
     {
         try {

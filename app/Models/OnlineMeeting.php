@@ -33,4 +33,9 @@ class OnlineMeeting extends Model
         return $this->belongsTo(Content::class, 'content_id');
     }
 
+    public function teachingSchedule()
+    {
+        return $this->hasOne(TeachingSchedule::class, 'meeting_id', 'meeting_id');
+    }
+    
 }

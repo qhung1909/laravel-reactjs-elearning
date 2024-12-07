@@ -193,8 +193,6 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/meetings/{meetingId}/participants', [ParticipantController::class, 'getParticipantsByMeeting']);
     Route::get('/attendance/history', [ParticipantController::class, 'getUserAttendanceHistory']);
-
-
 });
 
 Route::prefix('admin')->middleware('admin')->group(function () {
@@ -239,11 +237,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::put('/user/{userId}/role', [AdminController::class, 'updateRole']);
 
     Route::get('/settings', [SettingController::class, 'index']);
-    Route::post('/settings', [SettingController::class, 'update']); 
-    
+    Route::post('/settings', [SettingController::class, 'update']);
+
     Route::put('/courses/{courseId}/toggle-status', [AdminController::class, 'toggleCourseStatus']);
     Route::put('/user/{userId}/toggle-role', [UserController::class, 'toggleRole']);
-
 });
 
 
@@ -289,8 +286,6 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::get('/teaching/courses/meeting-online', [TeacherController::class, 'getMeetingOnline']);
 
     Route::patch('/changedate/courses/{courseId}', [TeacherController::class, 'updateCourseDates']);
-
-
 });
 
 
