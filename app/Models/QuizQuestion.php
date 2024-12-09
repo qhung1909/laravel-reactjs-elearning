@@ -15,7 +15,7 @@ class QuizQuestion extends Model
 
     public function quiz()
     {
-        return $this->belongsTo(Quiz::class, 'quiz_id', 'quiz_id'); // Sử dụng 'quiz_id' nếu đó là tên cột chính xác
+        return $this->belongsTo(Quiz::class, 'quiz_id', 'quiz_id'); 
     }
     public function answers()
     {

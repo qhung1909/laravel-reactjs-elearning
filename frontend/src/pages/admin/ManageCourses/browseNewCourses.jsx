@@ -436,6 +436,14 @@ export default function BrowseNewCourses() {
     };
 
     useEffect(() => {
+        if (activeLessonTab === 'quiz' && activeCourse) {
+            contentLesson.forEach(lesson => {
+                fetchQuiz(lesson.content_id);
+            });
+        }
+    }, [activeLessonTab, activeCourse]);
+
+    useEffect(() => {
         fetchCourses();
     }, []);
 
@@ -989,74 +997,75 @@ export default function BrowseNewCourses() {
 
                                                         {/* Câu hỏi Quiz */}
                                                         <TabsContent value="quiz" className="mt-2 space-y-4">
-                                                            {quizContent.map((quiz, index) => (
-                                                                <Card key={quiz.quiz_id} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-                                                                    <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 py-3">
-                                                                        <CardTitle className="text-lg font-bold text-gray-800 flex items-center">
-                                                                            <BadgeHelp variant="secondary" className="mr-2" />
-                                                                            <span>{quiz.title || 'Không có tiêu đề'}</span>
-                                                                        </CardTitle>
-                                                                    </CardHeader>
-                                                                    <CardContent className="pt-4">
-                                                                        {quiz.questions && quiz.questions.length > 0 ? (
-                                                                            quiz.questions.map((question, qIndex) => (
-                                                                                <div
-                                                                                    key={question.question_id}
-                                                                                    className="mb-4 last:mb-0"
-                                                                                >
-                                                                                    <div className="flex items-center gap-2 mb-2">
-                                                                                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-semibold text-sm">
-                                                                                            {qIndex + 1}
-                                                                                        </span>
-                                                                                        <h3 className="text-base font-medium text-gray-800">
-                                                                                            {question.question || 'Không có câu hỏi'}
-                                                                                        </h3>
-                                                                                    </div>
+                                                            <ScrollArea className="h-[500px] pr-4"> {/* Thêm ScrollArea với chiều cao cố định */}
+                                                                {quizContent.map((quiz, index) => (
+                                                                    <Card key={quiz.quiz_id} className="shadow-lg hover:shadow-xl transition-shadow duration-300 mb-4">
+                                                                        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 py-3">
+                                                                            <CardTitle className="text-lg font-bold text-gray-800 flex items-center">
+                                                                                <BadgeHelp variant="secondary" className="mr-2" />
+                                                                                <span>{quiz.title || 'Không có tiêu đề'}</span>
+                                                                            </CardTitle>
+                                                                        </CardHeader>
+                                                                        <CardContent className="pt-4">
+                                                                            {quiz.questions && quiz.questions.length > 0 ? (
+                                                                                quiz.questions.map((question, qIndex) => (
+                                                                                    <div
+                                                                                        key={question.question_id}
+                                                                                        className="mb-4 last:mb-0"
+                                                                                    >
+                                                                                        <div className="flex items-center gap-2 mb-2">
+                                                                                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-semibold text-sm">
+                                                                                                {qIndex + 1}
+                                                                                            </span>
+                                                                                            <h3 className="text-base font-medium text-gray-800">
+                                                                                                {question.question || 'Không có câu hỏi'}
+                                                                                            </h3>
+                                                                                        </div>
 
-                                                                                    <div className="space-y-2 pl-8">
-                                                                                        {question.options && question.options.map((option, oIndex) => (
-                                                                                            <div
-                                                                                                key={option.option_id}
-                                                                                                className={`
-                                                                                                flex items-center p-2 rounded-lg transition-colors duration-200
-                                                                                                ${option.is_correct === 1
-                                                                                                        ? 'bg-green-50 border border-green-200'
-                                                                                                        : 'hover:bg-gray-100 border border-gray-200'
-                                                                                                    }
-                                                                                            `}
-                                                                                            >
-
-                                                                                                <input
-                                                                                                    type="radio"
-                                                                                                    name={`q${index}_${qIndex}`}
-                                                                                                    id={`q${index}_${qIndex}o${oIndex}`}
-                                                                                                    className="w-4 h-4 text-blue-600 mr-2"
-                                                                                                    defaultChecked={option.is_correct === 1}
-                                                                                                    readOnly
-                                                                                                    onClick={(e) => e.preventDefault()}
-                                                                                                />
-                                                                                                <label
-                                                                                                    htmlFor={`q${index}_${qIndex}o${oIndex}`}
-                                                                                                    className="flex-1 cursor-pointer text-sm"
+                                                                                        <div className="space-y-2 pl-8">
+                                                                                            {question.options && question.options.map((option, oIndex) => (
+                                                                                                <div
+                                                                                                    key={option.option_id}
+                                                                                                    className={`
+                                            flex items-center p-2 rounded-lg transition-colors duration-200
+                                            ${option.is_correct === 1
+                                                                                                            ? 'bg-green-50 border border-green-200'
+                                                                                                            : 'hover:bg-gray-100 border border-gray-200'
+                                                                                                        }
+                                        `}
                                                                                                 >
-                                                                                                    {option.answer || 'Không có lựa chọn'}
-                                                                                                </label>
-                                                                                                {option.is_correct === 1 && (
-                                                                                                    <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
-                                                                                                )}
-                                                                                            </div>
-                                                                                        ))}
+                                                                                                    <input
+                                                                                                        type="radio"
+                                                                                                        name={`q${index}_${qIndex}`}
+                                                                                                        id={`q${index}_${qIndex}o${oIndex}`}
+                                                                                                        className="w-4 h-4 text-blue-600 mr-2"
+                                                                                                        defaultChecked={option.is_correct === 1}
+                                                                                                        readOnly
+                                                                                                        onClick={(e) => e.preventDefault()}
+                                                                                                    />
+                                                                                                    <label
+                                                                                                        htmlFor={`q${index}_${qIndex}o${oIndex}`}
+                                                                                                        className="flex-1 cursor-pointer text-sm"
+                                                                                                    >
+                                                                                                        {option.answer || 'Không có lựa chọn'}
+                                                                                                    </label>
+                                                                                                    {option.is_correct === 1 && (
+                                                                                                        <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
+                                                                                                    )}
+                                                                                                </div>
+                                                                                            ))}
+                                                                                        </div>
                                                                                     </div>
+                                                                                ))
+                                                                            ) : (
+                                                                                <div className="text-center text-gray-500 py-4">
+                                                                                    Không có câu hỏi
                                                                                 </div>
-                                                                            ))
-                                                                        ) : (
-                                                                            <div className="text-center text-gray-500 py-4">
-                                                                                Không có câu hỏi
-                                                                            </div>
-                                                                        )}
-                                                                    </CardContent>
-                                                                </Card>
-                                                            ))}
+                                                                            )}
+                                                                        </CardContent>
+                                                                    </Card>
+                                                                ))}
+                                                            </ScrollArea>
                                                         </TabsContent>
                                                     </Tabs>
                                                 </div>

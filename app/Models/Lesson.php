@@ -26,6 +26,6 @@ class Lesson extends Model
 
     public function comments()
     {
-        return $this->hasMany(Comment::class); // Thay `Comment::class` bằng model tương ứng
+        return $this->hasMany(Comment::class);
     }
 }
