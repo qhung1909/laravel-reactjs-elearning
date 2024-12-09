@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, Book, Search, Filter, BadgeHelp, Calculator, Loader2, ChevronRight } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard,BookOpen,FileQuestion ,FileText ,PenTool ,ClipboardX ,FileX ,HelpCircle ,Badge, Book, Search, Filter, BadgeHelp, Calculator, Loader2, ChevronRight } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import ReactPlayer from "react-player";
@@ -17,6 +17,8 @@ import { toast } from "react-hot-toast";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, } from "@/components/ui/pagination"
 import { formatCurrency } from '@/components/Formatcurrency/formatCurrency';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
 
 
 export default function BrowseNewCourses() {
@@ -975,168 +977,210 @@ export default function BrowseNewCourses() {
 
 
                                         <TabsContent value="lessons">
-                                            {activeCourse ? (
-                                                <div className="space-y-4">
-                                                    <h4 className="font-semibold">Chi tiết bài học</h4>
+    {activeCourse ? (
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <h4 className="text-xl font-semibold flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-blue-500" />
+                    Chi tiết bài học
+                </h4>
+            </div>
 
-                                                    {/* Lesson Content Tabs */}
-                                                    <Tabs value={activeLessonTab} onValueChange={setActiveLessonTab}>
-                                                        <TabsList>
-                                                            <TabsTrigger value="content">Nội dung bài học</TabsTrigger>
-                                                            <TabsTrigger value="quiz">Câu hỏi Quiz</TabsTrigger>
-                                                        </TabsList>
+            <Tabs value={activeLessonTab} onValueChange={setActiveLessonTab}>
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="content" className="flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Nội dung bài học
+                    </TabsTrigger>
+                    <TabsTrigger value="quiz" className="flex items-center gap-2">
+                        <PenTool className="h-4 w-4" />
+                        Câu hỏi Quiz
+                    </TabsTrigger>
+                </TabsList>
 
-                                                        {/* Nội dung bài học */}
-                                                        <TabsContent value="content" className="mt-4">
-                                                            {contentLesson.length > 0 ? (
-                                                                contentLesson.map((lesson, index) => (
-                                                                    <div className="hover:bg-amber-50 rounded-sm" key={lesson.content_id}>
-                                                                        <Dialog >
-                                                                            <DialogTrigger
-                                                                                className="py-5 "
-                                                                                onClick={() => {
-                                                                                    fetchPendingTitleContents(lesson.content_id);
-                                                                                }}
-                                                                            >
-                                                                                <span className="mx-2">Bài {index + 1}: </span>{lesson.name_content}
-                                                                            </DialogTrigger>
-                                                                            <hr />
-                                                                            <DialogContent className="max-w-3xl max-h-[80vh] p-6 bg-[#fbf9c2] text-gray-800 rounded-lg shadow-lg">                                                                            <DialogHeader>
-                                                                                <DialogTitle className="text-2xl font-bold text-center">{lesson.name_content}</DialogTitle>
-                                                                                {titleContents.length > 0 ? (
-                                                                                    <div className="mt-4">
-                                                                                        <h5 className="font-semibold text-lg my-2">Tiêu đề nội dung:</h5>
-                                                                                        {titleContents.map((title, index) => (
-                                                                                            <div key={index} className="mb-4 p-4 bg-white rounded-lg shadow-md text-gray-900">
-                                                                                                <div className="flex flex-col space-y-4">
-                                                                                                    <div className="flex items-center">
-                                                                                                        <DialogDescription className="flex-1 text-md ">
-                                                                                                            <span className="font-bold">{index + 1}. </span>
-                                                                                                            <span className="font-medium ">{title.body_content || "Nội dung không có sẵn."}</span>
-                                                                                                        </DialogDescription>
-                                                                                                        <Dialog>
-                                                                                                            <DialogTrigger className="bg-[#6a4a3b] hover:bg-[#fbf9c2] text-white font-medium p-2 rounded-md ml-3 my-2  transition">
-                                                                                                                Xem video
-                                                                                                            </DialogTrigger>
-                                                                                                            <DialogContent className="p-0 bg-white rounded-lg shadow-md w-full">
-                                                                                                                <DialogDescription className="text-center mb-4">
-                                                                                                                    <h2 className="text-xl font-semibold my-2">Xem Video</h2>
-                                                                                                                    {title.video_link ? (
-                                                                                                                        <div className="relative" style={{ paddingTop: '56.25%' }}>
-                                                                                                                            <ReactPlayer
-                                                                                                                                url={title.video_link}
-                                                                                                                                className="absolute top-0 left-0 w-full h-full"
-                                                                                                                                controls
-                                                                                                                                width="100%"
-                                                                                                                                height="100%"
-                                                                                                                            />
-                                                                                                                        </div>
-                                                                                                                    ) : (
-                                                                                                                        <p className="text-gray-500">Nội dung không có sẵn.</p>
-                                                                                                                    )}
-                                                                                                                </DialogDescription>
-                                                                                                            </DialogContent>
-                                                                                                        </Dialog>
-                                                                                                    </div>
-                                                                                                </div>
+                <TabsContent value="content">
+                    <ScrollArea className="h-[600px] pr-4">
+                        {contentLesson.length > 0 ? (
+                            <div className="space-y-4">
+                                {contentLesson.map((lesson, index) => (
+                                    <Card key={lesson.content_id} className="transition-all hover:shadow-md">
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <CardHeader 
+                                                    onClick={() => fetchPendingTitleContents(lesson.content_id)}
+                                                    className="cursor-pointer hover:bg-slate-50"
+                                                >
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-semibold">
+                                                            {index + 1}
+                                                        </div>
+                                                        <div className="flex-1 text-left">
+                                                            <h4 className="font-semibold">{lesson.name_content}</h4>
+                                                        </div>
+                                                        <ChevronRight className="h-5 w-5 text-gray-400" />
+                                                    </div>
+                                                </CardHeader>
+                                            </DialogTrigger>
 
+                                            <DialogContent className="max-w-4xl max-h-[80vh]">
+                                                <DialogHeader>
+                                                    <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                                                        <BookOpen className="h-6 w-6 text-blue-500" />
+                                                        {lesson.name_content}
+                                                    </DialogTitle>
+                                                </DialogHeader>
 
-                                                                                            </div>
-                                                                                        ))}
-                                                                                    </div>
-                                                                                ) : (
-                                                                                    <p className="mt-4 text-center">Không có tiêu đề nào để hiển thị.</p>
-                                                                                )}
-                                                                            </DialogHeader>
-                                                                            </DialogContent>
-
-                                                                        </Dialog>
-                                                                    </div>
-                                                                ))
-                                                            ) : (
-                                                                <p>Không có nội dung nào để hiển thị.</p>
-                                                            )}
-                                                        </TabsContent>
-
-                                                        {/* Câu hỏi Quiz */}
-                                                        <TabsContent value="quiz" className="mt-2 space-y-4">
-                                                            <ScrollArea className="h-[500px] pr-4"> {/* Thêm ScrollArea với chiều cao cố định */}
-                                                                {quizContent.map((quiz, index) => (
-                                                                    <Card key={quiz.quiz_id} className="shadow-lg hover:shadow-xl transition-shadow duration-300 mb-4">
-                                                                        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 py-3">
-                                                                            <CardTitle className="text-lg font-bold text-gray-800 flex items-center">
-                                                                                <BadgeHelp variant="secondary" className="mr-2" />
-                                                                                <span>{quiz.title || 'Không có tiêu đề'}</span>
-                                                                            </CardTitle>
-                                                                        </CardHeader>
-                                                                        <CardContent className="pt-4">
-                                                                            {quiz.questions && quiz.questions.length > 0 ? (
-                                                                                quiz.questions.map((question, qIndex) => (
-                                                                                    <div
-                                                                                        key={question.question_id}
-                                                                                        className="mb-4 last:mb-0"
-                                                                                    >
-                                                                                        <div className="flex items-center gap-2 mb-2">
-                                                                                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-semibold text-sm">
-                                                                                                {qIndex + 1}
-                                                                                            </span>
-                                                                                            <h3 className="text-base font-medium text-gray-800">
-                                                                                                {question.question || 'Không có câu hỏi'}
-                                                                                            </h3>
-                                                                                        </div>
-
-                                                                                        <div className="space-y-2 pl-8">
-                                                                                            {question.options && question.options.map((option, oIndex) => (
-                                                                                                <div
-                                                                                                    key={option.option_id}
-                                                                                                    className={`
-                                            flex items-center p-2 rounded-lg transition-colors duration-200
-                                            ${option.is_correct === 1
-                                                                                                            ? 'bg-green-50 border border-green-200'
-                                                                                                            : 'hover:bg-gray-100 border border-gray-200'
-                                                                                                        }
-                                        `}
-                                                                                                >
-                                                                                                    <input
-                                                                                                        type="radio"
-                                                                                                        name={`q${index}_${qIndex}`}
-                                                                                                        id={`q${index}_${qIndex}o${oIndex}`}
-                                                                                                        className="w-4 h-4 text-blue-600 mr-2"
-                                                                                                        defaultChecked={option.is_correct === 1}
-                                                                                                        readOnly
-                                                                                                        onClick={(e) => e.preventDefault()}
-                                                                                                    />
-                                                                                                    <label
-                                                                                                        htmlFor={`q${index}_${qIndex}o${oIndex}`}
-                                                                                                        className="flex-1 cursor-pointer text-sm"
-                                                                                                    >
-                                                                                                        {option.answer || 'Không có lựa chọn'}
-                                                                                                    </label>
-                                                                                                    {option.is_correct === 1 && (
-                                                                                                        <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
-                                                                                                    )}
-                                                                                                </div>
-                                                                                            ))}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                ))
-                                                                            ) : (
-                                                                                <div className="text-center text-gray-500 py-4">
-                                                                                    Không có câu hỏi
-                                                                                </div>
+                                                <ScrollArea className="max-h-[60vh] pr-4">
+                                                    {titleContents.length > 0 ? (
+                                                        <div className="space-y-6 py-4">
+                                                            {titleContents.map((title, index) => (
+                                                                <Card key={index}>
+                                                                    <CardHeader>
+                                                                        <div className="flex items-start gap-3">
+                                                                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-sm font-semibold">
+                                                                                {index + 1}
+                                                                            </div>
+                                                                            <div className="flex-1">
+                                                                                <p className="text-base font-medium text-gray-700">
+                                                                                    {title.body_content || "Nội dung không có sẵn."}
+                                                                                </p>
+                                                                            </div>
+                                                                            {title.video_link && (
+                                                                               <Dialog>
+                                                                               <DialogTrigger asChild>
+                                                                                   <Button 
+                                                                                       className="bg-[#6a4a3b] hover:bg-[#fbf9c2] hover:text-[#6a4a3b] text-white font-medium p-2 rounded-md transition-all"
+                                                                                   >
+                                                                                       Xem video
+                                                                                   </Button>
+                                                                               </DialogTrigger>
+                                                                               <DialogContent className="p-0 bg-white rounded-lg shadow-md w-full">
+                                                                                   <DialogDescription className="text-center mb-4">
+                                                                                       <h2 className="text-xl font-semibold my-2">Xem Video</h2>
+                                                                                       {title.video_link ? (
+                                                                                           <div className="relative" style={{ paddingTop: '56.25%' }}>
+                                                                                               <ReactPlayer
+                                                                                                   url={title.video_link}
+                                                                                                   className="absolute top-0 left-0 w-full h-full"
+                                                                                                   controls
+                                                                                                   width="100%"
+                                                                                                   height="100%"
+                                                                                               />
+                                                                                           </div>
+                                                                                       ) : (
+                                                                                           <p className="text-gray-500">Nội dung không có sẵn.</p>
+                                                                                       )}
+                                                                                   </DialogDescription>
+                                                                               </DialogContent>
+                                                                           </Dialog>
                                                                             )}
-                                                                        </CardContent>
-                                                                    </Card>
-                                                                ))}
-                                                            </ScrollArea>
-                                                        </TabsContent>
-                                                    </Tabs>
-                                                </div>
-                                            ) : (
-                                                <p>Chi tiết bài học sẽ xuất hiện ở đây.</p>
-                                            )}
-                                        </TabsContent>
+                                                                        </div>
+                                                                    </CardHeader>
+                                                                </Card>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                                                            <FileX className="h-12 w-12 text-gray-400 mb-4" />
+                                                            <p className="text-gray-500">Không có tiêu đề nào để hiển thị.</p>
+                                                        </div>
+                                                    )}
+                                                </ScrollArea>
+                                            </DialogContent>
+                                        </Dialog>
+                                    </Card>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-12 text-center">
+                                <FileX className="h-12 w-12 text-gray-400 mb-4" />
+                                <p className="text-lg font-medium text-gray-900">Không có nội dung</p>
+                                <p className="text-gray-500">Không có nội dung nào để hiển thị.</p>
+                            </div>
+                        )}
+                    </ScrollArea>
+                </TabsContent>
 
+                <TabsContent value="quiz">
+                    <ScrollArea className="h-[600px] pr-4">
+                        <div className="space-y-6">
+                            {quizContent.map((quiz, index) => (
+                                <Card key={quiz.quiz_id} className="border-l-4 border-l-blue-500">
+                                    <CardHeader className="bg-gradient-to-r from-slate-50 to-white">
+                                        <CardTitle className="flex items-center text-lg">
+                                            <HelpCircle className="mr-2 h-5 w-5 text-blue-500" />
+                                            Quiz {index + 1}: {quiz.title || 'Không có tiêu đề'}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        {quiz.questions?.length > 0 ? (
+                                            <div className="space-y-8">
+                                                {quiz.questions.map((question, qIndex) => (
+                                                    <div key={question.question_id} className="space-y-4">
+                                                        <div className="flex gap-3">
+                                                            <Badge variant="outline" className="h-6 px-2 font-medium">
+                                                                Q{qIndex + 1}
+                                                            </Badge>
+                                                            <h3 className="flex-1 font-medium text-gray-700">
+                                                                {question.question || 'Không có câu hỏi'}
+                                                            </h3>
+                                                        </div>
+                                                        <div className="ml-9 space-y-3">
+                                                            {question.options?.map((option) => (
+                                                               <div
+                                                               key={option.option_id}
+                                                               className={`flex items-center p-3 rounded-lg border transition-all ${
+                                                                   option.is_correct === 1
+                                                                       ? "bg-green-50 border-green-200"
+                                                                       : "border-gray-200"
+                                                               }`}
+                                                           >
+                                                                    <RadioGroup defaultValue={option.is_correct === 1 ? "correct" : ""}>
+                                                                        <div className="flex items-center space-x-3 w-full">
+                                                                            <RadioGroupItem value="correct" disabled />
+                                                                            <Label className="flex-1 cursor-pointer">
+                                                                                {option.answer || 'Không có lựa chọn'}
+                                                                            </Label>
+                                                                            {option.is_correct === 1 && (
+                                                                                <CheckCircle className="h-4 w-4 text-green-500" />
+                                                                            )}
+                                                                        </div>
+                                                                    </RadioGroup>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-8">
+                                                <HelpCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                                                <p className="text-gray-500">Không có câu hỏi nào.</p>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            ))}
+                            {quizContent.length === 0 && (
+                                <div className="flex flex-col items-center justify-center py-12 text-center">
+                                    <ClipboardX className="h-12 w-12 text-gray-400 mb-4" />
+                                    <p className="text-lg font-medium text-gray-900">Không có Quiz</p>
+                                    <p className="text-gray-500">Chưa có câu hỏi quiz nào được thêm vào.</p>
+                                </div>
+                            )}
+                        </div>
+                    </ScrollArea>
+                </TabsContent>
+            </Tabs>
+        </div>
+    ) : (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+            <FileQuestion className="h-12 w-12 text-gray-400 mb-4" />
+            <p className="text-lg font-medium text-gray-900">Chưa chọn khóa học</p>
+            <p className="text-gray-500">Vui lòng chọn một khóa học để xem chi tiết.</p>
+        </div>
+    )}
+</TabsContent>
                                     </Tabs>
 
                                     {/* Action Buttons */}
