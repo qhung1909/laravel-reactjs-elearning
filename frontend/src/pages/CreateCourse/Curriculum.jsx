@@ -57,7 +57,7 @@ export const Curriculum = () => {
 
     const [hasChanges, setHasChanges] = useState(false);
 
-    
+
     const handleSectionTitleChange = (sectionId, newTitle) => {
         setSections(prevSections => {
             const updatedSections = prevSections.map(section =>
@@ -338,7 +338,7 @@ export const Curriculum = () => {
                     },
                 }
             );
-            console.log('hihih', response.data);
+            // console.log('hihih', response.data);
 
 
             // Kiểm tra phản hồi từ server và thêm ID vào phần mới
@@ -348,7 +348,7 @@ export const Curriculum = () => {
                 // Cập nhật phần mới với content_id từ server
                 const sectionWithId = { ...newSection, content_id };
 
-                // Thêm phần mới vào mảng sections hiện tại
+                // Thêm phần mới vào mảng sections hiện tại`1
                 setSections((prevSections) => [...prevSections, sectionWithId]);
 
                 toast.success("Thêm phần mới thành công!");
