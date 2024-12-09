@@ -465,75 +465,138 @@ export default function BrowseNewCourses() {
         }
     });
     // Tính điểm cho nội dung và tiêu đề nội dung
-    const calculateContentAndTitleScore = async (content, titleContents, videoLink) => {
+    const calculateContentAndTitleScore = async (content, titleContents, videoLink, quizContent) => {
         try {
             // Lấy tất cả title contents cho content này
             const contentTitles = titleContents.filter(
                 title => title.content_id === content.content_id
             );
 
-            // Gộp tất cả body_content của title thành một chuỗi để đánh giá
+            // Gộp tất cả body_content và video_link
             const titleText = contentTitles.map(t => t.body_content).join(' ');
             const video_link = contentTitles.map(v => v.video_link).join(' ');
+
             // Chấm điểm cho tiêu đề nội dung
             const titlePrompt = `Đánh giá tiêu đề bài học sau đây dựa trên các tiêu chí:
                 1. Tính rõ ràng và dễ đọc
                 2. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
-
+    
                 Tiêu đề: "${content.content}"
-
+    
                 Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
                 Nếu không có vấn đề gì, đánh giá bình thường từ 0-10 điểm.
-
+    
                 Hãy trả về theo định dạng sau:
                 Điểm: [số điểm]
                 Lý do: [giải thích ngắn gọn]`;
 
-            // Chấm điểm cho nội dung
+            // Chấm điểm cho nội dung bài học
             const contentPrompt = `Đánh giá nội dung bài học sau đây dựa trên các tiêu chí:
                 1. Độ chi tiết và đầy đủ của nội dung
                 2. Kiểm tra chỉ cần có video_link và link phù hợp sẽ được 20 điểm (10 điểm cho nội dung)
                 3. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
-
+    
                 Nội dung: "${titleText}"
                 Video link: "${video_link}"
-
+    
                 Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
                 Nếu không có vấn đề gì, đánh giá bình thường từ 0-30 điểm.
-
+    
                 Hãy trả về theo định dạng sau:
                 Điểm: [số điểm]
                 Lý do: [giải thích ngắn gọn]`;
 
-            const [titleResponse, contentResponse] = await Promise.all([
+            // Chấm điểm cho quiz
+            const quizzes = quizContent.filter(quiz => quiz.content_id === content.content_id);
+            let quizPrompt = '';
+
+            if (quizzes && quizzes.length > 0) {
+                const quizData = quizzes.map(quiz => ({
+                    title: quiz.title,
+                    questions: quiz.questions.map(q => ({
+                        question: q.question,
+                        options: q.options.map(opt => ({
+                            answer: opt.answer,
+                            is_correct: opt.is_correct
+                        }))
+                    }))
+                }));
+
+                quizPrompt = `Đánh giá chất lượng quiz sau đây dựa trên các tiêu chí:
+                    1. Số lượng câu hỏi (1-3 câu: 5đ, 4-6 câu: 10đ, 7+ câu: 15đ)
+                    2. Chất lượng câu hỏi và đáp án (rõ ràng, logic: +5đ)
+                    3. Độ đa dạng của câu hỏi (+5đ nếu có nhiều dạng câu hỏi khác nhau)
+                    4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
+    
+                    Quiz data: ${JSON.stringify(quizData, null, 2)}
+    
+                    Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
+                    Nếu không có vấn đề gì, đánh giá bình thường từ 0-25 điểm.
+    
+                    Hãy trả về theo định dạng sau:
+                    Điểm: [số điểm]
+                    Lý do: [giải thích ngắn gọn]`;
+            }
+
+            // Gọi API GPT cho tất cả các đánh giá
+            const apiCalls = [
                 axios.post('https://api.openai.com/v1/chat/completions', {
                     model: 'gpt-3.5-turbo',
                     messages: [{ role: 'user', content: titlePrompt }]
                 }, {
-                    headers: {
-                        'Authorization': `Bearer ${API_KEY_GPT}`
-                    }
+                    headers: { 'Authorization': `Bearer ${API_KEY_GPT}` }
                 }),
                 axios.post('https://api.openai.com/v1/chat/completions', {
                     model: 'gpt-3.5-turbo',
                     messages: [{ role: 'user', content: contentPrompt }]
                 }, {
-                    headers: {
-                        'Authorization': `Bearer ${API_KEY_GPT}`
-                    }
+                    headers: { 'Authorization': `Bearer ${API_KEY_GPT}` }
                 })
-            ]);
+            ];
 
-            const titleScore = parseInt(titleResponse.data.choices[0].message.content.match(/Điểm:\s*(\d+)/)[1]);
-            const contentScore = parseInt(contentResponse.data.choices[0].message.content.match(/Điểm:\s*(\d+)/)[1]);
-            const totalScore = titleScore + contentScore;
+            // Thêm API call cho quiz nếu có
+            if (quizPrompt) {
+                apiCalls.push(
+                    axios.post('https://api.openai.com/v1/chat/completions', {
+                        model: 'gpt-3.5-turbo',
+                        messages: [{ role: 'user', content: quizPrompt }]
+                    }, {
+                        headers: { 'Authorization': `Bearer ${API_KEY_GPT}` }
+                    })
+                );
+            }
+
+            const responses = await Promise.all(apiCalls);
+
+            // Xử lý kết quả
+            const titleScore = parseInt(responses[0].data.choices[0].message.content.match(/Điểm:\s*(\d+)/)[1]);
+            const contentScore = parseInt(responses[1].data.choices[0].message.content.match(/Điểm:\s*(\d+)/)[1]);
+
+            let quizScore = 0;
+            let quizReason = '';
+            if (responses.length > 2) {
+                const quizResult = responses[2].data.choices[0].message.content;
+                quizScore = parseInt(quizResult.match(/Điểm:\s*(\d+)/)[1]);
+                const reasonMatch = quizResult.match(/Lý do:\s*(.+)/);
+                quizReason = reasonMatch ? reasonMatch[1].trim() : '';
+            }
+
+            const totalScore = titleScore + contentScore + quizScore;
 
             return {
                 titleScore,
                 contentScore,
+                quizScore,
                 totalScore,
-                isPass: totalScore >= 30
+                quizReason,
+                reasons: {
+                    title: responses[0].data.choices[0].message.content.match(/Lý do:\s*(.+)/)[1].trim(),
+                    content: responses[1].data.choices[0].message.content.match(/Lý do:\s*(.+)/)[1].trim(),
+                    quiz: quizReason
+                },
+                isPass: totalScore >= 40 // Điểm pass tối thiểu (có thể điều chỉnh)
             };
+
         } catch (error) {
             console.error('Lỗi khi tính điểm nội dung:', error);
             return null;
@@ -1141,24 +1204,35 @@ export default function BrowseNewCourses() {
                                                                 </div>
                                                             </div>
 
-                                                            {/* Phần điểm nội dung - Đã đơn giản hóa */}
+                                                            {/* Phần điểm nội dung và quiz */}
                                                             <div className="bg-blue-100 p-4 rounded-lg">
-                                                                <h4 className="font-medium text-blue-700 mb-3">Điểm nội dung:</h4>
+                                                                <h4 className="font-medium text-blue-700 mb-3">Điểm nội dung và Quiz:</h4>
                                                                 <div className="bg-blue-50 p-3 rounded-lg space-y-2">
-                                                                    <p className="flex justify-between items-center">
-                                                                        <span className="text-gray-700">Điểm trung bình:</span>
+                                                                    <div className="flex justify-between items-center">
+                                                                        <span className="text-gray-700">Điểm nội dung:</span>
                                                                         <span className="font-semibold text-blue-700">
-                                                                            {scores.contentScores?.averageScore?.toFixed(1) || '0'}/50
+                                                                            {scores.contentScores?.averageScore?.toFixed(1) || '0'}/40
                                                                         </span>
-                                                                    </p>
-                                                                    {/* Thêm dòng trạng thái */}
+                                                                    </div>
+                                                                    <div className="flex justify-between items-center">
+                                                                        <span className="text-gray-700">Điểm quiz:</span>
+                                                                        <span className="font-semibold text-blue-700">
+                                                                            {scores.contentScores?.averageQuizScore?.toFixed(1) || '0'}/25
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="border-t border-blue-200 my-2"></div>
+                                                                    <div className="flex justify-between items-center">
+                                                                        <span className="text-gray-700 font-bold">Tổng điểm:</span>
+                                                                        <span className="font-semibold text-blue-700">
+                                                                            {((scores.contentScores?.averageScore || 0) + (scores.contentScores?.averageQuizScore || 0)).toFixed(1)}/65
+                                                                        </span>
+                                                                    </div>
                                                                     <div className={`p-2 rounded ${scores.contentScores?.isPass ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                                                                         <p className="text-center font-medium">
                                                                             {scores.contentScores?.averageScore >= 30 ? (
-                                                                                <span>✅ Nội dung đạt yêu cầu</span>
+                                                                                <span>✅ Nội dung và Quiz đạt yêu cầu</span>
                                                                             ) : (
-                                                                                <span>❌ Nội dung cần cải thiện
-                                                                                </span>
+                                                                                <span>❌ Nội dung và Quiz cần cải thiện</span>
                                                                             )}
                                                                         </p>
                                                                     </div>
@@ -1169,16 +1243,14 @@ export default function BrowseNewCourses() {
                                                             <div className={`p-3 rounded-lg ${scores.isOverallPass ? 'bg-green-50' : 'bg-red-50'}`}>
                                                                 <p className="flex items-center justify-center">
                                                                     <span className={`font-medium ${scores.isOverallPass ? 'text-green-600' : 'text-red-600'}`}>
-                                                                        {scores.finalScore >= 35
-                                                                            ? scores.contentScores?.isPass
-                                                                                ? '✅ Khóa học và nội dung đạt yêu cầu'
-                                                                                : '⚠️ Khóa học đạt yêu cầu nhưng nội dung chưa đạt'
-                                                                            : '❌ Không đạt yêu cầu'
-                                                                        }
+                                                                        {scores.finalScore >= 35 && ((scores.contentScores?.averageScore || 0) + (scores.contentScores?.averageQuizScore || 0)) >= 40
+                                                                            ? '✅ Khóa học đạt yêu cầu tổng thể'
+                                                                            : '❌ Không đạt yêu cầu'}
                                                                     </span>
                                                                 </p>
                                                             </div>
                                                         </div>
+
                                                         {/* Cột bên phải - Chi tiết đánh giá */}
                                                         <div className="w-2/3 bg-gray-50 p-4 rounded-lg">
                                                             <h4 className="font-medium text-gray-700 mb-4">Chi tiết đánh giá khóa học:</h4>
@@ -1248,17 +1320,31 @@ export default function BrowseNewCourses() {
                                                                         const score = scores.contentScores?.details?.[index];
                                                                         return (
                                                                             <div key={index} className="bg-white p-3 rounded-lg">
-                                                                                <div className="flex justify-between items-center">
-                                                                                    <span className='font-medium mr-2'>
-                                                                                        {index + 1}
-                                                                                    </span>
-                                                                                    <span className="font-medium truncate flex-1">
-                                                                                        {content.name_content}
-                                                                                    </span>
-                                                                                    <span className={`ml-4 px-2 py-1 rounded ${score?.totalScore >= 30 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
-                                                                                        }`}>
-                                                                                        {score?.totalScore?.toFixed(1)}/50
-                                                                                    </span>
+                                                                                <div className="flex flex-col gap-2">
+                                                                                    <div className="flex items-center justify-between">
+                                                                                        <div className="flex items-center">
+                                                                                            <span className="font-medium mr-2">{index + 1}.</span>
+                                                                                            <span className="font-medium">{content.name_content}</span>
+                                                                                        </div>
+                                                                                        <span className={`ml-4 px-2 py-1 rounded ${score?.totalScore >= 40 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+                                                                                            }`}>
+                                                                                            {score?.totalScore?.toFixed(1)}/65
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div className="grid grid-cols-3 gap-2 text-sm">
+                                                                                        <span className="text-gray-600">
+                                                                                            Nội dung: <span className="font-medium">{score?.contentScore}/40</span>
+                                                                                        </span>
+                                                                                        <span className="text-gray-600">
+                                                                                            Quiz: <span className="font-medium">{score?.quizScore}/25</span>
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    {/* Reasons */}
+                                                                                    <div className="text-sm text-gray-600">
+                                                                                        {score?.quizReason && (
+                                                                                            <p>📋 Quiz: {score.quizReason}</p>
+                                                                                        )}
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         );
