@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard,BookOpen,FileQuestion ,FileText ,PenTool ,ClipboardX ,FileX ,HelpCircle ,Badge, Book, Search, Filter, BadgeHelp, Calculator, Loader2, ChevronRight } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, GraduationCap, LayoutDashboard, BookOpen, FileQuestion, FileText, PenTool, ClipboardX, FileX, HelpCircle, Badge, Book, Search, Filter, BadgeHelp, Calculator, Loader2, ChevronRight } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import ReactPlayer from "react-player";
@@ -398,6 +398,8 @@ export default function BrowseNewCourses() {
 
             if (res.data && res.data.success && Array.isArray(res.data.titleContents)) {
                 setTitleContents(res.data.titleContents);
+                console.log("Set Title Contents:", res.data.titleContents);
+
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
@@ -439,9 +441,11 @@ export default function BrowseNewCourses() {
 
     useEffect(() => {
         if (activeLessonTab === 'quiz' && activeCourse) {
-            contentLesson.forEach(lesson => {
-                fetchQuiz(lesson.content_id);
-            });
+            const fetchAllQuizzes = async () => {
+                const quizPromises = contentLesson.map(lesson => fetchQuiz(lesson.content_id));
+                await Promise.all(quizPromises);
+            };
+            fetchAllQuizzes();
         }
     }, [activeLessonTab, activeCourse]);
 
@@ -478,39 +482,54 @@ export default function BrowseNewCourses() {
             const titleText = contentTitles.map(t => t.body_content).join(' ');
             const video_link = contentTitles.map(v => v.video_link).join(' ');
 
-            // Chấm điểm cho tiêu đề nội dung
-            const titlePrompt = `Đánh giá tiêu đề bài học sau đây dựa trên các tiêu chí:
-                1. Tính rõ ràng và dễ đọc
-                2. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
+            const titlePrompt = `Đánh giá tiêu đề bài học sau:
+    Tiêu đề: "${content.content}"
     
-                Tiêu đề: "${content.content}"
+    TIÊU CHÍ ĐÁNH GIÁ:
+    1. Tính rõ ràng (0-5 điểm)
+    - Dễ hiểu, ngắn gọn
+    - Không mơ hồ hoặc gây nhầm lẫn
     
-                Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
-                Nếu không có vấn đề gì, đánh giá bình thường từ 0-10 điểm.
+    2. Tính phù hợp (0-5 điểm)
+    - Phù hợp với nội dung bài học
+    - Không chứa từ ngữ nhạy cảm/không phù hợp
     
-                Hãy trả về theo định dạng sau:
-                Điểm: [số điểm]
-                Lý do: [giải thích ngắn gọn]`;
+    LƯU Ý: 
+    - Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho 0 điểm
+    - Thang điểm: 0-10
+    
+    YÊU CẦU PHẢN HỒI:
+    Điểm: [0-10]
+    Nhận xét chi tiết: [điểm mạnh và điểm yếu của tiêu đề]
+    Đề xuất cải thiện: [nếu cần]`;
 
-            // Chấm điểm cho nội dung bài học
-            const contentPrompt = `Đánh giá nội dung bài học sau đây dựa trên các tiêu chí:
-                1. Độ chi tiết và đầy đủ của nội dung
-                2. Kiểm tra chỉ cần có video_link và link phù hợp sẽ được 20 điểm (10 điểm cho nội dung)
-                3. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
+            const contentPrompt = `Đánh giá nội dung bài học sau:
+    Nội dung: "${titleText}"
+    Video link: "${video_link}"
     
-                Nội dung: "${titleText}"
-                Video link: "${video_link}"
+    TIÊU CHÍ ĐÁNH GIÁ:
+    1. Nội dung (0-10 điểm)
+    - Đầy đủ, chi tiết
+    - Cấu trúc rõ ràng, dễ hiểu
     
-                Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
-                Nếu không có vấn đề gì, đánh giá bình thường từ 0-30 điểm.
+    2. Video/link (0-20 điểm)
+    - Có video_link hợp lệ: +10 điểm
+    - Link tài liệu phù hợp: +10 điểm
     
-                Hãy trả về theo định dạng sau:
-                Điểm: [số điểm]
-                Lý do: [giải thích ngắn gọn]`;
+    LƯU Ý:
+    - Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho 0 điểm
+    - Thang điểm: 0-30
+    
+    YÊU CẦU PHẢN HỒI:
+    Điểm: [0-30]
+    Đánh giá chi tiết:
+    - Nội dung: [nhận xét về chất lượng nội dung]
+    - Video/link: [nhận xét về tài nguyên đính kèm]
+    Đề xuất cải thiện: [nếu cần]`;
 
+            let quizPrompt = '';
             // Chấm điểm cho quiz
             const quizzes = quizContent.filter(quiz => quiz.content_id === content.content_id);
-            let quizPrompt = '';
 
             if (quizzes && quizzes.length > 0) {
                 const quizData = quizzes.map(quiz => ({
@@ -524,20 +543,38 @@ export default function BrowseNewCourses() {
                     }))
                 }));
 
-                quizPrompt = `Đánh giá chất lượng quiz sau đây dựa trên các tiêu chí:
-                    1. Số lượng câu hỏi (1-3 câu: 5đ, 4-6 câu: 10đ, 7+ câu: 15đ)
-                    2. Chất lượng câu hỏi và đáp án (rõ ràng, logic: +5đ)
-                    3. Độ đa dạng của câu hỏi (+5đ nếu có nhiều dạng câu hỏi khác nhau)
-                    4. Kiểm tra nội dung nhạy cảm hoặc không phù hợp
+                quizPrompt = `Đánh giá quiz sau:
+    ${JSON.stringify(quizData, null, 2)}
     
-                    Quiz data: ${JSON.stringify(quizData, null, 2)}
+    TIÊU CHÍ ĐÁNH GIÁ:
+    1. Số lượng câu hỏi (0-15 điểm)
+    - 1-3 câu: 5 điểm
+    - 4-6 câu: 10 điểm
+    - 7+ câu: 15 điểm
     
-                    Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho điểm 0 và giải thích lý do.
-                    Nếu không có vấn đề gì, đánh giá bình thường từ 0-25 điểm.
+    2. Chất lượng câu hỏi (0-5 điểm)
+    - Câu hỏi rõ ràng, logic
+    - Đáp án hợp lý
     
-                    Hãy trả về theo định dạng sau:
-                    Điểm: [số điểm]
-                    Lý do: [giải thích ngắn gọn]`;
+    3. Đa dạng hình thức (0-5 điểm)
+    - Có nhiều dạng câu hỏi khác nhau
+    
+    PHÂN TÍCH LỖI:
+    Liệt kê các câu hỏi có vấn đề (nếu có):
+    ${quizData[0].questions.map((q, index) => `
+    Câu ${index + 1}: "${q.question}"
+    - Lỗi phát hiện: [liệt kê lỗi nếu có]
+    - Đề xuất sửa: [gợi ý cách sửa]
+    `).join('\n')}
+    
+    YÊU CẦU PHẢN HỒI:
+    Điểm: [0-25]
+    Đánh giá chi tiết:
+    - Số lượng câu hỏi: [đánh giá]
+    - Chất lượng câu hỏi: [đánh giá]
+    - Tính đa dạng: [đánh giá]
+    Các câu hỏi cần cải thiện: [liệt kê số thứ tự]
+    Đề xuất cải thiện: [cụ thể cho từng vấn đề]`;
             }
 
             // Gọi API GPT cho tất cả các đánh giá
@@ -556,7 +593,6 @@ export default function BrowseNewCourses() {
                 })
             ];
 
-            // Thêm API call cho quiz nếu có
             if (quizPrompt) {
                 apiCalls.push(
                     axios.post('https://api.openai.com/v1/chat/completions', {
@@ -570,17 +606,28 @@ export default function BrowseNewCourses() {
 
             const responses = await Promise.all(apiCalls);
 
-            // Xử lý kết quả
+            // Xử lý kết quả với regex cải tiến
             const titleScore = parseInt(responses[0].data.choices[0].message.content.match(/Điểm:\s*(\d+)/)[1]);
             const contentScore = parseInt(responses[1].data.choices[0].message.content.match(/Điểm:\s*(\d+)/)[1]);
 
             let quizScore = 0;
             let quizReason = '';
+            let quizAnalysis = '';
             if (responses.length > 2) {
                 const quizResult = responses[2].data.choices[0].message.content;
                 quizScore = parseInt(quizResult.match(/Điểm:\s*(\d+)/)[1]);
-                const reasonMatch = quizResult.match(/Lý do:\s*(.+)/);
-                quizReason = reasonMatch ? reasonMatch[1].trim() : '';
+
+                // Lấy phần đánh giá chi tiết
+                const detailMatch = quizResult.match(/Đánh giá chi tiết:([\s\S]*?)(?=Các câu hỏi cần cải thiện:|$)/);
+                const improvementMatch = quizResult.match(/Các câu hỏi cần cải thiện:([\s\S]*?)(?=Đề xuất cải thiện:|$)/);
+                const suggestionMatch = quizResult.match(/Đề xuất cải thiện:([\s\S]*?)$/);
+
+                quizReason = detailMatch ? detailMatch[1].trim() : '';
+                quizAnalysis = {
+                    detail: quizReason,
+                    needImprovement: improvementMatch ? improvementMatch[1].trim() : '',
+                    suggestions: suggestionMatch ? suggestionMatch[1].trim() : ''
+                };
             }
 
             const totalScore = titleScore + contentScore + quizScore;
@@ -591,12 +638,15 @@ export default function BrowseNewCourses() {
                 quizScore,
                 totalScore,
                 quizReason,
+                quizAnalysis,
                 reasons: {
-                    title: responses[0].data.choices[0].message.content.match(/Lý do:\s*(.+)/)[1].trim(),
-                    content: responses[1].data.choices[0].message.content.match(/Lý do:\s*(.+)/)[1].trim(),
-                    quiz: quizReason
+                    title: responses[0].data.choices[0].message.content.match(/Nhận xét chi tiết:([\s\S]*?)(?=Đề xuất cải thiện:|$)/)[1].trim(),
+                    content: responses[1].data.choices[0].message.content.match(/Đánh giá chi tiết:([\s\S]*?)(?=Đề xuất cải thiện:|$)/)[1].trim(),
+                    titleSuggestion: responses[0].data.choices[0].message.content.match(/Đề xuất cải thiện:([\s\S]*?)$/)?.[1].trim() || '',
+                    contentSuggestion: responses[1].data.choices[0].message.content.match(/Đề xuất cải thiện:([\s\S]*?)$/)?.[1].trim() || '',
+                    quiz: quizAnalysis
                 },
-                isPass: totalScore >= 40 // Điểm pass tối thiểu (có thể điều chỉnh)
+                isPass: totalScore >= 40
             };
 
         } catch (error) {
@@ -695,28 +745,60 @@ export default function BrowseNewCourses() {
             const priceScore = courseData.price_discount > 0 ? 10 : 0;
             const finalScore = titleAnalysis.score + descriptionAnalysis.score + priceScore;
 
-            // 2. Tính điểm nội dung
+            // 2. Load quiz cho tất cả content trước khi tính điểm
+            const quizPromises = contentLesson.map(async (content) => {
+                const res = await axios.get(`${API_URL}/admin/pending-quizzes`, {
+                    headers: {
+                        "x-api-secret": `${API_KEY}`,
+                        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+                    },
+                    params: {
+                        content_id: content.content_id
+                    }
+                });
+                return res.data?.success && Array.isArray(res.data.quizzes) ? res.data.quizzes : [];
+            });
+
+            const allQuizzes = await Promise.all(quizPromises);
+            const flattenedQuizzes = allQuizzes.flat();
+
+            // 3. Tính điểm nội dung và quiz
             let contentScores = { isPass: false, averageScore: 0, details: [] };
 
             if (contentLesson && contentLesson.length > 0) {
                 const contentResults = await Promise.all(
                     contentLesson.map(async (content) => {
-                        // Truyền cả mảng titleContents vào
-                        return calculateContentAndTitleScore(content, titleContents);
+                        const contentQuizzes = flattenedQuizzes.filter(quiz =>
+                            quiz.content_id === content.content_id
+                        );
+                        return calculateContentAndTitleScore(
+                            content,
+                            titleContents,
+                            null,
+                            contentQuizzes // Truyền quiz tương ứng với content
+                        );
                     })
                 );
 
                 const validResults = contentResults.filter(result => result !== null);
                 if (validResults.length > 0) {
+                    const totalScores = validResults.reduce((acc, curr) => ({
+                        totalScore: acc.totalScore + curr.totalScore,
+                        contentScore: acc.contentScore + curr.contentScore,
+                        quizScore: acc.quizScore + curr.quizScore
+                    }), { totalScore: 0, contentScore: 0, quizScore: 0 });
+
                     contentScores = {
                         isPass: validResults.every(result => result.isPass),
-                        averageScore: validResults.reduce((acc, curr) => acc + curr.totalScore, 0) / validResults.length,
+                        averageScore: totalScores.contentScore / validResults.length,
+                        averageQuizScore: totalScores.quizScore / validResults.length,
+                        totalAverageScore: totalScores.totalScore / validResults.length,
                         details: validResults
                     };
                 }
             }
 
-            // 3. Cập nhật state với đầy đủ thông tin
+            // 4. Cập nhật state với đầy đủ thông tin
             setScores({
                 titleScore: titleAnalysis.score,
                 descriptionScore: descriptionAnalysis.score,
@@ -725,10 +807,14 @@ export default function BrowseNewCourses() {
                 explanation: `Tiêu đề: ${titleAnalysis.reason}. Mô tả: ${descriptionAnalysis.reason}. ${priceScore > 0 ? 'Giá hợp lệ.' : 'Giá không hợp lệ.'
                     }`,
                 contentScores,
-                isOverallPass: finalScore >= 35 && contentScores.isPass
+                isOverallPass: finalScore >= 35 && contentScores.totalAverageScore >= 40
             });
 
-            return { finalScore, contentScores };
+            return {
+                finalScore,
+                contentScores,
+                isPass: finalScore >= 35 && contentScores.totalAverageScore >= 40
+            };
 
         } catch (error) {
             console.error('Lỗi khi tính điểm:', error);
@@ -977,210 +1063,209 @@ export default function BrowseNewCourses() {
 
 
                                         <TabsContent value="lessons">
-    {activeCourse ? (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h4 className="text-xl font-semibold flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-blue-500" />
-                    Chi tiết bài học
-                </h4>
-            </div>
-
-            <Tabs value={activeLessonTab} onValueChange={setActiveLessonTab}>
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                    <TabsTrigger value="content" className="flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        Nội dung bài học
-                    </TabsTrigger>
-                    <TabsTrigger value="quiz" className="flex items-center gap-2">
-                        <PenTool className="h-4 w-4" />
-                        Câu hỏi Quiz
-                    </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="content">
-                    <ScrollArea className="h-[600px] pr-4">
-                        {contentLesson.length > 0 ? (
-                            <div className="space-y-4">
-                                {contentLesson.map((lesson, index) => (
-                                    <Card key={lesson.content_id} className="transition-all hover:shadow-md">
-                                        <Dialog>
-                                            <DialogTrigger asChild>
-                                                <CardHeader 
-                                                    onClick={() => fetchPendingTitleContents(lesson.content_id)}
-                                                    className="cursor-pointer hover:bg-slate-50"
-                                                >
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-semibold">
-                                                            {index + 1}
-                                                        </div>
-                                                        <div className="flex-1 text-left">
-                                                            <h4 className="font-semibold">{lesson.name_content}</h4>
-                                                        </div>
-                                                        <ChevronRight className="h-5 w-5 text-gray-400" />
+                                            {activeCourse ? (
+                                                <div className="space-y-6">
+                                                    <div className="flex items-center justify-between">
+                                                        <h4 className="text-xl font-semibold flex items-center gap-2">
+                                                            <BookOpen className="h-5 w-5 text-blue-500" />
+                                                            Chi tiết bài học
+                                                        </h4>
                                                     </div>
-                                                </CardHeader>
-                                            </DialogTrigger>
 
-                                            <DialogContent className="max-w-4xl max-h-[80vh]">
-                                                <DialogHeader>
-                                                    <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-                                                        <BookOpen className="h-6 w-6 text-blue-500" />
-                                                        {lesson.name_content}
-                                                    </DialogTitle>
-                                                </DialogHeader>
+                                                    <Tabs value={activeLessonTab} onValueChange={setActiveLessonTab}>
+                                                        <TabsList className="grid w-full grid-cols-2 mb-6">
+                                                            <TabsTrigger value="content" className="flex items-center gap-2">
+                                                                <FileText className="h-4 w-4" />
+                                                                Nội dung bài học
+                                                            </TabsTrigger>
+                                                            <TabsTrigger value="quiz" className="flex items-center gap-2">
+                                                                <PenTool className="h-4 w-4" />
+                                                                Câu hỏi Quiz
+                                                            </TabsTrigger>
+                                                        </TabsList>
 
-                                                <ScrollArea className="max-h-[60vh] pr-4">
-                                                    {titleContents.length > 0 ? (
-                                                        <div className="space-y-6 py-4">
-                                                            {titleContents.map((title, index) => (
-                                                                <Card key={index}>
-                                                                    <CardHeader>
-                                                                        <div className="flex items-start gap-3">
-                                                                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-sm font-semibold">
-                                                                                {index + 1}
-                                                                            </div>
-                                                                            <div className="flex-1">
-                                                                                <p className="text-base font-medium text-gray-700">
-                                                                                    {title.body_content || "Nội dung không có sẵn."}
-                                                                                </p>
-                                                                            </div>
-                                                                            {title.video_link && (
-                                                                               <Dialog>
-                                                                               <DialogTrigger asChild>
-                                                                                   <Button 
-                                                                                       className="bg-[#6a4a3b] hover:bg-[#fbf9c2] hover:text-[#6a4a3b] text-white font-medium p-2 rounded-md transition-all"
-                                                                                   >
-                                                                                       Xem video
-                                                                                   </Button>
-                                                                               </DialogTrigger>
-                                                                               <DialogContent className="p-0 bg-white rounded-lg shadow-md w-full">
-                                                                                   <DialogDescription className="text-center mb-4">
-                                                                                       <h2 className="text-xl font-semibold my-2">Xem Video</h2>
-                                                                                       {title.video_link ? (
-                                                                                           <div className="relative" style={{ paddingTop: '56.25%' }}>
-                                                                                               <ReactPlayer
-                                                                                                   url={title.video_link}
-                                                                                                   className="absolute top-0 left-0 w-full h-full"
-                                                                                                   controls
-                                                                                                   width="100%"
-                                                                                                   height="100%"
-                                                                                               />
-                                                                                           </div>
-                                                                                       ) : (
-                                                                                           <p className="text-gray-500">Nội dung không có sẵn.</p>
-                                                                                       )}
-                                                                                   </DialogDescription>
-                                                                               </DialogContent>
-                                                                           </Dialog>
-                                                                            )}
+                                                        <TabsContent value="content">
+                                                            <ScrollArea className="h-[600px] pr-4">
+                                                                {contentLesson.length > 0 ? (
+                                                                    <div className="space-y-4">
+                                                                        {contentLesson.map((lesson, index) => (
+                                                                            <Card key={lesson.content_id} className="transition-all hover:shadow-md">
+                                                                                <Dialog>
+                                                                                    <DialogTrigger asChild>
+                                                                                        <CardHeader
+                                                                                            onClick={() => fetchPendingTitleContents(lesson.content_id)}
+                                                                                            className="cursor-pointer hover:bg-slate-50"
+                                                                                        >
+                                                                                            <div className="flex items-center gap-4">
+                                                                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-semibold">
+                                                                                                    {index + 1}
+                                                                                                </div>
+                                                                                                <div className="flex-1 text-left">
+                                                                                                    <h4 className="font-semibold">{lesson.name_content}</h4>
+                                                                                                </div>
+                                                                                                <ChevronRight className="h-5 w-5 text-gray-400" />
+                                                                                            </div>
+                                                                                        </CardHeader>
+                                                                                    </DialogTrigger>
+
+                                                                                    <DialogContent className="max-w-4xl max-h-[80vh]">
+                                                                                        <DialogHeader>
+                                                                                            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                                                                                                <BookOpen className="h-6 w-6 text-blue-500" />
+                                                                                                {lesson.name_content}
+                                                                                            </DialogTitle>
+                                                                                        </DialogHeader>
+
+                                                                                        <ScrollArea className="max-h-[60vh] pr-4">
+                                                                                            {titleContents.length > 0 ? (
+                                                                                                <div className="space-y-6 py-4">
+                                                                                                    {titleContents.map((title, index) => (
+                                                                                                        <Card key={index}>
+                                                                                                            <CardHeader>
+                                                                                                                <div className="flex items-start gap-3">
+                                                                                                                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-sm font-semibold">
+                                                                                                                        {index + 1}
+                                                                                                                    </div>
+                                                                                                                    <div className="flex-1">
+                                                                                                                        <p className="text-base font-medium text-gray-700">
+                                                                                                                            {title.body_content || "Nội dung không có sẵn."}
+                                                                                                                        </p>
+                                                                                                                    </div>
+                                                                                                                    {/* Hiển thị document_link nếu có */}
+                                                                                                                    {title.document_link && (
+                                                                                                                        <div className="text-sm text-gray-500">
+                                                                                                                            <div dangerouslySetInnerHTML={{ __html: title.document_link }} />
+                                                                                                                        </div>
+                                                                                                                    )}
+                                                                                                                    {/* Video button */}
+                                                                                                                    {title.video_link && (
+                                                                                                                        <Dialog>
+                                                                                                                            <DialogTrigger asChild>
+                                                                                                                                <Button className="bg-[#6a4a3b] hover:bg-[#fbf9c2] hover:text-[#6a4a3b] text-white font-medium p-2 rounded-md transition-all">
+                                                                                                                                    Xem video
+                                                                                                                                </Button>
+                                                                                                                            </DialogTrigger>
+                                                                                                                            <DialogContent className="p-0 bg-white rounded-lg shadow-md w-full">
+                                                                                                                                {/* ... phần content video ... */}
+                                                                                                                            </DialogContent>
+                                                                                                                        </Dialog>
+                                                                                                                    )}
+                                                                                                                </div>
+                                                                                                            </CardHeader>
+                                                                                                        </Card>
+                                                                                                    ))}
+                                                                                                </div>
+                                                                                            ) : (
+                                                                                                <div className="flex flex-col items-center justify-center py-12 text-center">
+                                                                                                    <FileX className="h-12 w-12 text-gray-400 mb-4" />
+                                                                                                    <p className="text-gray-500">Không có tiêu đề nào để hiển thị.</p>
+                                                                                                </div>
+                                                                                            )}
+                                                                                        </ScrollArea>
+                                                                                    </DialogContent>
+                                                                                </Dialog>
+                                                                            </Card>
+                                                                        ))}
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                                                                        <FileX className="h-12 w-12 text-gray-400 mb-4" />
+                                                                        <p className="text-lg font-medium text-gray-900">Không có nội dung</p>
+                                                                        <p className="text-gray-500">Không có nội dung nào để hiển thị.</p>
+                                                                    </div>
+                                                                )}
+                                                            </ScrollArea>
+                                                        </TabsContent>
+
+                                                        <TabsContent value="quiz">
+                                                            <ScrollArea className="h-[600px] pr-4">
+                                                                <div className="space-y-6">
+                                                                    {quizContent.map((quiz, index) => (
+                                                                        <Card key={quiz.quiz_id} className="border-l-4 border-l-blue-500">
+                                                                            <CardHeader className="bg-gradient-to-r from-slate-50 to-white">
+                                                                                <CardTitle className="flex items-center gap-2">
+                                                                                    <HelpCircle className="h-5 w-5 text-blue-500" />
+                                                                                    <span className="text-lg font-medium">
+                                                                                        Quiz {index + 1}
+                                                                                    </span>
+                                                                                </CardTitle>
+                                                                            </CardHeader>
+                                                                            <CardContent>
+                                                                                {quiz.questions?.length > 0 ? (
+                                                                                    <div className="space-y-8">
+                                                                                        {quiz.questions.map((question, qIndex) => (
+                                                                                            <div key={question.question_id} className="space-y-4">
+                                                                                                <div className="flex gap-3">
+                                                                                                    <Badge variant="outline" className="h-6 px-2 font-medium">
+                                                                                                        Q{qIndex + 1}
+                                                                                                    </Badge>
+                                                                                                    <div className="flex-1">
+                                                                                                        <h3 className="font-medium text-gray-700">
+                                                                                                            {question.question || 'Không có câu hỏi'}
+                                                                                                        </h3>
+                                                                                                        <p className="text-sm text-gray-500">
+                                                                                                            Loại: {question.question_type === 'single_choice' ? 'Một đáp án' :
+                                                                                                                question.question_type === 'mutiple_choice' ? 'Nhiều đáp án' :
+                                                                                                                    question.question_type === 'true_false' ? 'Đúng/Sai' :
+                                                                                                                        'Không xác định'}
+                                                                                                        </p>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div className="ml-9 space-y-3">
+                                                                                                    {question.options?.map((option) => (
+                                                                                                        <div
+                                                                                                            key={option.option_id}
+                                                                                                            className={`flex items-center p-3 rounded-lg border transition-all ${option.is_correct === 1
+                                                                                                                ? "bg-green-50 border-green-200"
+                                                                                                                : "border-gray-200"
+                                                                                                                }`}
+                                                                                                        >
+                                                                                                            <RadioGroup defaultValue={option.is_correct === 1 ? "correct" : ""}>
+                                                                                                                <div className="flex items-center space-x-3 w-full">
+                                                                                                                    <RadioGroupItem value="correct" disabled />
+                                                                                                                    <Label className="flex-1 cursor-pointer">
+                                                                                                                        {option.answer || 'Không có lựa chọn'}
+                                                                                                                    </Label>
+                                                                                                                    {option.is_correct === 1 && (
+                                                                                                                        <CheckCircle className="h-4 w-4 text-green-500" />
+                                                                                                                    )}
+                                                                                                                </div>
+                                                                                                            </RadioGroup>
+                                                                                                        </div>
+                                                                                                    ))}
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <div className="text-center py-8">
+                                                                                        <HelpCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                                                                                        <p className="text-gray-500">Không có câu hỏi nào.</p>
+                                                                                    </div>
+                                                                                )}
+                                                                            </CardContent>
+                                                                        </Card>
+                                                                    ))}
+                                                                    {!quizContent.length && (
+                                                                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                                                                            <ClipboardX className="h-12 w-12 text-gray-400 mb-4" />
+                                                                            <p className="text-lg font-medium text-gray-900">Không có Quiz</p>
+                                                                            <p className="text-gray-500">Chưa có câu hỏi quiz nào được thêm vào.</p>
                                                                         </div>
-                                                                    </CardHeader>
-                                                                </Card>
-                                                            ))}
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex flex-col items-center justify-center py-12 text-center">
-                                                            <FileX className="h-12 w-12 text-gray-400 mb-4" />
-                                                            <p className="text-gray-500">Không có tiêu đề nào để hiển thị.</p>
-                                                        </div>
-                                                    )}
-                                                </ScrollArea>
-                                            </DialogContent>
-                                        </Dialog>
-                                    </Card>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-12 text-center">
-                                <FileX className="h-12 w-12 text-gray-400 mb-4" />
-                                <p className="text-lg font-medium text-gray-900">Không có nội dung</p>
-                                <p className="text-gray-500">Không có nội dung nào để hiển thị.</p>
-                            </div>
-                        )}
-                    </ScrollArea>
-                </TabsContent>
-
-                <TabsContent value="quiz">
-                    <ScrollArea className="h-[600px] pr-4">
-                        <div className="space-y-6">
-                            {quizContent.map((quiz, index) => (
-                                <Card key={quiz.quiz_id} className="border-l-4 border-l-blue-500">
-                                    <CardHeader className="bg-gradient-to-r from-slate-50 to-white">
-                                        <CardTitle className="flex items-center text-lg">
-                                            <HelpCircle className="mr-2 h-5 w-5 text-blue-500" />
-                                            Quiz {index + 1}: {quiz.title || 'Không có tiêu đề'}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        {quiz.questions?.length > 0 ? (
-                                            <div className="space-y-8">
-                                                {quiz.questions.map((question, qIndex) => (
-                                                    <div key={question.question_id} className="space-y-4">
-                                                        <div className="flex gap-3">
-                                                            <Badge variant="outline" className="h-6 px-2 font-medium">
-                                                                Q{qIndex + 1}
-                                                            </Badge>
-                                                            <h3 className="flex-1 font-medium text-gray-700">
-                                                                {question.question || 'Không có câu hỏi'}
-                                                            </h3>
-                                                        </div>
-                                                        <div className="ml-9 space-y-3">
-                                                            {question.options?.map((option) => (
-                                                               <div
-                                                               key={option.option_id}
-                                                               className={`flex items-center p-3 rounded-lg border transition-all ${
-                                                                   option.is_correct === 1
-                                                                       ? "bg-green-50 border-green-200"
-                                                                       : "border-gray-200"
-                                                               }`}
-                                                           >
-                                                                    <RadioGroup defaultValue={option.is_correct === 1 ? "correct" : ""}>
-                                                                        <div className="flex items-center space-x-3 w-full">
-                                                                            <RadioGroupItem value="correct" disabled />
-                                                                            <Label className="flex-1 cursor-pointer">
-                                                                                {option.answer || 'Không có lựa chọn'}
-                                                                            </Label>
-                                                                            {option.is_correct === 1 && (
-                                                                                <CheckCircle className="h-4 w-4 text-green-500" />
-                                                                            )}
-                                                                        </div>
-                                                                    </RadioGroup>
+                                                                    )}
                                                                 </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div className="text-center py-8">
-                                                <HelpCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                                                <p className="text-gray-500">Không có câu hỏi nào.</p>
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            ))}
-                            {quizContent.length === 0 && (
-                                <div className="flex flex-col items-center justify-center py-12 text-center">
-                                    <ClipboardX className="h-12 w-12 text-gray-400 mb-4" />
-                                    <p className="text-lg font-medium text-gray-900">Không có Quiz</p>
-                                    <p className="text-gray-500">Chưa có câu hỏi quiz nào được thêm vào.</p>
-                                </div>
-                            )}
-                        </div>
-                    </ScrollArea>
-                </TabsContent>
-            </Tabs>
-        </div>
-    ) : (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-            <FileQuestion className="h-12 w-12 text-gray-400 mb-4" />
-            <p className="text-lg font-medium text-gray-900">Chưa chọn khóa học</p>
-            <p className="text-gray-500">Vui lòng chọn một khóa học để xem chi tiết.</p>
-        </div>
-    )}
-</TabsContent>
+                                                            </ScrollArea>
+                                                        </TabsContent>
+                                                    </Tabs>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center py-12 text-center">
+                                                    <FileQuestion className="h-12 w-12 text-gray-400 mb-4" />
+                                                    <p className="text-lg font-medium text-gray-900">Chưa chọn khóa học</p>
+                                                    <p className="text-gray-500">Vui lòng chọn một khóa học để xem chi tiết.</p>
+                                                </div>
+                                            )}
+                                        </TabsContent>
                                     </Tabs>
 
                                     {/* Action Buttons */}
