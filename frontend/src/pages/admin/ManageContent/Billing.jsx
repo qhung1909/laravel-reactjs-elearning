@@ -154,42 +154,40 @@ export default function Billing() {
                     <div className="grid gap-4 md:grid-cols-3 mb-6">
                         <Card className="bg-gradient-to-br from-blue-50 to-white">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-blue-600">Tổng doanh thu</CardTitle>
-                                <Wallet className="h-5 w-5 text-blue-500" />
+                                <Wallet className="h-8 w-8 text-blue-500" />
+                                <div>
+                                    <CardTitle className="text-sm font-medium text-blue-600">Tổng doanh thu</CardTitle>
+                                    <div className="text-2xl font-bold text-blue-700 mt-1">{formatCurrency(stats.totalRevenue)}</div>
+                                </div>
                             </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold text-blue-700">{formatCurrency(stats.totalRevenue)}</div>
-                            </CardContent>
                         </Card>
                         <Card className="bg-gradient-to-br from-purple-50 to-white">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-purple-600">Tổng đơn hàng</CardTitle>
-                                <ShoppingCart className="h-5 w-5 text-purple-500" />
+                                <ShoppingCart className="h-8 w-8 text-purple-500" />
+                                <div>
+                                    <CardTitle className="text-sm font-medium text-purple-600">Tổng đơn hàng</CardTitle>
+                                    <div className="text-2xl font-bold text-purple-700 mt-1">{stats.totalOrders}</div>
+                                </div>
                             </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold text-purple-700">{stats.totalOrders}</div>
-                            </CardContent>
                         </Card>
                         <Card className="bg-gradient-to-br from-green-50 to-white">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-green-600">Đơn thành công</CardTitle>
-                                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                <CheckCircle2 className="h-8 w-8 text-green-500" />
+                                <div>
+                                    <CardTitle className="text-sm font-medium text-green-600">Đơn thành công</CardTitle>
+                                    <div className="text-2xl font-bold text-green-700 mt-1">{stats.successfulOrders}</div>
+                                </div>
                             </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold text-green-700">{stats.successfulOrders}</div>
-                            </CardContent>
                         </Card>
                     </div>
 
                     <Card>
-                        <CardHeader>
-                            <div className="flex items-center gap-2">
-                                <CardTitle>Lịch sử mua hàng</CardTitle>
-                                <ShoppingCart className="h-5 w-5 text-gray-500" />
-                            </div>
-                        </CardHeader>
                         <CardContent>
-                            <div className="flex flex-col md:flex-row justify-end items-center gap-4 mb-6">
+                            <div className="flex flex-col md:flex-row justify-between items-center gap-4 my-6">
+                                <div className="flex items-center gap-2">
+                                    <CardTitle>Lịch sử mua hàng</CardTitle>
+                                    <ShoppingCart className="h-5 w-5 text-gray-500" />
+                                </div>
                                 <div className="flex items-center gap-4 w-full md:w-auto">
                                     <div className="relative w-full md:w-80">
                                         <Search className="absolute left-3 top-1/2 h-4 w-4 text-gray-400 transform -translate-y-1/2" />
