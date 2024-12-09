@@ -138,9 +138,8 @@ const data = {
             icon: SquareChartGantt,
             items: [
                 { title: "Bài viết/Blog", url: "/admin/blogs" },
-                { title: "Banner quảng cáo", url: "#" },
-                { title: "Billing", url: "#" },
-                { title: "Thông báo hệ thống", url: "#" },
+                { title: "Billing", url: "/admin/billing" },
+                // { title: "Thông báo hệ thống", url: "#" },
             ],
         },
         {

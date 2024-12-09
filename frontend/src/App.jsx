@@ -77,6 +77,7 @@ import ScheduleManagement from "./pages/schedule/template.jsx";
 import PersonalPage from "./pages/personalPage/personal.jsx";
 import TeacherRole from "./pages/role/teachRole.jsx";
 import { SettingsProvider } from "./pages/context/settingcontext.jsx";
+import Billing from "./pages/admin/ManageContent/Billing.jsx";
 
 function AppContent() {
     const location = useLocation();
@@ -162,6 +163,7 @@ function AppContent() {
 
                 <Route path="/admin/draft" element={<AdminRole element={<Draft />}/>}></Route>
                 <Route path="/admin/courses/:course_id" element={<AdminRole element={<DetailCourse />}/>}/>
+                <Route path="/admin/billing" element={<AdminRole element={<Billing/>}/>}/>
 
 
                 <Route path="/" element={<Home />}></Route>
