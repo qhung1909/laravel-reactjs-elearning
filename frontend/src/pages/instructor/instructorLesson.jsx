@@ -70,14 +70,11 @@ export const InstructorLesson = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const [setLoadingLogout] = useState(false);
     const [_success] = useState("");
-    const [errors, setErrors] = useState({});
-    const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false)
     const [teacherCourses, setTeacherCourses] = useState([]);
     const navigate = useNavigate();
     const [course, setCourse] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedStatus, setSelectedStatus] = useState("");
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [launchDate, setLaunchDate] = useState('');
     const [backupLaunchDate, setBackupLaunchDate] = useState('');
@@ -125,7 +122,7 @@ export const InstructorLesson = () => {
     }
 
     // hàm xử lý giá giảm bài học
-    const handleChangePrice = async (courseId, priceDiscount) => {
+    const handleChangePrice = async (courseId, priceDiscount, originalPrice) => {
         if (priceDiscount === "" || priceDiscount === null) {
             notify('Vui lòng nhập giá giảm', "error");
             return;
@@ -136,10 +133,11 @@ export const InstructorLesson = () => {
             notify('Giá giảm không hợp lệ', "error");
             return;
         }
-        console.log('Payload gửi đến API:', {
-            course_id: courseId,
-            price_discount: discountPrice,
-        });
+
+        if (discountPrice >= originalPrice) {
+            notify('Giá giảm không được lớn hơn hoặc bằng giá gốc', "error");
+            return;
+        }
         try {
             const response = await axios.put(
                 `${API_URL}/teacher/update/courses/price-discount`,
@@ -157,7 +155,9 @@ export const InstructorLesson = () => {
 
             if (response.status === 200 || response.status === 201) {
                 notify('Cập nhật giá thành công', "success");
-                window.location.reload();
+                setTimeout(()=>{
+                    window.location.reload();
+                },2000)
             }
 
         } catch (error) {
@@ -192,8 +192,9 @@ export const InstructorLesson = () => {
 
             if (response.status === 200 || response.status === 201) {
                 notify('Xóa giá giảm thành công', "success");
-                window.location.reload();
-            }
+                setTimeout(()=>{
+                    window.location.reload();
+                },2000)            }
 
         } catch (error) {
             if (error.response) {
@@ -481,7 +482,7 @@ export const InstructorLesson = () => {
                                                 </div>
                                                 <div className="flex justify-center">
                                                     <Button
-                                                        onClick={() => handleChangePrice(item.course_id, priceDiscount)}
+                                                        onClick={() => handleChangePrice(item.course_id, priceDiscount,item.price)}
                                                         className="w-full bg-gray-900 hover:bg-gray-800 text-white">
                                                         Đổi giá
                                                     </Button>
