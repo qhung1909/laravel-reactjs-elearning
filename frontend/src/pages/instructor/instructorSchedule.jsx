@@ -473,7 +473,7 @@ export const InstructorSchedule = () => {
                                         <div className=" mr-3 px-1 rounded-full">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
                                         </div>
-                                        <p className="font-semibold text-base">Bài học của tôi</p>
+                                        <p className="font-semibold text-base">Khóa học của tôi</p>
                                     </Link>
                                 </li>
                                 <li className="mb-3">
@@ -557,7 +557,10 @@ export const InstructorSchedule = () => {
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger>
                                                         <div className="flex items-center">
-                                                            <p className="text-gray-600 text-sm">{instructor?.role}</p>
+                                                            <p className="text-gray-600 text-sm">
+                                                                {instructor?.role === "teacher" ? 'Giảng viên' : instructor?.role}
+                                                            </p>
+
                                                             <svg className="w-4 h-4 ml-1 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                                             </svg>
@@ -608,7 +611,7 @@ export const InstructorSchedule = () => {
                                                                             <div className=" mr-3 px-1 rounded-full">
                                                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
                                                                             </div>
-                                                                            <p className="font-semibold text-base">Bài học của tôi</p>
+                                                                            <p className="font-semibold text-base">Khóa học của tôi</p>
                                                                         </Link>
                                                                     </li>
                                                                     <li className="mb-3">
@@ -901,7 +904,7 @@ export const InstructorSchedule = () => {
                                                         <TableCell className="hidden md:table-cell">{item.name_content}</TableCell>
                                                         <TableCell>
                                                             <div className="w-14 md:w-auto">
-                                                            {new Date(item.meeting.schedule.start_time).toLocaleString("vi-VN")}
+                                                                {new Date(item.meeting.schedule.start_time).toLocaleString("vi-VN")}
 
                                                             </div>
                                                         </TableCell>
