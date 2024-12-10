@@ -1113,21 +1113,21 @@ export const Curriculum = () => {
                                                     >
                                                         + Thêm Bài học mới
                                                     </button>
-                                                    {offLesson ? (
-                                                        <>
-                                                        </>
-                                                    ) : (
-                                                        <button
-                                                            onClick={addOnlineSection}
-                                                            className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
-                                                        >
-                                                            + Thêm Bài Online mới
-                                                        </button>
-                                                    )}
                                                 </>
                                             ) : (
                                                 <>
-
+                                                    <button
+                                                        onClick={addOfflineLesson}
+                                                        className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
+                                                    >
+                                                        + Thêm Bài học mới
+                                                    </button>
+                                                    <button
+                                                        onClick={addOnlineSection}
+                                                        className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
+                                                    >
+                                                        + Thêm Bài Online mới
+                                                    </button>
                                                 </>
                                             )}
 

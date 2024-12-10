@@ -416,15 +416,26 @@ export const Courses = () => {
                                 </span>
                             </div>
                         </div>
-
                         <div className="flex items-center gap-4 mt-6 p-4 rounded-lg">
-                            <div className="flex items-center gap-2">
-                                <Tag className="w-6 h-6 text-blue-500" />
-                                <span className="text-2xl font-bold text-blue-500">
-                                    {formatCurrency(item.price_discount)}
-                                </span>
-                            </div>
-                            {item.price_discount < item.price && (
+                            {item.price_discount ? (
+                                // Hiển thị khi price_discount có giá trị
+                                <div className="flex items-center gap-2">
+                                    <Tag className="w-6 h-6 text-blue-500" />
+                                    <span className="text-2xl font-bold text-blue-500">
+                                        {formatCurrency(item.price_discount)}
+                                    </span>
+                                </div>
+                            ) : (
+                                // Hiển thị khi không có price_discount
+                                <div className="flex items-center gap-2">
+                                    <Tag className="w-6 h-6 text-blue-500" />
+                                    <span className="text-2xl font-bold text-blue-500">
+                                        {formatCurrency(item.price)}
+                                    </span>
+                                </div>
+                            )}
+
+                            {item.price_discount && item.price_discount < item.price && (
                                 <>
                                     <span className="text-base text-gray-500 line-through">
                                         {formatCurrency(item.price)}
@@ -435,6 +446,7 @@ export const Courses = () => {
                                 </>
                             )}
                         </div>
+
                     </div>
                 </Link>
             </div>

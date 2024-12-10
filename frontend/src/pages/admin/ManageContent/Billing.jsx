@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Wallet,
     ShoppingCart,
@@ -9,11 +9,17 @@ import {
     FileDown,
     Search,
     CreditCard,
-    Calendar,
-    Mail,
-    BookOpen,
-    GraduationCap
 } from "lucide-react";
+
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 
 import {
     SidebarInset,
@@ -55,9 +61,32 @@ export default function Billing() {
 
     const [searchTerm, setSearchTerm] = useState("");
     const [filterCriteria, setFilterCriteria] = useState('all');
-    const [dateRange, setDateRange] = useState({ from: '', to: '' });
+    // const [dateRange, setDateRange] = useState({ from: '', to: '' });
 
     const [purchases, setPurchases] = useState([]);
+
+
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8; // Số item trên mỗi trang
+
+    // Thêm các hàm xử lý phân trang
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const filteredPurchases = purchases.filter(purchase => {
+        const matchesSearch = purchase.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            purchase.course_name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus = filterCriteria === 'all' || purchase.status === filterCriteria;
+        return matchesSearch && matchesStatus;
+    });
+
+    // Tính toán số trang và dữ liệu hiển thị
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredPurchases.slice(indexOfFirstItem, indexOfLastItem);
+    const totalFilteredPages = Math.ceil(filteredPurchases.length / itemsPerPage);
 
     useEffect(() => {
 
@@ -69,16 +98,16 @@ export default function Billing() {
                     }
                 })
                 setPurchases(res.data.data);
-                console.log(res.data.data);
+                // console.log(res.data.data);
 
-            } catch (error) {
-                console.log(error);
+            } catch {
+                // console.log(error);
             }
         }
 
         fetchOrders();
 
-    }, [])
+    }, [API_KEY, API_URL])
 
 
     const filterOptions = [
@@ -103,12 +132,7 @@ export default function Billing() {
     //     return new Date(dateString).toLocaleDateString('vi-VN');
     // };
 
-    const filteredPurchases = purchases.filter(purchase => {
-        const matchesSearch = purchase.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            purchase.course_name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = filterCriteria === 'all' || purchase.status === filterCriteria;
-        return matchesSearch && matchesStatus;
-    });
+
 
     const stats = {
         totalRevenue: filteredPurchases.reduce((sum, p) =>
@@ -253,7 +277,7 @@ export default function Billing() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {filteredPurchases.map((purchase, index) => (
+                                        {currentItems.map((purchase, index) => (
                                             <TableRow key={purchase.id} className="hover:bg-gray-50">
                                                 <TableCell className="text-center">{index + 1}</TableCell>
                                                 <TableCell className="text-center">
@@ -312,6 +336,97 @@ export default function Billing() {
                             </div>
                         </CardContent>
                     </Card>
+                    <div className="mt-6 flex items-center justify-between">
+                        <Pagination>
+                            <PaginationContent>
+                                {totalFilteredPages > 1 && (
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                        />
+                                    </PaginationItem>
+                                )}
+
+                                {totalFilteredPages <= 7 ? (
+                                    // Hiển thị tất cả các trang nếu tổng số trang <= 7
+                                    [...Array(totalFilteredPages)].map((_, index) => (
+                                        <PaginationItem key={index + 1}>
+                                            <PaginationLink
+                                                onClick={() => handlePageChange(index + 1)}
+                                                isActive={currentPage === index + 1}
+                                            >
+                                                {index + 1}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    ))
+                                ) : (
+                                    // Phần code cho trường hợp > 7 trang giữ nguyên
+                                    <>
+                                        <PaginationItem>
+                                            <PaginationLink
+                                                onClick={() => handlePageChange(1)}
+                                                isActive={currentPage === 1}
+                                            >
+                                                1
+                                            </PaginationLink>
+                                        </PaginationItem>
+
+                                        {currentPage > 3 && (
+                                            <PaginationItem>
+                                                <PaginationEllipsis />
+                                            </PaginationItem>
+                                        )}
+
+                                        {[...Array(3)].map((_, idx) => {
+                                            let pageNumber;
+                                            if (currentPage <= 3) pageNumber = idx + 2;
+                                            else if (currentPage >= totalFilteredPages - 2) pageNumber = totalFilteredPages - 4 + idx;
+                                            else pageNumber = currentPage - 1 + idx;
+
+                                            if (pageNumber > 1 && pageNumber < totalFilteredPages) {
+                                                return (
+                                                    <PaginationItem key={pageNumber}>
+                                                        <PaginationLink
+                                                            onClick={() => handlePageChange(pageNumber)}
+                                                            isActive={currentPage === pageNumber}
+                                                        >
+                                                            {pageNumber}
+                                                        </PaginationLink>
+                                                    </PaginationItem>
+                                                );
+                                            }
+                                            return null;
+                                        })}
+
+                                        {currentPage < totalFilteredPages - 2 && (
+                                            <PaginationItem>
+                                                <PaginationEllipsis />
+                                            </PaginationItem>
+                                        )}
+
+                                        <PaginationItem>
+                                            <PaginationLink
+                                                onClick={() => handlePageChange(totalFilteredPages)}
+                                                isActive={currentPage === totalFilteredPages}
+                                            >
+                                                {totalFilteredPages}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    </>
+                                )}
+
+                                {totalFilteredPages > 1 && (
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalFilteredPages}
+                                        />
+                                    </PaginationItem>
+                                )}
+                            </PaginationContent>
+                        </Pagination>
+                    </div>
                 </div>
             </SidebarInset>
         </SidebarProvider>
