@@ -1,4 +1,4 @@
-import { Checkbox } from "@/components/ui/checkbox";
+// import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -21,49 +21,19 @@ const notify = (message, type) => {
     }
 }
 
-const useLocalStorage = (key) => {
-
-
-    const [isChecked, setIsChecked] = useState(() => {
-        return localStorage.getItem(key) !== null;
-    });
-
-    const setChecked = (value) => {
-        if (value) {
-            localStorage.setItem(key, "1");
-        } else {
-            localStorage.removeItem(key);
-        }
-        setIsChecked(value);
-    };
-
-    useEffect(() => {
-        const checkStorage = () => {
-            const exists = localStorage.getItem(key) !== null;
-            if (isChecked !== exists) {
-                setIsChecked(exists);
-            }
-        };
-
-        const interval = setInterval(checkStorage, 100);
-        return () => clearInterval(interval);
-    }, [key, isChecked]);
-
-    return [isChecked, setChecked];
-};
 
 // eslint-disable-next-line react/prop-types
 export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const { course_id } = useParams();
-    const [isCheckedCO, setCheckedCO] = useLocalStorage("FA-CO");
-    const [isCheckedCU, setCheckedCU] = useLocalStorage("FA-CU");
+    // const [isCheckedCO, setCheckedCO] = useLocalStorage("FA-CO");
+    // const [isCheckedCU, setCheckedCU] = useLocalStorage("FA-CU");
     const [loading, setLoading] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
 
-    const access_token = localStorage.getItem('access_token');
+    // const access_token = localStorage.getItem('access_token');
 
     const handleNavigate = (path) => {
         if (location.pathname === path) {
