@@ -1404,19 +1404,39 @@ export const Detail = () => {
                                                                     <div className="mt-auto pt-3 border-t border-gray-100">
                                                                         <div className="flex items-center justify-between">
                                                                             <div className="flex flex-col">
-                                                                                <div className="flex items-center gap-2">
+                                                                                {course.price_discount != null && course.price_discount > 0 ? (
+                                                                                    // Hiển thị khi price_discount hợp lệ
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <p className="font-bold text-xl text-black-700">
+                                                                                            {formatCurrency(course.price_discount)}
+                                                                                        </p>
+                                                                                        {course.price_discount < course.price && (
+                                                                                            <span className="inline-flex items-center justify-center bg-purple-50 px-2 py-1 rounded-full text-xs font-medium text-yellow-500 whitespace-nowrap">
+                                                                                                -{Math.round((course.price - course.price_discount) / course.price * 100)}%
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                ) : course.price && course.price > 0 ? (
+                                                                                    // Hiển thị giá gốc khi price_discount không hợp lệ
                                                                                     <p className="font-bold text-xl text-black-700">
-                                                                                        {formatCurrency(course.price_discount)}
+                                                                                        {formatCurrency(course.price)}
                                                                                     </p>
-                                                                                    <span className="inline-flex items-center justify-center bg-purple-50 px-2 py-1 rounded-full text-xs font-medium text-yellow-500 whitespace-nowrap">
-                                                                                        -{Math.round((course.price - course.price_discount) / course.price * 100)}%
-                                                                                    </span>
-                                                                                </div>
-                                                                                <p className="text-sm line-through text-gray-400">
-                                                                                    {formatCurrency(course.price)}
-                                                                                </p>
+                                                                                ) : (
+                                                                                    // Hiển thị thông báo nếu không có giá trị hợp lệ
+                                                                                    <p className="font-bold text-xl text-gray-500">
+                                                                                        Giá không khả dụng
+                                                                                    </p>
+                                                                                )}
+
+                                                                                {course.price_discount != null && course.price_discount > 0 && course.price_discount < course.price && (
+                                                                                    // Hiển thị giá gạch ngang nếu price_discount nhỏ hơn price
+                                                                                    <p className="text-sm line-through text-gray-400">
+                                                                                        {formatCurrency(course.price)}
+                                                                                    </p>
+                                                                                )}
                                                                             </div>
                                                                         </div>
+
                                                                     </div>
 
 
@@ -1742,18 +1762,38 @@ export const Detail = () => {
                                                         <div className="mt-auto pt-3 border-t border-gray-100">
                                                             <div className="flex items-center justify-between">
                                                                 <div className="flex flex-col">
-                                                                    <div className="flex items-center gap-2">
+                                                                    {course.price_discount != null && course.price_discount > 0 ? (
+                                                                        // Hiển thị khi price_discount hợp lệ
+                                                                        <div className="flex items-center gap-2">
+                                                                            <p className="font-bold text-xl text-black-700">
+                                                                                {formatCurrency(course.price_discount)}
+                                                                            </p>
+                                                                            {course.price_discount < course.price && (
+                                                                                <span className="inline-flex items-center justify-center bg-purple-50 px-2 py-1 rounded-full text-xs font-medium text-yellow-300 whitespace-nowrap">
+                                                                                    -{Math.round((course.price - course.price_discount) / course.price * 100)}%
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    ) : course.price && course.price > 0 ? (
+                                                                        // Hiển thị giá gốc khi price_discount không hợp lệ
                                                                         <p className="font-bold text-xl text-black-700">
-                                                                            {formatCurrency(course.price_discount)}
+                                                                            {formatCurrency(course.price)}
                                                                         </p>
-                                                                        <span className="inline-flex items-center justify-center bg-purple-50 px-2 py-1 rounded-full text-xs font-medium text-yellow-300 whitespace-nowrap">
-                                                                            -{Math.round((course.price - course.price_discount) / course.price * 100)}%
-                                                                        </span>
-                                                                    </div>
-                                                                    <p className="text-sm line-through text-gray-400">
-                                                                        {formatCurrency(course.price)}
-                                                                    </p>
+                                                                    ) : (
+                                                                        // Hiển thị thông báo nếu không có giá trị hợp lệ
+                                                                        <p className="font-bold text-xl text-gray-500">
+                                                                            Giá không khả dụng
+                                                                        </p>
+                                                                    )}
+
+                                                                    {course.price_discount != null && course.price_discount > 0 && course.price_discount < course.price && (
+                                                                        // Hiển thị giá gạch ngang nếu price_discount nhỏ hơn price
+                                                                        <p className="text-sm line-through text-gray-400">
+                                                                            {formatCurrency(course.price)}
+                                                                        </p>
+                                                                    )}
                                                                 </div>
+
                                                                 <button
                                                                     onClick={() => handleLike(course.course_id)}
                                                                     className={`flex items-center gap-2 mt-6 px-2 py-1 rounded-full transition-all duration-300 ${favorites[course.course_id]
