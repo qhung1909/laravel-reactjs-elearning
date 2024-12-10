@@ -743,7 +743,7 @@ export const InstructorLesson = () => {
                                         <div className="bg-yellow-400 mr-3 px-1 rounded-full">
                                             <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
                                         </div>
-                                        <p className="font-semibold text-base">Bài học của tôi</p>
+                                        <p className="font-semibold text-base">Khóa học của tôi</p>
                                     </Link>
                                 </li>
                                 <li className="mb-3">
@@ -882,7 +882,7 @@ export const InstructorLesson = () => {
                                                                             <div className="bg-yellow-400  mr-3 px-1 rounded-full">
                                                                                 <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
                                                                             </div>
-                                                                            <p className="font-semibold text-base">Bài học của tôi</p>
+                                                                            <p className="font-semibold text-base">Khóa học của tôi</p>
                                                                         </Link>
                                                                     </li>
                                                                     <li className="mb-3">
