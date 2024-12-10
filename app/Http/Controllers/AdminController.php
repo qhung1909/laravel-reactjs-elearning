@@ -9,6 +9,7 @@ use Aws\S3\S3Client;
 use App\Models\Coupon;
 use App\Models\Course;
 use App\Models\Enroll;
+use App\Models\Lesson;
 use App\Models\Content;
 use App\Models\Category;
 use App\Models\OrderDetail;
@@ -691,6 +692,22 @@ class AdminController extends Controller
             Quiz::where('course_id', $courseId) 
                 ->update(['status' => 'published']); 
     
+            $slugify = function($text) {
+                $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+                $text = preg_replace('~[^-\w]+~', '', $text);
+                $text = trim($text, '-');
+                $text = preg_replace('~-+~', '-', $text);
+                return strtolower($text);
+            };
+    
+            Lesson::create([
+                'course_id' => $courseId,
+                'name' => $course->name,
+                'slug' => $slugify($course->name),
+                'content' => $course->description, 
+                'description' => $course->description
+            ]);
+    
             Mail::to($instructor->email)
                 ->queue(new CourseStatusNotification($course, null, 'approved'));
     
@@ -698,7 +715,7 @@ class AdminController extends Controller
     
             return response()->json([ 
                 'success' => true, 
-                'message' => 'Đã duyệt, xuất bản tất cả nội dung và gửi thông báo cho giảng viên' 
+                'message' => 'Đã duyệt, xuất bản tất cả nội dung và tạo bài học mới từ khóa học' 
             ]); 
         } catch (\Exception $e) { 
             DB::rollback(); 
