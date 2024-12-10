@@ -2,13 +2,15 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
-class MyEvent implements ShouldBroadcast
+class MyEvent implements ShouldBroadcastNow  
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -25,11 +27,19 @@ class MyEvent implements ShouldBroadcast
 
     public function broadcastOn()
     {
+        Log::info('Broadcasting to channel', [
+            'channel' => 'private-user.' . $this->userId,
+            'data' => [
+                'message' => $this->message,
+                'userId' => $this->userId,
+                'notificationId' => $this->notificationId
+            ]
+        ]);
         return new PrivateChannel('user.' . $this->userId);
     }
-
     public function broadcastAs()
     {
+        Log::info('broadcastAs called', ['name' => 'notification']);
         return 'notification';
     }
 
