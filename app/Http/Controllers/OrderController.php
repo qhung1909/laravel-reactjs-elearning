@@ -87,31 +87,17 @@ class OrderController extends Controller
                 'orderDetails.course.user:user_id,name'
             ]);
 
-            if ($request->has('search')) {
-                $search = $request->search;
-                $query->whereHas('user', function($q) use ($search) {
-                    $q->where('email', 'like', "%{$search}%");
-                })
-                ->orWhereHas('orderDetails.course', function($q) use ($search) {
-                    $q->where('title', 'like', "%{$search}%");
-                });
-            }
-
-            if ($request->has('status')) {
-                $query->where('status', $request->status);
-            }
-
             $orders = $query->get();
 
             $formattedOrders = $orders->map(function ($order) {
                 $orderDetail = $order->orderDetails->first();
-                
+
                 if (!$orderDetail) {
                     return null;
                 }
 
                 $course = $orderDetail->course;
-                
+
                 if (!$course) {
                     return null;
                 }
@@ -126,15 +112,16 @@ class OrderController extends Controller
                     'total_price' => number_format($order->total_price) . ' đ'
                 ];
             })
-            ->filter()
-            ->values();
+                ->filter(function ($order) {
+                    return $order['status'] === 'success';
+                })
+                ->values();
 
             return response()->json([
                 'status' => true,
                 'message' => 'Order history retrieved successfully',
                 'data' => $formattedOrders
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
