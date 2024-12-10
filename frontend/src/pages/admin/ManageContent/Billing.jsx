@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Wallet,
     ShoppingCart,
@@ -9,11 +9,17 @@ import {
     FileDown,
     Search,
     CreditCard,
-    Calendar,
-    Mail,
-    BookOpen,
-    GraduationCap
 } from "lucide-react";
+
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 
 import {
     SidebarInset,
@@ -47,34 +53,62 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import * as XLSX from 'xlsx';
+import axios from 'axios';
 
 export default function Billing() {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
+
     const [searchTerm, setSearchTerm] = useState("");
     const [filterCriteria, setFilterCriteria] = useState('all');
-    const [dateRange, setDateRange] = useState({ from: '', to: '' });
+    // const [dateRange, setDateRange] = useState({ from: '', to: '' });
 
-    const [purchases, setPurchases] = useState([
-        {
-            id: 1,
-            email: 'user@example.com',
-            courseName: 'React Fundamentals',
-            teacher: 'John Doe',
-            purchaseDate: '2024-12-09',
-            status: 'success',
-            total: 299000,
-            paymentMethod: 'MOMO',
-        },
-        {
-            id: 2,
-            email: 'another@example.com',
-            courseName: 'Vue Basics',
-            teacher: 'Jane Smith',
-            purchaseDate: '2024-12-08',
-            status: 'failed',
-            total: 199000,
-            paymentMethod: 'VNPay',
-        },
-    ]);
+    const [purchases, setPurchases] = useState([]);
+
+
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8; // Số item trên mỗi trang
+
+    // Thêm các hàm xử lý phân trang
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const filteredPurchases = purchases.filter(purchase => {
+        const matchesSearch = purchase.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            purchase.course_name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus = filterCriteria === 'all' || purchase.status === filterCriteria;
+        return matchesSearch && matchesStatus;
+    });
+
+    // Tính toán số trang và dữ liệu hiển thị
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredPurchases.slice(indexOfFirstItem, indexOfLastItem);
+    const totalFilteredPages = Math.ceil(filteredPurchases.length / itemsPerPage);
+
+    useEffect(() => {
+
+        const fetchOrders = async () => {
+            try {
+                const res = await axios.get(`${API_URL}/admin/orders`, {
+                    headers: {
+                        'x-api-secret': `${API_KEY}`
+                    }
+                })
+                setPurchases(res.data.data);
+                // console.log(res.data.data);
+
+            } catch {
+                // console.log(error);
+            }
+        }
+
+        fetchOrders();
+
+    }, [API_KEY, API_URL])
+
 
     const filterOptions = [
         { value: 'all', label: 'Tất cả trạng thái' },
@@ -82,6 +116,11 @@ export default function Billing() {
         { value: 'failed', label: 'Thất bại' },
     ];
 
+
+    const cleanPrice = (priceString) => {
+        // Remove commas, spaces, and "đ" symbol, then convert to number
+        return Number(priceString.replace(/[,\s₫đ]/g, ''));
+    };
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
@@ -89,23 +128,20 @@ export default function Billing() {
         }).format(amount);
     };
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('vi-VN');
-    };
+    // const formatDate = (dateString) => {
+    //     return new Date(dateString).toLocaleDateString('vi-VN');
+    // };
 
-    const filteredPurchases = purchases.filter(purchase => {
-        const matchesSearch = purchase.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            purchase.courseName.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = filterCriteria === 'all' || purchase.status === filterCriteria;
-        return matchesSearch && matchesStatus;
-    });
+
 
     const stats = {
         totalRevenue: filteredPurchases.reduce((sum, p) =>
-            p.status === 'success' ? sum + p.total : sum, 0),
+            p.status === 'success' ? sum + cleanPrice(p.total_price) : sum, 0),
         totalOrders: filteredPurchases.length,
         successfulOrders: filteredPurchases.filter(p => p.status === 'success').length,
     };
+
+
 
     const exportToExcel = () => {
         const excelData = [
@@ -113,12 +149,12 @@ export default function Billing() {
             ...filteredPurchases.map((purchase, index) => [
                 index + 1,
                 purchase.email,
-                purchase.courseName,
-                purchase.teacher,
-                formatDate(purchase.purchaseDate),
-                purchase.paymentMethod,
+                purchase.course_name,
+                purchase.teacher_name,
+                purchase.purchase_date,
+                purchase.payment_method,
                 purchase.status === 'success' ? 'Thành công' : 'Thất bại',
-                formatCurrency(purchase.total)
+                formatCurrency(cleanPrice(purchase.total_price))
             ])
         ];
 
@@ -241,7 +277,7 @@ export default function Billing() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {filteredPurchases.map((purchase, index) => (
+                                        {currentItems.map((purchase, index) => (
                                             <TableRow key={purchase.id} className="hover:bg-gray-50">
                                                 <TableCell className="text-center">{index + 1}</TableCell>
                                                 <TableCell className="text-center">
@@ -251,23 +287,23 @@ export default function Billing() {
                                                 </TableCell>
                                                 <TableCell className="text-left">
                                                     <div className="flex items-center gap-2">
-                                                        {purchase.courseName}
+                                                        {purchase.course_name}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-center">
+                                                    <div className="flex items-center justify-center gap-2 whitespace-nowrap">
+                                                        {purchase.teacher_name}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-center">
                                                     <div className="flex items-center justify-center gap-2">
-                                                        {purchase.teacher}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="text-center">
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        {formatDate(purchase.purchaseDate)}
+                                                        {purchase.purchase_date}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-center">
                                                     <div className="flex items-center justify-center gap-2">
                                                         {purchase.paymentMethod === 'MOMO' ? (
-                                                            <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-red-100 text-red-800 flex items-center gap-1.5">
+                                                            <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-pink-100 text-pink-600 flex items-center gap-1.5">
                                                                 <CreditCard className="h-3.5 w-3.5" />
                                                                 MOMO
                                                             </span>
@@ -280,7 +316,7 @@ export default function Billing() {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="flex justify-center">
-                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${purchase.status === 'success'
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 whitespace-nowrap ${purchase.status === 'success'
                                                         ? 'bg-green-100 text-green-800'
                                                         : 'bg-red-100 text-red-800'
                                                         }`}>
@@ -292,7 +328,7 @@ export default function Billing() {
                                                         {purchase.status === 'success' ? 'Thành công' : 'Thất bại'}
                                                     </span>
                                                 </TableCell>
-                                                <TableCell className="text-center font-medium">{formatCurrency(purchase.total)}</TableCell>
+                                                <TableCell className="text-center font-medium">{formatCurrency(cleanPrice(purchase.total_price))}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
@@ -300,6 +336,97 @@ export default function Billing() {
                             </div>
                         </CardContent>
                     </Card>
+                    <div className="mt-6 flex items-center justify-between">
+                        <Pagination>
+                            <PaginationContent>
+                                {totalFilteredPages > 1 && (
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                        />
+                                    </PaginationItem>
+                                )}
+
+                                {totalFilteredPages <= 7 ? (
+                                    // Hiển thị tất cả các trang nếu tổng số trang <= 7
+                                    [...Array(totalFilteredPages)].map((_, index) => (
+                                        <PaginationItem key={index + 1}>
+                                            <PaginationLink
+                                                onClick={() => handlePageChange(index + 1)}
+                                                isActive={currentPage === index + 1}
+                                            >
+                                                {index + 1}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    ))
+                                ) : (
+                                    // Phần code cho trường hợp > 7 trang giữ nguyên
+                                    <>
+                                        <PaginationItem>
+                                            <PaginationLink
+                                                onClick={() => handlePageChange(1)}
+                                                isActive={currentPage === 1}
+                                            >
+                                                1
+                                            </PaginationLink>
+                                        </PaginationItem>
+
+                                        {currentPage > 3 && (
+                                            <PaginationItem>
+                                                <PaginationEllipsis />
+                                            </PaginationItem>
+                                        )}
+
+                                        {[...Array(3)].map((_, idx) => {
+                                            let pageNumber;
+                                            if (currentPage <= 3) pageNumber = idx + 2;
+                                            else if (currentPage >= totalFilteredPages - 2) pageNumber = totalFilteredPages - 4 + idx;
+                                            else pageNumber = currentPage - 1 + idx;
+
+                                            if (pageNumber > 1 && pageNumber < totalFilteredPages) {
+                                                return (
+                                                    <PaginationItem key={pageNumber}>
+                                                        <PaginationLink
+                                                            onClick={() => handlePageChange(pageNumber)}
+                                                            isActive={currentPage === pageNumber}
+                                                        >
+                                                            {pageNumber}
+                                                        </PaginationLink>
+                                                    </PaginationItem>
+                                                );
+                                            }
+                                            return null;
+                                        })}
+
+                                        {currentPage < totalFilteredPages - 2 && (
+                                            <PaginationItem>
+                                                <PaginationEllipsis />
+                                            </PaginationItem>
+                                        )}
+
+                                        <PaginationItem>
+                                            <PaginationLink
+                                                onClick={() => handlePageChange(totalFilteredPages)}
+                                                isActive={currentPage === totalFilteredPages}
+                                            >
+                                                {totalFilteredPages}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    </>
+                                )}
+
+                                {totalFilteredPages > 1 && (
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalFilteredPages}
+                                        />
+                                    </PaginationItem>
+                                )}
+                            </PaginationContent>
+                        </Pagination>
+                    </div>
                 </div>
             </SidebarInset>
         </SidebarProvider>

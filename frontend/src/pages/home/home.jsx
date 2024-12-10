@@ -7,7 +7,8 @@ import { CategoriesContext } from "../context/categoriescontext";
 import { CoursesContext } from "../context/coursescontext";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog"
 import { UserContext } from "../context/usercontext";
-
+import { Button } from "@/components/ui/button";
+Button
 export const Home = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
@@ -61,7 +62,7 @@ export const Home = () => {
     ) :
         Array.isArray(hotProducts) && hotProducts.length > 0 ? (
             hotProducts.map((item, index) => (
-                <div className="product md:mb-10 xl:mb-0 text-center md:text-left" key={index}>
+                <div className="product md:mb-10 xl:mb-0 text-center md:text-left group hover:shadow-xl p-2" key={index}>
                     <div className="product-box">
                         <Link to={`/detail/${item.slug}`}>
                             <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
@@ -90,6 +91,15 @@ export const Home = () => {
                             {formatCurrency(item.price_discount)}
                         </div>
                     </div>
+                    <div className="h-10 overflow-hidden mt-1">
+                        <div className="transform -translate-y-10 group-hover:translate-y-0 transition-transform duration-300 ease-out">
+                            <Link to={`/detail/${item.slug}`}>
+                                <Button className="w-full bg-primary hover:bg-primary/90">
+                                    Xem ngay
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             ))
         ) : (
@@ -112,7 +122,7 @@ export const Home = () => {
     ) :
         Array.isArray(topViewedProduct) && topViewedProduct.length > 0 ? (
             topViewedProduct.map((item, index) => (
-                <div className="product md:mb-10 xl:mb-0 text-center md:text-left" key={index}>
+                <div className="product md:mb-10 xl:mb-0 text-center md:text-left group hover:shadow-xl p-2" key={index}>
                     <div className="product-box">
                         <Link to={`/detail/${item.slug}`}>
                             <div className="product-box-img xl:h-[200px] lg:h-[150px] md:h-[135px] sm:h-[180px] h-[150px] flex justify-center items-center">
@@ -139,6 +149,15 @@ export const Home = () => {
                         </div>
                         <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
                             {formatCurrency(item.price_discount)}
+                        </div>
+                    </div>
+                    <div className="h-10 overflow-hidden mt-1">
+                        <div className="transform -translate-y-10 group-hover:translate-y-0 transition-transform duration-300 ease-out">
+                            <Link to={`/detail/${item.slug}`}>
+                                <Button className="w-full bg-primary hover:bg-primary/90">
+                                    Xem ngay
+                                </Button>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -256,7 +275,7 @@ export const Home = () => {
 
 
             {/* Thân trang - sản phẩm được mua nhiều */}
-            <div className="home-page bestseller sm:max-w-screen-md md:max-w-screen-lg lg:max-w-screen-xl mx-auto xl:px-3 lg:px-5 px-3 xl:text-left">
+            <div className="home-page bestseller sm:max-w-screen-md md:max-w-screen-lg lg:max-w-screen-xl mx-auto xl:px-3 lg:px-5 px-3 xl:text-left h-[530px]">
                 <div className="bestseller-box lg:mt-20 md:mt-14 sm:mt-10 mt-6">
                     {/* bestseller - title */}
                     <div className="bestseller-box-title xl:mb-10 sm:mb-5 mb-3 lg:text-[46px] md:text-[40px] sm:text-[30px] text-[28px] md:text-left text-center font-title ">
@@ -276,7 +295,7 @@ export const Home = () => {
                 </div>
             </div>
             {/* Thân trang - sản phẩm chất lượng cao */}
-            <div className="home-page bestquality sm:max-w-screen-md md:max-w-screen-lg lg:max-w-screen-xl mx-auto xl:px-3 lg:px-5 px-3 xl:text-left">
+            <div className="home-page bestquality sm:max-w-screen-md md:max-w-screen-lg lg:max-w-screen-xl mx-auto xl:px-3 lg:px-5 px-3 xl:text-left my-5 h-[530px]">
                 <div className="bestquality-box xl:mt-20 lg:mt-10 sm:mt-2 mt-6">
                     {/* bestseller - title */}
                     <div className="bestquality-box-title xl:mb-10 sm:mb-5 mb-3 lg:text-[46px] md:text-[40px] sm:text-[30px] text-[28px] md:text-left text-center  font-title">
@@ -413,7 +432,7 @@ export const Home = () => {
                 </div>
             </div>
             {/* Thân trang - blog */}
-            <div className="home-page homeblog xl:max-w-screen-xl lg:max-w-screen-lg mx-auto py-5">
+            <div className="home-page homeblog xl:max-w-screen-xl lg:max-w-screen-lg mx-auto py-5 ">
                 <div className="homeblog-box grid grid-cols-1 lg:grid-cols-2 gap-3">
                     <div className="homeblog-box-img">
                         <div className="homeblog-box-img-main relative md:flex md:justify-center">
