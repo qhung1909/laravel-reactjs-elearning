@@ -573,12 +573,27 @@ export const Courses = () => {
                         </div>
                     </div>
                     <div className="md:block hidden ml-auto flex flex-col items-end mt-3">
-                        <p className="text-sm sm:text-lg font-bold text-blue-600 mb-1">
-                            {formatCurrency(item.price_discount)}
-                        </p>
-                        <p className="text-sm text-gray-400 line-through mb-1 text-end">
-                            {formatCurrency(item.price)}
-                        </p>
+                        <div>
+                            {item.price_discount != null && item.price_discount > 0 ? (
+                                <p className="text-sm sm:text-lg font-bold text-blue-600 mb-1">
+                                    {formatCurrency(item.price_discount)}
+                                </p>
+                            ) : item.price && item.price > 0 ? (
+                                <p className="text-sm sm:text-lg font-bold text-blue-600 mb-1">
+                                    {formatCurrency(item.price)}
+                                </p>
+                            ) : (
+                                <p className="text-sm sm:text-lg font-bold text-gray-500 mb-1">
+                                    Giá không khả dụng
+                                </p>
+                            )}
+                            {item.price_discount != null && item.price_discount > 0 && item.price_discount < item.price && (
+                                <p className="text-sm text-gray-400 line-through mb-1 text-end">
+                                    {formatCurrency(item.price)}
+                                </p>
+                            )}
+                        </div>
+
                         <div className="flex-col items-center text-xs text-gray-500 space-y-1 ">
                             <span className="flex justify-end">
                                 {totalReviews[item.course_id] || 0} lượt đánh giá
