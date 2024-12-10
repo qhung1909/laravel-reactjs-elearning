@@ -811,6 +811,11 @@ export const Curriculum = () => {
 
     return (
         <>
+            {loading && (
+                <div className='loading'>
+                    <div className='loading-spin'></div>
+                </div>
+            )}
 
             <header className="fixed top-0 w-full z-10 bg-yellow-500 py-3">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
