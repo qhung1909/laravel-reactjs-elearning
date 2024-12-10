@@ -1250,4 +1250,46 @@ class TeacherController extends Controller
             ], 500);
         }
     }
+
+    public function updatePriceDiscount(Request $request)
+    {
+        $validated = $request->validate([
+            'course_id' => 'required|exists:courses,course_id', 
+            'price_discount' => 'required|numeric|min:0|max:100', 
+        ]);
+
+        $course = Course::find($validated['course_id']);
+
+        $course->price_discount = $validated['price_discount'];
+        $course->save();
+
+        return response()->json([
+            'message' => 'Price discount updated successfully.',
+            'course' => $course
+        ]);
+    }
+
+    public function deletePriceDiscount(Request $request)
+    {
+        $validated = $request->validate([
+            'course_id' => 'required|exists:courses,course_id', 
+        ]);
+
+        $course = Course::find($validated['course_id']);
+
+        if (!$course) {
+            return response()->json([
+                'message' => 'Course not found.'
+            ], 404);
+        }
+
+        $course->price_discount = null; 
+        $course->save();
+
+        return response()->json([
+            'message' => 'Price discount deleted successfully.',
+            'course' => $course
+        ]);
+    }
+
 }
