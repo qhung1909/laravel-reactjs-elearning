@@ -491,9 +491,6 @@ class TeacherController extends Controller
         }
     }
 
-
-
-
     public function updateTitleContent(Request $request, $contentId)
     {
         try {
@@ -503,7 +500,7 @@ class TeacherController extends Controller
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-    
+
             $content = Content::where('content_id', $contentId)->first();
             if (!$content) {
                 return response()->json([
@@ -511,22 +508,7 @@ class TeacherController extends Controller
                     'message' => 'Không tìm thấy nội dung'
                 ], 404);
             }
-    
-            if (!$request->has('title_contents')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Dữ liệu title_contents không được để trống'
-                ], 422);
-            }
-    
-            $titleContents = $request->input('title_contents');
-            if (!is_array($titleContents)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'title_contents phải là một mảng dữ liệu'
-                ], 422);
-            }
-    
+
             $validator = Validator::make($request->all(), [
                 'title_contents' => 'required|array',
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
@@ -535,56 +517,59 @@ class TeacherController extends Controller
                 'title_contents.*.document_link' => 'nullable|string',
                 'title_contents.*.description' => 'nullable|string'
             ], [
+                'title_contents.required' => 'Vui lòng cung cấp dữ liệu cần cập nhật',
+                'title_contents.array' => 'Dữ liệu không đúng định dạng',
                 'title_contents.*.body_content.required' => 'Nội dung không được để trống',
+                'title_contents.*.title_content_id.required' => 'ID không được để trống',
+                'title_contents.*.title_content_id.exists' => 'ID không tồn tại',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Dữ liệu không hợp lệ',
+                    'message' => $validator->errors()->first(),
                     'errors' => $validator->errors()
                 ], 422);
             }
-    
+
             DB::beginTransaction();
             try {
-                foreach ($titleContents as $index => $titleContentData) {
+                foreach ($request->title_contents as $index => $titleContentData) {
                     $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
                         ->where('content_id', $contentId)
                         ->first();
-    
+
                     if (!$titleContent) {
-                        throw new \Exception("TitleContent ID {$titleContentData['title_content_id']} không thuộc về nội dung này");
+                        throw new \Exception("ID {$titleContentData['title_content_id']} không hợp lệ");
                     }
-    
+
                     $updateData = [
                         'body_content' => $titleContentData['body_content'],
                         'document_link' => $titleContentData['document_link'] ?? $titleContent->document_link,
                         'description' => $titleContentData['description'] ?? $titleContent->description,
                         'status' => 'draft'
                     ];
-    
+
                     if ($request->hasFile("title_contents.{$index}.video_link")) {
                         $videoFile = $request->file("title_contents.{$index}.video_link");
-    
                         $videoValidator = Validator::make(['video' => $videoFile], [
                             'video' => 'file|mimes:mp4,mov,avi,wmv|max:102400'
                         ], [
                             'video.max' => 'File video không được vượt quá 100MB'
                         ]);
-    
+
                         if ($videoValidator->fails()) {
                             throw new \Exception($videoValidator->errors()->first('video'));
                         }
-    
+
                         $updateData['video_link'] = $this->handleVideoUpload($videoFile, $titleContent);
                     } else {
                         $updateData['video_link'] = $titleContent->video_link;
                     }
-    
+
                     $titleContent->update($updateData);
                 }
-    
+
                 DB::commit();
                 return response()->json([
                     'success' => true,
