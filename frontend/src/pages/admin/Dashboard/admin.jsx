@@ -548,43 +548,7 @@ export default function Dashboard() {
                                 <div className="absolute top-5 right-0 h-44 w-44 translate-x-8 translate-y-[-50%] rounded-full bg-gray-900" />
                             </Card>
                         </div>
-
-
                     </div>
-
-                    <div>
-
-                        {/* Danh sách giao dịch */}
-                        <section className="mt-6 bg-white p-5 rounded-lg shadow-md">
-                            <h2 className="text-2xl font-semibold mb-4">Danh sách giao dịch</h2>
-                            <table className="min-w-full table-auto">
-                                <thead className="bg-gray-200">
-                                    <tr>
-                                        <th className="px-2 py-2 text-center">Mã giao dịch</th>
-                                        <th className="px-4 py-2 text-center">Ngày</th>
-                                        <th className="px-4 py-2 text-center">Số tiền</th>
-                                        <th className="px-4 py-2 text-center">Trạng thái</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {transactions.map(transaction => (
-                                        <tr key={transaction.id}>
-                                            <td className="px-2 py-2 text-center">{transaction.id}</td>
-                                            <td className="px-4 py-2 text-center">{transaction.date}</td>
-                                            <td className="px-4 py-2 text-center">{transaction.amount.toLocaleString()} VND</td>
-                                            <td className={`px-4 py-2 text-center ${transaction.status === 'Success' ? 'text-green-600' : 'text-yellow-600'}`}>
-                                                {transaction.status}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </section>
-
-
-
-                    </div>
-
                 </div>
 
 
