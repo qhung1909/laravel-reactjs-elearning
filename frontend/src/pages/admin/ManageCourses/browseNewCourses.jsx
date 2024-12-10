@@ -1041,6 +1041,10 @@ export default function BrowseNewCourses() {
                                                             <label className="font-semibold mr-2">Giá:</label>
                                                             <p>{formatCurrency(activeCourse.price)}</p>
                                                         </div>
+                                                        <div className="flex items-center">
+                                                            <label className="font-semibold mr-2">Giá giảm:</label>
+                                                            <p>{formatCurrency(activeCourse.price_discount)}</p>
+                                                        </div>
                                                         <div className="flex items-start">
                                                             <label className="font-semibold mr-2 mt-1">Yêu cầu tiên quyết:</label>
                                                             <p className="break-words">{activeCourse.prerequisites}</p>
