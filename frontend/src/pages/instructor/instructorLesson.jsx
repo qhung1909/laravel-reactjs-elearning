@@ -36,6 +36,12 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Card, CardContent } from '@/components/ui/card';
 
 import { Badge } from "@/components/ui/badge"
@@ -118,7 +124,7 @@ export const InstructorLesson = () => {
         }
     }
 
-    // hàm xử lý giá bài học
+    // hàm xử lý giá giảm bài học
     const handleChangePrice = async (courseId, priceDiscount) => {
         if (priceDiscount === "" || priceDiscount === null) {
             notify('Vui lòng nhập giá giảm', "error");
@@ -151,6 +157,42 @@ export const InstructorLesson = () => {
 
             if (response.status === 200 || response.status === 201) {
                 notify('Cập nhật giá thành công', "success");
+                window.location.reload();
+            }
+
+        } catch (error) {
+            if (error.response) {
+                const message = error.response.data?.message || 'Có lỗi xảy ra khi cập nhật giá';
+                notify(message, "error");
+            } else if (error.request) {
+                notify('Không thể kết nối đến server', "error");
+            } else {
+                notify('Có lỗi xảy ra, vui lòng thử lại', "error");
+            }
+            console.error('Error updating price:', error);
+        }
+    };
+
+    // hàm xử lý xóa giá giảm bài học
+    const handleDeleteChangePrice = async (courseId) => {
+        try {
+            const response = await axios.delete(
+                `${API_URL}/teacher/update/courses/price-discount`,
+
+                {
+                    headers: {
+                        'x-api-secret': `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
+                    },
+                    params: {
+                        course_id: courseId, // Gửi course_id qua URL params
+                    },
+                }
+            );
+
+            if (response.status === 200 || response.status === 201) {
+                notify('Xóa giá giảm thành công', "success");
+                window.location.reload();
             }
 
         } catch (error) {
@@ -385,11 +427,11 @@ export const InstructorLesson = () => {
                                     Bạn có thể tùy chỉnh trạng thái hoặc giá bài học tại đây
                                 </p>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <Card>
-                                        <CardContent className="pt-6">
+                                        <CardContent className="p-3">
                                             <div className="space-y-4">
-                                                <div className="flex md:flex-col space-y-1 items-center justify-between">
+                                                <div className="flex space-y-1 items-center justify-between">
                                                     <span className="text-sm font-medium text-gray-700">Trạng thái hiện tại:</span>
                                                     <span className="text-sm italic text-gray-600 bg-gray-100 px-3 py-1 rounded-full" >
                                                         {getStatusVietnamese(item.status)}
@@ -405,24 +447,31 @@ export const InstructorLesson = () => {
                                     </Card>
 
                                     <Card>
-                                        <CardContent className="pt-6">
-                                            <div className="space-y-4">
-                                                <div className="flex md:flex-col space-y-1 items-center justify-between">
-                                                    <span className="text-sm font-medium text-gray-700">Giá gốc:</span>
-                                                    <span className="text-sm italic text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                                                        {formatCurrency(item.price)}
-                                                    </span>
-                                                </div>
+                                        <CardContent className="p-3">
+                                            <div className="space-y-5">
                                                 <div className="space-y-2">
-                                                    <div className="flex md:flex-col space-y-1 items-center justify-between">
-                                                        <span className="text-sm font-medium text-gray-700">Giá giảm:</span>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-sm font-medium text-gray-700">Giá gốc:</span>
                                                         <span className="text-sm italic text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                                                            {formatCurrency(item.price_discount)}
+                                                            {formatCurrency(item.price)}
                                                         </span>
                                                     </div>
-                                                    <label htmlFor="">
-                                                        Nhập giá giảm:
-                                                    </label>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-sm font-medium text-gray-700">Giá giảm:</span>
+                                                        <div className="flex gap-1">
+                                                            <span className="text-sm italic text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                                                                {formatCurrency(item.price_discount)}
+                                                            </span>
+                                                            <button className="font-bold text-lg" onClick={() => handleDeleteChangePrice(item.course_id)}>
+                                                                x
+                                                            </button>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <span className="text-sm font-medium text-gray-700">Nhập giá giảm:</span>
                                                     <Input
                                                         className="w-full border-gray-200 focus:border-gray-400 focus:ring-gray-400"
                                                         placeholder="Nhập giá mới..."
@@ -881,22 +930,78 @@ export const InstructorLesson = () => {
                         <div className="md:p-6 p-4 max-lg:h-screen">
 
                             {/* Thêm khóa học - xuất */}
-                            <div className="flex gap-2 items-center justify-center md:justify-end">
+                            <div className="flex justify-between">
+                                <div className="">
+                                    <Accordion type="single" collapsible className="bg-white px-5 rounded shadow">
+                                        <AccordionItem value="item-1">
+                                            <AccordionTrigger className="text-base py-2">Ghi chú cho trang</AccordionTrigger>
+                                            <AccordionContent className="max-w-[600px]">
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {/* Cột trái: Chú thích trạng thái */}
+                                                    <div>
+                                                        <h3 className="text-base font-semibold mb-1">Trạng thái</h3>
+                                                        <ul className="space-y-3">
+                                                            {[
+                                                                { status: "published", description: "Hiển thị trên hệ thống" },
+                                                                { status: "failed", description: "Cập nhật thất bại" },
+                                                                { status: "hide", description: "Đã ẩn khỏi hệ thống" },
+                                                                { status: "draft", description: "Bài nháp" },
+                                                                { status: "pending", description: "Đang chờ phê duyệt" },
+                                                                { status: "expired", description: "Hết hạn hiển thị" },
+                                                                { status: "need_schedule", description: "Cần bổ sung lịch trình" },
+                                                            ].map(({ status, description }) => (
+                                                                <li key={status} className="flex items-center space-x-4">
+                                                                    {/* Vòng tròn màu */}
+                                                                    <span
+                                                                        className={`w-4 h-4 rounded-full ${getStatusBadge(
+                                                                            status
+                                                                        )}`}
+                                                                    ></span>
+                                                                    {/* Giải thích */}
+                                                                    <span className="text-sm text-gray-700">{description}</span>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
 
-                                <div className="">
-                                    <Button onClick={addCourse} className="bg-gradient-to-br from-blue-500 to-purple-800 text-white">Thêm khóa học</Button>
+                                                    {/* Cột phải: Ghi chú thay đổi */}
+                                                    <div>
+                                                        <h3 className="text-base font-semibold mb-1">Giá bài học</h3>
+                                                        <p className="text-sm text-gray-700">
+                                                            - Nếu muốn thay đổi trạng thái bài học, vui lòng nhấn vào nút{" "}
+                                                            <span className="font-semibold text-yellow-500">Sửa</span> và sửa trong giao diện bên cột trái
+                                                        </p>
+                                                        <p className="text-sm text-gray-700">
+                                                            - Nếu muốn cập nhật giá giảm và gốc của bài học nhấn nút{" "}
+                                                            <span className="font-semibold text-green-500">Sửa</span> và sửa trong giao diện cột phải
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    </Accordion>
+
+
                                 </div>
-                                <div className="">
-                                    <Button className="duration-300  bg-white text-black border hover:bg-gray-100" onClick={exportToExcel}>
-                                        <div className="">
-                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/download.svg" className="w-5" alt="" />
-                                        </div>
-                                        <div className="">
-                                            <p>Xuất</p>
-                                        </div>
-                                    </Button>
+                                <div className="flex gap-2 items-center justify-center md:justify-end">
+
+
+                                    <div className="">
+                                        <Button onClick={addCourse} className="bg-gradient-to-br from-blue-500 to-purple-800 text-white">Thêm khóa học</Button>
+                                    </div>
+                                    <div className="">
+                                        <Button className="duration-300  bg-white text-black border hover:bg-gray-100" onClick={exportToExcel}>
+                                            <div className="">
+                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/download.svg" className="w-5" alt="" />
+                                            </div>
+                                            <div className="">
+                                                <p>Xuất</p>
+                                            </div>
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
+
 
                             {/* tìm kiếm */}
                             <div className=" flex justify-center p-3 md:p-0 lg:my-5 my-3">
