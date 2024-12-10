@@ -492,6 +492,8 @@ class TeacherController extends Controller
     }
 
 
+
+
     public function updateTitleContent(Request $request, $contentId)
     {
         try {
@@ -519,7 +521,7 @@ class TeacherController extends Controller
                 'title_contents' => 'nullable|array',
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
                 'title_contents.*.body_content' => 'required|string',
-                'title_contents.*.video_link' => 'nullable',  // Allow both file and null
+                'title_contents.*.video_link' => 'nullable',
                 'title_contents.*.document_link' => 'nullable|string',
                 'title_contents.*.description' => 'nullable|string'
             ], [
@@ -576,7 +578,7 @@ class TeacherController extends Controller
                             throw new \Exception($videoValidator->errors()->first('video'));
                         }
     
-                        Log::info('Processing video upload', [
+                        Log::info('Processing new video upload', [
                             'original_name' => $videoFile->getClientOriginalName(),
                             'size' => $videoFile->getSize(),
                             'mime_type' => $videoFile->getMimeType()
@@ -587,7 +589,8 @@ class TeacherController extends Controller
                             'video_url' => $updateData['video_link']
                         ]);
                     } else {
-                        // Keep existing video_link if no new file is uploaded
+                        // If video_link exists in request but is empty/null, keep existing
+                        // If video_link doesn't exist in request, keep existing
                         $updateData['video_link'] = $titleContent->video_link;
                     }
     
@@ -625,9 +628,8 @@ class TeacherController extends Controller
                 'message' => 'Lỗi: ' . $e->getMessage()
             ], 500);
         }
-    
-    
     }
+    
 
     public function deleteTitleContent($titleContentId)
     {
