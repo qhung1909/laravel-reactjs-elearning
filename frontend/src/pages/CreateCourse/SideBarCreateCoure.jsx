@@ -209,25 +209,44 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
         }
     };
 
+
+    const [selectedItem, setSelectedItem] = useState(() => {
+        if (location.pathname.includes('course-overview')) return 'overview';
+        if (location.pathname.includes('curriculum')) return 'curriculum';
+        return '';
+    });
+
     return (
         <div className="w-3/12 mr-4 hidden lg:block">
             <div className="mx-3 my-5">
                 <div className="px-5">
                     <h2 className="font-medium">Tạo nội dung của bạn</h2>
-                    <div className="flex items-center space-x-2 my-4 ml-2">
-                        {/* <Checkbox checked={isCheckedCO} onCheckedChange={setCheckedCO} disabled /> */}
-                        <label className="cursor-pointer">
-                            <div onClick={() => handleNavigate(`/course/manage/${course_id}/course-overview`)}>
-                                Trang tổng quan khóa học
-                            </div>
+                    <div
+                        className={`flex items-center space-x-2 my-4 ml-2 p-2 rounded-lg cursor-pointer transition-all duration-200
+            ${selectedItem === 'overview'
+                                ? 'bg-yellow-100 text-yellow-800 font-medium shadow-sm'
+                                : 'hover:bg-gray-100'}`}
+                        onClick={() => {
+                            setSelectedItem('overview');
+                            handleNavigate(`/course/manage/${course_id}/course-overview`);
+                        }}
+                    >
+                        <label className="cursor-pointer w-full">
+                            <div>Trang tổng quan khóa học</div>
                         </label>
                     </div>
-                    <div className="flex items-center space-x-2 mt-4 mb-8  ml-2">
-                        {/* <Checkbox checked={isCheckedCU} onCheckedChange={setCheckedCU} disabled /> */}
-                        <label className="cursor-pointer">
-                            <div onClick={() => handleNavigate(`/course/manage/${course_id}/curriculum`)}>
-                                Chương trình giảng dạy
-                            </div>
+                    <div
+                        className={`flex items-center space-x-2 mt-4 mb-8 ml-2 p-2 rounded-lg cursor-pointer transition-all duration-200
+            ${selectedItem === 'curriculum'
+                                ? 'bg-yellow-100 text-yellow-800 font-medium shadow-sm'
+                                : 'hover:bg-gray-100'}`}
+                        onClick={() => {
+                            setSelectedItem('curriculum');
+                            handleNavigate(`/course/manage/${course_id}/curriculum`);
+                        }}
+                    >
+                        <label className="cursor-pointer w-full">
+                            <div>Chương trình giảng dạy</div>
                         </label>
                     </div>
                 </div>

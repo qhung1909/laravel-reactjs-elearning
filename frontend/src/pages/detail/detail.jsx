@@ -1801,14 +1801,29 @@ export const Detail = () => {
                                     />
                                 </div>
                                 <div className="flex items-center justify-between mb-1">
-                                    <span className="text-3xl font-bold">
-                                        {formatCurrency(detail.price_discount)}
-                                    </span>
-                                    <span className="text-lg text-gray-500 line-through">
-                                        {formatCurrency(detail.price)}
-                                    </span>
+                                    {detail.price_discount !== null && detail.price_discount > 0 ? (
+                                        <span className="text-3xl font-bold">
+                                            {formatCurrency(detail.price_discount)}
+                                        </span>
+                                    ) : detail.price && detail.price > 0 ? (
+                                        <span className="text-3xl font-bold">
+                                            {formatCurrency(detail.price)}
+                                        </span>
+                                    ) : (
+                                        <span className="text-3xl font-bold text-gray-500">
+                                            Giá không khả dụng
+                                        </span>
+                                    )}
+
+                                    {detail.price_discount !== null && detail.price_discount > 0 && detail.price_discount < detail.price && (
+                                        // Hiển thị giá gạch ngang nếu price_discount nhỏ hơn price
+                                        <span className="text-lg text-gray-500 line-through">
+                                            {formatCurrency(detail.price)}
+                                        </span>
+                                    )}
                                 </div>
-                                <div className="flex justify-between items-center"> {/* Dùng flex để căn chỉnh các phần tử theo hàng ngang */}
+
+                                <div className="flex justify-between items-center">
                                     <div>
                                         <p className="text-red-500 mb-1">
                                             Giảm {percentDiscount}%

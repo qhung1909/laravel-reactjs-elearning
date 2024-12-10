@@ -88,49 +88,25 @@ export const CourseOverview = () => {
         const date = e.target.value;
         setSelectedDate(date);
 
-        // Tính ngày backup (ngày sau ngày cuối cùng của khai giảng online)
         if (date) {
             const selectedDateObj = new Date(date);
             const backupDateObj = new Date(selectedDateObj);
-            backupDateObj.setDate(backupDateObj.getDate() + 1); // Thêm 1 ngày để làm ngày backup
+            backupDateObj.setDate(backupDateObj.getDate() + 7); // Thêm 7 ngày để làm ngày backup
 
             // Cập nhật ngày backup
-            const backupDateStr = backupDateObj.toISOString().split('T')[0]; // Định dạng lại ngày
+            const backupDateStr = backupDateObj.toISOString().split('T')[0];
             setBackupDate(backupDateStr);
         }
     };
 
 
 
-    // console.log(isUpdated, 'clickUpdate-courseOverview');
-    // const exportToJsonLog = () => {
-    //     const logData = {
-    //         courseTitle, // Tiêu đề khóa học
-    //         courseDescriptionText, // Mô tả khóa học
-    //         currency, // Tiền tệ
-    //         price, // Giá khóa học
-    //         selectedLanguage, // Ngôn ngữ
-    //         selectedCategory, // Thể loại
-    //         courseImage, // Hình ảnh khóa học
-    //         selectedExtension, // Phần mở rộng khóa học
-    //         selectedDate, // Ngày học nếu chọn online
-    //         backupDate
-    //     };
-
-    //     // Chuyển đối tượng dữ liệu thành JSON
-    //     const jsonLog = JSON.stringify(logData, null, 2);
-
-    //     // Xuất ra log dưới dạng JSON
-    //     console.log(jsonLog);
-    // };
 
     useEffect(() => {
-        // Đặt isUpdated thành true khi mới vào trang
         if (!initialCourseTitle && !initialCourseDescriptionText) {
             setIsUpdated(true);
         }
         if (!isUpdated) {
-            // Khi trang load hoặc chuyển component, không hiển thị thông báo.
             toast.dismiss();
         }
     }, [initialCourseTitle, initialCourseDescriptionText, isUpdated]);
@@ -191,22 +167,6 @@ export const CourseOverview = () => {
         }
     };
 
-    // useEffect(() => {
-    //     const isCourseTitleValid = courseTitle.trim() !== "";
-    //     const isDescriptionValid = wordCount >= 200;
-    //     const isCurrencyValid = currency !== "";
-    //     const isPriceValid = price.trim() !== "";
-    //     const isLanguageSelected = selectedLanguage !== "";
-    //     const isCategorySelected = selectedCategory !== "";
-    //     const isImageUploaded = courseImage !== null;
-
-    //     if (isCourseTitleValid && isDescriptionValid && isCurrencyValid && isPriceValid && isLanguageSelected && isCategorySelected && isImageUploaded) {
-    //         localStorage.setItem('FA-CO', 'done');
-    //     } else {
-    //         localStorage.removeItem('FA-CO');
-    //     }
-    // }, [courseTitle, wordCount, courseDescriptionText, currency, price, selectedLanguage, selectedCategory, courseImage]);
-
     useEffect(() => {
         const fetchCategories = async () => {
             toast.dismiss();
@@ -224,7 +184,6 @@ export const CourseOverview = () => {
         };
         fetchCategories()
     }, [API_KEY, API_URL])
-    // console.log(course_id);
 
     // Fetch dữ liệu ban đầu từ API
     useEffect(() => {
@@ -257,10 +216,8 @@ export const CourseOverview = () => {
                     setCourseImage(courseData.img || null);
                     setInitialCourseImage(courseData.img || null);
 
-                    // Thêm logic xử lý cho phần mở rộng và ngày
                     if (courseData.launch_date) {
                         setSelectedExtension("online");
-                        // Chuyển đổi định dạng ngày từ API sang định dạng HTML date input
                         const formattedLaunchDate = new Date(courseData.launch_date).toISOString().split('T')[0];
                         const formattedBackupDate = courseData.backup_launch_date ?
                             new Date(courseData.backup_launch_date).toISOString().split('T')[0] : '';
@@ -351,7 +308,6 @@ export const CourseOverview = () => {
         formData.append('description', courseDescriptionText);
         formData.append('title', courseTitle.trim());
         formData.append('currency', currency);
-        // formData.append('language', selectedLanguage);
 
         // Add launch dates if extension is online
 
