@@ -88,7 +88,7 @@ export default function Dashboard() {
     const fetchRevenueData = async () => {
         try {
             const response = await fetch(`${API_URL}/admin/revenue-chart`, {
-                headers: {  
+                headers: {
                     'x-api-secret': API_KEY
                 }
             });
@@ -346,7 +346,7 @@ export default function Dashboard() {
                                                 <div className="flex justify-between items-center">
                                                     <div className="">
                                                         <p className='text-2xl font-semibold text-black'>
-                                                            {overview.admin_revenue}
+                                                            {formatCurrency(overview.admin_revenue)}
                                                         </p>
                                                         <p className='font-semibold text-gray-700 mt-3'>Lợi nhuận</p>
                                                     </div>

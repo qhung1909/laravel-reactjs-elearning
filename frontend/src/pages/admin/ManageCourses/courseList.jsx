@@ -444,7 +444,17 @@ export default function CourseList() {
                                                 style={{ width: '20%' }}
                                             >
                                                 <div className="flex items-center justify-center gap-2">
-                                                    Giá
+                                                    Giá gốc
+                                                    {getSortIcon('price')}
+                                                </div>
+                                            </th>
+                                            <th
+                                                className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
+                                                onClick={() => handleSort('price')}
+                                                style={{ width: '20%' }}
+                                            >
+                                                <div className="flex items-center justify-center gap-2">
+                                                    Giá giảm
                                                     {getSortIcon('price')}
                                                 </div>
                                             </th>
@@ -480,6 +490,9 @@ export default function CourseList() {
                                                         </td>
                                                         <td className="py-4 px-6">
                                                             <div className="bg-gray-300 rounded animate-pulse" style={{ width: '60px', height: '20px' }} />
+                                                        </td>
+                                                        <td className="py-4 px-6">
+                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
                                                         </td>
                                                         <td className="py-4 px-6">
                                                             <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
@@ -526,6 +539,11 @@ export default function CourseList() {
                                                     <td className="py-4 px-6  text-center">
                                                         <span className="text-sm text-gray-900">
                                                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-4 px-6  text-center">
+                                                        <span className="text-sm text-gray-900">
+                                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price_discount)}
                                                         </span>
                                                     </td>
                                                     <td className="py-4 px-6">
