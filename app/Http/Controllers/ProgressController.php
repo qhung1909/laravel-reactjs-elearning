@@ -32,17 +32,6 @@ class ProgressController extends Controller
         $userId = auth()->id();
         $contentId = $request->input('content_id');
         $courseId = $request->input('course_id');
-        $isAutoComplete = $request->input('is_auto_complete', false);
-
-        $content = TitleContent::where('content_id', $contentId)->first();
-
-        if ($content && $content->document_link && !$content->video_link && !$isAutoComplete) {
-            return response()->json([
-                'message' => 'Document viewed started',
-                'progress_percent' => $this->getProgressPercent($userId, $courseId),
-                'requires_timeout' => true
-            ]);
-        }
 
         $quiz = Quiz::where('content_id', $contentId)->first();
 
