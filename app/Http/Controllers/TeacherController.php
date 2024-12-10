@@ -556,13 +556,14 @@ class TeacherController extends Controller
                         $updateData = [
                             'body_content' => $titleContentData['body_content'],
                             'document_link' => array_key_exists('document_link', $titleContentData) 
-                                ? $titleContentData['document_link'] 
+                                ? ($titleContentData['document_link'] !== '' ? $titleContentData['document_link'] : null)
                                 : $titleContent->document_link,
                             'description' => array_key_exists('description', $titleContentData) 
-                                ? $titleContentData['description'] 
+                                ? ($titleContentData['description'] !== '' ? $titleContentData['description'] : null)
                                 : $titleContent->description,
                             'status' => 'draft'
                         ];
+                        
 
 
                         if (isset($titleContentData['video_link'])) {
