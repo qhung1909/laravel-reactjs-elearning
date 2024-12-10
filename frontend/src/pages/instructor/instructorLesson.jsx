@@ -130,7 +130,10 @@ export const InstructorLesson = () => {
             notify('Giá giảm không hợp lệ', "error");
             return;
         }
-
+        console.log('Payload gửi đến API:', {
+            course_id: courseId,
+            price_discount: discountPrice,
+        });
         try {
             const response = await axios.put(
                 `${API_URL}/teacher/update/courses/price-discount`,
@@ -423,8 +426,8 @@ export const InstructorLesson = () => {
                                                 </div>
                                                 <div className="flex justify-center">
                                                     <Button
-                                                    onClick={()=>handleChangePrice(item.courseId, priceDiscount)}
-                                                    className="w-full bg-gray-900 hover:bg-gray-800 text-white">
+                                                        onClick={() => handleChangePrice(item.course_id, priceDiscount)}
+                                                        className="w-full bg-gray-900 hover:bg-gray-800 text-white">
                                                         Đổi giá
                                                     </Button>
                                                 </div>
