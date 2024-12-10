@@ -267,7 +267,7 @@ export default function Billing() {
                                                 <TableCell className="text-center">
                                                     <div className="flex items-center justify-center gap-2">
                                                         {purchase.paymentMethod === 'MOMO' ? (
-                                                            <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-red-100 text-red-800 flex items-center gap-1.5">
+                                                            <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-pink-100 text-pink-600 flex items-center gap-1.5">
                                                                 <CreditCard className="h-3.5 w-3.5" />
                                                                 MOMO
                                                             </span>
