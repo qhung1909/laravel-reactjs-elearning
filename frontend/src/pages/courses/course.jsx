@@ -519,13 +519,31 @@ export const Courses = () => {
                         </div>
                         <div className="md:hidden flex flex-col md:items-end">
                             <div className="flex flex-row md:flex-col justify-between md:justify-end gap-1 mt-1">
-                                <p className="text-sm sm:text-lg font-bold text-blue-600">
-                                    {formatCurrency(item.price_discount)}
-                                </p>
-                                <p className="text-sm text-gray-400 line-through flex">
-                                    {formatCurrency(item.price)}
-                                </p>
+                                {item.price_discount !== null && item.price_discount > 0 ? (
+                                    // Hiển thị giá trị price_discount nếu không phải NULL và lớn hơn 0
+                                    <p className="text-sm sm:text-lg font-bold text-blue-600">
+                                        {formatCurrency(item.price_discount)}
+                                    </p>
+                                ) : item.price && item.price > 0 ? (
+                                    // Hiển thị giá trị price nếu price_discount là NULL hoặc không hợp lệ
+                                    <p className="text-sm sm:text-lg font-bold text-blue-600">
+                                        {formatCurrency(item.price)}
+                                    </p>
+                                ) : (
+                                    // Hiển thị thông báo mặc định nếu không có giá trị hợp lệ
+                                    <p className="text-sm sm:text-lg font-bold text-gray-500">
+                                        Giá không khả dụng
+                                    </p>
+                                )}
+
+                                {item.price_discount !== null && item.price_discount > 0 && item.price_discount < item.price && (
+                                    // Hiển thị giá gạch ngang nếu price_discount nhỏ hơn price
+                                    <p className="text-sm text-gray-400 line-through flex">
+                                        {formatCurrency(item.price)}
+                                    </p>
+                                )}
                             </div>
+
                             <div className="flex flex-row md:flex-col gap-2 justify-between items-center text-xs text-gray-500 space-y-1 ">
                                 <span className="flex justify-end">
                                     {totalReviews[item.course_id] || 0} lượt đánh giá
