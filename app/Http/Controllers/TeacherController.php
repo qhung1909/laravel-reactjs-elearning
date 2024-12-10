@@ -492,10 +492,11 @@ class TeacherController extends Controller
     }
 
 
+
+
     public function updateTitleContent(Request $request, $contentId)
     {
         try {
-            // Check authentication
             if (!Auth::check()) {
                 return response()->json([
                     'success' => false,
@@ -503,7 +504,6 @@ class TeacherController extends Controller
                 ], 401);
             }
 
-            // Find content
             $content = Content::where('content_id', $contentId)->first();
             if (!$content) {
                 return response()->json([
@@ -512,23 +512,20 @@ class TeacherController extends Controller
                 ], 404);
             }
 
-            // Log request data
             Log::info('Received update request', [
                 'content_id' => $contentId,
                 'request_data' => $request->all()
             ]);
 
-            // Validate request
             $validator = Validator::make($request->all(), [
                 'title_contents' => 'nullable|array',
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
                 'title_contents.*.body_content' => 'required|string',
-                'title_contents.*.video_link' => 'nullable|file|mimes:mp4,mov,avi,wmv|max:102400',
+                'title_contents.*.video_link' => 'nullable',
                 'title_contents.*.document_link' => 'nullable|string',
                 'title_contents.*.description' => 'nullable|string'
             ], [
                 'title_contents.*.body_content.required' => 'Nội dung không được để trống',
-                'title_contents.*.video_link.max' => 'File video không được vượt quá 100MB'
             ]);
 
             if ($validator->fails()) {
@@ -545,14 +542,12 @@ class TeacherController extends Controller
 
             DB::beginTransaction();
             try {
-                // Process each title content
                 foreach ($request->title_contents as $index => $titleContentData) {
                     Log::info('Processing title content', [
                         'index' => $index,
                         'title_content_id' => $titleContentData['title_content_id']
                     ]);
 
-                    // Find and verify title content
                     $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
                         ->where('content_id', $contentId)
                         ->first();
@@ -561,51 +556,44 @@ class TeacherController extends Controller
                         throw new \Exception("TitleContent ID {$titleContentData['title_content_id']} không thuộc về nội dung này");
                     }
 
-                    // Prepare update data
                     $updateData = [
                         'body_content' => $titleContentData['body_content'],
+                        'document_link' => $titleContentData['document_link'] ?? $titleContent->document_link,
+                        'description' => $titleContentData['description'] ?? $titleContent->description,
                         'status' => 'draft'
                     ];
 
-                    // Handle document link
-                    if (array_key_exists('document_link', $titleContentData)) {
-                        $updateData['document_link'] = $titleContentData['document_link'];
-                    }
-
-                    // Handle description
-                    if (array_key_exists('description', $titleContentData)) {
-                        $updateData['description'] = $titleContentData['description'];
-                    }
-
-                    // Handle video upload
                     if ($request->hasFile("title_contents.{$index}.video_link")) {
                         $videoFile = $request->file("title_contents.{$index}.video_link");
-                        Log::info('Processing video upload', [
+
+                        $videoValidator = Validator::make(['video' => $videoFile], [
+                            'video' => 'file|mimes:mp4,mov,avi,wmv|max:102400'
+                        ], [
+                            'video.max' => 'File video không được vượt quá 100MB'
+                        ]);
+
+                        if ($videoValidator->fails()) {
+                            throw new \Exception($videoValidator->errors()->first('video'));
+                        }
+
+                        Log::info('Processing new video upload', [
                             'original_name' => $videoFile->getClientOriginalName(),
                             'size' => $videoFile->getSize(),
                             'mime_type' => $videoFile->getMimeType()
                         ]);
 
-                        try {
-                            $updateData['video_link'] = $this->handleVideoUpload($videoFile, $titleContent);
-                            Log::info('Video upload successful', [
-                                'video_url' => $updateData['video_link']
-                            ]);
-                        } catch (\Exception $e) {
-                            Log::error('Video upload failed', [
-                                'error' => $e->getMessage(),
-                                'trace' => $e->getTraceAsString()
-                            ]);
-                            throw $e;
-                        }
-                    } elseif (array_key_exists('video_link', $titleContentData)) {
-                        $updateData['video_link'] = $titleContentData['video_link'];
+                        $updateData['video_link'] = $this->handleVideoUpload($videoFile, $titleContent);
+                        Log::info('Video upload successful', [
+                            'video_url' => $updateData['video_link']
+                        ]);
+                    } else {
+
+                        $updateData['video_link'] = $titleContent->video_link;
                     }
 
-                    // Update title content
                     Log::info('Updating title content', [
                         'title_content_id' => $titleContent->title_content_id,
-                        'update_data' => $updateData
+                        'update_data' => array_diff_key($updateData, ['body_content' => ''])
                     ]);
 
                     $titleContent->update($updateData);
@@ -637,7 +625,6 @@ class TeacherController extends Controller
             ], 500);
         }
     }
-
 
 
     public function deleteTitleContent($titleContentId)
@@ -759,7 +746,6 @@ class TeacherController extends Controller
                 ]
             ]);
 
-            // Initialize S3 client
             $s3 = new S3Client([
                 'region'  => env('AWS_DEFAULT_REGION'),
                 'version' => 'latest',
@@ -777,7 +763,6 @@ class TeacherController extends Controller
                 'bucket' => env('AWS_BUCKET')
             ]);
 
-            // Delete old video if exists
             if ($titleContent->video_link) {
                 try {
                     $oldKey = str_replace(env('AWS_URL'), '', $titleContent->video_link);
@@ -796,7 +781,6 @@ class TeacherController extends Controller
                 }
             }
 
-            // Prepare new file info
             $filePath = $file->getRealPath();
             $contentId = $titleContent->content_id;
             $titleContentId = $titleContent->title_content_id;
@@ -810,7 +794,6 @@ class TeacherController extends Controller
                 's3_key' => $key
             ]);
 
-            // Determine content type
             $contentType = match ($extension) {
                 'mp4' => 'video/mp4',
                 'mov' => 'video/quicktime',
@@ -819,7 +802,6 @@ class TeacherController extends Controller
                 default => 'video/mp4',
             };
 
-            // Upload to S3
             try {
                 Log::info('Uploading to S3', [
                     'bucket' => env('AWS_BUCKET'),
