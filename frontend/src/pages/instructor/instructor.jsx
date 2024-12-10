@@ -394,7 +394,10 @@ export const Instructor = () => {
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger>
                                                         <div className="flex items-center">
-                                                            <p className="text-gray-600 text-sm">{instructor?.role}</p>
+                                                            <p className="text-gray-600 text-sm">
+                                                                {instructor?.role === "teacher" ? 'Giảng viên' : instructor?.role}
+                                                            </p>
+
                                                             <svg className="w-4 h-4 ml-1 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                                             </svg>
