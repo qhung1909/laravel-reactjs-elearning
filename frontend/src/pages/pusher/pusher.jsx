@@ -32,8 +32,9 @@ const echo = new Echo({
     broadcaster: 'pusher',
     key: import.meta.env.VITE_PUSHER_APP_KEY,
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
-    authEndpoint: 'http://localhost:8000/broadcasting/auth',
-    forceTLS: false,
+    forceTLS: true,
+    encrypted: true,
+    authEndpoint: 'http://localhost:8000/broadcasting/auth', // Sửa lại endpoint backend
     auth: {
         headers: {
             Accept: 'application/json',
@@ -57,53 +58,72 @@ const NotificationDropdown = ({ userId }) => {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-
+    
                 if (response.ok) {
-                    if (response.ok) {
-                        const data = await response.json();
-                        setNotifications(data.data.notifications);
-                    }
-                } else {
-                    console.error('Failed to fetch notifications');
+                    const data = await response.json();
+                    setNotifications(data.data.notifications);
                 }
             } catch (error) {
                 console.error('Error fetching notifications:', error);
             }
         };
-        const token = localStorage.getItem("access_token");
-        if (token && userId) {
-            fetchNotifications();
-        }
-
-
+    
         if (userId) {
+            const channelName = `user.${userId}`;
+            console.log('Attempting to subscribe to channel:', channelName);
+
+            console.log('Setting up realtime for user:', userId);
+            
             const channel = echo.private(`user.${userId}`);
-            channel.listen('.notification', (data) => {
-                if (data.userId === userId) {
-                    setNotifications((prevNotifications) => [
-                        {
-                            id: data.notificationId,
-                            message: typeof data.message === 'string' ? data.message : JSON.stringify(data.message),
-                            timestamp: data.timestamp,
-                            is_read: false
-                        },
-                        ...prevNotifications
-
-                    ]);
-                    toast('Bạn có thông báo mới! Kiểm tra hộp thư của bạn!', {
-                        duration: 2000,
-                        position: 'top-right',
-                        style: {
-                            border: '1px solid red',
-                            padding: '16px',
-                            color: '#fff',
-                            backgroundColor: '#ff4d4f',
-                        },
-                    });
-                }
+            
+            channel.subscribed(() => {
+                console.log('Successfully subscribed to private channel:', channelName);
+                console.log('Channel instance:', channel);
             });
-
+    
+    
+            channel.listen('.notification', (data) => { 
+                console.log('Notification event received:', data);
+                
+                if (!data.notificationId || !data.message) {
+                    console.error('Invalid notification data:', data);
+                    return;
+                }
+    
+                const newNotification = {
+                    id: data.notificationId,
+                    message: data.message,
+                    created_at: data.timestamp || new Date().toISOString(),
+                    is_read: false
+                };
+    
+                console.log('Formatted notification:', newNotification);
+    
+                setNotifications(prevNotifications => {
+                    console.log('Previous state:', prevNotifications);
+                    const exists = prevNotifications.some(n => n.id === newNotification.id);
+                    const newState = exists ? prevNotifications : [newNotification, ...prevNotifications];
+                    console.log('New state:', newState);
+                    return newState;
+                });
+    
+                toast('Bạn có thông báo mới! Kiểm tra hộp thư của bạn!', {
+                    duration: 2000,
+                    position: 'top-right',
+                    style: {
+                        border: '1px solid red',
+                        padding: '16px',
+                        color: '#fff',
+                        backgroundColor: '#ff4d4f',
+                    },
+                });
+            });
+    
+            fetchNotifications();
+    
             return () => {
+                console.log('Cleaning up channel for user:', userId);
+                channel.stopListening('.notification'); 
                 echo.leave(`user.${userId}`);
             };
         }

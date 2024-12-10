@@ -266,7 +266,6 @@ export const UserProvider = ({ children }) => {
                 }
             });
             if (response.status === 200) {
-                notify('Cập nhật thông tin thành công', 'success');
                 await fetchUserData();
             }
         } catch (error) {

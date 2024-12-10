@@ -484,20 +484,20 @@ export default function BrowseNewCourses() {
 
             const titlePrompt = `Đánh giá tiêu đề bài học sau:
     Tiêu đề: "${content.content}"
-    
+
     TIÊU CHÍ ĐÁNH GIÁ:
     1. Tính rõ ràng (0-5 điểm)
     - Dễ hiểu, ngắn gọn
     - Không mơ hồ hoặc gây nhầm lẫn
-    
+
     2. Tính phù hợp (0-5 điểm)
     - Phù hợp với nội dung bài học
     - Không chứa từ ngữ nhạy cảm/không phù hợp
-    
-    LƯU Ý: 
+
+    LƯU Ý:
     - Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho 0 điểm
     - Thang điểm: 0-10
-    
+
     YÊU CẦU PHẢN HỒI:
     Điểm: [0-10]
     Nhận xét chi tiết: [điểm mạnh và điểm yếu của tiêu đề]
@@ -506,20 +506,20 @@ export default function BrowseNewCourses() {
             const contentPrompt = `Đánh giá nội dung bài học sau:
     Nội dung: "${titleText}"
     Video link: "${video_link}"
-    
+
     TIÊU CHÍ ĐÁNH GIÁ:
     1. Nội dung (0-10 điểm)
     - Đầy đủ, chi tiết
     - Cấu trúc rõ ràng, dễ hiểu
-    
+
     2. Video/link (0-20 điểm)
     - Có video_link hợp lệ: +10 điểm
     - Link tài liệu phù hợp: +10 điểm
-    
+
     LƯU Ý:
     - Nếu phát hiện nội dung nhạy cảm/không phù hợp, cho 0 điểm
     - Thang điểm: 0-30
-    
+
     YÊU CẦU PHẢN HỒI:
     Điểm: [0-30]
     Đánh giá chi tiết:
@@ -545,20 +545,20 @@ export default function BrowseNewCourses() {
 
                 quizPrompt = `Đánh giá quiz sau:
     ${JSON.stringify(quizData, null, 2)}
-    
+
     TIÊU CHÍ ĐÁNH GIÁ:
     1. Số lượng câu hỏi (0-15 điểm)
     - 1-3 câu: 5 điểm
     - 4-6 câu: 10 điểm
     - 7+ câu: 15 điểm
-    
+
     2. Chất lượng câu hỏi (0-5 điểm)
     - Câu hỏi rõ ràng, logic
     - Đáp án hợp lý
-    
+
     3. Đa dạng hình thức (0-5 điểm)
     - Có nhiều dạng câu hỏi khác nhau
-    
+
     PHÂN TÍCH LỖI:
     Liệt kê các câu hỏi có vấn đề (nếu có):
     ${quizData[0].questions.map((q, index) => `
@@ -566,7 +566,7 @@ export default function BrowseNewCourses() {
     - Lỗi phát hiện: [liệt kê lỗi nếu có]
     - Đề xuất sửa: [gợi ý cách sửa]
     `).join('\n')}
-    
+
     YÊU CẦU PHẢN HỒI:
     Điểm: [0-25]
     Đánh giá chi tiết:
@@ -742,7 +742,7 @@ export default function BrowseNewCourses() {
             // Đánh giá tiêu đề và mô tả
             const titleAnalysis = await analyzeContentWithGPT(courseData.title, "tiêu đề");
             const descriptionAnalysis = await analyzeContentWithGPT(courseData.description, "mô tả");
-            const priceScore = courseData.price_discount > 0 ? 10 : 0;
+            const priceScore = courseData.price > 0 ? 10 : 0;
             const finalScore = titleAnalysis.score + descriptionAnalysis.score + priceScore;
 
             // 2. Load quiz cho tất cả content trước khi tính điểm
@@ -1039,7 +1039,7 @@ export default function BrowseNewCourses() {
                                                         </div>
                                                         <div className="flex items-center">
                                                             <label className="font-semibold mr-2">Giá:</label>
-                                                            <p>{formatCurrency(activeCourse.price_discount)}</p>
+                                                            <p>{formatCurrency(activeCourse.price)}</p>
                                                         </div>
                                                         <div className="flex items-start">
                                                             <label className="font-semibold mr-2 mt-1">Yêu cầu tiên quyết:</label>
