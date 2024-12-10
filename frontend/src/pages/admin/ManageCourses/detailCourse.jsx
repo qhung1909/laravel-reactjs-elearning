@@ -218,11 +218,9 @@ export default function DetailCourse() {
                 }
             } else {
                 console.error("Dữ liệu không phải là mảng hoặc không có thành công:", res.data);
-                toast.error("Dữ liệu không hợp lệ hoặc không thành công.");
             }
         } catch (error) {
             console.error("Lỗi khi lấy nội dung bài học:", error);
-            toast.error("Có lỗi xảy ra khi tải nội dung bài học.");
         }
     };
 
@@ -394,14 +392,14 @@ export default function DetailCourse() {
                                                         ))}
                                                     </div>
                                                 ) : (
-                                                    <p className="text-gray-500">Loading content...</p>
+                                                    <p className="text-gray-500">Đang tải nội dung...</p>
                                                 )}
                                             </AccordionContent>
                                         </AccordionItem>
                                     ))}
                                 </Accordion>
                             ) : (
-                                <p className="text-gray-500">Loading content...</p>
+                                <p className="text-gray-500">Đang tải nội dung...</p>
                             )}
                         </div>
 
