@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Wallet,
     ShoppingCart,
@@ -47,34 +47,39 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import * as XLSX from 'xlsx';
+import axios from 'axios';
 
 export default function Billing() {
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const API_URL = import.meta.env.VITE_API_URL;
+
     const [searchTerm, setSearchTerm] = useState("");
     const [filterCriteria, setFilterCriteria] = useState('all');
     const [dateRange, setDateRange] = useState({ from: '', to: '' });
 
-    const [purchases, setPurchases] = useState([
-        {
-            id: 1,
-            email: 'user@example.com',
-            courseName: 'React Fundamentals',
-            teacher: 'John Doe',
-            purchaseDate: '2024-12-09',
-            status: 'success',
-            total: 299000,
-            paymentMethod: 'MOMO',
-        },
-        {
-            id: 2,
-            email: 'another@example.com',
-            courseName: 'Vue Basics',
-            teacher: 'Jane Smith',
-            purchaseDate: '2024-12-08',
-            status: 'failed',
-            total: 199000,
-            paymentMethod: 'VNPay',
-        },
-    ]);
+    const [purchases, setPurchases] = useState([]);
+
+    useEffect(() => {
+
+        const fetchOrders = async () => {
+            try {
+                const res = await axios.get(`${API_URL}/admin/orders`, {
+                    headers: {
+                        'x-api-secret': `${API_KEY}`
+                    }
+                })
+                setPurchases(res.data.data);
+                console.log(res.data.data);
+
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        fetchOrders();
+
+    }, [])
+
 
     const filterOptions = [
         { value: 'all', label: 'Tất cả trạng thái' },
@@ -82,6 +87,11 @@ export default function Billing() {
         { value: 'failed', label: 'Thất bại' },
     ];
 
+
+    const cleanPrice = (priceString) => {
+        // Remove commas, spaces, and "đ" symbol, then convert to number
+        return Number(priceString.replace(/[,\s₫đ]/g, ''));
+    };
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
@@ -89,23 +99,25 @@ export default function Billing() {
         }).format(amount);
     };
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('vi-VN');
-    };
+    // const formatDate = (dateString) => {
+    //     return new Date(dateString).toLocaleDateString('vi-VN');
+    // };
 
     const filteredPurchases = purchases.filter(purchase => {
         const matchesSearch = purchase.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            purchase.courseName.toLowerCase().includes(searchTerm.toLowerCase());
+            purchase.course_name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterCriteria === 'all' || purchase.status === filterCriteria;
         return matchesSearch && matchesStatus;
     });
 
     const stats = {
         totalRevenue: filteredPurchases.reduce((sum, p) =>
-            p.status === 'success' ? sum + p.total : sum, 0),
+            p.status === 'success' ? sum + cleanPrice(p.total_price) : sum, 0),
         totalOrders: filteredPurchases.length,
         successfulOrders: filteredPurchases.filter(p => p.status === 'success').length,
     };
+
+
 
     const exportToExcel = () => {
         const excelData = [
@@ -113,12 +125,12 @@ export default function Billing() {
             ...filteredPurchases.map((purchase, index) => [
                 index + 1,
                 purchase.email,
-                purchase.courseName,
-                purchase.teacher,
-                formatDate(purchase.purchaseDate),
-                purchase.paymentMethod,
+                purchase.course_name,
+                purchase.teacher_name,
+                purchase.purchase_date,
+                purchase.payment_method,
                 purchase.status === 'success' ? 'Thành công' : 'Thất bại',
-                formatCurrency(purchase.total)
+                formatCurrency(cleanPrice(purchase.total_price))
             ])
         ];
 
@@ -251,17 +263,17 @@ export default function Billing() {
                                                 </TableCell>
                                                 <TableCell className="text-left">
                                                     <div className="flex items-center gap-2">
-                                                        {purchase.courseName}
+                                                        {purchase.course_name}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-center">
+                                                    <div className="flex items-center justify-center gap-2 whitespace-nowrap">
+                                                        {purchase.teacher_name}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-center">
                                                     <div className="flex items-center justify-center gap-2">
-                                                        {purchase.teacher}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="text-center">
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        {formatDate(purchase.purchaseDate)}
+                                                        {purchase.purchase_date}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-center">
@@ -280,7 +292,7 @@ export default function Billing() {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="flex justify-center">
-                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${purchase.status === 'success'
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 whitespace-nowrap ${purchase.status === 'success'
                                                         ? 'bg-green-100 text-green-800'
                                                         : 'bg-red-100 text-red-800'
                                                         }`}>
@@ -292,7 +304,7 @@ export default function Billing() {
                                                         {purchase.status === 'success' ? 'Thành công' : 'Thất bại'}
                                                     </span>
                                                 </TableCell>
-                                                <TableCell className="text-center font-medium">{formatCurrency(purchase.total)}</TableCell>
+                                                <TableCell className="text-center font-medium">{formatCurrency(cleanPrice(purchase.total_price))}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
