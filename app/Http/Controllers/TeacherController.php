@@ -509,12 +509,6 @@ class TeacherController extends Controller
                 ], 404);
             }
     
-            if (empty($request->title_contents)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Vui lòng cung cấp dữ liệu cần cập nhật'
-                ], 422);
-            }
     
             $validator = Validator::make($request->all(), [
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
