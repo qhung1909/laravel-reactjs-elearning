@@ -704,7 +704,6 @@ class AdminController extends Controller
                 'course_id' => $courseId,
                 'name' => $course->name,
                 'slug' => $slugify($course->name),
-                'content' => $course->description, 
                 'description' => $course->description
             ]);
     
