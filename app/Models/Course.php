@@ -67,4 +67,5 @@ class Course extends Model
     {
         return $this->hasMany(TitleContent::class, 'content_id', 'content_id');
     }
+
 }
