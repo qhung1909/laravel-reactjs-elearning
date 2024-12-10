@@ -97,9 +97,9 @@ export const InstructorSchedule = () => {
                 },
             });
             if (response.data && response.data.data) {
-                setAttendanceList(response.data.data); // Nếu data nằm trong response.data.data
+                setAttendanceList(response.data.data);
             } else {
-                setAttendanceList([]); // Trường hợp không có dữ liệu
+                setAttendanceList([]);
                 notify('Không có dữ liệu điểm danh', 'warning');
             }
         }
@@ -859,23 +859,22 @@ export const InstructorSchedule = () => {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="text-cyan-950 md:text-base text-xs w-20">STT</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs w-20 md:table-cell hidden">STT</TableHead>
                                             <TableHead className="text-cyan-950 md:text-base text-xs w-32">Trạng thái</TableHead>
                                             <TableHead className="text-cyan-950 md:text-base text-xs w-full sm:w-auto">Tên khóa học</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-base text-xs">Nội dung</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-base text-xs">Ngày bắt đầu</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs md:table-cell hidden">Nội dung</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs w-14 md:w-auto">Ngày bắt đầu</TableHead>
                                             <TableHead className="text-cyan-950 md:text-base text-xs w-28">Ghi chú</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-base text-xs">DS Điểm danh</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs">Danh sách</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-
                                         {currentItems.length > 0 ? (
                                             (currentItems.map((item, index) => {
                                                 const { label, bgColor, textColor, disabled } = item.status;
                                                 return (
                                                     <TableRow key={index}>
-                                                        <TableCell>{index + 1}</TableCell>
+                                                        <TableCell className="md:table-cell hidden">{index + 1}</TableCell>
                                                         <TableCell>
                                                             {disabled ? (
                                                                 <Badge className={`p-2 ${bgColor} ${textColor} text-white rounded-lg cursor-not-allowed opacity-50`}>
@@ -898,20 +897,23 @@ export const InstructorSchedule = () => {
                                                                 </Link>
                                                             )}
                                                         </TableCell>
-                                                        <TableCell className="line-clamp-2">{item.course.title}</TableCell>
-                                                        <TableCell className="">{item.name_content}</TableCell>
+                                                        <TableCell className="lg:table-cell line-clamp-2">{item.course.title}</TableCell>
+                                                        <TableCell className="hidden md:table-cell">{item.name_content}</TableCell>
                                                         <TableCell>
+                                                            <div className="w-14 md:w-auto">
                                                             {new Date(item.meeting.schedule.start_time).toLocaleString("vi-VN")}
+
+                                                            </div>
                                                         </TableCell>
                                                         <TableCell>
-                                                            <Badge className="p-2">
+                                                            <Badge className="p-2  text-center md:text-start md:rounded rounded-sm ">
                                                                 {item.meeting.notes || "Không có"}
                                                             </Badge>
                                                         </TableCell>
                                                         <TableCell>
                                                             <Dialog>
                                                                 <DialogTrigger>
-                                                                    <button onClick={() => fetchAttendanceList(item.meeting.meeting_id)} className="bg-blue-500 hover:bg-blue-600 py-2.5 px-3 text-white font-semibold transition-all rounded duration-300 flex items-center space-x-2 shadow-lg hover:shadow-blue-500/50">
+                                                                    <button onClick={() => fetchAttendanceList(item.meeting.meeting_id)} className="bg-blue-500 hover:bg-blue-600 px-1 py-2 md:py-2.5 md:px-3 text-white font-semibold transition-all rounded duration-300 flex items-center space-x-2 shadow-lg hover:shadow-blue-500/50">
                                                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -1076,9 +1078,12 @@ export const InstructorSchedule = () => {
                                                                 Không có lịch nào hiện tại
                                                             </p>
                                                         </p>
-                                                    </div>                                                </TableCell>
+                                                    </div>
+                                                </TableCell>
                                             </TableRow>
-                                        )}
+                                        )
+                                        }
+
                                     </TableBody>
 
                                 </Table>
