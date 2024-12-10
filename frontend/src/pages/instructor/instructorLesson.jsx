@@ -340,13 +340,13 @@ export const InstructorLesson = () => {
                                             <div className="space-y-4">
                                                 <div className="flex md:flex-col space-y-1 items-center justify-between">
                                                     <span className="text-sm font-medium text-gray-700">Trạng thái hiện tại:</span>
-                                                    <span className="text-sm italic text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                                                        Hiện
+                                                    <span className="text-sm italic text-gray-600 bg-gray-100 px-3 py-1 rounded-full" >
+                                                        {getStatusVietnamese(item.status)}
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-center">
-                                                    <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white">
-                                                        Đổi sang Ẩn
+                                                    <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white" onClick={() => toggleCourseStatus(item.course_id, item.status)}>
+                                                        Đổi sang {getNextStatus(item.status)}
                                                     </Button>
                                                 </div>
                                             </div>
