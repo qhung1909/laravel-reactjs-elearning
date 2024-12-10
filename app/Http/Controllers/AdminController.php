@@ -702,8 +702,8 @@ class AdminController extends Controller
     
             Lesson::create([
                 'course_id' => $courseId,
-                'name' => $course->name,
-                'slug' => $slugify($course->name),
+                'name' => $course->title, // Đổi từ name thành title
+                'slug' => $slugify($course->title), // Đổi từ name thành title
                 'description' => $course->description
             ]);
     
