@@ -1255,7 +1255,7 @@ class TeacherController extends Controller
     {
         $validated = $request->validate([
             'course_id' => 'required|exists:courses,course_id', 
-            'price_discount' => 'required|numeric|min:0|max:100', 
+            'price_discount' => 'required|numeric|min:0', 
         ]);
 
         $course = Course::find($validated['course_id']);
