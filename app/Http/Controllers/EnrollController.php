@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Enroll;
 use App\Models\Content;
 use App\Models\UserCourse;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\OnlineMeeting;
 use App\Models\TeachingSchedule;
@@ -83,7 +84,7 @@ class EnrollController extends Controller
                     if ($firstOnlineMeetingContent) {
                         $currentDate = Carbon::now()->startOfDay();
                         $courseLaunchDate = Carbon::parse($course->launch_date)->startOfDay();
-                        
+    
                         if ($courseLaunchDate->lt($currentDate)) {
                             if (!$course->backup_launch_date) {
                                 throw new \Exception('Không thể tạo lịch học vì ngày học chính đã qua và không có ngày học dự phòng.');
@@ -93,11 +94,14 @@ class EnrollController extends Controller
                             $startTime = $course->launch_date;
                         }
     
+                        $meetingUrl = 'http://localhost:5173/lesson/meeting/' . Str::uuid();
+    
                         $onlineMeeting = OnlineMeeting::create([
                             'content_id' => $firstOnlineMeetingContent->content_id,
                             'course_id' => $request->course_id,
                             'start_time' => $startTime,
                             'end_time' => Carbon::parse($startTime)->addHours(2),
+                            'meeting_url' => $meetingUrl,
                         ]);
     
                         TeachingSchedule::create([
@@ -107,7 +111,6 @@ class EnrollController extends Controller
                             'notes' => 'Buổi học đầu tiên của khóa học ' . $course->title
                         ]);
     
-                        // Chỉ gửi mail cho giảng viên nếu tài khoản active
                         Mail::to($instructor->email)
                             ->queue(new FirstLectureNotification(
                                 $instructor,
@@ -134,7 +137,7 @@ class EnrollController extends Controller
             ], 500);
         }
     }
-
+    
 
     public function checkEnrollment(Request $request)
     {

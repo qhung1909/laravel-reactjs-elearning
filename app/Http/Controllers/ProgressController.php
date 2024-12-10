@@ -10,6 +10,7 @@ use App\Models\Content;
 use App\Models\Progress;
 use App\Models\Certificate;
 use App\Models\QuizSession;
+use App\Models\TitleContent;
 use Illuminate\Http\Request;
 use App\Mail\CourseCompletedMail;
 use Illuminate\Support\Facades\Log;
@@ -31,6 +32,17 @@ class ProgressController extends Controller
         $userId = auth()->id();
         $contentId = $request->input('content_id');
         $courseId = $request->input('course_id');
+        $isAutoComplete = $request->input('is_auto_complete', false);
+
+        $content = TitleContent::where('content_id', $contentId)->first();
+
+        if ($content && $content->document_link && !$content->video_link && !$isAutoComplete) {
+            return response()->json([
+                'message' => 'Document viewed started',
+                'progress_percent' => $this->getProgressPercent($userId, $courseId),
+                'requires_timeout' => true
+            ]);
+        }
 
         $quiz = Quiz::where('content_id', $contentId)->first();
 
@@ -119,24 +131,19 @@ class ProgressController extends Controller
 
     public function checkQuizCompletion(Request $request)
     {
-        // Xác thực người dùng
         $userId = auth()->id();
 
-        // Lấy content_id từ request
         $contentId = $request->input('content_id');
 
-        // Tìm quiz liên quan đến content
         $quiz = Quiz::where('content_id', $contentId)->first();
 
-        // Nếu không có quiz cho content này
         if (!$quiz) {
             return response()->json([
-                'quiz_completed' => true,  // Coi như đã hoàn thành nếu không có quiz
+                'quiz_completed' => true, 
                 'has_quiz' => false
             ]);
         }
 
-        // Kiểm tra quiz session đã hoàn thành
         $quizSession = QuizSession::where('user_id', $userId)
             ->where('quiz_id', $quiz->quiz_id)
             ->where('status', 'completed')
