@@ -36,6 +36,8 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { Card, CardContent } from '@/components/ui/card';
+
 import { Badge } from "@/components/ui/badge"
 import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom"
@@ -321,29 +323,62 @@ export const InstructorLesson = () => {
                         </div>
                     </div>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="">
                     <DialogHeader>
-                        <DialogTitle>
-                            <div>
-                                Sửa trạng thái
-                            </div>
-                        </DialogTitle>
                         <DialogDescription>
-                            <div>
-                                <div>
-                                    Bạn có thể tùy chỉnh trạng thái tại đây
-                                </div>
-                                <div className="flex justify-between mt-5 space-y-1">
-                                    <p className="text-lg">
-                                        Trạng thái hiện tại: <span className="text-yellow-500 font-semibold">{getStatusVietnamese(item.status)}</span>
-                                    </p>
-                                    <div>
-                                        <Button
-                                            onClick={() => toggleCourseStatus(item.course_id, item.status)}
-                                        >
-                                            Đổi sang {getNextStatus(item.status)}
-                                        </Button>
-                                    </div>
+                            <div className="p-6 max-w-2xl mx-auto bg-white rounded-lg">
+                                <h2 className="text-lg font-semibold text-gray-700 mb-1">
+                                    Sửa trạng thái - giá khuyến mãi
+                                </h2>
+                                <p className="text-sm text-gray-600 mb-6">
+                                    Bạn có thể tùy chỉnh trạng thái hoặc giá bài học tại đây
+                                </p>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <Card>
+                                        <CardContent className="pt-6">
+                                            <div className="space-y-4">
+                                                <div className="flex md:flex-col space-y-1 items-center justify-between">
+                                                    <span className="text-sm font-medium text-gray-700">Trạng thái hiện tại:</span>
+                                                    <span className="text-sm italic text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                                                        Hiện
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-center">
+                                                    <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white">
+                                                        Đổi sang Ẩn
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card>
+                                        <CardContent className="pt-6">
+                                            <div className="space-y-4">
+                                                <div className="flex md:flex-col space-y-1 items-center justify-between">
+                                                    <span className="text-sm font-medium text-gray-700">Giá hiện tại:</span>
+                                                    <span className="text-sm italic text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                                                        2,000,000đ
+                                                    </span>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-center text-sm font-medium text-gray-700">
+                                                        Giá muốn giảm:
+                                                    </label>
+                                                    <Input
+                                                        className="w-full border-gray-200 focus:border-gray-400 focus:ring-gray-400"
+                                                        placeholder="Nhập giá mới..."
+                                                    />
+                                                </div>
+                                                <div className="flex justify-center">
+                                                    <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white">
+                                                        Đổi giá
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
                                 </div>
                             </div>
                         </DialogDescription>
@@ -402,7 +437,7 @@ export const InstructorLesson = () => {
                     <TableCell className="sm:p-4 p-0 w-20" >
                         <img src={`${item.img}`} className="rounded-sm object-cover" alt="" />
                     </TableCell>
-                    <TableCell className="sMw-40 font-medium lg:text-sm sm:text-sm text-xs xl:line-clamp-none line-clamp-2">{item.title}</TableCell>
+                    <TableCell className="sMw-40 font-medium lg:text-sm sm:text-sm text-xs xl:table-cell line-clamp-2">{item.title}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs">{formatCurrency(item.price)}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs hidden md:table-cell">{item.is_buy}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs hidden md:table-cell">{item.views}</TableCell>
@@ -563,312 +598,312 @@ export const InstructorLesson = () => {
         </Dialog>
     );
 
-return (
-    <>
-        <section className="instructor-lesson">
-            <div className="flex bg-gray-100 h-sc">
-                {/* Sidebar */}
-                <div className="min-h-[750px] w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
-                    <div className="p-3">
-                        {/* logo */}
-                        <div className="p-4 flex justify-between items-center">
-                            <div className="logo">
-                                <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
+    return (
+        <>
+            <section className="instructor-lesson">
+                <div className="flex bg-gray-100 h-sc">
+                    {/* Sidebar */}
+                    <div className="min-h-[750px] w-72 bg-white shadow-md border-gray-100 border-r-[1px] lg:block hidden">
+                        <div className="p-3">
+                            {/* logo */}
+                            <div className="p-4 flex justify-between items-center">
+                                <div className="logo">
+                                    <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
+                                </div>
+                                <div className="logout">
+                                    <Link to="/">
+                                        <img src="/src/assets/images/logout.svg" className="w-7" alt="" />
+                                    </Link>
+                                </div>
                             </div>
-                            <div className="logout">
-                                <Link to="/">
-                                    <img src="/src/assets/images/logout.svg" className="w-7" alt="" />
-                                </Link>
-                            </div>
+                            {/* ul list */}
+                            <ul className="">
+                                <li className="mb-3">
+                                    <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 hover:bg-gray-100">
+                                        <div className="  mr-3 px-1  rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
+                                        </div>
+                                        <p className="font-semibold text-base">Bảng điều khiển</p>
+                                    </Link>
+
+                                </li>
+                                <li className="mb-3">
+                                    <Link to="/instructor/lesson" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 bg-gray-100">
+                                        <div className="bg-yellow-400 mr-3 px-1 rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
+                                        </div>
+                                        <p className="font-semibold text-base">Bài học của tôi</p>
+                                    </Link>
+                                </li>
+                                <li className="mb-3">
+                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                        <div className=" mr-3 px-1 rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
+                                        </div>
+                                        <p className="font-semibold text-base">Lịch sử mua hàng</p>
+                                    </Link>
+                                </li>
+                                <li className="mb-3">
+                                    <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                        <div className=" mr-3 px-1 rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
+                                        </div>
+                                        <p className="font-semibold text-base">Thông báo</p>
+                                    </Link>
+                                </li>
+                                <li className="mb-3">
+                                    <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                        <div className=" mr-3 px-1 rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
+                                        </div>
+                                        <p className="font-semibold text-base">Thông tin tài khoản</p>
+                                    </Link>
+                                </li>
+                                <li className="mb-3">
+                                    <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                        <div className=" mr-3 px-1 rounded-full">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/instructorschedule.svg" className="w-7" alt="" />
+                                        </div>
+                                        <p className="font-semibold text-base">Thông tin lịch học</p>
+                                    </Link>
+                                </li>
+                            </ul>
                         </div>
-                        {/* ul list */}
-                        <ul className="">
-                            <li className="mb-3">
-                                <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 hover:bg-gray-100">
-                                    <div className="  mr-3 px-1  rounded-full">
-                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
-                                    </div>
-                                    <p className="font-semibold text-base">Bảng điều khiển</p>
-                                </Link>
-
-                            </li>
-                            <li className="mb-3">
-                                <Link to="/instructor/lesson" className="flex items-center px-4 py-2 rounded-2xl text-gray-700 bg-gray-100">
-                                    <div className="bg-yellow-400 mr-3 px-1 rounded-full">
-                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
-                                    </div>
-                                    <p className="font-semibold text-base">Bài học của tôi</p>
-                                </Link>
-                            </li>
-                            <li className="mb-3">
-                                <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                    <div className=" mr-3 px-1 rounded-full">
-                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
-                                    </div>
-                                    <p className="font-semibold text-base">Lịch sử mua hàng</p>
-                                </Link>
-                            </li>
-                            <li className="mb-3">
-                                <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                    <div className=" mr-3 px-1 rounded-full">
-                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
-                                    </div>
-                                    <p className="font-semibold text-base">Thông báo</p>
-                                </Link>
-                            </li>
-                            <li className="mb-3">
-                                <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                    <div className=" mr-3 px-1 rounded-full">
-                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
-                                    </div>
-                                    <p className="font-semibold text-base">Thông tin tài khoản</p>
-                                </Link>
-                            </li>
-                            <li className="mb-3">
-                                <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                    <div className=" mr-3 px-1 rounded-full">
-                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/instructorschedule.svg" className="w-7" alt="" />
-                                    </div>
-                                    <p className="font-semibold text-base">Thông tin lịch học</p>
-                                </Link>
-                            </li>
-                        </ul>
                     </div>
-                </div>
-                {/* Main Content */}
-                <div className="flex-1">
-                    {/* Header */}
-                    <div className="bg-white shadow-sm p-2">
-                        <div className="flex items-center justify-between px-4 py-3">
-                            <h1 className="text-xl font-semibold ">
-                                <Link to="/">
-                                    <div className="flex items-center gap-2">
-                                        <img src="/src/assets/images/home.svg" className="w-6" alt="" />
-                                        <p className="text-slate-600">Trang chủ</p>
-                                    </div>
-                                </Link>
-                            </h1>
-
-                            {/* user info */}
-                            <div className="flex items-center space-x-4">
-                                {loading ? (
-                                    <div className="flex justify-between items-center gap-2 me-5">
-                                        <div className="">
-                                            <Skeleton className="w-12 h-12 rounded-full" />
+                    {/* Main Content */}
+                    <div className="flex-1">
+                        {/* Header */}
+                        <div className="bg-white shadow-sm p-2">
+                            <div className="flex items-center justify-between px-4 py-3">
+                                <h1 className="text-xl font-semibold ">
+                                    <Link to="/">
+                                        <div className="flex items-center gap-2">
+                                            <img src="/src/assets/images/home.svg" className="w-6" alt="" />
+                                            <p className="text-slate-600">Trang chủ</p>
                                         </div>
-                                        <div className="space-y-2">
-                                            <Skeleton className="w-20 h-3 " />
-                                            <Skeleton className="w-20 h-3 " />
+                                    </Link>
+                                </h1>
 
+                                {/* user info */}
+                                <div className="flex items-center space-x-4">
+                                    {loading ? (
+                                        <div className="flex justify-between items-center gap-2 me-5">
+                                            <div className="">
+                                                <Skeleton className="w-12 h-12 rounded-full" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Skeleton className="w-20 h-3 " />
+                                                <Skeleton className="w-20 h-3 " />
+
+                                            </div>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center gap-2">
-                                        {/* avatar */}
-                                        {instructor?.avatar ? (
-                                            <img
-                                                src={instructor.avatar}
-                                                alt="User Avatar"
-                                                className="w-10 h-10 object-cover rounded-full"
-                                            />
-                                        ) : (
-                                            <img src="./src/assets/images/user.svg" className="w-8" alt="" />
-                                        )}
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            {/* avatar */}
+                                            {instructor?.avatar ? (
+                                                <img
+                                                    src={instructor.avatar}
+                                                    alt="User Avatar"
+                                                    className="w-10 h-10 object-cover rounded-full"
+                                                />
+                                            ) : (
+                                                <img src="./src/assets/images/user.svg" className="w-8" alt="" />
+                                            )}
 
-                                        {/* user control */}
-                                        <div className="text-left">
-                                            <span className="font-medium text-sm">{instructor?.name}</span>
-                                            <br />
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger>
-                                                    <div className="flex items-center">
-                                                        <p className="text-gray-600 text-sm">{instructor?.role}</p>
-                                                        <svg className="w-4 h-4 ml-1 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                                        </svg>
-                                                    </div>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent>
-                                                    <div className="p-3">
-                                                        <DropdownMenuItem>
-                                                            <span className="cursor-pointer" onClick={handleLogout}>Đăng xuất</span>
-                                                        </DropdownMenuItem>
-                                                    </div>
-                                                </DropdownMenuContent>
+                                            {/* user control */}
+                                            <div className="text-left">
+                                                <span className="font-medium text-sm">{instructor?.name}</span>
+                                                <br />
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger>
+                                                        <div className="flex items-center">
+                                                            <p className="text-gray-600 text-sm">{instructor?.role}</p>
+                                                            <svg className="w-4 h-4 ml-1 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                            </svg>
+                                                        </div>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent>
+                                                        <div className="p-3">
+                                                            <DropdownMenuItem>
+                                                                <span className="cursor-pointer" onClick={handleLogout}>Đăng xuất</span>
+                                                            </DropdownMenuItem>
+                                                        </div>
+                                                    </DropdownMenuContent>
 
-                                            </DropdownMenu>
-                                        </div>
-                                        {/* toggler */}
-                                        <div className="">
-                                            <Sheet>
-                                                <SheetTrigger>
-                                                    <div className="w-5 lg:hidden block">
-                                                        <box-icon name='menu'></box-icon>
+                                                </DropdownMenu>
+                                            </div>
+                                            {/* toggler */}
+                                            <div className="">
+                                                <Sheet>
+                                                    <SheetTrigger>
+                                                        <div className="w-5 lg:hidden block">
+                                                            <box-icon name='menu'></box-icon>
 
-                                                    </div>
-                                                    {/* <img src="./src/assets/images/toggle.png"  alt="" /> */}
-                                                </SheetTrigger>
-                                                <SheetContent>
-                                                    <SheetHeader>
-                                                        <SheetTitle>
-                                                            <div className="p-4 flex justify-between items-center border-b-[1px]">
-                                                                <div className="logo ">
-                                                                    <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
+                                                        </div>
+                                                        {/* <img src="./src/assets/images/toggle.png"  alt="" /> */}
+                                                    </SheetTrigger>
+                                                    <SheetContent>
+                                                        <SheetHeader>
+                                                            <SheetTitle>
+                                                                <div className="p-4 flex justify-between items-center border-b-[1px]">
+                                                                    <div className="logo ">
+                                                                        <img src="/src/assets/images/antlearn.png" alt="Edumall Logo" className="w-20 h-14 object-cover" />
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                        </SheetTitle>
-                                                        <SheetDescription>
-                                                            <ul className="">
-                                                                <li className="mb-3">
-                                                                    <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700  hover:bg-gray-100">
-                                                                        <div className=" mr-3 px-1 rounded-full">
-                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
-                                                                        </div>
-                                                                        <p className="font-semibold text-base">Bảng điều khiển</p>
-                                                                    </Link>
+                                                            </SheetTitle>
+                                                            <SheetDescription>
+                                                                <ul className="">
+                                                                    <li className="mb-3">
+                                                                        <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700  hover:bg-gray-100">
+                                                                            <div className=" mr-3 px-1 rounded-full">
+                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
+                                                                            </div>
+                                                                            <p className="font-semibold text-base">Bảng điều khiển</p>
+                                                                        </Link>
 
-                                                                </li>
-                                                                <li className="mb-3">
-                                                                    <Link to="/instructor/lesson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
-                                                                        <div className="bg-yellow-400  mr-3 px-1 rounded-full">
-                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
-                                                                        </div>
-                                                                        <p className="font-semibold text-base">Bài học của tôi</p>
-                                                                    </Link>
-                                                                </li>
-                                                                <li className="mb-3">
-                                                                    <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                        <div className=" mr-3 px-1 rounded-full">
-                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
-                                                                        </div>
-                                                                        <p className="font-semibold text-base">Lịch sử mua hàng</p>
-                                                                    </Link>
-                                                                </li>
-                                                                <li className="mb-3">
-                                                                    <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                        <div className=" mr-3 px-1 rounded-full">
-                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
-                                                                        </div>
-                                                                        <p className="font-semibold text-base">Thông báo</p>
-                                                                    </Link>
-                                                                </li>
-                                                                <li className="mb-3">
-                                                                    <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                        <div className=" mr-3 px-1 rounded-full">
-                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
-                                                                        </div>
-                                                                        <p className="font-semibold text-base">Thông tin tài khoản</p>
-                                                                    </Link>
-                                                                </li>
-                                                                <li className="mb-3">
-                                                                    <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
-                                                                        <div className=" mr-3 px-1 rounded-full">
-                                                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/instructorschedule.svg" className="w-7" alt="" />
-                                                                        </div>
-                                                                        <p className="font-semibold text-base">Thông tin lịch học</p>
-                                                                    </Link>
-                                                                </li>
-                                                            </ul>
-                                                        </SheetDescription>
-                                                    </SheetHeader>
-                                                </SheetContent>
-                                            </Sheet>
+                                                                    </li>
+                                                                    <li className="mb-3">
+                                                                        <Link to="/instructor/lesson" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
+                                                                            <div className="bg-yellow-400  mr-3 px-1 rounded-full">
+                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/lesson.svg" className="w-7" alt="" />
+                                                                            </div>
+                                                                            <p className="font-semibold text-base">Bài học của tôi</p>
+                                                                        </Link>
+                                                                    </li>
+                                                                    <li className="mb-3">
+                                                                        <Link to="/instructor/history" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                            <div className=" mr-3 px-1 rounded-full">
+                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/history.svg" className="w-7" alt="" />
+                                                                            </div>
+                                                                            <p className="font-semibold text-base">Lịch sử mua hàng</p>
+                                                                        </Link>
+                                                                    </li>
+                                                                    <li className="mb-3">
+                                                                        <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                            <div className=" mr-3 px-1 rounded-full">
+                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
+                                                                            </div>
+                                                                            <p className="font-semibold text-base">Thông báo</p>
+                                                                        </Link>
+                                                                    </li>
+                                                                    <li className="mb-3">
+                                                                        <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                            <div className=" mr-3 px-1 rounded-full">
+                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
+                                                                            </div>
+                                                                            <p className="font-semibold text-base">Thông tin tài khoản</p>
+                                                                        </Link>
+                                                                    </li>
+                                                                    <li className="mb-3">
+                                                                        <Link to="/instructor/schedule" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 hover:bg-gray-100">
+                                                                            <div className=" mr-3 px-1 rounded-full">
+                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/instructorschedule.svg" className="w-7" alt="" />
+                                                                            </div>
+                                                                            <p className="font-semibold text-base">Thông tin lịch học</p>
+                                                                        </Link>
+                                                                    </li>
+                                                                </ul>
+                                                            </SheetDescription>
+                                                        </SheetHeader>
+                                                    </SheetContent>
+                                                </Sheet>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    {/* Lesson content */}
-                    <div className="md:p-6 p-4 max-lg:h-screen">
+                        {/* Lesson content */}
+                        <div className="md:p-6 p-4 max-lg:h-screen">
 
-                        {/* Thêm khóa học - xuất */}
-                        <div className="flex gap-2 items-center justify-center md:justify-end">
+                            {/* Thêm khóa học - xuất */}
+                            <div className="flex gap-2 items-center justify-center md:justify-end">
 
-                            <div className="">
-                                <Button onClick={addCourse} className="bg-gradient-to-br from-blue-500 to-purple-800 text-white">Thêm khóa học</Button>
+                                <div className="">
+                                    <Button onClick={addCourse} className="bg-gradient-to-br from-blue-500 to-purple-800 text-white">Thêm khóa học</Button>
+                                </div>
+                                <div className="">
+                                    <Button className="duration-300  bg-white text-black border hover:bg-gray-100" onClick={exportToExcel}>
+                                        <div className="">
+                                            <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/download.svg" className="w-5" alt="" />
+                                        </div>
+                                        <div className="">
+                                            <p>Xuất</p>
+                                        </div>
+                                    </Button>
+                                </div>
                             </div>
-                            <div className="">
-                                <Button className="duration-300  bg-white text-black border hover:bg-gray-100" onClick={exportToExcel}>
-                                    <div className="">
-                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/download.svg" className="w-5" alt="" />
-                                    </div>
-                                    <div className="">
-                                        <p>Xuất</p>
-                                    </div>
-                                </Button>
+
+                            {/* tìm kiếm */}
+                            <div className=" flex justify-center p-3 md:p-0 lg:my-5 my-3">
+                                <input type="text" value={searchTerm} onChange={handleSearch} placeholder="Nhập 1 từ khóa bất kỳ muốn tìm kiếm" className="md:w-full w-[80%] p-3 rounded-tl-lg rounded-bl-lg" />
                             </div>
-                        </div>
 
-                        {/* tìm kiếm */}
-                        <div className=" flex justify-center p-3 md:p-0 lg:my-5 my-3">
-                            <input type="text" value={searchTerm} onChange={handleSearch} placeholder="Nhập 1 từ khóa bất kỳ muốn tìm kiếm" className="md:w-full w-[80%] p-3 rounded-tl-lg rounded-bl-lg" />
-                        </div>
+                            {/* Table sản phẩm */}
+                            <div className="lg:my-5 bg-white rounded-3xl p-3">
+                                <Table>
 
-                        {/* Table sản phẩm */}
-                        <div className="lg:my-5 bg-white rounded-3xl p-3">
-                            <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs w-32">Trạng thái</TableHead>
+                                            <TableHead className="xl:w-[250px] lg:w-[250px] md:w-[200px] w-[250px] text-cyan-950 md:text-sm text-xs">Hình ảnh</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs xl:w-[200px] lg:w-[150px] md:w-[150px] sm:w-[200px] w-[200px]">Tên</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs">Giá</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt bán</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt xem</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Ngày tạo</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs">Hành động</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
 
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="text-cyan-950 md:text-sm text-xs w-32">Trạng thái</TableHead>
-                                        <TableHead className="xl:w-[250px] lg:w-[250px] md:w-[200px] w-[250px] text-cyan-950 md:text-sm text-xs">Hình ảnh</TableHead>
-                                        <TableHead className="text-cyan-950 md:text-sm text-xs xl:w-[200px] lg:w-[150px] md:w-[150px] sm:w-[200px] w-[200px]">Tên</TableHead>
-                                        <TableHead className="text-cyan-950 md:text-sm text-xs">Giá</TableHead>
-                                        <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt bán</TableHead>
-                                        <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt xem</TableHead>
-                                        <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Ngày tạo</TableHead>
-                                        <TableHead className="text-cyan-950 md:text-sm text-xs">Hành động</TableHead>
-                                    </TableRow>
-                                </TableHeader>
+                                    <TableBody>
+                                        {renderTeacherCourse}
+                                    </TableBody>
 
-                                <TableBody>
-                                    {renderTeacherCourse}
-                                </TableBody>
+                                </Table>
+                                <ScheduleDialog />
 
-                            </Table>
-                            <ScheduleDialog />
-
-                            <Pagination>
-                                <PaginationContent>
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            href="#"
-                                            onClick={() => handlePageChange(currentPage > 1 ? currentPage - 1 : 1)}
-                                        />
-                                    </PaginationItem>
-                                    {Array.from({ length: Math.ceil(teacherCourses.length / itemsPerPage) }).map((_, index) => (
-                                        <PaginationItem key={index}>
-                                            <PaginationLink
+                                <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious
                                                 href="#"
-                                                onClick={() => handlePageChange(index + 1)}
-                                                className={currentPage === index + 1 ? "active" : ""}
-                                            >
-                                                {index + 1}
-                                            </PaginationLink>
+                                                onClick={() => handlePageChange(currentPage > 1 ? currentPage - 1 : 1)}
+                                            />
                                         </PaginationItem>
-                                    ))}
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            href="#"
-                                            onClick={() =>
-                                                handlePageChange(
-                                                    currentPage < Math.ceil(teacherCourses.length / itemsPerPage)
-                                                        ? currentPage + 1
-                                                        : currentPage
-                                                )
-                                            }
-                                        />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
+                                        {Array.from({ length: Math.ceil(teacherCourses.length / itemsPerPage) }).map((_, index) => (
+                                            <PaginationItem key={index}>
+                                                <PaginationLink
+                                                    href="#"
+                                                    onClick={() => handlePageChange(index + 1)}
+                                                    className={currentPage === index + 1 ? "active" : ""}
+                                                >
+                                                    {index + 1}
+                                                </PaginationLink>
+                                            </PaginationItem>
+                                        ))}
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                href="#"
+                                                onClick={() =>
+                                                    handlePageChange(
+                                                        currentPage < Math.ceil(teacherCourses.length / itemsPerPage)
+                                                            ? currentPage + 1
+                                                            : currentPage
+                                                    )
+                                                }
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-        <Toaster />
-    </>
-)
+            </section>
+            <Toaster />
+        </>
+    )
 }
