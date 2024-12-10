@@ -76,6 +76,8 @@ export const InstructorLesson = () => {
     const [launchDate, setLaunchDate] = useState('');
     const [backupLaunchDate, setBackupLaunchDate] = useState('');
     const [isScheduleDialog, setIsScheduleDialog] = useState(false);
+    const [priceDiscount, setPriceDiscount] = useState('');
+
     const token = localStorage.getItem("access_token");
 
     // phân trang
@@ -115,6 +117,52 @@ export const InstructorLesson = () => {
             setLoading(false)
         }
     }
+
+    // hàm xử lý giá bài học
+    const handleChangePrice = async (courseId, priceDiscount) => {
+        if (priceDiscount === "" || priceDiscount === null) {
+            notify('Vui lòng nhập giá giảm', "error");
+            return;
+        }
+
+        const discountPrice = Number(priceDiscount);
+        if (isNaN(discountPrice) || discountPrice < 0) {
+            notify('Giá giảm không hợp lệ', "error");
+            return;
+        }
+
+        try {
+            const response = await axios.put(
+                `${API_URL}/teacher/update/courses/price-discount`,
+                {
+                    course_id: courseId,
+                    price_discount: discountPrice
+                },
+                {
+                    headers: {
+                        'x-api-secret': `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (response.status === 200 || response.status === 201) {
+                notify('Cập nhật giá thành công', "success");
+            }
+
+        } catch (error) {
+            if (error.response) {
+                const message = error.response.data?.message || 'Có lỗi xảy ra khi cập nhật giá';
+                notify(message, "error");
+            } else if (error.request) {
+                notify('Không thể kết nối đến server', "error");
+            } else {
+                notify('Có lỗi xảy ra, vui lòng thử lại', "error");
+            }
+            console.error('Error updating price:', error);
+        }
+    };
+
 
     // hàm xử lý tên trạng thái
     const getStatusVietnamese = (status) => {
@@ -359,7 +407,7 @@ export const InstructorLesson = () => {
                                                 <div className="flex md:flex-col space-y-1 items-center justify-between">
                                                     <span className="text-sm font-medium text-gray-700">Giá hiện tại:</span>
                                                     <span className="text-sm italic text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                                                        2,000,000đ
+                                                        {item.price} VNĐ
                                                     </span>
                                                 </div>
                                                 <div className="space-y-2">
@@ -369,10 +417,14 @@ export const InstructorLesson = () => {
                                                     <Input
                                                         className="w-full border-gray-200 focus:border-gray-400 focus:ring-gray-400"
                                                         placeholder="Nhập giá mới..."
+                                                        value={priceDiscount}
+                                                        onChange={(e) => setPriceDiscount(e.target.value)}
                                                     />
                                                 </div>
                                                 <div className="flex justify-center">
-                                                    <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white">
+                                                    <Button
+                                                    onClick={()=>handleChangePrice(item.courseId, priceDiscount)}
+                                                    className="w-full bg-gray-900 hover:bg-gray-800 text-white">
                                                         Đổi giá
                                                     </Button>
                                                 </div>
