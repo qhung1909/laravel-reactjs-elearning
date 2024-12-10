@@ -666,57 +666,54 @@ class AdminController extends Controller
         }
     }
 
-    public function approveAll(Request $request)
-    {
-        try {
-            DB::beginTransaction();
-
-            $courseId = $request->course_id;
-
-            $course = Course::findOrFail($courseId);
+    public function approveAll(Request $request) 
+    { 
+        try { 
+            DB::beginTransaction(); 
+    
+            $courseId = $request->course_id; 
+    
+            $course = Course::findOrFail($courseId); 
             $instructor = User::where('user_id', $course->user_id)
-                ->where('role', 'teacher')
-                ->firstOrFail();
-
-            $course->update(['status' => 'published']);
-
-            $contents = Content::where('course_id', $courseId)->get();
-            foreach ($contents as $content) {
-                $content->update(['status' => 'published']);
-
-                TitleContent::where('content_id', $content->content_id)
-                    ->update(['status' => 'published']);
-            }
-
-            Quiz::where('course_id', $courseId)
-                ->update(['status' => 'published']);
-
-            // Đơn giản hóa việc tạo slug
-            $slug = str_replace(' ', '-', $course->title);
-
+                             ->where('role', 'teacher')
+                             ->firstOrFail();
+                             
+            $course->update(['status' => 'published']); 
+    
+            $contents = Content::where('course_id', $courseId)->get(); 
+            foreach ($contents as $content) { 
+                $content->update(['status' => 'published']); 
+    
+                TitleContent::where('content_id', $content->content_id) 
+                    ->update(['status' => 'published']); 
+            } 
+    
+            Quiz::where('course_id', $courseId) 
+                ->update(['status' => 'published']); 
+    
             Lesson::create([
                 'course_id' => $courseId,
                 'name' => $course->title,
-                'slug' => $slug,
+                'slug' => Str::slug($course->title),
                 'description' => $course->description
             ]);
-
+    
             Mail::to($instructor->email)
                 ->queue(new CourseStatusNotification($course, null, 'approved'));
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Đã duyệt, xuất bản tất cả nội dung và tạo bài học mới từ khóa học'
-            ]);
-        } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json([
-                'success' => false,
-                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
-            ], 500);
-        }
+    
+            DB::commit(); 
+    
+            return response()->json([ 
+                'success' => true, 
+                'message' => 'Đã duyệt, xuất bản tất cả nội dung và tạo bài học mới từ khóa học' 
+            ]); 
+        } catch (\Exception $e) { 
+            DB::rollback(); 
+            return response()->json([ 
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage() 
+            ], 500); 
+        } 
     }
 
     public function rejectAll(Request $request)
