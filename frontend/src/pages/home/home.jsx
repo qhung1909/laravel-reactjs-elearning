@@ -88,8 +88,13 @@ export const Home = () => {
                             </div>
                         </div>
                         <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
-                            {formatCurrency(item.price_discount)}
+                            {item.price_discount != null && item.price_discount > 0
+                                ? formatCurrency(item.price_discount)
+                                : item.price && item.price > 0
+                                    ? formatCurrency(item.price)
+                                    : "Giá không khả dụng"}
                         </div>
+
                     </div>
                     <div className="h-10 overflow-hidden mt-1">
                         <div className="transform -translate-y-10 group-hover:translate-y-0 transition-transform duration-300 ease-out">
@@ -148,7 +153,11 @@ export const Home = () => {
                             </div>
                         </div>
                         <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
-                            {formatCurrency(item.price_discount)}
+                            {item.price_discount != null && item.price_discount > 0
+                                ? formatCurrency(item.price_discount)
+                                : item.price && item.price > 0
+                                    ? formatCurrency(item.price)
+                                    : "Giá không khả dụng"}
                         </div>
                     </div>
                     <div className="h-10 overflow-hidden mt-1">
@@ -389,16 +398,12 @@ export const Home = () => {
                                                         <div className="product-box-author font-mediummy-1 md:text-base text-sm md:block hidden">
                                                             <p>Đăng bởi: {item.user?.name || "Không thấy tên giảng viên"}</p>
                                                         </div>
-                                                        <div className="product-box-time-lesson md:text-sm sm:text-[15px] text-[14px] flex justify-center md:justify-start gap-4 my-1 ">
-                                                            <div className="product-box-time">
-                                                                <p>35 bài học</p>
-                                                            </div>
-                                                            <div className="product-box-lesson hidden sm:block">
-                                                                <p>7 giờ kém 10</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg">
-                                                            {formatCurrency(item.price_discount)}
+                                                        <div className="product-box-price font-bold xl:text-xl md:text-lg sm:text-lg text-lg mt-2">
+                                                            {item.price_discount != null && item.price_discount > 0
+                                                                ? formatCurrency(item.price_discount)
+                                                                : item.price && item.price > 0
+                                                                    ? formatCurrency(item.price)
+                                                                    : "Giá không khả dụng"}
                                                         </div>
                                                     </div>
                                                 </div>
