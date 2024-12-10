@@ -408,14 +408,20 @@ export const InstructorLesson = () => {
                                         <CardContent className="pt-6">
                                             <div className="space-y-4">
                                                 <div className="flex md:flex-col space-y-1 items-center justify-between">
-                                                    <span className="text-sm font-medium text-gray-700">Giá hiện tại:</span>
+                                                    <span className="text-sm font-medium text-gray-700">Giá gốc:</span>
                                                     <span className="text-sm italic text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                                                        {item.price} VNĐ
+                                                        {formatCurrency(item.price)}
                                                     </span>
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <label className="text-center text-sm font-medium text-gray-700">
-                                                        Giá muốn giảm:
+                                                    <div className="flex md:flex-col space-y-1 items-center justify-between">
+                                                        <span className="text-sm font-medium text-gray-700">Giá giảm:</span>
+                                                        <span className="text-sm italic text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                                                            {formatCurrency(item.price_discount)}
+                                                        </span>
+                                                    </div>
+                                                    <label htmlFor="">
+                                                        Nhập giá giảm:
                                                     </label>
                                                     <Input
                                                         className="w-full border-gray-200 focus:border-gray-400 focus:ring-gray-400"
@@ -494,6 +500,7 @@ export const InstructorLesson = () => {
                     </TableCell>
                     <TableCell className="sMw-40 font-medium lg:text-sm sm:text-sm text-xs xl:table-cell line-clamp-2">{item.title}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs">{formatCurrency(item.price)}</TableCell>
+                    <TableCell className="font-medium sm:text-sm text-xs">{formatCurrency(item.price_discount)}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs hidden md:table-cell">{item.is_buy}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs hidden md:table-cell">{item.views}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs hidden md:table-cell">
@@ -905,7 +912,8 @@ export const InstructorLesson = () => {
                                             <TableHead className="text-cyan-950 md:text-sm text-xs w-32">Trạng thái</TableHead>
                                             <TableHead className="xl:w-[250px] lg:w-[250px] md:w-[200px] w-[250px] text-cyan-950 md:text-sm text-xs">Hình ảnh</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs xl:w-[200px] lg:w-[150px] md:w-[150px] sm:w-[200px] w-[200px]">Tên</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs">Giá</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs">Giá gốc</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs">Giá giảm</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt bán</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt xem</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Ngày tạo</TableHead>
