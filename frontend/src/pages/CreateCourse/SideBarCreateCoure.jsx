@@ -1,4 +1,3 @@
-// import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -27,13 +26,10 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const { course_id } = useParams();
-    // const [isCheckedCO, setCheckedCO] = useLocalStorage("FA-CO");
-    // const [isCheckedCU, setCheckedCU] = useLocalStorage("FA-CU");
     const [loading, setLoading] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
 
-    // const access_token = localStorage.getItem('access_token');
 
     const handleNavigate = (path) => {
         if (location.pathname === path) {
@@ -59,6 +55,36 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
             window.removeEventListener("beforeunload", handleBeforeUnload);
         };
     }, [hasChanges]);
+
+
+
+    useEffect(() => {
+        const elements = document.querySelectorAll('.focusable');
+
+        elements.forEach((element) => {
+            element.addEventListener('focus', (event) => {
+                // Ngừng focus nếu có thay đổi chưa được lưu
+                if (hasChanges && !isUpdated) {
+                    event.preventDefault(); // Ngừng focus vào phần tử nếu có thay đổi chưa được lưu
+                    // Nếu muốn bỏ focus, có thể thêm dòng này:
+                    element.blur();
+                }
+            });
+        });
+
+        // Clean up listeners khi component unmount
+        return () => {
+            elements.forEach((element) => {
+                element.removeEventListener('focus', (event) => {
+                    if (hasChanges && !isUpdated) {
+                        event.preventDefault();
+                        element.blur();
+                    }
+                });
+            });
+        };
+    }, [hasChanges, isUpdated]);
+
 
     useEffect(() => {
         const fetchStatusCourse = async () => {
