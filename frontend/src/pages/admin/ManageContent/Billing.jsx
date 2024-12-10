@@ -105,7 +105,7 @@ export default function Billing() {
 
     const filteredPurchases = purchases.filter(purchase => {
         const matchesSearch = purchase.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            purchase.courseName.toLowerCase().includes(searchTerm.toLowerCase());
+            purchase.course_name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterCriteria === 'all' || purchase.status === filterCriteria;
         return matchesSearch && matchesStatus;
     });
@@ -125,12 +125,12 @@ export default function Billing() {
             ...filteredPurchases.map((purchase, index) => [
                 index + 1,
                 purchase.email,
-                purchase.courseName,
-                purchase.teacher,
-                purchase.purchaseDate,
-                purchase.paymentMethod,
+                purchase.course_name,
+                purchase.teacher_name,
+                purchase.purchase_date,
+                purchase.payment_method,
                 purchase.status === 'success' ? 'Thành công' : 'Thất bại',
-                formatCurrency(purchase.total)
+                formatCurrency(cleanPrice(purchase.total_price))
             ])
         ];
 
