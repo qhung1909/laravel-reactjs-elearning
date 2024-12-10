@@ -503,7 +503,7 @@ class TeacherController extends Controller
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-    
+
             $content = Content::where('content_id', $contentId)->first();
             if (!$content) {
                 return response()->json([
@@ -511,12 +511,12 @@ class TeacherController extends Controller
                     'message' => 'Không tìm thấy nội dung'
                 ], 404);
             }
-    
+
             Log::info('Received update request', [
                 'content_id' => $contentId,
                 'request_data' => $request->all()
             ]);
-    
+
             $validator = Validator::make($request->all(), [
                 'title_contents' => 'nullable|array',
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
@@ -527,7 +527,7 @@ class TeacherController extends Controller
             ], [
                 'title_contents.*.body_content.required' => 'Nội dung không được để trống',
             ]);
-    
+
             if ($validator->fails()) {
                 Log::error('Validation failed', [
                     'errors' => $validator->errors(),
@@ -539,7 +539,7 @@ class TeacherController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-    
+
             DB::beginTransaction();
             try {
                 foreach ($request->title_contents as $index => $titleContentData) {
@@ -547,69 +547,65 @@ class TeacherController extends Controller
                         'index' => $index,
                         'title_content_id' => $titleContentData['title_content_id']
                     ]);
-    
+
                     $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
                         ->where('content_id', $contentId)
                         ->first();
-    
+
                     if (!$titleContent) {
                         throw new \Exception("TitleContent ID {$titleContentData['title_content_id']} không thuộc về nội dung này");
                     }
-    
+
                     $updateData = [
                         'body_content' => $titleContentData['body_content'],
                         'document_link' => $titleContentData['document_link'] ?? $titleContent->document_link,
                         'description' => $titleContentData['description'] ?? $titleContent->description,
                         'status' => 'draft'
                     ];
-    
-                    // Handle video upload
+
                     if ($request->hasFile("title_contents.{$index}.video_link")) {
                         $videoFile = $request->file("title_contents.{$index}.video_link");
-                        
-                        // Validate video file
+
                         $videoValidator = Validator::make(['video' => $videoFile], [
                             'video' => 'file|mimes:mp4,mov,avi,wmv|max:102400'
                         ], [
                             'video.max' => 'File video không được vượt quá 100MB'
                         ]);
-    
+
                         if ($videoValidator->fails()) {
                             throw new \Exception($videoValidator->errors()->first('video'));
                         }
-    
+
                         Log::info('Processing new video upload', [
                             'original_name' => $videoFile->getClientOriginalName(),
                             'size' => $videoFile->getSize(),
                             'mime_type' => $videoFile->getMimeType()
                         ]);
-    
+
                         $updateData['video_link'] = $this->handleVideoUpload($videoFile, $titleContent);
                         Log::info('Video upload successful', [
                             'video_url' => $updateData['video_link']
                         ]);
                     } else {
-                        // If video_link exists in request but is empty/null, keep existing
-                        // If video_link doesn't exist in request, keep existing
+
                         $updateData['video_link'] = $titleContent->video_link;
                     }
-    
+
                     Log::info('Updating title content', [
                         'title_content_id' => $titleContent->title_content_id,
                         'update_data' => array_diff_key($updateData, ['body_content' => ''])
                     ]);
-    
+
                     $titleContent->update($updateData);
                 }
-    
+
                 DB::commit();
                 Log::info('Update successful', ['content_id' => $contentId]);
-    
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Cập nhật tiêu đề nội dung thành công'
                 ]);
-    
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('Transaction failed', [
@@ -629,7 +625,7 @@ class TeacherController extends Controller
             ], 500);
         }
     }
-    
+
 
     public function deleteTitleContent($titleContentId)
     {
@@ -749,7 +745,7 @@ class TeacherController extends Controller
                     'temp_path' => $file->getRealPath()
                 ]
             ]);
-    
+
             $s3 = new S3Client([
                 'region'  => env('AWS_DEFAULT_REGION'),
                 'version' => 'latest',
@@ -761,22 +757,22 @@ class TeacherController extends Controller
                     'verify' => env('VERIFY_URL'),
                 ],
             ]);
-    
+
             Log::info('S3 client initialized', [
                 'region' => env('AWS_DEFAULT_REGION'),
                 'bucket' => env('AWS_BUCKET')
             ]);
-    
+
             if ($titleContent->video_link) {
                 try {
                     $oldKey = str_replace(env('AWS_URL'), '', $titleContent->video_link);
                     Log::info('Attempting to delete old video', ['old_key' => $oldKey]);
-                    
+
                     $s3->deleteObject([
                         'Bucket' => env('AWS_BUCKET'),
                         'Key'    => $oldKey,
                     ]);
-                    
+
                     Log::info('Old video deleted successfully');
                 } catch (\Exception $e) {
                     Log::error('Error deleting old video', [
@@ -784,7 +780,7 @@ class TeacherController extends Controller
                     ]);
                 }
             }
-    
+
             $filePath = $file->getRealPath();
             $contentId = $titleContent->content_id;
             $titleContentId = $titleContent->title_content_id;
@@ -792,12 +788,12 @@ class TeacherController extends Controller
             $extension = $file->getClientOriginalExtension();
             $newFileName = "content_{$contentId}_title_{$titleContentId}_{$originalFileName}.{$extension}";
             $key = 'videos/' . $newFileName;
-    
+
             Log::info('Preparing to upload new video', [
                 'new_file_name' => $newFileName,
                 's3_key' => $key
             ]);
-    
+
             $contentType = match ($extension) {
                 'mp4' => 'video/mp4',
                 'mov' => 'video/quicktime',
@@ -805,13 +801,13 @@ class TeacherController extends Controller
                 'wmv' => 'video/x-ms-wmv',
                 default => 'video/mp4',
             };
-    
+
             try {
                 Log::info('Uploading to S3', [
                     'bucket' => env('AWS_BUCKET'),
                     'key' => $key
                 ]);
-    
+
                 $result = $s3->putObject([
                     'Bucket' => env('AWS_BUCKET'),
                     'Key'    => $key,
@@ -819,11 +815,11 @@ class TeacherController extends Controller
                     'ContentType' => $contentType,
                     'ACL' => 'public-read',
                 ]);
-    
+
                 Log::info('Video upload successful', [
                     'url' => $result['ObjectURL']
                 ]);
-    
+
                 return $result['ObjectURL'];
             } catch (\Exception $e) {
                 Log::error('Failed to upload video to S3', [

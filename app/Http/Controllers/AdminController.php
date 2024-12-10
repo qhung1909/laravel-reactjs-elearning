@@ -9,6 +9,7 @@ use Aws\S3\S3Client;
 use App\Models\Coupon;
 use App\Models\Course;
 use App\Models\Enroll;
+use App\Models\Lesson;
 use App\Models\Content;
 use App\Models\Category;
 use App\Models\OrderDetail;
@@ -477,27 +478,27 @@ class AdminController extends Controller
                 'price' => 'sometimes|required|numeric|min:0',
                 'description' => 'sometimes|required|string',
                 'img' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,webp|max:20480',
-                'launch_date' => 'sometimes|nullable|date',          
+                'launch_date' => 'sometimes|nullable|date',
                 'backup_launch_date' => 'sometimes|nullable|date',
-                'is_online_meeting' => 'sometimes|required|in:0,1'  
+                'is_online_meeting' => 'sometimes|required|in:0,1'
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
                     'message' => $validator->errors()
                 ], 422);
             }
-    
+
             $course = Course::find($courseId);
-    
+
             if (!$course) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Không tìm thấy khóa học'
                 ], 404);
             }
-    
+
             $updateData = $request->only([
                 'title',
                 'course_category_id',
@@ -505,19 +506,19 @@ class AdminController extends Controller
                 'price_discount',
                 'description',
                 'status',
-                'launch_date',            
+                'launch_date',
                 'backup_launch_date',
-                'is_online_meeting'     
+                'is_online_meeting'
             ]);
-    
+
             if (isset($updateData['launch_date'])) {
                 $updateData['launch_date'] = Carbon::parse($updateData['launch_date'])->format('Y-m-d H:i:s');
             }
-    
+
             if (isset($updateData['backup_launch_date'])) {
                 $updateData['backup_launch_date'] = Carbon::parse($updateData['backup_launch_date'])->format('Y-m-d H:i:s');
             }
-    
+
             if ($request->hasFile('img')) {
                 try {
                     $s3 = new S3Client([
@@ -531,7 +532,7 @@ class AdminController extends Controller
                             'verify' => env('VERIFY_URL'),
                         ],
                     ]);
-    
+
                     if ($course->img) {
                         try {
                             $oldKey = str_replace(env('AWS_URL'), '', $course->img);
@@ -543,14 +544,14 @@ class AdminController extends Controller
                             Log::error('Error deleting old image: ' . $e->getMessage());
                         }
                     }
-    
+
                     $file = $request->file('img');
                     $filePath = $file->getRealPath();
                     $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                     $extension = $file->getClientOriginalExtension();
                     $newFileName = "course_{$courseId}_{$originalFileName}." . $extension;
                     $key = 'images/courses/' . $newFileName;
-    
+
                     $contentType = match ($extension) {
                         'jpg', 'jpeg' => 'image/jpeg',
                         'png' => 'image/png',
@@ -559,7 +560,7 @@ class AdminController extends Controller
                         'svg' => 'image/svg+xml',
                         default => 'image/jpeg',
                     };
-    
+
                     $result = $s3->putObject([
                         'Bucket' => env('AWS_BUCKET'),
                         'Key'    => $key,
@@ -567,9 +568,8 @@ class AdminController extends Controller
                         'ContentType' => $contentType,
                         'ACL' => 'public-read',
                     ]);
-    
+
                     $updateData['img'] = $result['ObjectURL'];
-    
                 } catch (\Exception $e) {
                     return response()->json([
                         'success' => false,
@@ -577,19 +577,19 @@ class AdminController extends Controller
                     ], 500);
                 }
             }
-    
+
             if (isset($updateData['title'])) {
                 $updateData['slug'] = Str::slug($updateData['title']);
             }
-            
+
             DB::transaction(function () use ($course, $updateData) {
                 $course->update($updateData);
-    
+
                 if ($updateData['is_online_meeting'] == 0) {
                     $course->contents()->where('is_online_meeting', 1)->delete();
                 }
             });
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Cập nhật khóa học thành công',
@@ -691,6 +691,13 @@ class AdminController extends Controller
             Quiz::where('course_id', $courseId) 
                 ->update(['status' => 'published']); 
     
+            Lesson::create([
+                'course_id' => $courseId,
+                'name' => $course->title,
+                'slug' => Str::slug($course->title),
+                'description' => $course->description
+            ]);
+    
             Mail::to($instructor->email)
                 ->queue(new CourseStatusNotification($course, null, 'approved'));
     
@@ -698,7 +705,7 @@ class AdminController extends Controller
     
             return response()->json([ 
                 'success' => true, 
-                'message' => 'Đã duyệt, xuất bản tất cả nội dung và gửi thông báo cho giảng viên' 
+                'message' => 'Đã duyệt, xuất bản tất cả nội dung và tạo bài học mới từ khóa học' 
             ]); 
         } catch (\Exception $e) { 
             DB::rollback(); 
@@ -998,7 +1005,7 @@ class AdminController extends Controller
             ]);
 
             $user = User::find($userId);
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,
@@ -1019,7 +1026,6 @@ class AdminController extends Controller
                     'role' => $user->role
                 ]
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -1092,7 +1098,7 @@ class AdminController extends Controller
         try {
             // Tìm khóa học chỉ dựa trên course_id
             $course = Course::where('course_id', $courseId)->first();
-    
+
             // Kiểm tra xem khóa học có tồn tại hay không
             if (!$course) {
                 return response()->json([
@@ -1100,14 +1106,14 @@ class AdminController extends Controller
                     'message' => 'Course not found'
                 ], 404);
             }
-    
+
             // Thay đổi trạng thái khóa học
             $newStatus = $course->status === 'published' ? 'hide' : 'published';
-    
+
             // Kiểm tra điều kiện nếu cần xuất bản khóa học
             if ($newStatus === 'published') {
                 $isValid = true; // Bạn có thể thêm logic kiểm tra nếu cần
-    
+
                 if (!$isValid) {
                     return response()->json([
                         'status' => false,
@@ -1115,10 +1121,10 @@ class AdminController extends Controller
                     ], 400);
                 }
             }
-    
+
             $course->status = $newStatus;
             $course->save();
-    
+
             return response()->json([
                 'status' => true,
                 'message' => "Course status has been changed to {$newStatus}",
@@ -1126,14 +1132,11 @@ class AdminController extends Controller
             ], 200);
         } catch (\Exception $e) {
             Log::error('Error toggling course status: ' . $e->getMessage());
-    
+
             return response()->json([
                 'status' => false,
                 'message' => 'An error occurred while updating the course status'
             ], 500);
         }
     }
-    
-    
-
 }
