@@ -576,11 +576,11 @@ export default function ManageFooter() {
                             </Card>
 
                             {/* API Configuration */}
-                            <Card className="shadow-xl border-red-200 bg-red-50/50">
-                                <CardHeader className="border-b border-red-200">
+                            <Card className="shadow-xl border-red-400 bg-red-200">
+                                <CardHeader className="border-b border-red-400">
                                     <CardTitle className="flex items-center gap-2 text-red-700">
                                         <Key className="h-5 w-5" />
-                                        Cài đặt API
+                                        Danger Zone !
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
@@ -627,7 +627,7 @@ export default function ManageFooter() {
 
                                     </div>
 
-                                    <Alert className="bg-red-100 border-red-300">
+                                    <Alert className="bg-red-300 border-red-600">
                                         <AlertCircle className="h-4 w-4 text-red-600" />
                                         <AlertTitle className="text-red-700">Thông báo bảo mật</AlertTitle>
                                         <AlertDescription className="text-red-600">

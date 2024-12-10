@@ -33,11 +33,11 @@ class OrderController extends Controller
     {
         try {
             return DB::transaction(function () use ($user_id) {
-                
+
                 $orders = Order::with([
                     'user:user_id,name,email',
                     'coupon:coupon_id,name_coupon,discount_price',
-                    'orderDetails.course'  
+                    'orderDetails.course'
                 ])
                     ->where('user_id', $user_id)
                     ->select('orders.*')
@@ -73,6 +73,59 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error fetching order',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getOrderHistory(Request $request)
+    {
+        try {
+            $query = Order::with([
+                'user:user_id,email',
+                'orderDetails.course:course_id,title,user_id',
+                'orderDetails.course.user:user_id,name'
+            ]);
+
+            $orders = $query->get();
+
+            $formattedOrders = $orders->map(function ($order) {
+                $orderDetail = $order->orderDetails->first();
+
+                if (!$orderDetail) {
+                    return null;
+                }
+
+                $course = $orderDetail->course;
+
+                if (!$course) {
+                    return null;
+                }
+
+                return [
+                    'email' => $order->user ? $order->user->email : 'N/A',
+                    'course_name' => $course->title ?? 'N/A',
+                    'teacher_name' => $course->user ? $course->user->name : 'N/A',
+                    'purchase_date' => date('d/m/Y', strtotime($order->created_at)),
+                    'payment_method' => $order->payment_method ?? 'N/A',
+                    'status' => $order->status ?? 'N/A',
+                    'total_price' => number_format($order->total_price) . ' đ'
+                ];
+            })
+                ->filter(function ($order) {
+                    return $order['status'] === 'success';
+                })
+                ->values();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Order history retrieved successfully',
+                'data' => $formattedOrders
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error retrieving order history',
                 'error' => $e->getMessage()
             ], 500);
         }
