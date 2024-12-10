@@ -248,6 +248,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::get('/courses/{courseId}', [AdminController::class, 'showCoursesTeacher']);
     Route::post('/courses/{courseId}', [AdminController::class, 'updateCoursesTeacher']);
+    Route::put('/update/courses/price-discount', [TeacherController::class, 'updatePriceDiscount']);
 
     Route::get('/course', [TeacherController::class, 'getCoursesByTeacher']);
     Route::get('/content/{courseId}', [TeacherController::class, 'showContent']);
