@@ -185,7 +185,7 @@ export const InstructorLesson = () => {
                         Authorization: `Bearer ${token}`,
                     },
                     params: {
-                        course_id: courseId, // Gửi course_id qua URL params
+                        course_id: courseId,
                     },
                 }
             );
