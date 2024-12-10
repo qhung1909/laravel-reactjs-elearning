@@ -267,7 +267,7 @@ export default function Billing() {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    <div className="flex items-center justify-center gap-2">
+                                                    <div className="flex items-center justify-center gap-2 whitespace-nowrap">
                                                         {purchase.teacher_name}
                                                     </div>
                                                 </TableCell>
@@ -292,7 +292,7 @@ export default function Billing() {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="flex justify-center">
-                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${purchase.status === 'success'
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 whitespace-nowrap ${purchase.status === 'success'
                                                         ? 'bg-green-100 text-green-800'
                                                         : 'bg-red-100 text-red-800'
                                                         }`}>
