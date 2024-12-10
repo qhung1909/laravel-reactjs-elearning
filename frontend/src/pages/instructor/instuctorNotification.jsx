@@ -60,7 +60,7 @@ export const InstructorNotification = () => {
     const [message, setMessage] = useState("");
     const [content, setContent] = useState("");
     const [users, setUsers] = useState([]);
-    const [selectedUser, setSelectedUser] = useState("");
+    const [selectedUsers, setSelectedUsers] = useState([]);
 
     const navigate = useNavigate();
 
@@ -73,7 +73,14 @@ export const InstructorNotification = () => {
                 },
             });
             if (response.data.success) {
-                setUsers(response.data.data);
+                const uniqueUsers = response.data.data.reduce((acc, current) => {
+                    const x = acc.find(item => item.user_id === current.user_id);
+                    if (!x) {
+                        return acc.concat([current]);
+                    }
+                    return acc;
+                }, [])
+                setUsers(uniqueUsers);
             }
         } catch (error) {
             notify("Không thể tải danh sách học viên", error);
@@ -90,36 +97,43 @@ export const InstructorNotification = () => {
             .replace(/<(.|\n)*?>/g, '')
             .trim();
 
-        if (!message || !cleanContent || !selectedUser || selectedType === "Loại") {
+        if (!message || !cleanContent || !selectedUsers.length === 0 || selectedType === "Loại") {
             notify("Vui lòng điền đầy đủ thông tin", "error");
             return;
         }
 
         try {
             setLoading(true);
-            const response = await axios.post(
-                `${API_URL}/auth/send-message`,
+            notify("Đang gửi thông báo...", "success");
+            const sendPromises = selectedUsers.map(userId =>
+                axios.post(
+                    `${API_URL}/auth/send-message`,
 
-                {
-                    message,
-                    content,
-                    user_id: selectedUser,
-                    type: selectedType
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "x-api-secret": API_KEY,
+                    {
+                        message,
+                        content,
+                        user_id: userId,
+                        type: selectedType
                     },
-                },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "x-api-secret": API_KEY,
+                        },
+                    },
+                )
             );
 
-            if (response.data) {
+            const results = await Promise.allSettled(sendPromises);
+            const successCount = results.filter(result => result.status === 'fulfilled').length;
+            const failCount = results.filter(result => result.status === 'rejected').length;
+
+            if (successCount > 0) {
+                notify(`Đã gửi thành công cho ${successCount} người nhận${failCount > 0 ? `, thất bại ${failCount}` : ''}`, "success");
                 setMessage("");
                 setContent("");
-                setSelectedUser("");
+                setSelectedUsers("");
                 setSelectedType("Loại");
-                notify("Gửi thông báo thành công", "success");
                 console.log('success')
             }
 
@@ -159,10 +173,12 @@ export const InstructorNotification = () => {
 
     const getPriorityColor = (type) => {
         switch (type) {
-            case 'Low': return 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800';
-            case 'Medium': return 'bg-orange-100 hover:bg-orange-200 text-orange-800';
-            case 'High': return 'bg-red-100 hover:bg-red-200 text-red-800';
-            default: return 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800';
+            case 'Low':
+                return 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800';
+            case 'High':
+                return 'bg-red-100 hover:bg-red-200 text-red-800';
+            default:
+                return 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800';
         }
     };
     return (
@@ -323,8 +339,8 @@ export const InstructorNotification = () => {
                                                                 <ul className="">
                                                                     <li className="mb-3">
                                                                         <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700  hover:bg-gray-100">
-                                                                        <div className=" mr-3 px-1 rounded-full">
-                                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
+                                                                            <div className=" mr-3 px-1 rounded-full">
+                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
                                                                             </div>
                                                                             <p className="font-semibold text-base">Bảng điều khiển</p>
                                                                         </Link>
@@ -348,8 +364,8 @@ export const InstructorNotification = () => {
                                                                     </li>
                                                                     <li className="mb-3">
                                                                         <Link to="/instructor/notification" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
-                                                                        <div className="bg-yellow-400  mr-3 px-1 rounded-full">
-                                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
+                                                                            <div className="bg-yellow-400  mr-3 px-1 rounded-full">
+                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/notification.svg" className="w-7" alt="" />
                                                                             </div>
                                                                             <p className="font-semibold text-base">Thông báo</p>
                                                                         </Link>
@@ -437,20 +453,51 @@ export const InstructorNotification = () => {
 
                                             {/* Recipient Selection */}
 
+                                            {/* Recipient Selection */}
+                                            {/* Recipient Selection */}
                                             <div className="space-y-2">
-                                                <span className="font-semibold text-lg">Người nhận:</span>
-                                                <div className="relative">
-                                                    <select
-                                                        value={selectedUser}
-                                                        onChange={(e) => setSelectedUser(e.target.value)}
-                                                        className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-colors text-gray-700 pr-10">
-                                                        <option value="" disabled>Chọn người nhận...</option>
-                                                        {users.map((user) => (
-                                                            <option key={user.user_id} value={user.user_id}>
+                                                <div className="flex justify-between">
+                                                    <span className="font-semibold text-lg">Người nhận:</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (selectedUsers.length === users.length) {
+                                                                setSelectedUsers([]);
+                                                            } else {
+                                                                setSelectedUsers(users.map(user => user.user_id));
+                                                            }
+                                                        }}
+                                                        className="bg-white px-5 py-2 rounded border-gray-400 border hover:bg-blue-500 hover:text-white duration-300 font-medium hover:border-blue-500 text-sm cursor-pointer"
+                                                    >
+                                                        {selectedUsers.length === users.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+                                                    </button>
+                                                </div>
+
+                                                <div className="max-h-[300px] overflow-y-auto border rounded-lg p-4">
+                                                    {users.map((user) => (
+                                                        <div key={user.user_id} className="flex items-center space-x-3 py-2 hover:bg-gray-50">
+                                                            <input
+                                                                type="checkbox"
+                                                                id={`user-${user.user_id}`}
+                                                                value={user.user_id}
+                                                                checked={selectedUsers.includes(user.user_id)}
+                                                                onChange={(e) => {
+                                                                    if (e.target.checked) {
+                                                                        setSelectedUsers([...selectedUsers, user.user_id]);
+                                                                    } else {
+                                                                        setSelectedUsers(selectedUsers.filter(id => id !== user.user_id));
+                                                                    }
+                                                                }}
+                                                                className="w-4 h-4 cursor-pointer"
+                                                            />
+                                                            <label htmlFor={`user-${user.user_id}`} className="cursor-pointer flex-1">
                                                                 {user.name} - {user.email}
-                                                            </option>
-                                                        ))}
-                                                    </select>
+                                                            </label>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="text-sm text-gray-500">
+                                                    Đã chọn {selectedUsers.length} người nhận
                                                 </div>
                                             </div>
 
@@ -458,14 +505,14 @@ export const InstructorNotification = () => {
                                             <div className="space-y-2">
                                                 <Label className="text-lg font-medium">Mức độ ưu tiên</Label>
                                                 <div className="flex gap-2">
-                                                    {['Low', 'Medium', 'High'].map((type) => (
+                                                    {['Low', 'High'].map((priority) => (
                                                         <Badge
-                                                            key={type}
-                                                            className={`${getPriorityColor(type)} cursor-pointer px-4 py-1 ${selectedType === type ? 'ring-2 ring-offset-2' : ''
+                                                            key={priority}
+                                                            className={`${getPriorityColor(priority)} cursor-pointer px-4 py-1 ${selectedType === priority ? 'ring-2 ring-offset-2' : ''
                                                                 }`}
-                                                            onClick={() => setSelectedType(type)}
+                                                            onClick={() => setSelectedType(priority)}
                                                         >
-                                                            {type}
+                                                            {priority}
                                                         </Badge>
                                                     ))}
                                                 </div>
