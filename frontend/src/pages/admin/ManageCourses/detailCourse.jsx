@@ -32,8 +32,6 @@ import ReactPlayer from 'react-player';
 import toast, { Toaster } from 'react-hot-toast';
 export default function DetailCourse() {
     const { course_id } = useParams();
-    console.log("Course ID from URL:", course_id);
-
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
 
@@ -56,12 +54,8 @@ export default function DetailCourse() {
                 headers: { 'x-api-secret': API_KEY }
             });
             const data = res.data;
-
-            console.log("Dữ liệu trả về từ API:", data);
-
-            const courseId = Number(course_id);  // Chuyển đổi course_id từ URL thành số
+            const courseId = Number(course_id);
             const selectedCourse = data.find(course => {
-                console.log("So sánh course_id từ URL:", courseId, "với course.course_id trong dữ liệu:", course.course_id);
                 return course.course_id === courseId;
             });
 
@@ -69,8 +63,6 @@ export default function DetailCourse() {
                 setError('Không tìm thấy khóa học');
                 return;
             }
-
-            console.log("Khóa học được chọn từ API:", selectedCourse);
 
             setCourses(data);
             setStats({
@@ -105,7 +97,7 @@ export default function DetailCourse() {
                 return "bg-green-100 text-green-800 w-full text-center flex justify-center items-center p-1 rounded-lg  ";
             case "hide":
                 return "bg-blue-100 text-blue-800 w-full text-center flex justify-center items-center p-1 rounded-lg";
-            }
+        }
     };
     const getStatusText = (status) => {
         switch (status) {
@@ -136,6 +128,7 @@ export default function DetailCourse() {
         fetchCourses();
         fetchCategories();
     }, [course_id]);
+    const navigate = useNavigate();
 
     const [contentLesson, setContentLesson] = useState([]);
     const [titleContent, setTitleContent] = useState([]);
@@ -163,9 +156,6 @@ export default function DetailCourse() {
         }
     };
 
-    const navigate = useNavigate();
-
-
     const fetchContentLesson = async (courseId) => {
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -182,11 +172,10 @@ export default function DetailCourse() {
                 params: { course_id: courseId }
             });
 
-            // Sửa điều kiện kiểm tra dữ liệu để phù hợp với cấu trúc API mới
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
                 const lessonsWithTitles = await Promise.all(
                     res.data.data
-                        .filter(content => content.course_id === Number(courseId) && content.status === 'published'|| content.status === 'hide')
+                        .filter(content => content.course_id === Number(courseId) && content.status === 'published' || content.status === 'hide')
                         .map(async (content) => {
                             try {
                                 const titleRes = await axios.get(`${API_URL}/title-contents`, {
@@ -214,7 +203,7 @@ export default function DetailCourse() {
                 setContentLesson(lessonsWithTitles);
 
                 if (lessonsWithTitles.length === 0) {
-                    toast.info("Không có bài học đã xuất bản.");
+                    console.log("Không có bài học đã xuất bản.");
                 }
             } else {
                 console.error("Dữ liệu không phải là mảng hoặc không có thành công:", res.data);

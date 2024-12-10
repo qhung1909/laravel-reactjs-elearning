@@ -113,7 +113,7 @@ export const Detail = () => {
             fetchLesson();
         }
     }, [slug]);
-
+    
     const [contentLesson, setContentLesson] = useState([]);
     const fetchContentLesson = async (courseId) => {
 
