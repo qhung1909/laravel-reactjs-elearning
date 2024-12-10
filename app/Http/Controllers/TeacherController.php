@@ -1268,4 +1268,28 @@ class TeacherController extends Controller
             'course' => $course
         ]);
     }
+
+    public function deletePriceDiscount(Request $request)
+    {
+        $validated = $request->validate([
+            'course_id' => 'required|exists:courses,course_id', 
+        ]);
+
+        $course = Course::find($validated['course_id']);
+
+        if (!$course) {
+            return response()->json([
+                'message' => 'Course not found.'
+            ], 404);
+        }
+
+        $course->price_discount = null; 
+        $course->save();
+
+        return response()->json([
+            'message' => 'Price discount deleted successfully.',
+            'course' => $course
+        ]);
+    }
+
 }
