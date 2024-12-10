@@ -555,16 +555,22 @@ class TeacherController extends Controller
 
                         $updateData = [
                             'body_content' => $titleContentData['body_content'],
-                            'document_link' => array_key_exists('document_link', $titleContentData) ? $titleContentData['document_link'] : $titleContent->document_link,
-                            'description' => array_key_exists('description', $titleContentData) ? $titleContentData['description'] : $titleContent->description,
+                            'document_link' => array_key_exists('document_link', $titleContentData) 
+                                ? $titleContentData['document_link'] 
+                                : $titleContent->document_link,
+                            'description' => array_key_exists('description', $titleContentData) 
+                                ? $titleContentData['description'] 
+                                : $titleContent->description,
                             'status' => 'draft'
                         ];
 
 
-                        if (isset($titleContentData['video_link']) && $titleContentData['video_link'] instanceof UploadedFile) {
-                            $updateData['video_link'] = $this->handleVideoUpload($titleContentData['video_link'], $titleContent);
-                        } elseif (array_key_exists('video_link', $titleContentData)) {
-                            $updateData['video_link'] = $titleContentData['video_link'];
+                        if (isset($titleContentData['video_link'])) {
+                            if ($titleContentData['video_link'] instanceof UploadedFile) {
+                                $updateData['video_link'] = $this->handleVideoUpload($titleContentData['video_link'], $titleContent);
+                            } else {
+                                $updateData['video_link'] = $titleContentData['video_link'];
+                            }
                         }
 
                         $titleContent->update($updateData);
