@@ -15,6 +15,8 @@ class Progress extends Model
         'course_id',
         'content_id',
         'is_complete',
+        'video_completed',
+        'document_completed',
         'complete_at',
         'progress_percent',
         'complete_update',

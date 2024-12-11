@@ -188,7 +188,9 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/progress/complete-content', [ProgressController::class, 'completeContent']);
     Route::get('/progress/check-completion', [QuizController::class, 'checkQuizCompletion']);
     Route::get('/quiz/check-completion', [ProgressController::class, 'checkQuizCompletion']);
-
+    Route::post('/progress/complete-video', [ProgressController::class, 'completeVideo']);
+    Route::post('/progress/complete-document', [ProgressController::class, 'completeDocument']);
+    
     Route::get('/certificate/details/{certificateId}', [CertificateController::class, 'getCertificateDetails']);
     Route::get('/certificates', [CertificateController::class, 'index']);
 
