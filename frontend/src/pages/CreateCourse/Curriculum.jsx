@@ -1,14 +1,6 @@
 /* eslint-disable no-useless-escape */
 /* eslint-disable react-hooks/exhaustive-deps */
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+
 import { useEffect, useState } from 'react';
 import { Video, X, FileText, ArrowLeft, Menu } from 'lucide-react';
 import { Card } from "@/components/ui/card";
@@ -19,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import 'react-quill/dist/quill.snow.css';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Swal from "sweetalert2";
-import ReactQuill from 'react-quill';
+// import ReactQuill from 'react-quill';
 import axios from 'axios';
 import { SideBarCreateCoure } from './SideBarCreateCoure';
 import { Footer } from '../footer/footer';
@@ -163,7 +155,7 @@ export const Curriculum = () => {
             if (response.data.data.launch_date == null) {
                 setOffLesson(true);
             }
-        } catch (error) {
+        } catch {
             // console.error('Error fetching course data:', error);
         } finally {
             setLoading(false)
@@ -207,7 +199,7 @@ export const Curriculum = () => {
                     setIsDataFetched(true);
                 }
             }
-        } catch (error) {
+        } catch {
             // console.error('Error fetching content:', error);
             // toast.error('Không thể tải nội dung khóa học');
         } finally {
@@ -597,7 +589,7 @@ export const Curriculum = () => {
             } else {
                 toast.error("Có lỗi xảy ra khi xóa video!");
             }
-        } catch (error) {
+        } catch {
             toast.error("Có lỗi xảy ra khi kết nối với máy chủ!");
         }
     };
