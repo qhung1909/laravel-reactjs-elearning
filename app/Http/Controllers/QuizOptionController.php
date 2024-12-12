@@ -81,28 +81,28 @@ class QuizOptionController extends Controller
         if (!Auth::check()) {
             return response()->json(['message' => 'Người dùng chưa đăng nhập.'], 401);
         }
-
+    
         $answers = $request->input('answers');
         $response = [];
         $userId = Auth::id();
         $quizSession = QuizSession::where('user_id', $userId)->latest()->first();
-
+    
         if (!$quizSession) {
             return response()->json(['message' => 'Không tìm thấy phiên quiz.'], 404);
         }
-
+    
         $questions = QuizQuestion::where('quiz_id', $quizSession->quiz_id)->get()->keyBy('question_id');
-
+    
         $existingAnswers = UserAnswer::where('user_id', $userId)
             ->whereIn('question_id', $questions->keys())
             ->pluck('question_id', 'quiz_session_id')
             ->toArray();
-
+    
         $correctAnswersCount = 0;
-
+    
         foreach ($answers as $answer) {
             $questionId = $answer['question_id'];
-
+    
             if (!isset($questions[$questionId])) {
                 $response[] = [
                     'question_id' => $questionId,
@@ -111,7 +111,7 @@ class QuizOptionController extends Controller
                 ];
                 continue;
             }
-
+    
             if (isset($existingAnswers[$quizSession->quiz_session_id]) && $existingAnswers[$quizSession->quiz_session_id] == $questionId) {
                 $response[] = [
                     'question_id' => $questionId,
@@ -120,9 +120,9 @@ class QuizOptionController extends Controller
                 ];
                 continue;
             }
-
+    
             $quizSessionId = $quizSession->quiz_session_id;
-
+    
             switch ($questions[$questionId]->question_type) {
                 case 'single_choice':
                     $this->handleSingleChoice($answer, $questions[$questionId], $response, $correctAnswersCount, $quizSessionId);
@@ -145,31 +145,41 @@ class QuizOptionController extends Controller
                     break;
             }
         }
-
+    
         $quizSession->score += $correctAnswersCount;
         $quizSession->save();
-
+    
         $answeredQuestions = DB::table('user_answers')
             ->where('user_id', $userId)
             ->where('quiz_session_id', $quizSession->quiz_session_id)
             ->distinct('question_id')
             ->count('question_id');
-
+    
         $totalQuestions = $questions->count();
-
+    
         if ($answeredQuestions == $totalQuestions) {
             try {
                 $quizSession->update([
                     'status' => 'completed',
                     'token' => null,
                 ]);
+    
+                $quiz = Quiz::find($quizSession->quiz_id);
+                if ($quiz) {
+                    $progressController = new \App\Http\Controllers\ProgressController();
+                    $progressController->completeContent(new Request([
+                        'content_id' => $quiz->content_id,
+                        'course_id' => $quiz->course_id
+                    ]));
+                }
+    
             } catch (\Exception $e) {
                 Log::error('Error updating quiz session for user ' . $userId . ': ' . $e->getMessage());
             }
         } else {
             Log::info('Not all questions answered yet for user: ' . $userId);
         }
-
+    
         return response()->json($response);
     }
 
