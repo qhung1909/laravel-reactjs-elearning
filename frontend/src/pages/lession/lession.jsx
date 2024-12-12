@@ -1358,26 +1358,19 @@ export const Lesson = () => {
                                                                     </div>
                                                                     <div className="flex-1 flex items-start justify-between min-w-0">
                                                                         <div className="space-y-1">
-                                                                            <h3 className="font-medium text-gray-800 text-sm truncate">
-                                                                                {content.name_content}
-                                                                                {titleContent[content.content_id] && (
-                                                                                    <>
-                                                                                        <span className="h-4 w-[1px] bg-gray-200"></span>
-                                                                                        <div className="flex items-center gap-4">
-                                                                                            {completedLessons.has(content.content_id) ? (
-                                                                                                <span className="text-xs flex items-center text-green-500">
-                                                                                                    <CheckCircle className="w-3 h-3 mr-1" />
-                                                                                                    Đã hoàn thành
-                                                                                                </span>
-                                                                                            ) : (
-                                                                                                <span className="text-xs flex items-center text-gray-400">
-                                                                                                    <Clock className="w-3 h-3 mr-1" />
-                                                                                                    Đang học
-                                                                                                </span>
-                                                                                            )}
-                                                                                        </div>
-                                                                                    </>
-                                                                                )}
+                                                                            <h3 className="font-medium text-gray-800 text-sm truncate flex items-center gap-2">
+                                                                                <span className="flex-1 truncate">{content.name_content}</span>
+                                                                                <div className="flex-shrink-0">
+                                                                                    {completedLessons.has(content.content_id) ? (
+                                                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-green-600">
+                                                                                            <CheckCircle className="w-3 h-3" />
+                                                                                        </span>
+                                                                                    ) : (
+                                                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-red-500">
+                                                                                            <XCircle className="w-3 h-3" />
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
                                                                             </h3>
                                                                             <div className="flex items-center gap-2">
                                                                                 <span className="text-xs text-gray-500 flex items-center">
@@ -1392,31 +1385,23 @@ export const Lesson = () => {
                                                                                     {Array.isArray(titleContent[content.content_id]) ? titleContent[content.content_id].length : 0} phần
                                                                                 </span>
 
-                                                                                {/* Hiển thị trạng thái video & document */}
-
-
-
                                                                                 {content.quiz_id != null && content.quiz_id !== 0 && (
-                                                                                    <button
-                                                                                        onClick={(e) => {
-                                                                                            e.stopPropagation();
-                                                                                            handleShowQuiz(content.content_id);
-                                                                                        }}
-                                                                                        className="flex items-center gap-1 px-3 py-1 text-purple-600 font-medium text-xs rounded-md hover:bg-purple-50 transition-colors"
-                                                                                    >
-                                                                                        <span className="text-xs">Bài tập</span>
-                                                                                        <ArrowRight className="w-3 h-3 mt-0.5" />
-                                                                                    </button>
+                                                                                    <>
+                                                                                        <span className="h-4 w-[1px] bg-gray-200"></span>
+                                                                                        <button
+                                                                                            onClick={(e) => {
+                                                                                                e.stopPropagation();
+                                                                                                handleShowQuiz(content.content_id);
+                                                                                            }}
+                                                                                            className="flex items-center gap-1 px-2 py-1 text-purple-600 font-medium text-xs rounded-md hover:bg-purple-50 transition-colors"
+                                                                                        >
+                                                                                            <span className="text-xs">Bài tập</span>
+                                                                                            <ArrowRight className="w-3 h-3 mt-0.5" />
+                                                                                        </button>
+                                                                                    </>
                                                                                 )}
                                                                             </div>
                                                                         </div>
-
-                                                                        {(() => {
-                                                                            const hasDocument = titleContent[content.content_id]?.some(item => item.document_link);
-                                                                            const isVideoCompleted = videoCompleted[content.content_id];
-                                                                            const isDocumentCompleted = !hasDocument || documentCompleted[content.content_id];
-                                                                            const isQuizCompleted = quizStatus[content.content_id]?.completed ?? true;
-                                                                        })()}
                                                                     </div>
                                                                 </div>
                                                             </AccordionTrigger>
