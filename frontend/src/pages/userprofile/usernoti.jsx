@@ -94,7 +94,6 @@ export const UserNoti = () => {
                             </div>
                             <div className="mt-3">
                                 <TaskList />
-
                             </div>
                         </div>
                     </div>

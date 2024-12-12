@@ -58,7 +58,7 @@ const NotificationDropdown = ({ userId }) => {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-    
+
                 if (response.ok) {
                     const data = await response.json();
                     setNotifications(data.data.notifications);
@@ -67,38 +67,35 @@ const NotificationDropdown = ({ userId }) => {
                 console.error('Error fetching notifications:', error);
             }
         };
-    
+
         if (userId) {
             const channelName = `user.${userId}`;
-            console.log('Attempting to subscribe to channel:', channelName);
 
-            console.log('Setting up realtime for user:', userId);
-            
             const channel = echo.private(`user.${userId}`);
-            
+
             channel.subscribed(() => {
                 console.log('Successfully subscribed to private channel:', channelName);
                 console.log('Channel instance:', channel);
             });
-    
-    
-            channel.listen('.notification', (data) => { 
+
+
+            channel.listen('.notification', (data) => {
                 console.log('Notification event received:', data);
-                
+
                 if (!data.notificationId || !data.message) {
                     console.error('Invalid notification data:', data);
                     return;
                 }
-    
+
                 const newNotification = {
                     id: data.notificationId,
                     message: data.message,
                     created_at: data.timestamp || new Date().toISOString(),
                     is_read: false
                 };
-    
+
                 console.log('Formatted notification:', newNotification);
-    
+
                 setNotifications(prevNotifications => {
                     console.log('Previous state:', prevNotifications);
                     const exists = prevNotifications.some(n => n.id === newNotification.id);
@@ -106,7 +103,7 @@ const NotificationDropdown = ({ userId }) => {
                     console.log('New state:', newState);
                     return newState;
                 });
-    
+
                 toast('Bạn có thông báo mới! Kiểm tra hộp thư của bạn!', {
                     duration: 2000,
                     position: 'top-right',
@@ -118,12 +115,12 @@ const NotificationDropdown = ({ userId }) => {
                     },
                 });
             });
-    
+
             fetchNotifications();
-    
+
             return () => {
                 console.log('Cleaning up channel for user:', userId);
-                channel.stopListening('.notification'); 
+                channel.stopListening('.notification');
                 echo.leave(`user.${userId}`);
             };
         }
