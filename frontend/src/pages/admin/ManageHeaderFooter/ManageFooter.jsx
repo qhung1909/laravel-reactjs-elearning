@@ -154,6 +154,29 @@ export default function ManageFooter() {
 
             const formData = new FormData();
 
+            const requiredFields = {
+                'Tiêu đề': settings.title,
+                'Mô tả': settings.description,
+                'Email': settings.email,
+                'SĐT': settings.phone,
+                'Địa chỉ': settings.address,
+                'facebook': settings.facebook,
+                'twitter': settings.twitter,
+                'instagram': settings.instagram,
+                'linkedin': settings.linkedin,
+                'youtube': settings.youtube
+            };
+
+
+            const emptyFields = Object.entries(requiredFields)
+                .filter(([_, value]) => !value)
+                .map(([key]) => key);
+
+            if (emptyFields.length > 0) {
+                toast.error(`Vui lòng nhập đầy đủ các trường: ${emptyFields.join(', ')}`);
+                return;
+            }
+
             // Get files from inputs
             const logoInput = document.getElementById('logo');
             const faviconInput = document.getElementById('favicon');
@@ -207,18 +230,20 @@ export default function ManageFooter() {
                 rate_limit: settings.rateLimit
             };
 
-            const requiredFields = {
-                facebook: settings.facebook,
-                twitter: settings.twitter,
-                instagram: settings.instagram,
-                linkedin: settings.linkedin,
-                youtube: settings.youtube
-            };
+            // const requiredFields = {
+            //     facebook: settings.facebook,
+            //     twitter: settings.twitter,
+            //     instagram: settings.instagram,
+            //     linkedin: settings.linkedin,
+            //     youtube: settings.youtube
+            // };
 
-            const emptyFields = Object.entries(requiredFields)
-                // eslint-disable-next-line no-unused-vars
-                .filter(([_, value]) => !value)
-                .map(([key]) => key);
+
+
+            // const emptyFields = Object.entries(requiredFields)
+            //     // eslint-disable-next-line no-unused-vars
+            //     .filter(([_, value]) => !value)
+            //     .map(([key]) => key);
 
             if (emptyFields.length > 0) {
                 toast.error(`Vui lòng nhập đầy đủ link ${emptyFields.join(', ')}`);
