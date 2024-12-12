@@ -43,6 +43,9 @@ export const Curriculum = () => {
 
     const [isDataFetched, setIsDataFetched] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [loading_update, setLoadingUpdate] = useState(false);
+
+
 
     const { course_id } = useParams();
 
@@ -545,52 +548,21 @@ export const Curriculum = () => {
         }
 
         try {
-            // Update the title content with null video_link
-            const requestData = {
-                title_contents: [{
-                    title_content_id: lesson.title_content_id,
-                    body_content: lesson.title,
-                    video_link: null,
-                    document_link: lesson.content,
-                    description: lesson.description
-                }]
-            };
-
-            const title_of_video = {
-                title_content_id: lesson.title_content_id
-            }
-
-            const response = await axios.post(
-                `${API_URL}/teacher/title-content/${section.content_id}/video`,
-                title_of_video,
+            const response = await axios.delete(
+                `${API_URL}/teacher/title-content/${lesson.title_content_id}/video`,
                 {
                     headers: {
                         'x-api-secret': API_KEY,
                         'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
                     },
                 }
             );
 
-            if(response.ok){
+            if (response.ok) {
                 toast.success("Video đã được xóa thành công!");
             }
 
-
-            // const response = await axios.post(
-            //     `${API_URL}/teacher/title-content/update/${section.content_id}`,
-            //     requestData,
-            //     {
-            //         headers: {
-            //             'x-api-secret': API_KEY,
-            //             'Authorization': `Bearer ${token}`,
-            //             'Content-Type': 'application/json',
-            //         },
-            //     }
-            // );
-
             if (response.data.success) {
-                // Update local state to reflect the change
                 setSections(prevSections =>
                     prevSections.map(s =>
                         s.id === sectionId ? {
@@ -614,14 +586,6 @@ export const Curriculum = () => {
             toast.error("Có lỗi xảy ra khi kết nối với máy chủ!");
         }
     };
-
-
-
-    // const exportToJsonLog = () => {
-    //     console.log(JSON.stringify(sections, null, 2));
-    //     toast.success("Đã xuất dữ liệu ra log!");
-    // };
-
 
     const openPageQuiz = async (sectionId) => {
         if (!isUpdated && hasChanges) {
@@ -661,7 +625,6 @@ export const Curriculum = () => {
         } catch (error) {
             if (error.response) {
                 if (error.response.status === 400) {
-                    // Lỗi 400, quiz đã tồn tại
                     Swal.fire({
                         title: 'Tiếp tục!',
                         text: 'Quiz đã có sẵn. Chuyển đến trang tạo quiz.',
@@ -742,7 +705,7 @@ export const Curriculum = () => {
         const loadingToast = toast.loading('Đang xử lý...');
 
         try {
-            setLoading(true);
+            setLoadingUpdate(true);
             const updateContentsData = sectionsToUpdate.map((section) => ({
                 content_id: section.content_id,
                 name_content: section.title.trim(),
@@ -842,7 +805,7 @@ export const Curriculum = () => {
         } finally {
             toast.dismiss(loadingToast);
             setIsUpdated(true);
-            setLoading(false);
+            setLoadingUpdate(false);
         }
     };
 
@@ -908,6 +871,11 @@ export const Curriculum = () => {
             {loading && (
                 <div className='loading'>
                     <div className='loading-spin'></div>
+                </div>
+            )}
+            {loading_update && (
+                <div className='loading'>
+                    {/* <div className='loading-spin'></div> */}
                 </div>
             )}
 
@@ -1069,24 +1037,22 @@ export const Curriculum = () => {
 
                                                                         <div>
                                                                             <div className="flex items-center gap-2">
-                                                                                <Video className="text-red-500 h-5 w-5" />
+                                                                                <Video className="text-blue-500 h-5 w-5" />
                                                                                 <label className="font-medium">Tải lên video:</label>
                                                                             </div>
 
                                                                             {lesson.fileName && (
                                                                                 <div className="flex items-center gap-2 mt-2">
                                                                                     <p className="text-gray-600">Link hiện tại: {lesson.fileName}</p>
-                                                                                    <Button
-                                                                                        variant="destructive"
-                                                                                        size="sm"
+
+                                                                                    <X
+                                                                                        className="text-blue-600 cursor-pointer w-24"
                                                                                         onClick={(e) => {
                                                                                             e.preventDefault();
                                                                                             deleteVideo(section.id, lesson.id);
                                                                                         }}
-                                                                                        className="ml-2"
                                                                                     >
-                                                                                        Xóa video
-                                                                                    </Button>
+                                                                                    </X>
                                                                                 </div>
                                                                             )}
                                                                             <Input
