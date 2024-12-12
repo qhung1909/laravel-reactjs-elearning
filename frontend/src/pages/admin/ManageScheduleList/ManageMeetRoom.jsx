@@ -156,11 +156,11 @@ export default function ManageMeetRoom() {
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     <BreadcrumbItem>
-                                        <BreadcrumbLink href="/admin">Trang chủ</BreadcrumbLink>
+                                        <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator />
                                     <BreadcrumbItem>
-                                        <BreadcrumbLink href="/schedule-list">Quản lý phòng Jitsi Meet</BreadcrumbLink>
+                                        <BreadcrumbLink>Quản lý phòng Jitsi Meet</BreadcrumbLink>
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
                             </Breadcrumb>

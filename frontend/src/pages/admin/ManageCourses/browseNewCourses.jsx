@@ -863,7 +863,7 @@ export default function BrowseNewCourses() {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    <BreadcrumbLink href="/" className="flex items-center gap-1">
+                                    <BreadcrumbLink href="/admin" className="flex items-center gap-1">
                                         <LayoutDashboard size={16} />
                                         Dashboard
                                     </BreadcrumbLink>
@@ -871,11 +871,11 @@ export default function BrowseNewCourses() {
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
                                     <BreadcrumbLink
-                                        href="/admin/draft"
-                                        className="flex items-center gap-1 text-blue-600"
+                                        // href="/admin/draft"
+                                        className="flex items-center gap-1 text-blue-600 hover:text-blue-600"
                                     >
                                         <GraduationCap size={16} />
-                                        Quản lý khóa học
+                                        Duyệt khóa học mới từ giảng viên
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                             </BreadcrumbList>

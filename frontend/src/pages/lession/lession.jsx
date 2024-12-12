@@ -21,7 +21,8 @@ import { Calendar } from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DialogDescription } from "@radix-ui/react-dialog";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 const GPT_KEY = import.meta.env.VITE_GPT_KEY;
@@ -427,18 +428,12 @@ export const Lesson = () => {
                 );
 
                 if (allVideosWatched) {
-                    setVideoCompleted(prev => ({
-                        ...prev,
-                        [contentId]: true
-                    }));
-
                     // Kiểm tra document và update progress
                     const hasDocument = titleContent[contentId]?.some(item => item.document_link);
                     const isDocumentCompleted = !hasDocument || documentCompleted[contentId];
 
                     if (isDocumentCompleted) {
                         await updateProgress(contentId);
-                        // Fetch lại progress để cập nhật UI
                         await fetchProgress();
                     }
                 }
@@ -606,36 +601,22 @@ export const Lesson = () => {
 
             if (res.data) {
                 const userProgress = res.data.filter(
-                  (progress) => progress.user_id === user.user_id && progress.course_id === lesson.course_id
+                    (progress) => progress.user_id === user.user_id && progress.course_id === lesson.course_id
                 );
                 setProgressData(userProgress);
-          
-                const newTimeoutId = setTimeout(fetchProgress, 6500);
-                setTimeoutId(newTimeoutId);
-              }
+            }
         } catch (error) {
             console.error("Lỗi khi gọi API tiến độ:", error);
         }
     };
+
     useEffect(() => {
         if (user && lesson) {
-          // Xóa timeout trước đó (nếu có)
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-          }
-      
-          fetchProgress();
+            fetchProgress();
         }
-      }, [user, lesson]);
-    
-      useEffect(() => {
-        return () => {
-          // Xóa timeout khi component bị unmount
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-          }
-        };
-      }, []);
+    }, [user, lesson]);
+
+
     useEffect(() => {
         const checkAllQuizStatus = async () => {
             for (const content of contentLesson) {
@@ -1167,36 +1148,46 @@ export const Lesson = () => {
                                 )}
                             </div>
                             {/* Hiển thị quiz nếu đã bắt đầu, nằm bên trong div video */}
-                            {showQuiz && currentQuizId && (
-                                <Quizzes
-                                    quiz_id={currentQuizId}
-                                    onClose={() => setShowQuiz(false)}
-                                    onComplete={async () => {
-                                        await fetchProgress(); // Fetch lại progress khi quiz hoàn thành
-                                        setShowQuiz(false);
+                            {currentQuizId && (
+                                <Dialog open={showQuiz} onOpenChange={setShowQuiz}>
+                                    <DialogContent className="max-w-4xl w-[90vw] max-h-[90vh] overflow-hidden flex flex-col">
+                                        <DialogHeader>
+                                            <DialogTitle>Bài tập</DialogTitle>
+                                            <DialogDescription>
+                                                Hoàn thành tất cả câu hỏi bên dưới
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="flex-1 overflow-y-auto pr-2">
+                                            <Quizzes
+                                                quiz_id={currentQuizId}
+                                                onClose={() => setShowQuiz(false)}
+                                                onComplete={async () => {
+                                                    await fetchProgress();
+                                                    setShowQuiz(false);
 
-                                        // Thêm cập nhật trạng thái của quiz cho content hiện tại
-                                        setQuizStatus(prev => ({
-                                            ...prev,
-                                            [activeItem.contentId]: {
-                                                hasQuiz: true,
-                                                completed: true
-                                            }
-                                        }));
+                                                    setQuizStatus(prev => ({
+                                                        ...prev,
+                                                        [activeItem.contentId]: {
+                                                            hasQuiz: true,
+                                                            completed: true
+                                                        }
+                                                    }));
 
-                                        // Cập nhật completedLessons nếu đủ điều kiện
-                                        const content = contentLesson.find(c => c.content_id === activeItem.contentId);
-                                        if (content) {
-                                            const hasDocument = titleContent[content.content_id]?.some(item => item.document_link);
-                                            const isVideoCompleted = videoCompleted[content.content_id];
-                                            const isDocumentCompleted = !hasDocument || documentCompleted[content.content_id];
+                                                    const content = contentLesson.find(c => c.content_id === activeItem.contentId);
+                                                    if (content) {
+                                                        const hasDocument = titleContent[content.content_id]?.some(item => item.document_link);
+                                                        const isVideoCompleted = videoCompleted[content.content_id];
+                                                        const isDocumentCompleted = !hasDocument || documentCompleted[content.content_id];
 
-                                            if (isVideoCompleted && isDocumentCompleted) {
-                                                setCompletedLessons(prev => new Set([...prev, content.content_id]));
-                                            }
-                                        }
-                                    }}
-                                />
+                                                        if (isVideoCompleted && isDocumentCompleted) {
+                                                            setCompletedLessons(prev => new Set([...prev, content.content_id]));
+                                                        }
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
                             )}
                         </div>
 

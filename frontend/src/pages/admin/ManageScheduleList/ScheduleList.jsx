@@ -156,11 +156,11 @@ export default function ScheduleList() {
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     <BreadcrumbItem>
-                                        <BreadcrumbLink href="/admin">Trang chủ</BreadcrumbLink>
+                                        <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator />
                                     <BreadcrumbItem>
-                                        <BreadcrumbLink href="/schedule-list">Danh sách lịch dạy</BreadcrumbLink>
+                                        <BreadcrumbLink>Danh sách lịch dạy</BreadcrumbLink>
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
                             </Breadcrumb>

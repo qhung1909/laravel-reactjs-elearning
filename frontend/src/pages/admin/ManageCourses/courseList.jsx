@@ -271,16 +271,22 @@ export default function CourseList() {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    <BreadcrumbLink href="/" className="flex items-center gap-1">
+                                    <BreadcrumbLink href="/admin" className="flex items-center gap-1">
                                         <LayoutDashboard size={16} />
                                         Dashboard
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
-                                <BreadcrumbItem>
-                                    <BreadcrumbLink href="/admin/courses" className="flex items-center gap-1 text-blue-600">
-                                        <GraduationCap size={16} />
+                                <BreadcrumbItem className="hidden md:block">
+                                    <BreadcrumbLink className="flex items-center gap-1">
                                         Quản lý khóa học
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator className="hidden md:block" />
+                                <BreadcrumbItem>
+                                    <BreadcrumbLink className="flex items-center gap-1 text-blue-600 hover:text-blue-600">
+                                        <GraduationCap size={16} />
+                                        Danh sách tất cả khóa học
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
