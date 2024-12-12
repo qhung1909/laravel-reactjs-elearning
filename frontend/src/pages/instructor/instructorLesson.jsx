@@ -155,9 +155,9 @@ export const InstructorLesson = () => {
 
             if (response.status === 200 || response.status === 201) {
                 notify('Cập nhật giá thành công', "success");
-                setTimeout(()=>{
+                setTimeout(() => {
                     window.location.reload();
-                },2000)
+                }, 2000)
             }
 
         } catch (error) {
@@ -192,9 +192,10 @@ export const InstructorLesson = () => {
 
             if (response.status === 200 || response.status === 201) {
                 notify('Xóa giá giảm thành công', "success");
-                setTimeout(()=>{
+                setTimeout(() => {
                     window.location.reload();
-                },2000)            }
+                }, 2000)
+            }
 
         } catch (error) {
             if (error.response) {
@@ -227,6 +228,8 @@ export const InstructorLesson = () => {
                 return "Hết hạn";
             case "need_schedule":
                 return "Bổ sung";
+            case "revision_requested":
+                return "Nháp";
             default:
                 return status;
         }
@@ -286,6 +289,8 @@ export const InstructorLesson = () => {
                 return "bg-black text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs hover:text-white";
             case "draft":
                 return "bg-gray-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
+            case "revision_requested":
+                return "bg-gray-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
             case "pending":
                 return "bg-blue-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
             case "expired":
@@ -300,6 +305,9 @@ export const InstructorLesson = () => {
     // xử lý chuyển trang và hiển thị dialog
     const handleBadgeClick = (item) => {
         if (item.status === "draft") {
+            window.location.href = `/course/manage/${item.course_id}/course-overview`;
+        }
+        if (item.status === "revision_requested") {
             window.location.href = `/course/manage/${item.course_id}/course-overview`;
         }
         if (item.status === "published") {
@@ -482,7 +490,7 @@ export const InstructorLesson = () => {
                                                 </div>
                                                 <div className="flex justify-center">
                                                     <Button
-                                                        onClick={() => handleChangePrice(item.course_id, priceDiscount,item.price)}
+                                                        onClick={() => handleChangePrice(item.course_id, priceDiscount, item.price)}
                                                         className="w-full bg-gray-900 hover:bg-gray-800 text-white">
                                                         Đổi giá
                                                     </Button>
@@ -541,7 +549,7 @@ export const InstructorLesson = () => {
             currentItems.map((item, index) => (
                 <TableRow key={index}>
                     <TableCell>
-                        <Badge onClick={() => handleBadgeClick(item)} style={{ cursor: item.status === "draft" || item.status === "need_schedule" || item.status === "expired" || item.status === "published" ? "pointer" : "not-allowed" }} className={getStatusBadge(item.status)}>
+                        <Badge onClick={() => handleBadgeClick(item)} style={{ cursor: item.status === "draft" || item.status === "revision_requested" || item.status === "need_schedule" || item.status === "expired" || item.status === "published" ? "pointer" : "not-allowed" }} className={getStatusBadge(item.status)}>
                             {getStatusVietnamese(item.status)}
                         </Badge>
                     </TableCell>
@@ -709,6 +717,7 @@ export const InstructorLesson = () => {
             </DialogContent>
         </Dialog>
     );
+    
 
     return (
         <>
