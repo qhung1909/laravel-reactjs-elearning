@@ -1,4 +1,3 @@
-import { formatDateNoTime } from "@/components/FormatDay/Formatday";
 import React, { useEffect, useState } from 'react';
 import {
     Pagination,
@@ -60,7 +59,9 @@ export default function PageCoupons() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [filterStatus, setFilterStatus] = useState('all');
 
-
+    const formatDateNoTime = (dateString) => {
+        return dateString.split('/').reverse().join('-');
+    };
     const validateDiscountPrice = (value) => {
         if (value === '') {
             return true;
@@ -268,9 +269,15 @@ export default function PageCoupons() {
         formData.append('start_discount', formatDateNoTime(editStartDate));
         formData.append('end_discount', formatDateNoTime(editEndDate));
 
+        console.log('FormData entries:');
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+    }
+
+
         try {
             const res = await axios.post(`${API_URL}/coupons`, formData, {
-                headers: { 'x-api-secret': API_KEY },
+                headers: { 'x-api-secret': API_KEY, 'Content-Type': 'multipart/form-data' },
             });
             if (res.status === 201) {
                 toast.dismiss();
