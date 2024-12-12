@@ -266,6 +266,7 @@ export const Lesson = () => {
     //Progress
     const [completedLessons, setCompletedLessons] = useState(new Set());
     const [completedVideosInSection, setCompletedVideosInSection] = useState({});
+    const [completedDocumentsInContent, setCompletedDocumentsInContent] = useState({});
     const [videoProgress, setVideoProgress] = useState({});
     const [videoDurations, setVideoDurations] = useState({});
     const [progressData, setProgressData] = useState([]);
@@ -464,30 +465,39 @@ export const Lesson = () => {
                 }
             );
 
-            setDocumentCompleted((prev) => ({
+            // Cập nhật trạng thái cho document cụ thể
+            setCompletedDocumentsInContent(prev => ({
                 ...prev,
-                [contentId]: true,
+                [contentId]: {
+                    ...(prev[contentId] || {}),
+                    [titleContentId]: true
+                }
             }));
-            setCompletedVideosInContent(prev => {
-                const updatedVideos = {
+
+            // Kiểm tra xem tất cả document trong content đã hoàn thành chưa
+            const allDocumentsInSection = titleContent[contentId]?.filter(item => item.document_link) || [];
+            const allDocumentsCompleted = allDocumentsInSection.every(doc =>
+                completedDocumentsInContent[contentId]?.[doc.title_content_id] ||
+                doc.title_content_id === titleContentId
+            );
+
+            // Chỉ set documentCompleted khi tất cả document đã hoàn thành
+            if (allDocumentsCompleted) {
+                setDocumentCompleted(prev => ({
                     ...prev,
-                    [contentId]: {
-                        ...(prev[contentId] || {}),
-                        [titleContentId]: true
-                    }
-                };
-                return updatedVideos;
-            });
-            // Kiểm tra xem video của content này đã hoàn thành chưa
-            const isVideoCompleted = videoCompleted[contentId];
+                    [contentId]: true
+                }));
 
+                // Kiểm tra video completion để update progress
+                const hasVideo = titleContent[contentId]?.some(item => item.video_link);
+                const isVideoCompleted = !hasVideo || videoCompleted[contentId];
 
-            // Nếu video đã hoàn thành, tiến hành update progress
-            if (isVideoCompleted) {
-                await updateProgress(contentId);
+                if (isVideoCompleted) {
+                    await updateProgress(contentId);
+                }
             }
 
-            // Cập nhật giao diện ngay lập tức
+            // Cập nhật giao diện
             await fetchProgress();
         } catch (error) {
             console.error("Lỗi khi cập nhật trạng thái document:", error);
@@ -524,6 +534,8 @@ export const Lesson = () => {
             const updatedVideoCompleted = {};
             const updatedDocumentCompleted = {};
             const updatedCompletedVideosInContent = {};
+            const updatedCompletedDocumentsInContent = {};
+
 
             progressData.forEach((progress) => {
                 // Xử lý video đã hoàn thành
@@ -544,14 +556,23 @@ export const Lesson = () => {
                         updatedVideoCompleted[progress.content_id] = true;
                     }
                 }
+                if (progress.document_completed === 1) {
+                    if (titleContent[progress.content_id]) {
+                        titleContent[progress.content_id]
+                            .filter(item => item.document_link)
+                            .forEach(doc => {
+                                if (!updatedCompletedDocumentsInContent[progress.content_id]) {
+                                    updatedCompletedDocumentsInContent[progress.content_id] = {};
+                                }
+                                updatedCompletedDocumentsInContent[progress.content_id][doc.title_content_id] = true;
+                            });
+                        updatedDocumentCompleted[progress.content_id] = true;
+                    }
+                }
 
                 if (progress.is_complete) {
                     updatedCompletedLessons.add(progress.content_id);
                     updatedCompletedVideos[progress.content_id] = true;
-                }
-
-                if (progress.document_completed) {
-                    updatedDocumentCompleted[progress.content_id] = true;
                 }
             });
 
@@ -561,6 +582,7 @@ export const Lesson = () => {
             setVideoCompleted(updatedVideoCompleted);
             setDocumentCompleted(updatedDocumentCompleted);
             setCompletedVideosInContent(updatedCompletedVideosInContent);
+            setCompletedDocumentsInContent(updatedCompletedDocumentsInContent);
         }
     }, [progressData, titleContent]);
     // Fetch progress
@@ -1450,12 +1472,13 @@ export const Lesson = () => {
                                                                                                     {item.video_link && <span className="h-4 w-[1px] bg-gray-200"></span>}
                                                                                                     <span className="text-xs flex items-center">
                                                                                                         <FileCheck className="w-3 h-3 mr-1" />
-                                                                                                        <span className={documentCompleted[content.content_id] ? "text-green-500" : "text-gray-400"}>
-                                                                                                            {documentCompleted[content.content_id] ? "Đã đọc" : "Chưa đọc"}
+                                                                                                        <span className={completedDocumentsInContent[content.content_id]?.[item.title_content_id] ? "text-green-500" : "text-gray-400"}>
+                                                                                                            {completedDocumentsInContent[content.content_id]?.[item.title_content_id] ? "Đã đọc" : "Chưa đọc"}
                                                                                                         </span>
                                                                                                     </span>
                                                                                                 </>
                                                                                             )}
+
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
