@@ -72,7 +72,7 @@ export default function PageCoupons() {
             return false;
         }
 
-        if (numValue < 0) {
+        if (numValue < 1) {
             return false;
         }
 
@@ -157,14 +157,12 @@ export default function PageCoupons() {
                 });
             }
 
-            // Lọc theo searchTerm nếu có
             if (searchTerm) {
                 dataToExport = dataToExport.filter(coupon =>
                     coupon.name_coupon.toLowerCase().includes(searchTerm.toLowerCase())
                 );
             }
 
-            // Chuẩn bị dữ liệu cho Excel
             const excelData = [
                 ['STT', 'Mã giảm giá', 'Số tiền giảm', 'Ngày bắt đầu', 'Ngày kết thúc', 'Ngày tạo', 'Ngày cập nhật', 'Trạng thái'],
                 ...dataToExport.map((coupon, index) => {
@@ -270,9 +268,9 @@ export default function PageCoupons() {
         formData.append('end_discount', formatDateNoTime(editEndDate));
 
         console.log('FormData entries:');
-    for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-    }
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
 
 
         try {
@@ -283,7 +281,7 @@ export default function PageCoupons() {
                 toast.dismiss();
                 toast.success('Thêm mã giảm giá thành công!', {
                     duration: 3000,
-                    position: 'top-right'
+                    position: 'top-center'
                 });
                 fetchCoupons();
                 setNewCouponName('');
@@ -297,7 +295,7 @@ export default function PageCoupons() {
             console.error('Error adding coupon:', error);
             toast.error('Lỗi khi thêm mã giảm giá. Vui lòng thử lại!', {
                 duration: 3000,
-                position: 'top-right'
+                position: 'top-center'
             });
         }
     };
@@ -333,7 +331,7 @@ export default function PageCoupons() {
                 toast.dismiss();
                 toast.success('Cập nhật mã giảm giá thành công!', {
                     duration: 3000,
-                    position: 'top-right'
+                    position: 'top-center'
                 });
                 fetchCoupons();
                 setEditCouponId(null);
@@ -346,7 +344,7 @@ export default function PageCoupons() {
             console.error('Error editing coupon:', error);
             toast.error('Lỗi khi cập nhật mã giảm giá. Vui lòng thử lại!', {
                 duration: 3000,
-                position: 'top-right'
+                position: 'top-center'
             });
         }
     };
@@ -440,7 +438,7 @@ export default function PageCoupons() {
 
     return (
         <SidebarProvider>
-            <Toaster position="top-right" />
+            {/* <Toaster position="top-right" /> */}
             <SideBarUI />
             <SidebarInset>
                 <header className="z-10 absolute left-1 top-3 font-sans">
