@@ -309,7 +309,9 @@ class CourseController extends Controller
             $course = DB::transaction(function () use ($request) {
                 $userId = auth()->id();
 
-                $baseSlug = Str::slug($request->title);
+                $title = $request->title ?: 'Chưa có tên khóa học';
+
+                $baseSlug = Str::slug($title);
                 $slug = $baseSlug;
                 $counter = 1;
 
