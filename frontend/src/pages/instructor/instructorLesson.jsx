@@ -68,7 +68,7 @@ export const InstructorLesson = () => {
     const { instructor, logout, refreshToken } = useContext(UserContext);
     const API_URL = import.meta.env.VITE_API_URL;
     const API_KEY = import.meta.env.VITE_API_KEY;
-    const [setLoadingLogout] = useState(false);
+    const [loadingLogout,setLoadingLogout] = useState(false);
     const [_success] = useState("");
     const [loading, setLoading] = useState(false)
     const [teacherCourses, setTeacherCourses] = useState([]);
@@ -604,6 +604,7 @@ export const InstructorLesson = () => {
             setLoadingLogout(false);
         }
     };
+
 
     // hàm xử lý refreshtoken
     const handleRefreshToken = async () => {
