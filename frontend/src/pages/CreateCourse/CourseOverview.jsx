@@ -476,7 +476,6 @@ export const CourseOverview = () => {
                                 value={courseTitle === "Chưa có tên khóa học" ? "" : courseTitle}
                                 onChange={(e) => {
                                     setCourseTitle(e.target.value);
-                                    // Reset lỗi khi người dùng nhập vào
                                     if (e.target.value.trim() !== '') {
                                         setErrors(prev => ({ ...prev, titleError: '' }));
                                     }
@@ -519,26 +518,7 @@ export const CourseOverview = () => {
                             <h2 className="pb-2 font-medium text-lg">Đặt giá cho khóa học của bạn</h2>
                             {/* <div className="flex flex-cols-2 py-2 gap-4"> */}
                             <div className="w-1/4">
-                                {/* <div>
-                                    <Select value={currency} onValueChange={(value) => {
-                                        setCurrency(value);
-                                        // Reset lỗi khi người dùng chọn giá trị
-                                        if (value !== '') {
-                                            setErrors(prev => ({ ...prev, categoryError: '' }));
-                                        }
-                                    }}>
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Chọn tiền tệ" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                <SelectLabel>Tiền tệ</SelectLabel>
-                                                <SelectItem value="vnd">VND</SelectItem>
-                                                <SelectItem value="usd">USD</SelectItem>
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                </div> */}
+
                                 <div>
                                     <Input className='h-[36px]' value={parseFloat(price).toFixed(0)} onChange={(e) => {
                                         setPrice(e.target.value);
@@ -557,19 +537,6 @@ export const CourseOverview = () => {
                         <div className="pb-6">
                             <h2 className="pb-1 text-lg font-medium">Thông tin cơ bản</h2>
                             <div className="grid grid-cols-3 gap-4">
-                                {/* <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="-- Chọn ngôn ngữ --" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectLabel>Ngôn ngữ</SelectLabel>
-                                            <SelectItem value="vietnamese">Tiếng Việt</SelectItem>
-                                            <SelectItem value="english">Tiếng Anh</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select> */}
-
                                 <Select value={selectedCategory} onValueChange={(value) => {
                                     setSelectedCategory(value);
                                     // Reset lỗi khi người dùng chọn giá trị

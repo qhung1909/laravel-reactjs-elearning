@@ -101,17 +101,35 @@ export const Footer = () => {
                                         <ul className="mt-1 space-y-1">
                                             <li className="flex items-center gap-2">
                                                 <Phone className="w-5 h-5 text-gray-500" />
-                                                <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">{settings.phone}</p>
+                                                <a
+                                                    href={`tel:${settings.phone}`}
+                                                    className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose hover:underline"
+                                                >
+                                                    {settings.phone}
+                                                </a>
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <MapPin className="w-5 h-5 text-gray-500" />
-                                                <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">{settings.address}</p>
+                                                <a
+                                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose hover:underline"
+                                                >
+                                                    {settings.address}
+                                                </a>
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <Mail className="w-5 h-5 text-gray-500" />
-                                                <p className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose">{settings.email}</p>
+                                                <a
+                                                    href={`mailto:${settings.email}`}
+                                                    className="text-sm text-gray-500 md:leading-9 sm:leading-7 leading-loose hover:underline"
+                                                >
+                                                    {settings.email}
+                                                </a>
                                             </li>
                                         </ul>
+
                                     </div>
                                 </div>
                             </div>
