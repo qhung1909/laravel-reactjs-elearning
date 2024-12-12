@@ -1426,23 +1426,28 @@ export const Lesson = () => {
                                                                                             </p>
                                                                                         </div>
                                                                                         <div className="flex items-center gap-2 mt-1">
-                                                                                            <span className="text-xs text-gray-400 flex items-center">
-                                                                                                <Clock className="w-3 h-3 mr-1" />
-                                                                                                {videoDurations[item.title_content_id]
-                                                                                                    ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}`
-                                                                                                    : "0:00"}
-                                                                                            </span>
-
                                                                                             {/* Trạng thái video */}
-                                                                                            <span className={`text-xs flex items-center ${completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'text-green-500' : 'text-gray-400'}`}>
-                                                                                                <Video className="w-3 h-3 mr-1" />
-                                                                                                {completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'Đã xem' : 'Chưa xem'}
-                                                                                            </span>
+                                                                                            {item.video_link && (
+                                                                                                <>
+                                                                                                    <span className="text-xs text-gray-400 flex items-center">
+                                                                                                        <Clock className="w-3 h-3 mr-1" />
+                                                                                                        {videoDurations[item.title_content_id]
+                                                                                                            ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}`
+                                                                                                            : "0:00"}
+                                                                                                    </span>
+
+                                                                                                    {/* Trạng thái video */}
+                                                                                                    <span className={`text-xs flex items-center ${completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'text-green-500' : 'text-gray-400'}`}>
+                                                                                                        <Video className="w-3 h-3 mr-1" />
+                                                                                                        {completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'Đã xem' : 'Chưa xem'}
+                                                                                                    </span>
+                                                                                                </>
+                                                                                            )}
 
                                                                                             {/* Chỉ hiển thị trạng thái document nếu item có document_link */}
                                                                                             {item.document_link && (
                                                                                                 <>
-                                                                                                    <span className="h-4 w-[1px] bg-gray-200"></span>
+                                                                                                    {item.video_link && <span className="h-4 w-[1px] bg-gray-200"></span>}
                                                                                                     <span className="text-xs flex items-center">
                                                                                                         <FileCheck className="w-3 h-3 mr-1" />
                                                                                                         <span className={documentCompleted[content.content_id] ? "text-green-500" : "text-gray-400"}>
