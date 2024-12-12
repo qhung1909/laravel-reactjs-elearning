@@ -385,7 +385,7 @@ export const Lesson = () => {
         if (!videoProgress[titleContentId]) {
             try {
                 const token = localStorage.getItem("access_token");
-
+    
                 // Call API update video completion
                 await axios.post(
                     `${API_URL}/progress/complete-video`,
@@ -400,13 +400,13 @@ export const Lesson = () => {
                         },
                     }
                 );
-
+    
                 // Update UI for current video progress
                 setVideoProgress(prev => ({
                     ...prev,
                     [titleContentId]: true
                 }));
-
+    
                 // Update completed videos list in content
                 setCompletedVideosInContent(prev => {
                     const updatedVideos = {
@@ -418,31 +418,25 @@ export const Lesson = () => {
                     };
                     return updatedVideos;
                 });
-
+    
                 // Check if all videos in section are watched
                 const allVideosInSection = titleContent[contentId] || [];
                 const allVideosWatched = allVideosInSection.every(video =>
                     completedVideosInContent[contentId]?.[video.title_content_id] ||
                     video.title_content_id === titleContentId
                 );
-
+    
                 if (allVideosWatched) {
-                    setVideoCompleted(prev => ({
-                        ...prev,
-                        [contentId]: true
-                    }));
-
                     // Kiểm tra document và update progress
                     const hasDocument = titleContent[contentId]?.some(item => item.document_link);
                     const isDocumentCompleted = !hasDocument || documentCompleted[contentId];
-
+    
                     if (isDocumentCompleted) {
                         await updateProgress(contentId);
-                        // Fetch lại progress để cập nhật UI
                         await fetchProgress();
                     }
                 }
-
+    
             } catch (error) {
                 console.error("Lỗi khi cập nhật video progress:", error);
                 toast.error("Có lỗi xảy ra khi cập nhật tiến độ video");
