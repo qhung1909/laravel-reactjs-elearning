@@ -30,6 +30,15 @@ import {
     PaginationLink,
 } from "@/components/ui/pagination"
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+
+import {
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
@@ -117,7 +126,7 @@ export default function TaskList() {
             })
             setSelectedNotification(response.data.data);
             console.log(response.data.data)
-            await markAsRead(notificationId);
+            await handleMarkAsRead(notificationId);
         } catch (error) {
             console.error('Error fetching notification details:', error);
         }
@@ -212,24 +221,30 @@ export default function TaskList() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger>
-                                                        <Button variant="ghost">
-                                                            <MoreHorizontal className="h-5 w-5" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent>
-                                                        <DropdownMenuItem onClick={() => handleNotificationClick(notification.id)}>
-                                                            <Eye className="h-4 w-4 mr-2" /> Xem chi tiết
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => handleMarkAsRead(notification.id)}>
-                                                            <Check className="h-4 w-4 mr-2" /> Đánh dấu đã đọc
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => handleDeleteNotification(notification.id)}>
-                                                            <Trash className="h-4 w-4 mr-2" /> Xóa
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
+                                                <div className="flex gap-1 items-center">
+                                                    <Dialog>
+                                                        <DialogTrigger>
+                                                            <Eye className="h-4 w-4 mr-2" />
+                                                        </DialogTrigger>
+                                                        <DialogContent
+                                                            onClick={() => handleNotificationClick(notification.id)} className="cursor-pointer"
+                                                        >
+                                                            <DialogHeader>
+                                                                <DialogTitle>Are you absolutely sure?</DialogTitle>
+                                                                <DialogDescription>
+                                                                    This action cannot be undone. This will permanently delete your account
+                                                                    and remove your data from our servers.
+                                                                </DialogDescription>
+                                                            </DialogHeader>
+                                                        </DialogContent>
+                                                    </Dialog>
+                                                    <button onClick={() => handleMarkAsRead(notification.id)} className="cursor-pointer">
+                                                        <Check className="h-4 w-4 mr-2" />
+                                                    </button>
+                                                    <button onClick={() => handleDeleteNotification(notification.id)} className="cursor-pointer">
+                                                        <Trash className="h-4 w-4 mr-2" />
+                                                    </button>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ))
