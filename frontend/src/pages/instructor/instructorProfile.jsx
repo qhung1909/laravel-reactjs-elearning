@@ -44,6 +44,7 @@ export const InstructorProfile = () => {
     const [password_confirmation, setPassword_Confirmation] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isProfileSubmitting, setIsProfileSubmitting] = useState(false);
+    const [showPasswordTab, setShowPasswordTab] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -57,7 +58,10 @@ export const InstructorProfile = () => {
                 setRole(instructor.role);
                 setLoading(false);
             }
-        }, 500); // Thêm độ trễ 500ms
+            if (instructor && instructor.google_id) {
+                setShowPasswordTab(false);
+            }
+        }, 500);
 
         return () => clearTimeout(timer);
     }, [instructor]);
@@ -74,8 +78,33 @@ export const InstructorProfile = () => {
     // hàm xử lý update user profile
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
-        if (isProfileSubmitting) return;
 
+        if (userName === instructor.name && !avatar) {
+            toast.error("Vui lòng thay đổi thông tin trước khi cập nhật")
+            return;
+        }
+        const specialCharRegex = /^[a-zA-Z0-9_]+$/;
+        if (!specialCharRegex.test(userName)) {
+            toast.error("Tên người dùng không được chứa ký tự đặc biệt");
+            return;
+        }
+
+        if (avatar) {
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+
+            if (!allowedTypes.includes(avatar.type)) {
+                toast.error("Chỉ cho phép tải lên ảnh định dạng JPG, PNG, GIF");
+                return;
+            }
+
+            if (avatar.size > maxSize) {
+                toast.error("Kích thước ảnh không được vượt quá 5MB");
+                return;
+            }
+        }
+
+        if (isProfileSubmitting) return;
         setIsProfileSubmitting(true);
         try {
             await updateUserProfile(userName, email, avatar);
@@ -91,10 +120,17 @@ export const InstructorProfile = () => {
 
     // hàm xử lý đăng xuất
     const handleLogout = () => {
-        setLoadingLogout(true);
-        logout();
-        setLoadingLogout(false);
+        try {
+            setLoadingLogout(true);
+            logout();
+            navigate('/login');
+        } catch (error) {
+            notify('Có lỗi xảy ra khi đăng xuất', 'error');
+        } finally {
+            setLoadingLogout(false);
+        }
     };
+
 
     // hàm xử lý validate thay đổi mật khẩu
     const handleChangePassword = async (e) => {
@@ -240,7 +276,7 @@ export const InstructorProfile = () => {
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger>
                                                         <div className="flex items-center">
-                                                        <p className="text-gray-600 text-sm">
+                                                            <p className="text-gray-600 text-sm">
                                                                 {instructor?.role === "teacher" ? 'Giảng viên' : instructor?.role}
                                                             </p>
 
@@ -282,8 +318,8 @@ export const InstructorProfile = () => {
                                                                 <ul className="">
                                                                     <li className="mb-3">
                                                                         <Link to="/instructor" className="flex items-center px-4 py-2 rounded-2xl text-gray-700  hover:bg-gray-100">
-                                                                        <div className=" mr-3 px-1 rounded-full">
-                                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
+                                                                            <div className=" mr-3 px-1 rounded-full">
+                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/dashboard.svg" className="w-7" alt="" />
                                                                             </div>
                                                                             <p className="font-semibold text-base">Bảng điều khiển</p>
                                                                         </Link>
@@ -315,8 +351,8 @@ export const InstructorProfile = () => {
                                                                     </li>
                                                                     <li className="mb-3">
                                                                         <Link to="/instructor/profile" className="flex items-center px-4 py-2 rounded-2xl text-gray-600 bg-gray-100">
-                                                                        <div className="bg-yellow-400  mr-3 px-1 rounded-full">
-                                                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
+                                                                            <div className="bg-yellow-400  mr-3 px-1 rounded-full">
+                                                                                <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/user.svg" className="w-7" alt="" />
                                                                             </div>
                                                                             <p className="font-semibold text-base">Thông tin tài khoản</p>
                                                                         </Link>
@@ -355,11 +391,13 @@ export const InstructorProfile = () => {
                                             </div>
                                         </TabsTrigger>
                                         {/* header 2 */}
-                                        <TabsTrigger value="password" className="rounded-xl">
-                                            <div className=" py-2 text-base font-bold text-gray-600">
-                                                Mật khẩu
-                                            </div>
-                                        </TabsTrigger>
+                                        {showPasswordTab && (
+                                            <TabsTrigger value="password" className="rounded-xl">
+                                                <div className=" py-2 text-base font-bold text-gray-600">
+                                                    Mật khẩu
+                                                </div>
+                                            </TabsTrigger>
+                                        )}
                                     </div>
                                 </TabsList>
                                 {/* tabs - content */}

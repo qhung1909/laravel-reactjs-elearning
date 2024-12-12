@@ -501,7 +501,7 @@ class TeacherController extends Controller
                     'message' => 'Người dùng chưa đăng nhập'
                 ], 401);
             }
-    
+
             $content = Content::where('content_id', $contentId)->first();
             if (!$content) {
                 return response()->json([
@@ -509,14 +509,14 @@ class TeacherController extends Controller
                     'message' => 'Không tìm thấy nội dung'
                 ], 404);
             }
-    
+
             if (empty($request->title_contents)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Vui lòng cung cấp dữ liệu cần cập nhật'
                 ], 422);
             }
-    
+
             $validator = Validator::make($request->all(), [
                 'title_contents.*.title_content_id' => 'required|exists:title_content,title_content_id',
                 'title_contents.*.body_content' => 'required|string',
@@ -528,7 +528,7 @@ class TeacherController extends Controller
                 'title_contents.*.title_content_id.required' => 'ID không được để trống',
                 'title_contents.*.title_content_id.exists' => 'ID không tồn tại',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -536,25 +536,25 @@ class TeacherController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-    
+
             DB::beginTransaction();
             try {
                 foreach ($request->title_contents as $index => $titleContentData) {
                     $titleContent = TitleContent::where('title_content_id', $titleContentData['title_content_id'])
                         ->where('content_id', $contentId)
                         ->first();
-    
+
                     if (!$titleContent) {
                         throw new \Exception("ID {$titleContentData['title_content_id']} không hợp lệ");
                     }
-    
+
                     $updateData = [
                         'body_content' => $titleContentData['body_content'],
                         'document_link' => $titleContentData['document_link'] ?? $titleContent->document_link,
                         'description' => $titleContentData['description'] ?? $titleContent->description,
                         'status' => 'draft'
                     ];
-                    
+
                     if (isset($titleContentData['document_link']) && !empty($titleContentData['document_link'])) {
                         $updateData['document_link'] = $titleContentData['document_link'];
                     } else {
@@ -568,23 +568,92 @@ class TeacherController extends Controller
                         ], [
                             'video.max' => 'File video không được vượt quá 100MB'
                         ]);
-    
+
                         if ($videoValidator->fails()) {
                             throw new \Exception($videoValidator->errors()->first('video'));
                         }
-    
+
                         $updateData['video_link'] = $this->handleVideoUpload($videoFile, $titleContent);
                     } else {
                         $updateData['video_link'] = $titleContent->video_link;
                     }
-    
+
                     $titleContent->update($updateData);
                 }
-    
+
                 DB::commit();
                 return response()->json([
                     'success' => true,
                     'message' => 'Cập nhật tiêu đề nội dung thành công'
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function removeVideoLink($titleContentId)
+    {
+        try {
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Người dùng chưa đăng nhập'
+                ], 401);
+            }
+
+            DB::beginTransaction();
+
+            try {
+                $titleContent = TitleContent::where('title_content_id', $titleContentId)->first();
+
+                if (!$titleContent) {
+                    throw new \Exception('Không tìm thấy tiêu đề nội dung');
+                }
+
+                // Nếu có file video trên S3, xóa file
+                if ($titleContent->video_link) {
+                    $s3 = new S3Client([
+                        'region'  => env('AWS_DEFAULT_REGION'),
+                        'version' => 'latest',
+                        'credentials' => [
+                            'key'    => env('AWS_ACCESS_KEY_ID'),
+                            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+                        ],
+                        'http' => [
+                            'verify' => env('VERIFY_URL'),
+                        ],
+                    ]);
+
+                    $oldKey = str_replace(env('AWS_URL'), '', $titleContent->video_link);
+
+                    try {
+                        $s3->deleteObject([
+                            'Bucket' => env('AWS_BUCKET'),
+                            'Key'    => $oldKey,
+                        ]);
+                    } catch (\Exception $e) {
+                        Log::error('Lỗi xóa video cũ trên S3: ' . $e->getMessage());
+                    }
+                }
+
+                // Cập nhật video_link thành null
+                $titleContent->update([
+                    'video_link' => null,
+                    'status' => 'draft'
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Xóa video liên kết thành công'
                 ]);
             } catch (\Exception $e) {
                 DB::rollBack();

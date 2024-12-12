@@ -275,7 +275,29 @@ export const CreateQuiz = () => {
     };
 
 
+    useEffect(() => {
+        const fetchStatusCourse = async () => {
+            try {
+                const res = await axios.get(`${API_URL}/teacher/courses/${course_id}`, {
+                    headers: {
+                        'x-api-secret': API_KEY,
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    }
+                });
+                if (res.data.data.status === 'revision_requested' || res.data.data.status === 'draft') {
+                    // Cho phép truy cập vào trang hiện tại
+                } else {
+                    notify(`Quiz của khóa học "${res.data.data.title}" không ở trạng thái nháp. Không có quyền truy cập !`)
+                    navigate('/instructor/lesson');
+                }
 
+            } catch (error) {
+                console.error(error);
+
+            }
+        }
+        fetchStatusCourse();
+    }, [API_KEY, API_URL, course_id, navigate])
 
 
 

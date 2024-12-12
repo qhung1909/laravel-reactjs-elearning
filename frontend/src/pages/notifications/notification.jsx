@@ -11,24 +11,23 @@ import {
 import {
     Card,
     CardContent,
-    CardHeader,
-    CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
     Pagination,
     PaginationContent,
     PaginationItem,
     PaginationLink,
 } from "@/components/ui/pagination"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+
 import {
     AlertDialog,
     AlertDialogAction,
@@ -43,8 +42,9 @@ import {
 import { Bell, Search, MoreHorizontal, Eye, Trash, Check } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import axios from "axios"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 export default function TaskList() {
-    const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState("")
     const [currentPage, setCurrentPage] = useState(1)
@@ -52,10 +52,22 @@ export default function TaskList() {
     const [totalPages, setTotalPages] = useState(0)
     const [selectedNotification, setSelectedNotification] = useState(null);
     const [notifications, setNotifications] = useState([]);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const API_URL = import.meta.env.VITE_API_URL
     const location = useLocation()
     const navigate = useNavigate()
+
+    // chuyển đổi nội dung html
+    const createMarkup = (htmlContent) => {
+        return { __html: htmlContent };
+    };
+
+    // tìm kiếm
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+    };
 
     // hàm xử lý hiện thông báo
     const fetchNotifications = async (page = 1) => {
@@ -84,6 +96,8 @@ export default function TaskList() {
             setLoading(false);
         }
     };
+
+    // hàm xử lý xem tbao
     const handleMarkAsRead = async (notificationId) => {
         const token = localStorage.getItem('access_token');
         try {
@@ -117,7 +131,26 @@ export default function TaskList() {
             })
             setSelectedNotification(response.data.data);
             console.log(response.data.data)
-            await markAsRead(notificationId);
+            await handleMarkAsRead(notificationId);
+        } catch (error) {
+            console.error('Error fetching notification details:', error);
+        }
+    };
+
+    // hàm xử lý xóa tbao
+    const handleDeleteNotification = async (notificationId) => {
+        const token = localStorage.getItem('access_token');
+        try {
+            const response = await axios.delete(`${API_URL}/auth/notifications/${notificationId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            })
+            setNotifications(prevNotifications =>
+                prevNotifications.filter(notification => notification.id !== notificationId)
+            );
+            setSelectedNotification(null);
+
         } catch (error) {
             console.error('Error fetching notification details:', error);
         }
@@ -126,16 +159,11 @@ export default function TaskList() {
     useEffect(() => {
         const params = new URLSearchParams(location.search)
         const page = parseInt(params.get('page')) || 1
-        const per_page = parseInt(params.get('per_page')) || tasksPerPage
-
         setCurrentPage(page)
         fetchNotifications(page)
     }, [location.search])
 
-    const filteredNotifications = notifications.filter(notification =>
-        notification.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        notification.sender_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+
 
 
     const TaskSkeleton = () => (
@@ -159,20 +187,8 @@ export default function TaskList() {
     return (
         <Card className="border-0 bg-white/80 backdrop-blur-sm">
 
-            <CardContent className="p-0">
+            <CardContent className="pb-3 px-0">
                 <div className="space-y-6">
-                    {/* Search Box */}
-                    <div className="flex items-center space-x-2 bg-gray-50 p-3 rounded-xl">
-                        <Search className="h-5 w-5 text-gray-400" />
-                        <Input
-                            placeholder="Tìm kiếm thông báo..."
-                            className="flex-1 bg-transparent border-none focus:ring-1 focus:ring-yellow-400"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-
-
                     {/* Table */}
                     <div className="rounded-xl border border-gray-100 overflow-hidden">
                         <Table>
@@ -212,24 +228,83 @@ export default function TaskList() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger>
-                                                        <Button variant="ghost">
-                                                            <MoreHorizontal className="h-5 w-5" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent>
-                                                        <DropdownMenuItem onClick={() => handleNotificationClick(notification.id)}>
-                                                            <Eye className="h-4 w-4 mr-2" /> Xem chi tiết
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => handleMarkAsRead(notification.id)}>
-                                                            <Check className="h-4 w-4 mr-2" /> Đánh dấu đã đọc
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => handleDeleteNotification(notification.id)}>
-                                                            <Trash className="h-4 w-4 mr-2" /> Xóa
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
+                                                <div className="flex gap-1 items-center">
+                                                    <Dialog
+                                                        open={isDialogOpen}
+                                                        onOpenChange={(open) => {
+                                                            setIsDialogOpen(open);
+                                                            if (open) {
+                                                                handleNotificationClick(notification.id);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <DialogTrigger asChild>
+                                                            <button className="inline-flex items-center justify-center rounded-md w-8 h-8 transition-colors hover:bg-gray-100 hover:text-gray-900">
+                                                                <Eye className="h-4 w-4" />
+                                                            </button>
+                                                        </DialogTrigger>
+
+                                                        <DialogContent className="sm:max-w-[500px] p-0">
+                                                            <DialogHeader className="px-6 pt-6">
+                                                                <div className="flex items-start gap-4">
+                                                                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                                        <Bell className="h-5 w-5 text-blue-600" />
+                                                                    </div>
+                                                                    <div className="flex-1">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <DialogTitle className="text-xl font-semibold">
+                                                                                Thông báo
+                                                                            </DialogTitle>
+                                                                            <Badge variant="secondary" className="ml-2">Mới</Badge>
+                                                                        </div>
+                                                                        <p className="text-sm text-gray-500 mt-1">
+                                                                            {new Date().toLocaleDateString('vi-VN')}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </DialogHeader>
+
+                                                            <Separator className="my-4" />
+
+                                                            <ScrollArea className="px-6 max-h-[60vh]">
+                                                                <div className="space-y-4">
+                                                                    <div className="space-y-2">
+                                                                        <h3 className="font-medium text-gray-900">Tiêu đề</h3>
+                                                                        <p className="text-gray-700">
+                                                                            {selectedNotification?.message}
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <div className="space-y-2">
+                                                                        <h3 className="font-medium text-gray-900">Nội dung chi tiết</h3>
+                                                                        <div
+                                                                            className="text-gray-700 prose prose-sm max-w-none"
+                                                                            dangerouslySetInnerHTML={createMarkup(selectedNotification?.content)}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            </ScrollArea>
+
+                                                            <div className="p-6 bg-gray-50 mt-6">
+                                                                <p className="text-sm text-gray-500 text-center">
+                                                                    Nhấn nút ESC hoặc click bên ngoài để đóng
+                                                                </p>
+                                                            </div>
+                                                        </DialogContent>
+                                                    </Dialog>
+                                                    <button onClick={() => handleMarkAsRead(notification.id)} className="cursor-pointer">
+                                                        <Check className="h-4 w-4 mr-2" />
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // Ngăn event bubbling
+                                                            handleDeleteNotification(notification.id);
+                                                        }}
+                                                        className="cursor-pointer"
+                                                    >
+                                                        <Trash className="h-4 w-4 mr-2" />
+                                                    </button>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -254,7 +329,7 @@ export default function TaskList() {
                     </div>
 
                     {/* Pagination */}
-                    <Pagination>
+                    <Pagination className="">
                         <PaginationContent>
                             {Array.from({ length: totalPages }, (_, index) => (
                                 <PaginationItem key={index + 1}>

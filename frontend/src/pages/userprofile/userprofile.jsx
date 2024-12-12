@@ -40,6 +40,7 @@ export const UserProfile = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isProfileSubmitting, setIsProfileSubmitting] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+    const [showPasswordTab, setShowPasswordTab] = useState(true);
     const navigate = useNavigate();
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
@@ -78,6 +79,9 @@ export const UserProfile = () => {
             setEmail(user.email);
             setCurrentAvatar(user.avatar);
         }
+        if (user && user.google_id) {
+            setShowPasswordTab(false);
+        }
     }, [user]);
 
     // hàm xử lý thay đổi file
@@ -92,8 +96,36 @@ export const UserProfile = () => {
     // hàm xử lý update user profile
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
-        if (isProfileSubmitting) return;
+        if (!userName.trim()) {
+            toast.error("Tên người dùng không được để trống");
+            return;
+        }
+        if (userName === user.name && !avatar) {
+            toast.error("Vui lòng thay đổi thông tin trước khi cập nhật")
+            return;
+        }
+        const specialCharRegex = /^[a-zA-Z0-9_]+$/;
+        if (!specialCharRegex.test(userName)) {
+            toast.error("Tên người dùng không được chứa ký tự đặc biệt");
+            return;
+        }
 
+        if (avatar) {
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+
+            if (!allowedTypes.includes(avatar.type)) {
+                toast.error("Chỉ cho phép tải lên ảnh định dạng JPG, PNG, GIF");
+                return;
+            }
+
+            if (avatar.size > maxSize) {
+                toast.error("Kích thước ảnh không được vượt quá 5MB");
+                return;
+            }
+        }
+
+        if (isProfileSubmitting) return;
         setIsProfileSubmitting(true);
         try {
             await updateUserProfile(userName, email, avatar);
@@ -106,6 +138,7 @@ export const UserProfile = () => {
             setIsProfileSubmitting(false);
         }
     };
+
 
     // hàm xử lý validate thay đổi mật khẩu
     const handleChangePassword = async (e) => {
@@ -337,15 +370,17 @@ export const UserProfile = () => {
                                                 <span className="font-semibold">Chỉnh sửa hồ sơ</span>
                                             </div>
                                         </TabsTrigger>
-                                        <TabsTrigger
-                                            value="password"
-                                            className="data-[state=active]:bg-white data-[state=active]:text-yellow-600 data-[state=active]:shadow-sm rounded-lg transition-all duration-200"
-                                        >
-                                            <div className="flex items-center gap-2 py-2 px-4">
-                                                <Lock className="w-4 h-4" />
-                                                <span className="font-semibold">Mật khẩu</span>
-                                            </div>
-                                        </TabsTrigger>
+                                        {showPasswordTab && (
+                                            <TabsTrigger
+                                                value="password"
+                                                className="data-[state=active]:bg-white data-[state=active]:text-yellow-600 data-[state=active]:shadow-sm rounded-lg transition-all duration-200"
+                                            >
+                                                <div className="flex items-center gap-2 py-2 px-4">
+                                                    <Lock className="w-4 h-4" />
+                                                    <span className="font-semibold">Mật khẩu</span>
+                                                </div>
+                                            </TabsTrigger>
+                                        )}
                                     </TabsList>
 
                                     <TabsContent value="profile" className="mt-6">

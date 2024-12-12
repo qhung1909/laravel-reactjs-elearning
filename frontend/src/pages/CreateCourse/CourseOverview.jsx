@@ -67,6 +67,8 @@ export const CourseOverview = () => {
 
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loading_update, setLoadingUpdate] = useState(false);
+
     const [isUpdated, setIsUpdated] = useState(false);
     const [hasChanges, setHasChanges] = useState(false); // Theo dõi thay đổi
 
@@ -340,7 +342,7 @@ export const CourseOverview = () => {
         }
         const loadingToast = toast.loading('Đang xử lý...');
         try {
-            setLoading(true);
+            setLoadingUpdate(true);
             const response = await axios.post(
                 `${API_URL}/teacher/courses/${course_id}`,
                 formData,
@@ -373,7 +375,7 @@ export const CourseOverview = () => {
             notify(error.response?.data?.message || 'Lỗi cập nhật khóa học', 'error');
         } finally {
             toast.dismiss(loadingToast);
-            setLoading(false);
+            setLoadingUpdate(false);
         }
     };
 
@@ -384,6 +386,11 @@ export const CourseOverview = () => {
             {loading && (
                 <div className='loading'>
                     <div className='loading-spin'></div>
+                </div>
+            )}
+            {loading_update && (
+                <div className='loading'>
+                    {/* <div className='loading-spin'></div> */}
                 </div>
             )}
             <header className="fixed top-0 w-full z-10 bg-yellow-500 py-3">
@@ -441,8 +448,16 @@ export const CourseOverview = () => {
 
 
             <div className="flex max-w-7xl m-auto pt-16 pb-36">
-                <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated} hasChanges={hasChanges} />
-                <div className="w-full lg:w-10/12 shadow-lg">
+                <div className="fixed hidden lg:block">
+                    <SideBarCreateCoure
+                        course_id={course_id}
+                        isUpdated={isUpdated}
+                        setIsUpdated={setIsUpdated}
+                        hasChanges={hasChanges}
+                    />
+                </div>
+                {/* <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated} hasChanges={hasChanges} /> */}
+                <div className="ml-0 lg:ml-72 w-full lg:w-10/12 shadow-lg">
                     <div>
                         <div className="m-2">
                             <h1 className="text-xl font-medium px-10 p-4">Tổng quan khóa học</h1>
@@ -458,11 +473,9 @@ export const CourseOverview = () => {
                             <h2 className="pb-1 text-lg font-medium">Tiêu đề khóa học</h2>
                             <input
                                 className="w-full mb-2 border-slate-300 border-2 py-2 pl-3"
-                                placeholder='Chèn tiêu đề khóa học'
-                                value={courseTitle}
+                                value={courseTitle === "Chưa có tên khóa học" ? "" : courseTitle}
                                 onChange={(e) => {
                                     setCourseTitle(e.target.value);
-                                    // Reset lỗi khi người dùng nhập vào
                                     if (e.target.value.trim() !== '') {
                                         setErrors(prev => ({ ...prev, titleError: '' }));
                                     }
@@ -505,26 +518,7 @@ export const CourseOverview = () => {
                             <h2 className="pb-2 font-medium text-lg">Đặt giá cho khóa học của bạn</h2>
                             {/* <div className="flex flex-cols-2 py-2 gap-4"> */}
                             <div className="w-1/4">
-                                {/* <div>
-                                    <Select value={currency} onValueChange={(value) => {
-                                        setCurrency(value);
-                                        // Reset lỗi khi người dùng chọn giá trị
-                                        if (value !== '') {
-                                            setErrors(prev => ({ ...prev, categoryError: '' }));
-                                        }
-                                    }}>
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Chọn tiền tệ" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                <SelectLabel>Tiền tệ</SelectLabel>
-                                                <SelectItem value="vnd">VND</SelectItem>
-                                                <SelectItem value="usd">USD</SelectItem>
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                </div> */}
+
                                 <div>
                                     <Input className='h-[36px]' value={parseFloat(price).toFixed(0)} onChange={(e) => {
                                         setPrice(e.target.value);
@@ -543,19 +537,6 @@ export const CourseOverview = () => {
                         <div className="pb-6">
                             <h2 className="pb-1 text-lg font-medium">Thông tin cơ bản</h2>
                             <div className="grid grid-cols-3 gap-4">
-                                {/* <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="-- Chọn ngôn ngữ --" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectLabel>Ngôn ngữ</SelectLabel>
-                                            <SelectItem value="vietnamese">Tiếng Việt</SelectItem>
-                                            <SelectItem value="english">Tiếng Anh</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select> */}
-
                                 <Select value={selectedCategory} onValueChange={(value) => {
                                     setSelectedCategory(value);
                                     // Reset lỗi khi người dùng chọn giá trị

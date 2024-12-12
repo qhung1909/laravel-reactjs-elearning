@@ -124,9 +124,9 @@ export const UserAttendance = () => {
                             </div>
                             <div>
                                 <h2 className="font-bold text-2xl bg-gradient-to-r from-yellow-500 to-yellow-600 bg-clip-text text-transparent">
-                                    Lịch sử mua hàng
+                                    Lịch điểm danh
                                 </h2>
-                                <p className="text-gray-500 text-sm">Xem lại những giao dịch bạn đã hoàn thành.</p>
+                                <p className="text-gray-500 text-sm">Xem lại những lần có mặt và vắng mặt trong lịch học của bạn.</p>
                             </div>
                         </div>
                     </div>

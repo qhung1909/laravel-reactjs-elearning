@@ -57,6 +57,8 @@ Route::group([
     Route::post('/notifications/read-all', [MessageController::class, 'markAllAsRead']);
     Route::get('/notifications', [MessageController::class, 'getNotifications']);
     Route::get('/notifications/{id}', [MessageController::class, 'getNotificationDetails']);
+    Route::delete('/notifications/{id}', [MessageController::class, 'deleteNotification']);
+
 });
 Route::post('/s3-buckets', [UserController::class, 'upload']);
 
@@ -266,6 +268,8 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::post('/title-content', [TeacherController::class, 'storeTitleContent']);
     //
     Route::post('/title-content/update/{contentId}', [TeacherController::class, 'updateTitleContent']);
+
+    Route::delete('/title-content/{titleContentId}/video', [TeacherController::class, 'removeVideoLink']);
 
     Route::delete('/title-content/delete/{titleContentId}', [TeacherController::class, 'deleteTitleContent']);
 
