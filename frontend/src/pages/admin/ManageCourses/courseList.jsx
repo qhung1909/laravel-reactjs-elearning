@@ -397,11 +397,11 @@ export default function CourseList() {
                                 <table className="w-full">
                                     <thead className="text-md font-bold">
                                         <tr className="bg-yellow-100">
-                                            <th className="text-left py-4 px-6 font-bold text-gray-600" style={{ width: '10%' }}>STT</th>
+                                            <th className="text-center py-4 px-6 font-bold text-gray-600" style={{ width: '5%' }}>STT</th>
                                             <th
                                                 className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('title')}
-                                                style={{ width: '40%' }}
+                                                style={{ width: '25%' }}
                                             >
                                                 <div className="flex items-center justify-center gap-2">
                                                     Tiêu đề
@@ -411,7 +411,7 @@ export default function CourseList() {
                                             <th
                                                 className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('user?.name')}
-                                                style={{ width: '20%' }}
+                                                style={{ width: '15%' }}
                                             >
                                                 <div className="flex items-center justify-center gap-2">
                                                     Giảng viên
@@ -421,7 +421,7 @@ export default function CourseList() {
                                             <th
                                                 className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('created_at')}
-                                                style={{ width: '15%' }}
+                                                style={{ width: '10%' }}
                                             >
                                                 <div className="flex items-center justify-center gap-2">
                                                     Ngày tạo
@@ -431,7 +431,7 @@ export default function CourseList() {
                                             <th
                                                 className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('status')}
-                                                style={{ width: '15%' }}
+                                                style={{ width: '10%' }}
                                             >
                                                 <div className="flex items-center justify-center gap-2">
                                                     Trạng thái
@@ -441,7 +441,7 @@ export default function CourseList() {
                                             <th
                                                 className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('price')}
-                                                style={{ width: '20%' }}
+                                                style={{ width: '10%' }}
                                             >
                                                 <div className="flex items-center justify-center gap-2">
                                                     Giá gốc
@@ -451,7 +451,7 @@ export default function CourseList() {
                                             <th
                                                 className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('price')}
-                                                style={{ width: '20%' }}
+                                                style={{ width: '10%' }}
                                             >
                                                 <div className="flex items-center justify-center gap-2">
                                                     Giá giảm
@@ -461,14 +461,19 @@ export default function CourseList() {
                                             <th
                                                 className="text-center py-4 px-6 font-bold text-gray-600 cursor-pointer group whitespace-nowrap"
                                                 onClick={() => handleSort('categories')}
-                                                style={{ width: '15%' }}
+                                                style={{ width: '10%' }}
                                             >
                                                 <div className="flex items-center justify-center gap-2">
                                                     Danh mục
                                                     {getSortIcon('categories')}
                                                 </div>
                                             </th>
-                                            <th className="text-center py-4 px-6 font-bold text-gray-600" style={{ width: '10%' }}>Hành động</th>
+                                            <th
+                                                className="text-center py-4 px-6 font-bold text-gray-600"
+                                                style={{ width: '5%' }}
+                                            >
+                                                Hành động
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -476,92 +481,67 @@ export default function CourseList() {
                                             <>
                                                 {[...Array(5)].map((_, rowIndex) => (
                                                     <tr key={rowIndex} className="border-t border-gray-100">
-                                                        <td className="py-4 px-6">
-                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '40px', height: '20px' }} />
-                                                        </td>
-                                                        <td className="py-4 px-6">
-                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '150px', height: '20px' }} />
-                                                        </td>
-                                                        <td className="py-4 px-6">
-                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
-                                                        </td>
-                                                        <td className="py-4 px-6">
-                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '80px', height: '20px' }} />
-                                                        </td>
-                                                        <td className="py-4 px-6">
-                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '60px', height: '20px' }} />
-                                                        </td>
-                                                        <td className="py-4 px-6">
-                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
-                                                        </td>
-                                                        <td className="py-4 px-6">
-                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
-                                                        </td>
-                                                        <td className="py-4 px-6">
-                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
-                                                        </td>
-                                                        <td className="py-4 px-6">
-                                                            <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100px', height: '20px' }} />
-                                                        </td>
+                                                        {[...Array(9)].map((_, colIndex) => (
+                                                            <td key={colIndex} className="py-4 px-6">
+                                                                <div className="bg-gray-300 rounded animate-pulse" style={{ width: '100%', height: '20px' }} />
+                                                            </td>
+                                                        ))}
                                                     </tr>
                                                 ))}
                                             </>
                                         ) : (
                                             currentFilteredCourses.map((course, index) => (
                                                 <tr key={course.id} className="border-t border-gray-100 hover:bg-gray-50">
-                                                    {/* <td className="py-4 px-6 text-sm text-gray-600">{course.course_id}</td> */}
-                                                    <td className="py-4 px-6 text-sm text-gray-600">
+                                                    <td className="py-4 px-6 text-sm text-gray-600 text-center">
                                                         {(currentPage - 1) * itemsPerPage + index + 1}
                                                     </td>
 
                                                     <td className="py-4 px-6">
                                                         <div className="flex items-center">
                                                             <div>
-                                                                <p className="text-sm font-medium text-gray-900">{course.title}</p>
+                                                                <p className="text-sm font-medium text-gray-900 truncate">{course.title}</p>
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="py-4 px-6">
-                                                        <div className="flex items-center">
-                                                            <span className="text-sm text-gray-900">{course.user?.name}</span>
+                                                    <td className="py-4 px-6 text-center">
+                                                        <div className="flex items-center justify-center">
+                                                            <span className="text-sm text-gray-900 truncate">{course.user?.name}</span>
                                                         </div>
                                                     </td>
-                                                    <td className="py-4 px-6">
-                                                        <div className="flex items-center">
+                                                    <td className="py-4 px-6 text-center">
+                                                        <div className="flex items-center justify-center">
                                                             <span className="text-sm text-gray-900">{new Date(course.created_at).toLocaleDateString()}</span>
                                                         </div>
                                                     </td>
-                                                    <td className="py-4 px-6">
-                                                        <Badge className={`${getStatusColor(course.status)}`}>
+                                                    <td className="py-4 px-6 text-center">
+                                                        <Badge className={`${getStatusColor(course.status)} inline-block`}>
                                                             {getStatusText(course.status)}
                                                         </Badge>
                                                     </td>
-                                                    <td className="py-4 px-6  text-center">
+                                                    <td className="py-4 px-6 text-center">
                                                         <span className="text-sm text-gray-900">
                                                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price)}
                                                         </span>
                                                     </td>
-                                                    <td className="py-4 px-6  text-center">
+                                                    <td className="py-4 px-6 text-center">
                                                         <span className="text-sm text-gray-900">
                                                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.price_discount)}
                                                         </span>
                                                     </td>
-                                                    <td className="py-4 px-6">
+                                                    <td className="py-4 px-6 text-center">
                                                         {course.course_category_id ? (
-                                                            <div className="flex items-center justify-center">
-                                                                <Badge
-                                                                    className="px-3 py-1 text-xs font-semibold text-white bg-orange-400 rounded-full whitespace-nowrap "
-                                                                >
-                                                                    {categories.find(c => c.course_category_id === course.course_category_id)?.name || 'Chưa có danh mục'}
-                                                                </Badge>
-                                                            </div>
+                                                            <Badge
+                                                                className="px-3 py-1 text-xs font-semibold text-white bg-orange-400 rounded-full whitespace-nowrap"
+                                                            >
+                                                                {categories.find(c => c.course_category_id === course.course_category_id)?.name || 'Chưa có'}
+                                                            </Badge>
                                                         ) : (
-                                                            <Badge variant="destructive" className="whitespace-nowrap ">Chưa có danh mục</Badge>
+                                                            <Badge variant="destructive" className="whitespace-nowrap">Chưa có</Badge>
                                                         )}
                                                     </td>
 
                                                     <td className="py-4 px-6">
-                                                        <div className="flex justify-end gap-2">
+                                                        <div className="flex justify-center gap-2">
                                                             <AlertDialog>
                                                                 <AlertDialogTrigger asChild>
                                                                     <Button
@@ -640,9 +620,7 @@ export default function CourseList() {
                                                 disabled={currentPage === 1}
                                             />
                                         </PaginationItem>
-
                                         {totalFilteredPages <= 7 ? (
-                                            // Nếu có 7 trang hoặc ít hơn, hiển thị tất cả
                                             [...Array(totalFilteredPages)].map((_, index) => (
                                                 <PaginationItem key={index + 1}>
                                                     <PaginationLink
@@ -655,9 +633,7 @@ export default function CourseList() {
                                                 </PaginationItem>
                                             ))
                                         ) : (
-                                            // Nếu có nhiều hơn 7 trang
                                             <>
-                                                {/* Luôn hiển thị trang 1 */}
                                                 <PaginationItem>
                                                     <PaginationLink
                                                         href="#"
@@ -667,21 +643,16 @@ export default function CourseList() {
                                                         1
                                                     </PaginationLink>
                                                 </PaginationItem>
-
-                                                {/* Hiển thị ... nếu trang hiện tại > 3 */}
                                                 {currentPage > 3 && (
                                                     <PaginationItem>
                                                         <PaginationEllipsis />
                                                     </PaginationItem>
                                                 )}
-
-                                                {/* Hiển thị các trang xung quanh trang hiện tại */}
                                                 {[...Array(3)].map((_, idx) => {
                                                     let pageNumber;
                                                     if (currentPage <= 3) pageNumber = idx + 2;
                                                     else if (currentPage >= totalFilteredPages - 2) pageNumber = totalFilteredPages - 4 + idx;
                                                     else pageNumber = currentPage - 1 + idx;
-
                                                     if (pageNumber > 1 && pageNumber < totalFilteredPages) {
                                                         return (
                                                             <PaginationItem key={pageNumber}>
@@ -697,15 +668,11 @@ export default function CourseList() {
                                                     }
                                                     return null;
                                                 })}
-
-                                                {/* Hiển thị ... nếu trang hiện tại < tổng số trang - 2 */}
                                                 {currentPage < totalFilteredPages - 2 && (
                                                     <PaginationItem>
                                                         <PaginationEllipsis />
                                                     </PaginationItem>
                                                 )}
-
-                                                {/* Luôn hiển thị trang cuối */}
                                                 <PaginationItem>
                                                     <PaginationLink
                                                         href="#"

@@ -102,11 +102,14 @@ export const CourseOverview = () => {
 
 
 
+
     useEffect(() => {
+        // Đặt isUpdated thành true khi mới vào trang
         if (!initialCourseTitle && !initialCourseDescriptionText) {
             setIsUpdated(true);
         }
         if (!isUpdated) {
+            // Khi trang load hoặc chuyển component, không hiển thị thông báo.
             toast.dismiss();
         }
     }, [initialCourseTitle, initialCourseDescriptionText, isUpdated]);
@@ -167,6 +170,8 @@ export const CourseOverview = () => {
         }
     };
 
+
+
     useEffect(() => {
         const fetchCategories = async () => {
             toast.dismiss();
@@ -216,8 +221,10 @@ export const CourseOverview = () => {
                     setCourseImage(courseData.img || null);
                     setInitialCourseImage(courseData.img || null);
 
+                    // Thêm logic xử lý cho phần mở rộng và ngày
                     if (courseData.launch_date) {
                         setSelectedExtension("online");
+                        // Chuyển đổi định dạng ngày từ API sang định dạng HTML date input
                         const formattedLaunchDate = new Date(courseData.launch_date).toISOString().split('T')[0];
                         const formattedBackupDate = courseData.backup_launch_date ?
                             new Date(courseData.backup_launch_date).toISOString().split('T')[0] : '';
@@ -373,6 +380,12 @@ export const CourseOverview = () => {
 
     return (
         <>
+
+            {loading && (
+                <div className='loading'>
+                    <div className='loading-spin'></div>
+                </div>
+            )}
             <header className="fixed top-0 w-full z-10 bg-yellow-500 py-3">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center">

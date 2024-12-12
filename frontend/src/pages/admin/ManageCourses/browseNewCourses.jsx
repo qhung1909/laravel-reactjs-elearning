@@ -1027,7 +1027,10 @@ export default function BrowseNewCourses() {
                                                         </div>
                                                         <div className="flex items-start gap-2 w-full">
                                                             <label className="font-semibold mr-2 mt-1 shrink-0">Mô tả:</label>
-                                                            <p className="break-words">{activeCourse.description}</p>
+                                                            <div
+                                                                className="break-words"
+                                                                dangerouslySetInnerHTML={{ __html: activeCourse.description }}
+                                                            />
                                                         </div>
                                                         <div className="flex items-center">
                                                             <label className="font-semibold mr-2">Thời lượng:</label>

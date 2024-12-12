@@ -554,7 +554,13 @@ class TeacherController extends Controller
                         'description' => $titleContentData['description'] ?? $titleContent->description,
                         'status' => 'draft'
                     ];
-    
+                    
+                    if (isset($titleContentData['document_link']) && !empty($titleContentData['document_link'])) {
+                        $updateData['document_link'] = $titleContentData['document_link'];
+                    } else {
+                        $updateData['document_link'] = null;
+                    }
+
                     if ($request->hasFile("title_contents.{$index}.video_link")) {
                         $videoFile = $request->file("title_contents.{$index}.video_link");
                         $videoValidator = Validator::make(['video' => $videoFile], [

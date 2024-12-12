@@ -1,6 +1,13 @@
-/* eslint-disable no-useless-escape */
 /* eslint-disable react-hooks/exhaustive-deps */
-
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { useEffect, useState } from 'react';
 import { Video, X, FileText, ArrowLeft, Menu } from 'lucide-react';
 import { Card } from "@/components/ui/card";
@@ -11,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import 'react-quill/dist/quill.snow.css';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Swal from "sweetalert2";
-// import ReactQuill from 'react-quill';
+import ReactQuill from 'react-quill';
 import axios from 'axios';
 import { SideBarCreateCoure } from './SideBarCreateCoure';
 import { Footer } from '../footer/footer';
@@ -81,6 +88,42 @@ export const Curriculum = () => {
         });
     };
 
+    const handleSelectChange = (sectionId, lessonId, value) => {
+        setSections(prevSections =>
+            prevSections.map(section => {
+                if (section.id === sectionId) {
+                    return {
+                        ...section,
+                        lessons: section.lessons.map(lesson => {
+                            if (lesson.id === lessonId) {
+                                if (value === "videoFile") {
+                                    return {
+                                        ...lesson,
+                                        selectedOption: value,
+                                        content: null,
+                                        fileName: lesson.fileName || null,
+                                    };
+                                } else if (value === "content") {
+                                    return {
+                                        ...lesson,
+                                        selectedOption: value,
+                                        videoLink: null,
+                                        fileName: null,
+                                    };
+                                }
+                                return {
+                                    ...lesson,
+                                    selectedOption: value,
+                                };
+                            }
+                            return lesson;
+                        })
+                    };
+                }
+                return section;
+            })
+        );
+    };
 
 
     const handleContentDescChange = (sectionId, lessonId, newDescription) => {
@@ -155,8 +198,8 @@ export const Curriculum = () => {
             if (response.data.data.launch_date == null) {
                 setOffLesson(true);
             }
-        } catch {
-            // console.error('Error fetching course data:', error);
+        } catch (error) {
+            console.error('Error fetching course data:', error);
         } finally {
             setLoading(false)
         }
@@ -199,8 +242,8 @@ export const Curriculum = () => {
                     setIsDataFetched(true);
                 }
             }
-        } catch {
-            // console.error('Error fetching content:', error);
+        } catch (error) {
+            console.error('Error fetching content:', error);
             // toast.error('Không thể tải nội dung khóa học');
         } finally {
             setLoading(false)
@@ -242,7 +285,7 @@ export const Curriculum = () => {
                     },
                 }
             );
-            // console.log(response.data);
+            console.log(response.data);
 
 
             // Kiểm tra phản hồi từ server và thêm ID vào phần mới
@@ -259,8 +302,8 @@ export const Curriculum = () => {
             } else {
                 toast.error(response.data.message || "Có lỗi xảy ra khi thêm nội dung!");
             }
-        } catch {
-            // console.error("Error:", error);
+        } catch (error) {
+            console.error("Error:", error);
             toast.error("Đã xảy ra lỗi khi thêm phần mới.");
         }
     };
@@ -317,8 +360,8 @@ export const Curriculum = () => {
             } else {
                 toast.error(response.data.message || "Có lỗi xảy ra khi thêm nội dung!");
             }
-        } catch {
-            // console.error("Error:", error);
+        } catch (error) {
+            console.error("Error:", error);
             toast.error("Đã xảy ra lỗi khi thêm phần mới.");
         }
     };
@@ -403,9 +446,9 @@ export const Curriculum = () => {
 
             toast.success("Thêm bài học mới thành công!");
 
-        } catch {
-            // console.error("Error adding lesson:", error);
-            toast.error("Có lỗi xảy ra khi kết nối với máy chủ!");
+        } catch (error) {
+            console.error("Error adding lesson:", error);
+            toast.error(error.message || "Có lỗi xảy ra khi kết nối với máy chủ!");
         }
     };
 
@@ -450,8 +493,8 @@ export const Curriculum = () => {
             } else {
                 toast.error("Có lỗi xảy ra khi xóa Bài học!");
             }
-        } catch {
-            // console.error('Error:', error);
+        } catch (error) {
+            console.error('Error:', error);
             toast.error("Có lỗi xảy ra khi xóa Bài học!");
         }
     };
@@ -512,88 +555,11 @@ export const Curriculum = () => {
             } else {
                 toast.error(response.data.message || "Có lỗi xảy ra khi xóa nội dung.");
             }
-        } catch {
-            // console.error("Error deleting content:", error);
+        } catch (error) {
+            console.error("Error deleting content:", error);
             toast.error("Có lỗi xảy ra khi kết nối với máy chủ!");
         }
     };
-
-
-    const deleteVideo = async (sectionId, lessonId) => {
-        const section = sections.find(section => section.id === sectionId);
-        const lesson = section.lessons.find(lesson => lesson.id === lessonId);
-
-        if (!lesson.title_content_id) {
-            toast.error("Không thể xóa vì thiếu title_content_id.");
-            return;
-        }
-
-        // Show confirmation dialog
-        const { isConfirmed } = await Swal.fire({
-            title: "Xác nhận xóa",
-            text: "Bạn có chắc chắn muốn xóa video này? Hành động này không thể hoàn tác.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Có, xóa!",
-            cancelButtonText: "Hủy",
-        });
-
-        if (!isConfirmed) {
-            return;
-        }
-
-        try {
-            // Update the title content with null video_link
-            const requestData = {
-                title_contents: [{
-                    title_content_id: lesson.title_content_id,
-                    body_content: lesson.title,
-                    video_link: null,
-                    document_link: lesson.content,
-                    description: lesson.description
-                }]
-            };
-
-            const response = await axios.post(
-                `${API_URL}/teacher/title-content/update/${section.content_id}`,
-                requestData,
-                {
-                    headers: {
-                        'x-api-secret': API_KEY,
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-
-            if (response.data.success) {
-                // Update local state to reflect the change
-                setSections(prevSections =>
-                    prevSections.map(s =>
-                        s.id === sectionId ? {
-                            ...s,
-                            lessons: s.lessons.map(l =>
-                                l.id === lessonId ? {
-                                    ...l,
-                                    fileName: '',
-                                    file: null
-                                } : l
-                            )
-                        } : s
-                    )
-                );
-                toast.success("Video đã được xóa thành công!");
-                setHasChanges(true);
-            } else {
-                toast.error("Có lỗi xảy ra khi xóa video!");
-            }
-        } catch {
-            toast.error("Có lỗi xảy ra khi kết nối với máy chủ!");
-        }
-    };
-
 
 
     // const exportToJsonLog = () => {
@@ -661,10 +627,7 @@ export const Curriculum = () => {
         }
     };
 
-    const isValidUrl = (url) => {
-        const urlPattern = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
-        return urlPattern.test(url);
-    };
+
 
 
 
@@ -676,56 +639,65 @@ export const Curriculum = () => {
             return;
         }
 
-        // let hasErrors = false;
-        let errorMessages = [];
 
-        // Lặp qua các phần và bài học để kiểm tra lỗi
-        sections.forEach((section) => {
+
+
+
+        // const invalidSections = sections.filter(section => !section.title || !section.title.trim());
+        // if (invalidSections.length > 0) {
+        //     toast.error('Vui lòng nhập tiêu đề hợp lệ cho tất cả các bài học!');
+        //     return;
+        // }
+
+        // const invalidContent = sections.some(section =>
+        //     section.lessons.some(lesson => !lesson.title || !lesson.title.trim())
+        // );
+        // if (invalidContent) {
+        //     toast.error('Vui lòng nhập tiêu đề hợp lệ cho tất cả các nội dung!');
+        //     return;
+        // }
+
+        let hasErrors = false;
+
+        // Kiểm tra tất cả các phần và nội dung
+        // sections.forEach(section => {
+        //     if (!section.title || !section.title.trim()) {
+        //         hasErrors = true;
+        //     }
+        //     section.lessons.forEach(lesson => {
+        //         if (!lesson.title || !lesson.title.trim()) {
+        //             hasErrors = true;
+        //         }
+        //     });
+        // });
+
+        sections.forEach(section => {
             if (!section.title || !section.title.trim()) {
-                errorMessages.push(`Bài ${section.id} thiếu tiêu đề`);
+                hasErrors = true;
             }
-
-            section.lessons.forEach((lesson, index) => {
-                // Kiểm tra tiêu đề và mô tả bài học
-                if (!lesson.title || !lesson.title.trim()) {
-                    errorMessages.push(`Nội dung ${section.id}.${index + 1} thiếu tiêu đề`);
-                }
-
-                if (!lesson.description || !lesson.description.trim()) {
-                    errorMessages.push(`Nội dung ${section.id}.${index + 1} thiếu mô tả`);
-                }
-
-                // Kiểm tra nếu có nội dung nhưng không phải URL hợp lệ
-                if (lesson.content && !isValidUrl(lesson.content)) {
-                    errorMessages.push(`Vui lòng nhập link nội dung hợp lệ cho bài ${section.id}.${index + 1}`);
-                }
-
-                // Kiểm tra ít nhất một trong ba: file, video_link hoặc content
-                const hasVideoOrDocument = !!lesson.file || !!lesson.fileName || !!lesson.content;
-                if (!hasVideoOrDocument) {
-                    errorMessages.push(`Nội dung ${section.id}.${index + 1} cần có video hoặc link nội dung`);
+            section.lessons.forEach(lesson => {
+                if (!lesson.title || !lesson.title.trim() || !lesson.description || !lesson.description.trim()) {
+                    hasErrors = true;
                 }
             });
         });
 
-        if (errorMessages.length > 0) {
-            // Nếu có lỗi, hiển thị thông báo đầu tiên và không tiếp tục
-            toast.error(errorMessages[0]);
+        if (hasErrors) {
+            toast.error('Vui lòng điền tất cả nội dung!');
             return;
         }
 
-        // Tiến hành xử lý nếu không có lỗi
-        const validSections = sections.filter((section) => section.title.trim() !== '');
-        const sectionsToUpdate = validSections.filter((section) => section.content_id);
+        const validSections = sections.filter(section => section.title.trim() !== '');
+        const sectionsToUpdate = validSections.filter(section => section.content_id);
 
         const loadingToast = toast.loading('Đang xử lý...');
 
         try {
             setLoading(true);
-            const updateContentsData = sectionsToUpdate.map((section) => ({
+            const updateContentsData = sectionsToUpdate.map(section => ({
                 content_id: section.content_id,
                 name_content: section.title.trim(),
-                is_online_meeting: section.is_online_meeting,
+                is_online_meeting: section.is_online_meeting
             }));
 
             let updatePromise = Promise.resolve();
@@ -736,7 +708,7 @@ export const Curriculum = () => {
                     {
                         headers: {
                             'x-api-secret': API_KEY,
-                            Authorization: `Bearer ${token}`,
+                            'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json',
                         },
                     }
@@ -753,7 +725,7 @@ export const Curriculum = () => {
             }
 
             // Cập nhật title-content cho các sections với file upload
-            const titleContentPromises = validSections.map((section) => {
+            const titleContentPromises = validSections.map(section => {
                 const formData = new FormData();
 
                 // Chuẩn bị dữ liệu cho mỗi bài học
@@ -779,7 +751,7 @@ export const Curriculum = () => {
                     {
                         headers: {
                             'x-api-secret': API_KEY,
-                            Authorization: `Bearer ${token}`,
+                            'Authorization': `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data',
                         },
                     }
@@ -787,7 +759,7 @@ export const Curriculum = () => {
             });
 
             const titleContentResults = await Promise.all(titleContentPromises);
-            titleContentResults.forEach((response) => {
+            titleContentResults.forEach(response => {
                 if (!response.data.success) {
                     toast.error(response.data.message || 'Có lỗi xảy ra khi cập nhật chi tiết tiêu đề!');
                     hasError = true;
@@ -795,7 +767,7 @@ export const Curriculum = () => {
             });
 
             if (!hasError) {
-                toast.success('Đã lưu nội dung thành công!');
+                toast.success('Đã lưu thành nội dung thành công!');
                 setHasChanges(false);
             }
         } catch (error) {
@@ -810,14 +782,9 @@ export const Curriculum = () => {
                 return;
             }
 
-
-            toast.success('Đã lưu nội dung thành công!');
-            setHasChanges(false);
-
-
-            // const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi xử lý nội dung!';
-            // toast.error(errorMessage);
-            // console.error('Error:', error);
+            const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi xử lý nội dung!';
+            toast.error(errorMessage);
+            console.error('Error:', error);
         } finally {
             toast.dismiss(loadingToast);
             setIsUpdated(true);
@@ -835,42 +802,43 @@ export const Curriculum = () => {
 
         const section = sections.find((s) => s.content_id === contentId);
         if (section && section.lessons.length > 0 && section.lessons[0].title !== '') {
-            // console.log("Dữ liệu đã được tải, không cần fetch lại");
+            console.log("Dữ liệu đã được tải, không cần fetch lại");
             return;
         }
 
         const fetchData = async () => {
-            const response = await axios.get(`${API_URL}/teacher/title-content/${contentId}`, {
-                headers: {
-                    'x-api-secret': API_KEY,
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            // console.log(response);
-
-
-            if (response.data.success) {
-                const fetchedLessons = response.data.data.map((item) => {
-                    return {
-                        id: item.title_content_id,
-                        title: item.body_content,
-                        description: item.description,
-                        fileName: item.video_link,
-                        content: item.document_link,
-                        selectedOption: item.video_link ? "videoFile" : item.document_link ? "content" : "",
-                        title_content_id: item.title_content_id || null
-                    };
+            try {
+                const response = await axios.get(`${API_URL}/teacher/title-content/${contentId}`, {
+                    headers: {
+                        'x-api-secret': API_KEY,
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
                 });
 
-                setSections((prevSections) =>
-                    prevSections.map((section) =>
-                        section.content_id === contentId
-                            ? { ...section, lessons: fetchedLessons }
-                            : section
-                    )
-                );
+                if (response.data.success) {
+                    const fetchedLessons = response.data.data.map((item) => {
+                        return {
+                            id: item.title_content_id,
+                            title: item.body_content,
+                            description: item.description,
+                            fileName: item.video_link,
+                            content: item.document_link,
+                            selectedOption: item.video_link ? "videoFile" : item.document_link ? "content" : "",
+                            title_content_id: item.title_content_id || null
+                        };
+                    });
+
+                    setSections((prevSections) =>
+                        prevSections.map((section) =>
+                            section.content_id === contentId
+                                ? { ...section, lessons: fetchedLessons }
+                                : section
+                        )
+                    );
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
             }
         };
 
@@ -884,11 +852,6 @@ export const Curriculum = () => {
 
     return (
         <>
-            {loading && (
-                <div className='loading'>
-                    <div className='loading-spin'></div>
-                </div>
-            )}
 
             <header className="fixed top-0 w-full z-10 bg-yellow-500 py-3">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1013,7 +976,9 @@ export const Curriculum = () => {
                                                         <div className="h-[56px] border-2 rounded-lg border-yellow-600 p-5 mt-1 ml-3"></div>
                                                     )}
 
-                                                    <X onClick={() => deleteLesson(section.content_id)} className="absolute text-red-600 cursor-pointer left-1 top-1" />
+                                                    {sections.length > 1 && (
+                                                        <X onClick={() => deleteLesson(section.content_id)} className="absolute text-red-600 cursor-pointer left-1 top-1" />
+                                                    )}
                                                     <AccordionContent>
                                                         <div className="space-y-4 mt-4">
                                                             {Array.isArray(section.lessons) && section.lessons.map((lesson, lessonIndex) => (
@@ -1044,7 +1009,73 @@ export const Curriculum = () => {
                                                                             className="w-full"
                                                                         />
 
+                                                                        {/* <Select
+                                                                            className="border p-2 rounded-md mb-4"
+                                                                            value={lesson.selectedOption}
+                                                                            onValueChange={(value) => handleSelectChange(section.id, lesson.id, value)} // Đảm bảo sử dụng onValueChange
+                                                                        >
+                                                                            <SelectTrigger className="w-full">
+                                                                                <SelectValue placeholder="-- Chọn loại nội dung --" />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                <SelectGroup>
+                                                                                    <SelectLabel>Chọn loại nội dung</SelectLabel>
+                                                                                    <SelectItem value="videoFile">Dạng Video file</SelectItem>
+                                                                                    <SelectItem value="content">Dạng Nội dung</SelectItem>
+                                                                                </SelectGroup>
+                                                                            </SelectContent>
+                                                                        </Select>
+                                                                        {lesson.selectedOption === "videoFile" && (
+                                                                            <div>
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <Video className="text-red-500 h-5 w-5" />
+                                                                                    <label className="font-medium">Tải lên video:</label>
+                                                                                </div>
 
+                                                                                {lesson.fileName && (
+                                                                                    <p className="text-gray-600 mt-2">Tệp hiện tại: {lesson.fileName}</p>
+                                                                                )}
+
+                                                                                <Input
+                                                                                    className="mt-2"
+                                                                                    type="file"
+                                                                                    onChange={(e) => handleFileVideoChange(section.id, lesson.id, e.target.files[0])}
+                                                                                />
+                                                                            </div>
+                                                                        )}
+                                                                        {lesson.selectedOption === "content" && (
+                                                                            <div>
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <FileText className="text-purple-500 h-5 w-5" />
+                                                                                    <label className="font-medium">Nhập nội dung:</label>
+                                                                                </div>
+                                                                                <ReactQuill
+                                                                                    className="mt-2 pb-2"
+                                                                                    value={lesson.content || ""}
+                                                                                    onChange={(value) => handleDocumentChange(section.id, lesson.id, value)}
+                                                                                    modules={{
+                                                                                        toolbar: [
+                                                                                            [{ header: [1, 2, 3, false] }],
+                                                                                            ["bold", "italic", "underline"],
+                                                                                            [{ list: "ordered" }, { list: "bullet" }],
+                                                                                            ["link", "image", "code-block"],
+                                                                                            ["clean"],
+                                                                                        ],
+                                                                                    }}
+                                                                                    formats={[
+                                                                                        "header",
+                                                                                        "bold",
+                                                                                        "italic",
+                                                                                        "underline",
+                                                                                        "list",
+                                                                                        "bullet",
+                                                                                        "link",
+                                                                                        "image",
+                                                                                        "code-block",
+                                                                                    ]}
+                                                                                />
+                                                                            </div>
+                                                                        )} */}
 
                                                                         <div>
                                                                             <div className="flex items-center gap-2">
@@ -1052,22 +1083,11 @@ export const Curriculum = () => {
                                                                                 <label className="font-medium">Tải lên video:</label>
                                                                             </div>
 
+                                                                            {/* Hiển thị tên file từ cơ sở dữ liệu nếu có */}
                                                                             {lesson.fileName && (
-                                                                                <div className="flex items-center gap-2 mt-2">
-                                                                                    <p className="text-gray-600">Link hiện tại: {lesson.fileName}</p>
-                                                                                    <Button
-                                                                                        variant="destructive"
-                                                                                        size="sm"
-                                                                                        onClick={(e) => {
-                                                                                            e.preventDefault();
-                                                                                            deleteVideo(section.id, lesson.id);
-                                                                                        }}
-                                                                                        className="ml-2"
-                                                                                    >
-                                                                                        Xóa video
-                                                                                    </Button>
-                                                                                </div>
+                                                                                <p className="text-gray-600 mt-2">Tệp hiện tại: {lesson.fileName}</p>
                                                                             )}
+
                                                                             <Input
                                                                                 className="mt-2"
                                                                                 type="file"
@@ -1084,25 +1104,48 @@ export const Curriculum = () => {
 
                                                                             <Input
                                                                                 type="text"
-                                                                                className="mt-2"
+                                                                                className="mt-2 pb-2"
                                                                                 value={lesson.content || ""}
                                                                                 onChange={(e) => handleDocumentChange(section.id, lesson.id, e.target.value)}
                                                                             />
+                                                                            {/* <ReactQuill
+                                                                                className="mt-2 pb-2"
+                                                                                value={lesson.content || ""}
+                                                                                onChange={(value) => handleDocumentChange(section.id, lesson.id, value)}
+                                                                                modules={{
+                                                                                    toolbar: [
+                                                                                        [{ header: [1, 2, 3, false] }],
+                                                                                        ["bold", "italic", "underline"],
+                                                                                        [{ list: "ordered" }, { list: "bullet" }],
+                                                                                        ["link", "image", "code-block"],
+                                                                                        ["clean"],
+                                                                                    ],
+                                                                                }}
+                                                                                formats={[
+                                                                                    "header",
+                                                                                    "bold",
+                                                                                    "italic",
+                                                                                    "underline",
+                                                                                    "list",
+                                                                                    "bullet",
+                                                                                    "link",
+                                                                                    "image",
+                                                                                    "code-block",
+                                                                                ]}
+                                                                            /> */}
                                                                         </div>
-                                                                        <div className="text-sm text-gray-500">
-                                                                            Nội dung cần có ít nhất 1 video hoặc document
-                                                                        </div>
-
 
 
                                                                     </div>
-                                                                    <X onClick={() => deleteContent(section.id, lesson.id)} className="absolute top-1 left-2 text-red-400" />
+                                                                    {section.lessons.length > 1 && (
+                                                                        <X onClick={() => deleteContent(section.id, lesson.id)} className="absolute top-1 left-2 text-red-400" />
+                                                                    )}
                                                                 </Card>
                                                             ))}
 
                                                             <button
                                                                 onClick={() => addContent(section.id)}
-                                                                className="w-[97%] p-2 border-2 ml-6 border-dashed rounded-md text-gray-600 hover:bg-gray-50 transition-colors"
+                                                                className="w-full p-2 border-2 ml-6 border-dashed rounded-md text-gray-600 hover:bg-gray-50 transition-colors"
                                                             >
                                                                 + Thêm nội dung mới
                                                             </button>
@@ -1142,7 +1185,7 @@ export const Curriculum = () => {
 
 
                                         </div>
-                                        <div className="text-gray-400">Để đủ điều kiện gửi đi phải có ít nhất 1 bài học được nhập</div>
+
 
                                         {/* <button
                                         onClick={exportToJsonLog}
