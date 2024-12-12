@@ -204,6 +204,9 @@ export const CourseOverview = () => {
                     },
                 });
 
+                console.log(response.data.data);
+
+
 
 
                 if (response.data) {
@@ -637,11 +640,17 @@ export const CourseOverview = () => {
                             <div className="pb-6">
                                 <h2 className="pb-1 text-lg font-medium">Hình ảnh khóa học</h2>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-red-100">
-                                        {courseImage && (
-                                            <img src={courseImage} alt="Hình ảnh khóa học" />
-                                        )}
-                                    </div>
+
+
+
+
+                                    {courseImage ? (
+                                        <img src={courseImage} alt="Hình ảnh khóa học" />
+                                    ): (
+                                        <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/images/bg-fill-pic.png" />
+                                    )}
+
+
                                     <div className="ml-12">
                                         <p className="pb-4">
                                             Tải hình ảnh lên đây. Để được chấp nhận, hình ảnh phải đáp ứng tiêu chuẩn chất lượng hình ảnh khóa học. Hướng dẫn quan trọng 750x422 pixel, jpg, jpeg, webp hoặc png và không có nhu cầu trên hình ảnh.
