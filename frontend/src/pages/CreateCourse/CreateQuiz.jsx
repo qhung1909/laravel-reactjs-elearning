@@ -287,7 +287,7 @@ export const CreateQuiz = () => {
                 if (res.data.data.status === 'revision_requested' || res.data.data.status === 'draft') {
                     // Cho phép truy cập vào trang hiện tại
                 } else {
-                    notify('Quiz của bạn không ở trạng thái nháp, không truy cập được vô link này')
+                    notify(`Quiz của khóa học "${res.data.data.title}" không ở trạng thái nháp. Không có quyền truy cập !`)
                     navigate('/instructor/lesson');
                 }
 
