@@ -210,7 +210,6 @@ export const InstructorLesson = () => {
         }
     };
 
-
     // hàm xử lý tên trạng thái
     const getStatusVietnamese = (status) => {
         switch (status) {
@@ -320,7 +319,6 @@ export const InstructorLesson = () => {
             setSelectedCourse(item)
         }
     };
-
 
     // hàm update thông tin lịch học
     const handleUpdateSchedule = async () => {
@@ -717,7 +715,6 @@ export const InstructorLesson = () => {
             </DialogContent>
         </Dialog>
     );
-    
 
     return (
         <>

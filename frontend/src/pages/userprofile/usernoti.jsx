@@ -1,6 +1,3 @@
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Label } from "@radix-ui/react-dropdown-menu"
 import { Link } from "react-router-dom"
 import { User, History, Bell, Heart } from "lucide-react"
 import TaskList from "../notifications/notification";
@@ -92,7 +89,7 @@ export const UserNoti = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="mt-3">
+                            <div className="my-3">
                                 <TaskList />
                             </div>
                         </div>
