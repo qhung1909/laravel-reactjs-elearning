@@ -44,6 +44,7 @@ export const InstructorProfile = () => {
     const [password_confirmation, setPassword_Confirmation] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isProfileSubmitting, setIsProfileSubmitting] = useState(false);
+    const [showPasswordTab, setShowPasswordTab] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -57,7 +58,10 @@ export const InstructorProfile = () => {
                 setRole(instructor.role);
                 setLoading(false);
             }
-        }, 500); // Thêm độ trễ 500ms
+            if (instructor && instructor.google_id) {
+                setShowPasswordTab(false);
+            }
+        }, 500);
 
         return () => clearTimeout(timer);
     }, [instructor]);
@@ -380,11 +384,13 @@ export const InstructorProfile = () => {
                                             </div>
                                         </TabsTrigger>
                                         {/* header 2 */}
-                                        <TabsTrigger value="password" className="rounded-xl">
-                                            <div className=" py-2 text-base font-bold text-gray-600">
-                                                Mật khẩu
-                                            </div>
-                                        </TabsTrigger>
+                                        {showPasswordTab && (
+                                            <TabsTrigger value="password" className="rounded-xl">
+                                                <div className=" py-2 text-base font-bold text-gray-600">
+                                                    Mật khẩu
+                                                </div>
+                                            </TabsTrigger>
+                                        )}
                                     </div>
                                 </TabsList>
                                 {/* tabs - content */}
