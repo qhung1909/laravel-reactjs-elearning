@@ -98,7 +98,11 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
                 if (res.data.data.status === 'revision_requested' || res.data.data.status === 'draft') {
                     // Cho phép truy cập vào trang hiện tại
                 } else {
+                    setTimeout(()=>{
+                        notify('Khóa học của bạn không ở trạng thái nháp, không truy cập được vô link này')
+                    }, 500)
                     navigate('/instructor/lesson');
+
                 }
 
             } catch (error) {
@@ -216,13 +220,14 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
     });
 
     return (
-        <div className="w-3/12 mr-4 hidden lg:block">
+        <>
+            {/* <div className="w-3/12 mr-4 hidden lg:block"> */}
             <div className="mx-3 my-5">
                 <div className="px-5">
                     <h2 className="font-medium">Tạo nội dung của bạn</h2>
                     <div
                         className={`flex items-center space-x-2 my-4 ml-2 p-2 rounded-lg cursor-pointer transition-all duration-200
-            ${selectedItem === 'overview'
+                            ${selectedItem === 'overview'
                                 ? 'bg-yellow-100 text-yellow-800 font-medium shadow-sm'
                                 : 'hover:bg-gray-100'}`}
                         onClick={() => {
@@ -236,7 +241,7 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
                     </div>
                     <div
                         className={`flex items-center space-x-2 mt-4 mb-8 ml-2 p-2 rounded-lg cursor-pointer transition-all duration-200
-            ${selectedItem === 'curriculum'
+                            ${selectedItem === 'curriculum'
                                 ? 'bg-yellow-100 text-yellow-800 font-medium shadow-sm'
                                 : 'hover:bg-gray-100'}`}
                         onClick={() => {
@@ -263,6 +268,7 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
                 </div>
             </div>
             <Toaster />
-        </div>
+            {/* </div> */}
+        </>
     );
 };

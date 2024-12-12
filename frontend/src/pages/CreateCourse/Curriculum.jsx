@@ -932,13 +932,15 @@ export const Curriculum = () => {
             </header>
 
             <div className="flex max-w-7xl m-auto pt-16 pb-36">
-                <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated} hasChanges={hasChanges} />
-
-                <div className="w-full lg:w-10/12 shadow-lg">
-
-
-
-
+                <div className="fixed hidden lg:block">
+                    <SideBarCreateCoure
+                        course_id={course_id}
+                        isUpdated={isUpdated}
+                        setIsUpdated={setIsUpdated}
+                        hasChanges={hasChanges}
+                    />
+                </div>
+                <div className="ml-0 lg:ml-72 w-full lg:w-10/12 shadow-lg">
                     <>
 
                         <div>

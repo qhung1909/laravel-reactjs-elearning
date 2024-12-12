@@ -448,8 +448,16 @@ export const CourseOverview = () => {
 
 
             <div className="flex max-w-7xl m-auto pt-16 pb-36">
-                <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated} hasChanges={hasChanges} />
-                <div className="w-full lg:w-10/12 shadow-lg">
+                <div className="fixed hidden lg:block">
+                    <SideBarCreateCoure
+                        course_id={course_id}
+                        isUpdated={isUpdated}
+                        setIsUpdated={setIsUpdated}
+                        hasChanges={hasChanges}
+                    />
+                </div>
+                {/* <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated} hasChanges={hasChanges} /> */}
+                <div className="ml-0 lg:ml-72 w-full lg:w-10/12 shadow-lg">
                     <div>
                         <div className="m-2">
                             <h1 className="text-xl font-medium px-10 p-4">Tổng quan khóa học</h1>
