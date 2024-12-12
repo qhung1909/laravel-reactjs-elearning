@@ -15,9 +15,9 @@ export const UserNoti = () => {
                             </div>
                             <div>
                                 <h2 className="font-bold text-2xl bg-gradient-to-r from-yellow-400 to-yellow-500 bg-clip-text text-transparent">
-                                    Cài đặt tài khoản
+                                    Thông báo của bạn
                                 </h2>
-                                <p className="text-gray-500 text-sm">Quản lý cài đặt và thông tin tài khoản của bạn</p>
+                                <p className="text-gray-500 text-sm">Quản lý đọc và xóa thông báo của bạn</p>
                             </div>
                         </div>
                     </div>
