@@ -556,9 +556,13 @@ export const Curriculum = () => {
                 }]
             };
 
+            const title_of_video = {
+                title_content_id: lesson.title_content_id
+            }
+
             const response = await axios.post(
-                `${API_URL}/teacher/title-content/update/${section.content_id}`,
-                requestData,
+                `${API_URL}/teacher/title-content/${section.content_id}/video`,
+                title_of_video,
                 {
                     headers: {
                         'x-api-secret': API_KEY,
@@ -567,6 +571,23 @@ export const Curriculum = () => {
                     },
                 }
             );
+
+            if(response.ok){
+                toast.success("Video đã được xóa thành công!");
+            }
+
+
+            // const response = await axios.post(
+            //     `${API_URL}/teacher/title-content/update/${section.content_id}`,
+            //     requestData,
+            //     {
+            //         headers: {
+            //             'x-api-secret': API_KEY,
+            //             'Authorization': `Bearer ${token}`,
+            //             'Content-Type': 'application/json',
+            //         },
+            //     }
+            // );
 
             if (response.data.success) {
                 // Update local state to reflect the change
