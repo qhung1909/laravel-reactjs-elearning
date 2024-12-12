@@ -22,6 +22,7 @@ import 'react-calendar/dist/Calendar.css';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DialogDescription } from "@radix-ui/react-dialog";
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 const GPT_KEY = import.meta.env.VITE_GPT_KEY;
@@ -1147,21 +1148,23 @@ export const Lesson = () => {
                                 )}
                             </div>
                             {/* Hiển thị quiz nếu đã bắt đầu, nằm bên trong div video */}
-                            <Dialog open={showQuiz} onOpenChange={(open) => setShowQuiz(open)}>
-                                <DialogContent className="max-w-2xl">
-                                    <DialogHeader>
-                                        <DialogTitle>Quiz</DialogTitle>
-                                    </DialogHeader>
-                                    <div className="mt-4">
-                                        {currentQuizId && (
+                            {currentQuizId && (
+                                <Dialog open={showQuiz} onOpenChange={setShowQuiz}>
+                                    <DialogContent className="max-w-4xl w-[90vw] max-h-[90vh] overflow-hidden flex flex-col">
+                                        <DialogHeader>
+                                            <DialogTitle>Bài tập</DialogTitle>
+                                            <DialogDescription>
+                                                Hoàn thành tất cả câu hỏi bên dưới
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="flex-1 overflow-y-auto pr-2">
                                             <Quizzes
                                                 quiz_id={currentQuizId}
                                                 onClose={() => setShowQuiz(false)}
                                                 onComplete={async () => {
-                                                    await fetchProgress(); // Fetch lại progress khi quiz hoàn thành
+                                                    await fetchProgress();
                                                     setShowQuiz(false);
 
-                                                    // Thêm cập nhật trạng thái của quiz cho content hiện tại
                                                     setQuizStatus(prev => ({
                                                         ...prev,
                                                         [activeItem.contentId]: {
@@ -1170,7 +1173,6 @@ export const Lesson = () => {
                                                         }
                                                     }));
 
-                                                    // Cập nhật completedLessons nếu đủ điều kiện
                                                     const content = contentLesson.find(c => c.content_id === activeItem.contentId);
                                                     if (content) {
                                                         const hasDocument = titleContent[content.content_id]?.some(item => item.document_link);
@@ -1183,10 +1185,10 @@ export const Lesson = () => {
                                                     }
                                                 }}
                                             />
-                                        )}
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
                         </div>
 
                         {/* Phần nội dung khóa học - right site */}

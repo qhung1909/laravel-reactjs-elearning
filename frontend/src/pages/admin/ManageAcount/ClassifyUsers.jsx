@@ -63,6 +63,7 @@ import axios from "axios";
 import * as XLSX from 'xlsx';
 import { toast } from "react-hot-toast";
 import { useNavigate, } from "react-router-dom";
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 
 export default function ClassifyUsers() {
     const API_KEY = import.meta.env.VITE_API_KEY;
@@ -269,6 +270,57 @@ export default function ClassifyUsers() {
         console.log("Deleting user:", user_id);
     };
 
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
+
+    const paginateData = (data) => {
+        const indexOfLastItem = currentPage * itemsPerPage;
+        const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+        return data.slice(indexOfFirstItem, indexOfLastItem);
+    };
+
+    const getPageNumbers = () => {
+        const filteredData = getFilteredData();
+        const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+        const pageNumbers = [];
+
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) {
+                pageNumbers.push(i);
+            }
+        } else {
+            pageNumbers.push(1);
+
+            if (currentPage <= 3) {
+                pageNumbers.push(2, 3, 4, 5);
+                pageNumbers.push('...');
+                pageNumbers.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pageNumbers.push('...');
+                pageNumbers.push(totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+            } else {
+                pageNumbers.push('...');
+                pageNumbers.push(currentPage - 1, currentPage, currentPage + 1);
+                pageNumbers.push('...');
+                pageNumbers.push(totalPages);
+            }
+        }
+        return pageNumbers;
+    };
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, filterCriteria]);
+
+    const getPaginatedData = () => {
+        const filteredData = getFilteredData();
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return filteredData.slice(startIndex, endIndex);
+    };
+
+
+
     return (
         <SidebarProvider>
             <SideBarUI />
@@ -362,12 +414,14 @@ export default function ClassifyUsers() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {!isLoading && getFilteredData().map((user, index) => (
+                                        {!isLoading && getPaginatedData().map((user, index) => (
                                             <TableRow
                                                 key={user.id}
                                                 className="hover:bg-gray-50 transition-colors duration-150"
                                             >
-                                                <TableCell className="font-medium text-center text-gray-600">{index + 1}</TableCell>
+                                                <TableCell className="font-medium text-center text-gray-600">
+                                                    {(currentPage - 1) * itemsPerPage + index + 1}
+                                                </TableCell>
                                                 <TableCell className="text-center">
                                                     <div className="relative inline-block">
                                                         <img
@@ -524,6 +578,62 @@ export default function ClassifyUsers() {
                             </div>
                         </CardContent>
                     </Card>
+
+                    <div className="flex items-center justify-between p-4 border-t">
+                        <div className="text-sm text-gray-500">
+                            Hiển thị {getPaginatedData().length} trên tổng số {getFilteredData().length} người dùng
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <Pagination className="flex-1">
+                                <PaginationContent>
+                                    <PaginationItem>
+                                        <Button
+                                            variant="ghost"
+                                            className="gap-1 pl-2.5"
+                                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                            disabled={currentPage === 1}
+                                        >
+                                            <span>Trước</span>
+                                        </Button>
+                                    </PaginationItem>
+                                    <div className="flex items-center gap-1 mx-2">
+                                        {getPageNumbers().map((number, index) => (
+                                            <PaginationItem key={index}>
+                                                {number === '...' ? (
+                                                    <span className="px-2 text-gray-400">...</span>
+                                                ) : (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setCurrentPage(number)}
+                                                        className={`h-8 w-8 ${currentPage === number
+                                                            ? "bg-yellow-100 text-yellow-900 hover:bg-yellow-200 hover:text-yellow-900"
+                                                            : "text-gray-600 hover:bg-gray-100"
+                                                            }`}
+                                                    >
+                                                        {number}
+                                                    </Button>
+                                                )}
+                                            </PaginationItem>
+                                        ))}
+                                    </div>
+                                    <PaginationItem>
+                                        <Button
+                                            variant="ghost"
+                                            className="gap-1 pr-2.5"
+                                            onClick={() => setCurrentPage(prev =>
+                                                Math.min(Math.ceil(getFilteredData().length / itemsPerPage), prev + 1)
+                                            )}
+                                            disabled={currentPage === Math.ceil(getFilteredData().length / itemsPerPage)}
+                                        >
+                                            <span>Tiếp</span>
+                                        </Button>
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                        </div>
+                    </div>
+
                 </div>
             </SidebarInset>
         </SidebarProvider>
