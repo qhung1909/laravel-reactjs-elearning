@@ -260,27 +260,60 @@ export const Lesson = () => {
             toast.error("Chưa có bài tập cho nội dung này.");
         }
     };
-    const [currentBodyContent, setCurrentBodyContent] = useState(null);
-    const handleVideoClick = (item, contentId, index) => {
-        setCurrentVideoUrl(item.video_link);
-        setActiveItem({ contentId, index });
 
-        fetchTitleContent(contentId);
-
-        const bodyContent = titleContent[contentId][index];
-        setCurrentBodyContent(bodyContent);
-    };
 
 
     //Progress
     const [completedLessons, setCompletedLessons] = useState(new Set());
     const [completedVideosInSection, setCompletedVideosInSection] = useState({});
+    const [completedDocumentsInContent, setCompletedDocumentsInContent] = useState({});
     const [videoProgress, setVideoProgress] = useState({});
     const [videoDurations, setVideoDurations] = useState({});
     const [progressData, setProgressData] = useState([]);
     const [quizStatus, setQuizStatus] = useState({});
     const playerRef = useRef();
+    const [currentBodyContent, setCurrentBodyContent] = useState(null);
+    // Xử lí khi click video
+    const handleVideoClick = (item, contentId, index) => {
+        // Lưu state cũ trước khi chuyển video
+        const currentProgress = videoProgress[item.title_content_id];
 
+        setCurrentVideoUrl(item.video_link);
+        setActiveItem({ contentId, index });
+
+        // Chỉ gọi fetchTitleContent nếu chưa có data
+        if (!titleContent[contentId]) {
+            fetchTitleContent(contentId);
+        }
+
+        // Cập nhật body content
+        const bodyContent = titleContent[contentId][index];
+        setCurrentBodyContent(bodyContent);
+
+        // Đảm bảo giữ lại trạng thái watched của video hiện tại
+        if (currentProgress) {
+            setVideoProgress(prev => ({
+                ...prev,
+                [item.title_content_id]: currentProgress
+            }));
+
+            setCompletedVideosInContent(prev => ({
+                ...prev,
+                [contentId]: {
+                    ...(prev[contentId] || {}),
+                    [item.title_content_id]: currentProgress
+                }
+            }));
+        }
+    };
+    // Tính toán progress
+    const calculateProgress = () => {
+        const totalLessons = contentLesson.length;
+        const completedCount = completedLessons.size;
+        return totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
+    };
+
+    // Xử lí check quiz
     const checkQuizCompletion = async (contentId) => {
         try {
             const token = localStorage.getItem("access_token");
@@ -291,40 +324,16 @@ export const Lesson = () => {
                 },
                 params: { content_id: contentId }
             });
-    
-            setQuizStatus(prev => ({
-                ...prev,
-                [contentId]: {
-                    hasQuiz: response.data.has_quiz,
-                    completed: response.data.quiz_completed
-                }
-            }));
-    
-            if (response.data.quiz_completed) {
-                const hasDocument = titleContent[contentId]?.some(item => item.document_link);
-                const isVideoCompleted = videoCompleted[contentId];
-                const isDocumentCompleted = !hasDocument || documentCompleted[contentId];
-                
-                if (isVideoCompleted && isDocumentCompleted) {
-                    setCompletedLessons(prev => new Set([...prev, contentId]));
-                }
-            }
-    
-            return response.data;
+
+            return {
+                hasQuiz: response.data.has_quiz,
+                quizCompleted: response.data.quiz_completed
+            };
         } catch (error) {
             console.error("Lỗi kiểm tra quiz:", error);
-            return null;
+            return { hasQuiz: false, quizCompleted: false };
         }
     };
-
-
-    // Tính toán progress
-    const calculateProgress = () => {
-        const totalLessons = contentLesson.length;
-        const completedCount = completedLessons.size;
-        return totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
-    };
-
     // Cập nhật progress lên server
     const updateProgress = async (contentId) => {
         const token = localStorage.getItem("access_token");
@@ -351,7 +360,6 @@ export const Lesson = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-
             // Xử lý các trạng thái từ server
             switch (response.data.message) {
                 case 'Quiz not completed':
@@ -370,39 +378,7 @@ export const Lesson = () => {
             throw error;
         }
     };
-    // Xử lí document
-    const handleDocumentClick = async (contentId, titleContentId) => {
-        const token = localStorage.getItem("access_token");
-        try {
-            await axios.post(
-                `${API_URL}/progress/complete-document`,
-                {
-                    content_id: contentId,
-                    course_id: lesson.course_id,
-                },
-                {
-                    headers: {
-                        "x-api-secret": `${API_KEY}`,
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            setDocumentCompleted(prev => ({
-                ...prev,
-                [contentId]: true
-            }));
-
-            // Fetch lại progress để cập nhật UI
-            await fetchProgress();
-
-        } catch (error) {
-            console.error("Lỗi khi cập nhật trạng thái document:", error);
-            toast.error("Có lỗi xảy ra khi cập nhật tiến độ");
-        }
-    };
-    // 
-    // Xử lý khi video hoàn thành
+    // Xử lí video
     const handleVideoComplete = async (contentId, index, titleContentId) => {
         if (!videoProgress[titleContentId]) {
             try {
@@ -454,8 +430,15 @@ export const Lesson = () => {
                         [contentId]: true
                     }));
 
-                    // Update overall progress
-                    await fetchProgress();
+                    // Kiểm tra document và update progress
+                    const hasDocument = titleContent[contentId]?.some(item => item.document_link);
+                    const isDocumentCompleted = !hasDocument || documentCompleted[contentId];
+
+                    if (isDocumentCompleted) {
+                        await updateProgress(contentId);
+                        // Fetch lại progress để cập nhật UI
+                        await fetchProgress();
+                    }
                 }
 
             } catch (error) {
@@ -464,8 +447,62 @@ export const Lesson = () => {
             }
         }
     };
+    // Xử lí document
+    const handleDocumentClick = async (contentId, titleContentId) => {
+        const token = localStorage.getItem("access_token");
+        try {
+            await axios.post(
+                `${API_URL}/progress/complete-document`,
+                {
+                    content_id: contentId,
+                    course_id: lesson.course_id,
+                },
+                {
+                    headers: {
+                        "x-api-secret": `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
 
+            // Cập nhật trạng thái cho document cụ thể
+            setCompletedDocumentsInContent(prev => ({
+                ...prev,
+                [contentId]: {
+                    ...(prev[contentId] || {}),
+                    [titleContentId]: true
+                }
+            }));
 
+            // Kiểm tra xem tất cả document trong content đã hoàn thành chưa
+            const allDocumentsInSection = titleContent[contentId]?.filter(item => item.document_link) || [];
+            const allDocumentsCompleted = allDocumentsInSection.every(doc =>
+                completedDocumentsInContent[contentId]?.[doc.title_content_id] ||
+                doc.title_content_id === titleContentId
+            );
+
+            // Chỉ set documentCompleted khi tất cả document đã hoàn thành
+            if (allDocumentsCompleted) {
+                setDocumentCompleted(prev => ({
+                    ...prev,
+                    [contentId]: true
+                }));
+
+                // Kiểm tra video completion để update progress
+                const hasVideo = titleContent[contentId]?.some(item => item.video_link);
+                const isVideoCompleted = !hasVideo || videoCompleted[contentId];
+
+                if (isVideoCompleted) {
+                    await updateProgress(contentId);
+                }
+            }
+
+            // Cập nhật giao diện
+            await fetchProgress();
+        } catch (error) {
+            console.error("Lỗi khi cập nhật trạng thái document:", error);
+        }
+    };
     // Xử lý progress của video
     const handleProgress = (progress, titleContentId, index, contentId) => {
         const { playedSeconds } = progress;
@@ -496,31 +533,46 @@ export const Lesson = () => {
             const updatedVideoProgress = {};
             const updatedVideoCompleted = {};
             const updatedDocumentCompleted = {};
-            const updatedCompletedVideosInContent = {}; // Thêm dòng này
+            const updatedCompletedVideosInContent = {};
+            const updatedCompletedDocumentsInContent = {};
+
 
             progressData.forEach((progress) => {
-                if (progress.is_complete) {
-                    updatedCompletedLessons.add(progress.content_id);
-                    updatedCompletedVideos[progress.content_id] = true;
-
+                // Xử lý video đã hoàn thành
+                if (progress.video_completed === 1) {
                     if (titleContent[progress.content_id]) {
+                        // Cập nhật trạng thái cho từng video trong content
                         titleContent[progress.content_id].forEach(title => {
                             updatedVideoProgress[title.title_content_id] = true;
+
                             // Cập nhật completedVideosInContent
                             if (!updatedCompletedVideosInContent[progress.content_id]) {
                                 updatedCompletedVideosInContent[progress.content_id] = {};
                             }
                             updatedCompletedVideosInContent[progress.content_id][title.title_content_id] = true;
                         });
+
+                        // Đánh dấu toàn bộ content đã xem video
+                        updatedVideoCompleted[progress.content_id] = true;
+                    }
+                }
+                if (progress.document_completed === 1) {
+                    if (titleContent[progress.content_id]) {
+                        titleContent[progress.content_id]
+                            .filter(item => item.document_link)
+                            .forEach(doc => {
+                                if (!updatedCompletedDocumentsInContent[progress.content_id]) {
+                                    updatedCompletedDocumentsInContent[progress.content_id] = {};
+                                }
+                                updatedCompletedDocumentsInContent[progress.content_id][doc.title_content_id] = true;
+                            });
+                        updatedDocumentCompleted[progress.content_id] = true;
                     }
                 }
 
-                if (progress.video_completed) {
-                    updatedVideoCompleted[progress.content_id] = true;
-                }
-
-                if (progress.document_completed) {
-                    updatedDocumentCompleted[progress.content_id] = true;
+                if (progress.is_complete) {
+                    updatedCompletedLessons.add(progress.content_id);
+                    updatedCompletedVideos[progress.content_id] = true;
                 }
             });
 
@@ -529,10 +581,11 @@ export const Lesson = () => {
             setVideoProgress(updatedVideoProgress);
             setVideoCompleted(updatedVideoCompleted);
             setDocumentCompleted(updatedDocumentCompleted);
-            setCompletedVideosInContent(updatedCompletedVideosInContent); // Cập nhật state mới
+            setCompletedVideosInContent(updatedCompletedVideosInContent);
+            setCompletedDocumentsInContent(updatedCompletedDocumentsInContent);
         }
     }, [progressData, titleContent]);
-    // Fetch progress từ server
+    // Fetch progress
     const fetchProgress = async () => {
         try {
             const token = localStorage.getItem("access_token");
@@ -553,12 +606,12 @@ export const Lesson = () => {
                     (progress) => progress.user_id === user.user_id && progress.course_id === lesson.course_id
                 );
                 setProgressData(userProgress);
+
             }
         } catch (error) {
             console.error("Lỗi khi gọi API tiến độ:", error);
         }
     };
-
     useEffect(() => {
         if (user && lesson) {
             fetchProgress();
@@ -569,11 +622,15 @@ export const Lesson = () => {
         const checkAllQuizStatus = async () => {
             for (const content of contentLesson) {
                 if (content.quiz_id) {
-                    await checkQuizCompletion(content.content_id);
+                    try {
+                        await checkQuizCompletion(content.content_id);
+                    } catch (error) {
+                        console.error(`Lỗi kiểm tra quiz cho content ${content.content_id}:`, error);
+                    }
                 }
             }
         };
-    
+
         if (contentLesson.length > 0) {
             checkAllQuizStatus();
         }
@@ -1303,6 +1360,24 @@ export const Lesson = () => {
                                                                         <div className="space-y-1">
                                                                             <h3 className="font-medium text-gray-800 text-sm truncate">
                                                                                 {content.name_content}
+                                                                                {titleContent[content.content_id] && (
+                                                                                    <>
+                                                                                        <span className="h-4 w-[1px] bg-gray-200"></span>
+                                                                                        <div className="flex items-center gap-4">
+                                                                                            {completedLessons.has(content.content_id) ? (
+                                                                                                <span className="text-xs flex items-center text-green-500">
+                                                                                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                                                                                    Đã hoàn thành
+                                                                                                </span>
+                                                                                            ) : (
+                                                                                                <span className="text-xs flex items-center text-gray-400">
+                                                                                                    <Clock className="w-3 h-3 mr-1" />
+                                                                                                    Đang học
+                                                                                                </span>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </>
+                                                                                )}
                                                                             </h3>
                                                                             <div className="flex items-center gap-2">
                                                                                 <span className="text-xs text-gray-500 flex items-center">
@@ -1318,28 +1393,8 @@ export const Lesson = () => {
                                                                                 </span>
 
                                                                                 {/* Hiển thị trạng thái video & document */}
-                                                                                {titleContent[content.content_id] && (
-                                                                                    <>
-                                                                                        <span className="h-4 w-[1px] bg-gray-200"></span>
-                                                                                        <div className="flex items-center gap-4"> {/* Thêm gap-4 cho spacing đẹp hơn */}
-                                                                                            <span className="text-xs flex items-center">
-                                                                                                <Video className="w-3 h-3 mr-1" />
-                                                                                                <span className={videoCompleted[content.content_id] ? "text-green-500" : "text-gray-400"}>
-                                                                                                    {videoCompleted[content.content_id] ? "Đã xem" : "Chưa xem"}
-                                                                                                </span>
-                                                                                            </span>
 
-                                                                                            {titleContent[content.content_id].some(item => item.document_link) && (
-                                                                                                <span className="text-xs flex items-center">
-                                                                                                    <FileCheck className="w-3 h-3 mr-1" />
-                                                                                                    <span className={documentCompleted[content.content_id] ? "text-green-500" : "text-gray-400"}>
-                                                                                                        {documentCompleted[content.content_id] ? "Đã đọc" : "Chưa đọc"}
-                                                                                                    </span>
-                                                                                                </span>
-                                                                                            )}
-                                                                                        </div>
-                                                                                    </>
-                                                                                )}
+
 
                                                                                 {content.quiz_id != null && content.quiz_id !== 0 && (
                                                                                     <button
@@ -1361,14 +1416,6 @@ export const Lesson = () => {
                                                                             const isVideoCompleted = videoCompleted[content.content_id];
                                                                             const isDocumentCompleted = !hasDocument || documentCompleted[content.content_id];
                                                                             const isQuizCompleted = quizStatus[content.content_id]?.completed ?? true;
-
-                                                                            const isFullyCompleted = isVideoCompleted && isDocumentCompleted && isQuizCompleted;
-
-                                                                            return isFullyCompleted ? (
-                                                                                <CheckCircle className="text-green-600 w-4 h-4 ml-4 mt-1" />
-                                                                            ) : (
-                                                                                <XCircle className="text-red-600 w-4 h-4 ml-4 mt-1" />
-                                                                            );
                                                                         })()}
                                                                     </div>
                                                                 </div>
@@ -1401,15 +1448,37 @@ export const Lesson = () => {
                                                                                             </p>
                                                                                         </div>
                                                                                         <div className="flex items-center gap-2 mt-1">
-                                                                                            <span className="text-xs text-gray-400 flex items-center">
-                                                                                                <Clock className="w-3 h-3 mr-1" />
-                                                                                                {videoDurations[item.title_content_id]
-                                                                                                    ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}`
-                                                                                                    : "0:00"}
-                                                                                            </span>
-                                                                                            <span className={`text-xs ${isWatched ? 'text-green-500' : 'text-gray-400'}`}>
-                                                                                                • {isWatched ? 'Đã xem' : 'Chưa xem'}
-                                                                                            </span>
+                                                                                            {/* Trạng thái video */}
+                                                                                            {item.video_link && (
+                                                                                                <>
+                                                                                                    <span className="text-xs text-gray-400 flex items-center">
+                                                                                                        <Clock className="w-3 h-3 mr-1" />
+                                                                                                        {videoDurations[item.title_content_id]
+                                                                                                            ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}`
+                                                                                                            : "0:00"}
+                                                                                                    </span>
+
+                                                                                                    {/* Trạng thái video */}
+                                                                                                    <span className={`text-xs flex items-center ${completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'text-green-500' : 'text-gray-400'}`}>
+                                                                                                        <Video className="w-3 h-3 mr-1" />
+                                                                                                        {completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'Đã xem' : 'Chưa xem'}
+                                                                                                    </span>
+                                                                                                </>
+                                                                                            )}
+
+                                                                                            {/* Chỉ hiển thị trạng thái document nếu item có document_link */}
+                                                                                            {item.document_link && (
+                                                                                                <>
+                                                                                                    {item.video_link && <span className="h-4 w-[1px] bg-gray-200"></span>}
+                                                                                                    <span className="text-xs flex items-center">
+                                                                                                        <FileCheck className="w-3 h-3 mr-1" />
+                                                                                                        <span className={completedDocumentsInContent[content.content_id]?.[item.title_content_id] ? "text-green-500" : "text-gray-400"}>
+                                                                                                            {completedDocumentsInContent[content.content_id]?.[item.title_content_id] ? "Đã đọc" : "Chưa đọc"}
+                                                                                                        </span>
+                                                                                                    </span>
+                                                                                                </>
+                                                                                            )}
+
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
