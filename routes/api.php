@@ -266,6 +266,8 @@ Route::prefix('teacher')->middleware('admin')->group(function () {
     Route::post('/title-content', [TeacherController::class, 'storeTitleContent']);
     //
     Route::post('/title-content/update/{contentId}', [TeacherController::class, 'updateTitleContent']);
+    
+    Route::delete('/title-content/{titleContentId}/video', [TeacherController::class, 'removeVideoLink']);
 
     Route::delete('/title-content/delete/{titleContentId}', [TeacherController::class, 'deleteTitleContent']);
 
