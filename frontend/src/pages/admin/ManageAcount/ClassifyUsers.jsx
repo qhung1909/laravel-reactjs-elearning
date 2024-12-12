@@ -284,7 +284,7 @@ export default function ClassifyUsers() {
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink href="/classify-users">Phân loại người dùng</BreadcrumbLink>
+                                    <BreadcrumbLink >Phân loại người dùng</BreadcrumbLink>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
