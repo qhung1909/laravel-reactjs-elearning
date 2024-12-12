@@ -271,11 +271,9 @@ export default function ClassifyUsers() {
     };
 
 
-    // First add these state variables at the top with other state declarations:
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
 
-    // Add these pagination helper functions after other functions but before the return statement:
     const paginateData = (data) => {
         const indexOfLastItem = currentPage * itemsPerPage;
         const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -288,25 +286,20 @@ export default function ClassifyUsers() {
         const pageNumbers = [];
 
         if (totalPages <= 7) {
-            // If total pages is 7 or less, show all pages
             for (let i = 1; i <= totalPages; i++) {
                 pageNumbers.push(i);
             }
         } else {
-            // Always show first page
             pageNumbers.push(1);
 
             if (currentPage <= 3) {
-                // Near the start
                 pageNumbers.push(2, 3, 4, 5);
                 pageNumbers.push('...');
                 pageNumbers.push(totalPages);
             } else if (currentPage >= totalPages - 2) {
-                // Near the end
                 pageNumbers.push('...');
                 pageNumbers.push(totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
             } else {
-                // In the middle
                 pageNumbers.push('...');
                 pageNumbers.push(currentPage - 1, currentPage, currentPage + 1);
                 pageNumbers.push('...');
@@ -319,7 +312,6 @@ export default function ClassifyUsers() {
         setCurrentPage(1);
     }, [searchTerm, filterCriteria]);
 
-    // Update the getPaginatedData function
     const getPaginatedData = () => {
         const filteredData = getFilteredData();
         const startIndex = (currentPage - 1) * itemsPerPage;
