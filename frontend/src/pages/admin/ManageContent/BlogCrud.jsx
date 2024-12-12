@@ -102,6 +102,7 @@ export const BlogCrud = () => {
     const [newBlogTitle, setNewBlogTitle] = useState('');
     const [newBlogContent, setNewBlogContent] = useState('');
     const [newBlogImage, setNewBlogImage] = useState('');
+    const [newStatus, setNewStatus] = useState('');
     const [editBlogId, setEditBlogId] = useState(null);
     const [editBlogTitle, setEditBlogTitle] = useState('');
     const [editBlogContent, setEditBlogContent] = useState(null);
@@ -178,6 +179,7 @@ export const BlogCrud = () => {
         formData.append('title', newBlogTitle);
         formData.append('content', newBlogContent);
         formData.append('image', newBlogImage);
+        formData.append('status', 'success');
 
         try {
             setLoading(true);
