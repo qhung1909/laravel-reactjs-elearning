@@ -400,17 +400,29 @@ class AdminController extends Controller
         $request->validate([
             'name_coupon' => 'required|string|max:255',
             'discount_price' => 'required|numeric|min:0',
-            'start_discount' => 'required|date',
-            'end_discount' => 'required|date|after:start_discount',
+            'start_discount' => ['required', 'date_format:m-d-Y'],
+            'end_discount' => [
+                'required', 
+                'date_format:m-d-Y',
+                function($attribute, $value, $fail) use ($request) {
+                    $startDate = \Carbon\Carbon::createFromFormat('m-d-Y', $request->start_discount);
+                    $endDate = \Carbon\Carbon::createFromFormat('m-d-Y', $value);
+                    
+                    if ($endDate->lessThan($startDate)) {
+                        $fail('Ngày kết thúc phải sau ngày bắt đầu');
+                    }
+                }
+            ],
         ]);
-
+    
+        // Chuyển đổi sang định dạng Y-m-d để lưu database
         $coupon = Coupon::create([
             'name_coupon' => $request->name_coupon,
             'discount_price' => $request->discount_price,
-            'start_discount' => $request->start_discount,
-            'end_discount' => $request->end_discount,
+            'start_discount' => \Carbon\Carbon::createFromFormat('m-d-Y', $request->start_discount)->format('Y-m-d'),
+            'end_discount' => \Carbon\Carbon::createFromFormat('m-d-Y', $request->end_discount)->format('Y-m-d'),
         ]);
-
+    
         return response()->json($coupon, 201);
     }
 

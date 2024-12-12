@@ -97,7 +97,7 @@ export const InstructorNotification = () => {
             .replace(/<(.|\n)*?>/g, '')
             .trim();
 
-        if (!message || !cleanContent || !selectedUsers.length === 0 || selectedType === "Loại") {
+        if (!message || !cleanContent || selectedUsers.length === 0 || selectedType === "Loại") {
             notify("Vui lòng điền đầy đủ thông tin", "error");
             return;
         }
