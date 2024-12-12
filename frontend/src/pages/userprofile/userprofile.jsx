@@ -40,6 +40,7 @@ export const UserProfile = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isProfileSubmitting, setIsProfileSubmitting] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+    const [showPasswordTab, setShowPasswordTab] = useState(true);
     const navigate = useNavigate();
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
@@ -77,6 +78,9 @@ export const UserProfile = () => {
             setUserName(user.name);
             setEmail(user.email);
             setCurrentAvatar(user.avatar);
+        }
+        if (user && user.google_id) {
+            setShowPasswordTab(false);
         }
     }, [user]);
 
@@ -366,15 +370,17 @@ export const UserProfile = () => {
                                                 <span className="font-semibold">Chỉnh sửa hồ sơ</span>
                                             </div>
                                         </TabsTrigger>
-                                        <TabsTrigger
-                                            value="password"
-                                            className="data-[state=active]:bg-white data-[state=active]:text-yellow-600 data-[state=active]:shadow-sm rounded-lg transition-all duration-200"
-                                        >
-                                            <div className="flex items-center gap-2 py-2 px-4">
-                                                <Lock className="w-4 h-4" />
-                                                <span className="font-semibold">Mật khẩu</span>
-                                            </div>
-                                        </TabsTrigger>
+                                        {showPasswordTab && (
+                                            <TabsTrigger
+                                                value="password"
+                                                className="data-[state=active]:bg-white data-[state=active]:text-yellow-600 data-[state=active]:shadow-sm rounded-lg transition-all duration-200"
+                                            >
+                                                <div className="flex items-center gap-2 py-2 px-4">
+                                                    <Lock className="w-4 h-4" />
+                                                    <span className="font-semibold">Mật khẩu</span>
+                                                </div>
+                                            </TabsTrigger>
+                                        )}
                                     </TabsList>
 
                                     <TabsContent value="profile" className="mt-6">
