@@ -107,45 +107,44 @@ class ProgressController extends Controller
         $userId = auth()->id();
         $contentId = $request->input('content_id');
         $courseId = $request->input('course_id');
-
+    
         if (!$this->validateCourseAccess($userId, $courseId)) {
             return response()->json([
                 'message' => 'Course access denied',
             ], 403);
         }
-
-        $hasVideo = TitleContent::where('content_id', $contentId)
+    
+        // Sử dụng Model TitleContent (không có 's')
+        $contentVideos = TitleContent::where('content_id', $contentId)
             ->whereNotNull('video_link')
-            ->exists();
-
-        if (!$hasVideo) {
-            return response()->json([
-                'message' => 'No video content found',
-                'progress_percent' => $this->getProgressPercent($userId, $courseId)
-            ], 400);
-        }
-
+            ->count();
+    
         $progress = Progress::where('user_id', $userId)
             ->where('content_id', $contentId)
             ->first();
-
+    
+        // Nếu chưa có progress, tạo mới
         if (!$progress) {
             $progress = Progress::create([
                 'user_id' => $userId,
                 'course_id' => $courseId,
                 'content_id' => $contentId,
-                'video_completed' => true,
-                'complete_update' => Carbon::now()
-            ]);
-        } else {
-            $progress->update([
-                'video_completed' => true,
+                'video_completed' => 0,  // Khởi tạo là chưa hoàn thành
                 'complete_update' => Carbon::now()
             ]);
         }
-
+    
+        // Nếu đã xem đủ số lượng video
+        if ($contentVideos > 0) {
+            $progress->update([
+                'video_completed' => 1,
+                'complete_update' => Carbon::now()
+            ]);
+        }
+    
+        // Kiểm tra và cập nhật hoàn thành nội dung
         $this->tryMarkComplete($progress, $userId, $courseId);
-
+    
         return response()->json([
             'message' => 'Video completion updated',
             'progress_percent' => $this->getProgressPercent($userId, $courseId)
