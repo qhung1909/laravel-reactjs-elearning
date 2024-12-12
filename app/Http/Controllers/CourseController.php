@@ -294,56 +294,58 @@ class CourseController extends Controller
             'launch_date' => 'nullable|date',
             'backup_launch_date' => 'nullable|date|after_or_equal:launch_date'
         ];
-
+    
         $validator = Validator::make($request->all(), $rules);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
+    
         if ($request->price < $request->price_discount) {
             return response()->json(['error' => 'Giá không được nhỏ hơn giá giảm giá.'], 422);
         }
-
+    
         try {
             $course = DB::transaction(function () use ($request) {
                 $userId = auth()->id();
-
-                $baseSlug = Str::slug($request->title);
+    
+                $title = $request->title ?: 'Chưa có tên khóa học';
+    
+                $baseSlug = Str::slug($title);
                 $slug = $baseSlug;
                 $counter = 1;
-
+    
                 while (Course::where('slug', $slug)->exists()) {
                     $slug = $baseSlug . '-' . $counter;
                     $counter++;
                 }
-
+    
                 $imageUrl = null;
                 if ($request->hasFile('img')) {
                     $tempCourse = new Course();
                     $tempCourse->content_id = time();
                     $tempCourse->title_content_id = time();
-
+    
                     $imageUrl = $this->handleImageUpload($request->file('img'), $tempCourse);
                 }
-
+    
                 $course = Course::create([
                     'user_id' => $userId,
                     'course_category_id' => $request->course_category_id,
                     'price' => $request->price,
                     'price_discount' => $request->price_discount,
                     'description' => $request->description,
-                    'title' => $request->title,
+                    'title' => $title,
                     'slug' => $slug,
                     'img' => $imageUrl,
                     'status' => $request->status ?? 'draft',
                     'launch_date' => $request->launch_date,
                     'backup_launch_date' => $request->backup_launch_date
                 ]);
-
+    
                 return $course;
             });
-
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Khóa học được thêm thành công.',
@@ -356,6 +358,7 @@ class CourseController extends Controller
             ], 500);
         }
     }
+    
 
     public function update(Request $request, $slug)
     {
