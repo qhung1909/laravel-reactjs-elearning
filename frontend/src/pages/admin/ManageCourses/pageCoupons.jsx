@@ -29,7 +29,9 @@ import {
     FileDown,
     ChevronDown,
     ChevronUp,
-    Plus
+    Plus,
+    GraduationCap,
+    LayoutDashboard
 } from 'lucide-react';
 import { SideBarUI } from '../sidebarUI';
 import axios from "axios";
@@ -533,12 +535,14 @@ export default function PageCoupons() {
                         <Separator orientation="vertical" className="mr-2 h-4" />
                         <Breadcrumb>
                             <BreadcrumbList>
-                                <BreadcrumbItem>
-                                    <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
-                                </BreadcrumbItem>
+                                <BreadcrumbLink href="/admin" className="flex items-center gap-1">
+                                    <LayoutDashboard size={16} />
+                                    Dashboard
+                                </BreadcrumbLink>
                                 <BreadcrumbSeparator />
-                                <BreadcrumbItem>
-                                    <BreadcrumbLink href="/admin/coupons">Quản lý mã giảm giá</BreadcrumbLink>
+                                <BreadcrumbItem className="flex items-center gap-1 text-blue-600 hover:text-blue-600">
+                                    <GraduationCap size={16} />
+                                    <BreadcrumbLink className="hover:text-blue-600">Quản lý mã giảm giá</BreadcrumbLink>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>

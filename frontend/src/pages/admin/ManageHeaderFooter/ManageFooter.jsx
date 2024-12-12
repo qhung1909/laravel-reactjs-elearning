@@ -350,7 +350,7 @@ export default function ManageFooter() {
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
                                     <BreadcrumbLink
-                                        href="/admin/courses"
+                                        // href="/admin/courses"
                                         className="flex items-center gap-1 text-blue-600"
                                     >
                                         <GraduationCap size={16} />

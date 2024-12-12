@@ -175,11 +175,11 @@ export default function Billing() {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink href="/admin">Trang chủ</BreadcrumbLink>
+                                    <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator />
                                 <BreadcrumbItem>
-                                    <BreadcrumbLink href="/billing">Lịch sử mua hàng</BreadcrumbLink>
+                                    <BreadcrumbLink>Lịch sử mua hàng</BreadcrumbLink>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
