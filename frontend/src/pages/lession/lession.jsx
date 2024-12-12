@@ -30,6 +30,8 @@ export const Lesson = () => {
     const navigate = useNavigate();
     const [lesson, setLesson] = useState(null);
     const { slug } = useParams();
+    const [timeoutId, setTimeoutId] = useState(null);
+
 
     const [videoCompleted, setVideoCompleted] = useState({});
     const [documentCompleted, setDocumentCompleted] = useState({});
@@ -498,10 +500,11 @@ export const Lesson = () => {
             }
 
             // Cập nhật giao diện
-            await fetchProgress();
         } catch (error) {
             console.error("Lỗi khi cập nhật trạng thái document:", error);
         }
+        await fetchProgress();
+
     };
     // Xử lý progress của video
     const handleProgress = (progress, titleContentId, index, contentId) => {
@@ -603,21 +606,36 @@ export const Lesson = () => {
 
             if (res.data) {
                 const userProgress = res.data.filter(
-                    (progress) => progress.user_id === user.user_id && progress.course_id === lesson.course_id
+                  (progress) => progress.user_id === user.user_id && progress.course_id === lesson.course_id
                 );
                 setProgressData(userProgress);
-
-            }
+          
+                const newTimeoutId = setTimeout(fetchProgress, 6500);
+                setTimeoutId(newTimeoutId);
+              }
         } catch (error) {
             console.error("Lỗi khi gọi API tiến độ:", error);
         }
     };
     useEffect(() => {
         if (user && lesson) {
-            fetchProgress();
+          // Xóa timeout trước đó (nếu có)
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+      
+          fetchProgress();
         }
-    }, [user, lesson]);
-
+      }, [user, lesson]);
+    
+      useEffect(() => {
+        return () => {
+          // Xóa timeout khi component bị unmount
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+        };
+      }, []);
     useEffect(() => {
         const checkAllQuizStatus = async () => {
             for (const content of contentLesson) {

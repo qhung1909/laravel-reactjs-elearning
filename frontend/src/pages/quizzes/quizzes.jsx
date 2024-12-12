@@ -198,6 +198,16 @@ export const Quizzes = ({ quiz_id }) => {
             toast.error("Có lỗi xảy ra khi nộp bài!");
         }
     };
+    const handleResetQuiz = () => {
+        setScore(null);
+        setAnswers({});
+        setQuizCompleted(false);
+        setCorrectAnswers({});
+        setUserResults({});
+        setHasStarted(false);
+
+        toast.success("Quiz đã được tải lại!");
+    };
 
 
     const handleAnswerChange = (questionId, selectedOption, questionType) => {
@@ -381,10 +391,10 @@ export const Quizzes = ({ quiz_id }) => {
                                                                 <input
                                                                     type="text"
                                                                     className={`p-2 border rounded-lg w-full ${quizCompleted
-                                                                            ? userResults[question.question_id]
-                                                                                ? 'border-green-500 bg-green-50'
-                                                                                : 'border-red-500 bg-red-50'
-                                                                            : ''
+                                                                        ? userResults[question.question_id]
+                                                                            ? 'border-green-500 bg-green-50'
+                                                                            : 'border-red-500 bg-red-50'
+                                                                        : ''
                                                                         }`}
                                                                     value={answers[question.question_id] || ''}
                                                                     onChange={(e) => handleAnswerChange(
@@ -442,7 +452,7 @@ export const Quizzes = ({ quiz_id }) => {
                                                                         disabled={quizCompleted}
                                                                     >
                                                                         <span className="flex items-center gap-3">
-                                                                            <span className={`w-8 h-8 flex items-center justify-center rounded-full 
+                                                                            <span className={`w-8 h-8 flex items-center justify-center rounded-full
                                                                                 ${quizCompleted
                                                                                     ? "bg-white/80 text-current"
                                                                                     : "bg-white border border-gray-300"
@@ -498,6 +508,12 @@ export const Quizzes = ({ quiz_id }) => {
                                     {score !== null ? score : 'Đang tải...'}/{quizzes[0]?.questions.length} điểm
                                 </span>
                             </div>
+                            <button
+                                onClick={handleResetQuiz} // Gọi hàm xử lý làm lại quiz
+                                className="mt-2 px-4 py-2 bg-yellow-400 text-white text-sm font-medium rounded shadow hover:bg-yellow-500 transition-all"
+                            >
+                                Làm lại Quiz
+                            </button>
                         </div>
                     )}
                 </div>
