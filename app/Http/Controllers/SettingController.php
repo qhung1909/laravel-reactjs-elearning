@@ -57,7 +57,7 @@ class SettingController extends Controller
                 'google_analytics_id' => 'nullable|string|max:50',
                 'facebook_pixel_id' => 'nullable|string|max:50',
                 'contact_email' => 'nullable|email|max:255',
-                'phone' => 'nullable|string|max:20',
+                'phone' => 'nullable|number|max:20',
                 'address' => 'nullable|string',
                 'working_hours' => 'nullable|string|max:255',
                 'banner_url' => 'nullable|string|max:255',
