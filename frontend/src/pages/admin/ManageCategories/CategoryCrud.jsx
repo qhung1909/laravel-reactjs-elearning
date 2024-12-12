@@ -98,6 +98,10 @@ export const CategoryCrud = () => {
     const [categories, setCategory] = useState([]);
     const token = localStorage.getItem('access_token');
 
+
+
+
+
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -112,9 +116,9 @@ export const CategoryCrud = () => {
 
 
 
-    // const openDialog = () => {
-    //     setIsDialogOpen(true);
-    // };
+    const openDialog = () => {
+        setIsDialogOpen(true);
+    };
 
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(sortedCategories);
@@ -159,19 +163,27 @@ export const CategoryCrud = () => {
         formData.append('name', newCategoryName);
         formData.append('image', newCategoryImage);
 
+        if (!editCategoryName || !editCategoryImage) {
+            setError('Vui lòng nhập đầy đủ thông tin');
+        }
+
         try {
             setLoading(true);
-            const res = await axios.post(`${API_URL}/categories`, formData, {
+            await axios.post(`${API_URL}/categories`, formData, {
                 headers: {
                     'x-api-secret': API_KEY,
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            const data = res.data;
-            console.log('Category added:', data);
+
             setIsDialogOpen(false);
             notify('Thêm danh mục thành công', 'success');
         } catch (error) {
+            if (error.response.status == 422) {
+                notify("Ảnh tải lên không được quá 2mb")
+                return;
+            }
+            notify('Lỗi khi thêm danh mục')
             if (error.response) {
                 console.error('Server error:', error.response.data.errors);
             } else {
@@ -187,37 +199,43 @@ export const CategoryCrud = () => {
 
     const editCategory = async (courseCategoryId) => {
         const formData = new FormData();
-        formData.append('name', editCategoryName);
-        formData.append('image', editCategoryImage);
+        // formData.append('name', editCategoryName);
+        if (editCategoryImage) {
+            formData.append('image', editCategoryImage);
+        }
 
         if (!editCategoryName || !editCategoryImage) {
             setError('Vui lòng nhập đầy đủ thông tin');
+            return;
         }
-
-        console.log('id danhmuc: ', courseCategoryId);
-
 
         try {
             setLoading(true);
-            const res = await axios.post(`${API_URL}/admin/categories/${courseCategoryId}`, formData, {
+            const response = await axios.post(`${API_URL}/admin/categories/${courseCategoryId}`, formData, {
                 headers: {
-                    'x-api-secret': API_KEY
+                    'x-api-secret': API_KEY,
+                    'Content-Type': 'multipart/form-data'
                 }
             });
-            const data = res.data;
-            console.log('Category updated:', data);
-            setEditCategoryName('');
-            setEditCategoryImage(null);
-            setSelectedImage(null);
-            setShowEditDialog(false);
-            window.location.reload()
 
+            // Chỉ xử lý thành công và đóng dialog khi request OK
+            if (response.status === 200) {
+                notify('Sửa danh mục thành công', 'success');
+                setEditCategoryName('');
+                setEditCategoryImage(null);
+                setSelectedImage(null);
+                setShowEditDialog(false); // Đóng dialog khi thành công
+                await fetchCategory();
+            }
         } catch (error) {
-            setError('Lỗi khi sửa', error)
+            if (error.response?.status === 422) {
+                notify("Ảnh tải lên không được quá 2mb");
+            } else {
+                notify('Lỗi sửa danh mục');
+            }
             console.error('Error updating category:', error);
         } finally {
             setLoading(false);
-            await fetchCategory()
         }
     };
 
@@ -236,15 +254,23 @@ export const CategoryCrud = () => {
         if (!isConfirmed) {
             return;
         }
+
         try {
             setLoading(true)
             await axios.delete(`${API_URL}/categories/${slug}`, {
                 headers: {
+                    'x-api-secret': API_KEY,
                     Authorization: `Bearer ${token}`
                 }
             })
+
+            notify('Xóa danh mục thành công', 'success')
+
             window.location.reload()
         } catch (error) {
+            if (error.response.status === 500) {
+                notify('Danh mục không thể xóa do có khóa học')
+            }
             console.error('Error delete category:', error)
         } finally {
             setLoading(false);
@@ -281,6 +307,22 @@ export const CategoryCrud = () => {
             return aValue < bValue ? 1 : -1;
         }
     });
+
+
+    // phân trang
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
+    const totalPages = Math.ceil(sortedCategories.length / itemsPerPage);
+    const getCurrentPageData = () => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return sortedCategories.slice(startIndex, endIndex);
+    };
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+
 
     const getSortIcon = (key) => {
         if (sortConfig.key === key) {
@@ -467,7 +509,7 @@ export const CategoryCrud = () => {
                                             ))}
                                         </>
                                     ) : (
-                                        sortedCategories.map((category, index) => (
+                                        getCurrentPageData().map((category, index) => (
                                             <tr key={index} className="border-t border-yellow-100 hover:bg-gray-50 transition-colors">
                                                 <td className="whitespace-nowrap py-4 px-6 text-sm text-gray-600 text-center">
                                                     {index + 1}
@@ -518,17 +560,18 @@ export const CategoryCrud = () => {
                                                                     </DialogDescription>
                                                                 </DialogHeader>
                                                                 <div className="space-y-6 py-4">
-                                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                                    {/* <div className="grid grid-cols-4 items-center gap-4">
                                                                         <Label className="text-right font-medium">Tên</Label>
                                                                         <div className="col-span-3">
                                                                             <Input
-                                                                                value={category.name}
+                                                                                value={editCategoryName}
+                                                                                onChange={(e) => setEditCategoryName(e.target.value)}
                                                                                 className="w-full"
                                                                                 placeholder="Nhập tên danh mục"
                                                                                 required
                                                                             />
                                                                         </div>
-                                                                    </div>
+                                                                    </div> */}
 
                                                                     {category.image && (
                                                                         <div className="grid grid-cols-4 items-center gap-4">
@@ -547,8 +590,9 @@ export const CategoryCrud = () => {
                                                                         <Label className="text-right font-medium">Tải ảnh mới</Label>
                                                                         <div className="col-span-3">
                                                                             <Input
+                                                                                onChange={(e) => setEditCategoryImage(e.target.files[0])}
                                                                                 type="file"
-                                                                                className="w-full cursor-pointer file:mr-4 file:py-2 file:px-4
+                                                                                className="w-full h-12 cursor-pointer file:mr-4 file:py-2 file:px-4
                                                                                     file:rounded-md file:border-0 file:text-sm file:font-semibold
                                                                                     file:bg-orange-50 file:text-orange-600 hover:file:bg-orange-100"
                                                                                 accept="image/*"
@@ -588,22 +632,25 @@ export const CategoryCrud = () => {
                     <div className="mt-3">
                         <Pagination>
                             <PaginationContent>
-                                <PaginationItem>
-                                    <PaginationLink href="#" isActive>
-                                        1
-                                    </PaginationLink>
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationLink href="#" >
-                                        2
-                                    </PaginationLink>
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationLink href="#">3</PaginationLink>
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationEllipsis />
-                                </PaginationItem>
+                                {[...Array(totalPages)].map((_, index) => (
+                                    <PaginationItem key={index}>
+                                        <PaginationLink
+                                            href="#"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                handlePageChange(index + 1);
+                                            }}
+                                            isActive={currentPage === index + 1}
+                                        >
+                                            {index + 1}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                ))}
+                                {totalPages > 3 && currentPage < totalPages - 2 && (
+                                    <PaginationItem>
+                                        <PaginationEllipsis />
+                                    </PaginationItem>
+                                )}
                             </PaginationContent>
                         </Pagination>
                     </div>
