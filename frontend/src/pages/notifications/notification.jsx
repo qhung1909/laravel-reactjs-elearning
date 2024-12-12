@@ -11,18 +11,9 @@ import {
 import {
     Card,
     CardContent,
-    CardHeader,
-    CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
     Pagination,
     PaginationContent,
@@ -32,7 +23,6 @@ import {
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -55,7 +45,6 @@ import axios from "axios"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 export default function TaskList() {
-    const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState("")
     const [currentPage, setCurrentPage] = useState(1)
@@ -64,13 +53,22 @@ export default function TaskList() {
     const [selectedNotification, setSelectedNotification] = useState(null);
     const [notifications, setNotifications] = useState([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const API_URL = import.meta.env.VITE_API_URL
     const location = useLocation()
     const navigate = useNavigate()
+
+    // chuyển đổi nội dung html
     const createMarkup = (htmlContent) => {
         return { __html: htmlContent };
     };
+
+    // tìm kiếm
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+    };
+
     // hàm xử lý hiện thông báo
     const fetchNotifications = async (page = 1) => {
         const token = localStorage.getItem('access_token');
@@ -98,6 +96,8 @@ export default function TaskList() {
             setLoading(false);
         }
     };
+
+    // hàm xử lý xem tbao
     const handleMarkAsRead = async (notificationId) => {
         const token = localStorage.getItem('access_token');
         try {
@@ -136,6 +136,8 @@ export default function TaskList() {
             console.error('Error fetching notification details:', error);
         }
     };
+
+    // hàm xử lý xóa tbao
     const handleDeleteNotification = async (notificationId) => {
         const token = localStorage.getItem('access_token');
         try {
@@ -144,9 +146,11 @@ export default function TaskList() {
                     'Authorization': `Bearer ${token}`,
                 },
             })
-            setSelectedNotification(response.data.data);
-            console.log(response.data.data)
-            await handleMarkAsRead(notificationId);
+            setNotifications(prevNotifications =>
+                prevNotifications.filter(notification => notification.id !== notificationId)
+            );
+            setSelectedNotification(null);
+
         } catch (error) {
             console.error('Error fetching notification details:', error);
         }
@@ -155,16 +159,11 @@ export default function TaskList() {
     useEffect(() => {
         const params = new URLSearchParams(location.search)
         const page = parseInt(params.get('page')) || 1
-        const per_page = parseInt(params.get('per_page')) || tasksPerPage
-
         setCurrentPage(page)
         fetchNotifications(page)
     }, [location.search])
 
-    const filteredNotifications = notifications.filter(notification =>
-        notification.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        notification.sender_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+
 
 
     const TaskSkeleton = () => (
@@ -188,20 +187,8 @@ export default function TaskList() {
     return (
         <Card className="border-0 bg-white/80 backdrop-blur-sm">
 
-            <CardContent className="p-0">
+            <CardContent className="pb-3 px-0">
                 <div className="space-y-6">
-                    {/* Search Box */}
-                    <div className="flex items-center space-x-2 bg-gray-50 p-3 rounded-xl">
-                        <Search className="h-5 w-5 text-gray-400" />
-                        <Input
-                            placeholder="Tìm kiếm thông báo..."
-                            className="flex-1 bg-transparent border-none focus:ring-1 focus:ring-yellow-400"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-
-
                     {/* Table */}
                     <div className="rounded-xl border border-gray-100 overflow-hidden">
                         <Table>
@@ -308,7 +295,13 @@ export default function TaskList() {
                                                     <button onClick={() => handleMarkAsRead(notification.id)} className="cursor-pointer">
                                                         <Check className="h-4 w-4 mr-2" />
                                                     </button>
-                                                    <button onClick={() => handleDeleteNotification(notification.id)} className="cursor-pointer">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // Ngăn event bubbling
+                                                            handleDeleteNotification(notification.id);
+                                                        }}
+                                                        className="cursor-pointer"
+                                                    >
                                                         <Trash className="h-4 w-4 mr-2" />
                                                     </button>
                                                 </div>
@@ -336,7 +329,7 @@ export default function TaskList() {
                     </div>
 
                     {/* Pagination */}
-                    <Pagination>
+                    <Pagination className="">
                         <PaginationContent>
                             {Array.from({ length: totalPages }, (_, index) => (
                                 <PaginationItem key={index + 1}>

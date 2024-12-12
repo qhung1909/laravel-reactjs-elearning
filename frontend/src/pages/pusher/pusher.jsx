@@ -69,15 +69,7 @@ const NotificationDropdown = ({ userId }) => {
         };
 
         if (userId) {
-            const channelName = `user.${userId}`;
-
             const channel = echo.private(`user.${userId}`);
-
-            channel.subscribed(() => {
-                console.log('Successfully subscribed to private channel:', channelName);
-                console.log('Channel instance:', channel);
-            });
-
 
             channel.listen('.notification', (data) => {
                 console.log('Notification event received:', data);
