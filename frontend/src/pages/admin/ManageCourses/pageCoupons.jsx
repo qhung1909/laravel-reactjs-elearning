@@ -73,10 +73,12 @@ export default function PageCoupons() {
         }
 
         if (numValue < 1) {
+            toast.error('Giá giảm không hợp lệ!');
             return false;
         }
 
-        if (numValue > 1000000000) {
+        if (numValue > 500000) {
+            toast.error('Vui lòng nhập giá giảm hợp lệ (từ 0 đến 500,000)');
             return false;
         }
 
@@ -93,7 +95,7 @@ export default function PageCoupons() {
         }
 
         if (!validateDiscountPrice(value)) {
-            setValidationError('Vui lòng nhập giá giảm hợp lệ (từ 0 đến 1,000,000,000)');
+            setValidationError('Vui lòng nhập giá giảm hợp lệ (từ 0 đến 500,000)');
         } else {
             setValidationError('');
         }
@@ -251,7 +253,7 @@ export default function PageCoupons() {
             return;
         }
         if (!validateDiscountPrice(editDiscountPrice)) {
-            toast.error('Giá giảm không hợp lệ!');
+            // toast.error('Giá giảm không hợp lệ!');
             return;
         }
         const startDate = new Date(editStartDate);
@@ -280,7 +282,7 @@ export default function PageCoupons() {
             if (res.status === 201) {
                 toast.dismiss();
                 toast.success('Thêm mã giảm giá thành công!', {
-                    duration: 3000,
+                    duration: 500,
                     position: 'top-center'
                 });
                 fetchCoupons();
@@ -294,7 +296,7 @@ export default function PageCoupons() {
             toast.dismiss();
             console.error('Error adding coupon:', error);
             toast.error('Lỗi khi thêm mã giảm giá. Vui lòng thử lại!', {
-                duration: 3000,
+                duration: 2000,
                 position: 'top-center'
             });
         }
@@ -309,15 +311,13 @@ export default function PageCoupons() {
         }
 
         if (!validateDiscountPrice(editDiscountPrice)) {
-            toast.error('Giá giảm không hợp lệ!');
+            // toast.error('Giá giảm không hợp lệ!');
             return;
         }
 
         const updatedCoupon = {
             name_coupon: editCouponName,
             discount_price: editDiscountPrice,
-            start_discount: editStartDate,
-            end_discount: editEndDate,
         };
 
         try {
@@ -330,7 +330,7 @@ export default function PageCoupons() {
             if (res.status === 200) {
                 toast.dismiss();
                 toast.success('Cập nhật mã giảm giá thành công!', {
-                    duration: 3000,
+                    duration: 500,
                     position: 'top-center'
                 });
                 fetchCoupons();
@@ -343,7 +343,7 @@ export default function PageCoupons() {
             toast.dismiss();
             console.error('Error editing coupon:', error);
             toast.error('Lỗi khi cập nhật mã giảm giá. Vui lòng thử lại!', {
-                duration: 3000,
+                duration: 2000,
                 position: 'top-center'
             });
         }
@@ -435,6 +435,8 @@ export default function PageCoupons() {
             ? (sortConfig.direction === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)
             : <ChevronUp className="h-4 w-4 opacity-0 group-hover:opacity-50" />
     );
+
+
 
     return (
         <SidebarProvider>
@@ -553,6 +555,7 @@ export default function PageCoupons() {
                                                         <Input
                                                             id="newCouponName"
                                                             value={newCouponName}
+                                                            maxLength={20}
                                                             onChange={(e) => setNewCouponName(e.target.value)}
                                                             className="col-span-3"
                                                         />
@@ -562,6 +565,7 @@ export default function PageCoupons() {
                                                         <Input
                                                             id="editDiscountPrice"
                                                             value={editDiscountPrice}
+                                                            type="number"
                                                             onChange={handleDiscountPriceChange}
                                                             className={`col-span-3 ${validationError ? 'border-red-500' : ''}`}
                                                             placeholder="Enter discount price"
@@ -606,7 +610,7 @@ export default function PageCoupons() {
                                                 className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 cursor-pointer group"
                                                 onClick={() => handleSort('name_coupon')}
                                             >
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 ">
                                                     Tên mã
                                                     {getSortIcon('name_coupon')}
                                                 </div>
@@ -691,30 +695,7 @@ export default function PageCoupons() {
                     </Card>
                 </div>
 
-                <Pagination>
-                    <PaginationContent>
-                        <PaginationItem>
-                            <PaginationLink href="#" aria-label="Trang trước">
-                                &lt;
-                            </PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#" isActive>1</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#">2</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#">3</PaginationLink>
-                        </PaginationItem>
-                        <PaginationEllipsis />
-                        <PaginationItem>
-                            <PaginationLink href="#" aria-label="Trang sau">
-                                &gt;
-                            </PaginationLink>
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>
+
 
                 <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
                     <DialogContent>
@@ -728,6 +709,7 @@ export default function PageCoupons() {
                                     <Input
                                         id="editCouponName"
                                         value={editCouponName}
+                                        maxLength={20}
                                         onChange={(e) => setEditCouponName(e.target.value)}
                                         className="col-span-3"
                                     />
@@ -736,30 +718,11 @@ export default function PageCoupons() {
                                     <Label htmlFor="editDiscountPrice" className="text-right">Giảm giá</Label>
                                     <Input
                                         id="editDiscountPrice"
-                                        type="number"
                                         value={editDiscountPrice}
-                                        onChange={(e) => setEditDiscountPrice(Number(e.target.value))}
-                                        className="col-span-3"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="editStartDate" className="text-right">Ngày bắt đầu</Label>
-                                    <Input
-                                        id="editStartDate"
-                                        type="date"
-                                        value={editStartDate}
-                                        onChange={(e) => setEditStartDate(e.target.value)}
-                                        className="col-span-3"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="editEndDate" className="text-right">Ngày kết thúc</Label>
-                                    <Input
-                                        id="editEndDate"
-                                        type="date"
-                                        value={editEndDate}
-                                        onChange={(e) => setEditEndDate(e.target.value)}
-                                        className="col-span-3"
+                                        type="number"
+                                        onChange={handleDiscountPriceChange}
+                                        className={`col-span-3 ${validationError ? 'border-red-500' : ''}`}
+                                        placeholder="Enter discount price"
                                     />
                                 </div>
                             </div>
@@ -769,6 +732,9 @@ export default function PageCoupons() {
                         </form>
                     </DialogContent>
                 </Dialog>
+
+
+
 
             </SidebarInset>
         </SidebarProvider>
