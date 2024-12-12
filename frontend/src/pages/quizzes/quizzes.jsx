@@ -488,7 +488,6 @@ export const Quizzes = ({ quiz_id }) => {
                             </div>
                         </CardContent>
                     </Card>
-
                     <div className="flex flex-col items-center mt-8">
                         {quizCompleted && score !== null && (
                             <div className="flex justify-center mt-8 mb-4">
@@ -531,10 +530,6 @@ export const Quizzes = ({ quiz_id }) => {
                             )}
                         </div>
                     </div>
-
-
-
-
                 </div>
             )}
         </div>
