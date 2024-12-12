@@ -237,7 +237,7 @@ export const Home = () => {
         <>
 
             {/* banner */}
-            <div className="banner"  data-aos="fade-down"
+            <div className="banner"
             >
                 <div className="banner-box">
                     <div className="" style={{ backgroundImage: "url(https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/uploads/background-banner.jpg)" }}>

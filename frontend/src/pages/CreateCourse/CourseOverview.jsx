@@ -67,6 +67,8 @@ export const CourseOverview = () => {
 
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loading_update, setLoadingUpdate] = useState(false);
+
     const [isUpdated, setIsUpdated] = useState(false);
     const [hasChanges, setHasChanges] = useState(false); // Theo dõi thay đổi
 
@@ -340,7 +342,7 @@ export const CourseOverview = () => {
         }
         const loadingToast = toast.loading('Đang xử lý...');
         try {
-            setLoading(true);
+            setLoadingUpdate(true);
             const response = await axios.post(
                 `${API_URL}/teacher/courses/${course_id}`,
                 formData,
@@ -373,7 +375,7 @@ export const CourseOverview = () => {
             notify(error.response?.data?.message || 'Lỗi cập nhật khóa học', 'error');
         } finally {
             toast.dismiss(loadingToast);
-            setLoading(false);
+            setLoadingUpdate(false);
         }
     };
 
@@ -384,6 +386,11 @@ export const CourseOverview = () => {
             {loading && (
                 <div className='loading'>
                     <div className='loading-spin'></div>
+                </div>
+            )}
+            {loading_update && (
+                <div className='loading'>
+                    {/* <div className='loading-spin'></div> */}
                 </div>
             )}
             <header className="fixed top-0 w-full z-10 bg-yellow-500 py-3">

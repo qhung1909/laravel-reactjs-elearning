@@ -155,9 +155,9 @@ export const InstructorLesson = () => {
 
             if (response.status === 200 || response.status === 201) {
                 notify('Cập nhật giá thành công', "success");
-                setTimeout(()=>{
+                setTimeout(() => {
                     window.location.reload();
-                },2000)
+                }, 2000)
             }
 
         } catch (error) {
@@ -192,9 +192,10 @@ export const InstructorLesson = () => {
 
             if (response.status === 200 || response.status === 201) {
                 notify('Xóa giá giảm thành công', "success");
-                setTimeout(()=>{
+                setTimeout(() => {
                     window.location.reload();
-                },2000)            }
+                }, 2000)
+            }
 
         } catch (error) {
             if (error.response) {
@@ -227,6 +228,8 @@ export const InstructorLesson = () => {
                 return "Hết hạn";
             case "need_schedule":
                 return "Bổ sung";
+            case "revision_requested":
+                return "Nháp";
             default:
                 return status;
         }
@@ -286,6 +289,8 @@ export const InstructorLesson = () => {
                 return "bg-black text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs hover:text-white";
             case "draft":
                 return "bg-gray-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
+            case "revision_requested":
+                return "bg-gray-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
             case "pending":
                 return "bg-blue-500 text-white md:px-3 md:py-1 font-medium sm:text-sm text-xs";
             case "expired":
@@ -300,6 +305,9 @@ export const InstructorLesson = () => {
     // xử lý chuyển trang và hiển thị dialog
     const handleBadgeClick = (item) => {
         if (item.status === "draft") {
+            window.location.href = `/course/manage/${item.course_id}/course-overview`;
+        }
+        if (item.status === "revision_requested") {
             window.location.href = `/course/manage/${item.course_id}/course-overview`;
         }
         if (item.status === "published") {
@@ -431,14 +439,14 @@ export const InstructorLesson = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <Card>
                                         <CardContent className="p-3">
-                                            <div className="space-y-4">
+                                            <div className="">
                                                 <div className="flex space-y-1 items-center justify-between">
                                                     <span className="text-sm font-medium text-gray-700">Trạng thái hiện tại:</span>
                                                     <span className="text-sm italic text-gray-600 bg-gray-100 px-3 py-1 rounded-full" >
                                                         {getStatusVietnamese(item.status)}
                                                     </span>
                                                 </div>
-                                                <div className="flex justify-center">
+                                                <div className="flex justify-center mt-10 md:mt-[136px]">
                                                     <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white" onClick={() => toggleCourseStatus(item.course_id, item.status)}>
                                                         Đổi sang {getNextStatus(item.status)}
                                                     </Button>
@@ -482,7 +490,7 @@ export const InstructorLesson = () => {
                                                 </div>
                                                 <div className="flex justify-center">
                                                     <Button
-                                                        onClick={() => handleChangePrice(item.course_id, priceDiscount,item.price)}
+                                                        onClick={() => handleChangePrice(item.course_id, priceDiscount, item.price)}
                                                         className="w-full bg-gray-900 hover:bg-gray-800 text-white">
                                                         Đổi giá
                                                     </Button>
@@ -541,19 +549,19 @@ export const InstructorLesson = () => {
             currentItems.map((item, index) => (
                 <TableRow key={index}>
                     <TableCell>
-                        <Badge onClick={() => handleBadgeClick(item)} style={{ cursor: item.status === "draft" || item.status === "need_schedule" || item.status === "expired" || item.status === "published" ? "pointer" : "not-allowed" }} className={getStatusBadge(item.status)}>
+                        <Badge onClick={() => handleBadgeClick(item)} style={{ cursor: item.status === "draft" || item.status === "revision_requested" || item.status === "need_schedule" || item.status === "expired" || item.status === "published" ? "pointer" : "not-allowed" }} className={getStatusBadge(item.status)}>
                             {getStatusVietnamese(item.status)}
                         </Badge>
                     </TableCell>
                     <TableCell className="sm:p-4 p-0 w-20" >
                         <img src={`${item.img}`} className="rounded-sm object-cover" alt="" />
                     </TableCell>
-                    <TableCell className="sMw-40 font-medium lg:text-sm sm:text-sm text-xs xl:table-cell line-clamp-2">{item.title}</TableCell>
+                    <TableCell className=" font-medium lg:text-sm sm:text-sm text-xs xl:table-cell line-clamp-2 w-auto">{item.title}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs">{formatCurrency(item.price)}</TableCell>
                     <TableCell className="font-medium sm:text-sm text-xs">{formatCurrency(item.price_discount)}</TableCell>
-                    <TableCell className="font-medium sm:text-sm text-xs hidden md:table-cell">{item.is_buy}</TableCell>
-                    <TableCell className="font-medium sm:text-sm text-xs hidden md:table-cell">{item.views}</TableCell>
-                    <TableCell className="font-medium sm:text-sm text-xs hidden md:table-cell">
+                    <TableCell className="font-medium sm:text-sm text-xs ">{item.is_buy}</TableCell>
+                    <TableCell className="font-medium sm:text-sm text-xs ">{item.views}</TableCell>
+                    <TableCell className="font-medium sm:text-sm text-xs ">
                         {(new Date(item.created_at)).toLocaleDateString('vi-VN', {
                             day: '2-digit',
                             month: '2-digit',
@@ -709,6 +717,7 @@ export const InstructorLesson = () => {
             </DialogContent>
         </Dialog>
     );
+    
 
     return (
         <>
@@ -934,7 +943,7 @@ export const InstructorLesson = () => {
                         <div className="md:p-6 p-4 max-lg:h-screen">
 
                             {/* Thêm khóa học - xuất */}
-                            <div className="flex justify-between">
+                            <div className="flex-col md:flex-row space-y-5 justify-between">
                                 <div className="">
                                     <Accordion type="single" collapsible className="bg-white px-5 rounded shadow">
                                         <AccordionItem value="item-1">
@@ -985,7 +994,6 @@ export const InstructorLesson = () => {
                                         </AccordionItem>
                                     </Accordion>
 
-
                                 </div>
                                 <div className="flex gap-2 items-center justify-center md:justify-end">
 
@@ -1013,19 +1021,18 @@ export const InstructorLesson = () => {
                             </div>
 
                             {/* Table sản phẩm */}
-                            <div className="lg:my-5 bg-white rounded-3xl p-3">
+                            <div className="mx-auto lg:my-5 bg-white rounded-3xl p-3 overflow-x-auto max-w-[450px] sm:max-w-[650px] md:max-w-[730px] lg:max-w-full">
                                 <Table>
-
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs w-32">Trạng thái</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs w-auto">Trạng thái</TableHead>
                                             <TableHead className="xl:w-[250px] lg:w-[250px] md:w-[200px] w-[250px] text-cyan-950 md:text-sm text-xs">Hình ảnh</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs xl:w-[200px] lg:w-[150px] md:w-[150px] sm:w-[200px] w-[200px]">Tên</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs">Giá gốc</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs">Giá giảm</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt bán</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Lượt xem</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-sm text-xs hidden md:table-cell">Ngày tạo</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs ">Giá gốc</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs 0">Giá giảm</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs ">Lượt bán</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs ">Lượt xem</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-sm text-xs ">Ngày tạo</TableHead>
                                             <TableHead className="text-cyan-950 md:text-sm text-xs">Hành động</TableHead>
                                         </TableRow>
                                     </TableHeader>
