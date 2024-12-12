@@ -262,13 +262,36 @@ export const Lesson = () => {
     };
     const [currentBodyContent, setCurrentBodyContent] = useState(null);
     const handleVideoClick = (item, contentId, index) => {
+        // Lưu state cũ trước khi chuyển video
+        const currentProgress = videoProgress[item.title_content_id];
+
         setCurrentVideoUrl(item.video_link);
         setActiveItem({ contentId, index });
 
-        fetchTitleContent(contentId);
+        // Chỉ gọi fetchTitleContent nếu chưa có data
+        if (!titleContent[contentId]) {
+            fetchTitleContent(contentId);
+        }
 
+        // Cập nhật body content
         const bodyContent = titleContent[contentId][index];
         setCurrentBodyContent(bodyContent);
+
+        // Đảm bảo giữ lại trạng thái watched của video hiện tại
+        if (currentProgress) {
+            setVideoProgress(prev => ({
+                ...prev,
+                [item.title_content_id]: currentProgress
+            }));
+
+            setCompletedVideosInContent(prev => ({
+                ...prev,
+                [contentId]: {
+                    ...(prev[contentId] || {}),
+                    [item.title_content_id]: currentProgress
+                }
+            }));
+        }
     };
 
 
@@ -1314,6 +1337,24 @@ export const Lesson = () => {
                                                                         <div className="space-y-1">
                                                                             <h3 className="font-medium text-gray-800 text-sm truncate">
                                                                                 {content.name_content}
+                                                                                {titleContent[content.content_id] && (
+                                                                                    <>
+                                                                                        <span className="h-4 w-[1px] bg-gray-200"></span>
+                                                                                        <div className="flex items-center gap-4">
+                                                                                            {completedLessons.has(content.content_id) ? (
+                                                                                                <span className="text-xs flex items-center text-green-500">
+                                                                                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                                                                                    Đã hoàn thành
+                                                                                                </span>
+                                                                                            ) : (
+                                                                                                <span className="text-xs flex items-center text-gray-400">
+                                                                                                    <Clock className="w-3 h-3 mr-1" />
+                                                                                                    Đang học
+                                                                                                </span>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </>
+                                                                                )}
                                                                             </h3>
                                                                             <div className="flex items-center gap-2">
                                                                                 <span className="text-xs text-gray-500 flex items-center">
@@ -1329,28 +1370,8 @@ export const Lesson = () => {
                                                                                 </span>
 
                                                                                 {/* Hiển thị trạng thái video & document */}
-                                                                                {titleContent[content.content_id] && (
-                                                                                    <>
-                                                                                        <span className="h-4 w-[1px] bg-gray-200"></span>
-                                                                                        <div className="flex items-center gap-4"> {/* Thêm gap-4 cho spacing đẹp hơn */}
-                                                                                            <span className="text-xs flex items-center">
-                                                                                                <Video className="w-3 h-3 mr-1" />
-                                                                                                <span className={videoCompleted[content.content_id] ? "text-green-500" : "text-gray-400"}>
-                                                                                                    {videoCompleted[content.content_id] ? "Đã xem" : "Chưa xem"}
-                                                                                                </span>
-                                                                                            </span>
 
-                                                                                            {titleContent[content.content_id].some(item => item.document_link) && (
-                                                                                                <span className="text-xs flex items-center">
-                                                                                                    <FileCheck className="w-3 h-3 mr-1" />
-                                                                                                    <span className={documentCompleted[content.content_id] ? "text-green-500" : "text-gray-400"}>
-                                                                                                        {documentCompleted[content.content_id] ? "Đã đọc" : "Chưa đọc"}
-                                                                                                    </span>
-                                                                                                </span>
-                                                                                            )}
-                                                                                        </div>
-                                                                                    </>
-                                                                                )}
+
 
                                                                                 {content.quiz_id != null && content.quiz_id !== 0 && (
                                                                                     <button
@@ -1367,12 +1388,12 @@ export const Lesson = () => {
                                                                             </div>
                                                                         </div>
 
-                                                                        {/* {(() => {
+                                                                        {(() => {
                                                                             const hasDocument = titleContent[content.content_id]?.some(item => item.document_link);
                                                                             const isVideoCompleted = videoCompleted[content.content_id];
                                                                             const isDocumentCompleted = !hasDocument || documentCompleted[content.content_id];
                                                                             const isQuizCompleted = quizStatus[content.content_id]?.completed ?? true;
-                                                                        })()} */}
+                                                                        })()}
                                                                     </div>
                                                                 </div>
                                                             </AccordionTrigger>
@@ -1410,9 +1431,25 @@ export const Lesson = () => {
                                                                                                     ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}`
                                                                                                     : "0:00"}
                                                                                             </span>
-                                                                                            <span className={`text-xs ${isWatched ? 'text-green-500' : 'text-gray-400'}`}>
-                                                                                                {isWatched ? 'Đã xem' : 'Chưa xem'}
+
+                                                                                            {/* Trạng thái video */}
+                                                                                            <span className={`text-xs flex items-center ${completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'text-green-500' : 'text-gray-400'}`}>
+                                                                                                <Video className="w-3 h-3 mr-1" />
+                                                                                                {completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'Đã xem' : 'Chưa xem'}
                                                                                             </span>
+
+                                                                                            {/* Chỉ hiển thị trạng thái document nếu item có document_link */}
+                                                                                            {item.document_link && (
+                                                                                                <>
+                                                                                                    <span className="h-4 w-[1px] bg-gray-200"></span>
+                                                                                                    <span className="text-xs flex items-center">
+                                                                                                        <FileCheck className="w-3 h-3 mr-1" />
+                                                                                                        <span className={documentCompleted[content.content_id] ? "text-green-500" : "text-gray-400"}>
+                                                                                                            {documentCompleted[content.content_id] ? "Đã đọc" : "Chưa đọc"}
+                                                                                                        </span>
+                                                                                                    </span>
+                                                                                                </>
+                                                                                            )}
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
