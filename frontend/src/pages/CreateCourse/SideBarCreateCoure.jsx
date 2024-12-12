@@ -95,9 +95,12 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                     }
                 });
-                if (res.data.data.status !== 'draft') {
+                if (res.data.data.status === 'revision_requested' || res.data.data.status === 'draft') {
+                    // Cho phép truy cập vào trang hiện tại
+                } else {
                     navigate('/instructor/lesson');
                 }
+
             } catch (error) {
                 console.error(error);
 
