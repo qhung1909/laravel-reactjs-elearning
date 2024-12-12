@@ -120,10 +120,17 @@ export const InstructorProfile = () => {
 
     // hàm xử lý đăng xuất
     const handleLogout = () => {
-        setLoadingLogout(true);
-        logout();
-        setLoadingLogout(false);
+        try {
+            setLoadingLogout(true);
+            logout();
+            navigate('/login');
+        } catch (error) {
+            notify('Có lỗi xảy ra khi đăng xuất', 'error');
+        } finally {
+            setLoadingLogout(false);
+        }
     };
+
 
     // hàm xử lý validate thay đổi mật khẩu
     const handleChangePassword = async (e) => {
