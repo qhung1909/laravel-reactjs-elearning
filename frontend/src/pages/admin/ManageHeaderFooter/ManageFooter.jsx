@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -121,6 +122,32 @@ export default function ManageFooter() {
         }
     };
 
+
+    const isValidUrl = (url) => {
+        try {
+            new URL(url);
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
+    const isValidFacebookUrl = (url) => {
+        return url === '' || (isValidUrl(url) && url.includes('facebook.com'));
+    };
+    const isValidTwitterUrl = (url) => {
+        return url === '' || (isValidUrl(url) && url.includes('twitter.com'));
+    };
+    const isValidInstagramUrl = (url) => {
+        return url === '' || (isValidUrl(url) && url.includes('instagram.com'));
+    };
+    const isValidLinkedinUrl = (url) => {
+        return url === '' || (isValidUrl(url) && url.includes('linkedin.com'));
+    };
+    const isValidYoutubeUrl = (url) => {
+        return url === '' || (isValidUrl(url) && url.includes('youtube.com'));
+    };
+
     const handleSave = async () => {
         try {
             setLoading(true);
@@ -180,6 +207,49 @@ export default function ManageFooter() {
                 rate_limit: settings.rateLimit
             };
 
+            const requiredFields = {
+                facebook: settings.facebook,
+                twitter: settings.twitter,
+                instagram: settings.instagram,
+                linkedin: settings.linkedin,
+                youtube: settings.youtube
+            };
+
+            const emptyFields = Object.entries(requiredFields)
+                // eslint-disable-next-line no-unused-vars
+                .filter(([_, value]) => !value)
+                .map(([key]) => key);
+
+            if (emptyFields.length > 0) {
+                toast.error(`Vui lòng nhập đầy đủ link ${emptyFields.join(', ')}`);
+                return;
+            }
+
+            // Kiểm tra định dạng URL
+            if (!isValidFacebookUrl(settings.facebook)) {
+                toast.error('Link Facebook không hợp lệ');
+                return;
+            }
+            if (!isValidTwitterUrl(settings.twitter)) {
+                toast.error('Link Twitter không hợp lệ');
+                return;
+            }
+            if (!isValidInstagramUrl(settings.instagram)) {
+                toast.error('Link Instagram không hợp lệ');
+                return;
+            }
+            if (!isValidLinkedinUrl(settings.linkedin)) {
+                toast.error('Link LinkedIn không hợp lệ');
+                return;
+            }
+            if (!isValidYoutubeUrl(settings.youtube)) {
+                toast.error('Link Youtube không hợp lệ');
+                return;
+            }
+
+
+
+
             // Append all fields from apiData to formData
             Object.keys(apiData).forEach(key => {
                 formData.append(key, apiData[key]);
@@ -222,9 +292,9 @@ export default function ManageFooter() {
                 faviconTag.setAttribute('class', 'object-cover');
             }
 
-            toast.success('Settings saved successfully');
+            toast.success('Lưu thay đổi thành công');
         } catch (error) {
-            console.error('Save error:', error);
+            console.error('Lỗi khi lưu:', error);
             toast.error(error.response?.data?.error || 'Error saving settings');
         } finally {
             setLoading(false);
@@ -247,7 +317,7 @@ export default function ManageFooter() {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    <BreadcrumbLink href="/" className="flex items-center gap-1">
+                                    <BreadcrumbLink href="/admin" className="flex items-center gap-1">
                                         <LayoutDashboard size={16} />
                                         Dashboard
                                     </BreadcrumbLink>

@@ -363,7 +363,7 @@ export const Lesson = () => {
             // Xử lý các trạng thái từ server
             switch (response.data.message) {
                 case 'Quiz not completed':
-                    toast.error("Bạn cần hoàn thành bài kiểm tra để hoàn thành nội dung này.");
+                    toast.error("Hãy hoàn thành bài trắc nghiệm nửa bạn nhé !");
                     throw new Error('Quiz not completed');
 
                 case 'Course completed, certificate generated':
