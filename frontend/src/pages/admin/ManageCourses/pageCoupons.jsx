@@ -5,6 +5,8 @@ import {
     PaginationEllipsis,
     PaginationItem,
     PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
     SidebarInset,
@@ -436,7 +438,89 @@ export default function PageCoupons() {
             : <ChevronUp className="h-4 w-4 opacity-0 group-hover:opacity-50" />
     );
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
 
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, filterStatus]);
+
+    const totalFilteredCoupons = sortedCoupons.length;
+    const totalFilteredPages = Math.ceil(totalFilteredCoupons / itemsPerPage);
+    const indexOfLastCoupon = currentPage * itemsPerPage;
+    const indexOfFirstCoupon = indexOfLastCoupon - itemsPerPage;
+    const currentCoupons = sortedCoupons.slice(indexOfFirstCoupon, indexOfLastCoupon);
+
+    const handlePageChange = (page) => {
+        if (page > 0 && page <= totalFilteredPages) {
+            setCurrentPage(page);
+        }
+    };
+
+    const renderPaginationLinks = () => {
+        const pageLinks = [];
+
+        pageLinks.push(
+            <PaginationItem key="first">
+                <PaginationLink
+                    href="#"
+                    isActive={currentPage === 1}
+                    onClick={() => handlePageChange(1)}
+                >
+                    1
+                </PaginationLink>
+            </PaginationItem>
+        );
+
+        if (currentPage > 3) {
+            pageLinks.push(
+                <PaginationItem key="start-ellipsis">
+                    <PaginationEllipsis />
+                </PaginationItem>
+            );
+        }
+
+        const startPage = Math.max(2, currentPage - 1);
+        const endPage = Math.min(totalFilteredPages - 1, currentPage + 1);
+
+        for (let i = startPage; i <= endPage; i++) {
+            pageLinks.push(
+                <PaginationItem key={`page-${i}`}>
+                    <PaginationLink
+                        href="#"
+                        isActive={currentPage === i}
+                        onClick={() => handlePageChange(i)}
+                    >
+                        {i}
+                    </PaginationLink>
+                </PaginationItem>
+            );
+        }
+
+        if (currentPage < totalFilteredPages - 2) {
+            pageLinks.push(
+                <PaginationItem key="end-ellipsis">
+                    <PaginationEllipsis />
+                </PaginationItem>
+            );
+        }
+
+        if (totalFilteredPages > 1) {
+            pageLinks.push(
+                <PaginationItem key="last">
+                    <PaginationLink
+                        href="#"
+                        isActive={currentPage === totalFilteredPages}
+                        onClick={() => handlePageChange(totalFilteredPages)}
+                    >
+                        {totalFilteredPages}
+                    </PaginationLink>
+                </PaginationItem>
+            );
+        }
+
+        return pageLinks;
+    };
 
     return (
         <SidebarProvider>
@@ -605,7 +689,7 @@ export default function PageCoupons() {
                                 <table className="w-full">
                                     <thead>
                                         <tr className=" bg-yellow-100 ">
-                                            <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 cursor-pointer group">ID</th>
+                                            <th className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 cursor-pointer group">STT</th>
                                             <th
                                                 className="text-center bg-yellow-100 text-md font-bold py-4 px-6 text-yellow-900 cursor-pointer group"
                                                 onClick={() => handleSort('name_coupon')}
@@ -649,12 +733,13 @@ export default function PageCoupons() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {sortedCoupons.map((coupon, index) => {
+                                        {currentCoupons.map((coupon, index) => {
                                             const status = calculateStatus(coupon.end_discount);
                                             return (
                                                 <tr key={coupon.coupons_id} className={`border-t border-gray-100 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                                                    <td className="py-4 px-6 text-sm text-gray-600">{coupon.coupons_id}</td>
-                                                    <td className="py-4 px-6 text-sm text-gray-600">{coupon.name_coupon}</td>
+                                                    <td className="py-4 px-6 text-sm text-gray-600 text-center">
+                                                        {(currentPage - 1) * itemsPerPage + index + 1}
+                                                    </td>                                                    <td className="py-4 px-6 text-sm text-gray-600">{coupon.name_coupon}</td>
                                                     <td className="py-4 px-6 text-sm text-gray-600">
                                                         {coupon.discount_price ? `${coupon.discount_price.toLocaleString('vi-VN')} VNĐ` : 'N/A'}
                                                     </td>
@@ -693,6 +778,28 @@ export default function PageCoupons() {
                             </div>
                         </CardContent>
                     </Card>
+
+                    <Pagination>
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                />
+                            </PaginationItem>
+
+                            {renderPaginationLinks()}
+
+                            <PaginationItem>
+                                <PaginationNext
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalFilteredPages}
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+
+
                 </div>
 
 
@@ -732,6 +839,7 @@ export default function PageCoupons() {
                         </form>
                     </DialogContent>
                 </Dialog>
+
 
 
 

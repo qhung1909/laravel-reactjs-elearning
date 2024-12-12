@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { Trophy } from 'lucide-react';
+import { Award, RefreshCw, Star, Trophy } from 'lucide-react';
 import {
     Card,
     CardContent,
@@ -441,7 +441,7 @@ export const Quizzes = ({ quiz_id }) => {
                                                                                     ? 'bg-green-100 text-green-800'
                                                                                     : 'bg-white text-gray-800 border border-gray-200'
                                                                             : isSelected
-                                                                                ? 'bg-yellow-400 text-white'
+                                                                                ? 'bg-yellow-400 text-black'
                                                                                 : 'bg-white hover:bg-yellow-50 border border-gray-200'
                                                                             }`}
                                                                         onClick={() => handleAnswerChange(
@@ -489,33 +489,52 @@ export const Quizzes = ({ quiz_id }) => {
                         </CardContent>
                     </Card>
 
-                    <div className="flex justify-center mt-8">
-                        <button
-                            onClick={handleSubmit}
-                            className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2"
-                            disabled={quizCompleted}
-                        >
-                            <Trophy className="w-5 h-5" />
-                            Nộp bài
-                        </button>
+                    <div className="flex flex-col items-center mt-8">
+                        {quizCompleted && score !== null && (
+                            <div className="flex justify-center mt-8 mb-4">
+                                <div className="relative bg-white/50 backdrop-blur-lg shadow-lg rounded-2xl px-8 py-6 w-full max-w-lg">
+                                    <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                                        <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 p-3 rounded-full shadow-md">
+                                            <Award className="w-8 h-8 text-white" />
+                                        </div>
+                                    </div>
+                                    <h2 className="text-xl font-extrabold text-gray-800 text-center mt-6">Điểm số của bạn</h2>
+                                    <div className="flex items-center justify-center mt-4">
+                                        <span className="text-4xl font-bold text-yellow-500">
+                                            {score}/{quizzes[0]?.questions.length}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                        )}
+
+                        <div className="flex justify-center">
+                            {quizCompleted ? (
+                                <button
+                                    onClick={handleResetQuiz}
+                                    className="bg-blue-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-600 transition-colors duration-200 flex items-center gap-2"
+                                >
+                                    <RefreshCw className="w-5 h-5" />
+                                    Làm lại Quiz
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleSubmit}
+                                    className="bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center gap-2"
+                                >
+                                    <Trophy className="w-5 h-5" />
+                                    Nộp bài
+                                </button>
+                            )}
+                        </div>
                     </div>
 
-                    {quizCompleted && (
-                        <div className="flex justify-center p-3">
-                            <div className="title flex items-center gap-3 border-yellow-400 border px-10 py-5 rounded">
-                                <h2 className="text-lg font-bold">Điểm số của bạn: </h2>
-                                <span className="text-xl text-yellow-400 font-semibold">
-                                    {score !== null ? score : 'Đang tải...'}/{quizzes[0]?.questions.length} điểm
-                                </span>
-                            </div>
-                            <button
-                                onClick={handleResetQuiz} // Gọi hàm xử lý làm lại quiz
-                                className="mt-2 px-4 py-2 bg-yellow-400 text-white text-sm font-medium rounded shadow hover:bg-yellow-500 transition-all"
-                            >
-                                Làm lại Quiz
-                            </button>
-                        </div>
-                    )}
+
+
+
                 </div>
             )}
         </div>
