@@ -260,7 +260,19 @@ export const Lesson = () => {
             toast.error("Chưa có bài tập cho nội dung này.");
         }
     };
+
+
+
+    //Progress
+    const [completedLessons, setCompletedLessons] = useState(new Set());
+    const [completedVideosInSection, setCompletedVideosInSection] = useState({});
+    const [videoProgress, setVideoProgress] = useState({});
+    const [videoDurations, setVideoDurations] = useState({});
+    const [progressData, setProgressData] = useState([]);
+    const [quizStatus, setQuizStatus] = useState({});
+    const playerRef = useRef();
     const [currentBodyContent, setCurrentBodyContent] = useState(null);
+    // Xử lí khi click video
     const handleVideoClick = (item, contentId, index) => {
         // Lưu state cũ trước khi chuyển video
         const currentProgress = videoProgress[item.title_content_id];
@@ -293,17 +305,6 @@ export const Lesson = () => {
             }));
         }
     };
-
-
-    //Progress
-    const [completedLessons, setCompletedLessons] = useState(new Set());
-    const [completedVideosInSection, setCompletedVideosInSection] = useState({});
-    const [videoProgress, setVideoProgress] = useState({});
-    const [videoDurations, setVideoDurations] = useState({});
-    const [progressData, setProgressData] = useState([]);
-    const [quizStatus, setQuizStatus] = useState({});
-    const playerRef = useRef();
-
     // Tính toán progress
     const calculateProgress = () => {
         const totalLessons = contentLesson.length;
