@@ -281,6 +281,14 @@ export const Lesson = () => {
     const [quizStatus, setQuizStatus] = useState({});
     const playerRef = useRef();
 
+    // Tính toán progress
+    const calculateProgress = () => {
+        const totalLessons = contentLesson.length;
+        const completedCount = completedLessons.size;
+        return totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
+    };
+
+    // Xử lí check quiz
     const checkQuizCompletion = async (contentId) => {
         try {
             const token = localStorage.getItem("access_token");
@@ -291,40 +299,16 @@ export const Lesson = () => {
                 },
                 params: { content_id: contentId }
             });
-    
-            setQuizStatus(prev => ({
-                ...prev,
-                [contentId]: {
-                    hasQuiz: response.data.has_quiz,
-                    completed: response.data.quiz_completed
-                }
-            }));
-    
-            if (response.data.quiz_completed) {
-                const hasDocument = titleContent[contentId]?.some(item => item.document_link);
-                const isVideoCompleted = videoCompleted[contentId];
-                const isDocumentCompleted = !hasDocument || documentCompleted[contentId];
-                
-                if (isVideoCompleted && isDocumentCompleted) {
-                    setCompletedLessons(prev => new Set([...prev, contentId]));
-                }
-            }
-    
-            return response.data;
+
+            return {
+                hasQuiz: response.data.has_quiz,
+                quizCompleted: response.data.quiz_completed
+            };
         } catch (error) {
             console.error("Lỗi kiểm tra quiz:", error);
-            return null;
+            return { hasQuiz: false, quizCompleted: false };
         }
     };
-
-
-    // Tính toán progress
-    const calculateProgress = () => {
-        const totalLessons = contentLesson.length;
-        const completedCount = completedLessons.size;
-        return totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
-    };
-
     // Cập nhật progress lên server
     const updateProgress = async (contentId) => {
         const token = localStorage.getItem("access_token");
@@ -351,7 +335,6 @@ export const Lesson = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-
             // Xử lý các trạng thái từ server
             switch (response.data.message) {
                 case 'Quiz not completed':
@@ -370,39 +353,7 @@ export const Lesson = () => {
             throw error;
         }
     };
-    // Xử lí document
-    const handleDocumentClick = async (contentId, titleContentId) => {
-        const token = localStorage.getItem("access_token");
-        try {
-            await axios.post(
-                `${API_URL}/progress/complete-document`,
-                {
-                    content_id: contentId,
-                    course_id: lesson.course_id,
-                },
-                {
-                    headers: {
-                        "x-api-secret": `${API_KEY}`,
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            setDocumentCompleted(prev => ({
-                ...prev,
-                [contentId]: true
-            }));
-
-            // Fetch lại progress để cập nhật UI
-            await fetchProgress();
-
-        } catch (error) {
-            console.error("Lỗi khi cập nhật trạng thái document:", error);
-            toast.error("Có lỗi xảy ra khi cập nhật tiến độ");
-        }
-    };
-    // 
-    // Xử lý khi video hoàn thành
+    // Xử lí video
     const handleVideoComplete = async (contentId, index, titleContentId) => {
         if (!videoProgress[titleContentId]) {
             try {
@@ -454,8 +405,15 @@ export const Lesson = () => {
                         [contentId]: true
                     }));
 
-                    // Update overall progress
-                    await fetchProgress();
+                    // Kiểm tra document và update progress
+                    const hasDocument = titleContent[contentId]?.some(item => item.document_link);
+                    const isDocumentCompleted = !hasDocument || documentCompleted[contentId];
+
+                    if (isDocumentCompleted) {
+                        await updateProgress(contentId);
+                        // Fetch lại progress để cập nhật UI
+                        await fetchProgress();
+                    }
                 }
 
             } catch (error) {
@@ -464,8 +422,53 @@ export const Lesson = () => {
             }
         }
     };
+    // Xử lí document
+    const handleDocumentClick = async (contentId, titleContentId) => {
+        const token = localStorage.getItem("access_token");
+        try {
+            await axios.post(
+                `${API_URL}/progress/complete-document`,
+                {
+                    content_id: contentId,
+                    course_id: lesson.course_id,
+                },
+                {
+                    headers: {
+                        "x-api-secret": `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            setDocumentCompleted((prev) => ({
+                ...prev,
+                [contentId]: true,
+            }));
+            setCompletedVideosInContent(prev => {
+                const updatedVideos = {
+                    ...prev,
+                    [contentId]: {
+                        ...(prev[contentId] || {}),
+                        [titleContentId]: true
+                    }
+                };
+                return updatedVideos;
+            });
+            // Kiểm tra xem video của content này đã hoàn thành chưa
+            const isVideoCompleted = videoCompleted[contentId];
 
 
+            // Nếu video đã hoàn thành, tiến hành update progress
+            if (isVideoCompleted) {
+                await updateProgress(contentId);
+            }
+
+            // Cập nhật giao diện ngay lập tức
+            await fetchProgress();
+        } catch (error) {
+            console.error("Lỗi khi cập nhật trạng thái document:", error);
+        }
+    };
     // Xử lý progress của video
     const handleProgress = (progress, titleContentId, index, contentId) => {
         const { playedSeconds } = progress;
@@ -496,27 +499,31 @@ export const Lesson = () => {
             const updatedVideoProgress = {};
             const updatedVideoCompleted = {};
             const updatedDocumentCompleted = {};
-            const updatedCompletedVideosInContent = {}; // Thêm dòng này
+            const updatedCompletedVideosInContent = {};
 
             progressData.forEach((progress) => {
-                if (progress.is_complete) {
-                    updatedCompletedLessons.add(progress.content_id);
-                    updatedCompletedVideos[progress.content_id] = true;
-
+                // Xử lý video đã hoàn thành
+                if (progress.video_completed === 1) {
                     if (titleContent[progress.content_id]) {
+                        // Cập nhật trạng thái cho từng video trong content
                         titleContent[progress.content_id].forEach(title => {
                             updatedVideoProgress[title.title_content_id] = true;
+
                             // Cập nhật completedVideosInContent
                             if (!updatedCompletedVideosInContent[progress.content_id]) {
                                 updatedCompletedVideosInContent[progress.content_id] = {};
                             }
                             updatedCompletedVideosInContent[progress.content_id][title.title_content_id] = true;
                         });
+
+                        // Đánh dấu toàn bộ content đã xem video
+                        updatedVideoCompleted[progress.content_id] = true;
                     }
                 }
 
-                if (progress.video_completed) {
-                    updatedVideoCompleted[progress.content_id] = true;
+                if (progress.is_complete) {
+                    updatedCompletedLessons.add(progress.content_id);
+                    updatedCompletedVideos[progress.content_id] = true;
                 }
 
                 if (progress.document_completed) {
@@ -529,10 +536,10 @@ export const Lesson = () => {
             setVideoProgress(updatedVideoProgress);
             setVideoCompleted(updatedVideoCompleted);
             setDocumentCompleted(updatedDocumentCompleted);
-            setCompletedVideosInContent(updatedCompletedVideosInContent); // Cập nhật state mới
+            setCompletedVideosInContent(updatedCompletedVideosInContent);
         }
     }, [progressData, titleContent]);
-    // Fetch progress từ server
+    // Fetch progress
     const fetchProgress = async () => {
         try {
             const token = localStorage.getItem("access_token");
@@ -553,12 +560,12 @@ export const Lesson = () => {
                     (progress) => progress.user_id === user.user_id && progress.course_id === lesson.course_id
                 );
                 setProgressData(userProgress);
+
             }
         } catch (error) {
             console.error("Lỗi khi gọi API tiến độ:", error);
         }
     };
-
     useEffect(() => {
         if (user && lesson) {
             fetchProgress();
@@ -569,11 +576,15 @@ export const Lesson = () => {
         const checkAllQuizStatus = async () => {
             for (const content of contentLesson) {
                 if (content.quiz_id) {
-                    await checkQuizCompletion(content.content_id);
+                    try {
+                        await checkQuizCompletion(content.content_id);
+                    } catch (error) {
+                        console.error(`Lỗi kiểm tra quiz cho content ${content.content_id}:`, error);
+                    }
                 }
             }
         };
-    
+
         if (contentLesson.length > 0) {
             checkAllQuizStatus();
         }
@@ -1356,20 +1367,12 @@ export const Lesson = () => {
                                                                             </div>
                                                                         </div>
 
-                                                                        {(() => {
+                                                                        {/* {(() => {
                                                                             const hasDocument = titleContent[content.content_id]?.some(item => item.document_link);
                                                                             const isVideoCompleted = videoCompleted[content.content_id];
                                                                             const isDocumentCompleted = !hasDocument || documentCompleted[content.content_id];
                                                                             const isQuizCompleted = quizStatus[content.content_id]?.completed ?? true;
-
-                                                                            const isFullyCompleted = isVideoCompleted && isDocumentCompleted && isQuizCompleted;
-
-                                                                            return isFullyCompleted ? (
-                                                                                <CheckCircle className="text-green-600 w-4 h-4 ml-4 mt-1" />
-                                                                            ) : (
-                                                                                <XCircle className="text-red-600 w-4 h-4 ml-4 mt-1" />
-                                                                            );
-                                                                        })()}
+                                                                        })()} */}
                                                                     </div>
                                                                 </div>
                                                             </AccordionTrigger>
@@ -1408,7 +1411,7 @@ export const Lesson = () => {
                                                                                                     : "0:00"}
                                                                                             </span>
                                                                                             <span className={`text-xs ${isWatched ? 'text-green-500' : 'text-gray-400'}`}>
-                                                                                                • {isWatched ? 'Đã xem' : 'Chưa xem'}
+                                                                                                {isWatched ? 'Đã xem' : 'Chưa xem'}
                                                                                             </span>
                                                                                         </div>
                                                                                     </div>
