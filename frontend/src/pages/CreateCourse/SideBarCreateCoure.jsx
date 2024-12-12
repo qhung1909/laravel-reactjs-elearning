@@ -99,7 +99,7 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
                     // Cho phép truy cập vào trang hiện tại
                 } else {
                     setTimeout(()=>{
-                        notify('Khóa học của bạn không ở trạng thái nháp, không truy cập được vô link này')
+                        notify(`Khóa học "${res.data.data.title}" không ở trạng thái nháp. Không có quyền truy cập !`)
                     }, 500)
                     navigate('/instructor/lesson');
 

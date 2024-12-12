@@ -47,12 +47,12 @@ class MessageController extends Controller
             $content = $request->input('content');
             $notificationIds = [];
 
-            
+
             $sender = User::select(['user_id', 'name', 'email'])
                 ->find(Auth::id());
 
             if ($userId) {
-                
+
                 $receiver = User::select(['user_id', 'name', 'email'])
                     ->find($userId);
 
@@ -103,7 +103,7 @@ class MessageController extends Controller
                     ]
                 ]);
             } else {
-                
+
                 $receivers = User::select(['user_id', 'name', 'email'])->get();
                 $receiversList = [];
 
@@ -207,30 +207,30 @@ class MessageController extends Controller
         try {
             if (!Auth::check()) {
                 return response()->json([
-                    'status' => 'error', 
+                    'status' => 'error',
                     'message' => 'Đăng nhập để xem thông báo.',
                     'data' => null
                 ], 401);
             }
-    
+
             $userId = Auth::id();
             $perPage = $request->input('per_page', 8);
             $page = $request->input('page', 1);
-    
-            
+
+
             $notifications = Notification::where('notifications.user_id', $userId)
                 ->join('users', 'notifications.created_by', '=', 'users.user_id')
                 ->select(
                     'notifications.*',
-                    'users.name as sender_name'  
+                    'users.name as sender_name'
                 )
                 ->orderBy('notifications.created_at', 'desc')
                 ->paginate($perPage, ['*'], 'page', $page);
-    
+
             $formattedNotifications = collect($notifications->items())->map(function ($notification) {
                 return [
                     'id' => $notification->id,
-                    'message' => $notification->message, 
+                    'message' => $notification->message,
                     'content' => $notification->content,
                     'type' => $notification->type,
                     'is_read' => $notification->is_read,
@@ -239,7 +239,7 @@ class MessageController extends Controller
                     'sender_name' => $notification->sender_name
                 ];
             });
-    
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Thành công',
@@ -247,13 +247,12 @@ class MessageController extends Controller
                     'notifications' => $formattedNotifications,
                     'pagination' => [
                         'current_page' => $notifications->currentPage(),
-                        'last_page' => $notifications->lastPage(), 
+                        'last_page' => $notifications->lastPage(),
                         'total' => $notifications->total(),
                         'per_page' => $notifications->perPage()
                     ]
                 ]
             ]);
-    
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -309,6 +308,53 @@ class MessageController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Có lỗi xảy ra khi lấy chi tiết thông báo.',
+                'debug' => config('app.debug') ? $e->getMessage() : null,
+                'data' => null
+            ], 500);
+        }
+    }
+
+    public function deleteNotification($id)
+    {
+        try {
+            if (!Auth::check()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Vui lòng đăng nhập để xóa thông báo.',
+                    'data' => null
+                ], 401);
+            }
+
+            $notification = Notification::find($id);
+
+            if (!$notification) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Không tìm thấy thông báo.',
+                    'data' => null
+                ], 404);
+            }
+
+            // Kiểm tra xem người dùng hiện tại có quyền xóa thông báo này không
+            if ($notification->user_id !== Auth::id()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Bạn không có quyền xóa thông báo này.',
+                    'data' => null
+                ], 403);
+            }
+
+            $notification->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Thông báo đã được xóa thành công.',
+                'data' => null
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Có lỗi xảy ra khi xóa thông báo.',
                 'debug' => config('app.debug') ? $e->getMessage() : null,
                 'data' => null
             ], 500);
