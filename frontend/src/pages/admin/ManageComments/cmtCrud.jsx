@@ -133,7 +133,7 @@ export const CmtCrud = () => {
             fetchComments();
         } catch (error) {
             console.error('Error deleting comment:', error.response || error);
-            notify('Có lỗi xảy ra khi xóa bình luận', 'error');
+            notify('Người chủ nhân mới được xóa', 'error');
         } finally {
             setLoading(false);
         }
@@ -225,7 +225,7 @@ export const CmtCrud = () => {
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="text"
-                                    placeholder="Tìm kiếm..."
+                                    placeholder="Tìm kiếm tên khóa học..."
                                     className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-full"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -263,10 +263,10 @@ export const CmtCrud = () => {
                                 )}
                             </div>
 
-                            <Button variant="outline" className="flex items-center gap-2">
+                            {/* <Button variant="outline" className="flex items-center gap-2">
                                 <FileDown size={16} />
                                 Xuất
-                            </Button>
+                            </Button> */}
                         </div>
                     </div>
 
@@ -281,7 +281,7 @@ export const CmtCrud = () => {
                                     <th className="text-center py-4 px-6 text-md font-bold text-yellow-900 whitespace-nowrap">Nội dung bình luận</th>
                                     <th className="text-center py-4 px-6 text-md font-bold text-yellow-900 whitespace-nowrap">Đánh giá</th>
                                     <th className="text-center py-4 px-6 text-md font-bold text-yellow-900 whitespace-nowrap">Bình luận ngày</th>
-                                    <th className="text-center py-4 px-6 text-md font-bold text-yellow-900 whitespace-nowrap">Hành động</th>
+                                    {/* <th className="text-center py-4 px-6 text-md font-bold text-yellow-900 whitespace-nowrap">Hành động</th> */}
                                 </tr>
                             </thead>
                             <tbody>
@@ -309,9 +309,9 @@ export const CmtCrud = () => {
                                             <td className="py-4 px-6">
                                                 <div className="bg-gray-300 rounded animate-pulse w-24 h-4"></div>
                                             </td>
-                                            <td className="py-4 px-6">
+                                            {/* <td className="py-4 px-6">
                                                 <div className="bg-gray-300 rounded animate-pulse w-24 h-4"></div>
-                                            </td>
+                                            </td> */}
                                         </tr>
                                     ))
                                 ) : (
@@ -356,7 +356,7 @@ export const CmtCrud = () => {
                                             <td className="py-4 px-6 text-sm text-center text-gray-600 whitespace-nowrap">
                                                 {formatDate(comment.updated_at)}
                                             </td>
-                                            <td className="py-4 px-6">
+                                            {/* <td className="py-4 px-6">
                                                 <Button
                                                     onClick={() => deleteComment(comment.comment_id || index)}
                                                     variant="destructive"
@@ -366,7 +366,7 @@ export const CmtCrud = () => {
                                                     <Trash2 className="h-4 w-4" />
                                                     Xóa
                                                 </Button>
-                                            </td>
+                                            </td> */}
                                         </tr>
                                     ))
                                 )}
