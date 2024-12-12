@@ -8,7 +8,8 @@ import { CoursesContext } from "../context/coursescontext";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog"
 import { UserContext } from "../context/usercontext";
 import { Button } from "@/components/ui/button";
-Button
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 export const Home = () => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
@@ -224,11 +225,20 @@ export const Home = () => {
     const handleCloseDialog = () => {
         setOpen(false);
     };
+
+    useEffect(() => {
+        AOS.init({
+            duration: 1000,
+            once: true,
+            easing: 'ease-out'
+        });
+    }, []);
     return (
         <>
 
             {/* banner */}
-            <div className="banner">
+            <div className="banner"
+            >
                 <div className="banner-box">
                     <div className="" style={{ backgroundImage: "url(https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/uploads/background-banner.jpg)" }}>
                         <div className="grid grid-cols-1 md:grid-cols-2 md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-2xl mx-auto">

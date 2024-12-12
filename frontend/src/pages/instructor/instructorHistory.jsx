@@ -134,17 +134,17 @@ export const InstructorHistory = () => {
                 <TableCell>
                     {index + 1}
                 </TableCell>
-                <TableCell className="font-medium md:text-base text-sm text-yellow-700 w-auto">
-                    <p className="line-clamp-3">{item.student_name}</p>
+                <TableCell className="font-medium md:text-base text-sm text-yellow-700">
+                    <p >{item.student_name}</p>
                 </TableCell>
-                <TableCell className="font-medium md:text-base text-sm">
-                    <p className="line-clamp-2">{item.course_title}</p>
+                <TableCell className="font-medium md:text-base text-sm ">
+                    <p >{item.course_title}</p>
                 </TableCell>
                 <TableCell className="font-medium md:text-base text-sm">
                     {formatCurrency(item.price)}
                 </TableCell>
                 <TableCell className="font-medium md:text-base text-sm">
-                    <p className="line-clamp-3">{item.order_date}</p>
+                    <p >{item.order_date}</p>
                 </TableCell>
             </TableRow>
         ))
@@ -425,17 +425,15 @@ export const InstructorHistory = () => {
                             {/* tìm kiếm học viên - tìm kiếm khóa học*/}
                             <div className=" flex justify-center p-3 md:p-0 my-5">
                                 <input type="text" value={searchTerm} onChange={handleSearch} placeholder="Tìm kiếm khóa học và sinh viên..." className="md:w-full w-[80%] p-3 rounded-tl-lg rounded-bl-lg" />
-                                <button className="w-28 bg-yellow-400 hover:bg-blue-500 hover:text-white duration-300 p-2 rounded-tr-lg rounded-br-lg font-semibold xl:text-base md:text-sm text-sm">
-                                    <p className="">Tìm kiếm</p>
-                                </button>
+
                             </div>
 
-                            <div className="my-5 bg-white rounded-3xl p-3">
+                            <div className="mx-auto lg:my-5 bg-white rounded-3xl p-3 overflow-x-auto max-w-[450px] sm:max-w-[650px] md:max-w-[730px] lg:max-w-full">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="text-cyan-950 md:text-base text-xs w-20">STT</TableHead>
-                                            <TableHead className="text-cyan-950 md:text-base text-xs w-full sm:w-auto">Tên học viên</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs">STT</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs">Tên học viên</TableHead>
                                             <TableHead className="text-cyan-950 md:text-base text-xs">Tên khóa học</TableHead>
                                             <TableHead className="text-cyan-950 md:text-base text-xs">Giá</TableHead>
                                             <TableHead className="text-cyan-950 md:text-base text-xs">Ngày mua</TableHead>
