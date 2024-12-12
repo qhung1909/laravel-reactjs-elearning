@@ -473,8 +473,7 @@ export const CourseOverview = () => {
                             <h2 className="pb-1 text-lg font-medium">Tiêu đề khóa học</h2>
                             <input
                                 className="w-full mb-2 border-slate-300 border-2 py-2 pl-3"
-                                placeholder='Chèn tiêu đề khóa học'
-                                value={courseTitle}
+                                value={courseTitle === "Chưa có tên khóa học" ? "" : courseTitle}
                                 onChange={(e) => {
                                     setCourseTitle(e.target.value);
                                     // Reset lỗi khi người dùng nhập vào
