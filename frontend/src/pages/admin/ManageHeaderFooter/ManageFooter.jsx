@@ -641,7 +641,7 @@ export default function ManageFooter() {
                         <div className="flex justify-end">
                             <Button onClick={handleSave} className="bg-yellow-500 hover:bg-yellow-600">
                                 <Save className="h-4 w-4 mr-2" />
-                                Save Changes
+                                Lưu thay đổi
                             </Button>
                         </div>
                     </div>

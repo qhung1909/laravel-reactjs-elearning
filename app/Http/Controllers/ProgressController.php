@@ -13,6 +13,7 @@ use App\Models\QuizSession;
 use App\Models\TitleContent;
 use Illuminate\Http\Request;
 use App\Mail\CourseCompletedMail;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -27,11 +28,95 @@ class ProgressController extends Controller
         return response()->json($progresses->get());
     }
 
+    private function validateCourseAccess($userId, $courseId) {
+        return Course::where('course_id', $courseId)
+            ->whereExists(function ($query) use ($userId) {
+                $query->from('user_courses')
+                      ->where('user_id', $userId)
+                      ->whereColumn('course_id', 'courses.course_id');
+            })
+            ->exists();
+    }
+
+    private function tryMarkComplete($progress, $userId, $courseId) {
+        try {
+            DB::beginTransaction();
+            $progress->refresh();
+
+            if ($this->checkContentCompletion($userId, $progress->content_id)) {
+                $this->markContentComplete($progress);
+                $this->checkCourseCompletion($userId, $courseId);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error marking content complete: ' . $e->getMessage());
+        }
+    }
+
+    private function checkContentCompletion($userId, $contentId) 
+    {
+        $progress = Progress::where('user_id', $userId)
+            ->where('content_id', $contentId)
+            ->first();
+
+        if (!$progress) {
+            return false;
+        }
+
+        $hasVideo = TitleContent::where('content_id', $contentId)
+            ->whereNotNull('video_link')
+            ->exists();
+            
+        if ($hasVideo && !$progress->video_completed) {
+            return false;
+        }
+
+        $hasDocument = TitleContent::where('content_id', $contentId)
+            ->whereNotNull('document_link')
+            ->exists();
+            
+        if ($hasDocument && !$progress->document_completed) {
+            return false;
+        }
+
+        $quiz = Quiz::where('content_id', $contentId)->first();
+        if ($quiz) {
+            $hasSession = QuizSession::where('user_id', $userId)
+                ->where('quiz_id', $quiz->quiz_id)
+                ->exists();
+                
+            if (!$hasSession) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public function completeVideo(Request $request)
     {
         $userId = auth()->id();
         $contentId = $request->input('content_id');
         $courseId = $request->input('course_id');
+
+        if (!$this->validateCourseAccess($userId, $courseId)) {
+            return response()->json([
+                'message' => 'Course access denied',
+            ], 403);
+        }
+
+        $hasVideo = TitleContent::where('content_id', $contentId)
+            ->whereNotNull('video_link')
+            ->exists();
+
+        if (!$hasVideo) {
+            return response()->json([
+                'message' => 'No video content found',
+                'progress_percent' => $this->getProgressPercent($userId, $courseId)
+            ], 400);
+        }
 
         $progress = Progress::where('user_id', $userId)
             ->where('content_id', $contentId)
@@ -51,6 +136,8 @@ class ProgressController extends Controller
                 'complete_update' => Carbon::now()
             ]);
         }
+
+        $this->tryMarkComplete($progress, $userId, $courseId);
 
         return response()->json([
             'message' => 'Video completion updated',
@@ -63,38 +150,56 @@ class ProgressController extends Controller
         $userId = auth()->id();
         $contentId = $request->input('content_id');
         $courseId = $request->input('course_id');
-    
+
+        if (!$this->validateCourseAccess($userId, $courseId)) {
+            return response()->json([
+                'message' => 'Course access denied',
+            ], 403);
+        }
+
+        $hasDocument = TitleContent::where('content_id', $contentId)
+            ->whereNotNull('document_link')
+            ->exists();
+
+        if (!$hasDocument) {
+            return response()->json([
+                'message' => 'No document content found',
+                'progress_percent' => $this->getProgressPercent($userId, $courseId)
+            ], 400);
+        }
+
         $progress = Progress::where('user_id', $userId)
             ->where('content_id', $contentId)
             ->first();
-    
+
         if (!$progress) {
             $progress = Progress::create([
                 'user_id' => $userId,
                 'course_id' => $courseId,
                 'content_id' => $contentId,
                 'document_completed' => true,
-                'video_completed' => true, 
                 'complete_update' => Carbon::now()
             ]);
         } else {
             $progress->update([
                 'document_completed' => true,
-                'video_completed' => $progress->video_completed ?: true, 
                 'complete_update' => Carbon::now()
             ]);
         }
-    
-        if ($progress->video_completed && $progress->document_completed) {
-            $progress->update([
-                'is_complete' => 1,
-                'complete_at' => Carbon::now()
-            ]);
-        }
-    
+
+        $this->tryMarkComplete($progress, $userId, $courseId);
+
         return response()->json([
             'message' => 'Document completion updated',
             'progress_percent' => $this->getProgressPercent($userId, $courseId)
+        ]);
+    }
+
+    private function markContentComplete($progress)
+    {
+        $progress->update([
+            'is_complete' => 1,
+            'complete_at' => Carbon::now()
         ]);
     }
 
@@ -104,64 +209,74 @@ class ProgressController extends Controller
         $contentId = $request->input('content_id');
         $courseId = $request->input('course_id');
 
-        $titleContent = TitleContent::where('content_id', $contentId)->first();
-        if (!$titleContent) {
+        if (!$this->validateCourseAccess($userId, $courseId)) {
             return response()->json([
-                'message' => 'Content not found',
-                'progress_percent' => 0
-            ], 404);
+                'message' => 'Course access denied',
+            ], 403);
         }
 
-        $quiz = Quiz::where('content_id', $contentId)->first();
-        if ($quiz) {
-            $quizSession = QuizSession::where('user_id', $userId)
-                ->where('quiz_id', $quiz->quiz_id)
-                ->where('status', 'completed')
-                ->first();
+        $hasVideo = TitleContent::where('content_id', $contentId)
+            ->whereNotNull('video_link')
+            ->exists();
 
-            if (!$quizSession) {
-                return response()->json([
-                    'message' => 'Quiz not completed',
-                    'progress_percent' => $this->getProgressPercent($userId, $courseId)
-                ]);
-            }
-        }
+        $hasDocument = TitleContent::where('content_id', $contentId)
+            ->whereNotNull('document_link')
+            ->exists();
 
-        $existingProgress = Progress::where('user_id', $userId)
+        $progress = Progress::where('user_id', $userId)
             ->where('content_id', $contentId)
             ->first();
 
-        if ($titleContent->video_link && (!$existingProgress || !$existingProgress->video_completed)) {
+        if ($hasVideo && (!$progress || !$progress->video_completed)) {
             return response()->json([
                 'message' => 'Video not completed',
                 'progress_percent' => $this->getProgressPercent($userId, $courseId)
             ]);
         }
 
-        if ($titleContent->document_link && (!$existingProgress || !$existingProgress->document_completed)) {
+        if ($hasDocument && (!$progress || !$progress->document_completed)) {
             return response()->json([
-                'message' => 'Document not completed', 
+                'message' => 'Document not completed',
                 'progress_percent' => $this->getProgressPercent($userId, $courseId)
             ]);
         }
 
-        if (!$existingProgress) {
-            Progress::create([
+        $quiz = Quiz::where('content_id', $contentId)->first();
+        if ($quiz) {
+            $hasQuizSession = QuizSession::where('user_id', $userId)
+                ->where('quiz_id', $quiz->quiz_id)
+                ->exists();
+
+            if (!$hasQuizSession) {
+                return response()->json([
+                    'message' => 'Quiz not attempted',
+                    'progress_percent' => $this->getProgressPercent($userId, $courseId)
+                ]);
+            }
+        }
+
+        if (!$progress) {
+            $progress = Progress::create([
                 'user_id' => $userId,
                 'course_id' => $courseId,
                 'content_id' => $contentId,
-                'is_complete' => 1,
-                'complete_at' => Carbon::now(),
-                'complete_update' => Carbon::now(),
-            ]);
-        } else {
-            $existingProgress->update([
-                'is_complete' => 1,
-                'complete_at' => Carbon::now(),
+                'video_completed' => $hasVideo ? true : false,
+                'document_completed' => $hasDocument ? true : false,
                 'complete_update' => Carbon::now()
             ]);
         }
 
+        $this->markContentComplete($progress);
+        $this->checkCourseCompletion($userId, $courseId);
+
+        return response()->json([
+            'message' => 'Progress updated',
+            'progress_percent' => $this->getProgressPercent($userId, $courseId)
+        ]);
+    }
+
+    private function checkCourseCompletion($userId, $courseId)
+    {
         $progressPercent = $this->getProgressPercent($userId, $courseId);
 
         if ($progressPercent >= 100) {
@@ -173,32 +288,20 @@ class ProgressController extends Controller
             if (!$existingCertificate) {
                 Certificate::create([
                     'user_id' => $userId,
-                    'course_id' => $courseId, 
-                    'issue_at' => Carbon::now(),
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
+                    'course_id' => $courseId,
+                    'issue_at' => Carbon::now()
                 ]);
 
                 $user = User::find($userId);
-                $course = Course::find($courseId);
+                $course = Course::where('course_id', $courseId)->first();
 
                 try {
                     Mail::to($user->email)->send(new CourseCompletedMail($user, $course));
                 } catch (\Exception $e) {
                     Log::error('Error sending course completion email: ' . $e->getMessage());
                 }
-
-                return response()->json([
-                    'message' => 'Course completed, certificate generated',
-                    'progress_percent' => $progressPercent
-                ]);
             }
         }
-
-        return response()->json([
-            'message' => 'Progress updated',
-            'progress_percent' => $progressPercent
-        ]);
     }
 
     private function getProgressPercent($userId, $courseId)
@@ -233,13 +336,14 @@ class ProgressController extends Controller
 
         $quizSession = QuizSession::where('user_id', $userId)
             ->where('quiz_id', $quiz->quiz_id)
-            ->where('status', 'completed')
+            ->latest()
             ->first();
 
         return response()->json([
             'quiz_completed' => $quizSession ? true : false,
             'has_quiz' => true,
-            'quiz_id' => $quiz->quiz_id
+            'quiz_id' => $quiz->quiz_id,
+            'session_id' => $quizSession ? $quizSession->quiz_session_id : null
         ]);
     }
 }
