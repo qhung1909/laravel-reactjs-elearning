@@ -264,9 +264,10 @@ export const Lesson = () => {
     const handleVideoClick = (item, contentId, index) => {
         setCurrentVideoUrl(item.video_link);
         setActiveItem({ contentId, index });
-
+        
+        fetchTitleContent(contentId);
+    
         const bodyContent = titleContent[contentId][index];
-
         setCurrentBodyContent(bodyContent);
     };
 
@@ -291,6 +292,7 @@ export const Lesson = () => {
                 params: { content_id: contentId }
             });
 
+            // Chỉ lưu trạng thái có/không có quiz và đã có session hay chưa
             setQuizStatus(prev => ({
                 ...prev,
                 [contentId]: {
@@ -305,6 +307,7 @@ export const Lesson = () => {
             return null;
         }
     };
+
 
     // Tính toán progress
     const calculateProgress = () => {
@@ -395,6 +398,8 @@ export const Lesson = () => {
         if (!videoProgress[titleContentId]) {
             try {
                 const token = localStorage.getItem("access_token");
+                
+                // Call API update video completion
                 await axios.post(
                     `${API_URL}/progress/complete-video`,
                     {
@@ -408,14 +413,14 @@ export const Lesson = () => {
                         },
                     }
                 );
-
-                // Cập nhật progress cho video hiện tại 
+    
+                // Update UI for current video progress
                 setVideoProgress(prev => ({
                     ...prev,
                     [titleContentId]: true
                 }));
-
-                // Cập nhật danh sách video đã xem trong section
+    
+                // Update completed videos list in content
                 setCompletedVideosInContent(prev => {
                     const updatedVideos = {
                         ...prev,
@@ -426,41 +431,24 @@ export const Lesson = () => {
                     };
                     return updatedVideos;
                 });
-
-                // Kiểm tra xem đã xem hết video trong section chưa
+    
+                // Check if all videos in section are watched
                 const allVideosInSection = titleContent[contentId] || [];
                 const allVideosWatched = allVideosInSection.every(video =>
                     completedVideosInContent[contentId]?.[video.title_content_id] ||
                     video.title_content_id === titleContentId
                 );
-
+    
                 if (allVideosWatched) {
-                    // Check quiz nếu có
-                    const quizResult = await checkQuizCompletion(contentId);
-                    if (quizResult?.has_quiz && !quizResult.quiz_completed) {
-                        toast.error("Bạn cần hoàn thành bài kiểm tra để kết thúc phần này.");
-                        return;
-                    }
-
                     setVideoCompleted(prev => ({
                         ...prev,
                         [contentId]: true
                     }));
-
-                    const hasDocument = titleContent[contentId]?.some(item => item.document_link);
-                    const isDocumentCompleted = documentCompleted[contentId];
-
-                    if (!hasDocument || isDocumentCompleted) {
-                        setCompletedVideosInSection(prev => ({
-                            ...prev,
-                            [contentId]: true
-                        }));
-                        setCompletedLessons(prev => new Set([...prev, contentId]));
-                        await updateProgress(contentId);
-                        await fetchProgress();
-                    }
+    
+                    // Update overall progress
+                    await fetchProgress();
                 }
-
+    
             } catch (error) {
                 console.error("Lỗi khi cập nhật video progress:", error);
                 toast.error("Có lỗi xảy ra khi cập nhật tiến độ video");
@@ -1084,6 +1072,10 @@ export const Lesson = () => {
                                 <Quizzes
                                     quiz_id={currentQuizId}
                                     onClose={() => setShowQuiz(false)}
+                                    onComplete={async () => {
+                                        await fetchProgress(); // Fetch lại progress khi quiz hoàn thành
+                                        setShowQuiz(false);
+                                    }}
                                 />
                             )}
                         </div>
