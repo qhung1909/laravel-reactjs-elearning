@@ -116,9 +116,9 @@ export const CategoryCrud = () => {
 
 
 
-    // const openDialog = () => {
-    //     setIsDialogOpen(true);
-    // };
+    const openDialog = () => {
+        setIsDialogOpen(true);
+    };
 
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(sortedCategories);
@@ -169,21 +169,21 @@ export const CategoryCrud = () => {
 
         try {
             setLoading(true);
-            const res = await axios.post(`${API_URL}/categories`, formData, {
+            await axios.post(`${API_URL}/categories`, formData, {
                 headers: {
                     'x-api-secret': API_KEY,
                     'Content-Type': 'multipart/form-data'
                 }
             });
 
-            if (res.status !== 200) {
-                notify('Lỗi thêm danh mục')
-                return;
-            }
-
             setIsDialogOpen(false);
             notify('Thêm danh mục thành công', 'success');
         } catch (error) {
+            if (error.response.status == 422) {
+                notify("Ảnh tải lên không được quá 2mb")
+                return;
+            }
+            notify('Lỗi khi thêm danh mục')
             if (error.response) {
                 console.error('Server error:', error.response.data.errors);
             } else {
@@ -199,43 +199,43 @@ export const CategoryCrud = () => {
 
     const editCategory = async (courseCategoryId) => {
         const formData = new FormData();
-        formData.append('name', editCategoryName);
+        // formData.append('name', editCategoryName);
         if (editCategoryImage) {
             formData.append('image', editCategoryImage);
         }
 
-
         if (!editCategoryName || !editCategoryImage) {
             setError('Vui lòng nhập đầy đủ thông tin');
+            return;
         }
-
-
-
 
         try {
             setLoading(true);
-            const res = await axios.post(`${API_URL}/admin/categories/${courseCategoryId}`, formData, {
+            const response = await axios.post(`${API_URL}/admin/categories/${courseCategoryId}`, formData, {
                 headers: {
                     'x-api-secret': API_KEY,
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            if (res.status !== 200) {
-                notify('Lỗi sửa danh mục')
-                return;
-            }
-            setEditCategoryName('');
-            setEditCategoryImage(null);
-            setSelectedImage(null);
-            setShowEditDialog(false);
-            window.location.reload()
 
+            // Chỉ xử lý thành công và đóng dialog khi request OK
+            if (response.status === 200) {
+                notify('Sửa danh mục thành công', 'success');
+                setEditCategoryName('');
+                setEditCategoryImage(null);
+                setSelectedImage(null);
+                setShowEditDialog(false); // Đóng dialog khi thành công
+                await fetchCategory();
+            }
         } catch (error) {
-            setError('Lỗi khi sửa', error)
+            if (error.response?.status === 422) {
+                notify("Ảnh tải lên không được quá 2mb");
+            } else {
+                notify('Lỗi sửa danh mục');
+            }
             console.error('Error updating category:', error);
         } finally {
             setLoading(false);
-            await fetchCategory()
         }
     };
 
@@ -263,9 +263,12 @@ export const CategoryCrud = () => {
                     Authorization: `Bearer ${token}`
                 }
             })
+
+            notify('Xóa danh mục thành công', 'success')
+
             window.location.reload()
         } catch (error) {
-            if(error.response.status === 500){
+            if (error.response.status === 500) {
                 notify('Danh mục không thể xóa do có khóa học')
             }
             console.error('Error delete category:', error)
@@ -557,7 +560,7 @@ export const CategoryCrud = () => {
                                                                     </DialogDescription>
                                                                 </DialogHeader>
                                                                 <div className="space-y-6 py-4">
-                                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                                    {/* <div className="grid grid-cols-4 items-center gap-4">
                                                                         <Label className="text-right font-medium">Tên</Label>
                                                                         <div className="col-span-3">
                                                                             <Input
@@ -568,7 +571,7 @@ export const CategoryCrud = () => {
                                                                                 required
                                                                             />
                                                                         </div>
-                                                                    </div>
+                                                                    </div> */}
 
                                                                     {category.image && (
                                                                         <div className="grid grid-cols-4 items-center gap-4">
@@ -589,7 +592,7 @@ export const CategoryCrud = () => {
                                                                             <Input
                                                                                 onChange={(e) => setEditCategoryImage(e.target.files[0])}
                                                                                 type="file"
-                                                                                className="w-full cursor-pointer file:mr-4 file:py-2 file:px-4
+                                                                                className="w-full h-12 cursor-pointer file:mr-4 file:py-2 file:px-4
                                                                                     file:rounded-md file:border-0 file:text-sm file:font-semibold
                                                                                     file:bg-orange-50 file:text-orange-600 hover:file:bg-orange-100"
                                                                                 accept="image/*"
