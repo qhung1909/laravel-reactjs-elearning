@@ -264,9 +264,9 @@ export const Lesson = () => {
     const handleVideoClick = (item, contentId, index) => {
         setCurrentVideoUrl(item.video_link);
         setActiveItem({ contentId, index });
-        
+
         fetchTitleContent(contentId);
-    
+
         const bodyContent = titleContent[contentId][index];
         setCurrentBodyContent(bodyContent);
     };
@@ -291,8 +291,7 @@ export const Lesson = () => {
                 },
                 params: { content_id: contentId }
             });
-
-            // Chỉ lưu trạng thái có/không có quiz và đã có session hay chưa
+    
             setQuizStatus(prev => ({
                 ...prev,
                 [contentId]: {
@@ -300,7 +299,17 @@ export const Lesson = () => {
                     completed: response.data.quiz_completed
                 }
             }));
-
+    
+            if (response.data.quiz_completed) {
+                const hasDocument = titleContent[contentId]?.some(item => item.document_link);
+                const isVideoCompleted = videoCompleted[contentId];
+                const isDocumentCompleted = !hasDocument || documentCompleted[contentId];
+                
+                if (isVideoCompleted && isDocumentCompleted) {
+                    setCompletedLessons(prev => new Set([...prev, contentId]));
+                }
+            }
+    
             return response.data;
         } catch (error) {
             console.error("Lỗi kiểm tra quiz:", error);
@@ -398,7 +407,7 @@ export const Lesson = () => {
         if (!videoProgress[titleContentId]) {
             try {
                 const token = localStorage.getItem("access_token");
-                
+
                 // Call API update video completion
                 await axios.post(
                     `${API_URL}/progress/complete-video`,
@@ -413,13 +422,13 @@ export const Lesson = () => {
                         },
                     }
                 );
-    
+
                 // Update UI for current video progress
                 setVideoProgress(prev => ({
                     ...prev,
                     [titleContentId]: true
                 }));
-    
+
                 // Update completed videos list in content
                 setCompletedVideosInContent(prev => {
                     const updatedVideos = {
@@ -431,24 +440,24 @@ export const Lesson = () => {
                     };
                     return updatedVideos;
                 });
-    
+
                 // Check if all videos in section are watched
                 const allVideosInSection = titleContent[contentId] || [];
                 const allVideosWatched = allVideosInSection.every(video =>
                     completedVideosInContent[contentId]?.[video.title_content_id] ||
                     video.title_content_id === titleContentId
                 );
-    
+
                 if (allVideosWatched) {
                     setVideoCompleted(prev => ({
                         ...prev,
                         [contentId]: true
                     }));
-    
+
                     // Update overall progress
                     await fetchProgress();
                 }
-    
+
             } catch (error) {
                 console.error("Lỗi khi cập nhật video progress:", error);
                 toast.error("Có lỗi xảy ra khi cập nhật tiến độ video");
@@ -555,6 +564,21 @@ export const Lesson = () => {
             fetchProgress();
         }
     }, [user, lesson]);
+
+    useEffect(() => {
+        const checkAllQuizStatus = async () => {
+            for (const content of contentLesson) {
+                if (content.quiz_id) {
+                    await checkQuizCompletion(content.content_id);
+                }
+            }
+        };
+    
+        if (contentLesson.length > 0) {
+            checkAllQuizStatus();
+        }
+    }, [contentLesson]);
+
 
     //celendar
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -1075,6 +1099,27 @@ export const Lesson = () => {
                                     onComplete={async () => {
                                         await fetchProgress(); // Fetch lại progress khi quiz hoàn thành
                                         setShowQuiz(false);
+
+                                        // Thêm cập nhật trạng thái của quiz cho content hiện tại
+                                        setQuizStatus(prev => ({
+                                            ...prev,
+                                            [activeItem.contentId]: {
+                                                hasQuiz: true,
+                                                completed: true
+                                            }
+                                        }));
+
+                                        // Cập nhật completedLessons nếu đủ điều kiện
+                                        const content = contentLesson.find(c => c.content_id === activeItem.contentId);
+                                        if (content) {
+                                            const hasDocument = titleContent[content.content_id]?.some(item => item.document_link);
+                                            const isVideoCompleted = videoCompleted[content.content_id];
+                                            const isDocumentCompleted = !hasDocument || documentCompleted[content.content_id];
+
+                                            if (isVideoCompleted && isDocumentCompleted) {
+                                                setCompletedLessons(prev => new Set([...prev, content.content_id]));
+                                            }
+                                        }
                                     }}
                                 />
                             )}

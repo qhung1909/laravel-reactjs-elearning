@@ -60,39 +60,46 @@ class ProgressController extends Controller
         $progress = Progress::where('user_id', $userId)
             ->where('content_id', $contentId)
             ->first();
-
+    
         if (!$progress) {
             return false;
         }
-
+    
+        $requiredComponents = 0;
+        $completedComponents = 0;
+    
         $hasVideo = TitleContent::where('content_id', $contentId)
             ->whereNotNull('video_link')
             ->exists();
-            
-        if ($hasVideo && !$progress->video_completed) {
-            return false;
+        if ($hasVideo) {
+            $requiredComponents++;
+            if ($progress->video_completed) {
+                $completedComponents++;
+            }
         }
-
+    
         $hasDocument = TitleContent::where('content_id', $contentId)
             ->whereNotNull('document_link')
             ->exists();
-            
-        if ($hasDocument && !$progress->document_completed) {
-            return false;
+        if ($hasDocument) {
+            $requiredComponents++;
+            if ($progress->document_completed) {
+                $completedComponents++;
+            }
         }
-
+    
         $quiz = Quiz::where('content_id', $contentId)->first();
         if ($quiz) {
+            $requiredComponents++;
             $hasSession = QuizSession::where('user_id', $userId)
                 ->where('quiz_id', $quiz->quiz_id)
                 ->exists();
-                
-            if (!$hasSession) {
-                return false;
+            if ($hasSession) {
+                $completedComponents++;
             }
         }
-
-        return true;
+    
+        return $requiredComponents === $completedComponents;
     }
 
     public function completeVideo(Request $request)
@@ -208,69 +215,95 @@ class ProgressController extends Controller
         $userId = auth()->id();
         $contentId = $request->input('content_id');
         $courseId = $request->input('course_id');
-
+    
         if (!$this->validateCourseAccess($userId, $courseId)) {
             return response()->json([
                 'message' => 'Course access denied',
             ], 403);
         }
-
+    
         $hasVideo = TitleContent::where('content_id', $contentId)
             ->whereNotNull('video_link')
             ->exists();
-
+    
         $hasDocument = TitleContent::where('content_id', $contentId)
             ->whereNotNull('document_link')
             ->exists();
-
+    
         $progress = Progress::where('user_id', $userId)
             ->where('content_id', $contentId)
             ->first();
-
+    
         if ($hasVideo && (!$progress || !$progress->video_completed)) {
             return response()->json([
                 'message' => 'Video not completed',
                 'progress_percent' => $this->getProgressPercent($userId, $courseId)
             ]);
         }
-
+    
         if ($hasDocument && (!$progress || !$progress->document_completed)) {
             return response()->json([
                 'message' => 'Document not completed',
                 'progress_percent' => $this->getProgressPercent($userId, $courseId)
             ]);
         }
-
+    
         $quiz = Quiz::where('content_id', $contentId)->first();
         if ($quiz) {
             $hasQuizSession = QuizSession::where('user_id', $userId)
                 ->where('quiz_id', $quiz->quiz_id)
                 ->exists();
-
+    
             if (!$hasQuizSession) {
                 return response()->json([
-                    'message' => 'Quiz not attempted',
+                    'message' => 'Quiz not completed',
                     'progress_percent' => $this->getProgressPercent($userId, $courseId)
                 ]);
             }
+    
+            if (!$progress) {
+                $progress = Progress::create([
+                    'user_id' => $userId,
+                    'course_id' => $courseId,
+                    'content_id' => $contentId,
+                    'video_completed' => $hasVideo ? true : false,
+                    'document_completed' => $hasDocument ? true : false,
+                    'is_complete' => true,
+                    'complete_at' => Carbon::now(),
+                    'complete_update' => Carbon::now()
+                ]);
+            } else {
+                $progress->update([
+                    'is_complete' => true,
+                    'complete_at' => Carbon::now(),
+                    'complete_update' => Carbon::now()
+                ]);
+            }
+        } else {
+            if (!$progress) {
+                $progress = Progress::create([
+                    'user_id' => $userId,
+                    'course_id' => $courseId,
+                    'content_id' => $contentId,
+                    'video_completed' => $hasVideo ? true : false,
+                    'document_completed' => $hasDocument ? true : false,
+                    'is_complete' => true,
+                    'complete_at' => Carbon::now(),
+                    'complete_update' => Carbon::now()
+                ]);
+            } else {
+                $progress->update([
+                    'is_complete' => true,
+                    'complete_at' => Carbon::now(),
+                    'complete_update' => Carbon::now()
+                ]);
+            }
         }
-
-        if (!$progress) {
-            $progress = Progress::create([
-                'user_id' => $userId,
-                'course_id' => $courseId,
-                'content_id' => $contentId,
-                'video_completed' => $hasVideo ? true : false,
-                'document_completed' => $hasDocument ? true : false,
-                'complete_update' => Carbon::now()
-            ]);
-        }
-
-        $this->markContentComplete($progress);
+    
         $this->checkCourseCompletion($userId, $courseId);
-
+    
         return response()->json([
-            'message' => 'Progress updated',
+            'message' => 'Progress updated successfully',
             'progress_percent' => $this->getProgressPercent($userId, $courseId)
         ]);
     }
