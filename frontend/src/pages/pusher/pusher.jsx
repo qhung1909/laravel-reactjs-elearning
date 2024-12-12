@@ -221,7 +221,7 @@ const NotificationDropdown = ({ userId }) => {
                         </div>
                     </DropdownMenuItem>
 
-                    <ScrollArea className="h-40 w-full">
+                    <ScrollArea className="h-64 w-full">
                     {notifications.length === 0 ? (
                             <div className="p-5">
                                 <p className="text-center text-blue-900 font-medium">
