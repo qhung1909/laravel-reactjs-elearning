@@ -527,6 +527,83 @@ export const Curriculum = () => {
     };
 
 
+    const deleteVideo = async (sectionId, lessonId) => {
+        const section = sections.find(section => section.id === sectionId);
+        const lesson = section.lessons.find(lesson => lesson.id === lessonId);
+
+        if (!lesson.title_content_id) {
+            toast.error("Không thể xóa vì thiếu title_content_id.");
+            return;
+        }
+
+        // Show confirmation dialog
+        const { isConfirmed } = await Swal.fire({
+            title: "Xác nhận xóa",
+            text: "Bạn có chắc chắn muốn xóa video này? Hành động này không thể hoàn tác.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Có, xóa!",
+            cancelButtonText: "Hủy",
+        });
+
+        if (!isConfirmed) {
+            return;
+        }
+
+        try {
+            // Update the title content with null video_link
+            const requestData = {
+                title_contents: [{
+                    title_content_id: lesson.title_content_id,
+                    body_content: lesson.title,
+                    video_link: null,
+                    document_link: lesson.content,
+                    description: lesson.description
+                }]
+            };
+
+            const response = await axios.post(
+                `${API_URL}/teacher/title-content/update/${section.content_id}`,
+                requestData,
+                {
+                    headers: {
+                        'x-api-secret': API_KEY,
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (response.data.success) {
+                // Update local state to reflect the change
+                setSections(prevSections =>
+                    prevSections.map(s =>
+                        s.id === sectionId ? {
+                            ...s,
+                            lessons: s.lessons.map(l =>
+                                l.id === lessonId ? {
+                                    ...l,
+                                    fileName: '',
+                                    file: null
+                                } : l
+                            )
+                        } : s
+                    )
+                );
+                toast.success("Video đã được xóa thành công!");
+                setHasChanges(true);
+            } else {
+                toast.error("Có lỗi xảy ra khi xóa video!");
+            }
+        } catch (error) {
+            toast.error("Có lỗi xảy ra khi kết nối với máy chủ!");
+        }
+    };
+
+
+
     // const exportToJsonLog = () => {
     //     console.log(JSON.stringify(sections, null, 2));
     //     toast.success("Đã xuất dữ liệu ra log!");
@@ -613,13 +690,17 @@ export const Curriculum = () => {
         // Lặp qua các phần và bài học để kiểm tra lỗi
         sections.forEach((section) => {
             if (!section.title || !section.title.trim()) {
-                errorMessages.push(`Phần ${section.id} thiếu tiêu đề`);
+                errorMessages.push(`Bài ${section.id} thiếu tiêu đề`);
             }
 
             section.lessons.forEach((lesson, index) => {
                 // Kiểm tra tiêu đề và mô tả bài học
-                if (!lesson.title || !lesson.title.trim() || !lesson.description || !lesson.description.trim()) {
-                    errorMessages.push(`Bài học ${section.id}.${index + 1} thiếu tiêu đề hoặc mô tả`);
+                if (!lesson.title || !lesson.title.trim()) {
+                    errorMessages.push(`Nội dung ${section.id}.${index + 1} thiếu tiêu đề`);
+                }
+
+                if (!lesson.description || !lesson.description.trim()) {
+                    errorMessages.push(`Nội dung ${section.id}.${index + 1} thiếu mô tả`);
                 }
 
                 // Kiểm tra nếu có nội dung nhưng không phải URL hợp lệ
@@ -630,7 +711,7 @@ export const Curriculum = () => {
                 // Kiểm tra ít nhất một trong ba: file, video_link hoặc content
                 const hasVideoOrDocument = !!lesson.file || !!lesson.fileName || !!lesson.content;
                 if (!hasVideoOrDocument) {
-                    errorMessages.push(`Bài học ${section.id}.${index + 1} cần có video hoặc link nội dung`);
+                    errorMessages.push(`Nội dung ${section.id}.${index + 1} cần có video hoặc link nội dung`);
                 }
             });
         });
@@ -971,15 +1052,29 @@ export const Curriculum = () => {
                                                                             className="w-full"
                                                                         />
 
+
+
                                                                         <div>
                                                                             <div className="flex items-center gap-2">
                                                                                 <Video className="text-red-500 h-5 w-5" />
                                                                                 <label className="font-medium">Tải lên video:</label>
                                                                             </div>
 
-                                                                            {/* Hiển thị tên file từ cơ sở dữ liệu nếu có */}
                                                                             {lesson.fileName && (
-                                                                                <p className="text-gray-600 mt-2">Tệp hiện tại: {lesson.fileName}</p>
+                                                                                <div className="flex items-center gap-2 mt-2">
+                                                                                    <p className="text-gray-600">Link hiện tại: {lesson.fileName}</p>
+                                                                                    <Button
+                                                                                        variant="destructive"
+                                                                                        size="sm"
+                                                                                        onClick={(e) => {
+                                                                                            e.preventDefault();
+                                                                                            deleteVideo(section.id, lesson.id);
+                                                                                        }}
+                                                                                        className="ml-2"
+                                                                                    >
+                                                                                        Xóa video
+                                                                                    </Button>
+                                                                                </div>
                                                                             )}
                                                                             <Input
                                                                                 className="mt-2"
@@ -1002,10 +1097,10 @@ export const Curriculum = () => {
                                                                                 onChange={(e) => handleDocumentChange(section.id, lesson.id, e.target.value)}
                                                                             />
                                                                         </div>
-
-                                                                        <div className="text-sm text-gray-400">
-                                                                            Lưu ý: Cần nhập ít nhật 1 nội dung video hoặc document
+                                                                        <div className="text-sm text-gray-500">
+                                                                            Nội dung cần có ít nhất 1 video hoặc document
                                                                         </div>
+
 
 
                                                                     </div>
@@ -1015,7 +1110,7 @@ export const Curriculum = () => {
 
                                                             <button
                                                                 onClick={() => addContent(section.id)}
-                                                                className="w-full p-2 border-2 ml-6 border-dashed rounded-md text-gray-600 hover:bg-gray-50 transition-colors"
+                                                                className="w-[97%] p-2 border-2 ml-6 border-dashed rounded-md text-gray-600 hover:bg-gray-50 transition-colors"
                                                             >
                                                                 + Thêm nội dung mới
                                                             </button>
