@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Progress;
 use App\Models\UserCourse;
 use App\Models\Participant;
 use Illuminate\Http\Request;
@@ -440,30 +441,55 @@ class ParticipantController extends Controller
             ], 404);
         }
 
-        $now = now();
-        $participants = [];
+        DB::beginTransaction();
+        try {
+            $now = now();
+            $participants = [];
 
-        foreach ($userIds as $userId) {
+            foreach ($userIds as $userId) {
+                // Đánh dấu participant là có mặt
+                $participant = Participant::firstOrNew([
+                    'meeting_id' => $meeting->meeting_id,
+                    'user_id' => $userId,
+                ]);
 
-            $participant = Participant::firstOrNew([
-                'meeting_id' => $meeting->meeting_id,
-                'user_id' => $userId,
+                $participant->is_present = 1;
+                $participant->attendance_date = $now;
+                $participant->created_at = $now;
+                $participant->updated_at = $now;
+                $participant->save();
+
+                $participants[] = $participant;
+
+                // Tạo hoặc cập nhật progress cho content_id tương ứng
+                if ($meeting->content_id) {
+                    $progress = Progress::firstOrNew([
+                        'user_id' => $userId,
+                        'content_id' => $meeting->content_id,
+                        'course_id' => $meeting->course_id,
+                    ]);
+
+                    $progress->is_complete = 1;
+                    $progress->complete_at = $now;
+                    $progress->complete_update = $now;
+                    $progress->save();
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Điểm danh thành công',
             ]);
-
-            $participant->is_present = 1;
-            $participant->attendance_date = $now;
-            $participant->created_at = $now;
-            $participant->updated_at = $now;
-            $participant->save();
-
-            $participants[] = $participant;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error marking attendance: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Có lỗi xảy ra khi điểm danh',
+            ], 500);
         }
-
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Điểm danh thành công',
-        ]);
     }
 
     public function markAbsent(Request $request)
@@ -565,7 +591,7 @@ class ParticipantController extends Controller
 
                     return [
                         'meeting_id' => $record->meeting_id,
-                        'name_content' => $nameContent, 
+                        'name_content' => $nameContent,
                         'attendance_date' => Carbon::parse($record->attendance_date)->format('Y-m-d'),
                         'attendance_status' => $this->checkAttendanceStatus($record),
                         'attendance_details' => [
