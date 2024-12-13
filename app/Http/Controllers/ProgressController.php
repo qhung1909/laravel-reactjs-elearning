@@ -338,7 +338,9 @@ class ProgressController extends Controller
 
     private function getProgressPercent($userId, $courseId)
     {
-        $totalContents = Content::where('course_id', $courseId)->count();
+        $totalContents = Content::where('course_id', $courseId)
+            ->where('is_online_meeting', 0)
+            ->count();
 
         if ($totalContents === 0) {
             return 0;
@@ -347,6 +349,11 @@ class ProgressController extends Controller
         $completedContents = Progress::where('user_id', $userId)
             ->where('course_id', $courseId)
             ->where('is_complete', 1)
+            ->whereExists(function ($query) {
+                $query->from('contents')
+                    ->whereColumn('contents.content_id', 'progress.content_id')
+                    ->where('contents.is_online_meeting', 0);
+            })
             ->count();
 
         return ($completedContents / $totalContents) * 100;
