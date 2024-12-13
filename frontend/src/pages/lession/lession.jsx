@@ -1154,40 +1154,81 @@ export const Lesson = () => {
 
                                             {/* Document Link with Enhanced Icon */}
                                             {currentBodyContent.document_link && (
-                                                <div className="mt-5">
+                                                <div className="mt-6">
                                                     <a
                                                         href={currentBodyContent.document_link}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         onClick={() => handleDocumentClick(activeItem.contentId, currentBodyContent.title_content_id)}
-                                                        className="group inline-flex items-center gap-2.5 px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-50/50 hover:from-blue-100 hover:to-blue-50
-              border border-blue-100 rounded-lg transition-all duration-300"
+                                                        className="group block p-4 bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100
+                    border-2 border-blue-200 rounded-xl transition-all duration-300 hover:shadow-lg"
                                                     >
-                                                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white shadow-sm group-hover:shadow transition-shadow duration-300">
-                                                            <svg
-                                                                className="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform duration-300"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth={2}
-                                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                                />
-                                                            </svg>
-                                                        </span>
-                                                        <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                                                            Tài liệu đính kèm
-                                                        </span>
-                                                        <span className="text-gray-400 group-hover:translate-x-0.5 transition-transform duration-300">
-                                                            →
-                                                        </span>
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-4">
+                                                                {/* Icon container with pulsing effect */}
+                                                                <div className="relative">
+                                                                    <div className="absolute -inset-0.5 bg-blue-500/20 rounded-lg blur-sm group-hover:blur-md transition-all duration-300"></div>
+                                                                    <span className="relative flex items-center justify-center w-12 h-12 rounded-lg bg-white shadow-md group-hover:shadow-lg transition-all duration-300">
+                                                                        <svg
+                                                                            className="w-6 h-6 text-blue-500 group-hover:scale-110 transition-transform duration-300"
+                                                                            fill="none"
+                                                                            stroke="currentColor"
+                                                                            viewBox="0 0 24 24"
+                                                                        >
+                                                                            <path
+                                                                                strokeLinecap="round"
+                                                                                strokeLinejoin="round"
+                                                                                strokeWidth={2}
+                                                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                                            />
+                                                                        </svg>
+                                                                    </span>
+                                                                </div>
+
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-base font-semibold text-gray-900 group-hover:text-blue-700 transition-colors duration-300">
+                                                                        Tài liệu đính kèm
+                                                                    </span>
+                                                                    <span className="text-sm text-gray-600 group-hover:text-gray-700">
+                                                                        Nhấp vào để xem và hoàn thành bài học
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Arrow with animation */}
+                                                            <div className="flex items-center">
+                                                                <span className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-300">
+                                                                    <svg
+                                                                        className="w-5 h-5 text-blue-600 group-hover:translate-x-0.5 transition-transform duration-300"
+                                                                        fill="none"
+                                                                        stroke="currentColor"
+                                                                        viewBox="0 0 24 24"
+                                                                    >
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            strokeWidth={2}
+                                                                            d="M9 5l7 7-7 7"
+                                                                        />
+                                                                    </svg>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Progress indicator */}
+                                                        <div className="mt-3 h-1 bg-gray-200 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-blue-500 rounded-full transition-all duration-300"
+                                                                style={{
+                                                                    width: completedDocumentsInContent[activeItem.contentId]?.[currentBodyContent.title_content_id] ? '100%' : '0%',
+                                                                }}
+                                                            ></div>
+                                                        </div>
                                                     </a>
                                                 </div>
                                             )}
                                         </div>
+
                                     </div>
                                 ) : (
                                     /* Loading State with Icon */
