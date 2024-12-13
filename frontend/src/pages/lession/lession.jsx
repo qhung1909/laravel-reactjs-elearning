@@ -207,7 +207,12 @@ export const Lesson = () => {
                 }
             });
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
-                setContentLesson(res.data.data.filter(content => content.course_id === courseId));
+                setContentLesson(
+                    res.data.data.filter(content =>
+                        content.course_id === courseId &&
+                        content.is_online_meeting === 0
+                    )
+                );
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
