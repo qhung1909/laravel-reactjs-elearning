@@ -328,6 +328,15 @@ export const Lesson = () => {
                 params: { content_id: contentId }
             });
 
+            // Cập nhật quizStatus
+            setQuizStatus(prev => ({
+                ...prev,
+                [contentId]: {
+                    hasQuiz: response.data.has_quiz,
+                    isCompleted: response.data.quiz_completed
+                }
+            }));
+
             return {
                 hasQuiz: response.data.has_quiz,
                 quizCompleted: response.data.quiz_completed
@@ -335,6 +344,14 @@ export const Lesson = () => {
         } catch (error) {
             console.error("Lỗi kiểm tra quiz:", error);
             return { hasQuiz: false, quizCompleted: false };
+        }
+    };
+    const handleQuizComplete = async (contentId) => {
+        try {
+            await fetchProgress();
+            await checkQuizCompletion(contentId);
+        } catch (error) {
+            console.error("Lỗi khi cập nhật trạng thái quiz:", error);
         }
     };
     // Cập nhật progress lên server
@@ -478,7 +495,6 @@ export const Lesson = () => {
 
             } catch (error) {
                 console.error("Lỗi khi cập nhật video progress:", error);
-                toast.error("Có lỗi xảy ra khi cập nhật tiến độ video");
             }
         }
     };
@@ -607,26 +623,21 @@ export const Lesson = () => {
             const updatedCompletedVideosInContent = {};
             const updatedCompletedDocumentsInContent = {};
 
-
             progressData.forEach((progress) => {
                 // Xử lý video đã hoàn thành
                 if (progress.video_completed === 1) {
                     if (titleContent[progress.content_id]) {
-                        // Cập nhật trạng thái cho từng video trong content
                         titleContent[progress.content_id].forEach(title => {
                             updatedVideoProgress[title.title_content_id] = true;
-
-                            // Cập nhật completedVideosInContent
                             if (!updatedCompletedVideosInContent[progress.content_id]) {
                                 updatedCompletedVideosInContent[progress.content_id] = {};
                             }
                             updatedCompletedVideosInContent[progress.content_id][title.title_content_id] = true;
                         });
-
-                        // Đánh dấu toàn bộ content đã xem video
                         updatedVideoCompleted[progress.content_id] = true;
                     }
                 }
+
                 if (progress.document_completed === 1) {
                     if (titleContent[progress.content_id]) {
                         titleContent[progress.content_id]
@@ -654,6 +665,13 @@ export const Lesson = () => {
             setDocumentCompleted(updatedDocumentCompleted);
             setCompletedVideosInContent(updatedCompletedVideosInContent);
             setCompletedDocumentsInContent(updatedCompletedDocumentsInContent);
+
+            // Check quiz status cho mỗi content có quiz
+            contentLesson.forEach(async (content) => {
+                if (content.quiz_id) {
+                    await checkQuizCompletion(content.content_id);
+                }
+            });
         }
     }, [progressData, titleContent]);
     // Fetch progress
@@ -1233,9 +1251,9 @@ export const Lesson = () => {
                                         <div className="flex-1 overflow-y-auto pr-2">
                                             <Quizzes
                                                 quiz_id={currentQuizId}
+                                                contentId={activeItem.contentId}
                                                 onClose={() => setShowQuiz(false)}
                                                 onComplete={async () => {
-                                                    await fetchProgress();
                                                     setShowQuiz(false);
 
                                                     setQuizStatus(prev => ({

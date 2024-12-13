@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
-export const Quizzes = ({ quiz_id }) => {
+export const Quizzes = ({ quiz_id, contentId, onComplete, onClose }) => {
     const [quizzes, setQuizzes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [answers, setAnswers] = useState({});
@@ -104,6 +104,29 @@ export const Quizzes = ({ quiz_id }) => {
         }
     };
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const fetchProgress = async () => {
+        try {
+            const token = localStorage.getItem("access_token");
+            if (!token) {
+                console.error("Chưa có token");
+                return;
+            }
+
+            const res = await axios.get(`${API_URL}/progress`, {
+                headers: {
+                    "x-api-secret": `${API_KEY}`,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (res.data) {
+                // Sau khi fetch xong progress mới, gọi onComplete
+                await onComplete();
+            }
+        } catch (error) {
+            console.error("Lỗi khi gọi API tiến độ:", error);
+        }
+    };
     const handleSubmit = async () => {
         setIsSubmitting(true);
         const totalQuestions = quizzes[0]?.questions.length || 0;
@@ -211,7 +234,11 @@ export const Quizzes = ({ quiz_id }) => {
             setCorrectAnswers(correctAnswersMap);
             setUserResults(resultsMap);
             setQuizCompleted(true);
-            toast.success("Nộp bài thành công!");
+            toast.success("Quiz sẽ tự động đóng sau 30 giây để bạn xem lại kết quả");
+            setTimeout(async () => {
+                await fetchProgress();
+                toast.success("Đã lưu kết quả quiz của bạn");
+            }, 30000);
         } catch (error) {
             console.error("Lỗi khi nộp bài:", error);
             toast.error("Có lỗi xảy ra khi nộp bài!");
