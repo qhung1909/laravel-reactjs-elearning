@@ -24,8 +24,25 @@ export const Quizzes = ({ quiz_id, contentId, onComplete, onClose }) => {
     const [correctAnswers, setCorrectAnswers] = useState({});
     const [userResults, setUserResults] = useState({});
     const [quizResults, setQuizResults] = useState(null);
-
+    const [countdown, setCountdown] = useState(30);
+    const [showCountdown, setShowCountdown] = useState(false);
     const { slug } = useParams();
+    const formatTime = (time) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    };
+    useEffect(() => {
+        let timer;
+        if (showCountdown && countdown > 0) {
+            timer = setInterval(() => {
+                setCountdown(prev => prev - 1);
+            }, 1000);
+        } else if (countdown === 0) {
+            clearInterval(timer);
+        }
+        return () => clearInterval(timer);
+    }, [countdown, showCountdown]);
 
     const fetchLesson = async () => {
         try {
@@ -155,6 +172,7 @@ export const Quizzes = ({ quiz_id, contentId, onComplete, onClose }) => {
             return;
         }
         const token = localStorage.getItem("access_token");
+        const numberOfQuestions = quizzes[0]?.questions.length || 0; //đếm số lượng câu hỏi để countdown
         try {
             // 1. Submit answers
             const formattedAnswers = Object.entries(answers).map(([questionId, answer]) => {
@@ -230,15 +248,27 @@ export const Quizzes = ({ quiz_id, contentId, onComplete, onClose }) => {
                     resultsMap[result.question_id] = userAnswer === result.correct_answers[0];
                 }
             });
-
             setCorrectAnswers(correctAnswersMap);
             setUserResults(resultsMap);
             setQuizCompleted(true);
-            toast.success("Quiz sẽ tự động đóng sau 30 giây để bạn xem lại kết quả");
+            //Countdown đóng quiz
+            let timeoutDuration;
+            if (numberOfQuestions <= 4) {
+                timeoutDuration = 30000; // 30s cho 4 câu trở xuống
+            } else if (numberOfQuestions <= 8) {
+                timeoutDuration = 45000; // 45s cho 5-8 câu
+            } else {
+                timeoutDuration = 60000; // 1 phút cho trên 8 câu
+            }
+            setShowCountdown(true);
+            setCountdown(timeoutDuration / 1000);
+            toast.success(`Quiz sẽ tự động đóng sau ${timeoutDuration / 1000} giây để bạn xem lại kết quả`, {
+                duration: 10000,
+            });
             setTimeout(async () => {
                 await fetchProgress();
-                toast.success("Đã lưu kết quả quiz của bạn");
-            }, 30000);
+                toast.success("Đã lưu kết quả của bạn");
+            }, timeoutDuration);
         } catch (error) {
             console.error("Lỗi khi nộp bài:", error);
             toast.error("Có lỗi xảy ra khi nộp bài!");
@@ -753,6 +783,47 @@ export const Quizzes = ({ quiz_id, contentId, onComplete, onClose }) => {
                                     )}
                                 </button>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showCountdown && (
+                <div className="fixed bottom-6 right-6">
+                    <div className="bg-white/95 backdrop-blur shadow-2xl rounded-xl p-4 border border-gray-100">
+                        <div className="flex items-center gap-4">
+                            <div className="relative">
+                                <svg className="w-12 h-12 transform -rotate-90">
+                                    <circle
+                                        className="text-gray-200"
+                                        strokeWidth="3"
+                                        stroke="currentColor"
+                                        fill="transparent"
+                                        r="22"
+                                        cx="24"
+                                        cy="24"
+                                    />
+                                    <circle
+                                        className="text-blue-500"
+                                        strokeWidth="3"
+                                        strokeDasharray={22 * 2 * Math.PI}
+                                        strokeDashoffset={22 * 2 * Math.PI * (1 - countdown / 60)}
+                                        strokeLinecap="round"
+                                        stroke="currentColor"
+                                        fill="transparent"
+                                        r="22"
+                                        cx="24"
+                                        cy="24"
+                                    />
+                                </svg>
+                                <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-lg font-bold">
+                                    {formatTime(countdown)}
+                                </span>
+                            </div>
+                            <div className="flex flex-col">
+                                <h3 className="text-base font-semibold text-gray-800">
+                                    Tự động đóng sau
+                                </h3>
+                            </div>
                         </div>
                     </div>
                 </div>
