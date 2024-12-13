@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Content;
 use App\Models\Progress;
 use App\Models\UserCourse;
 use App\Models\Participant;
@@ -428,10 +429,10 @@ class ParticipantController extends Controller
             'meeting_url' => 'required|string',
             'user_ids' => 'required|array',
         ]);
-
+    
         $meetingUrl = $request->input('meeting_url');
         $userIds = $request->input('user_ids');
-
+    
         $meeting = OnlineMeeting::where('meeting_url', $meetingUrl)->first();
         if (!$meeting) {
             Log::warning('Meeting not found', ['meeting_url' => $meetingUrl]);
@@ -440,44 +441,45 @@ class ParticipantController extends Controller
                 'message' => 'Meeting URL không tồn tại',
             ], 404);
         }
-
+    
         DB::beginTransaction();
         try {
             $now = now();
-            $participants = [];
-
+    
             foreach ($userIds as $userId) {
-                // Đánh dấu participant là có mặt
+                // 1. Cập nhật bảng Participant
                 $participant = Participant::firstOrNew([
                     'meeting_id' => $meeting->meeting_id,
                     'user_id' => $userId,
                 ]);
-
+    
                 $participant->is_present = 1;
                 $participant->attendance_date = $now;
                 $participant->created_at = $now;
                 $participant->updated_at = $now;
                 $participant->save();
-
-                $participants[] = $participant;
-
-                // Tạo hoặc cập nhật progress cho content_id tương ứng
+    
+                // 2. Cập nhật Progress nếu có content_id
                 if ($meeting->content_id) {
                     $progress = Progress::firstOrNew([
                         'user_id' => $userId,
                         'content_id' => $meeting->content_id,
                         'course_id' => $meeting->course_id,
                     ]);
-
+    
                     $progress->is_complete = 1;
                     $progress->complete_at = $now;
                     $progress->complete_update = $now;
+                    
+                    // Tính và cập nhật progress percent mới
+                    $progressPercent = $this->calculateProgressPercent($userId, $meeting->course_id);
+                    $progress->progress_percent = $progressPercent;
+                    
                     $progress->save();
                 }
             }
-
+    
             DB::commit();
-
             return response()->json([
                 'status' => 'success',
                 'message' => 'Điểm danh thành công',
@@ -491,6 +493,49 @@ class ParticipantController extends Controller
             ], 500);
         }
     }
+
+    private function calculateProgressPercent($userId, $courseId)
+    {
+        // Thay vì chỉ đếm content không phải online meeting
+        // Đếm tổng số content (bao gồm cả online meeting và không online meeting)
+        $totalContents = Content::where('course_id', $courseId)->count();
+
+        if ($totalContents === 0) {
+            return 0;
+        }
+
+        // Đếm tất cả content đã hoàn thành (bao gồm cả online meeting)
+        $completedContents = Progress::where('user_id', $userId)
+            ->where('course_id', $courseId)
+            ->where('is_complete', 1)
+            ->whereExists(function ($query) {
+                $query->from('contents')
+                    ->whereColumn('contents.content_id', 'progress.content_id');
+            })
+            ->count();
+
+        // Tính tổng progress
+        $totalProgress = ($completedContents / $totalContents) * 100;
+
+        // Kiểm tra xem còn online meeting nào chưa hoàn thành không
+        $hasUncompletedOnlineMeetings = Content::where('course_id', $courseId)
+            ->where('is_online_meeting', 1)
+            ->whereNotExists(function ($query) use ($userId) {
+                $query->from('progress')
+                    ->whereColumn('contents.content_id', 'progress.content_id')
+                    ->where('progress.user_id', $userId)
+                    ->where('progress.is_complete', 1);
+            })
+            ->exists();
+
+        // Nếu còn online meeting chưa hoàn thành thì giới hạn ở 99%
+        if ($hasUncompletedOnlineMeetings) {
+            return min($totalProgress, 99);
+        }
+
+        return $totalProgress;
+    }
+    
 
     public function markAbsent(Request $request)
     {

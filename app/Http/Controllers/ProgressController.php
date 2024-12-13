@@ -320,61 +320,47 @@ class ProgressController extends Controller
         ]);
     }
 
+    // Sửa lại hàm calculateProgressPercent
     private function calculateProgressPercent($userId, $courseId)
     {
-        // Đếm tổng số content không phải online meeting
-        $totalContents = Content::where('course_id', $courseId)
-            ->where('is_online_meeting', 0)
-            ->count();
+        // Thay vì chỉ đếm content không phải online meeting
+        // Đếm tổng số content (bao gồm cả online meeting và không online meeting)
+        $totalContents = Content::where('course_id', $courseId)->count();
 
         if ($totalContents === 0) {
             return 0;
         }
 
-        // Đếm số content đã hoàn thành không phải online meeting
+        // Đếm tất cả content đã hoàn thành (bao gồm cả online meeting)
         $completedContents = Progress::where('user_id', $userId)
             ->where('course_id', $courseId)
             ->where('is_complete', 1)
             ->whereExists(function ($query) {
                 $query->from('contents')
-                    ->whereColumn('contents.content_id', 'progress.content_id')
-                    ->where('contents.is_online_meeting', 0);
+                    ->whereColumn('contents.content_id', 'progress.content_id');
             })
             ->count();
 
-        // Tính progress của regular content
-        $regularProgress = ($completedContents / $totalContents) * 100;
+        // Tính tổng progress
+        $totalProgress = ($completedContents / $totalContents) * 100;
 
-        // Kiểm tra online meetings
-        $hasOnlineMeetings = Content::where('course_id', $courseId)
+        // Kiểm tra xem còn online meeting nào chưa hoàn thành không
+        $hasUncompletedOnlineMeetings = Content::where('course_id', $courseId)
             ->where('is_online_meeting', 1)
+            ->whereNotExists(function ($query) use ($userId) {
+                $query->from('progress')
+                    ->whereColumn('contents.content_id', 'progress.content_id')
+                    ->where('progress.user_id', $userId)
+                    ->where('progress.is_complete', 1);
+            })
             ->exists();
 
-        // Nếu có online meetings và chưa hoàn thành hết
-        // thì không cho phép progress đạt 100%
-        if ($hasOnlineMeetings) {
-            $totalOnlineMeetings = Content::where('course_id', $courseId)
-                ->where('is_online_meeting', 1)
-                ->count();
-
-            $completedOnlineMeetings = Progress::where('user_id', $userId)
-                ->where('course_id', $courseId)
-                ->where('is_complete', 1)
-                ->whereExists(function ($query) {
-                    $query->from('contents')
-                        ->whereColumn('contents.content_id', 'progress.content_id')
-                        ->where('contents.is_online_meeting', 1);
-                })
-                ->count();
-
-            // Nếu chưa hoàn thành hết online meetings
-            // thì giới hạn progress tối đa là 99%
-            if ($totalOnlineMeetings !== $completedOnlineMeetings) {
-                return min($regularProgress, 99);
-            }
+        // Nếu còn online meeting chưa hoàn thành thì giới hạn ở 99%
+        if ($hasUncompletedOnlineMeetings) {
+            return min($totalProgress, 99);
         }
 
-        return $regularProgress;
+        return $totalProgress;
     }
 
     private function getProgressPercent($userId, $courseId)
