@@ -55,10 +55,20 @@ const CertificateTemplate = ({ studentName, courseName, completionDate }) => {
                         <div className="w-40 flex items-center justify-center">
                             <img src="/src/assets/images/certificate.jpg" alt="" />
                         </div>
-                        <div className="text-center">
-                            <p className="text-xl font-serif mb-2">Chữ ký già làng</p>
-                            <p className="text-sm text-slate-600">Lozs</p>
+                        <div className="text-center p-4">
+                            <p className="text-xl font-serif mb-2">Chữ ký</p>
+                            <p
+                                className="text-2xl mt-2"
+                                style={{
+                                    fontFamily: "'Great Vibes', cursive",
+                                    color: '#1a1a1a',
+                                    textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.1)'
+                                }}
+                            >
+                                Antlearn
+                            </p>
                         </div>
+
                     </div>
                 </div>
             </div>
