@@ -13,7 +13,7 @@ export const Payment = () => {
     const [isVoucherApplied, setIsVoucherApplied] = useState(false);
     const [loading, setLoading] = useState(false);
     const [validatedCoupon, setValidatedCoupon] = useState(null);
- 
+
     const fetchCartData = async () => {
         const token = localStorage.getItem("access_token");
         const cartResponse = await axios.get(`${API_URL}/auth/cart`, {
@@ -24,7 +24,7 @@ export const Payment = () => {
         });
         setCart(cartResponse.data);
     };
- 
+
     // Reset cart nếu thanh toán thất bại
     const resetCart = async () => {
         const token = localStorage.getItem("access_token");
@@ -39,25 +39,25 @@ export const Payment = () => {
                     },
                 }
             );
- 
+
             await fetchCartData();
             setDiscount(0);
             setIsVoucherApplied(false);
             setValidatedCoupon(null);
             setCoupon("");
- 
+
         } catch (error) {
             console.error("Error resetting cart:", error);
             toast.error("Có lỗi xảy ra khi khôi phục giỏ hàng");
         }
     };
- 
+
     // Check payment status từ VNPay redirect
     useEffect(() => {
         const checkPaymentStatus = async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const vnp_ResponseCode = urlParams.get('vnp_ResponseCode');
-            
+
             if (vnp_ResponseCode) {
                 if (vnp_ResponseCode === '00') {
                     toast.success("Thanh toán thành công!");
@@ -69,12 +69,12 @@ export const Payment = () => {
                 window.history.replaceState({}, '', window.location.pathname);
             }
         };
- 
+
         if (orderId) {
             checkPaymentStatus();
         }
     }, [orderId]);
- 
+
     useEffect(() => {
         const fetchAllData = async () => {
             setLoading(true);
@@ -91,7 +91,7 @@ export const Payment = () => {
                         },
                     }),
                 ]);
- 
+
                 setCourses(coursesResponse.data);
                 setCart(cartResponse.data);
             } catch (error) {
@@ -100,10 +100,10 @@ export const Payment = () => {
                 setLoading(false);
             }
         };
- 
+
         fetchAllData();
     }, []);
- 
+
     const calculateTotalPrice = () => {
         return cart.reduce((total, item) => {
             const itemTotal = item.order_details.reduce((subtotal, detail) => {
@@ -113,22 +113,22 @@ export const Payment = () => {
             return total + itemTotal;
         }, 0);
     };
- 
+
     const totalPrice = calculateTotalPrice();
     const finalPrice = isVoucherApplied ? totalPrice - discount : totalPrice;
- 
+
     const handleValidateCoupon = async () => {
         if (isVoucherApplied) {
             toast.error("Chỉ được áp dụng một voucher.");
             return;
         }
-    
+
         try {
             const token = localStorage.getItem("access_token");
             const response = await axios.post(
                 `${API_URL}/validate-coupon`,
-                { 
-                    name_coupon: coupon, 
+                {
+                    name_coupon: coupon,
                     order_id: orderId,
                     total_price: totalPrice
                 },
@@ -139,15 +139,15 @@ export const Payment = () => {
                     },
                 }
             );
-    
+
             if (response.data && response.data.message === 'Coupon is valid') {
                 const discountAmount = response.data.discount_price;
-                
+
                 if (discountAmount >= totalPrice) {
                     toast.error("Giá trị giảm giá vượt quá tổng đơn hàng");
                     return;
                 }
-    
+
                 setDiscount(discountAmount);
                 setIsVoucherApplied(true);
                 setValidatedCoupon({
@@ -173,14 +173,14 @@ export const Payment = () => {
                         toast.error("Giá trị giảm giá vượt quá tổng đơn hàng.");
                         break;
                     default:
-                        toast.error("Có lỗi xảy ra, vui lòng thử lại.");
+                        toast.error("Vui lòng nhập mã giảm giá!");
                 }
             } else {
                 toast.error("Không thể kết nối đến server.");
             }
         }
     };
- 
+
     const removeCoupon = () => {
         setDiscount(0);
         setIsVoucherApplied(false);
@@ -188,20 +188,20 @@ export const Payment = () => {
         setValidatedCoupon(null);
         toast.success("Đã xóa mã giảm giá");
     };
- 
+
     const handlePayment = async () => {
         const token = localStorage.getItem("access_token");
- 
+
         if (!token) {
             toast.error("Bạn cần đăng nhập để thực hiện thanh toán.");
             return;
         }
- 
+
         if (!orderId) {
             toast.error("Không tìm thấy mã đơn hàng.");
             return;
         }
- 
+
         try {
             if (validatedCoupon) {
                 await axios.post(
@@ -218,7 +218,7 @@ export const Payment = () => {
                     }
                 );
             }
- 
+
             const orderInfo = cart
                 .flatMap((item) =>
                     item.order_details.map(
@@ -229,7 +229,7 @@ export const Payment = () => {
                     )
                 )
                 .join(", ");
- 
+
             const response = await axios.post(
                 `${API_URL}/vnpay-payment`,
                 {
@@ -245,7 +245,7 @@ export const Payment = () => {
                     },
                 }
             );
- 
+
             if (response.data.code === "00") {
                 window.location.href = response.data.data;
             } else {
