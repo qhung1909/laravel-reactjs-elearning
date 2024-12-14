@@ -95,7 +95,7 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                     }
                 });
-                if (res.data.data.status === 'revision_requested' || res.data.data.status === 'draft') {
+                if (res.data.data.status === 'revision_requested' || res.data.data.status === 'draft' || res.data.data.status === 'published' ) {
                     // Cho phép truy cập vào trang hiện tại
                 } else {
                     setTimeout(()=>{

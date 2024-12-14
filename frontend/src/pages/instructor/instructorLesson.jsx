@@ -310,7 +310,9 @@ export const InstructorLesson = () => {
             window.location.href = `/course/manage/${item.course_id}/course-overview`;
         }
         if (item.status === "published") {
-            window.location.href = `/detail/${item.slug}`;
+            // window.location.href = `/detail/${item.slug}`;
+            window.location.href = `/course/manage/${item.course_id}/course-overview`;
+
         }
         if (item.status === "expired" || item.status === "need_schedule") {
             setIsScheduleDialog(true);

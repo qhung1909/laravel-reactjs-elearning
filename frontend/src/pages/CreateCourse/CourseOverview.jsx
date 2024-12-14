@@ -69,8 +69,9 @@ export const CourseOverview = () => {
     const [loading, setLoading] = useState(false);
     const [loading_update, setLoadingUpdate] = useState(false);
 
-    const [isUpdated, setIsUpdated] = useState(false);
+    const [isUpdated, setIsUpdated] = useState(true);
     const [hasChanges, setHasChanges] = useState(false); // Theo dõi thay đổi
+    console.log(isUpdated);
 
 
     const wordCount = courseDescriptionText.trim().split(/\s+/).filter(word => word).length;
@@ -242,8 +243,12 @@ export const CourseOverview = () => {
                         setBackupDate('');
                     }
                 }
+                setIsUpdated(true)
+
+
             } catch (error) {
                 console.error('Error fetching course data:', error);
+                setIsUpdated(true)
             }
         };
         fetchCourse();
@@ -379,6 +384,7 @@ export const CourseOverview = () => {
         } finally {
             toast.dismiss(loadingToast);
             setLoadingUpdate(false);
+            setIsUpdated(true);
         }
     };
 
