@@ -22,14 +22,13 @@ const notify = (message, type) => {
 
 
 // eslint-disable-next-line react/prop-types
-export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
+export const SideBarCreateCoure = ({ isUpdated, hasChanges, setIsPublished, isPublished }) => {
     const API_KEY = import.meta.env.VITE_API_KEY;
     const API_URL = import.meta.env.VITE_API_URL;
     const { course_id } = useParams();
     const [loading, setLoading] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
-
 
     const handleNavigate = (path) => {
         if (location.pathname === path) {
@@ -95,15 +94,22 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                     }
                 });
-                if (res.data.data.status === 'revision_requested' || res.data.data.status === 'draft' || res.data.data.status === 'published' ) {
-                    // Cho phép truy cập vào trang hiện tại
-                } else {
-                    setTimeout(()=>{
-                        notify(`Khóa học "${res.data.data.title}" không ở trạng thái nháp. Không có quyền truy cập !`)
-                    }, 500)
-                    navigate('/instructor/lesson');
 
-                }
+                if (res.data.data.status === 'published') {
+                    setIsPublished(true);
+                } else
+                    if (res.data.data.status === 'revision_requested' || res.data.data.status === 'draft' || res.data.data.status === 'published') {
+                        // Cho phép truy cập vào trang hiện tại
+                    } else {
+                        setTimeout(() => {
+                            notify(`Khóa học "${res.data.data.title}" không ở trạng thái nháp. Không có quyền truy cập !`)
+                        }, 500)
+                        navigate('/instructor/lesson');
+
+                    }
+
+
+
 
             } catch (error) {
                 console.error(error);
@@ -111,7 +117,7 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
             }
         }
         fetchStatusCourse();
-    }, [API_KEY, API_URL, course_id, navigate])
+    }, [API_KEY, API_URL, course_id, navigate, setIsPublished])
 
     // Hàm gửi khóa học để xem xét
     const handleSentDone = async () => {
@@ -219,6 +225,10 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
         return '';
     });
 
+    console.log('====================================');
+    console.log(setIsPublished);
+    console.log('====================================');
+
     return (
         <>
             {/* <div className="w-3/12 mr-4 hidden lg:block"> */}
@@ -257,14 +267,33 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges }) => {
                 <div className="space-y-3">
                     <button
                         onClick={handleSentDone}
-                        className={`w-full px-4 py-3 ${loading
-                            ? "bg-gray-300 cursor-not-allowed"
-                            : "bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 hover:bg-gradient-to-bl"
-                            } focus:ring-4 focus:outline-none focus:ring-yellow-300 text-white font-semibold rounded-lg text-sm transition-all duration-200 shadow-lg hover:shadow-xl`}
-                        disabled={loading}
+                        className={`w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200
+                            ${loading || isPublished
+                                ? "bg-yellow-500 text-white border border-gray-200 cursor-not-allowed"
+                                : "bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-yellow-300 text-white font-semibold rounded-lg text-sm transition-all duration-200 shadow-lg hover:shadow-xl"}`}
+                        disabled={loading || isPublished}
                     >
                         {loading ? "Đang gửi..." : "Gửi đi để xem xét"}
                     </button>
+                    {isPublished ? (
+                        <div className="mt-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg w-full">
+                            <div className="p-3">
+                                <div className="flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                    </svg>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm text-yellow-700 font-medium truncate">
+                                            Khóa học đã được công khai
+                                        </p>
+                                        <p className="text-sm text-yellow-600 mt-1">
+                                            Chỉ có thể xem nội dung
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : null}
                 </div>
             </div>
             <Toaster />

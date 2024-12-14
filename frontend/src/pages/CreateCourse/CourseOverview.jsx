@@ -73,6 +73,9 @@ export const CourseOverview = () => {
     const [hasChanges, setHasChanges] = useState(false); // Theo dõi thay đổi
     console.log(isUpdated);
 
+    const [isPublished, setIsPublished] = useState(false);
+    console.log(isPublished, 'kiem tra trang thai cong khai');
+
 
     const wordCount = courseDescriptionText.trim().split(/\s+/).filter(word => word).length;
 
@@ -430,6 +433,7 @@ export const CourseOverview = () => {
                                 <>
                                     <Button
                                         onClick={update}
+                                        disabled={isPublished}
                                         className="sm:inline-flex items-center px-6 py-3 bg-white text-yellow-600 font-semibold rounded-lg border-2 border-yellow-600 hover:bg-yellow-600 hover:text-white transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
                                     >
                                         <span>Cập nhật Khóa Học</span>
@@ -463,6 +467,8 @@ export const CourseOverview = () => {
                         isUpdated={isUpdated}
                         setIsUpdated={setIsUpdated}
                         hasChanges={hasChanges}
+                        setIsPublished={setIsPublished}
+                        isPublished={isPublished}
                     />
                 </div>
                 {/* <SideBarCreateCoure course_id={course_id} isUpdated={isUpdated} setIsUpdated={setIsUpdated} hasChanges={hasChanges} /> */}
@@ -489,6 +495,8 @@ export const CourseOverview = () => {
                                         setErrors(prev => ({ ...prev, titleError: '' }));
                                     }
                                 }}
+                                readOnly={isPublished}
+
                             />
                             {errors.titleError && <p className="text-red-500 text-sm">{errors.titleError}</p>}
                         </div>
@@ -518,6 +526,7 @@ export const CourseOverview = () => {
                                     'header', 'bold', 'italic', 'underline',
                                     'list', 'bullet', 'link', 'image', 'code-block'
                                 ]}
+                                readOnly={isPublished}
                             />
                             <p className="text-sm text-gray-400">Mô tả hiện tại: {wordCount} từ. (Cần ít nhất 20 từ)</p>
                             {errors.descriptionError && <p className="text-red-500 text-sm">{errors.descriptionError}</p>}
@@ -535,9 +544,11 @@ export const CourseOverview = () => {
                                         if (e.target.value.trim() !== '') {
                                             setErrors(prev => ({ ...prev, priceError: '' }));
                                         }
-                                    }} type="number" placeholder="Giá" />
-                                    {errors.priceError && <p className="text-red-500 text-sm">{errors.priceError}</p>}
+                                    }} type="number" placeholder="Giá"
+                                        readOnly={isPublished}
 
+                                    />
+                                    {errors.priceError && <p className="text-red-500 text-sm">{errors.priceError}</p>}
                                 </div>
 
                             </div>
@@ -552,9 +563,12 @@ export const CourseOverview = () => {
                                     if (value !== '') {
                                         setErrors(prev => ({ ...prev, categoryError: '' }));
                                     }
-                                }}>
+                                }}
+                                disabled={isPublished}
+                                >
                                     <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="-- Chọn thể loại khóa học --" />
+                                        <SelectValue placeholder="-- Chọn thể loại khóa học --"/>
+
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectGroup>
@@ -588,6 +602,7 @@ export const CourseOverview = () => {
                                     <Select
                                         value={selectedExtension}
                                         onValueChange={(value) => setSelectedExtension(value)}
+                                        disabled={isPublished}
                                     >
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="-- Chọn phần mở rộng --" />
@@ -614,6 +629,7 @@ export const CourseOverview = () => {
                                                 max={new Date(new Date().setDate(new Date().getDate() + 10)).toISOString().split("T")[0]}  // Ngày cuối cùng không được quá 10 ngày kể từ hôm nay
                                                 onChange={handleSelectedDateChange}  // Cập nhật ngày khai giảng
                                                 value={selectedDate}  // Đảm bảo hiển thị ngày đã chọn
+                                                disabled={isPublished}
                                             />
                                         </div>
 
@@ -626,7 +642,8 @@ export const CourseOverview = () => {
                                                 min={backupDate}  // Chỉ cho phép chọn ngày sau ngày khai giảng online
                                                 value={backupDate}  // Giá trị của lịch backup sẽ được hiển thị
                                                 onChange={(e) => setBackupDate(e.target.value)} // Cho phép người dùng chọn ngày backup
-                                                disabled={!selectedDate}
+                                                disabled={!selectedDate || isPublished}
+
                                             />
                                             {!selectedDate && (
                                                 <p className="text-gray-500 text-sm mt-2">
@@ -652,7 +669,7 @@ export const CourseOverview = () => {
 
                                     {courseImage ? (
                                         <img src={courseImage} alt="Hình ảnh khóa học" />
-                                    ): (
+                                    ) : (
                                         <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/images/bg-fill-pic.png" />
                                     )}
 
@@ -664,7 +681,7 @@ export const CourseOverview = () => {
 
                                         <div className="grid w-full max-w-sm items-center gap-1.5">
                                             <Label htmlFor="picture">Hình ảnh</Label>
-                                            <Input onChange={handleFileChange} id="picture" type="file" />
+                                            <Input onChange={handleFileChange} id="picture" type="file" disabled={isPublished}/>
                                         </div>
                                     </div>
                                 </div>
