@@ -203,8 +203,8 @@ export const Curriculum = () => {
                     setIsDataFetched(true);
                 }
             }
-        } catch {
-            // console.error('Error fetching content:', error);
+        } catch (error) {
+            console.error('Error fetching content:', error);
             // toast.error('Không thể tải nội dung khóa học');
         } finally {
             setLoading(false)
