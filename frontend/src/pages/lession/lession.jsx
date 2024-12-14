@@ -10,7 +10,7 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy, Gamepad2, Gift, CircleCheck, ChartBar, BarChart, School, Book, CalendarDays, CalendarArrowDown, VideoIcon } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy, Gamepad2, Gift, CircleCheck, ChartBar, BarChart, School, Book, CalendarDays, CalendarArrowDown, VideoIcon, Info, CalendarX2 } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
@@ -71,6 +71,7 @@ export const Lesson = () => {
 
                     //hàm gọi để truyền course_id
                     fetchContentLesson(res.data.course_id);
+                    fetchMeetings(res.data.course_id);
                     const CourseMiniGame = courses.find(course => course.course_id === res.data.course_id);
                     if (CourseMiniGame && parseFloat(CourseMiniGame.price_discount) >= 1500000) {
                         setShowMiniGame(true);
@@ -244,8 +245,33 @@ export const Lesson = () => {
     useEffect(() => {
         fetchContentLesson();
     }, []);
-
-
+    const [meetings, setMeetings] = useState([]);
+    const fetchMeetings = async (courseId) => {
+        const token = localStorage.getItem("access_token");
+        try {
+            const response = await axios.get(`${API_URL}/meetings/student/upcoming-meeting`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-Key': API_KEY,
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.data.data) {
+                // Filter meetings theo course_id
+                const filteredMeetings = response.data.data.filter(meeting =>
+                    meeting.course.course_id === courseId
+                );
+                setMeetings(filteredMeetings);
+            } else {
+                console.error("Lỗi");
+            }
+        } catch (error) {
+            console.error("Error fetching meetings:", error);
+        }
+    };
+    useEffect(() => {
+        fetchMeetings();
+    }, []);
     // Sắp xếp content theo content_id
     const sortedContent = contentLesson.sort(
         (a, b) => a.content_id - b.content_id
@@ -1512,7 +1538,7 @@ export const Lesson = () => {
                                                                                 {content.is_online_meeting === 1 ? (
                                                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-blue-600">
                                                                                         <VideoIcon className="w-3 h-3 mr-1" />
-                                                                                        Học trực tuyến
+                                                                                        Meeting
                                                                                     </span>
                                                                                 ) : (
                                                                                     <div className="flex-shrink-0">
@@ -1567,77 +1593,191 @@ export const Lesson = () => {
                                                             </AccordionTrigger>
 
                                                             <AccordionContent>
-                                                                <div className="px-4 pb-4">
-                                                                    {content.is_online_meeting === 1 ? (
-                                                                        <div className="flex flex-col items-center justify-center py-8 space-y-3 bg-blue-50 rounded-lg mx-4">
-                                                                            <div className="text-center space-y-1">
-                                                                                <h4 className="font-medium text-blue-700">Buổi học trực tuyến</h4>
-                                                                                <p className="text-sm text-blue-600">
-                                                                                    Kiểm tra lịch học ở trang cá nhân
-                                                                                </p>
-                                                                            </div>
-                                                                        </div>
-                                                                    ) : Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
-                                                                        titleContent[content.content_id].map((item, i) => {
-                                                                            const isWatched = videoProgress[item.title_content_id];
-                                                                            return (
-                                                                                <div
-                                                                                    key={i}
-                                                                                    onClick={() => handleVideoClick(item, content.content_id, i)}
-                                                                                    className={`group flex items-start gap-3 p-3 rounded-lg transition-all duration-200 cursor-pointer border ${activeItem.contentId === content.content_id && activeItem.index === i
-                                                                                        ? 'bg-purple-100 border-purple-300'
-                                                                                        : 'border-transparent hover:bg-purple-50 hover:border-purple-100'
-                                                                                        }`}
-                                                                                >
-                                                                                    <div className="relative">
-                                                                                        <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0 mt-1 group-hover:bg-purple-200">
-                                                                                            {i + 1}
-                                                                                        </span>
-                                                                                    </div>
-                                                                                    <div className="flex-1 min-w-0">
-                                                                                        <div className="flex items-center justify-between gap-2">
-                                                                                            <p className="text-sm text-gray-600 line-clamp-2 flex-1">
-                                                                                                {item.body_content}
-                                                                                            </p>
+                                                                {content.is_online_meeting === 1 ? (
+                                                                    <div className="px-4 pb-4">
+                                                                        {meetings.map((meeting, idx) => {
+                                                                            if (meeting.content_name === content.name_content) {
+                                                                                const startTime = new Date(meeting.start_time);
+                                                                                const endTime = new Date(meeting.end_time);
+                                                                                const now = new Date();
+                                                                                const formatDate = (date) => {
+                                                                                    return date.toLocaleDateString('vi-VN', {
+                                                                                        day: '2-digit',
+                                                                                        month: '2-digit',
+                                                                                        year: 'numeric'
+                                                                                    });
+                                                                                };
+
+                                                                                // Format giờ
+                                                                                const formatTime = (date) => {
+                                                                                    let hours = date.getHours();
+                                                                                    const minutes = date.getMinutes();
+                                                                                    const ampm = hours >= 12 ? 'PM' : 'AM';
+
+                                                                                    // Convert sang định dạng 12 giờ
+                                                                                    hours = hours % 12;
+                                                                                    hours = hours ? hours : 12; // 0 giờ sẽ hiển thị là 12
+
+                                                                                    return `${hours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+                                                                                };
+
+                                                                                const formattedDate = formatDate(startTime); // VD: 27/12/2024
+                                                                                const formattedStartTime = formatTime(startTime); // VD: 21:35
+                                                                                const formattedEndTime = formatTime(endTime);;
+
+                                                                                // Kiểm tra trạng thái buổi học
+                                                                                const isFuture = now < startTime;
+                                                                                const isPast = now > endTime;
+
+                                                                                return (
+                                                                                    <div key={idx} className={`flex flex-col space-y-4 py-6 px-6 rounded-lg ${isFuture ? 'bg-blue-50' :
+                                                                                        isPast ? 'bg-gray-50' : 'bg-green-50'
+                                                                                        }`}>
+                                                                                        <div className="flex items-start space-x-4">
+                                                                                            <div className="flex-shrink-0">
+                                                                                                <CalendarDays className={`w-5 h-5 ${isFuture ? 'text-blue-600' :
+                                                                                                    isPast ? 'text-gray-600' : 'text-green-600'
+                                                                                                    }`} />
+                                                                                            </div>
+                                                                                            <div className="flex-1 min-w-0">
+                                                                                                <p className={`text-sm font-medium mb-1 ${isFuture ? 'text-blue-900' :
+                                                                                                    isPast ? 'text-gray-900' : 'text-green-900'
+                                                                                                    }`}>
+                                                                                                    {isFuture ? 'Sẽ bắt đầu vào' :
+                                                                                                        isPast ? 'Đã kết thúc vào' : 'Đang diễn ra'}
+                                                                                                </p>
+                                                                                                <div className={`flex flex-col space-y-1 text-sm ${isFuture ? 'text-blue-700' :
+                                                                                                    isPast ? 'text-gray-700' : 'text-green-700'
+                                                                                                    }`}>
+                                                                                                    <div className="flex items-center">
+                                                                                                        <CalendarDays className="w-4 h-4 mr-2" />
+                                                                                                        <span>{formattedDate}</span>
+                                                                                                    </div>
+                                                                                                    <div className="flex items-center">
+                                                                                                        <Clock className="w-4 h-4 mr-2" />
+                                                                                                        <span>{formattedStartTime} - {formattedEndTime}</span>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
                                                                                         </div>
-                                                                                        <div className="flex items-center gap-2 mt-1">
-                                                                                            {item.video_link && (
-                                                                                                <>
-                                                                                                    <span className="text-xs text-gray-400 flex items-center">
-                                                                                                        <Clock className="w-3 h-3 mr-1" />
-                                                                                                        {videoDurations[item.title_content_id]
-                                                                                                            ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}`
-                                                                                                            : "0:00"}
-                                                                                                    </span>
-                                                                                                    <span className={`text-xs flex items-center ${completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'text-green-500' : 'text-gray-400'}`}>
-                                                                                                        <Video className="w-3 h-3 mr-1" />
-                                                                                                        {completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'Đã xem' : 'Chưa xem'}
-                                                                                                    </span>
-                                                                                                </>
-                                                                                            )}
-                                                                                            {item.document_link && (
-                                                                                                <>
-                                                                                                    {item.video_link && <span className="h-4 w-[1px] bg-gray-200"></span>}
-                                                                                                    <span className="text-xs flex items-center">
-                                                                                                        <FileCheck className="w-3 h-3 mr-1" />
-                                                                                                        <span className={completedDocumentsInContent[content.content_id]?.[item.title_content_id] ? "text-green-500" : "text-gray-400"}>
-                                                                                                            {completedDocumentsInContent[content.content_id]?.[item.title_content_id] ? "Đã đọc" : "Chưa đọc"}
+
+                                                                                        {/* Chỉ hiển thị link phòng học nếu buổi học chưa kết thúc */}
+                                                                                        {!isPast && (
+                                                                                            <div className="flex items-start space-x-4">
+                                                                                                <div className="flex-shrink-0">
+                                                                                                    <Video className={`w-5 h-5 ${isFuture ? 'text-blue-600' : 'text-green-600'
+                                                                                                        }`} />
+                                                                                                </div>
+                                                                                                <div className="flex-1 min-w-0">
+                                                                                                    <p className={`text-sm font-medium ${isFuture ? 'text-blue-900' : 'text-green-900'
+                                                                                                        }`}>
+                                                                                                        Link phòng học
+                                                                                                    </p>
+                                                                                                    <a
+                                                                                                        href={meeting.meeting_url}
+                                                                                                        target="_blank"
+                                                                                                        rel="noopener noreferrer"
+                                                                                                        className={`inline-flex items-center px-4 py-2 mt-2 text-sm font-medium text-white rounded-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 ${isFuture ? 'bg-blue-600 focus:ring-blue-500' :
+                                                                                                            'bg-green-600 focus:ring-green-500'
+                                                                                                            }`}
+                                                                                                    >
+                                                                                                        <Video className="w-4 h-4 mr-2" />
+                                                                                                        {isFuture ? 'Xem link phòng học' : 'Vào phòng học ngay'}
+                                                                                                    </a>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        )}
+
+                                                                                        <div className="flex items-start space-x-4">
+                                                                                            <div className="flex-shrink-0">
+                                                                                                <Info className={`w-5 h-5 ${isFuture ? 'text-blue-600' :
+                                                                                                    isPast ? 'text-gray-600' : 'text-green-600'
+                                                                                                    }`} />
+                                                                                            </div>
+                                                                                            <div className="flex-1 min-w-0">
+                                                                                                <p className={`text-sm font-medium ${isFuture ? 'text-blue-900' :
+                                                                                                    isPast ? 'text-gray-900' : 'text-green-900'
+                                                                                                    }`}>
+                                                                                                    Trạng thái
+                                                                                                </p>
+                                                                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isFuture ? 'bg-blue-100 text-blue-800' :
+                                                                                                    isPast ? 'bg-gray-100 text-gray-800' : 'bg-green-100 text-green-800'
+                                                                                                    }`}>
+                                                                                                    {isFuture ? "Sắp diễn ra" :
+                                                                                                        isPast ? "Đã kết thúc" : "Đang diễn ra"}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                );
+                                                                            }
+                                                                            return null;
+                                                                        })}
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="px-4 pb-4">
+                                                                        {Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
+                                                                            titleContent[content.content_id].map((item, i) => {
+                                                                                const isWatched = videoProgress[item.title_content_id];
+                                                                                return (
+                                                                                    <div
+                                                                                        key={i}
+                                                                                        onClick={() => handleVideoClick(item, content.content_id, i)}
+                                                                                        className={`group flex items-start gap-3 p-3 rounded-lg transition-all duration-200 cursor-pointer border ${activeItem.contentId === content.content_id && activeItem.index === i
+                                                                                            ? 'bg-purple-100 border-purple-300'
+                                                                                            : 'border-transparent hover:bg-purple-50 hover:border-purple-100'
+                                                                                            }`}
+                                                                                    >
+                                                                                        <div className="relative">
+                                                                                            <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0 mt-1 group-hover:bg-purple-200">
+                                                                                                {i + 1}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                        <div className="flex-1 min-w-0">
+                                                                                            <div className="flex items-center justify-between gap-2">
+                                                                                                <p className="text-sm text-gray-600 line-clamp-2 flex-1">
+                                                                                                    {item.body_content}
+                                                                                                </p>
+                                                                                            </div>
+                                                                                            <div className="flex items-center gap-2 mt-1">
+                                                                                                {item.video_link && (
+                                                                                                    <>
+                                                                                                        <span className="text-xs text-gray-400 flex items-center">
+                                                                                                            <Clock className="w-3 h-3 mr-1" />
+                                                                                                            {videoDurations[item.title_content_id]
+                                                                                                                ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}`
+                                                                                                                : "0:00"}
                                                                                                         </span>
-                                                                                                    </span>
-                                                                                                </>
-                                                                                            )}
+                                                                                                        <span className={`text-xs flex items-center ${completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'text-green-500' : 'text-gray-400'}`}>
+                                                                                                            <Video className="w-3 h-3 mr-1" />
+                                                                                                            {completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'Đã xem' : 'Chưa xem'}
+                                                                                                        </span>
+                                                                                                    </>
+                                                                                                )}
+                                                                                                {item.document_link && (
+                                                                                                    <>
+                                                                                                        {item.video_link && <span className="h-4 w-[1px] bg-gray-200"></span>}
+                                                                                                        <span className="text-xs flex items-center">
+                                                                                                            <FileCheck className="w-3 h-3 mr-1" />
+                                                                                                            <span className={completedDocumentsInContent[content.content_id]?.[item.title.title_content_id] ? "text-green-500" : "text-gray-400"}>
+                                                                                                                {completedDocumentsInContent[content.content_id]?.[item.title_content_id] ? "Đã đọc" : "Chưa đọc"}
+                                                                                                            </span>
+                                                                                                        </span>
+                                                                                                    </>
+                                                                                                )}
+                                                                                            </div>
                                                                                         </div>
                                                                                     </div>
-                                                                                </div>
-                                                                            );
-                                                                        })
-                                                                    ) : (
-                                                                        <div className="flex items-center justify-center py-6 text-gray-400">
-                                                                            <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                                                                            <p className="text-sm">Đang tải nội dung...</p>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
+                                                                                );
+                                                                            })
+                                                                        ) : (
+                                                                            <div className="flex items-center justify-center py-6 text-gray-400">
+                                                                                <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                                                                                <p className="text-sm">Đang tải nội dung...</p>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                )}
                                                             </AccordionContent>
                                                         </div>
                                                     </AccordionItem>
