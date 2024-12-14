@@ -146,7 +146,7 @@ class TeacherController extends Controller
             }
 
             $contents = Content::where('course_id', $courseId)
-                ->where('status', 'draft')
+                ->where('status', 'draft', 'published', 'hide', 'revision_requested')
                 ->orderBy('created_at', 'desc')
                 ->get();
 
