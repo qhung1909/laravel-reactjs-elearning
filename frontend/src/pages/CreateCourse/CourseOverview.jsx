@@ -71,7 +71,7 @@ export const CourseOverview = () => {
 
     const [isUpdated, setIsUpdated] = useState(true);
     const [hasChanges, setHasChanges] = useState(false); // Theo dõi thay đổi
-    console.log(isUpdated);
+    console.log(isUpdated, 'trang thai cap nhat - CO');
 
     const [isPublished, setIsPublished] = useState(false);
     console.log(isPublished, 'kiem tra trang thai cong khai');
@@ -109,16 +109,16 @@ export const CourseOverview = () => {
 
 
 
-    useEffect(() => {
-        // Đặt isUpdated thành true khi mới vào trang
-        if (!initialCourseTitle && !initialCourseDescriptionText) {
-            setIsUpdated(true);
-        }
-        if (!isUpdated) {
-            // Khi trang load hoặc chuyển component, không hiển thị thông báo.
-            toast.dismiss();
-        }
-    }, [initialCourseTitle, initialCourseDescriptionText, isUpdated]);
+    // useEffect(() => {
+    //     // Đặt isUpdated thành true khi mới vào trang
+    //     if (!initialCourseTitle && !initialCourseDescriptionText) {
+    //         setIsUpdated(true);
+    //     }
+    //     if (!isUpdated) {
+    //         // Khi trang load hoặc chuyển component, không hiển thị thông báo.
+    //         toast.dismiss();
+    //     }
+    // }, [initialCourseTitle, initialCourseDescriptionText, isUpdated]);
 
     // Đặt lại giá trị isUpdated khi có sự thay đổi giữa dữ liệu hiện tại và dữ liệu ban đầu
     useEffect(() => {
@@ -214,11 +214,22 @@ export const CourseOverview = () => {
 
 
                 if (response.data) {
+
+                    // nếu như tiêu đề bị xuống dòng khoảng trắng thì isupdate sẽ false
+                    // mô tả: khi mô tả không có thẻ <p></p> bọc ngoài thì isupdate sẽ false và thêm cái khoảng trắng xuống dòng thì nó cũng false nốt
                     const courseData = response.data.data;
-                    setCourseTitle(courseData.title || '');
-                    setInitialCourseTitle(courseData.title || '');
-                    setCourseDescriptionText(courseData.description || '');
-                    setInitialCourseDescriptionText(courseData.description || '');
+
+                    const cleanTitle = courseData.title?.replace(/\n/g, '').trim() || '';
+
+                    const description = courseData.description || '';
+                    const cleanDescription = description.replace(/(<p><br><\/p>)+$/, '');
+                    const formattedDescription = cleanDescription.startsWith('<p>') ? cleanDescription : `<p>${cleanDescription}</p>`;
+
+
+                    setCourseTitle(cleanTitle);
+                    setInitialCourseTitle(cleanTitle);
+                    setCourseDescriptionText(formattedDescription);
+                    setInitialCourseDescriptionText(formattedDescription);
                     setCurrency(courseData.currency || '');
                     setInitialCurrency(courseData.currency || '');
                     setPrice(courseData.price || '');
@@ -564,10 +575,10 @@ export const CourseOverview = () => {
                                         setErrors(prev => ({ ...prev, categoryError: '' }));
                                     }
                                 }}
-                                disabled={isPublished}
+                                    disabled={isPublished}
                                 >
                                     <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="-- Chọn thể loại khóa học --"/>
+                                        <SelectValue placeholder="-- Chọn thể loại khóa học --" />
 
                                     </SelectTrigger>
                                     <SelectContent>
@@ -681,7 +692,7 @@ export const CourseOverview = () => {
 
                                         <div className="grid w-full max-w-sm items-center gap-1.5">
                                             <Label htmlFor="picture">Hình ảnh</Label>
-                                            <Input onChange={handleFileChange} id="picture" type="file" disabled={isPublished}/>
+                                            <Input onChange={handleFileChange} id="picture" type="file" disabled={isPublished} />
                                         </div>
                                     </div>
                                 </div>

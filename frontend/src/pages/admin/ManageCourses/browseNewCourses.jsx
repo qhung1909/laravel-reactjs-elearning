@@ -96,6 +96,9 @@ export default function BrowseNewCourses() {
             if (response.data && response.data.success) {
                 toast.success("Yêu cầu chỉnh sửa đã được gửi thành công.");
                 fetchCourses();
+                setTimeout(()=>{
+                    window.location.reload()
+                }, 3000)
             } else {
                 console.error("Lỗi khi gửi yêu cầu chỉnh sửa:", response.data);
                 toast.error("Có lỗi xảy ra khi gửi yêu cầu chỉnh sửa.");
@@ -139,6 +142,9 @@ export default function BrowseNewCourses() {
             if (res.data && res.data.success) {
                 toast.success("Khóa học đã bị từ chối thành công.");
                 fetchCourses();
+                setTimeout(()=>{
+                    window.location.reload()
+                }, 3000)
             } else {
                 console.error("Lỗi khi từ chối khóa học:", res.data);
                 toast.error("Có lỗi xảy ra khi từ chối khóa học.");
@@ -280,6 +286,9 @@ export default function BrowseNewCourses() {
                 toast.success("Khóa học đã được phê duyệt thành công.");
                 // Cập nhật danh sách các khóa học sau khi phê duyệt
                 fetchCourses();
+                setTimeout(()=>{
+                    window.location.reload()
+                }, 3000)
             } else {
                 console.error("Lỗi khi phê duyệt khóa học:", res.data);
                 toast.error("Có lỗi xảy ra khi phê duyệt khóa học.");
