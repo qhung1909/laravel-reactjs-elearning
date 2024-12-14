@@ -111,8 +111,6 @@ const JitsiMeeting = () => {
         return;
       }
 
-      const loadingToast = toast.loading('Đang cập nhật điểm danh...');
-
       if (presentUserIds.length > 0) {
         await axios.post(
           `${API_URL}/meetings/mark-attendance`,
@@ -144,9 +142,6 @@ const JitsiMeeting = () => {
           }
         );
       }
-
-      toast.dismiss(loadingToast);
-      toast.success('Cập nhật điểm danh thành công');
 
       await fetchStudentAttendance();
 
@@ -683,7 +678,21 @@ const JitsiMeeting = () => {
                   <Button variant="outline">Đóng</Button>
                 </SheetClose>
                 <Button
-                  onClick={saveAttendance}
+                  onClick={async () => {
+                    const loadingToast = toast.loading('Đang cập nhật điểm danh...');
+                    try {
+                      // Giữ nguyên hàm saveAttendance gốc và gọi 2 lần
+                      await Promise.all([
+                        saveAttendance(),
+                        saveAttendance()
+                      ]);
+                      toast.success('Cập nhật điểm danh thành công');
+                    } catch (error) {
+                      toast.error('Không thể cập nhật điểm danh. Vui lòng thử lại');
+                    } finally {
+                      toast.dismiss(loadingToast);
+                    }
+                  }}
                   variant="default"
                   className="bg-primary hover:bg-primary/90"
                 >
