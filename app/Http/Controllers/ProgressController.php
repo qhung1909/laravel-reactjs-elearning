@@ -208,14 +208,17 @@ class ProgressController extends Controller
         $userId = $progress->user_id;
         $courseId = $progress->course_id;
 
-        // Tính toán progress percent mới
-        $progressPercent = $this->calculateProgressPercent($userId, $courseId);
-
+        // Cập nhật trạng thái complete
         $progress->update([
             'is_complete' => 1,
             'complete_at' => Carbon::now(),
-            'progress_percent' => $progressPercent
         ]);
+
+        // Tính toán và cập nhật progress percent mới
+        $this->calculateProgressPercent($userId, $courseId);
+
+        // Kiểm tra course completion và gửi mail nếu đã hoàn thành 100%
+        $this->checkCourseCompletion($userId, $courseId);
     }
 
     public function completeContent(Request $request)
@@ -323,45 +326,57 @@ class ProgressController extends Controller
     // Sửa lại hàm calculateProgressPercent
     private function calculateProgressPercent($userId, $courseId)
     {
-        // Thay vì chỉ đếm content không phải online meeting
-        // Đếm tổng số content (bao gồm cả online meeting và không online meeting)
-        $totalContents = Content::where('course_id', $courseId)->count();
+        try {
+            DB::beginTransaction();
 
-        if ($totalContents === 0) {
-            return 0;
+            // 1. Đếm tổng số content trong course (bao gồm cả online meeting)
+            $totalContents = Content::where('course_id', $courseId)->count();
+
+            if ($totalContents === 0) {
+                DB::commit();
+                return 0;
+            }
+
+            // 2. Lấy danh sách tất cả contents trong course
+            $courseContents = Content::where('course_id', $courseId)
+                ->select('content_id', 'is_online_meeting')
+                ->get();
+
+            // 3. Lấy progress records hiện tại 
+            $progressRecords = Progress::where('user_id', $userId)
+                ->where('course_id', $courseId)
+                ->where('is_complete', 1)
+                ->get();
+
+            // 4. Tính số content đã hoàn thành
+            $completedContents = 0;
+            foreach ($courseContents as $content) {
+                $progress = $progressRecords->firstWhere('content_id', $content->content_id);
+                if ($progress && $progress->is_complete) {
+                    $completedContents++;
+                }
+            }
+
+            // 5. Tính phần trăm progress
+            $progressPercent = ($completedContents / $totalContents) * 100;
+            $progressPercent = round($progressPercent, 2);
+
+            // 6. Cập nhật progress cho tất cả records
+            Progress::where('user_id', $userId)
+                ->where('course_id', $courseId)
+                ->update([
+                    'progress_percent' => $progressPercent
+                ]);
+
+            DB::commit();
+            return $progressPercent;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error calculating progress: ' . $e->getMessage());
+            throw $e;
         }
-
-        // Đếm tất cả content đã hoàn thành (bao gồm cả online meeting)
-        $completedContents = Progress::where('user_id', $userId)
-            ->where('course_id', $courseId)
-            ->where('is_complete', 1)
-            ->whereExists(function ($query) {
-                $query->from('contents')
-                    ->whereColumn('contents.content_id', 'progress.content_id');
-            })
-            ->count();
-
-        // Tính tổng progress
-        $totalProgress = ($completedContents / $totalContents) * 100;
-
-        // Kiểm tra xem còn online meeting nào chưa hoàn thành không
-        $hasUncompletedOnlineMeetings = Content::where('course_id', $courseId)
-            ->where('is_online_meeting', 1)
-            ->whereNotExists(function ($query) use ($userId) {
-                $query->from('progress')
-                    ->whereColumn('contents.content_id', 'progress.content_id')
-                    ->where('progress.user_id', $userId)
-                    ->where('progress.is_complete', 1);
-            })
-            ->exists();
-
-        // Nếu còn online meeting chưa hoàn thành thì giới hạn ở 99%
-        if ($hasUncompletedOnlineMeetings) {
-            return min($totalProgress, 99);
-        }
-
-        return $totalProgress;
     }
+
 
     private function getProgressPercent($userId, $courseId)
     {
@@ -381,34 +396,85 @@ class ProgressController extends Controller
 
     private function checkCourseCompletion($userId, $courseId)
     {
-        // Lấy progress tổng từ DB
-        $progressPercent = $this->getProgressPercent($userId, $courseId);
+        try {
+            DB::beginTransaction();
 
-        // Chỉ cấp certificate và gửi mail khi progress = 100%
-        if ($progressPercent >= 100) {
-            $existingCertificate = Certificate::where([
+            // Lấy progress tổng từ DB
+            $progressPercent = $this->getProgressPercent($userId, $courseId);
+
+            Log::info('Checking course completion', [
                 'user_id' => $userId,
-                'course_id' => $courseId
-            ])->first();
+                'course_id' => $courseId,
+                'progress_percent' => $progressPercent
+            ]);
 
-            if (!$existingCertificate) {
-                DB::transaction(function () use ($userId, $courseId) {
-                    Certificate::create([
+            // Chỉ cấp certificate và gửi mail khi progress = 100%
+            if ($progressPercent >= 100) {
+                Log::info('Progress is 100%, checking certificate');
+
+                // Kiểm tra certificate tồn tại
+                $existingCertificate = Certificate::where([
+                    'user_id' => $userId,
+                    'course_id' => $courseId
+                ])->first();
+
+                if (!$existingCertificate) {
+                    Log::info('No certificate found, creating new one');
+
+                    // Tạo certificate mới
+                    $certificate = Certificate::create([
                         'user_id' => $userId,
                         'course_id' => $courseId,
                         'issue_at' => Carbon::now()
                     ]);
 
-                    $user = User::find($userId);
-                    $course = Course::where('course_id', $courseId)->first();
+                    Log::info('Certificate created', ['certificate_id' => $certificate->id]);
 
+                    // Lấy thông tin user và course
+                    $user = User::find($userId);
+                    $course = Course::find($courseId);
+
+                    if (!$user || !$course) {
+                        Log::error('User or Course not found', [
+                            'user' => $user ? 'found' : 'not found',
+                            'course' => $course ? 'found' : 'not found'
+                        ]);
+                        DB::rollBack();
+                        return;
+                    }
+
+                    // Gửi email
                     try {
                         Mail::to($user->email)->send(new CourseCompletedMail($user, $course));
+                        Log::info('Course completion email sent', [
+                            'user_email' => $user->email,
+                            'course_name' => $course->name
+                        ]);
                     } catch (\Exception $e) {
-                        Log::error('Error sending course completion email: ' . $e->getMessage());
+                        Log::error('Error sending email', [
+                            'error' => $e->getMessage(),
+                            'user_id' => $userId,
+                            'course_id' => $courseId
+                        ]);
                     }
-                });
+                } else {
+                    Log::info('Certificate already exists', [
+                        'certificate_id' => $existingCertificate->id
+                    ]);
+                }
+            } else {
+                Log::info('Progress not 100% yet', ['progress' => $progressPercent]);
             }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error in checkCourseCompletion', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => $userId,
+                'course_id' => $courseId
+            ]);
         }
     }
     public function checkQuizCompletion(Request $request)

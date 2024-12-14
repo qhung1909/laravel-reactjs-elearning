@@ -48,7 +48,7 @@ class OnlineMeetingController extends Controller
         }
 
         try {
-            $meetingUrl = 'http://localhost:5173/jitsitest/' . Str::uuid();
+            $meetingUrl = 'http://localhost:5173/lesson/meeting' . Str::uuid();
 
             $onlineMeeting = new OnlineMeeting([
                 'content_id' => $content_id,

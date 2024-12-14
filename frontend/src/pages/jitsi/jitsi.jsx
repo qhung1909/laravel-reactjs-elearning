@@ -329,7 +329,7 @@ const JitsiMeeting = () => {
       }
     }
 
-    const domain = '127.0.0.1:8443';
+    const domain = '192.168.1.163:8443';
     const options = {
       roomName: meeting_id,
       width: '100%',
