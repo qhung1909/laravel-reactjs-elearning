@@ -34,7 +34,7 @@ const ManageCertificate = () => {
     const [error, setError] = useState(null);
     const currentDate = new Date();
     const startOfCurrentMonth = startOfMonth(currentDate);
-    
+
     const getErrorMessage = (error) => {
         if (error?.includes('401')) {
             return 'Bạn chưa đăng nhập';
@@ -47,14 +47,14 @@ const ManageCertificate = () => {
 
 
     const newCertificatesThisMonth = certificates.filter(cert => {
-      const certDate = new Date(cert.issue_at);
-      return isWithinInterval(certDate, {
-        start: startOfCurrentMonth,
-        end: currentDate
-      });
+        const certDate = new Date(cert.issue_at);
+        return isWithinInterval(certDate, {
+            start: startOfCurrentMonth,
+            end: currentDate
+        });
     });
 
-    
+
     const fetchCertificates = async () => {
         try {
             setLoading(true);
@@ -213,7 +213,7 @@ const ManageCertificate = () => {
                                                     {certificate.course_title}
                                                 </TableCell>
                                                 <TableCell className="text-gray-600">
-                                                    {format(new Date(certificate.issue_at), "dd/MM/yyyy")}
+                                                    {format(new Date(certificate.issue_at), "dd/MM/yyyy hh:mm:ss a")}
                                                 </TableCell>
                                                 <TableCell className="text-right">
                                                     <Button

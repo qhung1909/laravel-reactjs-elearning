@@ -53,7 +53,7 @@ export const Courses = () => {
     const { categories } = useContext(CategoriesContext);
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search');
-    const [coursesPerPage] = useState(4);
+    const [coursesPerPage] = useState(6);
     const [loading, setLoading] = useState(false)
     const location = useLocation();
     const [hotInstructor, setHotInstructor] = useState([]);
@@ -93,7 +93,7 @@ export const Courses = () => {
         if (sortCriteria) {
             switch (sortCriteria) {
                 case 'New':
-                    filteredCourses.sort((a, b) => {
+                    filteredCourses.sort((b, a) => {
                         const dateA = new Date(a.created_at || 0);
                         const dateB = new Date(b.created_at || 0);
                         return dateB - dateA;

@@ -207,7 +207,12 @@ export const Lesson = () => {
                 }
             });
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
-                setContentLesson(res.data.data.filter(content => content.course_id === courseId));
+                setContentLesson(
+                    res.data.data.filter(content =>
+                        content.course_id === courseId &&
+                        content.is_online_meeting === 0
+                    )
+                );
             } else {
                 console.error("Dữ liệu không phải là mảng:", res.data);
             }
@@ -328,6 +333,15 @@ export const Lesson = () => {
                 params: { content_id: contentId }
             });
 
+            // Cập nhật quizStatus
+            setQuizStatus(prev => ({
+                ...prev,
+                [contentId]: {
+                    hasQuiz: response.data.has_quiz,
+                    isCompleted: response.data.quiz_completed
+                }
+            }));
+
             return {
                 hasQuiz: response.data.has_quiz,
                 quizCompleted: response.data.quiz_completed
@@ -335,6 +349,14 @@ export const Lesson = () => {
         } catch (error) {
             console.error("Lỗi kiểm tra quiz:", error);
             return { hasQuiz: false, quizCompleted: false };
+        }
+    };
+    const handleQuizComplete = async (contentId) => {
+        try {
+            await fetchProgress();
+            await checkQuizCompletion(contentId);
+        } catch (error) {
+            console.error("Lỗi khi cập nhật trạng thái quiz:", error);
         }
     };
     // Cập nhật progress lên server
@@ -383,13 +405,147 @@ export const Lesson = () => {
     };
     // Xử lí video
     const handleVideoComplete = async (contentId, index, titleContentId) => {
+        // Chỉ xử lý nếu video này chưa được đánh dấu là đã hoàn thành
         if (!videoProgress[titleContentId]) {
             try {
+                // Lấy tất cả video và document trong section hiện tại
+                const allVideosInSection = titleContent[contentId]?.filter(item => item.video_link) || [];
+                const allDocumentsInSection = titleContent[contentId]?.filter(item => item.document_link) || [];
+
+                // Cập nhật trạng thái local cho video hiện tại
+                setVideoProgress(prev => ({
+                    ...prev,
+                    [titleContentId]: true
+                }));
+
+                // Cập nhật danh sách video đã hoàn thành trong content
+                setCompletedVideosInContent(prev => ({
+                    ...prev,
+                    [contentId]: {
+                        ...(prev[contentId] || {}),
+                        [titleContentId]: true
+                    }
+                }));
+
+                // Kiểm tra tất cả video đã hoàn thành chưa
+                const updatedCompletedVideos = {
+                    ...(completedVideosInContent[contentId] || {}),
+                    [titleContentId]: true
+                };
+
+                const allVideosCompleted = allVideosInSection.every(video =>
+                    updatedCompletedVideos[video.title_content_id]
+                );
+
+                // Kiểm tra document completion
+                const hasDocument = allDocumentsInSection.length > 0;
+                let allDocumentsCompleted = false;
+
+                if (hasDocument) {
+                    allDocumentsCompleted = allDocumentsInSection.every(doc =>
+                        completedDocumentsInContent[contentId]?.[doc.title_content_id]
+                    );
+                }
+
+                // Nếu tất cả video đã hoàn thành VÀ (không có document HOẶC đã hoàn thành tất cả document)
+                if (allVideosCompleted && (hasDocument ? allDocumentsCompleted : true)) {
+                    const token = localStorage.getItem("access_token");
+
+                    // Gọi API cập nhật video
+                    await axios.post(
+                        `${API_URL}/progress/complete-video`,
+                        {
+                            content_id: contentId,
+                            course_id: lesson.course_id,
+                        },
+                        {
+                            headers: {
+                                "x-api-secret": `${API_KEY}`,
+                                Authorization: `Bearer ${token}`,
+                            },
+                        }
+                    );
+
+                    setVideoCompleted(prev => ({
+                        ...prev,
+                        [contentId]: true
+                    }));
+
+                    // Nếu có document và tất cả đã hoàn thành, gọi API cập nhật document
+                    if (hasDocument && allDocumentsCompleted && !documentCompleted[contentId]) {
+                        await axios.post(
+                            `${API_URL}/progress/complete-document`,
+                            {
+                                content_id: contentId,
+                                course_id: lesson.course_id,
+                            },
+                            {
+                                headers: {
+                                    "x-api-secret": `${API_KEY}`,
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            }
+                        );
+
+                        setDocumentCompleted(prev => ({
+                            ...prev,
+                            [contentId]: true
+                        }));
+                    }
+
+                    // Cập nhật tiến độ tổng thể
+                    await updateProgress(contentId);
+                    await fetchProgress();
+                }
+
+            } catch (error) {
+                console.error("Lỗi khi cập nhật video progress:", error);
+            }
+        }
+    };
+    // Xử lí document
+    const handleDocumentClick = async (contentId, titleContentId) => {
+        try {
+            // Cập nhật trạng thái local cho document hiện tại
+            setCompletedDocumentsInContent(prev => ({
+                ...prev,
+                [contentId]: {
+                    ...(prev[contentId] || {}),
+                    [titleContentId]: true
+                }
+            }));
+
+            // Lấy tất cả document và video trong section hiện tại
+            const allDocumentsInSection = titleContent[contentId]?.filter(item => item.document_link) || [];
+            const allVideosInSection = titleContent[contentId]?.filter(item => item.video_link) || [];
+
+            // Kiểm tra tất cả document đã hoàn thành chưa
+            const updatedCompletedDocuments = {
+                ...(completedDocumentsInContent[contentId] || {}),
+                [titleContentId]: true
+            };
+
+            const allDocumentsCompleted = allDocumentsInSection.every(doc =>
+                updatedCompletedDocuments[doc.title_content_id]
+            );
+
+            // Kiểm tra video completion
+            const hasVideo = allVideosInSection.length > 0;
+            let allVideosCompleted = false;
+
+            if (hasVideo) {
+                allVideosCompleted = allVideosInSection.every(video =>
+                    completedVideosInContent[contentId]?.[video.title_content_id]
+                );
+            }
+
+            // Nếu không có video hoặc đã xem hết video VÀ đã hoàn thành tất cả document
+            if ((hasVideo ? allVideosCompleted : true) && allDocumentsCompleted) {
                 const token = localStorage.getItem("access_token");
 
-                // Call API update video completion
+                // Gọi API cập nhật document
                 await axios.post(
-                    `${API_URL}/progress/complete-video`,
+                    `${API_URL}/progress/complete-document`,
                     {
                         content_id: contentId,
                         course_id: lesson.course_id,
@@ -402,104 +558,42 @@ export const Lesson = () => {
                     }
                 );
 
-                // Update UI for current video progress
-                setVideoProgress(prev => ({
-                    ...prev,
-                    [titleContentId]: true
-                }));
-
-                // Update completed videos list in content
-                setCompletedVideosInContent(prev => {
-                    const updatedVideos = {
-                        ...prev,
-                        [contentId]: {
-                            ...(prev[contentId] || {}),
-                            [titleContentId]: true
-                        }
-                    };
-                    return updatedVideos;
-                });
-
-                // Check if all videos in section are watched
-                const allVideosInSection = titleContent[contentId] || [];
-                const allVideosWatched = allVideosInSection.every(video =>
-                    completedVideosInContent[contentId]?.[video.title_content_id] ||
-                    video.title_content_id === titleContentId
-                );
-
-                if (allVideosWatched) {
-                    // Kiểm tra document và update progress
-                    const hasDocument = titleContent[contentId]?.some(item => item.document_link);
-                    const isDocumentCompleted = !hasDocument || documentCompleted[contentId];
-
-                    if (isDocumentCompleted) {
-                        await updateProgress(contentId);
-                        await fetchProgress();
-                    }
-                }
-
-            } catch (error) {
-                console.error("Lỗi khi cập nhật video progress:", error);
-                toast.error("Có lỗi xảy ra khi cập nhật tiến độ video");
-            }
-        }
-    };
-    // Xử lí document
-    const handleDocumentClick = async (contentId, titleContentId) => {
-        const token = localStorage.getItem("access_token");
-        try {
-            await axios.post(
-                `${API_URL}/progress/complete-document`,
-                {
-                    content_id: contentId,
-                    course_id: lesson.course_id,
-                },
-                {
-                    headers: {
-                        "x-api-secret": `${API_KEY}`,
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            // Cập nhật trạng thái cho document cụ thể
-            setCompletedDocumentsInContent(prev => ({
-                ...prev,
-                [contentId]: {
-                    ...(prev[contentId] || {}),
-                    [titleContentId]: true
-                }
-            }));
-
-            // Kiểm tra xem tất cả document trong content đã hoàn thành chưa
-            const allDocumentsInSection = titleContent[contentId]?.filter(item => item.document_link) || [];
-            const allDocumentsCompleted = allDocumentsInSection.every(doc =>
-                completedDocumentsInContent[contentId]?.[doc.title_content_id] ||
-                doc.title_content_id === titleContentId
-            );
-
-            // Chỉ set documentCompleted khi tất cả document đã hoàn thành
-            if (allDocumentsCompleted) {
+                // Cập nhật state document completed
                 setDocumentCompleted(prev => ({
                     ...prev,
                     [contentId]: true
                 }));
 
-                // Kiểm tra video completion để update progress
-                const hasVideo = titleContent[contentId]?.some(item => item.video_link);
-                const isVideoCompleted = !hasVideo || videoCompleted[contentId];
+                // Nếu có video và tất cả đã hoàn thành, gọi API cập nhật video
+                if (hasVideo && allVideosCompleted && !videoCompleted[contentId]) {
+                    await axios.post(
+                        `${API_URL}/progress/complete-video`,
+                        {
+                            content_id: contentId,
+                            course_id: lesson.course_id,
+                        },
+                        {
+                            headers: {
+                                "x-api-secret": `${API_KEY}`,
+                                Authorization: `Bearer ${token}`,
+                            },
+                        }
+                    );
 
-                if (isVideoCompleted) {
-                    await updateProgress(contentId);
+                    setVideoCompleted(prev => ({
+                        ...prev,
+                        [contentId]: true
+                    }));
                 }
+
+                // Cập nhật tiến độ tổng thể
+                await updateProgress(contentId);
+                await fetchProgress();
             }
 
-            // Cập nhật giao diện
         } catch (error) {
             console.error("Lỗi khi cập nhật trạng thái document:", error);
         }
-        await fetchProgress();
-
     };
     // Xử lý progress của video
     const handleProgress = (progress, titleContentId, index, contentId) => {
@@ -534,26 +628,21 @@ export const Lesson = () => {
             const updatedCompletedVideosInContent = {};
             const updatedCompletedDocumentsInContent = {};
 
-
             progressData.forEach((progress) => {
                 // Xử lý video đã hoàn thành
                 if (progress.video_completed === 1) {
                     if (titleContent[progress.content_id]) {
-                        // Cập nhật trạng thái cho từng video trong content
                         titleContent[progress.content_id].forEach(title => {
                             updatedVideoProgress[title.title_content_id] = true;
-
-                            // Cập nhật completedVideosInContent
                             if (!updatedCompletedVideosInContent[progress.content_id]) {
                                 updatedCompletedVideosInContent[progress.content_id] = {};
                             }
                             updatedCompletedVideosInContent[progress.content_id][title.title_content_id] = true;
                         });
-
-                        // Đánh dấu toàn bộ content đã xem video
                         updatedVideoCompleted[progress.content_id] = true;
                     }
                 }
+
                 if (progress.document_completed === 1) {
                     if (titleContent[progress.content_id]) {
                         titleContent[progress.content_id]
@@ -581,6 +670,13 @@ export const Lesson = () => {
             setDocumentCompleted(updatedDocumentCompleted);
             setCompletedVideosInContent(updatedCompletedVideosInContent);
             setCompletedDocumentsInContent(updatedCompletedDocumentsInContent);
+
+            // Check quiz status cho mỗi content có quiz
+            contentLesson.forEach(async (content) => {
+                if (content.quiz_id) {
+                    await checkQuizCompletion(content.content_id);
+                }
+            });
         }
     }, [progressData, titleContent]);
     // Fetch progress
@@ -1063,40 +1159,81 @@ export const Lesson = () => {
 
                                             {/* Document Link with Enhanced Icon */}
                                             {currentBodyContent.document_link && (
-                                                <div className="mt-5">
+                                                <div className="mt-6">
                                                     <a
                                                         href={currentBodyContent.document_link}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         onClick={() => handleDocumentClick(activeItem.contentId, currentBodyContent.title_content_id)}
-                                                        className="group inline-flex items-center gap-2.5 px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-50/50 hover:from-blue-100 hover:to-blue-50
-              border border-blue-100 rounded-lg transition-all duration-300"
+                                                        className="group block p-4 bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100
+                    border-2 border-blue-200 rounded-xl transition-all duration-300 hover:shadow-lg"
                                                     >
-                                                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white shadow-sm group-hover:shadow transition-shadow duration-300">
-                                                            <svg
-                                                                className="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform duration-300"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth={2}
-                                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                                />
-                                                            </svg>
-                                                        </span>
-                                                        <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                                                            Tài liệu đính kèm
-                                                        </span>
-                                                        <span className="text-gray-400 group-hover:translate-x-0.5 transition-transform duration-300">
-                                                            →
-                                                        </span>
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-4">
+                                                                {/* Icon container with pulsing effect */}
+                                                                <div className="relative">
+                                                                    <div className="absolute -inset-0.5 bg-blue-500/20 rounded-lg blur-sm group-hover:blur-md transition-all duration-300"></div>
+                                                                    <span className="relative flex items-center justify-center w-12 h-12 rounded-lg bg-white shadow-md group-hover:shadow-lg transition-all duration-300">
+                                                                        <svg
+                                                                            className="w-6 h-6 text-blue-500 group-hover:scale-110 transition-transform duration-300"
+                                                                            fill="none"
+                                                                            stroke="currentColor"
+                                                                            viewBox="0 0 24 24"
+                                                                        >
+                                                                            <path
+                                                                                strokeLinecap="round"
+                                                                                strokeLinejoin="round"
+                                                                                strokeWidth={2}
+                                                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                                            />
+                                                                        </svg>
+                                                                    </span>
+                                                                </div>
+
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-base font-semibold text-gray-900 group-hover:text-blue-700 transition-colors duration-300">
+                                                                        Tài liệu đính kèm
+                                                                    </span>
+                                                                    <span className="text-sm text-gray-600 group-hover:text-gray-700">
+                                                                        Nhấp vào để xem và hoàn thành bài học
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Arrow with animation */}
+                                                            <div className="flex items-center">
+                                                                <span className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-300">
+                                                                    <svg
+                                                                        className="w-5 h-5 text-blue-600 group-hover:translate-x-0.5 transition-transform duration-300"
+                                                                        fill="none"
+                                                                        stroke="currentColor"
+                                                                        viewBox="0 0 24 24"
+                                                                    >
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            strokeWidth={2}
+                                                                            d="M9 5l7 7-7 7"
+                                                                        />
+                                                                    </svg>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Progress indicator */}
+                                                        <div className="mt-3 h-1 bg-gray-200 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-blue-500 rounded-full transition-all duration-300"
+                                                                style={{
+                                                                    width: completedDocumentsInContent[activeItem.contentId]?.[currentBodyContent.title_content_id] ? '100%' : '0%',
+                                                                }}
+                                                            ></div>
+                                                        </div>
                                                     </a>
                                                 </div>
                                             )}
                                         </div>
+
                                     </div>
                                 ) : (
                                     /* Loading State with Icon */
@@ -1160,9 +1297,9 @@ export const Lesson = () => {
                                         <div className="flex-1 overflow-y-auto pr-2">
                                             <Quizzes
                                                 quiz_id={currentQuizId}
+                                                contentId={activeItem.contentId}
                                                 onClose={() => setShowQuiz(false)}
                                                 onComplete={async () => {
-                                                    await fetchProgress();
                                                     setShowQuiz(false);
 
                                                     setQuizStatus(prev => ({

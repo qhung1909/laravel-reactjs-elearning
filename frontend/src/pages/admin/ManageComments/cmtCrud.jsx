@@ -178,12 +178,44 @@ export const CmtCrud = () => {
     const indexOfFirstComment = indexOfLastComment - commentsPerPage;
     const currentComments = sortedComments.slice(indexOfFirstComment, indexOfLastComment);
 
-    // Change page
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
     const totalPages = Math.ceil(sortedComments.length / commentsPerPage);
 
+    const getPageNumbers = () => {
+        const pageNumbers = [];
+        const totalPages = Math.ceil(sortedComments.length / commentsPerPage);
+
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) {
+                pageNumbers.push(i);
+            }
+        } else {
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 3; i++) {
+                    pageNumbers.push(i);
+                }
+                pageNumbers.push('...');
+                pageNumbers.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pageNumbers.push(1);
+                pageNumbers.push('...');
+                for (let i = totalPages - 2; i <= totalPages; i++) {
+                    pageNumbers.push(i);
+                }
+            } else {
+                pageNumbers.push(1);
+                pageNumbers.push('...');
+                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    pageNumbers.push(i);
+                }
+                pageNumbers.push('...');
+                pageNumbers.push(totalPages);
+            }
+        }
+        return pageNumbers;
+    };
     return (
         <SidebarProvider>
             <SideBarUI />
@@ -375,33 +407,61 @@ export const CmtCrud = () => {
                     </div>
 
                     {!loading && totalPages > 1 && (
-                        <div className="mt-4 flex justify-center">
-                            <Pagination>
-                                <PaginationContent>
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            onClick={() => setCurrentPage(curr => Math.max(1, curr - 1))}
-                                            disabled={currentPage === 1}
-                                        />
-                                    </PaginationItem>
-                                    {[...Array(totalPages)].map((_, i) => (
-                                        <PaginationItem key={i}>
-                                            <PaginationLink
-                                                onClick={() => setCurrentPage(i + 1)}
-                                                isActive={currentPage === i + 1}
+                        <div className="flex items-center justify-between p-4 border-t">
+                            <div className="text-sm text-gray-500">
+                                Hiển thị {currentComments.length} trên tổng số {sortedComments.length} bình luận
+                            </div>
+                            <div className="flex items-center gap-6">
+                                <Pagination className="flex-1">
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <Button
+                                                variant="ghost"
+                                                className="gap-1 pl-2.5"
+                                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                                disabled={currentPage === 1}
                                             >
-                                                {i + 1}
-                                            </PaginationLink>
+                                                <span>Trước</span>
+                                            </Button>
                                         </PaginationItem>
-                                    ))}
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            onClick={() => setCurrentPage(curr => Math.min(totalPages, curr + 1))}
-                                            disabled={currentPage === totalPages}
-                                        />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
+
+                                        <div className="flex items-center gap-1 mx-2">
+                                            {getPageNumbers().map((number, index) => (
+                                                <PaginationItem key={index}>
+                                                    {number === '...' ? (
+                                                        <span className="px-2 text-gray-400">...</span>
+                                                    ) : (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => setCurrentPage(number)}
+                                                            className={`h-8 w-8 ${currentPage === number
+                                                                ? "bg-yellow-100 text-yellow-900 hover:bg-yellow-200 hover:text-yellow-900"
+                                                                : "text-gray-600 hover:bg-gray-100"
+                                                                }`}
+                                                        >
+                                                            {number}
+                                                        </Button>
+                                                    )}
+                                                </PaginationItem>
+                                            ))}
+                                        </div>
+
+                                        <PaginationItem>
+                                            <Button
+                                                variant="ghost"
+                                                className="gap-1 pr-2.5"
+                                                onClick={() => setCurrentPage(prev =>
+                                                    Math.min(Math.ceil(sortedComments.length / commentsPerPage), prev + 1)
+                                                )}
+                                                disabled={currentPage === Math.ceil(sortedComments.length / commentsPerPage)}
+                                            >
+                                                <span>Tiếp</span>
+                                            </Button>
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            </div>
                         </div>
                     )}
                 </div>
