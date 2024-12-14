@@ -399,7 +399,12 @@ class TeacherController extends Controller
             }
 
             $content = Content::where('content_id', $contentId)
-                ->where('status', 'draft')
+            ->where(function($query) {
+                $query->where('status', 'draft')
+                      ->orWhere('status', 'published')
+                      ->orWhere('status', 'hide')
+                      ->orWhere('status', 'revision_requested');
+            })
                 ->first();
 
             if (!$content) {
