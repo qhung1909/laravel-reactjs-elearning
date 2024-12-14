@@ -26,6 +26,8 @@ export const Quizzes = ({ quiz_id, contentId, onComplete, onClose }) => {
     const [quizResults, setQuizResults] = useState(null);
     const [countdown, setCountdown] = useState(30);
     const [showCountdown, setShowCountdown] = useState(false);
+    //clear countdown khi reset quiz
+    const [countdownTimer, setCountdownTimer] = useState(null);
     const { slug } = useParams();
     const formatTime = (time) => {
         const minutes = Math.floor(time / 60);
@@ -263,12 +265,13 @@ export const Quizzes = ({ quiz_id, contentId, onComplete, onClose }) => {
             setShowCountdown(true);
             setCountdown(timeoutDuration / 1000);
             toast.success(`Quiz sẽ tự động đóng sau ${timeoutDuration / 1000} giây để bạn xem lại kết quả`, {
-                duration: 10000,
+                duration: 5000,
             });
-            setTimeout(async () => {
+            const timer = setTimeout(async () => {
                 await fetchProgress();
                 toast.success("Đã lưu kết quả của bạn");
             }, timeoutDuration);
+            setCountdownTimer(timer);
         } catch (error) {
             console.error("Lỗi khi nộp bài:", error);
             toast.error("Có lỗi xảy ra khi nộp bài!");
@@ -277,6 +280,17 @@ export const Quizzes = ({ quiz_id, contentId, onComplete, onClose }) => {
         }
     };
     const handleResetQuiz = () => {
+        // Clear countdown timer nếu tồn tại
+        if (countdownTimer) {
+            clearTimeout(countdownTimer);
+            setCountdownTimer(null);
+        }
+
+        // Reset countdown UI
+        setShowCountdown(false);
+        setCountdown(0);
+
+        // Reset các state khác
         setScore(null);
         setAnswers({});
         setQuizCompleted(false);
@@ -286,7 +300,6 @@ export const Quizzes = ({ quiz_id, contentId, onComplete, onClose }) => {
 
         toast.success("Quiz đã được tải lại!");
     };
-
 
     const handleAnswerChange = (questionId, selectedOption, questionType) => {
         if (quizCompleted) return;
