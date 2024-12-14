@@ -10,7 +10,7 @@ import { toast, Toaster } from "react-hot-toast";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import { format } from "date-fns";
-import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy, Gamepad2, Gift, CircleCheck, ChartBar, BarChart, School, Book, CalendarDays } from 'lucide-react';
+import { Play, BookOpen, Clock, Video, ArrowRight, Lock, PlayCircle, BookOpenCheck, Loader2, CheckCircle, XCircle, MessageCircle, MessageSquare, ChevronLeft, Bell, X, Menu, FileCheck, GraduationCap, Trophy, Gamepad2, Gift, CircleCheck, ChartBar, BarChart, School, Book, CalendarDays, CalendarArrowDown, VideoIcon } from 'lucide-react';
 import Quizzes from "../quizzes/quizzes";
 import { UserContext } from "../context/usercontext";
 import { Badge } from "@/components/ui/badge";
@@ -209,8 +209,7 @@ export const Lesson = () => {
             if (res.data && res.data.success && Array.isArray(res.data.data)) {
                 setContentLesson(
                     res.data.data.filter(content =>
-                        content.course_id === courseId &&
-                        content.is_online_meeting === 0
+                        content.course_id === courseId
                     )
                 );
             } else {
@@ -1499,51 +1498,66 @@ export const Lesson = () => {
                                                         <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01]">
                                                             <AccordionTrigger className="w-full hover:no-underline">
                                                                 <div className="flex items-center w-full p-4 hover:bg-gray-50 transition-colors">
-                                                                    <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center text-purple-600 font-medium mr-4 shadow-sm">
+                                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-medium mr-4 shadow-sm
+                                    ${content.is_online_meeting === 1
+                                                                            ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-600'
+                                                                            : 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-600'
+                                                                        }`}>
                                                                         {index + 1}
                                                                     </div>
                                                                     <div className="flex-1 flex items-start justify-between min-w-0">
                                                                         <div className="space-y-1">
                                                                             <h3 className="font-medium text-gray-800 text-sm truncate flex items-center gap-2">
                                                                                 <span className="flex-1 truncate">{content.name_content}</span>
-                                                                                <div className="flex-shrink-0">
-                                                                                    {completedLessons.has(content.content_id) ? (
-                                                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-green-600">
-                                                                                            <CheckCircle className="w-3 h-3" />
-                                                                                        </span>
-                                                                                    ) : (
-                                                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-red-500">
-                                                                                            <XCircle className="w-3 h-3" />
-                                                                                        </span>
-                                                                                    )}
-                                                                                </div>
+                                                                                {content.is_online_meeting === 1 ? (
+                                                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-blue-600">
+                                                                                        <VideoIcon className="w-3 h-3 mr-1" />
+                                                                                        Học trực tuyến
+                                                                                    </span>
+                                                                                ) : (
+                                                                                    <div className="flex-shrink-0">
+                                                                                        {completedLessons.has(content.content_id) ? (
+                                                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-green-600">
+                                                                                                <CheckCircle className="w-3 h-3" />
+                                                                                            </span>
+                                                                                        ) : (
+                                                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-red-500">
+                                                                                                <XCircle className="w-3 h-3" />
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                )}
                                                                             </h3>
                                                                             <div className="flex items-center gap-2">
-                                                                                <span className="text-xs text-gray-500 flex items-center">
-                                                                                    <Clock className="w-3 h-3 mr-1" />
-                                                                                    {formattedTime || "0:00"}
-                                                                                </span>
-
-                                                                                <span className="h-4 w-[1px] bg-gray-200"></span>
-
-                                                                                <span className="text-xs text-purple-600 flex items-center">
-                                                                                    <BookOpen className="w-3 h-3 mr-1" />
-                                                                                    {Array.isArray(titleContent[content.content_id]) ? titleContent[content.content_id].length : 0} phần
-                                                                                </span>
-
-                                                                                {content.quiz_id != null && content.quiz_id !== 0 && (
+                                                                                {!content.is_online_meeting && (
                                                                                     <>
+                                                                                        <span className="text-xs text-gray-500 flex items-center">
+                                                                                            <Clock className="w-3 h-3 mr-1" />
+                                                                                            {formattedTime || "0:00"}
+                                                                                        </span>
+
                                                                                         <span className="h-4 w-[1px] bg-gray-200"></span>
-                                                                                        <button
-                                                                                            onClick={(e) => {
-                                                                                                e.stopPropagation();
-                                                                                                handleShowQuiz(content.content_id);
-                                                                                            }}
-                                                                                            className="flex items-center gap-1 px-2 py-1 text-purple-600 font-medium text-xs rounded-md hover:bg-purple-50 transition-colors"
-                                                                                        >
-                                                                                            <span className="text-xs">Bài tập</span>
-                                                                                            <ArrowRight className="w-3 h-3 mt-0.5" />
-                                                                                        </button>
+
+                                                                                        <span className="text-xs text-purple-600 flex items-center">
+                                                                                            <BookOpen className="w-3 h-3 mr-1" />
+                                                                                            {Array.isArray(titleContent[content.content_id]) ? titleContent[content.content_id].length : 0} phần
+                                                                                        </span>
+
+                                                                                        {content.quiz_id != null && content.quiz_id !== 0 && (
+                                                                                            <>
+                                                                                                <span className="h-4 w-[1px] bg-gray-200"></span>
+                                                                                                <button
+                                                                                                    onClick={(e) => {
+                                                                                                        e.stopPropagation();
+                                                                                                        handleShowQuiz(content.content_id);
+                                                                                                    }}
+                                                                                                    className="flex items-center gap-1 px-2 py-1 text-purple-600 font-medium text-xs rounded-md hover:bg-purple-50 transition-colors"
+                                                                                                >
+                                                                                                    <span className="text-xs">Bài tập</span>
+                                                                                                    <ArrowRight className="w-3 h-3 mt-0.5" />
+                                                                                                </button>
+                                                                                            </>
+                                                                                        )}
                                                                                     </>
                                                                                 )}
                                                                             </div>
@@ -1554,7 +1568,16 @@ export const Lesson = () => {
 
                                                             <AccordionContent>
                                                                 <div className="px-4 pb-4">
-                                                                    {Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
+                                                                    {content.is_online_meeting === 1 ? (
+                                                                        <div className="flex flex-col items-center justify-center py-8 space-y-3 bg-blue-50 rounded-lg mx-4">
+                                                                            <div className="text-center space-y-1">
+                                                                                <h4 className="font-medium text-blue-700">Buổi học trực tuyến</h4>
+                                                                                <p className="text-sm text-blue-600">
+                                                                                    Kiểm tra lịch học ở trang cá nhân
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                    ) : Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
                                                                         titleContent[content.content_id].map((item, i) => {
                                                                             const isWatched = videoProgress[item.title_content_id];
                                                                             return (
@@ -1570,7 +1593,6 @@ export const Lesson = () => {
                                                                                         <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0 mt-1 group-hover:bg-purple-200">
                                                                                             {i + 1}
                                                                                         </span>
-
                                                                                     </div>
                                                                                     <div className="flex-1 min-w-0">
                                                                                         <div className="flex items-center justify-between gap-2">
@@ -1579,7 +1601,6 @@ export const Lesson = () => {
                                                                                             </p>
                                                                                         </div>
                                                                                         <div className="flex items-center gap-2 mt-1">
-                                                                                            {/* Trạng thái video */}
                                                                                             {item.video_link && (
                                                                                                 <>
                                                                                                     <span className="text-xs text-gray-400 flex items-center">
@@ -1588,16 +1609,12 @@ export const Lesson = () => {
                                                                                                             ? `${Math.floor(videoDurations[item.title_content_id] / 60)}:${('0' + Math.floor(videoDurations[item.title_content_id] % 60)).slice(-2)}`
                                                                                                             : "0:00"}
                                                                                                     </span>
-
-                                                                                                    {/* Trạng thái video */}
                                                                                                     <span className={`text-xs flex items-center ${completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'text-green-500' : 'text-gray-400'}`}>
                                                                                                         <Video className="w-3 h-3 mr-1" />
                                                                                                         {completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'Đã xem' : 'Chưa xem'}
                                                                                                     </span>
                                                                                                 </>
                                                                                             )}
-
-                                                                                            {/* Chỉ hiển thị trạng thái document nếu item có document_link */}
                                                                                             {item.document_link && (
                                                                                                 <>
                                                                                                     {item.video_link && <span className="h-4 w-[1px] bg-gray-200"></span>}
@@ -1609,7 +1626,6 @@ export const Lesson = () => {
                                                                                                     </span>
                                                                                                 </>
                                                                                             )}
-
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
