@@ -415,7 +415,6 @@ class AdminController extends Controller
             ],
         ]);
     
-        // Chuyển đổi sang định dạng Y-m-d để lưu database
         $coupon = Coupon::create([
             'name_coupon' => $request->name_coupon,
             'discount_price' => $request->discount_price,
@@ -943,10 +942,6 @@ class AdminController extends Controller
         }
     }
 
-
-
-
-
     public function getTeacherRevenue(Request $request)
     {
         try {
@@ -1108,10 +1103,8 @@ class AdminController extends Controller
     public function toggleCourseStatus(Request $request, $courseId)
     {
         try {
-            // Tìm khóa học chỉ dựa trên course_id
             $course = Course::where('course_id', $courseId)->first();
 
-            // Kiểm tra xem khóa học có tồn tại hay không
             if (!$course) {
                 return response()->json([
                     'status' => false,
@@ -1119,12 +1112,10 @@ class AdminController extends Controller
                 ], 404);
             }
 
-            // Thay đổi trạng thái khóa học
             $newStatus = $course->status === 'published' ? 'hide' : 'published';
 
-            // Kiểm tra điều kiện nếu cần xuất bản khóa học
             if ($newStatus === 'published') {
-                $isValid = true; // Bạn có thể thêm logic kiểm tra nếu cần
+                $isValid = true; 
 
                 if (!$isValid) {
                     return response()->json([

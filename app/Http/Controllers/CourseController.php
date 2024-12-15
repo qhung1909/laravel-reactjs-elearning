@@ -82,24 +82,20 @@ class CourseController extends Controller
     {
         Log::info('Fetching courses from database directly.');
     
-        $userId = auth()->id(); // Lấy ID của người dùng hiện tại (nếu có)
+        $userId = auth()->id(); 
     
-        // Truy vấn trực tiếp từ cơ sở dữ liệu
         $courses = $this->course->where(function ($query) use ($userId) {
-            // Điều kiện 1: Khóa học phải là "published" (công khai)
             $query->where('status', 'published');
     
-            // Điều kiện 2: Nếu là trạng thái "need_schedule", phải thỏa điều kiện user đăng ký
             if ($userId) {
                 $query->orWhere(function ($q) use ($userId) {
                     $q->where('status', 'need_schedule')
                       ->whereExists(function ($subquery) use ($userId) {
-                          // Kiểm tra trong bảng user_courses
                           $subquery->select('user_courses.course_id')
                                    ->from('user_courses')
                                    ->whereColumn('user_courses.course_id', 'courses.course_id')
                                    ->where('user_courses.user_id', $userId)
-                                   ->whereNotNull('user_courses.order_id'); // Đảm bảo đã có thanh toán
+                                   ->whereNotNull('user_courses.order_id'); 
                       });
                 });
             }
@@ -109,7 +105,6 @@ class CourseController extends Controller
     
         Log::info('Courses fetched successfully:', ['count' => $courses->count()]);
     
-        // Trả về dữ liệu JSON
         return response()->json($courses);
     }
     
@@ -198,15 +193,13 @@ class CourseController extends Controller
 
     public function show(Request $request, $slug)
     {
-        $userId = auth()->id(); // Lấy ID của người dùng hiện tại (nếu có)
+        $userId = auth()->id();
     
         $course = Cache::remember("course_{$slug}_user_{$userId}", 90, function () use ($slug, $userId) {
             return $this->course->where('slug', $slug)
                 ->where(function ($query) use ($userId) {
-                    // Điều kiện 1: Khóa học phải là "published" (công khai)
                     $query->where('status', 'published');
     
-                    // Điều kiện 2: Nếu là "need_schedule", kiểm tra người dùng đã mua
                     if ($userId) {
                         $query->orWhere(function ($q) use ($userId) {
                             $q->where('status', 'need_schedule')
@@ -215,7 +208,7 @@ class CourseController extends Controller
                                            ->from('user_courses')
                                            ->whereColumn('user_courses.course_id', 'courses.course_id')
                                            ->where('user_courses.user_id', $userId)
-                                           ->whereNotNull('user_courses.order_id'); // Đảm bảo đã có thanh toán
+                                           ->whereNotNull('user_courses.order_id'); 
                               });
                         });
                     }
@@ -227,16 +220,14 @@ class CourseController extends Controller
             return response()->json(['error' => 'Khóa học không tìm thấy hoặc chưa được xuất bản'], 404);
         }
     
-        // Xử lý tăng lượt xem
         $ipAddress = $request->ip();
         $cacheKey = "course_view_{$slug}_{$ipAddress}";
     
         if (!Cache::has($cacheKey)) {
             $course->increment('views');
-            Cache::put($cacheKey, true, 86400); // Lưu trong 1 ngày
+            Cache::put($cacheKey, true, 86400); 
         }
     
-        // Lấy danh sách comments và định dạng lại
         $comments = $course->comments()
             ->orderBy('created_at', 'desc')
             ->get()
@@ -253,7 +244,6 @@ class CourseController extends Controller
                 ];
             });
     
-        // Chuẩn bị response
         $response = [
             "course_id" => $course->course_id,
             "course_category_id" => $course->course_category_id,

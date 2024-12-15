@@ -18,7 +18,7 @@ class CertificateController extends Controller
         }
 
         $userId = Auth::id();
-        $user = Auth::user(); // Lấy thông tin user hiện tại
+        $user = Auth::user(); 
 
         Log::info('User ID: ' . $userId);
         Log::info('Certificate ID: ' . $certificateId);
@@ -27,11 +27,9 @@ class CertificateController extends Controller
             ->where('user_id', $userId)
             ->first();
 
-        // Thêm log để xem query
         Log::info('Certificate Query: ' . $certificate);
 
         if (!$certificate) {
-            // Thay đổi message để rõ ràng hơn
             return response()->json([
                 'message' => 'Certificate not found or you do not have permission to view it',
                 'user_id' => $userId,
@@ -44,8 +42,8 @@ class CertificateController extends Controller
         $certificateDetails = [
             'certificate_id' => $certificate->certificate_id,
             'course_title' => $course ? $course->title : 'Unknown course',
-            'student_name' => $user->name, // Thêm tên user
-            'student_email' => $user->email, // Có thể thêm email nếu cần
+            'student_name' => $user->name, 
+            'student_email' => $user->email,
             'issue_at' => $certificate->issue_at,
             'created_at' => $certificate->created_at,
             'updated_at' => $certificate->updated_at,

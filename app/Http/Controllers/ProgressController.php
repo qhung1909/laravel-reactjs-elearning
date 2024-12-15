@@ -208,16 +208,13 @@ class ProgressController extends Controller
         $userId = $progress->user_id;
         $courseId = $progress->course_id;
 
-        // Cập nhật trạng thái complete
         $progress->update([
             'is_complete' => 1,
             'complete_at' => Carbon::now(),
         ]);
 
-        // Tính toán và cập nhật progress percent mới
         $this->calculateProgressPercent($userId, $courseId);
 
-        // Kiểm tra course completion và gửi mail nếu đã hoàn thành 100%
         $this->checkCourseCompletion($userId, $courseId);
     }
 
@@ -323,13 +320,11 @@ class ProgressController extends Controller
         ]);
     }
 
-    // Sửa lại hàm calculateProgressPercent
     private function calculateProgressPercent($userId, $courseId)
     {
         try {
             DB::beginTransaction();
 
-            // 1. Đếm tổng số content trong course (bao gồm cả online meeting)
             $totalContents = Content::where('course_id', $courseId)->count();
 
             if ($totalContents === 0) {
@@ -337,18 +332,15 @@ class ProgressController extends Controller
                 return 0;
             }
 
-            // 2. Lấy danh sách tất cả contents trong course
             $courseContents = Content::where('course_id', $courseId)
                 ->select('content_id', 'is_online_meeting')
                 ->get();
 
-            // 3. Lấy progress records hiện tại 
             $progressRecords = Progress::where('user_id', $userId)
                 ->where('course_id', $courseId)
                 ->where('is_complete', 1)
                 ->get();
 
-            // 4. Tính số content đã hoàn thành
             $completedContents = 0;
             foreach ($courseContents as $content) {
                 $progress = $progressRecords->firstWhere('content_id', $content->content_id);
@@ -357,11 +349,9 @@ class ProgressController extends Controller
                 }
             }
 
-            // 5. Tính phần trăm progress
             $progressPercent = ($completedContents / $totalContents) * 100;
             $progressPercent = round($progressPercent, 2);
 
-            // 6. Cập nhật progress cho tất cả records
             Progress::where('user_id', $userId)
                 ->where('course_id', $courseId)
                 ->update([
@@ -380,14 +370,12 @@ class ProgressController extends Controller
 
     private function getProgressPercent($userId, $courseId)
     {
-        // Lấy progress mới nhất từ DB
         $latestProgress = Progress::where('user_id', $userId)
             ->where('course_id', $courseId)
             ->orderBy('complete_update', 'desc')
             ->value('progress_percent');
 
         if ($latestProgress === null) {
-            // Nếu chưa có progress nào, tính toán mới
             return $this->calculateProgressPercent($userId, $courseId);
         }
 
@@ -399,7 +387,6 @@ class ProgressController extends Controller
         try {
             DB::beginTransaction();
 
-            // Lấy progress tổng từ DB
             $progressPercent = $this->getProgressPercent($userId, $courseId);
 
             Log::info('Checking course completion', [
@@ -408,11 +395,9 @@ class ProgressController extends Controller
                 'progress_percent' => $progressPercent
             ]);
 
-            // Chỉ cấp certificate và gửi mail khi progress = 100%
             if ($progressPercent >= 100) {
                 Log::info('Progress is 100%, checking certificate');
 
-                // Kiểm tra certificate tồn tại
                 $existingCertificate = Certificate::where([
                     'user_id' => $userId,
                     'course_id' => $courseId
@@ -421,7 +406,6 @@ class ProgressController extends Controller
                 if (!$existingCertificate) {
                     Log::info('No certificate found, creating new one');
 
-                    // Tạo certificate mới
                     $certificate = Certificate::create([
                         'user_id' => $userId,
                         'course_id' => $courseId,
@@ -430,7 +414,6 @@ class ProgressController extends Controller
 
                     Log::info('Certificate created', ['certificate_id' => $certificate->id]);
 
-                    // Lấy thông tin user và course
                     $user = User::find($userId);
                     $course = Course::find($courseId);
 
@@ -443,7 +426,6 @@ class ProgressController extends Controller
                         return;
                     }
 
-                    // Gửi email
                     try {
                         Mail::to($user->email)->send(new CourseCompletedMail($user, $course));
                         Log::info('Course completion email sent', [
