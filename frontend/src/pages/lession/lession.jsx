@@ -1640,13 +1640,13 @@ export const Lesson = () => {
                                                                                                     }`} />
                                                                                             </div>
                                                                                             <div className="flex-1 min-w-0">
-                                                                                                <p className={`text-sm font-medium mb-1 ${isFuture ? 'text-blue-900' :
+                                                                                                <p className={`text-xs font-medium mb-1 ${isFuture ? 'text-blue-900' :
                                                                                                     isPast ? 'text-gray-900' : 'text-green-900'
                                                                                                     }`}>
                                                                                                     {isFuture ? 'Sẽ bắt đầu vào' :
                                                                                                         isPast ? 'Đã kết thúc vào' : 'Đang diễn ra'}
                                                                                                 </p>
-                                                                                                <div className={`flex flex-col space-y-1 text-sm ${isFuture ? 'text-blue-700' :
+                                                                                                <div className={`flex flex-col space-y-1 text-xs ${isFuture ? 'text-blue-700' :
                                                                                                     isPast ? 'text-gray-700' : 'text-green-700'
                                                                                                     }`}>
                                                                                                     <div className="flex items-center">
@@ -1669,7 +1669,7 @@ export const Lesson = () => {
                                                                                                         }`} />
                                                                                                 </div>
                                                                                                 <div className="flex-1 min-w-0">
-                                                                                                    <p className={`text-sm font-medium ${isFuture ? 'text-blue-900' : 'text-green-900'
+                                                                                                    <p className={`text-xs font-medium ${isFuture ? 'text-blue-900' : 'text-green-900'
                                                                                                         }`}>
                                                                                                         Link phòng học
                                                                                                     </p>
@@ -1677,7 +1677,7 @@ export const Lesson = () => {
                                                                                                         href={meeting.meeting_url}
                                                                                                         target="_blank"
                                                                                                         rel="noopener noreferrer"
-                                                                                                        className={`inline-flex items-center px-4 py-2 mt-2 text-sm font-medium text-white rounded-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 ${isFuture ? 'bg-blue-600 focus:ring-blue-500' :
+                                                                                                        className={`inline-flex items-center px-4 py-2 mt-2 text-xs font-medium text-white rounded-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 ${isFuture ? 'bg-blue-600 focus:ring-blue-500' :
                                                                                                             'bg-green-600 focus:ring-green-500'
                                                                                                             }`}
                                                                                                     >
@@ -1695,7 +1695,7 @@ export const Lesson = () => {
                                                                                                     }`} />
                                                                                             </div>
                                                                                             <div className="flex-1 min-w-0">
-                                                                                                <p className={`text-sm font-medium ${isFuture ? 'text-blue-900' :
+                                                                                                <p className={`text-xs font-medium ${isFuture ? 'text-blue-900' :
                                                                                                     isPast ? 'text-gray-900' : 'text-green-900'
                                                                                                     }`}>
                                                                                                     Trạng thái
