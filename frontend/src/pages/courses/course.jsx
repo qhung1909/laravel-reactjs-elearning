@@ -405,7 +405,7 @@ export const Courses = () => {
                             <div className="flex items-center gap-2">
                                 <Badge className="bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 flex items-center gap-2 border border-amber-200 text-sm font-medium px-3 py-1.5 rounded-lg">
                                     <ShoppingCart size={16} />
-                                    <span>{item.is_buy} Học viên đã đăng ký</span>
+                                    <span>{item.is_buy} Học viên đã mua</span>
                                 </Badge>
                             </div>
 
