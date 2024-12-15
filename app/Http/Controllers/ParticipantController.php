@@ -451,7 +451,6 @@ class ParticipantController extends Controller
             $now = now();
 
             foreach ($userIds as $userId) {
-                // 1. Cập nhật bảng Participant trước
                 $participant = Participant::firstOrNew([
                     'meeting_id' => $meeting->meeting_id,
                     'user_id' => $userId,
@@ -461,30 +460,23 @@ class ParticipantController extends Controller
                 $participant->attendance_date = $now;
                 $participant->save();
 
-                // 2. Cập nhật Progress nếu có content_id
                 if ($meeting->content_id) {
-                    // Tìm hoặc tạo progress record mới
                     $progress = Progress::firstOrNew([
                         'user_id' => $userId,
                         'content_id' => $meeting->content_id,
                         'course_id' => $meeting->course_id,
                     ]);
 
-                    // Đánh dấu content này đã hoàn thành
                     $progress->is_complete = 1;
                     $progress->complete_at = $now;
                     $progress->complete_update = $now;
 
-                    // Tính toán progress percent mới trước khi save
                     $progressPercent = $this->calculateProgressPercent($userId, $meeting->course_id);
 
-                    // Cập nhật progress_percent mới
                     $progress->progress_percent = $progressPercent;
 
-                    // Lưu progress
                     $progress->save();
 
-                    // Kiểm tra nếu đã hoàn thành 100% thì check completion
                     if ($progressPercent >= 100) {
                         $this->checkCourseCompletion($userId, $meeting->course_id);
                     }
@@ -509,14 +501,12 @@ class ParticipantController extends Controller
     private function checkCourseCompletion($userId, $courseId)
     {
         try {
-            // Kiểm tra certificate đã tồn tại chưa
             $existingCertificate = Certificate::where([
                 'user_id' => $userId,
                 'course_id' => $courseId
             ])->first();
 
             if (!$existingCertificate) {
-                // Tạo certificate mới
                 DB::transaction(function () use ($userId, $courseId) {
                     Certificate::create([
                         'user_id' => $userId,
@@ -549,7 +539,6 @@ class ParticipantController extends Controller
         try {
             DB::beginTransaction();
 
-            // 1. Đếm tổng số content trong course (bao gồm cả online meeting)
             $totalContents = Content::where('course_id', $courseId)->count();
 
             if ($totalContents === 0) {
@@ -557,18 +546,15 @@ class ParticipantController extends Controller
                 return 0;
             }
 
-            // 2. Lấy danh sách tất cả contents trong course
             $courseContents = Content::where('course_id', $courseId)
                 ->select('content_id', 'is_online_meeting')
                 ->get();
 
-            // 3. Lấy progress records hiện tại 
             $progressRecords = Progress::where('user_id', $userId)
                 ->where('course_id', $courseId)
                 ->where('is_complete', 1)
                 ->get();
 
-            // 4. Tính số content đã hoàn thành
             $completedContents = 0;
             foreach ($courseContents as $content) {
                 $progress = $progressRecords->firstWhere('content_id', $content->content_id);
@@ -577,11 +563,9 @@ class ParticipantController extends Controller
                 }
             }
 
-            // 5. Tính phần trăm progress
             $progressPercent = ($completedContents / $totalContents) * 100;
             $progressPercent = round($progressPercent, 2);
 
-            // 6. Cập nhật progress cho tất cả records
             Progress::where('user_id', $userId)
                 ->where('course_id', $courseId)
                 ->update([
@@ -596,10 +580,6 @@ class ParticipantController extends Controller
             throw $e;
         }
     }
-
-
-
-
 
     public function markAbsent(Request $request)
     {

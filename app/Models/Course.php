@@ -19,6 +19,7 @@ class Course extends Model
         'price_discount',
         'description',
         'img',
+        'is_buy',
         'title',
         'slug',
         'is_online_meeting',

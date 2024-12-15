@@ -200,11 +200,10 @@ class QuizOptionController extends Controller
             return response()->json(['message' => 'Không tìm thấy phiên quiz đã hoàn thành.'], 404);
         }
     
-        // Lấy thông tin quiz và các câu hỏi kèm options
         $quiz = Quiz::with(['questions' => function ($query) {
             $query->with(['options' => function ($q) {
                 $q->where('is_correct', true)
-                  ->select('question_id', 'answer', 'is_correct'); // Chỉ lấy các trường cần thiết
+                  ->select('question_id', 'answer', 'is_correct'); 
             }]);
         }])->find($quizSession->quiz_id);
     
@@ -212,11 +211,9 @@ class QuizOptionController extends Controller
             return response()->json(['message' => 'Không tìm thấy thông tin quiz.'], 404);
         }
     
-        // Tạo mảng kết quả với answer thay vì id
         $results = [];
         foreach ($quiz->questions as $question) {
             if ($question->question_type === 'fill_blank') {
-                // Với fill_blank, lấy answer từ option
                 $correctAnswer = $question->options->first()->answer ?? null;
                 $results[] = [
                     'question_id' => $question->question_id,
@@ -224,7 +221,6 @@ class QuizOptionController extends Controller
                     'question_type' => $question->question_type
                 ];
             } else {
-                // Với các loại câu hỏi khác giữ nguyên logic cũ
                 $correctAnswers = $question->options->pluck('answer')->toArray();
                 $results[] = [
                     'question_id' => $question->question_id,

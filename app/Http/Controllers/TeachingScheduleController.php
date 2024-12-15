@@ -192,7 +192,6 @@ class TeachingScheduleController extends Controller
     private function sendTeacherScheduleNotification($teacher, $course, $content, $proposedStartTime, $meeting, $notes)
     {
         try {
-            // Debug data trước khi gửi mail
             Log::info('Teacher notification data:', [
                 'teacher_name' => $teacher->name,
                 'course_name' => $course->title,

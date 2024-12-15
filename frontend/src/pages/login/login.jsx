@@ -318,7 +318,7 @@ export const Login = () => {
             setTimeout(() => {
                 navigate('/');
                 window.location.reload();
-            }, 1000);
+            }, 800);
 
 
             sessionStorage.removeItem('oauth_state');

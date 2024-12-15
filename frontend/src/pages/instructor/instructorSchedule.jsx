@@ -306,7 +306,6 @@ export const InstructorSchedule = () => {
             if (result.status && Array.isArray(result.data)) {
                 setAllCourseOnline(result.data);
             } else {
-                notify("Không có dữ liệu khóa học", "warning");
                 setAllCourseOnline([]); // Đặt danh sách thành rỗng để tránh hiển thị lỗi.
             }
         } catch (error) {

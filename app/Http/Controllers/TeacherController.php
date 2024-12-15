@@ -20,7 +20,6 @@ class TeacherController extends Controller
 {
     public function getMeetingOnline()
     {
-        // Kiểm tra đăng nhập
         if (!Auth::check()) {
             return response()->json([
                 'status' => 'error',
@@ -29,21 +28,19 @@ class TeacherController extends Controller
         }
 
         try {
-            // Lấy user_id của giáo viên đang đăng nhập
             $userId = Auth::id();
 
-            // Query để lấy content có lịch dạy online
             $contents = DB::table('contents as c')
                 ->join('online_meetings as om', 'c.content_id', '=', 'om.content_id')
                 ->join('teaching_schedule as ts', 'om.meeting_id', '=', 'ts.meeting_id')
-                ->join('courses as co', 'c.course_id', '=', 'co.course_id')  // Thêm join với bảng courses
+                ->join('courses as co', 'c.course_id', '=', 'co.course_id') 
                 ->where('c.is_online_meeting', true)
                 ->where('ts.user_id', $userId)
                 ->select([
                     'c.content_id',
                     'c.name_content',
                     'c.course_id',
-                    'co.title as course_title',  // Thêm trường title từ bảng courses
+                    'co.title as course_title',  
                     'om.meeting_id',
                     'om.meeting_url',
                     'om.start_time',
@@ -54,7 +51,6 @@ class TeacherController extends Controller
                 ->orderBy('ts.proposed_start', 'asc')
                 ->get();
 
-            // Kiểm tra nếu không có dữ liệu
             if ($contents->isEmpty()) {
                 return response()->json([
                     'status' => 'success',
@@ -63,12 +59,11 @@ class TeacherController extends Controller
                 ], 200);
             }
 
-            // Format lại dữ liệu trả về
             $formattedContents = $contents->map(function ($content) {
                 return [
                     'content_id' => $content->content_id,
                     'name_content' => $content->name_content,
-                    'course' => [                     // Thêm thông tin khóa học
+                    'course' => [                     
                         'course_id' => $content->course_id,
                         'title' => $content->course_title
                     ],
@@ -627,7 +622,6 @@ class TeacherController extends Controller
                     throw new \Exception('Không tìm thấy tiêu đề nội dung');
                 }
 
-                // Nếu có file video trên S3, xóa file
                 if ($titleContent->video_link) {
                     $s3 = new S3Client([
                         'region'  => env('AWS_DEFAULT_REGION'),
@@ -653,7 +647,6 @@ class TeacherController extends Controller
                     }
                 }
 
-                // Cập nhật video_link thành null
                 $titleContent->update([
                     'video_link' => null,
                     'status' => 'draft'

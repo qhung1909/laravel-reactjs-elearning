@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Course;
+use App\Models\UserCourse;
+use App\Mail\ThankYouEmail;
 use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use App\Models\UserCourse;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\ThankYouEmail;
+
 class CartController extends Controller
 {
     public function vnpay_payment(Request $request)
@@ -146,6 +148,12 @@ class CartController extends Controller
                                 'created_at' => now(),
                             ]);
                             
+                            $course = Course::find($detail->course_id);
+                            if ($course) {
+                                $course->increment('is_buy');
+                                Log::info('Incremented is_buy for Course ID: ' . $detail->course_id);
+                            }
+                        
                             $detail->status = 'success';
                             $detail->save();
                             

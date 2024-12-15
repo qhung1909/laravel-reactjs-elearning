@@ -49,7 +49,6 @@ class CommentController extends Controller
 
     public function showAllComment()
     {
-        // Load comments with both course and user relationships
         $comments = Comment::with(['course', 'user'])->get();
 
         if ($comments->isEmpty()) {

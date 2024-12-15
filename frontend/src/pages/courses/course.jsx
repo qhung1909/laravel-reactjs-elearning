@@ -34,6 +34,15 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import {
+    SortAsc,
+    DollarSign,
+    Laptop,
+    Clock,
+    TrendingDown,
+    Monitor
+} from 'lucide-react';
+
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from '@/components/ui/label'
 import { formatCurrency } from "@/components/Formatcurrency/formatCurrency";
@@ -405,7 +414,7 @@ export const Courses = () => {
                             <div className="flex items-center gap-2">
                                 <Badge className="bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 flex items-center gap-2 border border-amber-200 text-sm font-medium px-3 py-1.5 rounded-lg">
                                     <ShoppingCart size={16} />
-                                    <span>{item.is_buy} Học viên đã đăng ký</span>
+                                    <span>{item.is_buy} Học viên đã mua</span>
                                 </Badge>
                             </div>
 
@@ -784,7 +793,12 @@ export const Courses = () => {
                                                 {/* mua,xem nhiều */}
                                                 <Accordion type="single" collapsible>
                                                     <AccordionItem value="item-1">
-                                                        <AccordionTrigger className="text-xl font-bold">Sắp xếp theo</AccordionTrigger>
+                                                        <AccordionTrigger className="text-xl font-bold">
+                                                            <div className="flex items-center gap-2">
+                                                                <SortAsc className="w-5 h-5" />
+                                                                Sắp xếp theo
+                                                            </div>
+                                                        </AccordionTrigger>
                                                         <AccordionContent>
                                                             <div className="flex gap-2 items-center my-1">
                                                                 <Checkbox
@@ -793,8 +807,8 @@ export const Courses = () => {
                                                                     onCheckedChange={(checked) => handleSortChange(checked, 'New')}
                                                                 />
                                                                 <Label>
-                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                                        {" "}
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                                        <Clock className="w-4 h-4" />
                                                                         Mới nhất
                                                                     </span>
                                                                 </Label>
@@ -806,8 +820,8 @@ export const Courses = () => {
                                                                     onCheckedChange={(checked) => handleSortChange(checked, 'Buy')}
                                                                 />
                                                                 <Label>
-                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                                        {" "}
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                                        <ShoppingCart className="w-4 h-4" />
                                                                         Mua nhiều
                                                                     </span>
                                                                 </Label>
@@ -818,7 +832,12 @@ export const Courses = () => {
                                                 {/* xếp hạng */}
                                                 <Accordion type="single" collapsible>
                                                     <AccordionItem value="item-2">
-                                                        <AccordionTrigger className="text-xl font-bold">Xếp hạng</AccordionTrigger>
+                                                        <AccordionTrigger className="text-xl font-bold">
+                                                            <div className="flex items-center gap-2">
+                                                                <Star className="w-5 h-5" />
+                                                                Xếp hạng
+                                                            </div>
+                                                        </AccordionTrigger>
                                                         <AccordionContent>
                                                             <div className="flex gap-2 items-center my-1">
                                                                 <Checkbox
@@ -827,8 +846,8 @@ export const Courses = () => {
                                                                     onCheckedChange={(checked) => handleRatingFilter(checked, '5.00')}
                                                                 />
                                                                 <Label>
-                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                                        {" "}
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                                        <Star className="w-4 h-4 fill-current" />
                                                                         Từ 5.0
                                                                     </span>
                                                                 </Label>
@@ -840,8 +859,8 @@ export const Courses = () => {
                                                                     onCheckedChange={(checked) => handleRatingFilter(checked, '4.00')}
                                                                 />
                                                                 <Label>
-                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                                        {" "}
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                                        <Star className="w-4 h-4" />
                                                                         Từ 4.0 trở lên
                                                                     </span>
                                                                 </Label>
@@ -853,8 +872,8 @@ export const Courses = () => {
                                                                     onCheckedChange={(checked) => handleRatingFilter(checked, '3.0')}
                                                                 />
                                                                 <Label>
-                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                                        {" "}
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                                        <Star className="w-4 h-4" />
                                                                         Từ 3.0 trở lên
                                                                     </span>
                                                                 </Label>
@@ -866,18 +885,22 @@ export const Courses = () => {
                                                 {/* giá */}
                                                 <Accordion type="single" collapsible>
                                                     <AccordionItem value="item-3">
-                                                        <AccordionTrigger className="text-xl font-bold">Giá</AccordionTrigger>
+                                                        <AccordionTrigger className="text-xl font-bold">
+                                                            <div className="flex items-center gap-2">
+                                                                <DollarSign className="w-5 h-5" />
+                                                                Giá
+                                                            </div>
+                                                        </AccordionTrigger>
                                                         <AccordionContent>
                                                             <div className="flex gap-2 items-center my-1">
                                                                 <Checkbox
                                                                     id="priceAsc"
                                                                     checked={sortCriteria === 'priceAsc'}
                                                                     onCheckedChange={(checked) => handlePriceSort(checked, 'priceAsc')}
-
                                                                 />
                                                                 <Label>
-                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                                        {" "}
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                                        <TrendingUp className="w-4 h-4" />
                                                                         Tăng dần
                                                                     </span>
                                                                 </Label>
@@ -887,11 +910,10 @@ export const Courses = () => {
                                                                     id="priceDesc"
                                                                     checked={sortCriteria === 'priceDesc'}
                                                                     onCheckedChange={(checked) => handlePriceSort(checked, 'priceDesc')}
-
                                                                 />
                                                                 <Label>
-                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                                        {" "}
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                                        <TrendingDown className="w-4 h-4" />
                                                                         Giảm dần
                                                                     </span>
                                                                 </Label>
@@ -902,7 +924,12 @@ export const Courses = () => {
                                                 <hr />
                                                 <Accordion type="single" collapsible>
                                                     <AccordionItem value="item-4">
-                                                        <AccordionTrigger className="text-xl font-bold">Hình thức học</AccordionTrigger>
+                                                        <AccordionTrigger className="text-xl font-bold">
+                                                            <div className="flex items-center gap-2">
+                                                                <Monitor className="w-5 h-5" />
+                                                                Hình thức học
+                                                            </div>
+                                                        </AccordionTrigger>
                                                         <AccordionContent>
                                                             <div className="flex gap-2 items-center my-1">
                                                                 <Checkbox
@@ -911,7 +938,8 @@ export const Courses = () => {
                                                                     onCheckedChange={(checked) => handleOnlineFilter(checked, '1')}
                                                                 />
                                                                 <Label>
-                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                                        <Laptop className="w-4 h-4" />
                                                                         Online
                                                                     </span>
                                                                 </Label>
@@ -923,7 +951,8 @@ export const Courses = () => {
                                                                     onCheckedChange={(checked) => handleOnlineFilter(checked, '0')}
                                                                 />
                                                                 <Label>
-                                                                    <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                                    <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                                        <Monitor className="w-4 h-4" />
                                                                         Offline
                                                                     </span>
                                                                 </Label>
@@ -948,12 +977,16 @@ export const Courses = () => {
                     </div>
                     <div className="lg:grid lg:grid-cols-12 gap-10 pt-3">
                         {/* Bộ lọc desktop */}
-                        <div className="lg:block hidden col-span-3 transition-all ease-in-out duration-500 " id="filterContent">
-
+                        <div className="lg:block hidden col-span-3 transition-all ease-in-out duration-500" id="filterContent">
                             {/* mua,xem nhiều */}
                             <Accordion type="single" collapsible defaultValue="item-1">
                                 <AccordionItem value="item-1">
-                                    <AccordionTrigger className="text-xl font-bold">Sắp xếp theo</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">
+                                        <div className="flex items-center gap-2">
+                                            <SortAsc className="w-5 h-5" />
+                                            Sắp xếp theo
+                                        </div>
+                                    </AccordionTrigger>
                                     <AccordionContent>
                                         <div className="flex gap-2 items-center my-1">
                                             <Checkbox
@@ -962,8 +995,8 @@ export const Courses = () => {
                                                 onCheckedChange={(checked) => handleSortChange(checked, 'New')}
                                             />
                                             <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
+                                                <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                    <Clock className="w-4 h-4" />
                                                     Mới nhất
                                                 </span>
                                             </Label>
@@ -975,8 +1008,8 @@ export const Courses = () => {
                                                 onCheckedChange={(checked) => handleSortChange(checked, 'Buy')}
                                             />
                                             <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
+                                                <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                    <ShoppingCart className="w-4 h-4" />
                                                     Mua nhiều
                                                 </span>
                                             </Label>
@@ -988,7 +1021,12 @@ export const Courses = () => {
                             {/* xếp hạng */}
                             <Accordion type="single" collapsible defaultValue="item-2">
                                 <AccordionItem value="item-2">
-                                    <AccordionTrigger className="text-xl font-bold">Xếp hạng</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">
+                                        <div className="flex items-center gap-2">
+                                            <Star className="w-5 h-5" />
+                                            Xếp hạng
+                                        </div>
+                                    </AccordionTrigger>
                                     <AccordionContent>
                                         <div className="flex gap-2 items-center my-1">
                                             <Checkbox
@@ -997,8 +1035,8 @@ export const Courses = () => {
                                                 onCheckedChange={(checked) => handleRatingFilter(checked, '5.00')}
                                             />
                                             <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
+                                                <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                    <Star className="w-4 h-4 fill-current" />
                                                     Từ 5.0
                                                 </span>
                                             </Label>
@@ -1010,8 +1048,8 @@ export const Courses = () => {
                                                 onCheckedChange={(checked) => handleRatingFilter(checked, '4.00')}
                                             />
                                             <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
+                                                <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                    <Star className="w-4 h-4" />
                                                     Từ 4.0 trở lên
                                                 </span>
                                             </Label>
@@ -1023,8 +1061,8 @@ export const Courses = () => {
                                                 onCheckedChange={(checked) => handleRatingFilter(checked, '3.0')}
                                             />
                                             <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
+                                                <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                    <Star className="w-4 h-4" />
                                                     Từ 3.0 trở lên
                                                 </span>
                                             </Label>
@@ -1036,18 +1074,22 @@ export const Courses = () => {
                             {/* giá */}
                             <Accordion type="single" collapsible defaultValue="item-3">
                                 <AccordionItem value="item-3">
-                                    <AccordionTrigger className="text-xl font-bold">Giá</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">
+                                        <div className="flex items-center gap-2">
+                                            <DollarSign className="w-5 h-5" />
+                                            Giá
+                                        </div>
+                                    </AccordionTrigger>
                                     <AccordionContent>
                                         <div className="flex gap-2 items-center my-1">
                                             <Checkbox
                                                 id="priceAsc"
                                                 checked={sortCriteria === 'priceAsc'}
                                                 onCheckedChange={(checked) => handlePriceSort(checked, 'priceAsc')}
-
                                             />
                                             <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
+                                                <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                    <TrendingUp className="w-4 h-4" />
                                                     Tăng dần
                                                 </span>
                                             </Label>
@@ -1057,11 +1099,10 @@ export const Courses = () => {
                                                 id="priceDesc"
                                                 checked={sortCriteria === 'priceDesc'}
                                                 onCheckedChange={(checked) => handlePriceSort(checked, 'priceDesc')}
-
                                             />
                                             <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
-                                                    {" "}
+                                                <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                    <TrendingDown className="w-4 h-4" />
                                                     Giảm dần
                                                 </span>
                                             </Label>
@@ -1072,7 +1113,12 @@ export const Courses = () => {
 
                             <Accordion type="single" collapsible defaultValue="item-4">
                                 <AccordionItem value="item-4">
-                                    <AccordionTrigger className="text-xl font-bold">Hình thức học</AccordionTrigger>
+                                    <AccordionTrigger className="text-xl font-bold">
+                                        <div className="flex items-center gap-2">
+                                            <Monitor className="w-5 h-5" />
+                                            Hình thức học
+                                        </div>
+                                    </AccordionTrigger>
                                     <AccordionContent>
                                         <div className="flex gap-2 items-center my-1">
                                             <Checkbox
@@ -1081,7 +1127,8 @@ export const Courses = () => {
                                                 onCheckedChange={(checked) => handleOnlineFilter(checked, '1')}
                                             />
                                             <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                    <Laptop className="w-4 h-4" />
                                                     Online
                                                 </span>
                                             </Label>
@@ -1093,7 +1140,8 @@ export const Courses = () => {
                                                 onCheckedChange={(checked) => handleOnlineFilter(checked, '0')}
                                             />
                                             <Label>
-                                                <span className="text-sm lg:text-base font-normal text-gray-800">
+                                                <span className="text-sm lg:text-base font-normal text-gray-800 flex items-center gap-2">
+                                                    <Monitor className="w-4 h-4" />
                                                     Offline
                                                 </span>
                                             </Label>
@@ -1101,10 +1149,12 @@ export const Courses = () => {
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>
+
                             <div className="bg-gray-300 py-2 px-4 rounded-full font-semibold mt-5 w-28">
                                 <button onClick={clearFilters} className='flex items-center'>
                                     <img src="https://lmsantlearn.s3.ap-southeast-2.amazonaws.com/icons/New+folder/remove.svg" className='w-7' alt="" />
-                                    <p>Bỏ lọc</p></button>
+                                    <p>Bỏ lọc</p>
+                                </button>
                             </div>
                         </div>
 

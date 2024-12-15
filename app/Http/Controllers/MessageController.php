@@ -335,7 +335,6 @@ class MessageController extends Controller
                 ], 404);
             }
 
-            // Kiểm tra xem người dùng hiện tại có quyền xóa thông báo này không
             if ($notification->user_id !== Auth::id()) {
                 return response()->json([
                     'status' => 'error',
