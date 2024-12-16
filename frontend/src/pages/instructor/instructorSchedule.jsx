@@ -122,7 +122,13 @@ export const InstructorSchedule = () => {
             notify('Vui lòng chọn thời gian mới', 'error');
             return;
         }
+        const proposedDateTime = new Date(formData.proposed_start);
+        const currentDateTime = new Date();
 
+        if (proposedDateTime <= currentDateTime) {
+            notify('Thời gian mới phải lớn hơn thời gian hiện tại', 'error');
+            return;
+        }
         try {
             const response = await axios.put(
                 `${API_URL}/teacher/teaching-schedule/${id}`,
@@ -1146,13 +1152,12 @@ export const InstructorSchedule = () => {
                                                                                     value={formData.proposed_start}
                                                                                     onChange={handleInputChange}
                                                                                     className="w-full p-2 border rounded"
-                                                                                />                                                                            </div>
+                                                                                />
+                                                                            </div>
                                                                         </div>
-                                                                        {console.log("Instructor data:", instructor)};
-
                                                                         <button
                                                                             onClick={() => handleChangeShedule(item.meeting.schedule.teaching_schedule_id)}
-                                                                            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                                                            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 w-full"
                                                                         >
                                                                             Xác nhận thay đổi
                                                                         </button>
