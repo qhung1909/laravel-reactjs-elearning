@@ -127,7 +127,7 @@ export const InstructorSchedule = () => {
             const response = await axios.put(
                 `${API_URL}/teacher/teaching-schedule/${id}`,
                 {
-                    user_id: instructor.id,
+                    user_id: instructor.user_id,
                     proposed_start: formData.proposed_start
                 },
                 {
@@ -140,7 +140,7 @@ export const InstructorSchedule = () => {
             if (response.status === 200) {
                 notify('Thay đổi lịch học thành công', 'success');
                 setFormData(prev => ({ ...prev, proposed_start: '' }));
-                fetchCoursesTable(); // Refresh data
+                fetchCoursesTable();
             }
         } catch (error) {
             console.error('Error:', error);
@@ -398,7 +398,6 @@ export const InstructorSchedule = () => {
                 setCoursesTable([]);
                 notify("Không có dữ liệu lịch dạy online", "warning");
             }
-            console.log(result)
         } catch (error) {
             notify('Không thể lấy danh sách lịch dạy online')
         } finally {
@@ -1130,7 +1129,6 @@ export const InstructorSchedule = () => {
                                                                         </div>
                                                                     </DialogHeader>
                                                                     <div className="">
-                                                                    {console.log("Meeting data:", item?.meeting)}
                                                                         <div className="flex items-center space-x-6">
                                                                             <div className="space-y-1">
                                                                                 <span className="text-lg font-bold text-gray-800">Thời gian bắt đầu hiện tại:</span>
@@ -1150,13 +1148,13 @@ export const InstructorSchedule = () => {
                                                                                     className="w-full p-2 border rounded"
                                                                                 />                                                                            </div>
                                                                         </div>
+                                                                        {console.log("Instructor data:", instructor)};
 
                                                                         <button
-                                                                            onClick={() => handleChangeShedule(item.meeting.meeting_id)}
+                                                                            onClick={() => handleChangeShedule(item.meeting.schedule.teaching_schedule_id)}
                                                                             className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                                                                         >
                                                                             Xác nhận thay đổi
-
                                                                         </button>
                                                                     </div>
                                                                 </DialogContent>
