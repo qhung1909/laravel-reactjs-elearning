@@ -52,7 +52,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { UserContext } from "../context/usercontext";
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
-import { format, addHours, isPast, isBefore } from 'date-fns';
+import { addHours, isPast, isBefore } from 'date-fns';
 import * as XLSX from 'xlsx';
 import axios from "axios"
 import {
@@ -61,6 +61,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Input } from "@/components/ui/input"
 const notify = (message, type) => {
     if (type === 'success') {
         toast.success(message);
@@ -110,6 +111,49 @@ export const InstructorSchedule = () => {
         }
     }
 
+    // hàm thay đổi lịch học online
+    const handleChangeShedule = async (id) => {
+        if (!id) {
+            notify('Không tìm thấy ID lịch học', 'error');
+            return;
+        }
+
+        if (!formData.proposed_start) {
+            notify('Vui lòng chọn thời gian mới', 'error');
+            return;
+        }
+
+        try {
+            const response = await axios.put(
+                `${API_URL}/teacher/teaching-schedule/${id}`,
+                {
+                    user_id: instructor.id,
+                    proposed_start: formData.proposed_start
+                },
+                {
+                    headers: {
+                        'x-api-secret': `${API_KEY}`,
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            if (response.status === 200) {
+                notify('Thay đổi lịch học thành công', 'success');
+                setFormData(prev => ({ ...prev, proposed_start: '' }));
+                fetchCoursesTable(); // Refresh data
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi thay đổi lịch học';
+            notify(errorMessage, 'error');
+        }
+    };
+    const handleInputChange = (e) => {
+        setFormData({
+            ...formData,
+            proposed_start: e.target.value
+        });
+    };
     useEffect(() => {
         fetchAttendanceList();
     }, [])
@@ -306,11 +350,11 @@ export const InstructorSchedule = () => {
             if (result.status && Array.isArray(result.data)) {
                 setAllCourseOnline(result.data);
             } else {
-                setAllCourseOnline([]); // Đặt danh sách thành rỗng để tránh hiển thị lỗi.
+                setAllCourseOnline([]);
             }
         } catch (error) {
             notify("Không thể tải dữ liệu khóa học", "error");
-            setAllCourseOnline([]); // Đặt danh sách thành rỗng để tránh lỗi khi không có dữ liệu.
+            setAllCourseOnline([]);
         }
         // finally {
         //     setLoading(false); // Tắt trạng thái loading
@@ -354,6 +398,7 @@ export const InstructorSchedule = () => {
                 setCoursesTable([]);
                 notify("Không có dữ liệu lịch dạy online", "warning");
             }
+            console.log(result)
         } catch (error) {
             notify('Không thể lấy danh sách lịch dạy online')
         } finally {
@@ -868,6 +913,8 @@ export const InstructorSchedule = () => {
                                             <TableHead className="text-cyan-950 md:text-base text-xs w-14 md:w-auto">Ngày bắt đầu</TableHead>
                                             <TableHead className="text-cyan-950 md:text-base text-xs w-28">Ghi chú</TableHead>
                                             <TableHead className="text-cyan-950 md:text-base text-xs">Danh sách</TableHead>
+                                            <TableHead className="text-cyan-950 md:text-base text-xs">Thao tác</TableHead>
+
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -1058,6 +1105,59 @@ export const InstructorSchedule = () => {
                                                                                 Xuất Excel
                                                                             </Button>
                                                                         </div>
+                                                                    </div>
+                                                                </DialogContent>
+                                                            </Dialog>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Dialog>
+                                                                <DialogTrigger>
+                                                                    <button onClick={() => fetchAttendanceList(item.meeting.meeting_id)} className="bg-yellow-500 hover:bg-yellow-600 px-1 py-2 md:py-2.5 md:px-3 text-white font-semibold transition-all rounded duration-300 flex items-center space-x-1 shadow-lg hover:shadow-blue-500/50">
+                                                                        <span>Sửa</span>
+                                                                    </button>
+                                                                </DialogTrigger>
+                                                                <DialogContent className=" p-6">
+                                                                    <DialogHeader className="space-y-4">
+                                                                        <div className="flex items-center justify-between border-b pb-2">
+                                                                            <div>
+                                                                                <DialogTitle className="text-2xl font-bold text-gray-800">
+                                                                                    Thời gian bắt đầu
+                                                                                </DialogTitle>
+                                                                                <DialogDescription className="text-gray-500 mt-1">
+                                                                                    <p>Xem lại thời điểm bắt đầu học online của bạn</p>
+                                                                                </DialogDescription>
+                                                                            </div>
+                                                                        </div>
+                                                                    </DialogHeader>
+                                                                    <div className="">
+                                                                    {console.log("Meeting data:", item?.meeting)}
+                                                                        <div className="flex items-center space-x-6">
+                                                                            <div className="space-y-1">
+                                                                                <span className="text-lg font-bold text-gray-800">Thời gian bắt đầu hiện tại:</span>
+                                                                                <p className="text-gray-400 font-normal">
+                                                                                    {new Date(item.meeting.schedule.start_time).toLocaleString("vi-VN")}
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="flex items-center space-x-6 my-3">
+                                                                            <div className="space-y-1">
+                                                                                <span className="text-lg font-bold text-gray-800">Thay đổi giờ học:</span>
+                                                                                <br />
+                                                                                <input
+                                                                                    type="datetime-local"
+                                                                                    value={formData.proposed_start}
+                                                                                    onChange={handleInputChange}
+                                                                                    className="w-full p-2 border rounded"
+                                                                                />                                                                            </div>
+                                                                        </div>
+
+                                                                        <button
+                                                                            onClick={() => handleChangeShedule(item.meeting.meeting_id)}
+                                                                            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                                                        >
+                                                                            Xác nhận thay đổi
+
+                                                                        </button>
                                                                     </div>
                                                                 </DialogContent>
                                                             </Dialog>
