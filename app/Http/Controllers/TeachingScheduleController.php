@@ -28,7 +28,7 @@ class TeachingScheduleController extends Controller
                 $query->with([
                     'course:course_id,title',
                     'content:content_id,name_content'
-                ])->select('meeting_id', 'course_id', 'content_id', 'meeting_url', 'start_time', 'end_time');
+                ])->select('meeting_id', 'course_id', 'content_id', 'meeting_url', 'start_time', 'end_time', 'id');
             }, 'user:user_id,name'])
                 ->select('id', 'meeting_id', 'user_id', 'proposed_start', 'notes');
 
@@ -51,9 +51,16 @@ class TeachingScheduleController extends Controller
                 'data' => $schedules
             ]);
         } catch (\Exception $e) {
+            Log::error('Lỗi lấy danh sách lịch dạy: ' . $e->getMessage(), [
+                'user_id' => $request->user_id ?? null,
+                'start_date' => $request->start_date ?? null,
+                'end_date' => $request->end_date ?? null,
+                'stack_trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+                'message' => 'Có lỗi xảy ra khi lấy danh sách lịch dạy'
             ], 500);
         }
     }

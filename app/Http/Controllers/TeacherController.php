@@ -26,10 +26,10 @@ class TeacherController extends Controller
                 'message' => 'Vui lòng đăng nhập để xem lịch dạy online'
             ], 401);
         }
-
+    
         try {
             $userId = Auth::id();
-
+    
             $contents = DB::table('contents as c')
                 ->join('online_meetings as om', 'c.content_id', '=', 'om.content_id')
                 ->join('teaching_schedule as ts', 'om.meeting_id', '=', 'ts.meeting_id')
@@ -45,12 +45,13 @@ class TeacherController extends Controller
                     'om.meeting_url',
                     'om.start_time',
                     'om.end_time',
+                    'ts.id as teaching_schedule_id', // Thêm trường ID của teaching schedule
                     'ts.proposed_start',
                     'ts.notes'
                 ])
                 ->orderBy('ts.proposed_start', 'asc')
                 ->get();
-
+    
             if ($contents->isEmpty()) {
                 return response()->json([
                     'status' => 'success',
@@ -58,7 +59,7 @@ class TeacherController extends Controller
                     'data' => []
                 ], 200);
             }
-
+    
             $formattedContents = $contents->map(function ($content) {
                 return [
                     'content_id' => $content->content_id,
@@ -71,6 +72,7 @@ class TeacherController extends Controller
                         'meeting_id' => $content->meeting_id,
                         'meeting_url' => $content->meeting_url,
                         'schedule' => [
+                            'teaching_schedule_id' => $content->teaching_schedule_id, // Thêm ID vào JSON
                             'start_time' => Carbon::parse($content->start_time)->format('Y-m-d H:i:s'),
                             'end_time' => Carbon::parse($content->end_time)->format('Y-m-d H:i:s'),
                             'proposed_start' => Carbon::parse($content->proposed_start)->format('Y-m-d H:i:s')
@@ -79,14 +81,14 @@ class TeacherController extends Controller
                     ]
                 ];
             });
-
+    
             return response()->json([
                 'status' => 'success',
                 'data' => $formattedContents
             ]);
         } catch (\Exception $e) {
             Log::error('Error in getMeetingOnline: ' . $e->getMessage());
-
+    
             return response()->json([
                 'status' => 'error',
                 'message' => 'Có lỗi xảy ra khi lấy thông tin nội dung học online',
