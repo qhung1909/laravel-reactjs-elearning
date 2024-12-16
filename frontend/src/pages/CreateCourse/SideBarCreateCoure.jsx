@@ -135,7 +135,7 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges, setIsPublished, isPu
                 },
             });
 
-            if (response.data.data.title === null) {
+            if (response.data.data.title === 'Chưa có tên khóa học' || response.data.data.price === null || response.data.data.description === null) {
                 notify('Phải nhập đầy đủ thông tin trước khi gửi')
                 return false;
             }
