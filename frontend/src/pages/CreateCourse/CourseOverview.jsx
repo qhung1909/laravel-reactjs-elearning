@@ -160,7 +160,7 @@ export const CourseOverview = () => {
         if (file) {
             const maxSize = 20480 * 1024;
             const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-            
+
             if (!allowedTypes.includes(file.type)) {
                 notify('Chỉ chấp nhận file định dạng: JPG, JPEG, PNG, WEBP', 'error');
                 e.target.value = '';
@@ -288,7 +288,7 @@ export const CourseOverview = () => {
 
 
 
-        if (!courseTitle.trim()) {
+        if (!courseTitle.trim() || courseTitle.trim() === "Chưa có tên khóa học") {
             valid = false;
             newErrors.titleError = 'Vui lòng nhập tiêu đề khóa học';
         }
