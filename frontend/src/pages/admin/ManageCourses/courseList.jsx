@@ -364,12 +364,12 @@ export default function CourseList() {
                                                     >
                                                         Hoàn thành
                                                     </li>
-                                                    <li
+                                                    {/* <li
                                                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                                         onClick={() => handleStatusFilter('hide')}
                                                     >
                                                         Ẩn
-                                                    </li>
+                                                    </li> */}
                                                     <li
                                                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                                         onClick={() => handleSort('desc')}
@@ -580,7 +580,7 @@ export default function CourseList() {
                                                                                 Hoàn thành
                                                                             </Button>
                                                                         )}
-                                                                        {/* {course.status === "published" && (
+                                                                        {course.status === "published" && (
                                                                             <Button
                                                                                 variant="outline"
                                                                                 className="justify-start text-gray-600 hover:text-gray-700 hover:bg-gray-50"
@@ -591,7 +591,7 @@ export default function CourseList() {
                                                                                 <span className="w-3 h-3 rounded-full bg-gray-500 mr-2"></span>
                                                                                 Ẩn
                                                                             </Button>
-                                                                        )} */}
+                                                                        )}
                                                                     </div>
                                                                     <AlertDialogFooter>
                                                                         <AlertDialogCancel>Hủy</AlertDialogCancel>
