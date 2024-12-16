@@ -461,15 +461,7 @@ export const CategoryCrud = () => {
                                                 {getSortIcon('name')}
                                             </div>
                                         </th>
-                                        <th
-                                            className="whitespace-nowrap py-4 px-6 text-md font-bold text-gray-700 cursor-pointer group"
-                                            onClick={() => handleSort('courseCount')}
-                                        >
-                                            <div className="flex items-center justify-center gap-2">
-                                                Số lượng khóa học
-                                                {getSortIcon('courseCount')}
-                                            </div>
-                                        </th>
+                                       
                                         <th
                                             className="whitespace-nowrap py-4 px-6 text-md font-bold text-gray-700 cursor-pointer group"
                                             onClick={() => handleSort('lastUpdated')}
@@ -500,9 +492,6 @@ export const CategoryCrud = () => {
                                                         <div className="mx-auto h-5 w-20 animate-pulse rounded bg-yellow-200" />
                                                     </td>
                                                     <td className="p-4">
-                                                        <div className="mx-auto h-5 w-24 animate-pulse rounded bg-yellow-200" />
-                                                    </td>
-                                                    <td className="p-4">
                                                         <div className="mx-auto h-5 w-28 animate-pulse rounded bg-yellow-200" />
                                                     </td>
                                                 </tr>
@@ -530,9 +519,7 @@ export const CategoryCrud = () => {
                                                 <td className="whitespace-nowrap py-4 px-6 text-sm font-medium text-gray-900 text-center">
                                                     {category.name}
                                                 </td>
-                                                <td className="whitespace-nowrap py-4 px-6 text-sm text-gray-600 text-center">
-                                                    {category.courseCount || 'Update soon'}
-                                                </td>
+
                                                 <td className="whitespace-nowrap py-4 px-6 text-sm text-gray-600 text-center">
                                                     {new Date(category.updated_at).toLocaleDateString('vi-VN')}
                                                 </td>

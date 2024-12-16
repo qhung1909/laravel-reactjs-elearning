@@ -72,6 +72,8 @@ export default function ManageMeetRoom() {
 
                 if (response.data?.data && Array.isArray(response.data.data)) {
                     setSchedules(response.data.data);
+                    console.log(response);
+                    
                 } else {
                     setSchedules([]);
                     toast.info("Không có lịch dạy nào");
