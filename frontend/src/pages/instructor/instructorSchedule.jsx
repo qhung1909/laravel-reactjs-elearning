@@ -350,11 +350,11 @@ export const InstructorSchedule = () => {
             if (result.status && Array.isArray(result.data)) {
                 setAllCourseOnline(result.data);
             } else {
-                setAllCourseOnline([]); // Đặt danh sách thành rỗng để tránh hiển thị lỗi.
+                setAllCourseOnline([]);
             }
         } catch (error) {
             notify("Không thể tải dữ liệu khóa học", "error");
-            setAllCourseOnline([]); // Đặt danh sách thành rỗng để tránh lỗi khi không có dữ liệu.
+            setAllCourseOnline([]);
         }
         // finally {
         //     setLoading(false); // Tắt trạng thái loading
@@ -398,6 +398,7 @@ export const InstructorSchedule = () => {
                 setCoursesTable([]);
                 notify("Không có dữ liệu lịch dạy online", "warning");
             }
+            console.log(result)
         } catch (error) {
             notify('Không thể lấy danh sách lịch dạy online')
         } finally {
