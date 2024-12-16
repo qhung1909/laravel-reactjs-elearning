@@ -1569,22 +1569,28 @@ export const Lesson = () => {
                                                             <AccordionContent>
                                                                 <div className="px-4 pb-4">
                                                                     {Array.isArray(titleContent[content.content_id]) && titleContent[content.content_id].length > 0 ? (
-                                                                        titleContent[content.content_id].map((item, i) => {
-                                                                            const isWatched = videoProgress[item.title_content_id];
-                                                                            return (
+                                                                        content.is_online_meeting === 1 ? (
+                                                                            // Nếu là online meeting thì chỉ hiển thị dòng text này
+                                                                            <div className="p-3 rounded-lg border border-purple-100 bg-purple-50">
+                                                                                <p className="text-sm text-gray-600">
+                                                                                    Đây là nội dung học meeting
+                                                                                </p>
+                                                                            </div>
+                                                                        ) : (
+                                                                            // Nếu không phải online meeting thì hiển thị nội dung bình thường
+                                                                            titleContent[content.content_id].map((item, i) => (
                                                                                 <div
                                                                                     key={i}
                                                                                     onClick={() => handleVideoClick(item, content.content_id, i)}
                                                                                     className={`group flex items-start gap-3 p-3 rounded-lg transition-all duration-200 cursor-pointer border ${activeItem.contentId === content.content_id && activeItem.index === i
-                                                                                        ? 'bg-purple-100 border-purple-300'
-                                                                                        : 'border-transparent hover:bg-purple-50 hover:border-purple-100'
+                                                                                            ? 'bg-purple-100 border-purple-300'
+                                                                                            : 'border-transparent hover:bg-purple-50 hover:border-purple-100'
                                                                                         }`}
                                                                                 >
                                                                                     <div className="relative">
                                                                                         <span className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs flex-shrink-0 mt-1 group-hover:bg-purple-200">
                                                                                             {i + 1}
                                                                                         </span>
-
                                                                                     </div>
                                                                                     <div className="flex-1 min-w-0">
                                                                                         <div className="flex items-center justify-between gap-2">
@@ -1593,7 +1599,6 @@ export const Lesson = () => {
                                                                                             </p>
                                                                                         </div>
                                                                                         <div className="flex items-center gap-2 mt-1">
-                                                                                            {/* Trạng thái video */}
                                                                                             {item.video_link && (
                                                                                                 <>
                                                                                                     <span className="text-xs text-gray-400 flex items-center">
@@ -1603,7 +1608,6 @@ export const Lesson = () => {
                                                                                                             : "0:00"}
                                                                                                     </span>
 
-                                                                                                    {/* Trạng thái video */}
                                                                                                     <span className={`text-xs flex items-center ${completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'text-green-500' : 'text-gray-400'}`}>
                                                                                                         <Video className="w-3 h-3 mr-1" />
                                                                                                         {completedVideosInContent[content.content_id]?.[item.title_content_id] ? 'Đã xem' : 'Chưa xem'}
@@ -1611,7 +1615,6 @@ export const Lesson = () => {
                                                                                                 </>
                                                                                             )}
 
-                                                                                            {/* Chỉ hiển thị trạng thái document nếu item có document_link */}
                                                                                             {item.document_link && (
                                                                                                 <>
                                                                                                     {item.video_link && <span className="h-4 w-[1px] bg-gray-200"></span>}
@@ -1623,12 +1626,11 @@ export const Lesson = () => {
                                                                                                     </span>
                                                                                                 </>
                                                                                             )}
-
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
-                                                                            );
-                                                                        })
+                                                                            ))
+                                                                        )
                                                                     ) : (
                                                                         <div className="flex items-center justify-center py-6 text-gray-400">
                                                                             <Loader2 className="w-5 h-5 animate-spin mr-2" />
