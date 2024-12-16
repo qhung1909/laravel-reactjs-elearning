@@ -203,6 +203,25 @@ export const CourseOverview = () => {
         fetchCategories()
     }, [API_KEY, API_URL])
 
+    const normalizeQuillContent = (content) => {
+        if (!content) return '';
+
+        // Remove extra whitespace and normalize line breaks
+        let normalized = content.replace(/\s+/g, ' ').trim();
+
+        // Ensure consistent <p> tags formatting
+        if (!normalized.startsWith('<p>')) {
+            normalized = `<p>${normalized}</p>`;
+        }
+
+        // Remove empty paragraphs at the end
+        normalized = normalized.replace(/(<p><br><\/p>)+$/, '');
+
+        // Remove multiple consecutive <br> tags
+        normalized = normalized.replace(/(<br\s*\/?>){2,}/gi, '<br>');
+
+        return normalized;
+    };
     // Fetch dữ liệu ban đầu từ API
     useEffect(() => {
         const fetchCourse = async () => {
@@ -215,7 +234,7 @@ export const CourseOverview = () => {
                     },
                 });
 
-                // console.log(response.data.data);
+                console.log(response.data.data);
 
 
 
@@ -226,17 +245,24 @@ export const CourseOverview = () => {
                     // mô tả: khi mô tả không có thẻ <p></p> bọc ngoài thì isupdate sẽ false và thêm cái khoảng trắng xuống dòng thì nó cũng false nốt
                     const courseData = response.data.data;
 
-                    const cleanTitle = courseData.title?.replace(/\n/g, '').trim() || '';
+                    const cleanTitle = courseData.title
+                        ?.replace(/\r\n/g, '')
+                        ?.replace(/\n/g, '')
+                        ?.replace(/\s+/g, ' ')
+                        ?.trim() || '';
+                    // const description = courseData.description || '';
+                    // const cleanDescription = description.replace(/(<p><br><\/p>)+$/, '');
+                    // const formattedDescription = cleanDescription.startsWith('<p>') ? cleanDescription : `<p>${cleanDescription}</p>`;
 
-                    const description = courseData.description || '';
-                    const cleanDescription = description.replace(/(<p><br><\/p>)+$/, '');
-                    const formattedDescription = cleanDescription.startsWith('<p>') ? cleanDescription : `<p>${cleanDescription}</p>`;
 
+                    const normalizedDescription = normalizeQuillContent(courseData.description || '');
+                    setCourseDescriptionText(normalizedDescription);
+                    setInitialCourseDescriptionText(normalizedDescription);
 
                     setCourseTitle(cleanTitle);
                     setInitialCourseTitle(cleanTitle);
-                    setCourseDescriptionText(formattedDescription);
-                    setInitialCourseDescriptionText(formattedDescription);
+                    // setCourseDescriptionText(formattedDescription);
+                    // setInitialCourseDescriptionText(formattedDescription);
                     setCurrency(courseData.currency || '');
                     setInitialCurrency(courseData.currency || '');
                     setPrice(courseData.price || '');

@@ -1007,11 +1007,12 @@ export const Curriculum = () => {
                                                             className="flex-1 p-2 w-1/2 md:w-full border rounded-md"
                                                             placeholder={`Nhập tiêu đề bài ${sectionIndex + 1}`}
                                                             value={section.title}
+                                                            disabled={isPublished}
                                                             onChange={(e) => handleSectionTitleChange(section.id, e.target.value)}
                                                             onClick={(e) => e.stopPropagation()}
                                                         />
                                                         {section.is_online_meeting === 0 && (
-                                                            <Button className="bg-yellow-500 hover:bg-yellow-600" onClick={() => openPageQuiz(section.content_id)}>
+                                                            <Button className="bg-yellow-500 hover:bg-yellow-600" onClick={() => openPageQuiz(section.content_id)} disabled={isPublished}>
                                                                 Tạo quiz
                                                             </Button>
                                                         )}
@@ -1029,7 +1030,16 @@ export const Curriculum = () => {
                                                         <div className="h-[56px] border-2 rounded-lg border-yellow-600 p-5 mt-1 ml-3"></div>
                                                     )}
 
-                                                    <X onClick={() => deleteLesson(section.content_id)} className="absolute text-red-600 cursor-pointer left-1 top-1" />
+                                                    {isPublished ? (
+                                                        <>
+                                                            <X className="absolute text-red-600 cursor-pointer left-1 top-1" />
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <X onClick={() => deleteLesson(section.content_id)} className="absolute text-red-600 cursor-pointer left-1 top-1" />
+                                                        </>
+
+                                                    )}
                                                     <AccordionContent>
                                                         <div className="space-y-4 mt-4">
                                                             {Array.isArray(section.lessons) && section.lessons.map((lesson, lessonIndex) => (
@@ -1050,12 +1060,14 @@ export const Curriculum = () => {
                                                                                 placeholder={`Nhập tiêu đề nội dung bài ${sectionIndex + 1}.${lessonIndex + 1}`}
                                                                                 value={lesson.title}
                                                                                 onChange={(e) => handleContentTitleChange(section.id, lesson.id, e.target.value)}
+                                                                                disabled={isPublished}
                                                                             />
                                                                         </div>
                                                                         <Label>Mô tả bài học:</Label>
                                                                         <Textarea
                                                                             placeholder="Nhập mô tả cho bài học này"
                                                                             value={lesson.description}
+                                                                            disabled={isPublished}
                                                                             onChange={(e) => handleContentDescChange(section.id, lesson.id, e.target.value)}
                                                                             className="w-full"
                                                                         />
@@ -1071,20 +1083,31 @@ export const Curriculum = () => {
                                                                             {lesson.fileName && (
                                                                                 <div className="flex items-center gap-2 mt-2">
                                                                                     <p className="text-gray-600">Link hiện tại: {lesson.fileName}</p>
+                                                                                    {isPublished ? (
+                                                                                        <>
+                                                                                            <X className="text-blue-600 cursor-pointer w-24" />
+                                                                                        </>
+                                                                                    ) : (
+                                                                                        <X
+                                                                                            className="text-blue-600 cursor-pointer w-24"
+                                                                                            disabled={isPublished}
 
-                                                                                    <X
-                                                                                        className="text-blue-600 cursor-pointer w-24"
-                                                                                        onClick={(e) => {
-                                                                                            e.preventDefault();
-                                                                                            deleteVideo(section.id, lesson.id);
-                                                                                        }}
-                                                                                    >
-                                                                                    </X>
+                                                                                            onClick={(e) => {
+                                                                                                e.preventDefault();
+                                                                                                deleteVideo(section.id, lesson.id);
+                                                                                            }}
+                                                                                        >
+                                                                                        </X>
+
+                                                                                    )}
+
+
                                                                                 </div>
                                                                             )}
                                                                             <Input
                                                                                 className="mt-2"
                                                                                 type="file"
+                                                                                disabled={isPublished}
                                                                                 onChange={(e) => handleFileVideoChange(section.id, lesson.id, e.target.files[0])}
                                                                             />
                                                                         </div>
@@ -1100,6 +1123,7 @@ export const Curriculum = () => {
                                                                                 type="text"
                                                                                 className="mt-2"
                                                                                 value={lesson.content || ""}
+                                                                                disabled={isPublished}
                                                                                 onChange={(e) => handleDocumentChange(section.id, lesson.id, e.target.value)}
                                                                             />
                                                                         </div>
@@ -1110,12 +1134,22 @@ export const Curriculum = () => {
 
 
                                                                     </div>
-                                                                    <X onClick={() => deleteContent(section.id, lesson.id)} className="absolute top-1 left-2 text-red-400" />
+                                                                    {isPublished ? (
+                                                                        <>
+                                                                            <X className="absolute top-1 left-2 text-red-400" />
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <X onClick={() => deleteContent(section.id, lesson.id)} className="absolute top-1 left-2 text-red-400" />
+                                                                        </>
+
+                                                                    )}
                                                                 </Card>
                                                             ))}
 
                                                             <button
                                                                 onClick={() => addContent(section.id)}
+                                                                disabled={isPublished}
                                                                 className="w-[97%] p-2 border-2 ml-6 border-dashed rounded-md text-gray-600 hover:bg-gray-50 transition-colors"
                                                             >
                                                                 + Thêm nội dung mới
@@ -1132,6 +1166,7 @@ export const Curriculum = () => {
                                                 <>
                                                     <button
                                                         onClick={addOfflineLesson}
+                                                        disabled={isPublished}
                                                         className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
                                                     >
                                                         + Thêm Bài học mới
@@ -1141,12 +1176,14 @@ export const Curriculum = () => {
                                                 <>
                                                     <button
                                                         onClick={addOfflineLesson}
+                                                        disabled={isPublished}
                                                         className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
                                                     >
                                                         + Thêm Bài học mới
                                                     </button>
                                                     <button
                                                         onClick={addOnlineSection}
+                                                        disabled={isPublished}
                                                         className="w-full p-3 border-2 border-dashed border-slate-700 rounded-md text-gray-600 hover:bg-gray-50"
                                                     >
                                                         + Thêm Bài Online mới

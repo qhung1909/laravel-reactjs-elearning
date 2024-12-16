@@ -225,8 +225,8 @@ export const SideBarCreateCoure = ({ isUpdated, hasChanges, setIsPublished, isPu
         return '';
     });
 
-    console.log(isPublished, 'kiem tra trang thai publish');
-    console.log(isUpdated, 'kiem tra trang thai update');
+    // console.log(isPublished, 'kiem tra trang thai publish');
+    // console.log(isUpdated, 'kiem tra trang thai update');
 
     return (
         <>
