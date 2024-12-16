@@ -129,7 +129,7 @@ const data = {
             url: "#",
             icon: School,
             items: [
-                { title: "Danh sách lịch dạy", url: "/admin/teaching-schedule-list" },
+                // { title: "Danh sách lịch dạy", url: "/admin/teaching-schedule-list" },
                 { title: "Quản lý phòng Jitsi Meet", url: "/admin/manage-meet-room" },
             ],
         },
