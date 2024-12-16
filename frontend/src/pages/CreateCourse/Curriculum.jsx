@@ -121,6 +121,27 @@ export const Curriculum = () => {
     };
 
     const handleFileVideoChange = (sectionId, lessonId, file) => {
+        const allowedTypes = [
+            'video/mp4',   // .mp4
+            'video/quicktime', // .mov
+            'video/x-msvideo', // .avi
+            'video/x-ms-wmv'   // .wmv
+        ];
+        const inputElement = event.target;
+
+        if (!allowedTypes.includes(file.type)) {
+            notify('Chỉ chấp nhận file định dạng: MP4, MOV, AVI, WMV', 'error');
+            inputElement.value = '';
+            return;
+        }
+
+        const maxSize = 100 * 1024 * 1024; // 100MB in bytes
+        if (file.size > maxSize) {
+            notify('File video không được vượt quá 100MB', 'error');
+            inputElement.value = '';
+            return;
+        }
+
         setSections(sections.map(section => {
             if (section.id === sectionId) {
                 return {
