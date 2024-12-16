@@ -329,7 +329,7 @@ export const CreateQuiz = () => {
                 case 'single_choice':
                 case 'mutiple_choice':
                     // Kiểm tra các lựa chọn
-                    const emptyOptions = q.options.filter(opt => !opt.answer || !opt.answer.trim());
+                    { const emptyOptions = q.options.filter(opt => !opt.answer || !opt.answer.trim());
                     if (emptyOptions.length > 0) {
                         errors.push(`Câu hỏi ${index + 1}: Vui lòng nhập đầy đủ nội dung cho tất cả các lựa chọn`);
                     }
@@ -340,7 +340,7 @@ export const CreateQuiz = () => {
                     } else if (q.type === 'mutiple_choice' && (!q.answers || q.answers.length === 0)) {
                         errors.push(`Câu hỏi ${index + 1}: Vui lòng chọn ít nhất một đáp án đúng`);
                     }
-                    break;
+                    break; }
 
                 case 'true_false':
                     // Kiểm tra xem đã chọn Đúng hoặc Sai chưa
