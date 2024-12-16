@@ -1011,7 +1011,7 @@ export default function BrowseNewCourses() {
                                                 className="h-8 px-3"
                                                 onClick={() => setStatusFilter('pending')}
                                             >
-                                                <div className="flex items-center">
+                                                {/* <div className="flex items-center">
                                                     {pendingCountContents > 0 ? (
                                                         <div className="px-2 py-0.5 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
                                                             {pendingCountContents}
@@ -1021,7 +1021,7 @@ export default function BrowseNewCourses() {
                                                             0
                                                         </div>
                                                     )}
-                                                </div>
+                                                </div> */}
                                             </button>
                                         </TabsList>
 
