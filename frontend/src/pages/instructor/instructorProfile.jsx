@@ -83,7 +83,7 @@ export const InstructorProfile = () => {
             toast.error("Vui lòng thay đổi thông tin trước khi cập nhật")
             return;
         }
-        const specialCharRegex = /^[a-zA-Z0-9_]+$/;
+        const specialCharRegex = /^[a-zA-Z0-9_\sÀ-ỹ]+$/;
         if (!specialCharRegex.test(userName)) {
             toast.error("Tên người dùng không được chứa ký tự đặc biệt");
             return;
