@@ -159,9 +159,16 @@ export const CourseOverview = () => {
         const file = e.target.files[0];
         if (file) {
             const maxSize = 20480 * 1024;
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+
+            if (!allowedTypes.includes(file.type)) {
+                notify('Chỉ chấp nhận file định dạng: JPG, JPEG, PNG, WEBP', 'error');
+                e.target.value = '';
+                return;
+            }
 
             if (file.size > maxSize) {
-                notify('Kích thước file không được vượt quá 2MB', 'error');
+                notify('Kích thước file ảnh không được vượt quá 20MB', 'error');
                 e.target.value = '';
                 return;
             }
@@ -281,7 +288,7 @@ export const CourseOverview = () => {
 
 
 
-        if (!courseTitle.trim()) {
+        if (!courseTitle.trim() || courseTitle.trim() === "Chưa có tên khóa học") {
             valid = false;
             newErrors.titleError = 'Vui lòng nhập tiêu đề khóa học';
         }

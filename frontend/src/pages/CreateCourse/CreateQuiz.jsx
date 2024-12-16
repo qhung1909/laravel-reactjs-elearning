@@ -302,49 +302,75 @@ export const CreateQuiz = () => {
 
 
     const update = async () => {
-        // Validate tất cả câu hỏi trước khi gửi yêu cầu cập nhật
-        const invalidQuestions = questions.filter(q => !q.type || !q.question.trim());
-
-
-        if (questions.length == 0) {
+        // Kiểm tra nếu chưa có câu hỏi nào
+        if (questions.length === 0) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Cảnh báo',
                 text: 'Vui lòng tạo ít nhất 1 câu hỏi.',
                 confirmButtonText: 'OK',
             });
-            return; // Dừng lại nếu có câu hỏi không hợp lệ
+            return;
         }
 
-        if (invalidQuestions.length > 0) {
+        // Array để chứa các lỗi
+        let errors = [];
+
+        // Kiểm tra từng câu hỏi
+        questions.forEach((q, index) => {
+            // Kiểm tra nội dung câu hỏi
+            if (!q.question || !q.question.trim()) {
+                errors.push(`Câu hỏi ${index + 1}: Vui lòng nhập nội dung câu hỏi`);
+                return;
+            }
+
+            // Kiểm tra theo từng loại câu hỏi
+            switch (q.type) {
+                case 'single_choice':
+                case 'mutiple_choice':
+                    // Kiểm tra các lựa chọn
+                    { const emptyOptions = q.options.filter(opt => !opt.answer || !opt.answer.trim());
+                    if (emptyOptions.length > 0) {
+                        errors.push(`Câu hỏi ${index + 1}: Vui lòng nhập đầy đủ nội dung cho tất cả các lựa chọn`);
+                    }
+
+                    // Kiểm tra đáp án được chọn
+                    if (q.type === 'single_choice' && (!q.answers || q.answers.length === 0)) {
+                        errors.push(`Câu hỏi ${index + 1}: Vui lòng chọn một đáp án đúng`);
+                    } else if (q.type === 'mutiple_choice' && (!q.answers || q.answers.length === 0)) {
+                        errors.push(`Câu hỏi ${index + 1}: Vui lòng chọn ít nhất một đáp án đúng`);
+                    }
+                    break; }
+
+                case 'true_false':
+                    // Kiểm tra xem đã chọn Đúng hoặc Sai chưa
+                    if (!q.answers || q.answers.length === 0) {
+                        errors.push(`Câu hỏi ${index + 1}: Vui lòng chọn Đúng hoặc Sai`);
+                    }
+                    break;
+
+                case 'fill_blank':
+                    // Kiểm tra đáp án điền vào chỗ trống
+                    if (!q.answers || !q.answers[0] || !q.answers[0].trim()) {
+                        errors.push(`Câu hỏi ${index + 1}: Vui lòng nhập đáp án cho câu hỏi điền vào chỗ trống`);
+                    }
+                    break;
+
+                default:
+                    errors.push(`Câu hỏi ${index + 1}: Loại câu hỏi không hợp lệ`);
+            }
+        });
+
+        // Nếu có lỗi, hiển thị thông báo và dừng việc cập nhật
+        if (errors.length > 0) {
             Swal.fire({
                 icon: 'warning',
-                title: 'Cảnh báo',
-                text: 'Vui lòng nhập đầy đủ loại câu hỏi và nội dung câu hỏi trước khi cập nhật.',
+                title: 'Vui lòng kiểm tra lại',
+                html: errors.join('<br>'),
                 confirmButtonText: 'OK',
             });
-            return; // Dừng lại nếu có câu hỏi không hợp lệ
+            return;
         }
-
-        // const questionsWithEmptyAnswers = questions.filter(q => {
-        //     if (q.type === 'true_false' && (q.answers[0] === '' || !q.answers[0])) {
-        //         return true;
-        //     } else if (q.type === 'fill_blank' && (q.answers[0] === '' || !q.answers[0])) {
-        //         return true;
-        //     } else if (q.type === 'single_choice' || q.type === 'mutiple_choice') {
-        //         return q.options.some(option => option.answer === '' || !option.answer);
-        //     }
-        //     return false;
-        // });
-        // if (questionsWithEmptyAnswers.length > 0) {
-        //     Swal.fire({
-        //         icon: 'warning',
-        //         title: 'Cảnh báo',
-        //         text: 'Vui lòng điền đầy đủ phần trả lời cho tất cả câu hỏi trước khi cập nhật.',
-        //         confirmButtonText: 'OK',
-        //     });
-        //     return; // Dừng lại nếu có câu hỏi có phần trả lời trống
-        // }
 
         try {
 
