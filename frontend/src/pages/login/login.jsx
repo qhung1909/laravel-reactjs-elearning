@@ -263,10 +263,10 @@ export const Login = () => {
 
     const handleGoogleCallback = async (code, state) => {
         const storedState = sessionStorage.getItem('oauth_state');
-        console.log('Google Callback:');
-        console.log('Code:', code);
-        console.log('State:', state);
-        console.log('Stored State:', storedState);
+        // console.log('Google Callback:');
+        // console.log('Code:', code);
+        // console.log('State:', state);
+        // console.log('Stored State:', storedState);
         if (state !== storedState) {
             notify('Phiên xác thực không hợp lệ');
             navigate('/login');

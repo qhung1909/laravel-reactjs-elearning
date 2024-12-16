@@ -71,10 +71,10 @@ export const CourseOverview = () => {
 
     const [isUpdated, setIsUpdated] = useState(true);
     const [hasChanges, setHasChanges] = useState(false); // Theo dõi thay đổi
-    console.log(isUpdated, 'trang thai cap nhat - CO');
+    // console.log(isUpdated, 'trang thai cap nhat - CO');
 
     const [isPublished, setIsPublished] = useState(false);
-    console.log(isPublished, 'kiem tra trang thai cong khai');
+    // console.log(isPublished, 'kiem tra trang thai cong khai');
 
 
     const wordCount = courseDescriptionText.trim().split(/\s+/).filter(word => word).length;
@@ -215,7 +215,7 @@ export const CourseOverview = () => {
                     },
                 });
 
-                console.log(response.data.data);
+                // console.log(response.data.data);
 
 
 

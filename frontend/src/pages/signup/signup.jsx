@@ -107,8 +107,8 @@ export const Signup = () => {
                 navigate('/login');
             }, 2000)
 
-        } catch (error) {
-            console.log(error);
+        } catch {
+            // console.log(error);
             setError('Đã xảy ra lỗi. Vui lòng thử lại.');
         } finally {
             setLoading(false);

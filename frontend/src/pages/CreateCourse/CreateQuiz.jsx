@@ -159,14 +159,14 @@ export const CreateQuiz = () => {
             }
         } catch (error) {
             console.error("Không thể tải câu hỏi:", error);
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'error',
-                title: 'Không thể tải câu hỏi',
-                showConfirmButton: false,
-                timer: 1500
-            });
+            // Swal.fire({
+            //     toast: true,
+            //     position: 'top-end',
+            //     icon: 'error',
+            //     title: 'Không thể tải câu hỏi',
+            //     showConfirmButton: false,
+            //     timer: 1500
+            // });
         } finally {
             setLoading(false);
             setIsUpdated(true);
@@ -259,14 +259,14 @@ export const CreateQuiz = () => {
                 });
             }
         } catch (error) {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'error',
-                title: 'Không thể thêm câu hỏi',
-                showConfirmButton: false,
-                timer: 1500
-            });
+            // Swal.fire({
+            //     toast: true,
+            //     position: 'top-end',
+            //     icon: 'error',
+            //     title: 'Không thể thêm câu hỏi',
+            //     showConfirmButton: false,
+            //     timer: 1500
+            // });
             console.error(error);
         }
         // finally {
@@ -371,6 +371,7 @@ export const CreateQuiz = () => {
             });
             return;
         }
+        const loadingToast = toast.loading('Đang xử lý...');
 
         try {
 
@@ -394,6 +395,7 @@ export const CreateQuiz = () => {
             });
 
             // Gửi yêu cầu API để cập nhật nhiều câu hỏi
+
             setLoadingUpdate(true);
             const response = await axios.put(
                 `${API_URL}/quizzes/${quiz_id}/questions`,
@@ -408,14 +410,14 @@ export const CreateQuiz = () => {
             );
 
             if (response.status === 200) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: 'Cập nhật câu hỏi thành công',
-                    showConfirmButton: false,
-                    timer: 1500,
-                });
+                // Swal.fire({
+                //     toast: true,
+                //     position: 'top-end',
+                //     icon: 'success',
+                //     title: 'Cập nhật câu hỏi thành công',
+                //     showConfirmButton: false,
+                //     timer: 1500,
+                // });
 
                 // Gửi yêu cầu cập nhật hoặc tạo mới đáp án cho từng câu hỏi
                 await Promise.all(questions.map(async (q) => {
@@ -523,14 +525,16 @@ export const CreateQuiz = () => {
                     }
                 }));
 
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: 'Cập nhật đáp án thành công',
-                    showConfirmButton: false,
-                    timer: 1500,
-                });
+                // Swal.fire({
+                //     toast: true,
+                //     position: 'top-end',
+                //     icon: 'success',
+                //     title: 'Cập nhật đáp án thành công',
+                //     showConfirmButton: false,
+                //     timer: 1500,
+                // });
+                notify('Quiz đã được cập nhật thành công', 'success');
+
             }
         } catch (error) {
             console.error("Không thể cập nhật câu hỏi:", error);
@@ -543,6 +547,8 @@ export const CreateQuiz = () => {
                 timer: 1500,
             });
         } finally {
+            toast.dismiss(loadingToast);
+
             setLoadingUpdate(false);
             await showQuizQuestions(true);
             setIsUpdated(true);
@@ -670,6 +676,15 @@ export const CreateQuiz = () => {
 
     return (
         <>
+            {loading && (
+                <div className='loading'>
+                    <div className='loading-spin'></div>
+                </div>
+            )}
+            {loadingUpdate && (
+                <div className='loading'>
+                </div>
+            )}
             {
                 loading ? (
                     <>
