@@ -75,6 +75,11 @@ export const NewPassword = () => {
                 return;
             }
 
+            if (res.status === 400) {
+                setError("Token không hợp lệ hoặc đã hết hạn.");
+                return;
+            }
+            
             if (!res.ok) {
                 const errorData = await res.json();
                 console.log(errorData);

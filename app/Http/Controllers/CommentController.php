@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Comment;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Course;
+use App\Models\Comment;
+use App\Models\UserCourse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class CommentController extends Controller
 {
@@ -28,13 +29,13 @@ class CommentController extends Controller
 
         $comments = $comments->map(function ($comment) {
             return [
-                'comment_id' => $comment->comment_id, 
+                'comment_id' => $comment->comment_id,
                 'content' => $comment->content,
                 'rating' => $comment->rating,
                 'created_at' => $comment->created_at,
                 'updated_at' => $comment->updated_at,
                 'user' => [
-                    'user_id'=>$comment->user->user_id,
+                    'user_id' => $comment->user->user_id,
                     'name' => $comment->user->name,
                     'avatar' => $comment->user->avatar
                 ]
@@ -105,7 +106,17 @@ class CommentController extends Controller
             return response()->json(['error' => 'Khóa học không tìm thấy.'], 404);
         }
 
-        $existingComment = Comment::where('user_id', Auth::id())->where('course_id', $course->course_id)->first();
+        $hasPurchased = UserCourse::where('user_id', Auth::id())
+            ->where('course_id', $course->course_id)
+            ->exists();
+
+        if (!$hasPurchased) {
+            return response()->json(['error' => 'Bạn cần mua khóa học này trước khi đánh giá.'], 403);
+        }
+
+        $existingComment = Comment::where('user_id', Auth::id())
+            ->where('course_id', $course->course_id)
+            ->first();
 
         if ($existingComment) {
             return response()->json(['error' => 'Bạn chỉ được đánh giá một lần.'], 403);
@@ -125,6 +136,7 @@ class CommentController extends Controller
             'comment' => $comment
         ], 201);
     }
+
 
     public function update(Request $request, $commentId)
     {

@@ -27,11 +27,11 @@ class TeachingScheduleController extends Controller
             $query = TeachingSchedule::with(['onlineMeeting' => function ($query) {
                 $query->with([
                     'course:course_id,title',
-                    'content:content_id,name_content' 
-                ])->select('meeting_id', 'course_id', 'content_id', 'meeting_url', 'start_time', 'end_time'); 
+                    'content:content_id,name_content'
+                ])->select('meeting_id', 'course_id', 'content_id', 'meeting_url', 'start_time', 'end_time');
             }, 'user:user_id,name'])
-            ->select('id', 'meeting_id', 'user_id', 'proposed_start', 'notes');
-            
+                ->select('id', 'meeting_id', 'user_id', 'proposed_start', 'notes');
+
             if ($request->has('user_id')) {
                 $query->where('user_id', $request->user_id);
             }
@@ -200,7 +200,7 @@ class TeachingScheduleController extends Controller
                 'meeting_url' => $meeting->meeting_url,
                 'notes' => $notes
             ]);
-    
+
             Mail::to($teacher->email)->queue(new TeacherScheduleNotification([
                 'teacher_name' => $teacher->name,
                 'course_name' => $course->title,
@@ -261,7 +261,7 @@ class TeachingScheduleController extends Controller
         ]);
 
         try {
-            $schedule = TeachingSchedule::with('onlineMeeting')->findOrFail($id);
+            $schedule = TeachingSchedule::with(['onlineMeeting.course', 'onlineMeeting.content', 'user'])->findOrFail($id);
 
             if ($schedule->user_id != $request->user_id) {
                 return response()->json([
@@ -299,6 +299,31 @@ class TeachingScheduleController extends Controller
                 $schedule->load(['onlineMeeting' => function ($query) {
                     $query->with(['course', 'content']);
                 }]);
+
+                try {
+                    $students = DB::table('user_courses')
+                        ->join('users', 'user_courses.user_id', '=', 'users.user_id')
+                        ->where('user_courses.course_id', $schedule->onlineMeeting->course_id)
+                        ->select('users.email', 'users.name')
+                        ->get();
+
+                    foreach ($students as $student) {
+                        Mail::to($student->email)->queue(new StudentScheduleNotification([
+                            'student_name' => $student->name ?? 'Học viên',
+                            'course_name' => $schedule->onlineMeeting->course->title,
+                            'content_name' => $schedule->onlineMeeting->content->name_content,
+                            'teacher_name' => $schedule->user->name,
+                            'start_time' => Carbon::parse($request->proposed_start)->format('H:i d/m/Y'),
+                            'meeting_url' => $schedule->onlineMeeting->meeting_url
+                        ]));
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Lỗi gửi mail cập nhật lịch học cho học viên: ' . $e->getMessage(), [
+                        'meeting_id' => $schedule->meeting_id,
+                        'course_id' => $schedule->onlineMeeting->course_id,
+                        'stack_trace' => $e->getTraceAsString()
+                    ]);
+                }
 
                 return $schedule;
             });
