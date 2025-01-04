@@ -45,7 +45,7 @@ class TeacherController extends Controller
                     'om.meeting_url',
                     'om.start_time',
                     'om.end_time',
-                    'ts.id as teaching_schedule_id', // Thêm trường ID của teaching schedule
+                    'ts.id as teaching_schedule_id', 
                     'ts.proposed_start',
                     'ts.notes'
                 ])
@@ -72,7 +72,7 @@ class TeacherController extends Controller
                         'meeting_id' => $content->meeting_id,
                         'meeting_url' => $content->meeting_url,
                         'schedule' => [
-                            'teaching_schedule_id' => $content->teaching_schedule_id, // Thêm ID vào JSON
+                            'teaching_schedule_id' => $content->teaching_schedule_id, 
                             'start_time' => Carbon::parse($content->start_time)->format('Y-m-d H:i:s'),
                             'end_time' => Carbon::parse($content->end_time)->format('Y-m-d H:i:s'),
                             'proposed_start' => Carbon::parse($content->proposed_start)->format('Y-m-d H:i:s')
