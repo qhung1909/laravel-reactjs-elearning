@@ -44,7 +44,6 @@ import { CategoriesContext, CategoriesProvider } from "./pages/context/categorie
 import { CoursesContext, CoursesProvider } from "./pages/context/coursescontext.jsx";
 import { Example } from "./pages/admin/example.jsx";
 import CourseList from "./pages/admin/ManageCourses/courseList.jsx";
-import { CategoryCrud } from "./pages/admin/ManageCategories/categoryCrud.jsx";
 import { CategoryList } from "./pages/admin/ManageCategories/CategoryList.jsx";
 import { BlogCrud } from "./pages/admin/ManageContent/BlogCrud.jsx";
 import { PriorityCategory } from "./pages/admin/ManageCategories/PriorityCategory.jsx";
