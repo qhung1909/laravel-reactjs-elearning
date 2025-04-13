@@ -33,7 +33,7 @@ import { UserProfile } from "./pages/userprofile/userprofile.jsx";
 import { UserOrderHistory } from "./pages/userprofile/userorderhistory.jsx";
 import { UserNoti } from "./pages/userprofile/usernoti.jsx";
 import { UserFavorite } from "./pages/userprofile/userfavorite.jsx";
-import { UserAttendance } from "./pages/userprofile/userattendance.jsx";
+import { UserAttendance } from "./pages/userprofile/userAttendance.jsx";
 import ScrollToTop from "./pages/scrollToTop/scrollToTop.jsx";
 import { Quizzes } from './pages/quizzes/quizzes.jsx';
 import { NewPassword } from "./pages/recoverPassword/newPassword.jsx";

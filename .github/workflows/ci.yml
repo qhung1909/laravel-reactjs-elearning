@@ -7,11 +7,19 @@ on:
     branches: [main]
 
 jobs:
-  laravel-setup:
+    laravel-setup:
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v3
+
+      - name: 🔧 Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
       - name: 🧙‍♂️ Setup PHP
         uses: shivammathur/setup-php@v2
@@ -31,6 +39,14 @@ jobs:
     steps:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v3
+
+      - name: 🔧 Cache npm dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v3
