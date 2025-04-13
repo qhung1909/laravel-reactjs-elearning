@@ -1,0 +1,44 @@
+name: CI/CD piplines
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  laravel-setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🧙‍♂️ Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: mbstring, bcmath, pdo, mysql
+          coverage: none
+
+      - name: 📦 Install Composer dependencies
+        run: composer install --no-progress --prefer-dist
+
+  react-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: 🧪 Build project
+        run: npm run build
