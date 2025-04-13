@@ -77,7 +77,13 @@
   }
 
 
+@layer utilities {
+    .border-border {
+      border-color: hsl(var(--border));
+    }
+}
 
+  
 
 @layer base {
   * {
