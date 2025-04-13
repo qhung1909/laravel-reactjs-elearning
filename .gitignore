@@ -18,5 +18,4 @@ yarn-error.log
 /.vscode
 # Ignore specific files
 package-lock.json
-package.json
 tailwind.config.js
