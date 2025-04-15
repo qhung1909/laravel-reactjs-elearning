@@ -49,18 +49,43 @@ export const NewPassword = () => {
         setCookie(name, '', -1);
     };
 
-
     useEffect(() => {
+        const checkToken = async (tokenToCheck) => {
+            try {
+                const response = await fetch(`${API_URL}/check-reset-token/${tokenToCheck}`);
+                if (response.ok) {
+                    setCookie("reset-token", tokenToCheck, 1);
+                    setToken(tokenToCheck);
+                } else {
+                    deleteCookie("reset-token"); 
+                    notify('Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn');
+                    setTimeout(() => {
+                        navigate('/login', { replace: true });
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Error checking token:', error);
+                deleteCookie("reset-token"); 
+                notify('Có lỗi xảy ra khi kiểm tra token');
+                setTimeout(() => {
+                    navigate('/login', { replace: true });
+                }, 2000);
+            }
+        };
+    
         const query = new URLSearchParams(window.location.search);
         const tokenFromURL = query.get("token");
-
+    
         if (tokenFromURL) {
-            setCookie("reset-token", tokenFromURL, 1);
-            setToken(tokenFromURL);
+            checkToken(tokenFromURL);
             window.history.replaceState({}, "", "/new-password");
         } else {
             const savedToken = getCookie("reset-token");
-            if (savedToken) setToken(savedToken);
+            if (savedToken) {
+                checkToken(savedToken);
+            } else {
+                navigate('/login', { replace: true });
+            }
         }
     }, []);
 

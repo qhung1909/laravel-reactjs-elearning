@@ -80,6 +80,9 @@ Route::post('/reset-price', [CouponController::class, 'resetPrice']);
 //Reset Password
 Route::post('reset-password', [UserController::class, 'sendResetLink']);
 Route::post('reset-password/{token}', [UserController::class, 'resetPassword']);
+Route::get('/check-reset-token/{token}', [UserController::class, 'checkResetToken']);
+
+
 Route::patch('/update-role', [UserController::class, 'updateRole']);
 
 Route::middleware(['admin'])->group(function () {

@@ -120,23 +120,31 @@ class UserController extends Controller
             return response()->json(['message' => 'Bạn đã yêu cầu gửi link reset trong vòng 5 phút qua.'], 429);
         }
 
-        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+        try {
+            DB::beginTransaction();
 
-        $token = Str::random(70) . '-' . uniqid() . '-' . Str::random(70);
-        $expiresAt = now()->addSeconds(300);
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-        DB::table('password_reset_tokens')->insert([
-            'email' => $request->email,
-            'token' => $token,
-            'expires_at' => $expiresAt,
-            'created_at' => now(),
-        ]);
+            $token = Str::random(100) . '-' . uniqid() . '-' . Str::random(100);
+            $expiresAt = now()->addSeconds(300);
 
-        $link = URL::to('http://localhost:5173/new-password?token=' . $token);
+            DB::table('password_reset_tokens')->insert([
+                'email' => $request->email,
+                'token' => $token,
+                'expires_at' => $expiresAt,
+                'created_at' => now(),
+            ]);
 
-        SendPasswordResetLink::dispatch($request->email, $link);
+            DB::commit();
 
-        return response()->json(['message' => 'Email reset password đã được gửi!'], 200);
+            $link = URL::to('http://localhost:5173/new-password?token=' . $token);
+            SendPasswordResetLink::dispatch($request->email, $link);
+
+            return response()->json(['message' => 'Email reset password đã được gửi!'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Có lỗi xảy ra, vui lòng thử lại sau.'], 500);
+        }
     }
 
     public function resetPassword(Request $request, $token)
@@ -161,6 +169,13 @@ class UserController extends Controller
             ], 400);
         }
 
+        if (isset($passwordReset->expires_at) && now()->gt($passwordReset->expires_at)) {
+            return response()->json([
+                'message' => 'Token đã hết hạn.',
+                'error' => 'passwords.expired'
+            ], 400);
+        }
+
         $user = User::where('email', $passwordReset->email)->first();
 
         if (!$user) {
@@ -177,15 +192,47 @@ class UserController extends Controller
             ], 422);
         }
 
-        $user->password = bcrypt($request->password);
-        $user->save();
+        try {
+            DB::beginTransaction();
 
-        DB::table('password_reset_tokens')->where('token', $token)->delete();
+            $user->password = bcrypt($request->password);
+            $user->save();
 
-        return response()->json(['message' => 'Mật khẩu đã được cập nhật thành công!'], 200);
+            DB::table('password_reset_tokens')->where('token', $token)->delete();
+
+            DB::commit();
+
+            return response()->json(['message' => 'Mật khẩu đã được cập nhật thành công!'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Có lỗi xảy ra, vui lòng thử lại sau.'], 500);
+        }
     }
+    public function checkResetToken($token)
+    {
+        $passwordReset = DB::table('password_reset_tokens')->where('token', $token)->first();
 
+        if (!$passwordReset) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Token không hợp lệ hoặc đã được sử dụng.'
+            ], 404);
+        }
 
+        if (isset($passwordReset->expires_at) && now()->gt($passwordReset->expires_at)) {
+            DB::table('password_reset_tokens')->where('token', $token)->delete();
+
+            return response()->json([
+                'valid' => false,
+                'message' => 'Token đã hết hạn.'
+            ], 404);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'message' => 'Token hợp lệ.'
+        ], 200);
+    }
 
     public function updateProf(Request $request)
     {
