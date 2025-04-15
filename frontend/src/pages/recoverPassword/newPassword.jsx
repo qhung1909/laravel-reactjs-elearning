@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -31,10 +31,38 @@ export const NewPassword = () => {
     const [_success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const [token, setToken] = useState("");
 
-    const query = new URLSearchParams(useLocation().search);
-    const token = query.get('token');
+    const setCookie = (name, value, days) => {
+        const expires = new Date(Date.now() + days * 864e5).toUTCString();
+        document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+    };
 
+    const getCookie = (name) => {
+        return document.cookie.split('; ').reduce((r, v) => {
+            const parts = v.split('=');
+            return parts[0] === name ? decodeURIComponent(parts[1]) : r
+        }, '');
+    };
+
+    const deleteCookie = (name) => {
+        setCookie(name, '', -1);
+    };
+
+
+    useEffect(() => {
+        const query = new URLSearchParams(window.location.search);
+        const tokenFromURL = query.get("token");
+
+        if (tokenFromURL) {
+            setCookie("reset-token", tokenFromURL, 1);
+            setToken(tokenFromURL);
+            window.history.replaceState({}, "", "/new-password");
+        } else {
+            const savedToken = getCookie("reset-token");
+            if (savedToken) setToken(savedToken);
+        }
+    }, []);
 
     const newPassword = async () => {
         setLoading(false);
@@ -54,8 +82,11 @@ export const NewPassword = () => {
             return;
         }
 
-
-
+        const token = getCookie("reset-token");
+        if (!token) {
+            setError("Không tìm thấy token hoặc token không hợp lệ.");
+            return;
+        }
 
         try {
             setLoading(true);
@@ -79,7 +110,7 @@ export const NewPassword = () => {
                 setError("Token không hợp lệ hoặc đã hết hạn.");
                 return;
             }
-            
+
             if (!res.ok) {
                 const errorData = await res.json();
                 console.log(errorData);
@@ -90,7 +121,7 @@ export const NewPassword = () => {
             if (res.ok) {
                 await res.json();
                 notify('Đổi mật khẩu thành công', 'success');
-
+                deleteCookie("reset-token");
             }
 
             setTimeout(() => {
@@ -108,7 +139,6 @@ export const NewPassword = () => {
         e.preventDefault();
         newPassword();
     };
-
 
 
 
@@ -158,12 +188,19 @@ export const NewPassword = () => {
                             </Button>
                             {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
                         </div>
-                        <Link to="/login" className=" font-medium hover:text-yellow-500 duration-700">
+                        <Link
+                            to="/login"
+                            onClick={() => {
+                                deleteCookie("reset-token");
+                            }}
+                            className="font-medium hover:text-yellow-500 duration-700"
+                        >
                             <div className="flex justify-center items-center gap-3">
-                                <box-icon name='arrow-back' color='gray' ></box-icon>
+                                <box-icon name='arrow-back' color='gray'></box-icon>
                                 <p className="text-gray-600">Trở về Đăng nhập</p>
                             </div>
                         </Link>
+
                     </form>
                 </div>
                 <div className="hidden bg-muted lg:block">

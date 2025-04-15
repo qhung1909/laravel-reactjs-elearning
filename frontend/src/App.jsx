@@ -77,6 +77,7 @@ import PersonalPage from "./pages/personalPage/personal.jsx";
 import TeacherRole from "./pages/role/teachRole.jsx";
 import { SettingsProvider } from "./pages/context/settingcontext.jsx";
 import Billing from "./pages/admin/ManageContent/Billing.jsx";
+import { CategoryCrud } from "./pages/admin/ManageCategories/CategoryCrud.jsx";
 
 function AppContent() {
     const location = useLocation();
